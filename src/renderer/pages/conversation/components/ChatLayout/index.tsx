@@ -93,12 +93,21 @@ const ChatLayout: React.FC<{
     ConfigStorage.get('acp.customAgents')
   );
 
+  // Display names for non-ACP backends (the ACP_BACKENDS_ALL registry only
+  // covers ACP-protocol agents; native-spawn backends like wcore/aionrs need
+  // their own friendly-name lookup so the badge doesn't show the raw id).
+  const NON_ACP_BACKEND_DISPLAY_NAMES: Record<string, string> = {
+    aionrs: 'Wayland Core',
+    wcore: 'Wayland Core',
+  };
+
   // Compute display name with fallback chain
   const displayName =
     presetAssistant?.name ||
     agentName ||
     (backend === 'custom' && customAgents?.[0]?.name) ||
     ACP_BACKENDS_ALL[backend as keyof typeof ACP_BACKENDS_ALL]?.name ||
+    (backend ? NON_ACP_BACKEND_DISPLAY_NAMES[backend] : undefined) ||
     backend;
 
   const {

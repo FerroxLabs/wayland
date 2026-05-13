@@ -261,7 +261,8 @@ const ChatConversation: React.FC<{
   const workspaceEnabled = Boolean(conversation?.extra?.workspace);
 
   const isGeminiConversation = conversation?.type === 'gemini';
-  const isAionrsConversation = conversation?.type === 'aionrs';
+  // Dual-read: post-E new conversations get type='wcore'; legacy rows are still 'aionrs'.
+  const isAionrsConversation = conversation?.type === 'wcore' || conversation?.type === 'aionrs';
 
   // 使用统一的 Hook 获取预设助手信息（ACP/Codex 会话）
   // Use unified hook for preset assistant info (ACP/Codex conversations)
@@ -368,7 +369,9 @@ const ChatConversation: React.FC<{
     return <GeminiModelSelector disabled={true} />;
   }, [conversation, isGeminiConversation, isAionrsConversation]);
 
-  if (conversation && conversation.type === 'aionrs') {
+  if (conversation && (conversation.type === 'wcore' || conversation.type === 'aionrs')) {
+    // Dual-read: 'wcore' is the new conversation type post-rebrand; 'aionrs'
+    // remains for existing rows. Both route to the WCoreConversationPanel.
     return <WCoreConversationPanel key={conversation.id} conversation={conversation} sliderTitle={sliderTitle} />;
   }
 
@@ -397,7 +400,7 @@ const ChatConversation: React.FC<{
           backend:
             conversation?.type === 'acp'
               ? conversation?.extra?.backend
-              : conversation?.type === 'aionrs'
+              : conversation?.type === 'wcore' || conversation?.type === 'aionrs'
                 ? 'aionrs'
                 : conversation?.type === 'codex'
                   ? 'codex'

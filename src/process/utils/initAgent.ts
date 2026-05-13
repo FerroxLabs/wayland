@@ -343,13 +343,18 @@ export const createRemoteAgent = async (options: ICreateConversationParams): Pro
 export const createAionrsAgent = async (options: ICreateConversationParams): Promise<TChatConversation> => {
   const { extra } = options;
   const { workspace, customWorkspace } = await buildWorkspaceWidthFiles(
-    `aionrs-temp-${Date.now()}`,
+    `wcore-temp-${Date.now()}`,
     extra.workspace,
     extra.defaultFiles,
     extra.customWorkspace
   );
 
-  // Set up skill symlinks for native discovery by aionrs CLI
+  // Set up skill symlinks for native discovery by the engine CLI.
+  // `agentType: 'aionrs'` is INTENTIONALLY preserved here — it controls the
+  // workspace skill-symlink subdirectory name (`.aionrs/skills/`), which is
+  // wire-bound to wayland-core's skill-discovery contract. Renaming this to
+  // `'wcore'` would require a matching change in the engine's skill loader.
+  // Engine-side rename is tracked as a follow-up; do not touch here.
   if (!customWorkspace) {
     await setupAssistantWorkspace(workspace, {
       agentType: 'aionrs',
@@ -360,7 +365,10 @@ export const createAionrsAgent = async (options: ICreateConversationParams): Pro
   }
 
   return {
-    type: 'aionrs',
+    // 'wcore' is the new conversation type post-E rebrand. Readers
+    // (ConversationServiceImpl, ChatConversation, etc.) accept both
+    // 'wcore' (new) and 'aionrs' (legacy rows) per the dual-write/read policy.
+    type: 'wcore',
     model: options.model,
     extra: {
       workspace,
