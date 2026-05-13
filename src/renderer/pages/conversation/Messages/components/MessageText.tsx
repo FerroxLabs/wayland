@@ -117,6 +117,7 @@ const MessageText: React.FC<{ message: IMessageText }> = ({ message }) => {
   const [showCopyAlert, setShowCopyAlert] = useState(false);
   const isUserMessage = message.position === 'right';
   const isTeammateMessage = message.position === 'left' && message.content.teammateMessage === true;
+  const isTruncated = message.content.truncatedDueToBudget === true;
   const shouldRenderPlainText = isUserMessage;
   const conversationContext = useConversationContextSafe();
   const resolvedFiles = useMemo(
@@ -124,8 +125,12 @@ const MessageText: React.FC<{ message: IMessageText }> = ({ message }) => {
     [conversationContext?.workspace, files]
   );
 
-  // 过滤空内容，避免渲染空DOM
-  if (!message.content.content || (typeof message.content.content === 'string' && !message.content.content.trim())) {
+  const hasVisibleContent =
+    !!message.content.content && (typeof message.content.content !== 'string' || !!message.content.content.trim());
+
+  // 过滤空内容，避免渲染空DOM (truncation warning is the exception — render the
+  // banner even when content is empty, e.g. Gemini Pro reasoning-token bug.)
+  if (!hasVisibleContent && !isTruncated) {
     return null;
   }
 
@@ -205,22 +210,35 @@ const MessageText: React.FC<{ message: IMessageText }> = ({ message }) => {
           }}
         >
           {/* JSON 内容使用折叠组件 Use CollapsibleContent for JSON content */}
-          {shouldRenderPlainText ? (
-            <div className='whitespace-pre-wrap break-words' data-testid='message-text-content'>
-              {text}
-            </div>
-          ) : json ? (
-            <CollapsibleContent maxHeight={200} defaultCollapsed={true}>
-              <div data-testid='message-text-content'>
-                <MarkdownView
-                  codeStyle={CODE_STYLE}
-                >{`\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``}</MarkdownView>
+          {hasVisibleContent &&
+            (shouldRenderPlainText ? (
+              <div className='whitespace-pre-wrap break-words' data-testid='message-text-content'>
+                {text}
               </div>
-            </CollapsibleContent>
-          ) : (
-            <div data-testid='message-text-content'>
-              <MarkdownView codeStyle={CODE_STYLE}>{data}</MarkdownView>
-            </div>
+            ) : json ? (
+              <CollapsibleContent maxHeight={200} defaultCollapsed={true}>
+                <div data-testid='message-text-content'>
+                  <MarkdownView
+                    codeStyle={CODE_STYLE}
+                  >{`\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\``}</MarkdownView>
+                </div>
+              </CollapsibleContent>
+            ) : (
+              <div data-testid='message-text-content'>
+                <MarkdownView codeStyle={CODE_STYLE}>{data}</MarkdownView>
+              </div>
+            ))}
+          {isTruncated && (
+            <Alert
+              type='warning'
+              showIcon
+              className={hasVisibleContent ? 'mt-8px' : ''}
+              data-testid='message-truncation-warning'
+              content={t('messages.truncation.budgetExhausted.body', {
+                defaultValue:
+                  'Response was truncated — the model ran out of token budget before finishing. Try a model with more reasoning headroom or simplify your prompt.',
+              })}
+            />
           )}
         </div>
         <div

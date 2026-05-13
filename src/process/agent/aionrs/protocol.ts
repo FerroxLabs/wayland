@@ -69,7 +69,18 @@ export type AionrsEvent =
       metadata?: Record<string, unknown>;
     }
   | { type: 'tool_cancelled'; msg_id: string; call_id: string; reason: string }
-  | { type: 'stream_end'; msg_id: string; usage?: TokenUsage }
+  | {
+      type: 'stream_end';
+      msg_id: string;
+      usage?: TokenUsage;
+      /**
+       * Why the model stopped. Optional for protocol back-compat: aionrs ≤0.1.21
+       * omits this field. When `length`, the response was truncated because the
+       * token budget was exhausted (commonly caused by Gemini Pro thinking
+       * tokens consuming the entire allocation before any visible output).
+       */
+      finish_reason?: 'stop' | 'length' | 'error';
+    }
   | {
       type: 'error';
       msg_id: string | null;
