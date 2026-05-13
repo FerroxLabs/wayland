@@ -37,6 +37,34 @@ function mapProvider(model: TProviderWithModel): AionrsProvider {
 const GEMINI_OPENAI_COMPAT_PATH = '/v1beta/openai';
 
 /**
+ * Default `--max-tokens` budget for reasoning-tier models when the caller
+ * does not specify one.
+ *
+ * Why this exists: upstream aionrs has no model-aware default for
+ * `max_tokens`. Reasoning models (Gemini Pro/Preview, future
+ * `*-thinking`/`*-reasoning` variants) burn ~50-60 hidden "thinking" tokens
+ * before emitting any visible output. With aionrs's low built-in default,
+ * thinking consumes the entire budget, the API returns
+ * `finish_reason: length`, and the user sees an empty response. Flash
+ * variants are non-reasoning and work cleanly at low budgets, so we leave
+ * them alone — bumping their budget would just waste tokens.
+ *
+ * Detection is intentionally name-pattern based: any model whose name
+ * matches `-pro` / `-preview` / `-thinking` / `-reasoning` (and is NOT a
+ * `-flash` variant) gets a 32k default. Callers that pass an explicit
+ * `maxTokens` always win — this is only a fallback.
+ */
+const REASONING_MODEL_DEFAULT_MAX_TOKENS = 32768;
+
+export function defaultMaxTokensForModel(modelName: string): number | undefined {
+  if (!modelName) return undefined;
+  if (/-flash/i.test(modelName)) return undefined;
+  return /(-pro|-preview|-thinking|-reasoning)\b/i.test(modelName)
+    ? REASONING_MODEL_DEFAULT_MAX_TOKENS
+    : undefined;
+}
+
+/**
  * Resolve base URL for OpenAI-compatible providers.
  * For Gemini, ensure the URL includes the `/v1beta/openai` path suffix.
  */
@@ -76,8 +104,9 @@ export function buildSpawnConfig(
   const env: Record<string, string> = {};
   const args: string[] = ['--json-stream', '--provider', provider, '--model', model.useModel];
 
-  if (options.maxTokens) {
-    args.push('--max-tokens', String(options.maxTokens));
+  const resolvedMaxTokens = options.maxTokens ?? defaultMaxTokensForModel(model.useModel);
+  if (resolvedMaxTokens) {
+    args.push('--max-tokens', String(resolvedMaxTokens));
   }
   if (options.maxTurns) {
     args.push('--max-turns', String(options.maxTurns));
