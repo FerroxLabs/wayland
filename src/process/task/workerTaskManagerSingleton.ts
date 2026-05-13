@@ -70,14 +70,18 @@ agentFactory.register('remote', (conv, opts) => {
   }) as unknown as ReturnType<typeof agentFactory.create>;
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-agentFactory.register('aionrs', (conv, opts) => {
+// Both 'wcore' (post-rebrand kind, new writes) and 'aionrs' (legacy kind on
+// existing rows) route to the same WCoreManager factory. Dual-read policy.
+const wcoreManagerCreator: Parameters<typeof agentFactory.register>[1] = (conv, opts) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const c = conv as any;
   return new WCoreManager(
     { ...c.extra, conversation_id: c.id, yoloMode: opts?.yoloMode },
     c.model
   ) as unknown as ReturnType<typeof agentFactory.create>;
-});
+};
+agentFactory.register('wcore', wcoreManagerCreator);
+agentFactory.register('aionrs', wcoreManagerCreator);
 
 const conversationRepo = new SqliteConversationRepository();
 export const workerTaskManager = new WorkerTaskManager(agentFactory, conversationRepo);

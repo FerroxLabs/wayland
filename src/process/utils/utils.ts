@@ -207,6 +207,11 @@ export async function readDirectoryRecursive(
   for (const item of items) {
     checkStatus();
     if (item === 'node_modules') continue;
+    // Hide dot-prefixed entries (.wayland-core/, .git/, .DS_Store, etc.) from
+    // the user-facing workspace tree. These are engine/tooling implementation
+    // details (e.g. skill-symlink subdirs) or OS noise; they don't belong in
+    // the file browser. Engine still reads them via its own filesystem access.
+    if (item.startsWith('.')) continue;
     const itemPath = path.join(dirPath, item);
     if (fileService && fileService.shouldIgnoreFile(itemPath)) continue;
 
