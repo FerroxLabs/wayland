@@ -1,4 +1,5 @@
 {
+  "truncation.budgetExhausted.body": "응답이 중단되었습니다 — 모델이 응답을 완료하기 전에 토큰 예산을 모두 사용했습니다. 추론 여유가 더 큰 모델을 시도하거나 프롬프트를 단순화하세요.",
   "fileChanges": "파일 변경 사항",
   "fileChangesCount": "{{count}}개 파일 변경 사항",
   "conversationInProgress": "현재 대화가 진행 중입니다...",

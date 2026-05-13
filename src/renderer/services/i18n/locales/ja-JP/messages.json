@@ -1,4 +1,5 @@
 {
+  "truncation.budgetExhausted.body": "応答が途中で切断されました — モデルが完了する前にトークン予算を使い切りました。推論用の余裕がより大きいモデルを試すか、プロンプトを簡素化してください。",
   "fileChanges": "ファイル変更",
   "fileChangesCount": "{{count}} 件のファイル変更",
   "conversationInProgress": "現在、会話中です...",

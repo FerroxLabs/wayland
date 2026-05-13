@@ -142,6 +142,13 @@ export type IMessageText = IMessage<
     senderAgentType?: string;
     /** Sender teammate's conversation id — lets the renderer resolve preset avatars via their conversation extras. */
     senderConversationId?: string;
+    /**
+     * Set by AionrsManager when the response stopped with `finish_reason: 'length'`
+     * (or matched the equivalent heuristic). Surfaces a "response truncated"
+     * warning in the renderer; primarily fixes the Gemini Pro thinking-token
+     * bug where reasoning models would return an empty bubble.
+     */
+    truncatedDueToBudget?: boolean;
   }
 >;
 
@@ -428,6 +435,9 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
           ? {
               content: (data as { content: string; cronMeta?: CronMessageMeta }).content,
               cronMeta: (data as { cronMeta?: CronMessageMeta }).cronMeta,
+              ...((data as { truncatedDueToBudget?: boolean }).truncatedDueToBudget && {
+                truncatedDueToBudget: true,
+              }),
             }
           : { content: data as string },
         ...(message.hidden && { hidden: true }),

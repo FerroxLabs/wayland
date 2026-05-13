@@ -793,6 +793,7 @@ export type I18nKey =
   | 'messages.slash.empty'
   | 'messages.slash.hint'
   | 'messages.slash.title'
+  | 'messages.truncation.budgetExhausted.body'
   | 'messages.unknownMessageType'
   | 'pet.confirmBubble'
   | 'pet.confirmBubbleDescription'

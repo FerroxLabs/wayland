@@ -433,6 +433,62 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
     });
   }
 
+  /**
+   * Return true when the just-finished turn was cut short by the model's token
+   * budget. Two detection paths:
+   *
+   *   1. Explicit: aionrs ≥0.2 (Task F engine-side fix) emits
+   *      `finish_reason: 'length'` in stream_end. Definitive.
+   *   2. Heuristic: aionrs ≤0.1.21 doesn't emit finish_reason, so we infer
+   *      truncation when `output_tokens` is at or above 95% of the configured
+   *      `maxTokens` AND the visible content is empty/very short. This catches
+   *      the Gemini Pro reasoning-token bug today (the wrapper fix in Worker B
+   *      raises the budget but edge cases will still hit the ceiling).
+   */
+  private detectTruncation(data: unknown, content: string): boolean {
+    if (!data || typeof data !== 'object') return false;
+    const d = data as { finish_reason?: string; output_tokens?: number };
+
+    if (d.finish_reason === 'length') return true;
+
+    const maxTokens = this.data.data.maxTokens;
+    if (!maxTokens || typeof d.output_tokens !== 'number') return false;
+    const nearBudget = d.output_tokens >= Math.floor(maxTokens * 0.95);
+    const contentEmpty = content.trim().length < 20;
+    return nearBudget && contentEmpty;
+  }
+
+  /**
+   * Attach `truncatedDueToBudget: true` to the in-flight assistant message.
+   * Emits an empty-delta `content` event so the renderer's composeMessage merge
+   * preserves accumulated text while picking up the flag via Object.assign, and
+   * upserts the same shape into the DB.
+   */
+  private emitTruncationFlag(msgId: string): void {
+    const richData = { content: '', truncatedDueToBudget: true };
+
+    const tMessage: TMessage = {
+      id: msgId,
+      msg_id: msgId,
+      type: 'text',
+      position: 'left',
+      conversation_id: this.conversation_id,
+      content: richData,
+      status: 'finish',
+      createdAt: Date.now(),
+    };
+    addOrUpdateMessage(this.conversation_id, tMessage, 'aionrs');
+
+    const ipcMsg: IResponseMessage = {
+      type: 'content',
+      conversation_id: this.conversation_id,
+      msg_id: msgId,
+      data: richData,
+    };
+    ipcBridge.conversation.responseStream.emit(ipcMsg);
+    this.emitToEventBuses(ipcMsg);
+  }
+
   private saveContextUsage(data: unknown): void {
     if (!data || typeof data !== 'object' || !('input_tokens' in data)) return;
     const usage = data as { input_tokens: number; output_tokens: number };
@@ -626,7 +682,19 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
         this.heartbeatActive = false;
         this.heartbeatMissedCount = 0;
         this.saveContextUsage(processedData.data);
+
+        // Capture before handleTurnEnd resets msg state, then emit truncation flag
+        // after the turn-end flush so the renderer's text-message merge attaches
+        // the flag to the already-accumulated content rather than racing it.
+        const truncMsgId = this.detectTruncation(processedData.data, this.currentMsgContent)
+          ? this.currentMsgId
+          : null;
+
         void this.handleTurnEnd();
+
+        if (truncMsgId) {
+          this.emitTruncationFlag(truncMsgId);
+        }
       }
 
       processedData.conversation_id = this.conversation_id;

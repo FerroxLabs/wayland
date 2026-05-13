@@ -1,4 +1,5 @@
 {
+  "truncation.budgetExhausted.body": "Response was truncated — the model ran out of token budget before finishing. Try a model with more reasoning headroom or simplify your prompt.",
   "fileChanges": "File Changes",
   "fileChangesCount": "{{count}} File Changes",
   "conversationInProgress": "A conversation is currently in progress...",

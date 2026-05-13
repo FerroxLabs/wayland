@@ -1,4 +1,5 @@
 {
+  "truncation.budgetExhausted.body": "回應已被截斷 — 模型在完成之前已耗盡 token 預算。請嘗試使用具有更高推理預算的模型，或簡化您的提示。",
   "fileChanges": "檔案變更",
   "fileChangesCount": "{{count}} 個檔案變更",
   "conversationInProgress": "目前正在進行對話...",

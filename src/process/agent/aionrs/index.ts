@@ -296,10 +296,15 @@ export class AionrsAgent {
         });
         break;
 
-      case 'stream_end':
-        this.onStreamEvent({ type: 'finish', data: event.usage ?? '', msg_id: event.msg_id });
+      case 'stream_end': {
+        const finishPayload: Record<string, unknown> = {};
+        if (event.usage) Object.assign(finishPayload, event.usage);
+        if (event.finish_reason) finishPayload.finish_reason = event.finish_reason;
+        const payload = Object.keys(finishPayload).length > 0 ? finishPayload : '';
+        this.onStreamEvent({ type: 'finish', data: payload, msg_id: event.msg_id });
         this.activeMsgId = null;
         break;
+      }
 
       case 'error':
         this.onStreamEvent({
