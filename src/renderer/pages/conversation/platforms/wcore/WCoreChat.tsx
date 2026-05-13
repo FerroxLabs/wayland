@@ -13,13 +13,13 @@ import HOC from '@renderer/utils/ui/HOC';
 import React, { useEffect, useMemo } from 'react';
 import LocalImageView from '@renderer/components/media/LocalImageView';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
-import AionrsSendBox from './AionrsSendBox';
-import type { AionrsModelSelection } from './useAionrsModelSelection';
+import WCoreSendBox from './WCoreSendBox';
+import type { WCoreModelSelection } from './useWCoreModelSelection';
 
-const AionrsChat: React.FC<{
+const WCoreChat: React.FC<{
   conversation_id: string;
   workspace: string;
-  modelSelection: AionrsModelSelection;
+  modelSelection: WCoreModelSelection;
   teamId?: string;
   agentSlotId?: string;
   sessionMode?: string;
@@ -41,7 +41,7 @@ const AionrsChat: React.FC<{
           <MessageList className='flex-1' emptySlot={emptySlot} />
         </FlexFullContainer>
         <ConversationChatConfirm conversation_id={conversation_id}>
-          <AionrsSendBox
+          <WCoreSendBox
             conversation_id={conversation_id}
             modelSelection={modelSelection}
             teamId={teamId}
@@ -54,4 +54,4 @@ const AionrsChat: React.FC<{
   );
 };
 
-export default HOC.Wrapper(MessageListProvider, LocalImageView.Provider)(AionrsChat);
+export default HOC.Wrapper(MessageListProvider, LocalImageView.Provider)(WCoreChat);

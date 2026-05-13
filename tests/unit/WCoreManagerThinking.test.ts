@@ -1,5 +1,5 @@
 /**
- * GAP-1: AionrsManager Thinking Message Display & Persistence — Black-box tests
+ * GAP-1: WCoreManager Thinking Message Display & Persistence — Black-box tests
  *
  * Tests are based on GAP-1-plan.md acceptance criteria.
  */
@@ -101,8 +101,8 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   },
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -118,22 +118,22 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function createManager(): AionrsManager {
+function createManager(): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: 'conv-think-1',
   };
   const model = data.model as any;
-  return new AionrsManager(data as any, model);
+  return new WCoreManager(data as any, model);
 }
 
 /** Simulate emitting an aionrs event */
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('aionrs.message', event);
 }
 
@@ -144,8 +144,8 @@ function findEmissions(type: string) {
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('GAP-1: AionrsManager Thinking Message Display & Persistence', () => {
-  let manager: AionrsManager;
+describe('GAP-1: WCoreManager Thinking Message Display & Persistence', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();

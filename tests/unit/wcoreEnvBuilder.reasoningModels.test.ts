@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { buildSpawnConfig, defaultMaxTokensForModel } from '../../src/process/agent/aionrs/envBuilder';
+import { buildSpawnConfig, defaultMaxTokensForModel } from '../../src/process/agent/wcore/envBuilder';
 import type { TProviderWithModel } from '../../src/common/config/storage';
 
 function makeModel(platform: string, useModel: string): TProviderWithModel {

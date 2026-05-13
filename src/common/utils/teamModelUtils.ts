@@ -39,7 +39,7 @@ function passesCapabilityFilter(provider: IProvider, modelName: string): boolean
  *
  * The Gemini list mirrors what useModelProviderList() returns:
  * Google Auth provider (auto/auto-gemini-2.5/manual-subModels) + ALL configured providers.
- * The Aionrs list mirrors useAionrsModelSelection: same as above minus Google Auth.
+ * The Aionrs list mirrors useWCoreModelSelection: same as above minus Google Auth.
  */
 export function getTeamAvailableModels(
   backend: string,

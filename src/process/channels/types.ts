@@ -568,7 +568,9 @@ export function resolveChannelConvType(backend: string): {
 } {
   if (backend === 'codex') return { convType: 'codex' };
   if (backend === 'gemini') return { convType: 'gemini' };
-  if (backend === 'aionrs') return { convType: 'aionrs' };
+  // Dual-write: backend routing key stays 'aionrs'; emitted convType
+  // flips to 'wcore' so new conversations persist under the new name.
+  if (backend === 'aionrs') return { convType: 'wcore' };
   if (backend === 'openclaw-gateway') return { convType: 'openclaw-gateway' };
   return { convType: 'acp', convBackend: backend };
 }

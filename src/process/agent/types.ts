@@ -11,7 +11,7 @@ export type {
   AcpDetectedAgent,
   GeminiDetectedAgent,
   RemoteDetectedAgent,
-  AionrsDetectedAgent,
+  WCoreDetectedAgent,
   NanobotDetectedAgent,
   OpenClawDetectedAgent,
   RemoteAgentProtocol,

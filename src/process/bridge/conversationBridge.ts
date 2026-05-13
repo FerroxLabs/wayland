@@ -21,7 +21,7 @@ import {
 } from '@process/utils/initStorage';
 import type AcpAgentManager from '../task/AcpAgentManager';
 import type { GeminiAgentManager } from '../task/GeminiAgentManager';
-import { AionrsApprovalStore, type AionrsManager } from '../task/AionrsManager';
+import { WCoreApprovalStore, type WCoreManager } from '../task/WCoreManager';
 import type OpenClawAgentManager from '../task/OpenClawAgentManager';
 import { prepareFirstMessage } from '../task/agentUtils';
 import { AcpSkillManager } from '../task/AcpSkillManager';
@@ -649,7 +649,7 @@ export function initConversationBridge(
   ipcBridge.conversation.approval.check.provider(async ({ conversation_id, action, commandType }) => {
     const task = workerTaskManager.getTask(conversation_id) as unknown as
       | GeminiAgentManager
-      | AionrsManager
+      | WCoreManager
       | undefined;
     if (!task || !('approvalStore' in task) || !task.approvalStore) {
       return false;
@@ -661,8 +661,8 @@ export function initConversationBridge(
       return task.approvalStore.allApproved(keys);
     }
 
-    if (task.type === 'aionrs') {
-      const keys = AionrsApprovalStore.createKeysFromConfirmation(action, commandType);
+    if (task.type === 'wcore' || task.type === 'aionrs') {
+      const keys = WCoreApprovalStore.createKeysFromConfirmation(action, commandType);
       if (keys.length === 0) return false;
       return task.approvalStore.allApproved(keys);
     }

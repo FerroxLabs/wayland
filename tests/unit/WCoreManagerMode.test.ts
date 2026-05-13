@@ -1,5 +1,5 @@
 /**
- * AionrsManager mode-based auto-approval — unit tests
+ * WCoreManager mode-based auto-approval — unit tests
  *
  * Verifies that tryAutoApprove correctly handles 'auto_edit', 'yolo',
  * and 'default' modes when deciding whether to auto-approve tool
@@ -113,8 +113,8 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   cronService: mockCronService,
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -133,11 +133,11 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function createManager(sessionMode: string): AionrsManager {
+function createManager(sessionMode: string): WCoreManager {
   const data = {
     workspace: '/test',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
@@ -145,7 +145,7 @@ function createManager(sessionMode: string): AionrsManager {
     sessionMode,
   };
   const model = data.model as any;
-  return new AionrsManager(data as any, model);
+  return new WCoreManager(data as any, model);
 }
 
 function makeContent(type: 'edit' | 'info' | 'exec', callId = 'call-1') {
@@ -158,7 +158,7 @@ function makeContent(type: 'edit' | 'info' | 'exec', callId = 'call-1') {
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('AionrsManager.tryAutoApprove', () => {
+describe('WCoreManager.tryAutoApprove', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -166,7 +166,7 @@ describe('AionrsManager.tryAutoApprove', () => {
   // ── auto_edit mode ───────────────────────────────────────────────
 
   describe('auto_edit mode', () => {
-    let manager: AionrsManager;
+    let manager: WCoreManager;
 
     beforeEach(() => {
       manager = createManager('auto_edit');
@@ -206,7 +206,7 @@ describe('AionrsManager.tryAutoApprove', () => {
   // ── yolo mode ────────────────────────────────────────────────────
 
   describe('yolo mode', () => {
-    let manager: AionrsManager;
+    let manager: WCoreManager;
 
     beforeEach(() => {
       manager = createManager('yolo');
@@ -234,7 +234,7 @@ describe('AionrsManager.tryAutoApprove', () => {
   // ── default mode ─────────────────────────────────────────────────
 
   describe('default mode', () => {
-    let manager: AionrsManager;
+    let manager: WCoreManager;
 
     beforeEach(() => {
       manager = createManager('default');
@@ -262,7 +262,7 @@ describe('AionrsManager.tryAutoApprove', () => {
 
 // ── setMode notification tests ────────────────────────────────────
 
-describe('AionrsManager.setMode', () => {
+describe('WCoreManager.setMode', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });

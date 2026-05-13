@@ -3,7 +3,7 @@
  *
  * Covers Worker D scope (BLACKBOARD.md row D): when an aionrs turn ends with
  * `finish_reason: 'length'` (or matches the heuristic for aionrs ≤0.1.21
- * binaries that don't yet emit finish_reason), AionrsManager must attach
+ * binaries that don't yet emit finish_reason), WCoreManager must attach
  * `truncatedDueToBudget: true` to the resulting assistant message so the
  * renderer can show a "response truncated" banner instead of an empty bubble.
  */
@@ -138,8 +138,8 @@ vi.mock('@/process/task/ConversationTurnCompletionService', () => ({
   },
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -155,23 +155,23 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
 const CONV_ID = 'conv-trunc-1';
 
-function createManager(maxTokens?: number): AionrsManager {
+function createManager(maxTokens?: number): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: CONV_ID,
     maxTokens,
   };
-  return new AionrsManager(data as any, data.model as any);
+  return new WCoreManager(data as any, data.model as any);
 }
 
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('aionrs.message', event);
 }
 
@@ -189,7 +189,7 @@ function truncationEmits(): Array<{ data: { content?: string; truncatedDueToBudg
 // ── Tests ──────────────────────────────────────────────────────────
 
 describe('finish_reason: length — truncation flag plumbing', () => {
-  let manager: AionrsManager;
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -1,5 +1,5 @@
 /**
- * GAP-4: AionrsManager Cron Command Feedback Loop — Black-box tests
+ * GAP-4: WCoreManager Cron Command Feedback Loop — Black-box tests
  *
  * Tests are based on GAP-4-plan.md acceptance criteria ONLY.
  * Do NOT add implementation-specific assertions here.
@@ -116,8 +116,8 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   cronService: mockCronService,
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -133,22 +133,22 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ───────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-function createManager(): AionrsManager {
+function createManager(): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: 'conv-test-1',
   };
   const model = data.model as any;
-  return new AionrsManager(data as any, model);
+  return new WCoreManager(data as any, model);
 }
 
 /** Simulate a complete turn: start → content deltas → finish */
-function simulateTurn(manager: AionrsManager, textChunks: string[], msgId = 'msg-1') {
+function simulateTurn(manager: WCoreManager, textChunks: string[], msgId = 'msg-1') {
   (manager as any).emit('aionrs.message', { type: 'start', data: '', msg_id: msgId });
   for (const chunk of textChunks) {
     (manager as any).emit('aionrs.message', { type: 'content', data: chunk, msg_id: msgId });
@@ -158,8 +158,8 @@ function simulateTurn(manager: AionrsManager, textChunks: string[], msgId = 'msg
 
 // ── Tests ───────────────────────────────────────────────────────────
 
-describe('GAP-4: AionrsManager Cron Command Feedback Loop', () => {
-  let manager: AionrsManager;
+describe('GAP-4: WCoreManager Cron Command Feedback Loop', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -39,8 +39,8 @@ import { Message, Tag } from '@arco-design/web-react';
 import { Shield } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAionrsMessage } from './useAionrsMessage';
-import type { AionrsModelSelection } from './useAionrsModelSelection';
+import { useWCoreMessage } from './useWCoreMessage';
+import type { WCoreModelSelection } from './useWCoreModelSelection';
 
 const useAionrsSendBoxDraft = getSendBoxDraftHook('aionrs', {
   _type: 'aionrs',
@@ -85,9 +85,9 @@ const useSendBoxDraft = (conversation_id: string) => {
   };
 };
 
-const AionrsSendBox: React.FC<{
+const WCoreSendBox: React.FC<{
   conversation_id: string;
-  modelSelection: AionrsModelSelection;
+  modelSelection: WCoreModelSelection;
   teamId?: string;
   agentSlotId?: string;
   sessionMode?: string;
@@ -99,7 +99,7 @@ const AionrsSendBox: React.FC<{
   const { currentModel, getDisplayModelName } = modelSelection;
 
   const { thought, running, hasHydratedRunningState, tokenUsage, setActiveMsgId, setWaitingResponse, resetState } =
-    useAionrsMessage(conversation_id, {
+    useWCoreMessage(conversation_id, {
       onConfigChanged: (capabilities) => {
         const modes = (capabilities as { modes?: string[] })?.modes;
         if (modes && modes.length > 0) {
@@ -275,7 +275,7 @@ const AionrsSendBox: React.FC<{
         const { input, files: initialFiles } = JSON.parse(storedMessage);
         await executeCommand({ input, files: initialFiles || [] });
       } catch (error) {
-        console.error('[AionrsSendBox] Failed to send initial message:', error);
+        console.error('[WCoreSendBox] Failed to send initial message:', error);
         sessionStorage.removeItem(processedKey);
       }
     };
@@ -456,4 +456,4 @@ const AionrsSendBox: React.FC<{
   );
 };
 
-export default AionrsSendBox;
+export default WCoreSendBox;

@@ -307,7 +307,10 @@ export const handleSessionNew: ActionHandler = async (context) => {
       });
     } else if (backend === 'aionrs') {
       newConversation = await conversationServiceSingleton.createConversation({
-        type: 'aionrs',
+        // Dual-write: NEW conversations persist as 'wcore'; legacy rows
+        // remain readable as 'aionrs'. The `backend === 'aionrs'` check
+        // above is an internal routing key — NOT renamed.
+        type: 'wcore',
         model,
         source,
         name,

@@ -1,8 +1,8 @@
 /**
- * GAP-10: AionrsManager Performance Monitoring — Black-box tests
+ * GAP-10: WCoreManager Performance Monitoring — Black-box tests
  *
  * Tests based on GAP-10-plan.md acceptance criteria.
- * Validates that AionrsManager emits [AIONRS-PERF] logs when
+ * Validates that WCoreManager emits [AIONRS-PERF] logs when
  * transform/DB/pipeline stages exceed their thresholds.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -156,8 +156,8 @@ vi.mock('@/common/chat/chatLib', () => ({
   transformMessage: mockTransformMessage,
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -173,7 +173,7 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -182,16 +182,16 @@ const CONV_ID = 'conv-perf-1';
 // Mutable clock controlled by tests and mock implementations
 let now: number;
 
-function createManager(conversationId = CONV_ID): AionrsManager {
+function createManager(conversationId = CONV_ID): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
   };
-  return new AionrsManager(data as any, data.model as any);
+  return new WCoreManager(data as any, data.model as any);
 }
 
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('aionrs.message', event);
 }
 
@@ -203,8 +203,8 @@ function perfLogs(): string[] {
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('GAP-10: AionrsManager Performance Monitoring', () => {
-  let manager: AionrsManager;
+describe('GAP-10: WCoreManager Performance Monitoring', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -7,21 +7,21 @@
 import type { TProviderWithModel } from '@/common/config/storage';
 import { isOpenAIHost } from '@/common/utils/urlValidation';
 
-type AionrsProvider = 'anthropic' | 'openai' | 'bedrock' | 'vertex';
+type WCoreProvider = 'anthropic' | 'openai' | 'bedrock' | 'vertex';
 
 /**
  * Map AionUi platform name to aionrs provider name.
  *
  * AionUi PlatformType values: 'custom' | 'new-api' | 'gemini' | 'gemini-vertex-ai' | 'anthropic' | 'bedrock'
  */
-function mapProvider(model: TProviderWithModel): AionrsProvider {
+function mapProvider(model: TProviderWithModel): WCoreProvider {
   // Special handling for new-api: respect per-model protocol setting
   if (model.platform === 'new-api' && model.useModel && model.modelProtocols) {
     const protocol = model.modelProtocols[model.useModel];
     if (protocol === 'anthropic') return 'anthropic';
   }
 
-  const mapping: Record<string, AionrsProvider> = {
+  const mapping: Record<string, WCoreProvider> = {
     anthropic: 'anthropic',
     bedrock: 'bedrock',
     'gemini-vertex-ai': 'vertex',
@@ -67,6 +67,9 @@ const REASONING_MODEL_DEFAULT_MAX_TOKENS = 32768;
 export function defaultMaxTokensForModel(modelName: string): number | undefined {
   if (!modelName) return undefined;
   if (/-flash/i.test(modelName)) return undefined;
+  // TODO(reasoning-detector): only catches o-prefixed reasoning models (o1/o3/o4-mini etc.).
+  // When OpenAI ships a non-o-prefixed reasoning model (e.g. gpt-5-reasoning), revisit
+  // this matcher — see .blackboard/audits/hard-coded-values.md HC-5.
   if (/^o\d+(-mini)?$/i.test(modelName)) return REASONING_MODEL_DEFAULT_MAX_TOKENS;
   return /(-pro|-preview|-thinking|-reasoning)\b/i.test(modelName)
     ? REASONING_MODEL_DEFAULT_MAX_TOKENS
@@ -114,7 +117,7 @@ export function buildSpawnConfig(
   projectConfig: string;
   /**
    * The max_tokens value actually passed to aionrs (or undefined if no `--max-tokens`
-   * arg was added). Callers persist this so AionrsManager's truncation heuristic
+   * arg was added). Callers persist this so WCoreManager's truncation heuristic
    * can compare `output_tokens` against the real budget — including the silent
    * reasoning-model default from `defaultMaxTokensForModel`, which would otherwise
    * be invisible to anything above the wrapper.
@@ -199,7 +202,7 @@ export function buildSpawnConfig(
  * - OpenAI official API requires `max_completion_tokens` instead of `max_tokens`
  *   for newer models (gpt-5.x, o-series, etc.).
  */
-function buildProjectConfig(model: TProviderWithModel, provider: AionrsProvider): string {
+function buildProjectConfig(model: TProviderWithModel, provider: WCoreProvider): string {
   if (provider !== 'openai') return '';
 
   // Collect compat overrides as key-value pairs

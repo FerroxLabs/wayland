@@ -148,12 +148,12 @@ vi.mock('@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection'
   useGeminiModelSelection: () => ({}),
 }));
 
-vi.mock('@/renderer/pages/conversation/platforms/aionrs/AionrsModelSelector', () => ({
+vi.mock('@/renderer/pages/conversation/platforms/wcore/WCoreModelSelector', () => ({
   default: () => null,
 }));
 
-vi.mock('@/renderer/pages/conversation/platforms/aionrs/useAionrsModelSelection', () => ({
-  useAionrsModelSelection: () => ({}),
+vi.mock('@/renderer/pages/conversation/platforms/wcore/useWCoreModelSelection', () => ({
+  useWCoreModelSelection: () => ({}),
 }));
 
 vi.mock('@/renderer/pages/team/components/agentSelectUtils', () => ({

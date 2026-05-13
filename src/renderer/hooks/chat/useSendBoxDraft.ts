@@ -50,6 +50,14 @@ type Draft =
       content: string;
       atPath: Array<string | FileOrFolderItem>;
       uploadFile: string[];
+    }
+  | {
+      // Dual-write/read alias: same shape as 'aionrs'; targets the
+      // wayland-core engine. New conversations write _type: 'wcore'.
+      _type: 'wcore';
+      content: string;
+      atPath: Array<string | FileOrFolderItem>;
+      uploadFile: string[];
     };
 
 /**
@@ -66,7 +74,11 @@ const store: SendBoxDraftStore = {
   'openclaw-gateway': new Map(),
   nanobot: new Map(),
   remote: new Map(),
+  // 'wcore' and 'aionrs' both target the wayland-core engine. Keep them
+  // as separate Maps so drafts persisted under the old key remain
+  // addressable; new conversations write into the 'wcore' map.
   aionrs: new Map(),
+  wcore: new Map(),
 };
 
 const setDraft = <K extends TChatConversation['type']>(

@@ -27,7 +27,7 @@ export type TokenUsage = {
   cache_write_tokens?: number;
 };
 
-export type AionrsCapabilities = {
+export type WCoreCapabilities = {
   tool_approval: boolean;
   thinking: boolean;
   effort: boolean;
@@ -36,12 +36,12 @@ export type AionrsCapabilities = {
   mcp: boolean;
 };
 
-export type AionrsEvent =
+export type WCoreEvent =
   | {
       type: 'ready';
       version: string;
       session_id?: string;
-      capabilities: AionrsCapabilities;
+      capabilities: WCoreCapabilities;
     }
   | { type: 'stream_start'; msg_id: string }
   | { type: 'text_delta'; text: string; msg_id: string }
@@ -87,7 +87,7 @@ export type AionrsEvent =
       error: { code: string; message: string; retryable: boolean };
     }
   | { type: 'info'; msg_id: string; message: string }
-  | { type: 'config_changed'; capabilities: AionrsCapabilities }
+  | { type: 'config_changed'; capabilities: WCoreCapabilities }
   | { type: 'mcp_ready'; name: string; tools: string[] }
   | { type: 'pong' };
 
@@ -95,7 +95,7 @@ export type AionrsEvent =
 // Client -> Agent Commands (stdin)
 // ============================================
 
-export type AionrsCommand =
+export type WCoreCommand =
   | { type: 'message'; msg_id: string; content: string; files?: string[] }
   | { type: 'stop' }
   | { type: 'tool_approve'; call_id: string; scope: 'once' | 'always' }

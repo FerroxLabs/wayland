@@ -506,7 +506,8 @@ export class ActionExecutor {
               });
             } else if (backend === 'aionrs') {
               sessionConversation = await conversationServiceSingleton.createConversation({
-                type: 'aionrs',
+                // Dual-write: NEW writes emit 'wcore'; readers accept both.
+                type: 'wcore',
                 model,
                 name: conversationName,
                 source,

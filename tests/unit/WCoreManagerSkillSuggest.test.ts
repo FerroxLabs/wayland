@@ -1,9 +1,9 @@
 /**
- * GAP-5: AionrsManager CronBusyGuard — Black-box tests
+ * GAP-6: WCoreManager Skill Suggest Watcher — Black-box tests
  *
- * Tests based on GAP-5-plan.md acceptance criteria.
- * Validates that AionrsManager integrates cronBusyGuard to prevent
- * cron tasks from overlapping with active conversation processing.
+ * Tests based on GAP-6-plan.md acceptance criteria.
+ * Validates that WCoreManager calls skillSuggestWatcher.onFinish()
+ * on turn end so cron tasks can generate skill suggestions.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -19,6 +19,7 @@ const {
   mockChannelEmitAgentMessage,
   mockSetProcessing,
   mockIsProcessing,
+  mockOnFinish,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
   emitConfirmationAdd: vi.fn(),
@@ -36,6 +37,7 @@ const {
   mockChannelEmitAgentMessage: vi.fn(),
   mockSetProcessing: vi.fn(),
   mockIsProcessing: vi.fn(() => false),
+  mockOnFinish: vi.fn(),
 }));
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -138,8 +140,14 @@ vi.mock('@/process/task/ConversationTurnCompletionService', () => ({
   },
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/services/cron/SkillSuggestWatcher', () => ({
+  skillSuggestWatcher: {
+    onFinish: mockOnFinish,
+  },
+}));
+
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -155,30 +163,30 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-const CONV_ID = 'conv-bg-1';
+const CONV_ID = 'conv-skill-1';
 const FALLBACK_DELAY_MS = 15_000;
 
-function createManager(conversationId = CONV_ID): AionrsManager {
+function createManager(conversationId = CONV_ID): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
   };
-  return new AionrsManager(data as any, data.model as any);
+  return new WCoreManager(data as any, data.model as any);
 }
 
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('aionrs.message', event);
 }
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('GAP-5: AionrsManager CronBusyGuard', () => {
-  let manager: AionrsManager;
+describe('GAP-6: WCoreManager Skill Suggest Watcher', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -192,107 +200,65 @@ describe('GAP-5: AionrsManager CronBusyGuard', () => {
     vi.restoreAllMocks();
   });
 
-  // ── AC-1: sendMessage sets guard to true ─────────────────────────
+  // ── AC-1: Normal finish triggers onFinish ─────────────────────────
 
-  describe('AC-1: sendMessage sets guard to true', () => {
-    it('calls setProcessing(id, true) when sendMessage is invoked', async () => {
-      await manager.sendMessage({ input: 'hello', msg_id: 'msg-1' });
-
-      expect(mockSetProcessing).toHaveBeenCalledWith(CONV_ID, true);
-    });
-
-    it('sets guard before calling super.sendMessage', async () => {
-      const callOrder: string[] = [];
-      mockSetProcessing.mockImplementation(() => {
-        callOrder.push('setProcessing');
-      });
-      vi.spyOn(manager as any, 'postMessagePromise').mockImplementation(() => {
-        callOrder.push('postMessage');
-        return Promise.resolve();
-      });
-
-      await manager.sendMessage({ input: 'hello', msg_id: 'msg-1' });
-
-      const guardIdx = callOrder.indexOf('setProcessing');
-      expect(guardIdx).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  // ── AC-2: Normal finish clears guard ─────────────────────────────
-
-  describe('AC-2: Normal finish clears guard', () => {
-    it('calls setProcessing(id, false) on finish event', async () => {
+  describe('AC-1: Normal finish triggers skillSuggestWatcher.onFinish', () => {
+    it('calls onFinish with conversation_id on finish event', async () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
-      emitEvent(manager, { type: 'content', data: 'hello', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'content', data: 'hello world', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
 
       await vi.advanceTimersByTimeAsync(200);
 
-      expect(mockSetProcessing).toHaveBeenCalledWith(CONV_ID, false);
+      expect(mockOnFinish).toHaveBeenCalledWith(CONV_ID);
+      expect(mockOnFinish).toHaveBeenCalledTimes(1);
     });
   });
 
-  // ── AC-3: Process exit clears guard ──────────────────────────────
+  // ── AC-2: Process exit triggers onFinish ──────────────────────────
 
-  describe('AC-3: Process exit clears guard', () => {
-    it('calls setProcessing(id, false) on process exit during active turn', async () => {
+  describe('AC-2: Process exit triggers skillSuggestWatcher.onFinish', () => {
+    it('calls onFinish when process exits during active turn', async () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'content', data: 'data', msg_id: 'msg-1' });
 
       (manager as Record<string, (...args: unknown[]) => void>)['handleProcessExit'](1, 'msg-1');
       await vi.advanceTimersByTimeAsync(200);
 
-      expect(mockSetProcessing).toHaveBeenCalledWith(CONV_ID, false);
+      expect(mockOnFinish).toHaveBeenCalledWith(CONV_ID);
     });
   });
 
-  // ── AC-4: stop() clears guard ────────────────────────────────────
+  // ── AC-3: stop() does not trigger onFinish ────────────────────────
 
-  describe('AC-4: stop() clears guard', () => {
-    it('calls setProcessing(id, false) when stop is called', async () => {
+  describe('AC-3: stop() does not trigger onFinish', () => {
+    it('does not call onFinish when stop is called', async () => {
       await manager.stop();
 
-      expect(mockSetProcessing).toHaveBeenCalledWith(CONV_ID, false);
+      expect(mockOnFinish).not.toHaveBeenCalled();
     });
   });
 
-  // ── AC-5: Guard cleared before cron processing ───────────────────
+  // ── AC-4: Correct conversation_id per manager ─────────────────────
 
-  describe('AC-5: Guard cleared before cron command processing', () => {
-    it('clears guard before cron feedback re-sets it via sendMessage', async () => {
-      const callOrder: string[] = [];
-      mockSetProcessing.mockImplementation((_id: string, value: boolean) => {
-        callOrder.push(`setProcessing:${value}`);
-      });
+  describe('AC-4: Different conversation_ids passed correctly', () => {
+    it('passes respective conversation_id for each manager', async () => {
+      const manager2 = createManager('conv-skill-2');
+      vi.spyOn(manager2 as any, 'postMessagePromise').mockResolvedValue(undefined);
 
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
-      emitEvent(manager, { type: 'content', data: '[CRON_LIST]', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'content', data: 'a', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+
+      emitEvent(manager2, { type: 'start', data: '', msg_id: 'msg-2' });
+      emitEvent(manager2, { type: 'content', data: 'b', msg_id: 'msg-2' });
+      emitEvent(manager2, { type: 'finish', data: '', msg_id: 'msg-2' });
 
       await vi.advanceTimersByTimeAsync(200);
 
-      // Guard should be cleared (false) before any potential re-set (true) from cron feedback
-      const falseIdx = callOrder.indexOf('setProcessing:false');
-      expect(falseIdx).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  // ── Regression: different conversation IDs ────────────────────────
-
-  describe('Correct conversation_id passed to guard', () => {
-    it('uses the correct conversationId for each manager instance', async () => {
-      const manager2 = createManager('conv-bg-2');
-      vi.spyOn(manager2 as any, 'postMessagePromise').mockResolvedValue(undefined);
-
-      await manager.sendMessage({ input: 'hello', msg_id: 'msg-1' });
-      await manager2.sendMessage({ input: 'world', msg_id: 'msg-2' });
-
-      const calls = mockSetProcessing.mock.calls;
-      const conv1Call = calls.find(([id]: [string]) => id === CONV_ID);
-      const conv2Call = calls.find(([id]: [string]) => id === 'conv-bg-2');
-
-      expect(conv1Call).toBeDefined();
-      expect(conv2Call).toBeDefined();
+      expect(mockOnFinish).toHaveBeenCalledWith('conv-skill-1');
+      expect(mockOnFinish).toHaveBeenCalledWith('conv-skill-2');
+      expect(mockOnFinish).toHaveBeenCalledTimes(2);
     });
   });
 });

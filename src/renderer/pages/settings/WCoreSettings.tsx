@@ -10,15 +10,15 @@ import { Tag, Typography } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
 
-type AionrsAgentInfo = {
+type WCoreAgentInfo = {
   available: boolean;
   version?: string;
   path?: string;
 };
 
-const AionrsSettings: React.FC = () => {
+const WCoreSettings: React.FC = () => {
   const { t } = useTranslation();
-  const [agentInfo, setAgentInfo] = useState<AionrsAgentInfo | null>(null);
+  const [agentInfo, setAgentInfo] = useState<WCoreAgentInfo | null>(null);
 
   useEffect(() => {
     void ipcBridge.acpConversation.getAvailableAgents.invoke().then((result) => {
@@ -72,4 +72,4 @@ const AionrsSettings: React.FC = () => {
   );
 };
 
-export default AionrsSettings;
+export default WCoreSettings;

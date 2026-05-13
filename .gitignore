@@ -194,7 +194,7 @@ lint-results.txt
 .superpowers/
 docs/superpowers/
 resources/bundled-bun
-resources/bundled-aionrs
+resources/bundled-wayland-core
 resources/hub
 
 # Server build output

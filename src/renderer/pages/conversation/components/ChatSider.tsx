@@ -45,7 +45,10 @@ const ChatSider: React.FC<{
         teamId={teamId}
       ></ChatWorkspace>
     );
-  } else if (conversation?.type === 'aionrs' && conversation.extra?.workspace) {
+  } else if (
+    (conversation?.type === 'wcore' || conversation?.type === 'aionrs') &&
+    conversation.extra?.workspace
+  ) {
     workspaceNode = (
       <ChatWorkspace
         conversation_id={conversation.id}

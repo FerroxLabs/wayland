@@ -85,7 +85,10 @@ const TeamChatEmptyState: React.FC<Props> = ({ conversationId }) => {
   const setContentByKind = {
     acp: (text: string) => acpDraft.mutate((prev) => ({ ...prev, content: text })),
     gemini: (text: string) => geminiDraft.mutate((prev) => ({ ...prev, content: text })),
+    // Dual-write/read: 'wcore' and 'aionrs' target the same wayland-core
+    // engine and share the same draft store.
     aionrs: (text: string) => aionrsDraft.mutate((prev) => ({ ...prev, content: text })),
+    wcore: (text: string) => aionrsDraft.mutate((prev) => ({ ...prev, content: text })),
     nanobot: (text: string) => nanobotDraft.mutate((prev) => ({ ...prev, content: text })),
     remote: (text: string) => remoteDraft.mutate((prev) => ({ ...prev, content: text })),
     'openclaw-gateway': (text: string) => openClawDraft.mutate((prev) => ({ ...prev, content: text })),

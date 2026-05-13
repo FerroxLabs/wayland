@@ -1,8 +1,8 @@
 /**
- * GAP-8: AionrsManager Multi EventBus Emission — Black-box tests
+ * GAP-8: WCoreManager Multi EventBus Emission — Black-box tests
  *
  * Tests based on GAP-8-plan.md acceptance criteria.
- * Validates that AionrsManager emits events to teamEventBus and
+ * Validates that WCoreManager emits events to teamEventBus and
  * channelEventBus in addition to ipcBridge, matching AcpAgentManager pattern.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -119,8 +119,8 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   },
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -136,23 +136,23 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
 const CONV_ID = 'conv-eb-1';
 const FALLBACK_DELAY_MS = 15_000;
 
-function createManager(conversationId = CONV_ID): AionrsManager {
+function createManager(conversationId = CONV_ID): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
   };
-  return new AionrsManager(data as any, data.model as any);
+  return new WCoreManager(data as any, data.model as any);
 }
 
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('aionrs.message', event);
 }
 
@@ -170,8 +170,8 @@ function findChannelEmissions() {
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('GAP-8: AionrsManager Multi EventBus Emission', () => {
-  let manager: AionrsManager;
+describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();

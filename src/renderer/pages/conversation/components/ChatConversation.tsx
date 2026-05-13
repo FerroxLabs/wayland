@@ -28,9 +28,9 @@ import GeminiChat from '../platforms/gemini/GeminiChat';
 import AcpModelSelector from '@/renderer/components/agent/AcpModelSelector';
 import GeminiModelSelector from '../platforms/gemini/GeminiModelSelector';
 import { useGeminiModelSelection } from '../platforms/gemini/useGeminiModelSelection';
-import AionrsChat from '../platforms/aionrs/AionrsChat';
-import AionrsModelSelector from '../platforms/aionrs/AionrsModelSelector';
-import { useAionrsModelSelection } from '../platforms/aionrs/useAionrsModelSelection';
+import WCoreChat from '../platforms/wcore/WCoreChat';
+import WCoreModelSelector from '../platforms/wcore/WCoreModelSelector';
+import { useWCoreModelSelection } from '../platforms/wcore/useWCoreModelSelection';
 import { usePreviewContext } from '../Preview';
 import StarOfficeMonitorCard from '../platforms/openclaw/StarOfficeMonitorCard.tsx';
 import ConversationSkillsIndicator from './ConversationSkillsIndicator';
@@ -195,9 +195,9 @@ const GeminiConversationPanel: React.FC<{
   );
 };
 
-type AionrsConversation = Extract<TChatConversation, { type: 'aionrs' }>;
+type WCoreConversation = Extract<TChatConversation, { type: 'aionrs' | 'wcore' }>;
 
-const AionrsConversationPanel: React.FC<{ conversation: AionrsConversation; sliderTitle: React.ReactNode }> = ({
+const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; sliderTitle: React.ReactNode }> = ({
   conversation,
   sliderTitle,
 }) => {
@@ -212,7 +212,7 @@ const AionrsConversationPanel: React.FC<{ conversation: AionrsConversation; slid
     [conversation.id]
   );
 
-  const modelSelection = useAionrsModelSelection({
+  const modelSelection = useWCoreModelSelection({
     initialModel: conversation.model,
     onSelectModel,
   });
@@ -224,7 +224,7 @@ const AionrsConversationPanel: React.FC<{ conversation: AionrsConversation; slid
     title: conversation.name,
     siderTitle: sliderTitle,
     sider: <ChatSider conversation={conversation} />,
-    headerLeft: <AionrsModelSelector selection={modelSelection} />,
+    headerLeft: <WCoreModelSelector selection={modelSelection} />,
     headerExtra: (
       <div className='flex items-center gap-8px'>
         <ConversationSkillsIndicator conversation={conversation} />
@@ -242,7 +242,7 @@ const AionrsConversationPanel: React.FC<{ conversation: AionrsConversation; slid
 
   return (
     <ChatLayout {...chatLayoutProps} conversationId={conversation.id}>
-      <AionrsChat
+      <WCoreChat
         conversation_id={conversation.id}
         workspace={conversation.extra.workspace}
         modelSelection={modelSelection}
@@ -369,7 +369,7 @@ const ChatConversation: React.FC<{
   }, [conversation, isGeminiConversation, isAionrsConversation]);
 
   if (conversation && conversation.type === 'aionrs') {
-    return <AionrsConversationPanel key={conversation.id} conversation={conversation} sliderTitle={sliderTitle} />;
+    return <WCoreConversationPanel key={conversation.id} conversation={conversation} sliderTitle={sliderTitle} />;
   }
 
   if (conversation && conversation.type === 'gemini') {

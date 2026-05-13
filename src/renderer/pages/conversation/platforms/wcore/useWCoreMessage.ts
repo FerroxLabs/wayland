@@ -17,7 +17,7 @@ type TokenUsage = {
   output_tokens?: number;
 };
 
-export const useAionrsMessage = (
+export const useWCoreMessage = (
   conversation_id: string,
   options?: {
     onError?: (message: IResponseMessage) => void;

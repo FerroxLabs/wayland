@@ -10,9 +10,9 @@ import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { resolveAionrsBinary } from './binaryResolver';
+import { resolveWCoreBinary } from './binaryResolver';
 import { buildSpawnConfig } from './envBuilder';
-import type { AionrsEvent, AionrsCommand, AionrsCapabilities } from './protocol';
+import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 
 const AIONRS_PROJECT_CONFIG = '.aionrs.toml';
 
@@ -33,7 +33,7 @@ export type StdioMcpOption = {
   awaitReady?: boolean;
 };
 
-export type AionrsAgentOptions = {
+export type WCoreAgentOptions = {
   workspace: string;
   model: TProviderWithModel;
   proxy?: string;
@@ -46,7 +46,7 @@ export type AionrsAgentOptions = {
   /**
    * Stdio MCP servers to register with the aionrs session after start.
    * Caller decides which MCPs belong here (team coordination, team-guide,
-   * future project MCPs, etc.) — AionrsAgent just forwards them.
+   * future project MCPs, etc.) — WCoreAgent just forwards them.
    */
   stdioMcpServers?: StdioMcpOption[];
   onStreamEvent: StreamEventHandler;
@@ -54,32 +54,32 @@ export type AionrsAgentOptions = {
   onPong?: () => void;
 };
 
-export class AionrsAgent {
+export class WCoreAgent {
   private childProcess: ChildProcess | null = null;
   private ready = false;
   private readyPromise: Promise<void>;
   private readyResolve!: () => void;
   private readyReject!: (err: Error) => void;
   private onStreamEvent: StreamEventHandler;
-  private _onProcessExit: AionrsAgentOptions['onProcessExit'];
-  private _onPong: AionrsAgentOptions['onPong'];
-  private options: AionrsAgentOptions;
+  private _onProcessExit: WCoreAgentOptions['onProcessExit'];
+  private _onPong: WCoreAgentOptions['onPong'];
+  private options: WCoreAgentOptions;
   private activeMsgId: string | null = null;
   private configBackup: { path: string; content: string | null } | null = null;
   private mcpReadyPromise: Promise<void>;
   private mcpReadyResolve!: () => void;
   public sessionId?: string;
-  public capabilities?: AionrsCapabilities;
+  public capabilities?: WCoreCapabilities;
   /**
    * The `--max-tokens` value actually passed to aionrs, after applying the
    * reasoning-model default fallback in `buildSpawnConfig`. `undefined` when
-   * no `--max-tokens` arg was added. Set during `start()`; `AionrsManager`
+   * no `--max-tokens` arg was added. Set during `start()`; `WCoreManager`
    * mirrors this into `data.data.maxTokens` so the truncation heuristic
    * compares `output_tokens` against the real budget rather than `undefined`.
    */
   public resolvedMaxTokens?: number;
 
-  constructor(options: AionrsAgentOptions) {
+  constructor(options: WCoreAgentOptions) {
     this.options = options;
     this.onStreamEvent = options.onStreamEvent;
     this._onProcessExit = options.onProcessExit;
@@ -98,7 +98,7 @@ export class AionrsAgent {
   }
 
   async start(): Promise<void> {
-    const binaryPath = resolveAionrsBinary();
+    const binaryPath = resolveWCoreBinary();
     if (!binaryPath) {
       throw new Error('aionrs binary not found');
     }
@@ -128,10 +128,10 @@ export class AionrsAgent {
     const rl = createInterface({ input: this.childProcess.stdout! });
     rl.on('line', (line) => {
       try {
-        const event = JSON.parse(line) as AionrsEvent;
+        const event = JSON.parse(line) as WCoreEvent;
         this.handleEvent(event);
       } catch {
-        console.error('[AionrsAgent] Failed to parse event:', line);
+        console.error('[WCoreAgent] Failed to parse event:', line);
       }
     });
 
@@ -163,7 +163,7 @@ export class AionrsAgent {
     } catch (err) {
       // If resume failed (session not found), fallback to a new session
       if (this.options.resume) {
-        console.error('[AionrsAgent] Resume failed, falling back to new session:', err);
+        console.error('[WCoreAgent] Resume failed, falling back to new session:', err);
         this.options = { ...this.options, resume: undefined, sessionId: this.options.resume };
         this.ready = false;
         this.readyPromise = new Promise((resolve, reject) => {
@@ -201,7 +201,7 @@ export class AionrsAgent {
         this.mcpReadyPromise,
         new Promise<void>((_resolve, reject) => setTimeout(() => reject(new Error('MCP ready timeout (30s)')), 30000)),
       ]).catch((err) => {
-        console.warn('[AionrsAgent] MCP setup warning:', err);
+        console.warn('[WCoreAgent] MCP setup warning:', err);
       });
     }
 
@@ -214,7 +214,7 @@ export class AionrsAgent {
     }
   }
 
-  private handleEvent(event: AionrsEvent): void {
+  private handleEvent(event: WCoreEvent): void {
     switch (event.type) {
       case 'ready':
         this.ready = true;
@@ -353,7 +353,7 @@ export class AionrsAgent {
   /**
    * Map aionrs tool_request to AionUi confirmation details format.
    */
-  private mapConfirmationDetails(event: AionrsEvent & { type: 'tool_request' }) {
+  private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' }) {
     const { tool } = event;
 
     switch (tool.category) {
@@ -389,7 +389,7 @@ export class AionrsAgent {
     }
   }
 
-  sendCommand(cmd: AionrsCommand): void {
+  sendCommand(cmd: WCoreCommand): void {
     if (!this.childProcess?.stdin?.writable) return;
     this.childProcess.stdin.write(JSON.stringify(cmd) + '\n');
   }

@@ -1,5 +1,5 @@
 /**
- * AionrsManager process exit error + heartbeat — unit tests
+ * WCoreManager process exit error + heartbeat — unit tests
  *
  * Validates that:
  * 1. Process exit during active turn emits error + finish (not fake finish)
@@ -111,8 +111,8 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   },
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -135,20 +135,20 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-function createManager(conversationId = 'conv-pe-1'): AionrsManager {
+function createManager(conversationId = 'conv-pe-1'): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
   };
-  return new AionrsManager(data as Record<string, unknown>, data.model as Record<string, unknown>);
+  return new WCoreManager(data as Record<string, unknown>, data.model as Record<string, unknown>);
 }
 
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as Record<string, unknown> & { emit: (name: string, data: unknown) => void }).emit('aionrs.message', event);
 }
 
@@ -160,8 +160,8 @@ function findEmissions(type: string) {
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('AionrsManager Process Exit + Heartbeat', () => {
-  let manager: AionrsManager;
+describe('WCoreManager Process Exit + Heartbeat', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -211,7 +211,7 @@ describe('AionrsManager Process Exit + Heartbeat', () => {
     it('logs error with mainError', () => {
       (manager as Record<string, (...args: unknown[]) => void>)['handleProcessExit'](1, 'msg-active-1');
 
-      expect(mockMainError).toHaveBeenCalledWith('[AionrsManager]', expect.stringContaining('code=1'));
+      expect(mockMainError).toHaveBeenCalledWith('[WCoreManager]', expect.stringContaining('code=1'));
     });
 
     it('calls handleTurnEnd', () => {
@@ -340,7 +340,7 @@ describe('AionrsManager Process Exit + Heartbeat', () => {
 
       (manager as Record<string, (...args: unknown[]) => void>)['checkHeartbeat']();
 
-      expect(mockMainError).toHaveBeenCalledWith('[AionrsManager]', expect.stringContaining('unresponsive'));
+      expect(mockMainError).toHaveBeenCalledWith('[WCoreManager]', expect.stringContaining('unresponsive'));
     });
   });
 

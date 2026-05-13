@@ -159,7 +159,10 @@ export class ConversationServiceImpl implements IConversationService {
         conversation = await createRemoteAgent(params as any);
         break;
       }
+      case 'wcore':
       case 'aionrs': {
+        // Dual-read: 'wcore' is the new conversation type (post-rebrand);
+        // 'aionrs' remains for backward compat with existing rows.
         conversation = await createAionrsAgent(params as any);
         break;
       }

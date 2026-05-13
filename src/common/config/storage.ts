@@ -445,8 +445,11 @@ export type TChatConversation =
       >,
       'model'
     >
+  // Dual-write/read variant: 'wcore' is the new conversation type written
+  // post-rebrand; 'aionrs' remains for backward compat with existing rows.
+  // Both share the same shape — they're the same wayland-core engine.
   | IChatConversation<
-      'aionrs',
+      'aionrs' | 'wcore',
       {
         workspace: string;
         customWorkspace?: boolean;

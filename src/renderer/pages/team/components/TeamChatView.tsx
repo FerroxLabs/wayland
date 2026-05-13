@@ -3,11 +3,11 @@ import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/
 import { Spin } from '@arco-design/web-react';
 import React, { Suspense, useCallback } from 'react';
 import { useGeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
-import { useAionrsModelSelection } from '@/renderer/pages/conversation/platforms/aionrs/useAionrsModelSelection';
+import { useWCoreModelSelection } from '@/renderer/pages/conversation/platforms/wcore/useWCoreModelSelection';
 import TeamChatEmptyState from './TeamChatEmptyState';
 
 const AcpChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/acp/AcpChat'));
-const AionrsChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/aionrs/AionrsChat'));
+const WCoreChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/wcore/WCoreChat'));
 const GeminiChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/gemini/GeminiChat'));
 const OpenClawChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/openclaw/OpenClawChat'));
 const NanobotChat = React.lazy(() => import('@/renderer/pages/conversation/platforms/nanobot/NanobotChat'));
@@ -49,11 +49,11 @@ const GeminiTeamChat: React.FC<{
 };
 
 // Narrow to Aionrs conversations so model field is always available
-type AionrsConversation = Extract<TChatConversation, { type: 'aionrs' }>;
+type WCoreConversation = Extract<TChatConversation, { type: 'aionrs' | 'wcore' }>;
 
 /** Aionrs sub-component manages model selection state without adding a ChatLayout wrapper */
-const AionrsTeamChat: React.FC<{
-  conversation: AionrsConversation;
+const WCoreTeamChat: React.FC<{
+  conversation: WCoreConversation;
   teamId?: string;
   agentSlotId?: string;
   emptySlot?: React.ReactNode;
@@ -67,10 +67,10 @@ const AionrsTeamChat: React.FC<{
     [conversation.id]
   );
 
-  const modelSelection = useAionrsModelSelection({ initialModel: conversation.model, onSelectModel });
+  const modelSelection = useWCoreModelSelection({ initialModel: conversation.model, onSelectModel });
 
   return (
-    <AionrsChat
+    <WCoreChat
       conversation_id={conversation.id}
       workspace={conversation.extra.workspace}
       modelSelection={modelSelection}
@@ -133,9 +133,9 @@ const TeamChatView: React.FC<TeamChatViewProps> = ({ conversation, hideSendBox, 
         );
       case 'aionrs':
         return (
-          <AionrsTeamChat
+          <WCoreTeamChat
             key={conversation.id}
-            conversation={conversation as AionrsConversation}
+            conversation={conversation as WCoreConversation}
             teamId={teamId}
             agentSlotId={agentSlotId}
             emptySlot={emptySlot}

@@ -13,8 +13,8 @@ import { teamEventBus } from '@process/team/teamEventBus';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
-import { AionrsAgent, type StdioMcpOption } from '@process/agent/aionrs';
-import type { AionrsCapabilities } from '@process/agent/aionrs/protocol';
+import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
+import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
 import { getDatabase } from '@process/services/database';
 import { addMessage, addOrUpdateMessage } from '@process/utils/message';
 import { uuid } from '@/common/utils';
@@ -28,8 +28,34 @@ import { ConversationTurnCompletionService } from './ConversationTurnCompletionS
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
 
+// ---------------------------------------------------------------------------
+// Truncation-heuristic constants (HC-4 — see audit at
+// .blackboard/audits/hard-coded-values.md, BD-Fix from Task D).
+//
+// These are the wrapper-side fallback heuristics for detecting when an LLM
+// response was truncated. Task F has shipped engine-emitted
+// `finish_reason: 'length'` upstream; once the engine binary that emits it
+// is on every supported PATH, the heuristic block in `detectTruncation()`
+// becomes pure backward-compat and can shrink to a `finish_reason` check.
+// ---------------------------------------------------------------------------
+
+/**
+ * If `output_tokens` is at least this fraction of `maxTokens`, the response
+ * is considered near-budget. Combined with `EMPTY_CONTENT_THRESHOLD_CHARS`
+ * to flag silently-truncated reasoning-model responses.
+ */
+const NEAR_BUDGET_RATIO = 0.95;
+
+/**
+ * Visible-content floor in characters. Responses shorter than this AND
+ * near-budget on tokens are treated as truncated (covers the Gemini Pro
+ * reasoning-token bug where ~50-60 thinking tokens consume the budget
+ * before any visible output renders).
+ */
+const EMPTY_CONTENT_THRESHOLD_CHARS = 20;
+
 // Aionrs-specific approval key — reuses same pattern as GeminiApprovalStore
-type AionrsApprovalKey = IApprovalKey & {
+type WCoreApprovalKey = IApprovalKey & {
   action: 'exec' | 'edit' | 'info' | 'mcp';
   identifier?: string;
 };
@@ -38,8 +64,8 @@ function isValidCommandName(name: string): boolean {
   return /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(name);
 }
 
-export class AionrsApprovalStore extends BaseApprovalStore<AionrsApprovalKey> {
-  static createKeysFromConfirmation(action: string, commandType?: string): AionrsApprovalKey[] {
+export class WCoreApprovalStore extends BaseApprovalStore<WCoreApprovalKey> {
+  static createKeysFromConfirmation(action: string, commandType?: string): WCoreApprovalKey[] {
     if (action === 'exec' && commandType) {
       return commandType
         .split(',')
@@ -49,13 +75,13 @@ export class AionrsApprovalStore extends BaseApprovalStore<AionrsApprovalKey> {
         .map((cmd) => ({ action: 'exec' as const, identifier: cmd }));
     }
     if (action === 'edit' || action === 'info' || action === 'mcp') {
-      return [{ action: action as AionrsApprovalKey['action'] }];
+      return [{ action: action as WCoreApprovalKey['action'] }];
     }
     return [];
   }
 }
 
-type AionrsManagerData = {
+type WCoreManagerData = {
   workspace: string;
   proxy?: string;
   model: TProviderWithModel;
@@ -75,14 +101,14 @@ type AionrsManagerData = {
   };
 };
 
-export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
+export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   workspace: string;
   model: TProviderWithModel;
-  readonly approvalStore = new AionrsApprovalStore();
-  private agent: AionrsAgent | null = null;
+  readonly approvalStore = new WCoreApprovalStore();
+  private agent: WCoreAgent | null = null;
   private agentReady: Promise<void>;
   private currentMode: string = 'default';
-  private _capabilities: AionrsCapabilities | null = null;
+  private _capabilities: WCoreCapabilities | null = null;
   private _configSentAt: number | null = null;
   private _messageSentAt: number | null = null;
   private currentMsgId: string | null = null;
@@ -108,7 +134,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
     { message: Extract<TMessage, { type: 'text' }>; timer: ReturnType<typeof setTimeout> }
   >();
 
-  constructor(data: AionrsManagerData, model: TProviderWithModel) {
+  constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('aionrs', { ...data, model }, new IpcAgentEventEmitter(), false);
     this.workspace = data.workspace;
     this.conversation_id = data.conversation_id;
@@ -123,7 +149,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
   }
 
   /**
-   * Determine new vs resume session, then create the AionrsAgent in-process.
+   * Determine new vs resume session, then create the WCoreAgent in-process.
    * If the conversation already has messages in the DB, pass --resume;
    * otherwise pass --session-id for a new session.
    */
@@ -153,7 +179,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
       if (teamGuide) stdioMcpServers.push(teamGuide);
     }
 
-    const agent = new AionrsAgent({
+    const agent = new WCoreAgent({
       workspace: mergedData.workspace,
       model: mergedData.model,
       proxy: mergedData.proxy,
@@ -248,7 +274,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
     // Wait for agent bootstrap to complete before sending
     await this.agentReady;
     this._messageSentAt = Date.now();
-    mainLog('[AionrsManager]', `message sent: msg_id=${data.msg_id}`);
+    mainLog('[WCoreManager]', `message sent: msg_id=${data.msg_id}`);
     if (this.agent) {
       await this.agent.send(data.content, data.msg_id, data.files);
     }
@@ -284,7 +310,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
       const action = content.confirmationDetails?.type ?? 'info';
       const commandType =
         action === 'exec' ? (content.confirmationDetails as { rootCommand?: string })?.rootCommand : undefined;
-      const keys = AionrsApprovalStore.createKeysFromConfirmation(action, commandType);
+      const keys = WCoreApprovalStore.createKeysFromConfirmation(action, commandType);
       if (keys.length > 0 && this.approvalStore.allApproved(keys)) {
         this.agent?.approveTool(content.callId, 'once');
         continue;
@@ -460,8 +486,8 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
 
     const maxTokens = this.data.data.maxTokens;
     if (!maxTokens || typeof d.output_tokens !== 'number') return false;
-    const nearBudget = d.output_tokens >= Math.floor(maxTokens * 0.95);
-    const contentEmpty = content.trim().length < 20;
+    const nearBudget = d.output_tokens >= Math.floor(maxTokens * NEAR_BUDGET_RATIO);
+    const contentEmpty = content.trim().length < EMPTY_CONTENT_THRESHOLD_CHARS;
     return nearBudget && contentEmpty;
   }
 
@@ -519,7 +545,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
   }
 
   private handleProcessExit(code: number | null, activeMsgId: string): void {
-    mainError('[AionrsManager]', `aionrs process exited unexpectedly (code=${code}) during active turn ${activeMsgId}`);
+    mainError('[WCoreManager]', `aionrs process exited unexpectedly (code=${code}) during active turn ${activeMsgId}`);
 
     this.status = 'finished';
     void this.handleTurnEnd();
@@ -570,7 +596,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
 
     if (this.heartbeatMissedCount >= this.heartbeatMaxMissed) {
       mainError(
-        '[AionrsManager]',
+        '[WCoreManager]',
         `aionrs process unresponsive after ${this.heartbeatMaxMissed} missed pongs, killing`
       );
       this.agent?.kill();
@@ -585,9 +611,9 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
       // Store capabilities from config_changed events
       if (data.type === 'config_changed') {
         const elapsed = this._configSentAt ? `${Date.now() - this._configSentAt}ms` : 'n/a';
-        mainLog('[AionrsManager]', `config_changed received (${elapsed})`, data.data);
+        mainLog('[WCoreManager]', `config_changed received (${elapsed})`, data.data);
         this._configSentAt = null;
-        this._capabilities = data.data as AionrsCapabilities;
+        this._capabilities = data.data as WCoreCapabilities;
         ipcBridge.conversation.responseStream.emit({
           type: 'config_changed',
           conversation_id: this.conversation_id,
@@ -600,7 +626,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
       // Log info events from aionrs (includes set_config/set_mode acknowledgments)
       if (data.type === 'info') {
         const elapsed = this._configSentAt ? ` (${Date.now() - this._configSentAt}ms since command)` : '';
-        mainLog('[AionrsManager]', `info: ${data.data}${elapsed}`);
+        mainLog('[WCoreManager]', `info: ${data.data}${elapsed}`);
       }
 
       // System-level events (empty msg_id) are not part of a conversation turn.
@@ -618,7 +644,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
 
       if (data.type === 'start') {
         const ttft = this._messageSentAt ? `${Date.now() - this._messageSentAt}ms` : 'n/a';
-        mainLog('[AionrsManager]', `stream_start: msg_id=${data.msg_id}, TTFT=${ttft}`);
+        mainLog('[WCoreManager]', `stream_start: msg_id=${data.msg_id}, TTFT=${ttft}`);
         this.status = 'running';
         this.heartbeatActive = true;
         this.heartbeatMissedCount = 0;
@@ -684,7 +710,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
       // On turn end, clear fallback timer, persist usage, and check for cron commands
       if (processedData.type === 'finish') {
         const total = this._messageSentAt ? `${Date.now() - this._messageSentAt}ms` : 'n/a';
-        mainLog('[AionrsManager]', `stream_end: msg_id=${processedData.msg_id}, total=${total}`, processedData.data);
+        mainLog('[WCoreManager]', `stream_end: msg_id=${processedData.msg_id}, total=${total}`, processedData.data);
         this._messageSentAt = null;
         this.heartbeatActive = false;
         this.heartbeatMissedCount = 0;
@@ -728,7 +754,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
 
           if (transformDuration > 5 || dbDuration > 5) {
             mainLog(
-              '[AionrsManager]',
+              '[WCoreManager]',
               `stream: transform ${transformDuration}ms, db ${dbDuration}ms type=${processedData.type}`
             );
           }
@@ -747,7 +773,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
       const totalDuration = Date.now() - pipelineStart;
       if (totalDuration > 10) {
         mainLog(
-          '[AionrsManager]',
+          '[WCoreManager]',
           `stream: pipeline ${totalDuration}ms (emit=${emitDuration}ms) type=${processedData.type}`
         );
       }
@@ -812,11 +838,11 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
         });
       }
     } catch (error) {
-      mainError('[AionrsManager]', 'Cron command processing failed', error);
+      mainError('[WCoreManager]', 'Cron command processing failed', error);
     }
   }
 
-  getCapabilities(): AionrsCapabilities | null {
+  getCapabilities(): WCoreCapabilities | null {
     return this._capabilities;
   }
 
@@ -835,7 +861,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
     this.saveSessionMode(mode);
     if (this.agent) {
       this._configSentAt = Date.now();
-      mainLog('[AionrsManager]', `set_mode sent: mode=${mode}`);
+      mainLog('[WCoreManager]', `set_mode sent: mode=${mode}`);
       this.agent.setMode(mode as 'default' | 'auto_edit' | 'yolo');
     }
     return { success: true, data: { mode: this.currentMode } };
@@ -852,7 +878,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
         } as Partial<typeof conversation>);
       }
     } catch (error) {
-      mainError('[AionrsManager]', 'Failed to save session mode', error);
+      mainError('[WCoreManager]', 'Failed to save session mode', error);
     }
   }
 
@@ -861,7 +887,7 @@ export class AionrsManager extends BaseAgentManager<AionrsManagerData, string> {
     if (data === ToolConfirmationOutcome.ProceedAlways) {
       const confirmation = this.confirmations.find((c) => c.callId === callId);
       if (confirmation?.action) {
-        const keys = AionrsApprovalStore.createKeysFromConfirmation(confirmation.action, confirmation.commandType);
+        const keys = WCoreApprovalStore.createKeysFromConfirmation(confirmation.action, confirmation.commandType);
         this.approvalStore.approveAll(keys);
       }
     }

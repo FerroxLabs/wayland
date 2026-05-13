@@ -305,8 +305,8 @@ vi.mock('@/renderer/pages/conversation/platforms/gemini/useGeminiMessage', () =>
   })),
 }));
 
-vi.mock('@/renderer/pages/conversation/platforms/aionrs/useAionrsMessage', () => ({
-  useAionrsMessage: vi.fn(() => ({
+vi.mock('@/renderer/pages/conversation/platforms/wcore/useWCoreMessage', () => ({
+  useWCoreMessage: vi.fn(() => ({
     thought: { subject: '', description: '' },
     running: mockAionrsRunning,
     hasHydratedRunningState: true,
@@ -387,7 +387,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 import AcpSendBox from '@/renderer/pages/conversation/platforms/acp/AcpSendBox';
-import AionrsSendBox from '@/renderer/pages/conversation/platforms/aionrs/AionrsSendBox';
+import WCoreSendBox from '@/renderer/pages/conversation/platforms/wcore/WCoreSendBox';
 import GeminiSendBox from '@/renderer/pages/conversation/platforms/gemini/GeminiSendBox';
 import NanobotSendBox from '@/renderer/pages/conversation/platforms/nanobot/NanobotSendBox';
 import OpenClawSendBox from '@/renderer/pages/conversation/platforms/openclaw/OpenClawSendBox';
@@ -480,7 +480,7 @@ describe('platform send box queue integration', () => {
     ],
     [
       'aionrs',
-      <AionrsSendBox
+      <WCoreSendBox
         conversation_id='conv-aionrs'
         modelSelection={{
           currentModel: { useModel: 'aionrs-1' },
@@ -548,7 +548,7 @@ describe('platform send box queue integration', () => {
     ],
     [
       'aionrs',
-      <AionrsSendBox
+      <WCoreSendBox
         conversation_id='conv-aionrs'
         modelSelection={{
           currentModel: { useModel: 'aionrs-1' },
@@ -662,7 +662,7 @@ describe('platform send box queue integration', () => {
     ],
     [
       'aionrs',
-      <AionrsSendBox
+      <WCoreSendBox
         conversation_id='conv-aionrs'
         modelSelection={{
           currentModel: { useModel: 'aionrs-1' },

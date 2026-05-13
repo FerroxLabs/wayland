@@ -7,7 +7,7 @@
 import { acpDetector } from '@process/agent/acp/AcpDetector';
 import type {
   AcpDetectedAgent,
-  AionrsDetectedAgent,
+  WCoreDetectedAgent,
   DetectedAgent,
   GeminiDetectedAgent,
   NanobotDetectedAgent,
@@ -59,11 +59,17 @@ class AgentRegistry {
     };
   }
 
-  private createAionrsAgent(): AionrsDetectedAgent {
+  private createWCoreAgent(): WCoreDetectedAgent {
     return {
+      // Routing identifiers (`id`, `backend`) stay as 'aionrs' — they're
+      // internal lookup keys read by 25+ sites and are NOT part of the
+      // dual-write rename (see Task E locked decisions in BLACKBOARD).
       id: 'aionrs',
       name: 'Wayland Core',
-      kind: 'aionrs',
+      // `kind` is the conversation kind/type persisted to the DB. NEW writes
+      // emit 'wcore'; readers downstream accept both 'wcore' and 'aionrs'
+      // for backward compat with existing user data.
+      kind: 'wcore',
       available: true,
       backend: 'aionrs',
     };
@@ -149,7 +155,7 @@ class AgentRegistry {
   // prettier-ignore
   private merge(): void {
     this.detectedAgents = this.deduplicate([
-      this.createAionrsAgent(),
+      this.createWCoreAgent(),
       this.createGeminiAgent(),
       ...this.builtinAgents,
       ...this.otherAgents,

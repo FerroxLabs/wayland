@@ -8,7 +8,7 @@ import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 import { useModelProviderList } from '@/renderer/hooks/agent/useModelProviderList';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export type AionrsModelSelection = {
+export type WCoreModelSelection = {
   currentModel?: TProviderWithModel;
   providers: IProvider[];
   getAvailableModels: (provider: IProvider) => string[];
@@ -21,10 +21,10 @@ export type UseAionrsModelSelectionOptions = {
   onSelectModel: (provider: IProvider, modelName: string) => Promise<boolean>;
 };
 
-export const useAionrsModelSelection = ({
+export const useWCoreModelSelection = ({
   initialModel,
   onSelectModel,
-}: UseAionrsModelSelectionOptions): AionrsModelSelection => {
+}: UseAionrsModelSelectionOptions): WCoreModelSelection => {
   const [currentModel, setCurrentModel] = useState<TProviderWithModel | undefined>(initialModel);
 
   useEffect(() => {

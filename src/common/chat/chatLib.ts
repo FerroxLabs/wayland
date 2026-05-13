@@ -143,7 +143,7 @@ export type IMessageText = IMessage<
     /** Sender teammate's conversation id — lets the renderer resolve preset avatars via their conversation extras. */
     senderConversationId?: string;
     /**
-     * Set by AionrsManager when the response stopped with `finish_reason: 'length'`
+     * Set by WCoreManager when the response stopped with `finish_reason: 'length'`
      * (or matched the equivalent heuristic). Surfaces a "response truncated"
      * warning in the renderer; primarily fixes the Gemini Pro thinking-token
      * bug where reasoning models would return an empty bubble.

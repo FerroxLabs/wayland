@@ -1,9 +1,9 @@
 /**
- * GAP-6: AionrsManager Skill Suggest Watcher — Black-box tests
+ * GAP-9: WCoreManager Turn Completion Service — Black-box tests
  *
- * Tests based on GAP-6-plan.md acceptance criteria.
- * Validates that AionrsManager calls skillSuggestWatcher.onFinish()
- * on turn end so cron tasks can generate skill suggestions.
+ * Tests based on GAP-9-plan.md acceptance criteria.
+ * Validates that WCoreManager calls ConversationTurnCompletionService
+ * on turn completion (normal finish and fallback finish).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -17,9 +17,7 @@ const {
   mockDb,
   mockTeamEventBusEmit,
   mockChannelEmitAgentMessage,
-  mockSetProcessing,
-  mockIsProcessing,
-  mockOnFinish,
+  mockNotifyPotentialCompletion,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
   emitConfirmationAdd: vi.fn(),
@@ -35,9 +33,7 @@ const {
   },
   mockTeamEventBusEmit: vi.fn(),
   mockChannelEmitAgentMessage: vi.fn(),
-  mockSetProcessing: vi.fn(),
-  mockIsProcessing: vi.fn(() => false),
-  mockOnFinish: vi.fn(),
+  mockNotifyPotentialCompletion: vi.fn().mockResolvedValue(undefined),
 }));
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -125,29 +121,23 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   },
 }));
 
-vi.mock('@process/services/cron/CronBusyGuard', () => ({
-  cronBusyGuard: {
-    setProcessing: mockSetProcessing,
-    isProcessing: mockIsProcessing,
-  },
-}));
+vi.mock('./ConversationTurnCompletionService', async () => {
+  const actual = await vi.importActual<typeof import('@/process/task/ConversationTurnCompletionService')>(
+    '@/process/task/ConversationTurnCompletionService'
+  );
+  return actual;
+});
 
 vi.mock('@/process/task/ConversationTurnCompletionService', () => ({
   ConversationTurnCompletionService: {
     getInstance: vi.fn(() => ({
-      notifyPotentialCompletion: vi.fn().mockResolvedValue(undefined),
+      notifyPotentialCompletion: mockNotifyPotentialCompletion,
     })),
   },
 }));
 
-vi.mock('@process/services/cron/SkillSuggestWatcher', () => ({
-  skillSuggestWatcher: {
-    onFinish: mockOnFinish,
-  },
-}));
-
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -163,30 +153,30 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
-const CONV_ID = 'conv-skill-1';
+const CONV_ID = 'conv-tc-1';
 const FALLBACK_DELAY_MS = 15_000;
 
-function createManager(conversationId = CONV_ID): AionrsManager {
+function createManager(conversationId = CONV_ID): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
   };
-  return new AionrsManager(data as any, data.model as any);
+  return new WCoreManager(data as any, data.model as any);
 }
 
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('aionrs.message', event);
 }
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('GAP-6: AionrsManager Skill Suggest Watcher', () => {
-  let manager: AionrsManager;
+describe('GAP-9: WCoreManager Turn Completion Service', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -200,65 +190,135 @@ describe('GAP-6: AionrsManager Skill Suggest Watcher', () => {
     vi.restoreAllMocks();
   });
 
-  // ── AC-1: Normal finish triggers onFinish ─────────────────────────
+  // ── AC-1: Normal finish calls notifyPotentialCompletion ──────────
 
-  describe('AC-1: Normal finish triggers skillSuggestWatcher.onFinish', () => {
-    it('calls onFinish with conversation_id on finish event', async () => {
+  describe('AC-1: Normal finish triggers notifyPotentialCompletion', () => {
+    it('calls notifyPotentialCompletion on finish event', async () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
-      emitEvent(manager, { type: 'content', data: 'hello world', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'content', data: 'hello', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+
+      // Allow async handleTurnEnd to complete
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledTimes(1);
+    });
+
+    it('passes correct conversationId', async () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
 
       await vi.advanceTimersByTimeAsync(200);
 
-      expect(mockOnFinish).toHaveBeenCalledWith(CONV_ID);
-      expect(mockOnFinish).toHaveBeenCalledTimes(1);
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledWith(CONV_ID, expect.any(Object));
+    });
+
+    it('passes correct context fields (status, workspace, backend, pendingConfirmations, modelId)', async () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'content', data: 'response text', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledWith(
+        CONV_ID,
+        expect.objectContaining({
+          status: 'finished',
+          workspace: '/test/workspace',
+          backend: 'aionrs',
+          pendingConfirmations: 0,
+          modelId: 'test-model',
+        })
+      );
     });
   });
 
-  // ── AC-2: Process exit triggers onFinish ──────────────────────────
+  // ── AC-2: Process exit calls notifyPotentialCompletion ───────────
 
-  describe('AC-2: Process exit triggers skillSuggestWatcher.onFinish', () => {
-    it('calls onFinish when process exits during active turn', async () => {
+  describe('AC-2: Process exit triggers notifyPotentialCompletion', () => {
+    it('calls notifyPotentialCompletion on process exit during active turn', async () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'content', data: 'data', msg_id: 'msg-1' });
 
       (manager as Record<string, (...args: unknown[]) => void>)['handleProcessExit'](1, 'msg-1');
       await vi.advanceTimersByTimeAsync(200);
 
-      expect(mockOnFinish).toHaveBeenCalledWith(CONV_ID);
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledTimes(1);
+    });
+
+    it('process exit passes correct context fields', async () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'content', data: 'data', msg_id: 'msg-1' });
+
+      (manager as Record<string, (...args: unknown[]) => void>)['handleProcessExit'](1, 'msg-1');
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledWith(
+        CONV_ID,
+        expect.objectContaining({
+          status: 'finished',
+          workspace: '/test/workspace',
+          backend: 'aionrs',
+        })
+      );
     });
   });
 
-  // ── AC-3: stop() does not trigger onFinish ────────────────────────
+  // ── AC-3: Notification fires even without cron commands ──────────
 
-  describe('AC-3: stop() does not trigger onFinish', () => {
-    it('does not call onFinish when stop is called', async () => {
-      await manager.stop();
+  describe('AC-3: Notification fires even without cron commands', () => {
+    it('notifies when turn content has no cron commands', async () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'content', data: 'plain text response', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
 
-      expect(mockOnFinish).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledTimes(1);
+    });
+
+    it('notifies when turn has empty content', async () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledTimes(1);
     });
   });
 
-  // ── AC-4: Correct conversation_id per manager ─────────────────────
+  // ── AC-4: Notification fires even with cron commands ─────────────
 
-  describe('AC-4: Different conversation_ids passed correctly', () => {
-    it('passes respective conversation_id for each manager', async () => {
-      const manager2 = createManager('conv-skill-2');
+  describe('AC-4: Notification fires even with cron commands', () => {
+    it('notifies when turn content includes cron commands', async () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'content', data: '[CRON_LIST]', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(mockNotifyPotentialCompletion).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ── AC-5: Different conversation IDs propagated correctly ────────
+
+  describe('AC-5: Different conversation IDs work correctly', () => {
+    it('uses the correct conversationId for each manager instance', async () => {
+      const manager2 = createManager('conv-tc-2');
       vi.spyOn(manager2 as any, 'postMessagePromise').mockResolvedValue(undefined);
 
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
-      emitEvent(manager, { type: 'content', data: 'a', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
-
       emitEvent(manager2, { type: 'start', data: '', msg_id: 'msg-2' });
-      emitEvent(manager2, { type: 'content', data: 'b', msg_id: 'msg-2' });
       emitEvent(manager2, { type: 'finish', data: '', msg_id: 'msg-2' });
 
       await vi.advanceTimersByTimeAsync(200);
 
-      expect(mockOnFinish).toHaveBeenCalledWith('conv-skill-1');
-      expect(mockOnFinish).toHaveBeenCalledWith('conv-skill-2');
-      expect(mockOnFinish).toHaveBeenCalledTimes(2);
+      const calls = mockNotifyPotentialCompletion.mock.calls;
+      expect(calls).toHaveLength(2);
+      expect(calls[0][0]).toBe(CONV_ID);
+      expect(calls[1][0]).toBe('conv-tc-2');
     });
   });
 });

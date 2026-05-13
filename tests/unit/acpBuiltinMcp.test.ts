@@ -168,8 +168,8 @@ const mockUnrelatedMcpAgents = (emptyDetect: () => Promise<IMcpServer[]>) => {
   vi.doMock('../../src/process/services/mcpServices/agents/CodexMcpAgent', () => ({
     CodexMcpAgent: makeAgentClass(emptyDetect),
   }));
-  vi.doMock('../../src/process/services/mcpServices/agents/AionrsMcpAgent', () => ({
-    AionrsMcpAgent: makeAgentClass(emptyDetect),
+  vi.doMock('../../src/process/services/mcpServices/agents/WCoreMcpAgent', () => ({
+    WCoreMcpAgent: makeAgentClass(emptyDetect),
   }));
 };
 

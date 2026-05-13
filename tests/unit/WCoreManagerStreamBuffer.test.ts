@@ -1,8 +1,8 @@
 /**
- * GAP-7: AionrsManager Buffered Stream DB Writes — Black-box tests
+ * GAP-7: WCoreManager Buffered Stream DB Writes — Black-box tests
  *
  * Tests based on GAP-7-plan.md acceptance criteria.
- * Validates that AionrsManager batches streaming text writes to DB
+ * Validates that WCoreManager batches streaming text writes to DB
  * with a 120ms flush interval instead of writing per-chunk.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -136,8 +136,8 @@ vi.mock('@/process/task/ConversationTurnCompletionService', () => ({
   },
 }));
 
-vi.mock('@process/agent/aionrs', () => ({
-  AionrsAgent: vi.fn().mockImplementation(() => ({
+vi.mock('@process/agent/wcore', () => ({
+  WCoreAgent: vi.fn().mockImplementation(() => ({
     start: vi.fn().mockResolvedValue(undefined),
     stop: vi.fn(),
     kill: vi.fn(),
@@ -153,7 +153,7 @@ vi.mock('@process/agent/aionrs', () => ({
 
 // ── Import under test ──────────────────────────────────────────────
 
-import { AionrsManager } from '@/process/task/AionrsManager';
+import { WCoreManager } from '@/process/task/WCoreManager';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -161,16 +161,16 @@ const CONV_ID = 'conv-sb-1';
 const FLUSH_INTERVAL_MS = 120;
 const FALLBACK_DELAY_MS = 15_000;
 
-function createManager(conversationId = CONV_ID): AionrsManager {
+function createManager(conversationId = CONV_ID): WCoreManager {
   const data = {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
   };
-  return new AionrsManager(data as any, data.model as any);
+  return new WCoreManager(data as any, data.model as any);
 }
 
-function emitEvent(manager: AionrsManager, event: Record<string, unknown>) {
+function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
   (manager as any).emit('aionrs.message', event);
 }
 
@@ -180,8 +180,8 @@ function getTextDbWrites() {
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-describe('GAP-7: AionrsManager Buffered Stream DB Writes', () => {
-  let manager: AionrsManager;
+describe('GAP-7: WCoreManager Buffered Stream DB Writes', () => {
+  let manager: WCoreManager;
 
   beforeEach(() => {
     vi.clearAllMocks();

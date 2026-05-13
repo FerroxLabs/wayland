@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { AionrsModelSelection } from './useAionrsModelSelection';
+import type { WCoreModelSelection } from './useWCoreModelSelection';
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
@@ -16,8 +16,8 @@ import useSWR from 'swr';
 import { ipcBridge } from '@/common';
 import type { IProvider } from '@/common/config/storage';
 
-const AionrsModelSelector: React.FC<{
-  selection?: AionrsModelSelection;
+const WCoreModelSelector: React.FC<{
+  selection?: WCoreModelSelection;
   disabled?: boolean;
 }> = ({ selection, disabled = false }) => {
   const { t } = useTranslation();
@@ -131,4 +131,4 @@ const AionrsModelSelector: React.FC<{
   );
 };
 
-export default AionrsModelSelector;
+export default WCoreModelSelector;

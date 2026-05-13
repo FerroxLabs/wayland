@@ -13,7 +13,7 @@ import { GeminiMcpAgent } from './agents/GeminiMcpAgent';
 import { WaylandMcpAgent } from './agents/WaylandMcpAgent';
 import { CodexMcpAgent } from './agents/CodexMcpAgent';
 import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
-import { AionrsMcpAgent } from './agents/AionrsMcpAgent';
+import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
 
 /**
@@ -89,7 +89,7 @@ export class McpService {
       ['wayland', new WaylandMcpAgent()], // Wayland 本地 @office-ai/aioncli-core
       ['codex', new CodexMcpAgent()],
       ['opencode', new OpencodeMcpAgent()],
-      ['aionrs', new AionrsMcpAgent()], // Wayland Core (Rust binary, TOML config)
+      ['aionrs', new WCoreMcpAgent()], // Wayland Core (Rust binary, TOML config)
     ]);
   }
 
