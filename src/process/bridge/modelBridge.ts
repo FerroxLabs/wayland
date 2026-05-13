@@ -28,6 +28,18 @@ import { ExtensionRegistry } from '@process/extensions';
 import { BedrockClient, ListInferenceProfilesCommand } from '@aws-sdk/client-bedrock';
 
 /**
+ * Minimal completion-token request used for connectivity / auth probes.
+ * Probes exist only to verify that the endpoint responds and the
+ * credentials are accepted — we never read the completion content, so a
+ * 1-token cap keeps the round-trip cheap and prevents the model from
+ * actually doing work. Applied at every probe call site in this file.
+ *
+ * Extracted from three call sites (HC-4 — see audit at
+ * .blackboard/audits/hard-coded-values.md).
+ */
+const PROBE_MAX_TOKENS = 1;
+
+/**
  * OpenAI 兼容 API 的常见路径格式
  * Common path patterns for OpenAI-compatible APIs
  *
@@ -204,7 +216,7 @@ export function initModelBridge(): void {
             body: JSON.stringify({
               model: codingPlanModels[0],
               messages: [{ role: 'user', content: 'hi' }],
-              max_tokens: 1,
+              max_tokens: PROBE_MAX_TOKENS,
             }),
           });
           if (probeResponse.status === 401) {
@@ -906,7 +918,7 @@ async function testOpenAIProtocol(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ model: '_probe', messages: [{ role: 'user', content: '' }], max_tokens: 1 }),
+        body: JSON.stringify({ model: '_probe', messages: [{ role: 'user', content: '' }], max_tokens: PROBE_MAX_TOKENS }),
       });
 
       if (response.status === 401) {
@@ -994,7 +1006,7 @@ async function testAnthropicProtocol(
         },
         body: JSON.stringify({
           model: 'claude-3-haiku-20240307',
-          max_tokens: 1,
+          max_tokens: PROBE_MAX_TOKENS,
           messages: [{ role: 'user', content: 'hi' }],
         }),
       });
