@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const prepareBundledBun = require('./prepareBundledBun');
-const prepareAionrs = require('./prepareAionrs');
+const prepareWaylandCore = require('./prepareWaylandCore');
 
 // DMG retry logic for macOS: detects DMG creation failures by checking artifacts
 // (.app exists but .dmg missing) and retries only the DMG step using
@@ -456,8 +456,8 @@ try {
 
   // 5b. Prepare hub resources (index.json + extension zips for offline fallback)
   execSync('node scripts/prepareHubResources.js', { stdio: 'inherit', env: process.env });
-  // 5b. Prepare aionrs binary (Rust CLI for agent integration)
-  prepareAionrs();
+  // 5b. Prepare wayland-core binary (Rust CLI for agent integration)
+  prepareWaylandCore();
 
   // 6. 运行 electron-builder 生成分发包（DMG/ZIP/EXE等）
   // Run electron-builder to create distributables (DMG/ZIP/EXE, etc.)
