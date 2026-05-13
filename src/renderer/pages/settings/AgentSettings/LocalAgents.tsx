@@ -77,7 +77,7 @@ const LocalAgents: React.FC = () => {
     [mutateCustomAgents]
   );
 
-  // Aion CLI and Gemini CLI first among detected agents
+  // Wayland Core and Gemini CLI first among detected agents
   const aionrsAgent = detectedAgents?.find((a) => a.backend === 'aionrs');
   const geminiAgent = detectedAgents?.find((a) => a.backend === 'gemini');
   const otherDetected = detectedAgents?.filter((a) => a.backend !== 'gemini' && a.backend !== 'aionrs') ?? [];

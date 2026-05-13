@@ -211,7 +211,7 @@ export class DingTalkPlugin extends BasePlugin {
     if (!this.clientId) return null;
     return {
       id: this.clientId,
-      displayName: 'Aion Assistant',
+      displayName: 'Wayland Core Assistant',
     };
   }
 

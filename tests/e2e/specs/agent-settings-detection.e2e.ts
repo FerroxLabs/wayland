@@ -33,7 +33,7 @@ test.describe('Agent Settings Detection', () => {
   test('Gemini agent is present in detected list', async ({ page }) => {
     await goToSettings(page, 'agent');
 
-    // Gemini or Aion RS should be in the agent list
+    // Gemini or Wayland Core should be in the agent list
     await expectBodyContainsAny(page, ['Gemini', 'gemini', 'Aion']);
   });
 

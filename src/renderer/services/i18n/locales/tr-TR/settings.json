@@ -201,7 +201,7 @@
   "deleteInvalidKeys": "Geçersiz Anahtarları Sil",
   "testAllKeys": "Tüm Anahtarları Test Et",
   "addModelPlaceholder": "Model ID seçin veya girin",
-  "customModelSupportNote": "Not: Aion CLI ve Gemini CLI Agent şu anda özel modelleri destekliyor.",
+  "customModelSupportNote": "Not: Wayland Core ve Gemini CLI Agent şu anda özel modelleri destekliyor.",
   "addModelHint": "Bir model ID seçin veya yazın, bu sağlayıcıya eklenecektir.",
   "addModelSelectedHint": "Model eklemeye hazır: {{model}}",
   "currentModelsLabel": "Mevcut Modeller",
@@ -908,6 +908,6 @@
     "notFound": "Bulunamadı",
     "version": "Sürüm",
     "path": "Yol",
-    "providerNote": "Sağlayıcı ve API anahtarı ayarları Modeller sayfasında yönetilir. Aion CLI destekler: Anthropic, OpenAI, AWS Bedrock."
+    "providerNote": "Sağlayıcı ve API anahtarı ayarları Modeller sayfasında yönetilir. Wayland Core destekler: Anthropic, OpenAI, AWS Bedrock."
   }
 }

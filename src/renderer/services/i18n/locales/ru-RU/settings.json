@@ -198,7 +198,7 @@
   "deleteInvalidKeys": "Удалить недействительные ключи",
   "testAllKeys": "Тестировать все ключи",
   "addModelPlaceholder": "Выберите или введите ID модели",
-  "customModelSupportNote": "Примечание: Aion CLI и Gemini CLI Agent поддерживают пользовательские модели.",
+  "customModelSupportNote": "Примечание: Wayland Core и Gemini CLI Agent поддерживают пользовательские модели.",
   "addModelHint": "Выберите или введите ID модели, и он будет добавлен к этому провайдеру.",
   "addModelSelectedHint": "Готово к добавлению модели: {{model}}",
   "currentModelsLabel": "Текущие модели",
@@ -900,7 +900,7 @@
     "notFound": "Не найден",
     "version": "Версия",
     "path": "Путь",
-    "providerNote": "Настройки провайдера и API-ключей управляются на странице моделей. Aion CLI поддерживает: Anthropic, OpenAI, AWS Bedrock."
+    "providerNote": "Настройки провайдера и API-ключей управляются на странице моделей. Wayland Core поддерживает: Anthropic, OpenAI, AWS Bedrock."
   },
   "noExternalSources": "Внешние источники навыков не найдены",
   "groupAiCore": "Ядро ИИ",

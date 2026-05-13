@@ -36,7 +36,7 @@ void cronService.init().catch((error) => {
   console.error('[initBridge] Failed to initialize CronService:', error);
 });
 
-// Start in-process Aion MCP server for team-guide tools (aion_create_team)
+// Start in-process Wayland Core MCP server for team-guide tools (aion_create_team)
 void initTeamGuideService(teamSessionService).catch((error) => {
   console.error('[initBridge] Failed to initialize TeamGuideMcpServer:', error);
 });

@@ -114,7 +114,7 @@ stateDiagram-v2
   },
   "metadata": {
     "totalExtensions": 2,
-    "generatedBy": "Aion Extension Builder v1.0.0",
+    "generatedBy": "Wayland Core Extension Builder v1.0.0",
     "repository": "https://github.com/TradeCanyon/WaylandHub/"
   }
 }
