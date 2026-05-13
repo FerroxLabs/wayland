@@ -7,6 +7,25 @@
 import type { ProtocolConverter, ConverterConfig } from './ProtocolConverter';
 import type Anthropic from '@anthropic-ai/sdk';
 
+/**
+ * Fallback max_tokens for OpenAI -> Anthropic conversion.
+ *
+ * The Anthropic API requires `max_tokens` on every request; OpenAI's does
+ * not. When an OpenAI-shape inbound request reaches this converter without
+ * a max_tokens value set, we substitute this default before forwarding to
+ * Anthropic.
+ *
+ * This is intentionally 4096 (a conservative Anthropic-side completion
+ * budget), NOT 8192 (the engine's `default_max_tokens()` in
+ * wcore-config/src/config.rs:226 — used when no provider-side default is
+ * configured at all). The two values serve different layers:
+ *   - 8192 = "config didn't pick a number, use a generous default"
+ *   - 4096 = "API converter needs SOMETHING and conservative is safer for
+ *           compat with how users actually shape OpenAI requests"
+ * Keeping them deliberately distinct.
+ */
+const OPENAI_TO_ANTHROPIC_MAX_TOKENS_FALLBACK = 4096;
+
 // OpenAI types - compatible with actual OpenAI SDK types
 export interface OpenAIChatCompletionParams {
   model: string;
@@ -108,7 +127,7 @@ export class OpenAI2AnthropicConverter implements ProtocolConverter<
 
     const request: AnthropicMessageRequest = {
       model: this.config.defaultModel || params.model,
-      max_tokens: params.max_tokens || 4096,
+      max_tokens: params.max_tokens || OPENAI_TO_ANTHROPIC_MAX_TOKENS_FALLBACK,
       messages: validatedMessages,
     };
 
