@@ -195,7 +195,7 @@ describe('initAgent — skill support', () => {
       expect(symlinkCalls[0].target).toBe('/tmp/workspace/.codebuddy/skills/morph-ppt');
     });
 
-    it('should create symlink in .aionrs/skills for aionrs backend', async () => {
+    it('should create symlink in .wayland-core/skills for wcore/aionrs backend', async () => {
       statResults['/mock/user/skills/officecli-docx'] = true;
 
       await setupAssistantWorkspace('/tmp/workspace', {
@@ -203,10 +203,13 @@ describe('initAgent — skill support', () => {
         enabledSkills: ['officecli-docx'],
       });
 
-      // aionrs is a non-ACP agent but still supports native skill discovery
-      expect(mkdirCalls).toContain('/tmp/workspace/.aionrs/skills');
+      // wcore/aionrs is a non-ACP agent but still supports native skill discovery.
+      // The engine looks in `.wayland-core/skills/` (wcore-skills/src/paths.rs);
+      // both 'wcore' (post-rebrand) and 'aionrs' (legacy) agentType keys map to
+      // that path in NON_ACP_SKILLS_DIRS.
+      expect(mkdirCalls).toContain('/tmp/workspace/.wayland-core/skills');
       expect(symlinkCalls).toHaveLength(1);
-      expect(symlinkCalls[0].target).toBe('/tmp/workspace/.aionrs/skills/officecli-docx');
+      expect(symlinkCalls[0].target).toBe('/tmp/workspace/.wayland-core/skills/officecli-docx');
     });
 
     it('should create symlink in .factory/skills for droid backend', async () => {

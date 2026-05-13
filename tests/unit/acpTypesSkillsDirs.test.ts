@@ -97,7 +97,11 @@ describe('acpTypes — skillsDirs integration', () => {
       expect(getSkillsDirsForBackend('claude')).toEqual(['.claude/skills']);
       expect(getSkillsDirsForBackend('droid')).toEqual(['.factory/skills']);
       expect(getSkillsDirsForBackend('gemini')).toEqual(['.gemini/skills']); // non-ACP but has skill dirs
-      expect(getSkillsDirsForBackend('aionrs')).toEqual(['.aionrs/skills']); // non-ACP but has skill dirs
+      // Both 'wcore' (post-rebrand) and 'aionrs' (legacy) resolve to the
+      // engine's actual project-level skill discovery path. The engine looks
+      // in `.wayland-core/skills/` (see wcore-skills/src/paths.rs).
+      expect(getSkillsDirsForBackend('wcore')).toEqual(['.wayland-core/skills']);
+      expect(getSkillsDirsForBackend('aionrs')).toEqual(['.wayland-core/skills']);
     });
 
     it('should return undefined for unsupported backends', () => {
