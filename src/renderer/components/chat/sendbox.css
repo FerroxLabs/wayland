@@ -1,31 +1,60 @@
-/* Sendbox component styles */
+/* Sendbox component styles
+ *
+ * Brand: Forge Orange (#ff6b35). The send button uses --brand
+ * explicitly in both modes — earlier this file routed through
+ * --aou-4 which collided with theme remaps. Hover lifts a subtle
+ * orange halo (no purple), pressed deepens, disabled goes neutral
+ * but theme-aware.
+ */
 
-/* Send button disabled state - override Arco Design default disabled styles */
+/* Send button — brand orange across modes */
+.send-button-custom:not(:disabled),
+.send-button-custom.arco-btn:not(:disabled),
+.send-button-custom.arco-btn-primary:not(:disabled) {
+  background-color: var(--brand) !important;
+  border-color: var(--brand) !important;
+  color: #ffffff !important;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 200ms ease,
+    transform 140ms ease;
+}
+
+.send-button-custom:not(:disabled):hover,
+.send-button-custom.arco-btn:not(:disabled):hover,
+.send-button-custom.arco-btn-primary:not(:disabled):hover {
+  background-color: var(--brand-hover) !important;
+  border-color: var(--brand-hover) !important;
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.28), 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+.send-button-custom:not(:disabled):active,
+.send-button-custom.arco-btn:not(:disabled):active,
+.send-button-custom.arco-btn-primary:not(:disabled):active {
+  background-color: var(--brand-pressed) !important;
+  border-color: var(--brand-pressed) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(0);
+}
+
+/* Disabled — theme-aware neutral, not the legacy fixed #d3d4d9 */
 .send-button-custom:disabled,
 .send-button-custom.arco-btn:disabled,
 .send-button-custom.arco-btn-primary:disabled {
-  background-color: #d3d4d9 !important;
-  border-color: #d3d4d9 !important;
+  background-color: var(--bg-3) !important;
+  border-color: var(--bg-3) !important;
+  color: var(--text-disabled) !important;
   opacity: 1 !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 /* Make arrow icon thicker */
 .send-button-custom .arco-icon > svg {
   stroke-width: 5 !important;
   filter: drop-shadow(0 0 0.5px currentColor);
-}
-
-/* Dark mode: adjust send button brightness */
-[data-theme='dark'] .send-button-custom:not(:disabled) {
-  background-color: var(--aou-4) !important;
-  border-color: var(--aou-4) !important;
-}
-
-[data-theme='dark'] .send-button-custom:disabled,
-[data-theme='dark'] .send-button-custom.arco-btn:disabled,
-[data-theme='dark'] .send-button-custom.arco-btn-primary:disabled {
-  background-color: color-mix(in srgb, var(--color-fill-4) 82%, var(--color-bg-2)) !important;
-  border-color: color-mix(in srgb, var(--color-fill-4) 88%, var(--color-bg-2)) !important;
 }
 
 .sendbox-stop-button,
@@ -61,7 +90,7 @@
 
 /* Input placeholder color */
 ::placeholder {
-  color: #a1a2aa !important;
+  color: var(--text-disabled) !important;
 }
 
 /* Sendbox tools buttons - prevent layout jitter from theme hover transforms (#1075) */
@@ -356,8 +385,8 @@
 }
 
 .sendbox-highlight-textarea::placeholder {
-  color: #a1a2aa !important;
-  -webkit-text-fill-color: #a1a2aa !important;
+  color: var(--text-disabled) !important;
+  -webkit-text-fill-color: var(--text-disabled) !important;
 }
 
 /* Mobile: allow horizontal scrolling for sendbox tools (model/permission pills) */
