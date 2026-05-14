@@ -7,7 +7,7 @@
 // context/ThemeContext.tsx - Unified Theme Management Context
 import type { PropsWithChildren } from 'react';
 import React, { createContext, useContext } from 'react';
-import type { Theme } from '@renderer/hooks/system/useTheme';
+import type { ResolvedTheme, Theme, ThemePreference } from '@renderer/hooks/system/useTheme';
 import useTheme from '@renderer/hooks/system/useTheme';
 import type { ColorScheme } from '@renderer/hooks/ui/useColorScheme';
 import useColorScheme from '@renderer/hooks/ui/useColorScheme';
@@ -18,9 +18,17 @@ import useFontScale from '@renderer/hooks/ui/useFontScale';
  * Separates light/dark mode from color schemes.
  */
 interface ThemeContextValue {
-  // Light/Dark mode
+  // Resolved theme — concrete value currently applied to the DOM.
+  // Use this for visual checks (e.g. `theme === 'dark' ? ... : ...`).
   theme: Theme;
-  setTheme: (theme: Theme) => Promise<void>;
+
+  // User's stored theme preference ('light' | 'dark' | 'system').
+  // Use this in the theme switcher to highlight the active button.
+  themePreference: ThemePreference;
+
+  // Setter accepts any preference — passing 'system' enables auto-follow
+  // via `prefers-color-scheme`.
+  setTheme: (preference: ThemePreference) => Promise<void>;
 
   // Color scheme
   colorScheme: ColorScheme;
@@ -38,12 +46,14 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
  * Manages both light/dark mode and color schemes.
  */
 export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [theme, setTheme] = useTheme();
+  const [theme, setTheme, themePreference] = useTheme();
   const [colorScheme, setColorScheme] = useColorScheme();
   const [fontScale, setFontScale] = useFontScale();
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, colorScheme, setColorScheme, fontScale, setFontScale }}>
+    <ThemeContext.Provider
+      value={{ theme, themePreference, setTheme, colorScheme, setColorScheme, fontScale, setFontScale }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -60,3 +70,5 @@ export const useThemeContext = () => {
   }
   return context;
 };
+
+export type { ResolvedTheme, Theme, ThemePreference };

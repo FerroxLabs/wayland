@@ -1,142 +1,149 @@
-/* Default Color Scheme - AOU Purple Theme */
+/* Wayland Color Scheme — Forge Suite brand
+ *
+ * Single color scheme `default`. Two modes — light (root) and dark
+ * ([data-theme='dark']). Brand orange #ff6b35 is identical across modes
+ * by design; only the neutral ramp inverts.
+ */
 
-/* Light Mode */
+/* ---------- LIGHT MODE (root / default) ---------- */
 :root,
 [data-color-scheme='default'] {
-  /* AOU Brand Colors - Light Mode */
-  --aou-1: #eff0f6;
-  --aou-2: #e5e7f0;
-  --aou-3: #d1d5e5;
-  --aou-4: #b5bcd6;
-  --aou-5: #97a0c5;
-  --aou-6: #7583b2;
-  --aou-7: #596590;
-  --aou-8: #3f4868;
-  --aou-9: #262c41;
-  --aou-10: #0d101c;
+  /* Brand orange ramp (replaces the legacy AOU purple palette while keeping
+     the same token names so consumers don't have to be rewritten) */
+  --aou-1: #ffe6db; /* lightest orange wash */
+  --aou-2: #ffd0bf;
+  --aou-3: #ffb399;
+  --aou-4: #ff9670;
+  --aou-5: #ff8255;
+  --aou-6: #ff6b35; /* brand primary */
+  --aou-7: #e85a28;
+  --aou-8: #cc5529;
+  --aou-9: #99401e;
+  --aou-10: #4d2010;
 
-  /* Background Colors - Light Mode */
-  --bg-base: #ffffff; /* bg-0 - main background */
-  --bg-1: #f9fafb; /* secondary background */
-  --bg-2: #f2f3f5; /* tertiary background */
-  --bg-3: #e5e6eb; /* border/divider */
-  --bg-4: #c9cdd4;
-  --bg-5: #adb4c1;
-  --bg-6: #86909c; /* disabled/secondary text */
-  --bg-8: #4e5969;
-  --bg-9: #1d2129;
-  --bg-10: #0c0e12;
+  /* Backgrounds — light */
+  --bg-base: #ffffff;
+  --bg-1: #f5f5f5;
+  --bg-2: #f0f0f0;
+  --bg-3: #e5e5e5;
+  --bg-4: #d4d4d4;
+  --bg-5: #b3b3b3;
+  --bg-6: #777777;
+  --bg-8: #4a4a4a;
+  --bg-9: #2a2a2a;
+  --bg-10: #0d0d0d;
 
-  /* Interactive State Colors - Light Mode */
-  --bg-hover: #f3f4f6; /* Hover background - between bg-1 and bg-2 */
-  --bg-active: #e5e6eb; /* Active/pressed background */
+  /* Interactive states */
+  --bg-hover: #f0f0f0;
+  --bg-active: #e5e5e5;
 
-  /* Text Colors - Light Mode */
-  --text-primary: #1d2129; /* Primary text */
-  --text-secondary: #86909c; /* Secondary text */
-  --text-disabled: #c9cdd4; /* Disabled text */
+  /* Text — light */
+  --text-primary: #0d0d0d;
+  --text-secondary: #333333;
+  --text-disabled: #aaaaaa;
 
-  /* Semantic Colors - Light Mode */
-  --primary: #165dff;
-  --success: #00b42a;
-  --warning: #ff7d00;
-  --danger: #f53f3f;
-  --info: #165dff;
+  /* Semantic — brand orange replaces the legacy blue primary */
+  --primary: #ff6b35;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #ff6b35;
 
-  /* Border Colors - Light Mode */
-  --border-base: #e5e6eb; /* Base border */
-  --border-light: #f2f3f5; /* Light border */
+  /* Borders — light */
+  --border-base: #d4d4d4;
+  --border-light: #e5e5e5;
 
-  /* Brand Colors - Light Mode */
-  --brand: #7583b2; /* Brand color */
-  --brand-light: #eff0f6; /* Brand light background */
-  --brand-hover: #b5bcd6; /* Brand hover */
+  /* Brand — same orange across modes */
+  --brand: #ff6b35;
+  --brand-light: #ffe6db; /* soft tint for brand-bg areas */
+  --brand-hover: #ff8255;
 
-  /* Message & UI Component Colors - Light Mode */
-  --message-user-bg: #e9efff; /* User message background (light blue) */
-  --message-tips-bg: #f0f4ff; /* Tips background (light blue) */
-  --workspace-btn-bg: #eff0f1; /* Workspace button background */
+  /* Message & UI component backgrounds */
+  --message-user-bg: #fff0e8;
+  --message-tips-bg: #fffaf5;
+  --workspace-btn-bg: #f5f5f5;
 
-  /* Special Colors - Light Mode */
-  --fill: #f7f8fa; /* Fill color */
-  --inverse: #ffffff; /* Inverse (black/white swap) */
+  /* Special */
+  --fill: #f5f5f5;
+  --inverse: #0d0d0d;
 
-  /* Custom Colors - Light Mode */
-  --dialog-fill-0: #ffffff; /* Dialog fill color */
-  --text-0: #000000; /* Pure black text */
-  --text-white: #ffffff; /* Pure white text */
-  --fill-0: #ffffff; /* Fill 0 */
-  --fill-white-to-black: #ffffff; /* White-to-black fill */
-  --border-special: var(--bg-3); /* Special border color */
-  --color-guid-agent-bar: #eaecf7; /* Home page Agent selector bar background - light */
+  /* Custom */
+  --dialog-fill-0: #ffffff;
+  --text-0: #000000;
+  --text-white: #ffffff;
+  --fill-0: #ffffff;
+  --fill-white-to-black: #ffffff;
+  --border-special: var(--bg-3);
+  --color-guid-agent-bar: #ffe6db;
 }
 
-/* Dark Mode */
+/* ---------- DARK MODE ---------- */
 [data-color-scheme='default'][data-theme='dark'] {
-  /* AOU Brand Colors - Dark Mode */
-  --aou-1: #2a2a2a;
-  --aou-2: #3d4150;
-  --color-guid-agent-bar: var(--aou-2); /* Home page Agent selector bar background - dark reuses aou-2 */
-  --aou-3: #525a77;
-  --aou-4: #6a749b;
-  --aou-5: #838fba;
-  --aou-6: #a1aacb;
-  --aou-7: #b5bcd6;
-  --aou-8: #d1d5e5;
-  --aou-9: #e5e7f0;
-  --aou-10: #eff0f6;
+  /* Brand orange ramp — dark mode reuses the same orange family;
+     the lower numbers are now deep neutrals (where lavender used to live). */
+  --aou-1: #1a1a1a;
+  --aou-2: #262626;
+  --color-guid-agent-bar: var(--aou-2);
+  --aou-3: #333333;
+  --aou-4: #4d4d4d;
+  --aou-5: #ff8255;
+  --aou-6: #ff6b35; /* brand primary */
+  --aou-7: #cc5529;
+  --aou-8: #99401e;
+  --aou-9: #66301a;
+  --aou-10: #4d2010;
 
-  /* Background Colors - Dark Mode */
-  --bg-base: #0e0e0e; /* Main background */
-  --bg-1: #1a1a1a; /* Secondary background */
-  --bg-2: #262626; /* Tertiary background */
-  --bg-3: #333333; /* Border/divider */
-  --bg-4: #404040;
+  /* Backgrounds — dark (Forge Suite spec neutrals) */
+  --bg-base: #0d0d0d;
+  --bg-1: #141414;
+  --bg-2: #1a1a1a;
+  --bg-3: #262626;
+  --bg-4: #333333;
   --bg-5: #4d4d4d;
-  --bg-6: #5a5a5a; /* Disabled/secondary text */
-  --bg-8: #737373;
-  --bg-9: #a6a6a6;
-  --bg-10: #d9d9d9;
+  --bg-6: #777777;
+  --bg-8: #aaaaaa;
+  --bg-9: #d4d4d4;
+  --bg-10: #f0f0f0;
 
-  /* Interactive State Colors - Dark Mode */
-  --bg-hover: #1f1f1f; /* Hover background */
-  --bg-active: #2d2d2d; /* Active/pressed background */
+  /* Interactive states */
+  --bg-hover: #1a1a1a;
+  --bg-active: #262626;
 
-  /* Text Colors - Dark Mode */
-  --text-primary: #e5e5e5; /* Primary text */
-  --text-secondary: #a6a6a6; /* Secondary text */
-  --text-disabled: #737373; /* Disabled text */
+  /* Text — dark */
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaaaaa;
+  --text-disabled: #777777;
 
-  /* Semantic Colors - Dark Mode */
-  --primary: #4d9fff;
-  --success: #23c343;
-  --warning: #ff9a2e;
-  --danger: #f76560;
-  --info: #4d9fff;
+  /* Semantic — same brand family as light */
+  --primary: #ff6b35;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #ff6b35;
 
-  /* Border Colors - Dark Mode */
-  --border-base: #333333; /* Base border */
-  --border-light: #262626; /* Light border */
+  /* Borders — dark */
+  --border-base: #333333;
+  --border-light: #262626;
 
-  /* Brand Colors - Dark Mode */
-  --brand: #a1aacb; /* Brand color */
-  --brand-light: #3d4150; /* Brand dark background */
-  --brand-hover: #6a749b; /* Brand hover */
+  /* Brand — identical orange to light mode by design */
+  --brand: #ff6b35;
+  --brand-light: #1f1f1f; /* subtle dark backdrop for brand-bg areas */
+  --brand-hover: #ff8255;
 
-  /* Message & UI Component Colors - Dark Mode */
-  --message-user-bg: #1e2a3a; /* User message background (dark blue-gray) */
-  --message-tips-bg: #1a2333; /* Tips background (dark blue-gray) */
-  --workspace-btn-bg: #1f1f1f; /* Workspace button background */
+  /* Message & UI component backgrounds */
+  --message-user-bg: #1a1a1a;
+  --message-tips-bg: #141414;
+  --workspace-btn-bg: #1a1a1a;
 
-  /* Special Colors - Dark Mode */
-  --fill: #1a1a1a; /* Fill color */
-  --inverse: #ffffff; /* Inverse (black/white swap) */
+  /* Special */
+  --fill: #141414;
+  --inverse: #f0f0f0;
 
-  /* Custom Colors - Dark Mode */
-  --dialog-fill-0: #333333; /* Dialog fill color */
-  --text-0: #ffffff; /* "Pure black" text (white in dark mode) */
-  --text-white: #ffffff; /* Pure white text */
-  --fill-0: rgba(255, 255, 255, 0.08); /* Fill 0 - semi-transparent white in dark mode */
-  --fill-white-to-black: #000000; /* White-to-black fill (black in dark mode) */
-  --border-special: #60677e; /* Special border color */
+  /* Custom */
+  --dialog-fill-0: #1a1a1a;
+  --text-0: #f0f0f0;
+  --text-white: #ffffff;
+  --fill-0: rgba(255, 255, 255, 0.06);
+  --fill-white-to-black: #0d0d0d;
+  --border-special: #444444;
 }

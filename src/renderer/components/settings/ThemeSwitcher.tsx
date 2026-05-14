@@ -5,28 +5,61 @@
  */
 
 import { useThemeContext } from '@/renderer/hooks/context/ThemeContext';
+import type { ThemePreference } from '@renderer/hooks/system/useTheme';
 import { IconMoon, IconMoonFill, IconSun, IconSunFill } from '@arco-design/web-react/icon';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
+ * Half-sun/half-moon glyph for the "Auto" theme mode. Inline so we don't
+ * have to chase down a matching icon in the Arco set.
+ */
+const IconAuto: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+  <svg viewBox='0 0 24 24' width='14' height='14' fill='currentColor' style={style} aria-hidden='true'>
+    <path d='M12 3a9 9 0 1 0 0 18V3z' />
+    <path d='M12 3a9 9 0 0 1 0 18V3z' fillOpacity='0.35' />
+  </svg>
+);
+
+interface ThemeOption {
+  value: ThemePreference;
+  label: string;
+  icon: React.ComponentType<{ style?: React.CSSProperties }>;
+  activeIcon: React.ComponentType<{ style?: React.CSSProperties }>;
+}
+
+/**
  * Theme switcher component
  *
- * Provides light/dark mode switching functionality
+ * Three-state toggle: Auto / Light / Dark.
+ *  - Auto follows the OS `prefers-color-scheme` and live-updates when it changes
+ *  - Light and Dark are explicit user overrides
  */
 export const ThemeSwitcher = () => {
-  const { theme, setTheme } = useThemeContext();
+  const { themePreference, setTheme } = useThemeContext();
   const { t } = useTranslation();
   const trackInset = 6;
   const splitGap = 1;
-  const options = [
-    { value: 'light' as const, label: t('settings.lightMode'), icon: IconSun, activeIcon: IconSunFill },
-    { value: 'dark' as const, label: t('settings.darkMode'), icon: IconMoon, activeIcon: IconMoonFill },
+
+  const options: ThemeOption[] = [
+    {
+      value: 'system',
+      label: t('settings.systemMode', 'Auto'),
+      icon: IconAuto,
+      activeIcon: IconAuto,
+    },
+    { value: 'light', label: t('settings.lightMode'), icon: IconSun, activeIcon: IconSunFill },
+    { value: 'dark', label: t('settings.darkMode'), icon: IconMoon, activeIcon: IconMoonFill },
   ];
+
+  const activeIndex = options.findIndex((o) => o.value === themePreference);
+  // Indicator pill spans 1/3 of the track and slides between three positions.
+  const indicatorWidth = `calc((100% - ${trackInset * 2}px) / 3 - ${splitGap * 2}px)`;
+  const indicatorLeft = `calc(${trackInset}px + (100% - ${trackInset * 2}px) * ${activeIndex} / 3 + ${splitGap}px)`;
 
   return (
     <div
-      className='relative inline-grid grid-cols-2 p-6px rd-full border border-solid border-[var(--color-border-2)] bg-1 w-full max-w-240px md:w-auto md:min-w-216px'
+      className='relative inline-grid grid-cols-3 p-6px rd-full border border-solid border-[var(--color-border-2)] bg-1 w-full max-w-320px md:w-auto md:min-w-280px'
       role='radiogroup'
       aria-label={t('settings.theme')}
     >
@@ -36,14 +69,14 @@ export const ThemeSwitcher = () => {
         style={{
           top: trackInset,
           bottom: trackInset,
-          left: theme === 'light' ? trackInset : `calc(50% + ${splitGap}px)`,
-          right: theme === 'light' ? `calc(50% + ${splitGap}px)` : trackInset,
+          left: indicatorLeft,
+          width: indicatorWidth,
           backgroundColor: 'var(--color-fill-2)',
-          boxShadow: theme === 'dark' ? '0 1px 4px rgba(0, 0, 0, 0.18)' : '0 2px 8px rgba(0, 0, 0, 0.08)',
+          boxShadow: '0 1px 4px rgba(0, 0, 0, 0.15)',
         }}
       />
       {options.map((option) => {
-        const isActive = theme === option.value;
+        const isActive = themePreference === option.value;
         const Icon = option.icon;
         const ActiveIcon = option.activeIcon;
 
@@ -53,13 +86,9 @@ export const ThemeSwitcher = () => {
             type='button'
             role='radio'
             aria-checked={isActive}
-            className='relative z-1 h-33px min-w-0 px-10px md:px-12px rd-full text-13px font-500 inline-flex items-center justify-center gap-6px transition-all duration-180 active:scale-[0.985] disabled:cursor-not-allowed'
+            className='relative z-1 h-33px min-w-0 px-8px md:px-10px rd-full text-13px font-500 inline-flex items-center justify-center gap-6px transition-all duration-180 active:scale-[0.985] disabled:cursor-not-allowed'
             style={{
-              color: isActive
-                ? theme === 'dark'
-                  ? 'var(--color-text-1)'
-                  : 'rgb(var(--primary-6))'
-                : 'var(--color-text-2)',
+              color: isActive ? 'var(--brand)' : 'var(--color-text-2)',
               backgroundColor: 'transparent',
               border: '1px solid transparent',
               cursor: isActive ? 'default' : 'pointer',
