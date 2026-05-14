@@ -15,6 +15,7 @@ Sentry.init({
 
 import './process/utils/configureConsoleLog';
 import { app, BrowserWindow, nativeImage, net, powerMonitor, protocol, screen } from 'electron';
+import log from 'electron-log';
 import fixPath from 'fix-path';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -156,14 +157,30 @@ protocol.registerSchemesAsPrivileged([
   },
 ]);
 
-// Global error handlers for main process
-// Sentry automatically captures these, but we keep the handlers to prevent Electron's default error dialog
-process.on('uncaughtException', (_error) => {
-  // Sentry captures this automatically
+// Global error handlers for main process.
+// Always log via electron-log AND console.error before deferring to Sentry — if SENTRY_DSN
+// is unset, Sentry's transport is no-op and errors would otherwise vanish silently (H11).
+process.on('uncaughtException', (error) => {
+  log.error('[uncaughtException]', error);
+  console.error('[uncaughtException]', error);
+  try {
+    Sentry.captureException(error);
+  } catch {
+    // Ignore Sentry failures — we've already logged the original error.
+  }
+  // Process state is undefined after an uncaught exception; exit so the OS/launcher can recover.
+  app.exit(1);
 });
 
-process.on('unhandledRejection', (_reason, _promise) => {
-  // Sentry captures this automatically
+process.on('unhandledRejection', (reason, _promise) => {
+  log.error('[unhandledRejection]', reason);
+  console.error('[unhandledRejection]', reason);
+  try {
+    Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)));
+  } catch {
+    // Ignore Sentry failures — we've already logged the original reason.
+  }
+  // Do not exit — Node's default for unhandled rejections is to log and continue.
 });
 
 const hasSwitch = (flag: string) => process.argv.includes(`--${flag}`) || app.commandLine.hasSwitch(flag);
