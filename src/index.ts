@@ -9,9 +9,16 @@
 import './process/utils/configureChromium';
 import * as Sentry from '@sentry/electron/main';
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-});
+// Only init Sentry when DSN is actually set — otherwise the SDK installs
+// global handlers but transports are no-op, silently swallowing every
+// captured exception. H11 now logs explicitly; this keeps Sentry honest.
+if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim()) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+  });
+} else {
+  console.warn('[Sentry] DSN not set; telemetry disabled');
+}
 
 import './process/utils/configureConsoleLog';
 import { app, BrowserWindow, nativeImage, net, powerMonitor, protocol, screen } from 'electron';
