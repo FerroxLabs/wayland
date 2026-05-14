@@ -531,23 +531,18 @@ const handleAppReady = async (): Promise<void> => {
     appReadyDone = true;
     mark('createWindow');
 
-    // Initialize desktop floating window (ambient bubble or legacy pet).
-    //
-    // AC-M1-10 / AC-M1-11: ambient and pet are two semantic forms of the same
-    // window family — launch-time mutex, not runtime toggle. Env var has
-    // priority over the settings switch so CI/E2E can force a mode.
-    //
-    // Priority:
-    //   1. WAYLAND_AMBIENT=1 → ambient  (env wins)
-    //   2. WAYLAND_AMBIENT=0 → pet      (env wins, explicit off)
-    //   3. ambient.enabled === true    (settings fallback)
-    //   4. pet.enabled === true        (legacy settings fallback)
+    // Initialize ambient bubble window if enabled.
     //
     // IMPORTANT: ambient is created *after* the main window so the E2E
     // fixture can reliably pick the main renderer first (BrowserWindow order
     // matters when Page.url() is still empty pre-navigation — satellite
     // filtering can only reject windows whose URL has resolved, so the
     // main window must have the earlier Page object).
+    //
+    // Priority:
+    //   1. WAYLAND_AMBIENT=1 → ambient on  (env wins)
+    //   2. WAYLAND_AMBIENT=0 → ambient off (env wins, explicit off)
+    //   3. ambient.enabled === true        (settings fallback)
     const ambientEnvVar = process.env['WAYLAND_AMBIENT'];
     void (async () => {
       try {
@@ -561,59 +556,41 @@ const handleAppReady = async (): Promise<void> => {
           useAmbient = ambientSetting === true;
         }
 
-        if (useAmbient) {
-          // Load + register bridge immediately (cheap, doesn't create windows).
-          const { initAmbientBridge } = await import('./process/bridge/ambientBridge');
-          initAmbientBridge();
+        if (!useAmbient) return;
 
-          // Create the ambient window *after* the main renderer has finished
-          // loading. This gives the E2E test fixture a chance to latch onto
-          // the main renderer's Page before the ambient window's Page is
-          // emitted — otherwise the satellite filter can misfire (both Pages
-          // have an empty URL for a brief window). In non-E2E runs the delay
-          // also helps avoid any startup visual glitch where the bubble
-          // appears before the main window is painted.
-          if (mainWindow && !mainWindow.isDestroyed()) {
-            const onMainReady = async () => {
-              try {
-                const { createAmbientWindow } = await import('./process/ambient/ambientWindowManager');
-                await createAmbientWindow();
-              } catch (err) {
-                console.error('[Ambient] deferred create failed:', err);
-              }
-            };
-            if (mainWindow.webContents.isLoading()) {
-              mainWindow.webContents.once('did-finish-load', () => {
-                void onMainReady();
-              });
-            } else {
-              await onMainReady();
-            }
-          } else {
-            const { createAmbientWindow } = await import('./process/ambient/ambientWindowManager');
-            await createAmbientWindow();
-          }
-          return;
-        }
+        // Load + register bridge immediately (cheap, doesn't create windows).
+        const { initAmbientBridge } = await import('./process/bridge/ambientBridge');
+        initAmbientBridge();
 
-        // Legacy pet path: keep the 3s delay to avoid blocking main window init.
-        setTimeout(() => {
-          void (async () => {
+        // Create the ambient window *after* the main renderer has finished
+        // loading. This gives the E2E test fixture a chance to latch onto
+        // the main renderer's Page before the ambient window's Page is
+        // emitted — otherwise the satellite filter can misfire (both Pages
+        // have an empty URL for a brief window). In non-E2E runs the delay
+        // also helps avoid any startup visual glitch where the bubble
+        // appears before the main window is painted.
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          const onMainReady = async () => {
             try {
-              const petEnabled = await ProcessConfig.get('pet.enabled');
-              if (petEnabled === true) {
-                const confirmEnabled = (await ProcessConfig.get('pet.confirmEnabled')) ?? true;
-                const { createPetWindow, setPetConfirmEnabled } = await import('./process/pet/petManager');
-                setPetConfirmEnabled(confirmEnabled);
-                createPetWindow();
-              }
-            } catch (error) {
-              console.error('[Pet] Failed to initialize:', error);
+              const { createAmbientWindow } = await import('./process/ambient/ambientWindowManager');
+              await createAmbientWindow();
+            } catch (err) {
+              console.error('[Ambient] deferred create failed:', err);
             }
-          })();
-        }, 3000);
+          };
+          if (mainWindow.webContents.isLoading()) {
+            mainWindow.webContents.once('did-finish-load', () => {
+              void onMainReady();
+            });
+          } else {
+            await onMainReady();
+          }
+        } else {
+          const { createAmbientWindow } = await import('./process/ambient/ambientWindowManager');
+          await createAmbientWindow();
+        }
       } catch (error) {
-        console.error('[Ambient/Pet] Failed to initialize:', error);
+        console.error('[Ambient] Failed to initialize:', error);
       }
     })();
 
@@ -781,14 +758,6 @@ app.on('before-quit', async () => {
   const cleanup = async () => {
     // Kill all agent worker processes
     await workerTaskManager.clear();
-
-    // Destroy desktop pet windows
-    try {
-      const { destroyPetWindow } = await import('./process/pet/petManager');
-      destroyPetWindow();
-    } catch {
-      /* pet not initialized */
-    }
 
     // Destroy ambient bubble window (if active)
     try {

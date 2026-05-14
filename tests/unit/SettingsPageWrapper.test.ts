@@ -12,7 +12,6 @@ const t = (key: string, options?: { defaultValue?: string }) => {
     'settings.webui': 'WebUI',
     'settings.system': 'System',
     'settings.about': 'About',
-    'pet.desktopPet': 'Desktop Pet',
   };
 
   return labels[key] ?? options?.defaultValue ?? key;
@@ -30,7 +29,6 @@ describe('getBuiltinSettingsNavItems', () => {
       'capabilities',
       'display',
       'webui',
-      'pet',
       'system',
       'about',
     ]);
@@ -43,7 +41,6 @@ describe('getBuiltinSettingsNavItems', () => {
       'Capabilities',
       'Display',
       'WebUI',
-      'Desktop Pet',
       'System',
       'About',
     ]);

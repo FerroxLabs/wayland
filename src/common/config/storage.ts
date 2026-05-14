@@ -187,16 +187,7 @@ export interface IConfigStorageRefer {
   };
   // Skills Market: whether the wayland-skills builtin skill is enabled
   'skillsMarket.enabled'?: boolean;
-  // Desktop Pet: whether the desktop pet feature is enabled
-  'pet.enabled'?: boolean;
-  // Desktop Pet: size in pixels (200, 280, or 360)
-  'pet.size'?: number;
-  // Desktop Pet: do not disturb mode (pet stays idle, ignores AI events)
-  'pet.dnd'?: boolean;
-  // Desktop Pet: whether tool-call confirmations are routed to the pet's bubble
-  // (true) or remain in the main chat window (false). Default true.
-  'pet.confirmEnabled'?: boolean;
-  // Ambient Mode (M1 skeleton): enable bubble + agent-driven UI flow (replaces pet path)
+  // Ambient Mode (M1 skeleton): enable bubble + agent-driven UI flow
   'ambient.enabled'?: boolean;
   // Ambient Mode: persisted bubble window position (displayId used for multi-monitor recovery)
   'ambient.bubblePosition'?: { x: number; y: number; displayId: number };

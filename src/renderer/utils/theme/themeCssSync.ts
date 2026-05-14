@@ -1,20 +1,21 @@
 import { type ICssTheme } from '@/common/config/storage';
-import {
-  BACKGROUND_BLOCK_START,
-  injectBackgroundCssBlock,
-} from '@renderer/pages/settings/DisplaySettings/backgroundUtils';
-import { DEFAULT_THEME_ID, PRESET_THEMES } from '@renderer/pages/settings/DisplaySettings/presets';
+
+/**
+ * Default theme ID — when this is the active theme, the resolved CSS is empty
+ * (the base wayland color scheme handles all styling).
+ */
+export const DEFAULT_THEME_ID = 'default-theme';
 
 export const CSS_SYNC_RECENT_UPDATE_WINDOW_MS = 2000;
 
 /**
  * Extension themes cache.
- * Populated by CssThemeSettings when it loads extension themes from main process.
+ * Populated by extension consumers when they load themes from main process.
  * This avoids requiring async IPC calls in the sync resolution path.
  */
 let extensionThemesCache: ICssTheme[] = [];
 
-/** Update the extension themes cache (called by CssThemeSettings after loading) */
+/** Update the extension themes cache */
 export const setExtensionThemesCache = (themes: ICssTheme[]): void => {
   extensionThemesCache = themes;
 };
@@ -38,30 +39,11 @@ type ComputeCssSyncDecisionResult = {
 };
 
 export const resolveCssByActiveTheme = (activeThemeId: string, userThemes: ICssTheme[]): string => {
-  const ensureBackgroundCss = (theme: ICssTheme): ICssTheme => {
-    if (theme.id === DEFAULT_THEME_ID) return theme;
-    if (theme.cover && theme.css && !theme.css.includes(BACKGROUND_BLOCK_START)) {
-      return {
-        ...theme,
-        css: injectBackgroundCssBlock(theme.css, theme.cover),
-      };
-    }
-    return theme;
-  };
-
-  const allThemes = [
-    ...PRESET_THEMES.map(ensureBackgroundCss),
-    ...extensionThemesCache.map(ensureBackgroundCss),
-    ...(userThemes || []).map(ensureBackgroundCss),
-  ];
+  const allThemes = [...extensionThemesCache, ...(userThemes || [])];
   const resolvedId = activeThemeId || DEFAULT_THEME_ID;
+  if (resolvedId === DEFAULT_THEME_ID) return '';
   const match = allThemes.find((theme) => theme.id === resolvedId);
-  if (match) return match.css || '';
-  // Theme not found (e.g., extension removed) → fall back to default theme
-  if (resolvedId !== DEFAULT_THEME_ID) {
-    return allThemes.find((theme) => theme.id === DEFAULT_THEME_ID)?.css || '';
-  }
-  return '';
+  return match?.css || '';
 };
 
 export const computeCssSyncDecision = ({

@@ -8,10 +8,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import FontSizeControl from '@/renderer/components/settings/FontSizeControl';
 import { ThemeSwitcher } from '@/renderer/components/settings/ThemeSwitcher';
-import CssThemeSettings from '@renderer/pages/settings/DisplaySettings/CssThemeSettings';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
-import WaylandCollapse from '@/renderer/components/base/WaylandCollapse';
-import { Down, Up } from '@icon-park/react';
 import { useSettingsViewMode } from '../settingsViewContext';
 
 /**
@@ -33,25 +30,16 @@ const PreferenceRow: React.FC<{
 /**
  * Display settings content component
  *
- * Provides display-related configuration options including theme, zoom scale and custom CSS
+ * Provides display-related configuration options including theme and zoom scale.
  *
  * @features
  * - Theme: light/dark/system
  * - Zoom scale control
- * - Custom CSS editor
  */
 const DisplayModalContent: React.FC = () => {
   const { t } = useTranslation();
   const viewMode = useSettingsViewMode();
   const isPageMode = viewMode === 'page';
-
-  // Render expand/collapse icon for collapse panel
-  const renderExpandIcon = (active: boolean) =>
-    active ? (
-      <Up theme='outline' size='16' fill='var(--text-secondary)' />
-    ) : (
-      <Down theme='outline' size='16' fill='var(--text-secondary)' />
-    );
 
   // Display items configuration
   const displayItems = [
@@ -74,25 +62,6 @@ const DisplayModalContent: React.FC = () => {
               ))}
             </div>
           </div>
-
-          {/* CSS Theme Settings - Collapsible */}
-          <WaylandCollapse
-            className='!bg-transparent !py-0 !px-0 !gap-0'
-            bordered={false}
-            defaultActiveKey={['css']}
-            expandIcon={renderExpandIcon}
-            expandIconPosition='right'
-          >
-            <WaylandCollapse.Item
-              name='css'
-              header={<span className='text-14px text-t-primary leading-22px'>{t('settings.cssSettings')}</span>}
-              className='bg-2 rd-16px px-16px md:px-24px lg:px-28px py-12px md:py-14px'
-              headerClassName='py-4px'
-              contentStyle={{ padding: '10px 0 0' }}
-            >
-              <CssThemeSettings />
-            </WaylandCollapse.Item>
-          </WaylandCollapse>
         </div>
       </WaylandScrollArea>
     </div>
