@@ -76,7 +76,7 @@ start() {
     cd "$WORKDIR"
 
     nohup xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-        /usr/bin/Wayland --webui --remote --no-sandbox \
+        /usr/bin/Wayland --webui --remote \
         > "$LOGFILE" 2>&1 &
     echo $! > "$PIDFILE"
     sleep 3
@@ -215,7 +215,7 @@ Then update the `nohup xvfb-run ...` line in your startup script:
 
 ```bash
     nohup xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-        /usr/bin/Wayland --webui --remote --no-sandbox \
+        /usr/bin/Wayland --webui --remote \
         --proxy-pac-url="file:///opt/Wayland/proxy.pac" \
         > "$LOGFILE" 2>&1 &
 ```
@@ -371,7 +371,7 @@ start() {
     cd "$WORKDIR"
 
     nohup xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-        /usr/bin/Wayland --webui --remote --no-sandbox \
+        /usr/bin/Wayland --webui --remote \
         > "$LOGFILE" 2>&1 &
     echo $! > "$PIDFILE"
     sleep 3

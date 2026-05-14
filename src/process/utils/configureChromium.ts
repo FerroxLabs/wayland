@@ -42,8 +42,15 @@ if (isWebUI || isResetPassword) {
     app.commandLine.appendSwitch('disable-software-rasterizer');
   }
 
-  // For root user, disable sandbox to prevent crash
-  if (typeof process.getuid === 'function' && process.getuid() === 0) {
+  // Sandbox disable is opt-in only (secure-by-default).
+  // Electron's setuid sandbox helper cannot be used when running as root, so
+  // historically we auto-disabled the sandbox in that case. The supported path
+  // now is to run Wayland as a dedicated non-root user (see scripts/install-ubuntu.sh
+  // and the systemd unit's `User=wayland`). For environments where running as
+  // root is unavoidable and no kernel containment is available (e.g. Termux
+  // proot, certain unprivileged containers), set WAYLAND_DISABLE_SANDBOX=1 to
+  // explicitly opt out of the Chromium sandbox.
+  if (process.env.WAYLAND_DISABLE_SANDBOX === '1') {
     app.commandLine.appendSwitch('no-sandbox');
   }
 }

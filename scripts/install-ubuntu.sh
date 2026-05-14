@@ -204,7 +204,7 @@ start() {
     cd "$WORKDIR" || exit 1
 
     nohup xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-        /usr/bin/Wayland --webui --remote --no-sandbox \
+        /usr/bin/Wayland --webui --remote \
         > "$LOGFILE" 2>&1 &
 
     echo $! > "$PIDFILE"
@@ -285,6 +285,24 @@ SCRIPT_EOF
     success "服務管理腳本已建立: $script_path"
 }
 
+# ─── 建立 wayland 系統使用者 ─────────────────────────────────────────────────
+create_wayland_user() {
+    local home_dir="/var/lib/wayland"
+
+    if id wayland &>/dev/null; then
+        info "系統使用者 'wayland' 已存在"
+    else
+        info "建立系統使用者 'wayland' (home: $home_dir)..."
+        $SUDO useradd --system --shell /usr/sbin/nologin --home-dir "$home_dir" --create-home wayland
+        success "系統使用者 'wayland' 已建立"
+    fi
+
+    # 確保 home 目錄存在且擁有正確的權限
+    $SUDO mkdir -p "$home_dir"
+    $SUDO chown wayland:wayland "$home_dir"
+    $SUDO chmod 0750 "$home_dir"
+}
+
 # ─── 建立 systemd service (可選) ─────────────────────────────────────────────
 create_systemd_service() {
     # 若系統不支援 systemd 則跳過
@@ -306,17 +324,20 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=root
-WorkingDirectory=/root
-ExecStart=/usr/bin/xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" /usr/bin/Wayland --webui --remote --no-sandbox
+User=wayland
+Group=wayland
+WorkingDirectory=/var/lib/wayland
+ExecStart=/usr/bin/xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" /usr/bin/Wayland --webui --remote
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
 
-# 安全性設定
-NoNewPrivileges=false
-ProtectSystem=false
+# 安全性設定 (secure-by-default)
+NoNewPrivileges=true
+ProtectSystem=strict
+PrivateTmp=true
+ReadWritePaths=/var/lib/wayland /var/log/wayland.log /var/run
 
 [Install]
 WantedBy=multi-user.target
@@ -343,7 +364,7 @@ create_desktop_entry() {
 [Desktop Entry]
 Name=Wayland
 Comment=AI Agent Cowork Platform
-Exec=/usr/bin/Wayland --no-sandbox %U
+Exec=/usr/bin/Wayland %U
 Icon=Wayland
 Terminal=false
 Type=Application
@@ -386,7 +407,7 @@ print_summary() {
         echo -e "  ${BOLD}🖥️  桌面模式使用方式:${NC}"
         echo ""
         echo "    # 直接啟動（桌面環境）"
-        echo "    Wayland --no-sandbox"
+        echo "    Wayland"
         echo ""
         echo "    # 或從應用程式選單尋找 Wayland"
         echo ""
@@ -432,6 +453,7 @@ main() {
     if [[ "$MODE" == "headless" ]]; then
         install_headless_deps
         create_service_script
+        create_wayland_user
         create_systemd_service
     fi
 

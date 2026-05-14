@@ -301,11 +301,15 @@ which Wayland
 #### 5. Launch Wayland WebUI
 
 ```bash
-# Start Wayland in WebUI mode with no-sandbox flag
-Wayland --no-sandbox --webui
+# Start Wayland in WebUI mode
+# Termux/proot cannot run Chromium's sandbox helper, so opt out explicitly:
+WAYLAND_DISABLE_SANDBOX=1 Wayland --webui
 ```
 
-**Important**: The `--no-sandbox` flag is required in Termux/proot environments.
+**Important**: Termux/proot does not provide the kernel namespaces Chromium's
+sandbox needs. Setting `WAYLAND_DISABLE_SANDBOX=1` (or passing `--no-sandbox`)
+is required only inside Termux/proot. Do not set this on a normal Linux host —
+Wayland uses the Chromium sandbox by default and that is the secure path.
 
 #### 6. Access the WebUI
 
@@ -334,8 +338,8 @@ These errors are related to D-Bus and X server, which are not needed for WebUI m
 To access Wayland from other devices on your local network:
 
 ```bash
-# Start with --remote flag
-Wayland --no-sandbox --webui --remote
+# Start with --remote flag (Termux/proot: sandbox must be opted-out)
+WAYLAND_DISABLE_SANDBOX=1 Wayland --webui --remote
 
 # Find your Android device's IP address
 # In Termux (outside proot):
@@ -351,8 +355,8 @@ Access from other devices: `http://YOUR_ANDROID_IP:25808`
 If port 25808 is occupied:
 
 ```bash
-# Specify a different port
-Wayland --no-sandbox --webui --port 8080
+# Specify a different port (Termux/proot: sandbox must be opted-out)
+WAYLAND_DISABLE_SANDBOX=1 Wayland --webui --port 8080
 ```
 
 #### Permission Denied Errors
@@ -395,7 +399,8 @@ For convenience, create a script to launch Wayland quickly:
 cat > ~/start-wayland.sh << 'EOF'
 #!/bin/bash
 echo "Starting Wayland WebUI..."
-Wayland --no-sandbox --webui --remote
+# Termux/proot: Chromium sandbox is unavailable, opt out explicitly.
+WAYLAND_DISABLE_SANDBOX=1 Wayland --webui --remote
 EOF
 
 # Make executable
@@ -410,7 +415,7 @@ chmod +x ~/start-wayland.sh
 From Termux main shell:
 
 ```bash
-proot-distro login ubuntu -- bash -c "Wayland --no-sandbox --webui --remote"
+proot-distro login ubuntu -- bash -c "WAYLAND_DISABLE_SANDBOX=1 Wayland --webui --remote"
 ```
 
 ### Feedback and Improvements
