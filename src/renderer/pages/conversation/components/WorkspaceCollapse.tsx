@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { FolderClose, FolderOpen } from '@icon-park/react';
+import { Folder, FolderOpen } from 'lucide-react';
 import classNames from 'classnames';
 import React from 'react';
 
@@ -50,7 +50,7 @@ const WorkspaceCollapse: React.FC<WorkspaceCollapseProps> = ({
             {expanded ? (
               <FolderOpen size={20} className='line-height-0' />
             ) : (
-              <FolderClose size={20} className='line-height-0' />
+              <Folder size={20} className='line-height-0' />
             )}
           </span>
 

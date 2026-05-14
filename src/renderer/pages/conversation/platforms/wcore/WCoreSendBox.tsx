@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { uuid } from '@/common/utils';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
@@ -36,7 +37,6 @@ import { buildDisplayMessage, collectSelectedFiles } from '@/renderer/utils/file
 import { mergeWithCapabilities, type AgentModeOption } from '@/renderer/utils/model/agentModes';
 import { getModelContextLimit } from '@/renderer/utils/model/modelContextLimits';
 import { Message, Tag } from '@arco-design/web-react';
-import { Shield } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWCoreMessage } from './useWCoreMessage';
@@ -394,7 +394,7 @@ const WCoreSendBox: React.FC<{
               compact
               initialMode={sessionMode}
               dynamicModes={dynamicModes}
-              compactLeadingIcon={<Shield theme='outline' size='14' fill={iconColors.secondary} />}
+              compactLeadingIcon={<Shield size={14} color={iconColors.secondary} />}
               modeLabelFormatter={(mode) => t(`agentMode.${mode.value}`, { defaultValue: mode.label })}
               compactLabelPrefix={t('agentMode.permission')}
               hideCompactLabelPrefixOnMobile

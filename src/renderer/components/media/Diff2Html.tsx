@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, ChevronUp, Eye } from 'lucide-react';
 import { useThemeContext } from '@/renderer/hooks/context/ThemeContext';
 import { iconColors } from '@/renderer/styles/colors';
 import { extractContentFromDiff, parseFilePathFromDiff } from '@/renderer/utils/file/diffUtils';
 import { getFileTypeInfo } from '@/renderer/utils/file/fileType';
 import { Button, Checkbox, Tooltip } from '@arco-design/web-react';
-import { ExpandDownOne, FoldUpOne, PreviewOpen } from '@icon-park/react';
 import classNames from 'classnames';
 import { html } from 'diff2html';
 import 'diff2html/bundles/css/diff2html.min.css';
@@ -177,7 +177,7 @@ const Diff2Html = ({
                   size='mini'
                   onClick={handlePreviewClick as any}
                   disabled={previewLoading}
-                  icon={<PreviewOpen theme='outline' size='14' fill={iconColors.secondary} />}
+                  icon={<Eye size={14} color={iconColors.secondary} />}
                 >
                   {t('preview.preview')}
                 </Button>
@@ -185,18 +185,12 @@ const Diff2Html = ({
 
               {/* Collapse button */}
               {collapse ? (
-                <ExpandDownOne
-                  theme='outline'
-                  size='14'
-                  fill={iconColors.secondary}
+                <ChevronDown size={14} color={iconColors.secondary}
                   className='flex items-center'
                   onClick={() => setCollapse(false)}
                 />
               ) : (
-                <FoldUpOne
-                  theme='outline'
-                  size='14'
-                  fill={iconColors.secondary}
+                <ChevronUp size={14} color={iconColors.secondary}
                   className='flex items-center'
                   onClick={() => setCollapse(true)}
                 />

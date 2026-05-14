@@ -35,6 +35,10 @@ vi.mock('@icon-park/react', () => ({
   Lightning: () => <span data-testid='lightning-icon' />,
 }));
 
+vi.mock('lucide-react', () => ({
+  Zap: () => <span data-testid='lightning-icon' />,
+}));
+
 vi.mock('@/renderer/styles/colors', () => ({
   iconColors: {
     primary: '#000',

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, PencilLine, Settings, Trash2 } from 'lucide-react';
 import React from 'react';
 import { Avatar, Button, Switch, Tooltip, Typography } from '@arco-design/web-react';
-import { Setting, EditTwo, Delete, Robot } from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import { resolveAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
@@ -56,7 +56,7 @@ const AgentCard: React.FC<AgentCardProps> = (props) => {
         <Button
           size='small'
           type='secondary'
-          icon={<Setting theme='outline' size='14' />}
+          icon={<Settings size={14} />}
           onClick={settingsDisabled ? undefined : onSettings}
           disabled={settingsDisabled}
           className={gridSettingsButtonClassName}
@@ -101,13 +101,13 @@ const AgentCard: React.FC<AgentCardProps> = (props) => {
             <Button
               size='small'
               type='text'
-              icon={<Setting theme='outline' size='14' />}
+              icon={<Settings size={14} />}
               disabled
               style={{ color: 'var(--color-text-4)' }}
             />
           </Tooltip>
         ) : (
-          <Button size='small' type='text' icon={<Setting theme='outline' size='14' />} onClick={onSettings} />
+          <Button size='small' type='text' icon={<Settings size={14} />} onClick={onSettings} />
         )}
       </div>
     );
@@ -123,7 +123,7 @@ const AgentCard: React.FC<AgentCardProps> = (props) => {
           shape='square'
           style={{ flexShrink: 0, backgroundColor: agent.avatar ? 'var(--color-fill-2)' : 'transparent', fontSize: 18 }}
         >
-          {agent.avatar || <Robot theme='outline' size='20' />}
+          {agent.avatar || <Bot size={20} />}
         </Avatar>
         <div className='min-w-0 flex-1'>
           <Typography.Text className='font-medium text-14px'>{agent.name || 'Custom Agent'}</Typography.Text>
@@ -135,12 +135,12 @@ const AgentCard: React.FC<AgentCardProps> = (props) => {
       </div>
       <div className='flex items-center gap-8px'>
         <Switch size='small' checked={agent.enabled !== false} onChange={onToggle} />
-        <Button size='small' type='text' icon={<EditTwo theme='outline' size='14' />} onClick={onEdit} />
+        <Button size='small' type='text' icon={<PencilLine size={14} />} onClick={onEdit} />
         <Button
           size='small'
           type='text'
           status='danger'
-          icon={<Delete theme='outline' size='14' />}
+          icon={<Trash2 size={14} />}
           onClick={onDelete}
         />
       </div>

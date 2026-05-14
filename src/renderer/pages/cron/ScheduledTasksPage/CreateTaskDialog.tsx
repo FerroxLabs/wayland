@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, ChevronDown } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Input, Select, Message, TimePicker, Radio, Button } from '@arco-design/web-react';
 import ModalWrapper from '@renderer/components/base/ModalWrapper';
-import { Down, Robot } from '@icon-park/react';
 import { ipcBridge } from '@/common';
 import type { ICreateCronJobParams, ICronAgentConfig, ICronJob } from '@/common/adapter/ipcBridge';
 import { useConversationAgents } from '@renderer/pages/conversation/hooks/useConversationAgents';
@@ -542,7 +542,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 if (!strVal) return '';
                 const [type, id] = strVal.split(':');
                 let name = id;
-                let logo: React.ReactNode = <Robot size='16' />;
+                let logo: React.ReactNode = <Bot size={16} />;
                 if (type === 'cli') {
                   const agent = cliAgents.find((a) => a.backend === id);
                   if (agent) {
@@ -583,7 +583,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                           {logo ? (
                             <img src={logo} alt={agent.name} className='w-16px h-16px object-contain' />
                           ) : (
-                            <Robot size='16' />
+                            <Bot size={16} />
                           )}
                           <span>{agent.name}</span>
                         </div>
@@ -605,7 +605,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                           ) : isEmoji ? (
                             <span className='text-14px leading-16px'>{agent.avatar}</span>
                           ) : (
-                            <Robot size='16' />
+                            <Bot size={16} />
                           )}
                           <span>{agent.name}</span>
                         </div>
@@ -702,9 +702,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               className='!h-auto !p-0 hover:!bg-transparent'
             >
               <span className='flex items-center gap-6px text-14px font-medium text-t-primary'>
-                <Down
-                  size='14'
-                  fill='currentColor'
+                <ChevronDown size={14}
                   className={`shrink-0 transition-transform ${advancedOpen ? 'rotate-180' : ''}`}
                 />
                 <span>{t('cron.page.form.advancedSettings')}</span>

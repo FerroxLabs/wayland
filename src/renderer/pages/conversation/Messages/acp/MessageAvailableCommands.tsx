@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Hammer } from 'lucide-react';
 import type { IMessageAvailableCommands } from '@/common/chat/chatLib';
 import WaylandCollapse from '@/renderer/components/base/WaylandCollapse';
 import CollapsibleContent from '@/renderer/components/chat/CollapsibleContent';
 import { iconColors } from '@/renderer/styles/colors';
-import { HammerAndAnvil } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +27,7 @@ const MessageAvailableCommands: React.FC<MessageAvailableCommandsProps> = ({ mes
   return (
     <div className='w-full'>
       <div className='flex items-center gap-8px mb-8px'>
-        <HammerAndAnvil theme='outline' size='16' fill={iconColors.primary} />
+        <Hammer size={16} color={iconColors.primary} />
         <span className='text-t-secondary text-13px font-medium'>
           {t('messages.availableCommands', { count: commands.length })}
         </span>

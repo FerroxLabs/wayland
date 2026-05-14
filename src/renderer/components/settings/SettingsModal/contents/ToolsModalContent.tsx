@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, HelpCircle, Plus } from 'lucide-react';
 import {
   ConfigStorage,
   type IConfigStorageRefer,
@@ -13,7 +14,6 @@ import {
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
 import { acpConversation } from '@/common/adapter/ipcBridge';
 import { Divider, Form, Tooltip, Message, Button, Dropdown, Menu, Modal, Switch, Input } from '@arco-design/web-react';
-import { Help, Down, Plus } from '@icon-park/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useConfigModelListWithImage from '@/renderer/hooks/agent/useConfigModelListWithImage';
@@ -404,7 +404,7 @@ const ModalMcpManagementSection: React.FC<{
           }
         >
           <Button type='outline' icon={<Plus size={'16'} />} shape='round' onClick={(e) => e.stopPropagation()}>
-            {t('settings.mcpAddServer')} <Down size='12' />
+            {t('settings.mcpAddServer')} <ChevronDown size={12} />
           </Button>
         </Dropdown>
       );
@@ -849,7 +849,7 @@ const ToolsModalContent: React.FC = () => {
                         className='ml-8px text-[rgb(var(--primary-6))] hover:text-[rgb(var(--primary-5))] cursor-pointer'
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Help theme='outline' size='14' />
+                        <HelpCircle size={14} />
                       </a>
                     </Tooltip>
                   </div>

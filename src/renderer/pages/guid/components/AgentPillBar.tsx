@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, Plus } from 'lucide-react';
 import { resolveAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import type { AcpBackend, AvailableAgent } from '../types';
-import { Plus, Robot } from '@icon-park/react';
 import { Tooltip } from '@arco-design/web-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -102,7 +102,7 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
                       style={{ objectFit: 'contain', flexShrink: 0 }}
                     />
                   ) : (
-                    <Robot theme='outline' size={20} fill='currentColor' style={{ flexShrink: 0 }} />
+                    <Bot size={20} style={{ flexShrink: 0 }} />
                   )}
                   <span
                     className={`font-medium text-14px ${isSelected ? 'font-semibold ml-4px' : isMobile ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-0 opacity-0 overflow-hidden group-hover:max-w-100px group-hover:opacity-100 group-hover:ml-8px'}`}
@@ -128,7 +128,7 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
             style={{ transition: 'opacity 0.2s ease', flexShrink: 0, marginTop: 4 }}
             onClick={() => navigate('/settings/agent?tab=local')}
           >
-            <Plus theme='outline' size={20} fill='currentColor' style={{ flexShrink: 0 }} />
+            <Plus size={20} style={{ flexShrink: 0 }} />
           </div>
         </Tooltip>
       </div>

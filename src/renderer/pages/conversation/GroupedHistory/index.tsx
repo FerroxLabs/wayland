@@ -4,15 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, ChevronRight, FolderOpen } from 'lucide-react';
 import type { TChatConversation } from '@/common/config/storage';
 import DirectorySelectionModal from '@/renderer/components/settings/DirectorySelectionModal';
 import { CronJobIndicator, useCronJobsMap } from '@/renderer/pages/cron';
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Button, Empty, Input, Modal } from '@arco-design/web-react';
-import { FolderOpen } from '@icon-park/react';
 import classNames from 'classnames';
-import { Down, Right } from '@icon-park/react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -247,7 +246,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
               >
                 {exportTargetPath || t('conversation.history.exportSelectFolder')}
               </span>
-              <FolderOpen theme='outline' size='18' fill='var(--color-text-3)' />
+              <FolderOpen size={18} color='var(--color-text-3)' />
             </div>
           </div>
 
@@ -365,9 +364,9 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
                   </span>
                   <div className='ml-auto h-20px w-20px rd-4px flex items-center justify-center hover:bg-fill-3 transition-all shrink-0 text-t-secondary'>
                     {collapsedSections.has('pinned') ? (
-                      <Right theme='outline' size={12} />
+                      <ChevronRight size={12} />
                     ) : (
-                      <Down theme='outline' size={12} />
+                      <ChevronDown size={12} />
                     )}
                   </div>
                 </div>
@@ -404,9 +403,9 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
                 <span className='text-13px text-t-secondary font-bold leading-20px'>{section.timeline}</span>
                 <div className='ml-auto h-20px w-20px rd-4px flex items-center justify-center hover:bg-fill-3 transition-all shrink-0 text-t-secondary'>
                   {collapsedSections.has(section.timeline) ? (
-                    <Right theme='outline' size={12} />
+                    <ChevronRight size={12} />
                   ) : (
-                    <Down theme='outline' size={12} />
+                    <ChevronDown size={12} />
                   )}
                 </div>
               </div>

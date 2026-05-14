@@ -8,11 +8,11 @@
  * agent or switch to an available alternative.
  */
 
+import { CheckCircle2, ChevronDown, ChevronUp, Loader2, XCircle } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button, Message, Progress } from '@arco-design/web-react';
-import { CheckOne, CloseOne, Loading, Down, Up } from '@icon-park/react';
 import classNames from 'classnames';
 import { ipcBridge } from '@/common';
 import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
@@ -215,14 +215,14 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
         {!expanded && !hasAvailableAndSwitching && (
           <div className='flex items-center justify-between cursor-pointer' onClick={() => setExpanded(true)}>
             <div className='flex items-center gap-8px'>
-              <Loading theme='outline' size={16} className='animate-spin text-t-secondary' />
+              <Loader2 size={16} className='animate-spin text-t-secondary' />
               <span className='text-13px text-t-primary'>
                 {t('guid.scanning.initialMessage', {
                   defaultValue: 'Current Agent is unavailable, detecting other available agents...',
                 })}
               </span>
             </div>
-            <Down theme='outline' size={16} className='text-t-tertiary hover:text-t-secondary transition-colors' />
+            <ChevronDown size={16} className='text-t-tertiary hover:text-t-secondary transition-colors' />
           </div>
         )}
 
@@ -235,14 +235,14 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                 <div className='flex items-center gap-8px'>
                   {isChecking ? (
                     <>
-                      <Loading theme='outline' size={16} className='animate-spin text-t-secondary' />
+                      <Loader2 size={16} className='animate-spin text-t-secondary' />
                       <span className='text-13px text-t-primary'>
                         {t('guid.scanning.scanningMessage', { defaultValue: 'Scanning local available agents...' })}
                       </span>
                     </>
                   ) : (
                     <>
-                      <Loading theme='outline' size={16} className='animate-spin text-t-secondary' />
+                      <Loader2 size={16} className='animate-spin text-t-secondary' />
                       <span className='text-13px text-t-primary'>
                         {t('guid.scanning.initialMessage', {
                           defaultValue: 'Current Agent is unavailable, detecting other available agents...',
@@ -255,7 +255,7 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                   onClick={() => setExpanded(false)}
                   className='p-4px rounded-4px hover:bg-fill-3 transition-colors cursor-pointer border-none bg-transparent'
                 >
-                  <Up theme='outline' size={16} className='text-t-tertiary' />
+                  <ChevronUp size={16} className='text-t-tertiary' />
                 </button>
               </div>
             )}
@@ -263,7 +263,7 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
             {/* Success Message - connection succeeded */}
             {hasAvailableAndSwitching && (
               <div className='flex items-center gap-8px mb-12px'>
-                <CheckOne theme='filled' size={16} className='text-success-6' />
+                <CheckCircle2 size={16} className='text-success-6' />
                 <span className='text-13px font-medium text-success-6'>
                   {t('guid.scanning.connectingMessage', { defaultValue: 'Connected successfully, please wait...' })}
                 </span>
@@ -308,17 +308,17 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                       let statusClass: string;
 
                       if (result.checking) {
-                        statusIcon = <Loading theme='outline' size={12} className='animate-spin text-warning-6' />;
+                        statusIcon = <Loader2 size={12} className='animate-spin text-warning-6' />;
                         statusText = t('guid.scanning.statusTesting', { defaultValue: 'Testing latency...' });
                         statusClass = 'text-warning-6';
                       } else if (result.available) {
-                        statusIcon = <CheckOne theme='filled' size={12} className='text-success-6' />;
+                        statusIcon = <CheckCircle2 size={12} className='text-success-6' />;
                         statusText = result.latency
                           ? `${result.latency}ms`
                           : t('guid.scanning.statusAvailable', { defaultValue: 'Available' });
                         statusClass = 'text-success-6';
                       } else if (result.error) {
-                        statusIcon = <CloseOne theme='filled' size={12} className='text-success-6' />;
+                        statusIcon = <XCircle size={12} className='text-success-6' />;
                         statusText = t('guid.scanning.statusUnreachable', { defaultValue: 'Unreachable' });
                         statusClass = 'text-success-6';
                       } else {
@@ -348,8 +348,7 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                                 </div>
                               )}
                               {!result.available && !result.checking && (
-                                <CloseOne
-                                  theme='filled'
+                                <XCircle
                                   size={14}
                                   className='absolute -top-2px -right-2px text-t-tertiary'
                                 />

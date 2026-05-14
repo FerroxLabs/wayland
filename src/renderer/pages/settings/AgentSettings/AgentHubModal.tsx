@@ -1,6 +1,6 @@
+import { Download, RefreshCw } from 'lucide-react';
 import React from 'react';
 import { Button, Typography, Tooltip, Link } from '@arco-design/web-react';
-import { IconDownload, IconRefresh } from '@arco-design/web-react/icon';
 import { useTranslation } from 'react-i18next';
 import ModalWrapper from '@/renderer/components/base/ModalWrapper';
 import { useHubAgents } from '@/renderer/hooks/agent/useHubAgents';
@@ -30,7 +30,7 @@ export const AgentHubModal: React.FC<AgentHubModalProps> = ({ visible, onCancel 
           <Button
             type='primary'
             size='small'
-            icon={<IconDownload />}
+            icon={<Download />}
             className={actionButtonClassName}
             onClick={() => install(agent.name)}
           >
@@ -56,7 +56,7 @@ export const AgentHubModal: React.FC<AgentHubModalProps> = ({ visible, onCancel 
             <Button
               status='danger'
               size='small'
-              icon={<IconRefresh />}
+              icon={<RefreshCw />}
               className={actionButtonClassName}
               onClick={() => retryInstall(agent.name)}
             >
@@ -69,7 +69,7 @@ export const AgentHubModal: React.FC<AgentHubModalProps> = ({ visible, onCancel 
           <Button
             type='primary'
             size='small'
-            icon={<IconDownload />}
+            icon={<Download />}
             className={actionButtonClassName}
             onClick={() => update(agent.name)}
           >

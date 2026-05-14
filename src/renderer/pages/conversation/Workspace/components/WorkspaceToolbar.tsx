@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, Plus, RefreshCw, Search } from 'lucide-react';
 import { iconColors } from '@/renderer/styles/colors';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Dropdown, Input, Menu, Tooltip } from '@arco-design/web-react';
-import { Down, Plus, Refresh, Search } from '@icon-park/react';
 import React, { useId } from 'react';
 import UploadProgressBar from '@/renderer/components/media/UploadProgressBar';
 import type { TFunction } from 'i18next';
@@ -119,7 +119,7 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
               onSearch(value);
             }}
             allowClear
-            prefix={<Search theme='outline' size='14' fill={iconColors.primary} />}
+            prefix={<Search size={14} color={iconColors.primary} />}
           />
         </div>
       )}
@@ -133,9 +133,8 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
           className='flex items-center gap-8px cursor-pointer flex-1 min-w-0'
           onClick={() => setIsWorkspaceCollapsed(!isWorkspaceCollapsed)}
         >
-          <Down
-            size={16}
-            fill={iconColors.primary}
+          <ChevronDown
+            size={16} color={iconColors.primary}
             className={`line-height-0 transition-transform duration-200 flex-shrink-0 ${isWorkspaceCollapsed ? '-rotate-90' : 'rotate-0'}`}
           />
           {isTemporaryWorkspace ? (
@@ -170,10 +169,7 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
             <Dropdown droplist={workspaceUploadMenu} trigger='click' position='bl'>
               <span>
                 <Plus
-                  className='workspace-toolbar-icon-btn lh-[1] flex cursor-pointer'
-                  theme='outline'
-                  size='16'
-                  fill={iconColors.secondary}
+                  className='workspace-toolbar-icon-btn lh-[1] flex cursor-pointer' size={16} color={iconColors.secondary}
                 />
               </span>
             </Dropdown>
@@ -190,15 +186,12 @@ const WorkspaceToolbar: React.FC<WorkspaceToolbarProps> = ({
           )}
           <Tooltip content={t('conversation.workspace.refresh')}>
             <span>
-              <Refresh
+              <RefreshCw
                 className={
                   loading
                     ? 'workspace-toolbar-icon-btn loading lh-[1] flex cursor-pointer'
                     : 'workspace-toolbar-icon-btn flex cursor-pointer'
-                }
-                theme='outline'
-                size='16'
-                fill={iconColors.secondary}
+                } size={16} color={iconColors.secondary}
                 onClick={() => refreshWorkspace()}
               />
             </span>

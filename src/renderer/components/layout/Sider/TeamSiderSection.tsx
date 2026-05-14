@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DeleteOne, EditOne, Peoples, Plus, Pushpin } from '@icon-park/react';
+import { Pencil, Pin, Plus, Trash2, Users } from 'lucide-react';
 import { Input, Message, Modal, Tooltip } from '@arco-design/web-react';
 import classNames from 'classnames';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -119,12 +119,9 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
                     )}
                     onClick={() => handleTeamClick(team.id)}
                   >
-                    <Peoples
+                    <Users
                       data-testid={`collapsed-team-icon-${team.id}`}
-                      data-icon-fill={iconColors.primary}
-                      theme='outline'
-                      size='20'
-                      fill={iconColors.primary}
+                      data-icon-fill={iconColors.primary} size={20} color={iconColors.primary}
                       style={{ lineHeight: 0 }}
                     />
                     {(teamBadgeCounts.get(team.id) ?? 0) > 0 && (
@@ -149,7 +146,7 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
               className='h-20px w-20px rd-4px flex items-center justify-center cursor-pointer hover:bg-fill-3 transition-all shrink-0'
               onClick={() => setCreateTeamVisible(true)}
             >
-              <Plus theme='outline' size='14' fill='var(--color-text-2)' style={{ lineHeight: 0 }} />
+              <Plus size={14} color='var(--color-text-2)' style={{ lineHeight: 0 }} />
             </div>
           </div>
           {sortedTeams.length > 0 &&
@@ -158,17 +155,17 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
               const menuItems: SiderMenuItem[] = [
                 {
                   key: 'pin',
-                  icon: <Pushpin theme='outline' size='14' />,
+                  icon: <Pin size={14} />,
                   label: isPinned ? t('team.sider.unpin') : t('team.sider.pin'),
                 },
                 {
                   key: 'rename',
-                  icon: <EditOne theme='outline' size='14' />,
+                  icon: <Pencil size={14} />,
                   label: t('team.sider.rename'),
                 },
                 {
                   key: 'delete',
-                  icon: <DeleteOne theme='outline' size='14' />,
+                  icon: <Trash2 size={14} />,
                   label: t('team.sider.delete'),
                   danger: true,
                 },
@@ -177,7 +174,7 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
               return (
                 <div key={team.id} className='relative group'>
                   <SiderItem
-                    icon={<Peoples theme='outline' size='20' fill={iconColors.primary} style={{ lineHeight: 0 }} />}
+                    icon={<Users size={20} color={iconColors.primary} style={{ lineHeight: 0 }} />}
                     name={team.name}
                     selected={pathname.startsWith(`/team/${team.id}`)}
                     pinned={isPinned}

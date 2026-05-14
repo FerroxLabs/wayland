@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Check, ChevronDown, ChevronRight, GitBranch } from 'lucide-react';
 import { Badge, Dropdown, Tabs } from '@arco-design/web-react';
-import { BranchOne, CheckSmall, Down, Right } from '@icon-park/react';
 import type { TFunction } from 'i18next';
 import React, { useCallback, useMemo, useState } from 'react';
 import type { WorkspaceTab } from '../types';
@@ -82,9 +82,9 @@ const BranchList: React.FC<BranchListProps> = ({ node, currentBranch, expanded, 
               onClick={() => onToggle(folderPath)}
             >
               {isOpen ? (
-                <Down size={10} className='shrink-0 mr-4px' />
+                <ChevronDown size={10} className='shrink-0 mr-4px' />
               ) : (
-                <Right size={10} className='shrink-0 mr-4px' />
+                <ChevronRight size={10} className='shrink-0 mr-4px' />
               )}
               {name}
             </div>
@@ -109,7 +109,7 @@ const BranchList: React.FC<BranchListProps> = ({ node, currentBranch, expanded, 
             className={`flex items-center h-26px px-8px text-12px ${isCurrent ? 'text-primary-6' : 'text-t-primary'}`}
             style={{ paddingLeft: 8 + depth * INDENT }}
           >
-            {isCurrent ? <CheckSmall size={14} className='shrink-0 mr-2px' /> : <span className='w-16px shrink-0' />}
+            {isCurrent ? <Check size={14} className='shrink-0 mr-2px' /> : <span className='w-16px shrink-0' />}
             <span className={`truncate ${isCurrent ? 'font-medium' : ''}`}>{name}</span>
           </div>
         );
@@ -168,13 +168,13 @@ const WorkspaceTabBar: React.FC<WorkspaceTabBarProps> = ({
         }
       >
         <span className='flex items-center gap-4px text-12px text-t-tertiary mx-8px cursor-pointer hover:text-t-secondary transition-colors w-100px'>
-          <BranchOne size={14} className='shrink-0' />
+          <GitBranch size={14} className='shrink-0' />
           <span className='overflow-hidden text-ellipsis whitespace-nowrap'>{branch}</span>
         </span>
       </Dropdown>
     ) : branch ? (
       <span className='flex items-center gap-4px text-12px text-t-tertiary mx-8px w-100px'>
-        <BranchOne size={14} className='shrink-0' />
+        <GitBranch size={14} className='shrink-0' />
         <span className='overflow-hidden text-ellipsis whitespace-nowrap'>{branch}</span>
       </span>
     ) : null;

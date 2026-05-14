@@ -1,7 +1,7 @@
+import { X } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Form, Input, Message } from '@arco-design/web-react';
 import type { RefInputType } from '@arco-design/web-react/es/Input/interface';
-import { Close } from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
@@ -153,7 +153,7 @@ const TeamCreateModal: React.FC<Props> = ({ visible, onClose, onCreated }) => {
             </h3>
             <Button
               type='text'
-              icon={<Close size='20' fill='currentColor' className='text-t-secondary' />}
+              icon={<X size={20} className='text-t-secondary' />}
               onClick={handleClose}
               className='!h-32px !w-32px !min-w-32px !p-0 !rd-8px hover:!bg-fill-1'
             />

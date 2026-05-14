@@ -1,3 +1,4 @@
+import { CornerDownRight, GripVertical, MoreHorizontal, Trash2 } from 'lucide-react';
 import type { ConversationCommandQueueItem } from '@/renderer/pages/conversation/platforms/useConversationCommandQueue';
 import {
   type Modifier,
@@ -11,7 +12,6 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button, Dropdown, Menu, Typography } from '@arco-design/web-react';
-import { CornerDownRight, Delete, Drag, MoreOne } from '@icon-park/react';
 import React, { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -181,7 +181,7 @@ const QueueItemCard: React.FC<QueueItemCardProps> = ({
               onSortableDragHandlePointerDown?.(event);
             }}
           >
-            <Drag theme='outline' size='12' strokeWidth={2.5} />
+            <GripVertical size={12} strokeWidth={2.5} />
           </button>
           <span
             aria-hidden='true'
@@ -191,7 +191,7 @@ const QueueItemCard: React.FC<QueueItemCardProps> = ({
               color: 'var(--color-text-3)',
             }}
           >
-            <CornerDownRight theme='outline' size='12' strokeWidth={2.3} />
+            <CornerDownRight size={12} strokeWidth={2.3} />
           </span>
         </div>
         <div className='min-w-0 flex-1 flex items-center gap-6px'>
@@ -215,7 +215,7 @@ const QueueItemCard: React.FC<QueueItemCardProps> = ({
         {renderQueueActionIconButton({
           ariaLabel: t('conversation.commandQueue.remove', { defaultValue: 'Remove' }),
           onClick: () => onRemove(item.id),
-          icon: <Delete theme='outline' size='14' strokeWidth={2.5} />,
+          icon: <Trash2 size={14} strokeWidth={2.5} />,
           danger: true,
         })}
         <Dropdown
@@ -238,7 +238,7 @@ const QueueItemCard: React.FC<QueueItemCardProps> = ({
         >
           {renderQueueActionIconButton({
             ariaLabel: t('conversation.commandQueue.moreActions', { defaultValue: 'More actions' }),
-            icon: <MoreOne theme='outline' size='14' strokeWidth={2.5} />,
+            icon: <MoreHorizontal size={14} strokeWidth={2.5} />,
           })}
         </Dropdown>
       </div>

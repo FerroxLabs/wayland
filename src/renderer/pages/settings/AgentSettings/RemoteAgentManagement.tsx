@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AlertTriangle, Bot, Gauge, Minus, Pencil, Plus } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { RemoteAgentConfig, RemoteAgentInput } from '@process/agent/remote/types';
 import EmojiPicker from '@/renderer/components/chat/EmojiPicker';
@@ -23,7 +24,6 @@ import {
   Typography,
 } from '@arco-design/web-react';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
-import { Attention, Edit, Plus, ReduceOne, Robot, Speed } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
@@ -306,7 +306,7 @@ const RemoteAgentFormModal: React.FC<{
     >
       <div className='flex flex-col gap-16px pt-8px pb-20px'>
         <div className='flex gap-10px rounded-12px border border-solid border-[rgba(var(--warning-6),0.14)] bg-[rgba(var(--warning-6),0.08)] px-16px py-12px'>
-          <Attention theme='filled' size={16} className='mt-2px shrink-0 text-[rgb(var(--warning-6))]' />
+          <AlertTriangle size={16} className='mt-2px shrink-0 text-[rgb(var(--warning-6))]' />
           <div className='min-w-0 text-13px leading-20px text-t-secondary'>
             <span>{t('settings.agentManagement.remoteAgentsDescription')} </span>
             <Link className='text-13px leading-20px' onClick={openRemoteAgentGuide}>
@@ -394,7 +394,7 @@ const RemoteAgentFormModal: React.FC<{
           <Button
             long
             type='outline'
-            icon={<Speed theme='outline' size='14' />}
+            icon={<Gauge size={14} />}
             loading={testing}
             onClick={handleTestConnection}
           >
@@ -458,7 +458,7 @@ const RemoteAgentManagement: React.FC = () => {
           type='outline'
           shape='round'
           size='small'
-          icon={<Plus size='16' />}
+          icon={<Plus size={16} />}
           onClick={handleAdd}
           className='rd-100px border-1 border-solid border-[var(--color-border-2)] h-34px px-14px text-t-secondary hover:text-t-primary'
         >
@@ -475,7 +475,7 @@ const RemoteAgentManagement: React.FC = () => {
             type='outline'
             shape='round'
             size='small'
-            icon={<Plus size='16' />}
+            icon={<Plus size={16} />}
             onClick={handleAdd}
             className='rd-100px border-1 border-solid border-[var(--color-border-2)] h-34px px-14px text-t-secondary hover:text-t-primary'
           >
@@ -495,7 +495,7 @@ const RemoteAgentManagement: React.FC = () => {
                   shape='square'
                   style={{ backgroundColor: 'var(--color-fill-2)', fontSize: 24, flexShrink: 0 }}
                 >
-                  {agent.avatar || <Robot theme='outline' size='18' />}
+                  {agent.avatar || <Bot size={18} />}
                 </Avatar>
               </div>
 
@@ -527,7 +527,7 @@ const RemoteAgentManagement: React.FC = () => {
                 <Button
                   size='small'
                   type='secondary'
-                  icon={<Edit theme='outline' size='14' />}
+                  icon={<Pencil size={14} />}
                   className={remoteActionButtonClassName}
                   onClick={() => handleEdit(agent)}
                 >
@@ -537,7 +537,7 @@ const RemoteAgentManagement: React.FC = () => {
                   size='small'
                   type='secondary'
                   status='danger'
-                  icon={<ReduceOne theme='outline' size='14' />}
+                  icon={<Minus size={14} />}
                   className={remoteActionButtonClassName}
                   onClick={() => void handleDelete(agent)}
                 >

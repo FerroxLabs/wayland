@@ -1,5 +1,5 @@
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, X } from 'lucide-react';
 import { Message, Modal, Spin } from '@arco-design/web-react';
-import { CloseSmall, FullScreen, Left, OffScreen, Right } from '@icon-park/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { useSWRConfig } from 'swr';
@@ -140,14 +140,14 @@ const AgentChatSlot: React.FC<{
               className='shrink-0 cursor-pointer hover:bg-[var(--fill-3)] p-4px rd-4px text-[color:var(--color-text-3)] hover:text-[color:var(--color-danger-6)] transition-colors'
               onClick={onRemove}
             >
-              <CloseSmall size='16' fill='currentColor' />
+              <X size={16} />
             </div>
           )}
           <div
             className='shrink-0 cursor-pointer hover:bg-[var(--fill-3)] p-4px rd-4px text-[color:var(--color-text-3)] hover:text-[color:var(--color-text-1)] transition-colors'
             onClick={() => onToggleFullscreen?.()}
           >
-            {isFullscreen ? <OffScreen size='16' fill='currentColor' /> : <FullScreen size='16' fill='currentColor' />}
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </div>
         </div>
       </div>
@@ -405,7 +405,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
                     className='w-32px h-32px rd-full flex items-center justify-center'
                     style={{ background: 'rgba(0,0,0,0.5)', lineHeight: 0 }}
                   >
-                    <Left size='24' fill='#fff' />
+                    <ChevronLeft size={24} color='#fff' />
                   </div>
                 </div>
               )}
@@ -456,7 +456,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
                     className='w-32px h-32px rd-full flex items-center justify-center'
                     style={{ background: 'rgba(0,0,0,0.5)', lineHeight: 0 }}
                   >
-                    <Right size='24' fill='#fff' />
+                    <ChevronRight size={24} color='#fff' />
                   </div>
                 </div>
               )}

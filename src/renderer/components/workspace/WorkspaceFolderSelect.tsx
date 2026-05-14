@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Check, ChevronDown, Folder, FolderOpen, FolderPlus, X } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { Input } from '@arco-design/web-react';
-import { Check, Close, Down, Folder, FolderOpen, FolderPlus } from '@icon-park/react';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -174,7 +174,7 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
             : 'border-border-2 bg-fill-1 hover:border-border-1 hover:bg-fill-2'
         }`}
       >
-        <FolderOpen theme='outline' size='16' fill='currentColor' className='shrink-0 text-t-secondary' />
+        <FolderOpen size={16} className='shrink-0 text-t-secondary' />
         <div className='min-w-0 flex-1'>
           {value ? (
             <div className='flex flex-col'>
@@ -186,15 +186,12 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
           )}
         </div>
         {value ? (
-          <Close
-            theme='outline'
-            size='14'
-            fill='currentColor'
+          <X size={14}
             className='shrink-0 text-t-secondary transition-colors hover:text-t-primary'
             onClick={handleClear}
           />
         ) : (
-          <Down size='14' fill='currentColor' className='shrink-0 text-t-secondary' />
+          <ChevronDown size={14} className='shrink-0 text-t-secondary' />
         )}
       </div>
 
@@ -236,12 +233,12 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
                         : 'border border-transparent hover:border-border-2 hover:bg-fill-1'
                     }`}
                   >
-                    <Folder theme='outline' size='16' fill='currentColor' className='shrink-0 text-t-secondary' />
+                    <Folder size={16} className='shrink-0 text-t-secondary' />
                     <div className='min-w-0 flex-1'>
                       <div className='text-sm leading-20px text-t-primary'>{recentName}</div>
                       <div className='truncate text-11px leading-16px text-t-secondary'>{path}</div>
                     </div>
-                    {isSelected && <Check size='14' fill='currentColor' className='shrink-0 text-primary-6' />}
+                    {isSelected && <Check size={14} className='shrink-0 text-primary-6' />}
                   </div>
                 );
               })}
@@ -253,7 +250,7 @@ const WorkspaceFolderSelect: React.FC<WorkspaceFolderSelectProps> = ({
             onClick={() => void handleBrowse()}
             className='mx-2px flex cursor-pointer items-center gap-10px rounded-10px border border-transparent px-10px py-8px transition-all hover:border-border-2 hover:bg-fill-1'
           >
-            <FolderPlus theme='outline' size='16' fill='currentColor' className='shrink-0 text-t-secondary' />
+            <FolderPlus size={16} className='shrink-0 text-t-secondary' />
             <span className='text-sm text-t-primary'>{chooseDifferentLabel}</span>
           </div>
         </div>

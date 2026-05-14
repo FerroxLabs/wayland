@@ -1,6 +1,6 @@
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { BadgeProps } from '@arco-design/web-react';
 import { Badge } from '@arco-design/web-react';
-import { IconDown, IconRight } from '@arco-design/web-react/icon';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { IMessageAcpToolCall, IMessageToolGroup } from '@/common/chat/chatLib';
 import './MessageToolGroupSummary.css';
@@ -170,7 +170,7 @@ const ToolItemDetail: React.FC<{ item: ToolItem }> = ({ item }) => {
             className='flex-shrink-0 cursor-pointer hover:color-#4E5969 transition-colors'
             onClick={() => setExpanded(!expanded)}
           >
-            {expanded ? <IconDown style={{ fontSize: 12 }} /> : <IconRight style={{ fontSize: 12 }} />}
+            {expanded ? <ChevronDown style={{ fontSize: 12 }} /> : <ChevronRight style={{ fontSize: 12 }} />}
           </span>
         )}
       </div>
@@ -226,7 +226,7 @@ const MessageToolGroupSummary: React.FC<{ messages: Array<IMessageToolGroup | IM
     <div>
       <div className='flex items-center gap-10px color-#86909C cursor-pointer' onClick={() => setShowMore(!showMore)}>
         <Badge status='default' text='View Steps' className={'![&_span.arco-badge-status-text]:color-#86909C'}></Badge>
-        {showMore ? <IconDown /> : <IconRight />}
+        {showMore ? <ChevronDown /> : <ChevronRight />}
       </div>
       {showMore && (
         <div className='p-l-20px flex flex-col gap-8px pt-8px'>

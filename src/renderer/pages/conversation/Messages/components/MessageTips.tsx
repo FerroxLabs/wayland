@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import type { IMessageTips } from '@/common/chat/chatLib';
-import { Attention, CheckOne } from '@icon-park/react';
 import { theme } from '@office-ai/platform';
 import classNames from 'classnames';
 import React, { useMemo } from 'react';
@@ -13,23 +13,17 @@ import MarkdownView from '@renderer/components/Markdown';
 import CollapsibleContent from '@renderer/components/chat/CollapsibleContent';
 
 const icon = {
-  success: <CheckOne theme='filled' size='16' fill={theme.Color.FunctionalColor.success} className='m-t-2px' />,
+  success: <CheckCircle2 size={16} color={theme.Color.FunctionalColor.success} className='m-t-2px' />,
   warning: (
-    <Attention
-      theme='filled'
-      size='16'
+    <AlertTriangle size={16}
       strokeLinejoin='bevel'
-      className='m-t-2px'
-      fill={theme.Color.FunctionalColor.warn}
+      className='m-t-2px' color={theme.Color.FunctionalColor.warn}
     />
   ),
   error: (
-    <Attention
-      theme='filled'
-      size='16'
+    <AlertTriangle size={16}
       strokeLinejoin='bevel'
-      className='m-t-2px'
-      fill={theme.Color.FunctionalColor.error}
+      className='m-t-2px' color={theme.Color.FunctionalColor.error}
     />
   ),
 };

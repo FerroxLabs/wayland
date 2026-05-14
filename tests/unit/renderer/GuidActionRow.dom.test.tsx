@@ -60,6 +60,16 @@ vi.mock('@icon-park/react', () => ({
   UploadOne: () => <span>UploadOne</span>,
 }));
 
+vi.mock('lucide-react', () => ({
+  ArrowUp: () => <span>ArrowUp</span>,
+  Brain: () => <span>Brain</span>,
+  FolderOpen: () => <span>FolderOpen</span>,
+  Zap: () => <span>Lightning</span>,
+  Plus: () => <span>Plus</span>,
+  Shield: () => <span>Shield</span>,
+  Upload: () => <span>UploadOne</span>,
+}));
+
 vi.mock('@/renderer/components/agent/AgentModeSelector', () => ({
   default: () => <div>AgentModeSelector</div>,
 }));

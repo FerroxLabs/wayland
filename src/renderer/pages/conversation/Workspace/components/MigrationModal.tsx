@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Clock, FolderOpen } from 'lucide-react';
 import DirectorySelectionModal from '@/renderer/components/settings/DirectorySelectionModal';
 import { getLastDirectoryName } from '@/renderer/utils/workspace/workspace';
 import { Modal } from '@arco-design/web-react';
-import { AlarmClock, FolderOpen } from '@icon-park/react';
 import React from 'react';
 import type { TFunction } from 'i18next';
 
@@ -97,7 +97,7 @@ const MigrationModal: React.FC<MigrationModalProps> = ({
               >
                 {selectedTargetPath || t('conversation.workspace.migration.selectFolder')}
               </span>
-              <FolderOpen theme='outline' size='18' fill='var(--color-text-3)' />
+              <FolderOpen size={18} color='var(--color-text-3)' />
             </div>
           </div>
 
@@ -174,7 +174,7 @@ const MigrationModal: React.FC<MigrationModalProps> = ({
               className='w-40px h-40px rounded-full flex items-center justify-center'
               style={{ backgroundColor: 'rgba(var(--primary-6), 0.1)' }}
             >
-              <AlarmClock theme='outline' size='22' fill='rgb(var(--primary-6))' />
+              <Clock size={22} color='rgb(var(--primary-6))' />
             </div>
             <div className='flex-1'>
               <div className='text-15px font-medium mb-4px'>

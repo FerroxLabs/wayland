@@ -2,6 +2,7 @@
  * AssistantListPanel — Renders the collapsible list of assistants
  * with avatar, name, enabled switch, and edit/duplicate actions.
  */
+import { Plus, Search, Settings, X } from 'lucide-react';
 import {
   filterAssistants,
   getAssistantSource,
@@ -12,7 +13,6 @@ import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import type { AssistantListItem } from './types';
 import AssistantAvatar from './AssistantAvatar';
 import { Button, Input, Switch, Tabs, Tag } from '@arco-design/web-react';
-import { Plus, Search, SettingOne, CloseSmall } from '@icon-park/react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -165,7 +165,7 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
           <Button
             type='text'
             size='small'
-            icon={<SettingOne size={16} />}
+            icon={<Settings size={16} />}
             className='!rounded-10px'
             data-testid={`btn-edit-${assistant.id}`}
             onClick={() => {
@@ -208,7 +208,7 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
                 type='primary'
                 size='small'
                 className={`!rounded-[100px] ${isMobile ? '!w-full !h-36px' : '!px-16px !h-32px'}`}
-                icon={<Plus size={14} fill='currentColor' />}
+                icon={<Plus size={14} />}
                 onClick={onCreate}
                 data-testid='btn-create-assistant'
               >
@@ -234,9 +234,9 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
                 className='!rounded-10px !h-34px !w-34px !p-0 flex items-center justify-center !text-t-secondary hover:!bg-fill-1 hover:!text-t-primary'
                 icon={
                   isSearchVisible ? (
-                    <CloseSmall size={16} fill='currentColor' />
+                    <X size={16} />
                   ) : (
-                    <Search size={16} fill='currentColor' />
+                    <Search size={16} />
                   )
                 }
                 onClick={() => {
@@ -261,7 +261,7 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
               placeholder={t('settings.searchAssistants', {
                 defaultValue: 'Search assistants by name or description',
               })}
-              prefix={<Search size={14} fill='currentColor' />}
+              prefix={<Search size={14} />}
             />
           )}
           <Tabs

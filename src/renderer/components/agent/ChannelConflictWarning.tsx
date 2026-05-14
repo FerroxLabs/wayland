@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AlertCircle } from 'lucide-react';
 import { Alert, Button, Link, Space, Typography } from '@arco-design/web-react';
-import { IconExclamationCircle } from '@arco-design/web-react/icon';
 import React from 'react';
 
 const { Paragraph, Text } = Typography;
@@ -32,7 +32,7 @@ export const ChannelConflictWarning: React.FC<ChannelConflictWarningProps> = ({
   return (
     <Alert
       type='warning'
-      icon={<IconExclamationCircle />}
+      icon={<AlertCircle />}
       title={`${platformName} Channel Conflict Detected`}
       content={
         <Space direction='vertical' size='medium' style={{ width: '100%' }}>

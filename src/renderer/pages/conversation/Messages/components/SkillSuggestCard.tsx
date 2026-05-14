@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, ChevronUp, Zap } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { iconColors } from '@/renderer/styles/colors';
 import { Button, Message } from '@arco-design/web-react';
-import { Down, Lightning, Up } from '@icon-park/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarkdownView from '@renderer/components/Markdown';
@@ -59,7 +59,7 @@ const SkillSuggestCard: React.FC<SkillSuggestCardProps> = ({ suggestion, cronJob
       style={{ borderColor: 'color-mix(in srgb, var(--color-border-2) 70%, transparent)' }}
     >
       <div className='flex items-center gap-6px mb-8px'>
-        <Lightning theme='filled' size={16} fill={iconColors.warning} />
+        <Zap size={16} color={iconColors.warning} />
         <span className='font-500 text-14px'>{t('cron.skill.turnIntoSkill')}</span>
       </div>
       <div className='text-t-primary text-13px mb-4px'>{suggestion.name}</div>
@@ -70,7 +70,7 @@ const SkillSuggestCard: React.FC<SkillSuggestCardProps> = ({ suggestion, cronJob
         className='flex items-center gap-4px text-12px text-t-secondary cursor-pointer hover:text-t-primary mb-8px select-none'
         onClick={() => setExpanded(!expanded)}
       >
-        {expanded ? <Up size={12} /> : <Down size={12} />}
+        {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         <span>{t('cron.skill.preview')}</span>
       </div>
       {expanded && (

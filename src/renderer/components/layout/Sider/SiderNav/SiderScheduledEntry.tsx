@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Clock } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from '@arco-design/web-react';
-import { AlarmClock } from '@icon-park/react';
 import classNames from 'classnames';
 import type { SiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 
@@ -38,10 +38,7 @@ const SiderScheduledEntry: React.FC<SiderScheduledEntryProps> = ({
           )}
           onClick={onClick}
         >
-          <AlarmClock
-            theme='outline'
-            size='20'
-            fill='currentColor'
+          <Clock size={20}
             className='block leading-none shrink-0'
             style={{ lineHeight: 0 }}
           />
@@ -61,10 +58,7 @@ const SiderScheduledEntry: React.FC<SiderScheduledEntryProps> = ({
         onClick={onClick}
       >
         <span className='w-28px h-28px flex items-center justify-center shrink-0'>
-          <AlarmClock
-            theme='outline'
-            size='20'
-            fill='currentColor'
+          <Clock size={20}
             className='block leading-none'
             style={{ lineHeight: 0 }}
           />

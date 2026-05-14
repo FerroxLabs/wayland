@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, ChevronDown, ChevronLeft, PenSquare } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { resolveLocaleKey } from '@/common/utils';
 
@@ -32,7 +33,6 @@ import { ACP_BACKENDS_ALL } from '@/common/types/acpTypes';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import type { AcpBackendConfig } from './types';
 import { Button, ConfigProvider, Dropdown, Menu, Message } from '@arco-design/web-react';
-import { Down, Left, Robot, Write } from '@icon-park/react';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -553,7 +553,7 @@ const GuidPage: React.FC = () => {
                     size='mini'
                     type='text'
                     shape='circle'
-                    icon={<Left theme='outline' size={18} fill='currentColor' />}
+                    icon={<ChevronLeft size={18} />}
                     className={styles.heroBackButton}
                     onClick={() => {
                       agentSelection.setSelectedAgentKey(agentSelection.defaultAgentKey);
@@ -575,7 +575,7 @@ const GuidPage: React.FC = () => {
                       ) : selectedAssistantAvatar?.kind === 'emoji' ? (
                         <span className={styles.heroTitleEmoji}>{selectedAssistantAvatar.value}</span>
                       ) : (
-                        <Robot theme='outline' size={26} fill='currentColor' />
+                        <Bot size={26} />
                       )}
                     </span>
                     <span>{heroTitle}</span>
@@ -583,7 +583,7 @@ const GuidPage: React.FC = () => {
                   <Button
                     size='mini'
                     type='text'
-                    icon={<Write theme='outline' size={16} fill='currentColor' />}
+                    icon={<PenSquare size={16} />}
                     className={styles.heroTitleEdit}
                     onClick={() => openAssistantDetailsRef.current?.()}
                     aria-label={t('settings.editAssistant', { defaultValue: 'Assistant Details' })}
@@ -616,7 +616,7 @@ const GuidPage: React.FC = () => {
                                       style={{ objectFit: 'contain', flexShrink: 0 }}
                                     />
                                   ) : (
-                                    <Robot theme='outline' size={16} fill='currentColor' style={{ flexShrink: 0 }} />
+                                    <Bot size={16} style={{ flexShrink: 0 }} />
                                   )}
                                   {item.label}
                                   {'isExtension' in item && item.isExtension ? (
@@ -644,9 +644,9 @@ const GuidPage: React.FC = () => {
                             className={styles.heroAgentSwitchIcon}
                           />
                         ) : (
-                          <Robot theme='outline' size={20} fill='currentColor' />
+                          <Bot size={20} />
                         )}
-                        <Down theme='outline' size={16} fill='currentColor' />
+                        <ChevronDown size={16} />
                       </span>
                     </Button>
                   </Dropdown>
@@ -676,7 +676,7 @@ const GuidPage: React.FC = () => {
                   size='mini'
                   type='secondary'
                   shape='circle'
-                  icon={<Down theme='outline' size={12} fill='currentColor' />}
+                  icon={<ChevronDown size={12} />}
                   className={`${styles.heroSubtitleToggle} ${isDescriptionExpanded ? styles.heroSubtitleToggleExpanded : ''}`}
                   onClick={(e) => {
                     e.stopPropagation();

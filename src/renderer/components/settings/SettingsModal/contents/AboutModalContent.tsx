@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronRight, Code } from 'lucide-react';
 import { Divider, Typography, Button, Switch } from '@arco-design/web-react';
-import { Github, Right } from '@icon-park/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
@@ -54,32 +54,32 @@ const AboutModalContent: React.FC = () => {
     {
       title: t('settings.helpDocumentation'),
       url: 'https://github.com/TradeCanyon/Wayland/wiki',
-      icon: <Right theme='outline' size='16' />,
+      icon: <ChevronRight size={16} />,
     },
     {
       title: t('settings.updateLog'),
       url: 'https://github.com/TradeCanyon/Wayland/releases',
-      icon: <Right theme='outline' size='16' />,
+      icon: <ChevronRight size={16} />,
     },
     {
       title: t('settings.feedback'),
       url: 'https://github.com/TradeCanyon/Wayland/issues',
-      icon: <Right theme='outline' size='16' />,
+      icon: <ChevronRight size={16} />,
     },
     {
       title: t('settings.bugReport'),
       onClick: () => setShowFeedbackModal(true),
-      icon: <Right theme='outline' size='16' />,
+      icon: <ChevronRight size={16} />,
     },
     {
       title: t('settings.contactMe'),
       url: 'https://x.com/WailiVery',
-      icon: <Right theme='outline' size='16' />,
+      icon: <ChevronRight size={16} />,
     },
     {
       title: t('settings.officialWebsite'),
       url: 'https://www.wayland.app',
-      icon: <Right theme='outline' size='16' />,
+      icon: <ChevronRight size={16} />,
     },
   ];
 
@@ -113,7 +113,7 @@ const AboutModalContent: React.FC = () => {
                   )
                 }
               >
-                <Github theme='outline' size='20' />
+                <Code size={20} />
               </div>
             </div>
 

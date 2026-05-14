@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Down, Right } from '@icon-park/react';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
 import type { TChatConversation } from '@/common/config/storage';
 import { ipcBridge } from '@/common';
@@ -105,7 +105,7 @@ const CronJobSiderSection: React.FC<CronJobSiderSectionProps> = ({ jobs, pathnam
       >
         <span className='text-13px text-t-secondary font-bold leading-20px'>{t('cron.scheduledTasks')}</span>
         <div className='ml-auto h-20px w-20px rd-4px flex items-center justify-center hover:bg-fill-3 transition-all shrink-0 text-t-secondary'>
-          {expanded ? <Down theme='outline' size={12} /> : <Right theme='outline' size={12} />}
+          {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         </div>
       </div>
       {expanded &&

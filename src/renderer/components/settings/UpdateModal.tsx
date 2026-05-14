@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { CheckCircle2, Download, FolderOpen, RefreshCw, XCircle } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Progress, Message } from '@arco-design/web-react';
-import { CheckOne, Download, FolderOpen, Refresh, CloseOne, Install } from '@icon-park/react';
 import { ipcBridge } from '@/common';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
 import MarkdownView from '@/renderer/components/Markdown';
@@ -302,7 +302,7 @@ const UpdateModal: React.FC = () => {
         return (
           <div className='flex flex-col items-center justify-center py-48px'>
             <div className='w-56px h-56px bg-[rgb(var(--success-6))]/12 rounded-full flex items-center justify-center mb-20px'>
-              <CheckOne theme='filled' size='28' fill='rgb(var(--success-6))' />
+              <CheckCircle2 size={28} color='rgb(var(--success-6))' />
             </div>
             <div className='text-16px text-t-primary font-600 mb-8px'>{t('update.upToDateTitle')}</div>
             <div className='text-13px text-t-tertiary'>
@@ -318,7 +318,7 @@ const UpdateModal: React.FC = () => {
             <div className='flex items-center justify-between px-24px py-16px border-b border-border-2 bg-fill-1'>
               <div className='flex items-center gap-12px'>
                 <div className='w-40px h-40px bg-[rgb(var(--primary-6))]/12 rounded-10px flex items-center justify-center'>
-                  <Download size='20' fill='rgb(var(--primary-6))' />
+                  <Download size={20} color='rgb(var(--primary-6))' />
                 </div>
                 <div>
                   <div className='text-15px font-600 text-t-primary'>{t('update.availableTitle')}</div>
@@ -371,7 +371,7 @@ const UpdateModal: React.FC = () => {
         return (
           <div className='flex flex-col items-center justify-center py-48px px-32px'>
             <div className='w-56px h-56px bg-[rgb(var(--primary-6))]/12 rounded-full flex items-center justify-center mb-20px'>
-              <Download size='24' fill='rgb(var(--primary-6))' className='animate-bounce' />
+              <Download size={24} color='rgb(var(--primary-6))' className='animate-bounce' />
             </div>
             <div className='text-16px text-t-primary font-600 mb-20px'>{t('update.downloadingTitle')}</div>
             <div className='w-full max-w-320px'>
@@ -396,7 +396,7 @@ const UpdateModal: React.FC = () => {
         return (
           <div className='flex flex-col items-center justify-center py-48px px-32px'>
             <div className='w-56px h-56px bg-[rgb(var(--success-6))]/12 rounded-full flex items-center justify-center mb-20px'>
-              <CheckOne theme='filled' size='28' fill='rgb(var(--success-6))' />
+              <CheckCircle2 size={28} color='rgb(var(--success-6))' />
             </div>
             <div className='text-16px text-t-primary font-600 mb-8px'>{t('update.readyToInstall')}</div>
             <div className='text-13px text-t-tertiary mb-24px text-center max-w-360px'>
@@ -406,7 +406,7 @@ const UpdateModal: React.FC = () => {
               type='primary'
               size='small'
               onClick={quitAndInstall}
-              icon={<Install size='14' />}
+              icon={<Download size={14} />}
               className='!px-16px'
             >
               {t('update.installNow')}
@@ -418,14 +418,14 @@ const UpdateModal: React.FC = () => {
         return (
           <div className='flex flex-col items-center justify-center py-48px px-32px'>
             <div className='w-56px h-56px bg-[rgb(var(--success-6))]/12 rounded-full flex items-center justify-center mb-20px'>
-              <CheckOne theme='filled' size='28' fill='rgb(var(--success-6))' />
+              <CheckCircle2 size={28} color='rgb(var(--success-6))' />
             </div>
             <div className='text-16px text-t-primary font-600 mb-8px'>{t('update.downloadCompleteTitle')}</div>
             <div className='text-12px text-t-tertiary mb-24px text-center max-w-360px break-all line-clamp-2'>
               {downloadPath}
             </div>
             <div className='flex gap-12px'>
-              <Button size='small' onClick={showInFolder} icon={<FolderOpen size='14' />} className='!px-16px'>
+              <Button size='small' onClick={showInFolder} icon={<FolderOpen size={14} />} className='!px-16px'>
                 {t('update.showInFolder')}
               </Button>
               <Button type='primary' size='small' onClick={openFile} className='!px-16px'>
@@ -439,12 +439,12 @@ const UpdateModal: React.FC = () => {
         return (
           <div className='flex flex-col items-center justify-center py-48px px-32px'>
             <div className='w-56px h-56px bg-[rgb(var(--danger-6))]/12 rounded-full flex items-center justify-center mb-20px'>
-              <CloseOne theme='filled' size='28' fill='rgb(var(--danger-6))' />
+              <XCircle size={28} color='rgb(var(--danger-6))' />
             </div>
             <div className='text-16px text-t-primary font-600 mb-8px'>{t('update.errorTitle')}</div>
             <div className='text-13px text-t-tertiary mb-24px text-center max-w-360px'>{errorMsg}</div>
             <div className='flex gap-12px'>
-              <Button size='small' onClick={checkForUpdates} icon={<Refresh size='14' />} className='!px-16px'>
+              <Button size='small' onClick={checkForUpdates} icon={<RefreshCw size={14} />} className='!px-16px'>
                 {t('common.retry')}
               </Button>
               {releasePageUrl && (

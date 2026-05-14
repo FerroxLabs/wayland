@@ -1,9 +1,9 @@
 /**
  * AddCustomPathModal — Modal for adding a custom external skill directory path.
  */
+import { FolderOpen } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { Button, Input, Modal } from '@arco-design/web-react';
-import { FolderOpen } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 

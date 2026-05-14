@@ -228,6 +228,12 @@ vi.mock('@icon-park/react', () => ({
   Quote: () => React.createElement('span', {}, 'Quote'),
 }));
 
+vi.mock('lucide-react', () => ({
+  ArrowUp: () => React.createElement('span', {}, 'ArrowUp'),
+  X: () => React.createElement('span', {}, 'CloseSmall'),
+  Quote: () => React.createElement('span', {}, 'Quote'),
+}));
+
 type SelectionItem = string | { path: string; name: string; isFile: boolean; relativePath?: string };
 
 const SendBoxHarness: React.FC<{

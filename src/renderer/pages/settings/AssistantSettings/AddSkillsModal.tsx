@@ -2,9 +2,9 @@
  * AddSkillsModal — Modal for browsing and adding skills from external sources.
  * Includes tabs for sources, search, and skill cards.
  */
+import { Plus, RefreshCw, Search } from 'lucide-react';
 import type { ExternalSource } from './types';
 import { Button, Input, Modal } from '@arco-design/web-react';
-import { Plus, Refresh, Search } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -100,7 +100,7 @@ const AddSkillsModal: React.FC<AddSkillsModalProps> = ({
               onClick={() => void handleRefreshExternal()}
               title={t('common.refresh', { defaultValue: 'Refresh' })}
             >
-              <Refresh theme='outline' size={16} className={refreshing ? 'animate-spin' : ''} />
+              <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
             </button>
             <button
               type='button'

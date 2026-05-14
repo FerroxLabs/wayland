@@ -1,8 +1,8 @@
+import { Check } from 'lucide-react';
 import { Button, Message, Collapse, Tag } from '@arco-design/web-react';
 import React, { useState } from 'react';
 import StepsWrapper from '@/renderer/components/base/StepsWrapper';
 import ModalWrapper from '@/renderer/components/base/ModalWrapper';
-import { Check } from '@icon-park/react';
 
 const ComponentsShowcase: React.FC = () => {
   const [message, contextHolder] = Message.useMessage();
@@ -103,11 +103,11 @@ const ComponentsShowcase: React.FC = () => {
         <StepsWrapper current={currentStep} size='small'>
           <StepsWrapper.Step
             title='步骤一'
-            icon={currentStep > 1 ? <Check theme='filled' size={16} fill='#165dff' /> : undefined}
+            icon={currentStep > 1 ? <Check size={16} color='#165dff' /> : undefined}
           />
           <StepsWrapper.Step
             title='步骤二'
-            icon={currentStep > 2 ? <Check theme='filled' size={16} fill='#165dff' /> : undefined}
+            icon={currentStep > 2 ? <Check size={16} color='#165dff' /> : undefined}
           />
           <StepsWrapper.Step title='步骤三' />
         </StepsWrapper>

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useThemeContext } from '@/renderer/hooks/context/ThemeContext';
-import { Down, Up } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -205,13 +205,13 @@ export const CollapsibleContent: React.FC<CollapsibleContentProps> = ({
               <>
                 {/* Expand more */}
                 <span className='leading-none'>{t('common.expandMore')}</span>
-                <Down theme='outline' size='14' fill='currentColor' className='inline-block' />
+                <ChevronDown size={14} className='inline-block' />
               </>
             ) : (
               <>
                 {/* Collapse */}
                 <span className='leading-none'>{t('common.collapse')}</span>
-                <Up theme='outline' size='14' fill='currentColor' className='inline-block' />
+                <ChevronUp size={14} className='inline-block' />
               </>
             )}
           </button>

@@ -100,6 +100,22 @@ vi.mock('@icon-park/react', () => ({
   Right: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'right-icon', ...props }),
 }));
 
+vi.mock('lucide-react', () => ({
+  X: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'close-icon', ...props }),
+  XCircle: (props: Record<string, unknown>) =>
+    React.createElement('span', { 'data-testid': 'close-one-icon', ...props }),
+  Pencil: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'edit-icon', ...props }),
+  Plus: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'plus-icon', ...props }),
+  Maximize2: (props: Record<string, unknown>) =>
+    React.createElement('span', { 'data-testid': 'fullscreen-icon', ...props }),
+  Minimize2: (props: Record<string, unknown>) =>
+    React.createElement('span', { 'data-testid': 'offscreen-icon', ...props }),
+  ChevronLeft: (props: Record<string, unknown>) =>
+    React.createElement('span', { 'data-testid': 'left-icon', ...props }),
+  ChevronRight: (props: Record<string, unknown>) =>
+    React.createElement('span', { 'data-testid': 'right-icon', ...props }),
+}));
+
 vi.mock('@/renderer/styles/colors', () => ({
   iconColors: { primary: '#000' },
 }));

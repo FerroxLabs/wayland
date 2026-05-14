@@ -1,5 +1,5 @@
+import { PenSquare, Settings, Trash2 } from 'lucide-react';
 import { Button, Dropdown, Menu, Switch } from '@arco-design/web-react';
-import { DeleteFour, SettingOne, Write } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { IMcpServer } from '@/common/config/storage';
@@ -27,20 +27,20 @@ const McpServerActions: React.FC<McpServerActionsProps> = ({
           <Menu>
             <Menu.Item key='edit' onClick={() => onEditServer(server)}>
               <div className='flex items-center gap-2'>
-                <Write size={'14'} />
+                <PenSquare size={'14'} />
                 {t('settings.mcpEditServer')}
               </div>
             </Menu.Item>
             <Menu.Item key='delete' onClick={() => onDeleteServer(server.id)}>
               <div className='flex items-center gap-2 text-red-500'>
-                <DeleteFour size={'14'} />
+                <Trash2 size={'14'} />
                 {t('settings.mcpDeleteServer')}
               </div>
             </Menu.Item>
           </Menu>
         }
       >
-        <Button size='mini' icon={<SettingOne size={'14'} />} />
+        <Button size='mini' icon={<Settings size={'14'} />} />
       </Dropdown>
 
       <Switch

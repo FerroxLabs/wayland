@@ -1,9 +1,9 @@
+import { ChevronDown } from 'lucide-react';
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
 import { Button, Dropdown, Menu, Tooltip } from '@arco-design/web-react';
-import { Down } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
@@ -90,7 +90,7 @@ const GeminiModelSelector: React.FC<{
           )}
           <span className='truncate'>{label}</span>
         </div>
-        <Down theme='outline' size={14} />
+        <ChevronDown size={14} />
       </Button>
     ) : (
       <Button
@@ -107,7 +107,7 @@ const GeminiModelSelector: React.FC<{
             <div className={`w-6px h-6px rounded-full shrink-0 ${currentModelHealth.color}`} />
           )}
           <span className={compact ? 'block truncate' : undefined}>{label}</span>
-          <Down theme='outline' size={12} className='shrink-0' />
+          <ChevronDown size={12} className='shrink-0' />
         </span>
       </Button>
     );

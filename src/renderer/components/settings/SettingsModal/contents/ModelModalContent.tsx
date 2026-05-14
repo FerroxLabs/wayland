@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Activity, Info, Minus, PenSquare, Plus, Trash2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { IProvider } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
 import { Button, Divider, Message, Popconfirm, Collapse, Tag, Switch, Tooltip } from '@arco-design/web-react';
-import { DeleteFour, Info, Minus, Plus, Write, Heartbeat } from '@icon-park/react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
@@ -474,7 +474,7 @@ const ModelModalContent: React.FC = () => {
             <Button
               type='outline'
               shape='round'
-              icon={<Plus size='16' />}
+              icon={<Plus size={16} />}
               onClick={() => addPlatformModalCtrl.open()}
               className='rd-100px border-1 border-solid border-[var(--color-border-2)] h-34px px-14px text-t-secondary hover:text-t-primary'
             >
@@ -498,7 +498,7 @@ const ModelModalContent: React.FC = () => {
       <WaylandScrollArea className='flex-1 min-h-0' disableOverflow={isPageMode}>
         {!data || data.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-40px'>
-            <Info theme='outline' size='48' className='text-t-secondary mb-16px' />
+            <Info size={48} className='text-t-secondary mb-16px' />
             <h3 className='text-16px font-500 text-t-primary mb-8px'>{t('settings.noConfiguredModels')}</h3>
             <p className='text-14px text-t-secondary text-center max-w-400px'>
               {t('settings.needHelpConfigGuide')}
@@ -581,7 +581,7 @@ const ModelModalContent: React.FC = () => {
                             <Button
                               size='mini'
                               className='model-provider-action-btn !w-28px !h-28px !min-w-28px text-t-secondary hover:text-t-primary'
-                              icon={<Plus size='14' />}
+                              icon={<Plus size={14} />}
                               onClick={() => addModelModalCtrl.open({ data: platform })}
                             />
                             <Popconfirm
@@ -591,13 +591,13 @@ const ModelModalContent: React.FC = () => {
                               <Button
                                 size='mini'
                                 className='model-provider-action-btn !w-28px !h-28px !min-w-28px text-t-secondary hover:text-t-primary'
-                                icon={<Minus size='14' />}
+                                icon={<Minus size={14} />}
                               />
                             </Popconfirm>
                             <Button
                               size='mini'
                               className='model-provider-action-btn !w-28px !h-28px !min-w-28px text-t-secondary hover:text-t-primary'
-                              icon={<Write size='14' />}
+                              icon={<PenSquare size={14} />}
                               onClick={() => editModalCtrl.open({ data: platform })}
                             />
                           </div>
@@ -681,7 +681,7 @@ const ModelModalContent: React.FC = () => {
                                 <Button
                                   size='mini'
                                   className='!w-28px !h-28px !min-w-28px !bg-[var(--color-bg-1)] text-t-secondary hover:text-t-primary hover:!bg-[var(--fill-0)]'
-                                  icon={<Heartbeat theme='outline' size='16' />}
+                                  icon={<Activity size={16} />}
                                   loading={healthCheckLoading[`${platform.id}-${model}`]}
                                   onClick={() => performHealthCheck(platform, model)}
                                 />
@@ -716,7 +716,7 @@ const ModelModalContent: React.FC = () => {
                                 <Button
                                   size='mini'
                                   className='!w-28px !h-28px !min-w-28px !bg-[var(--color-bg-1)] text-t-secondary hover:text-t-primary hover:!bg-[var(--fill-0)]'
-                                  icon={<DeleteFour theme='outline' size='18' strokeWidth={2} />}
+                                  icon={<Trash2 size={18} strokeWidth={2} />}
                                 />
                               </Popconfirm>
                             </div>

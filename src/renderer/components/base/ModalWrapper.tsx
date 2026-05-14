@@ -1,6 +1,6 @@
+import { X } from 'lucide-react';
 import type { ModalProps } from '@arco-design/web-react';
 import { Modal } from '@arco-design/web-react';
-import { Close } from '@icon-park/react';
 import React from 'react';
 
 interface ModalWrapperProps extends Omit<ModalProps, 'title'> {
@@ -24,7 +24,7 @@ const ModalWrapper: React.FC<ModalWrapperProps> = ({
           <div className='wayland-modal-header'>
             <h3 className='wayland-modal-title'>{title}</h3>
             <button onClick={onCancel} className='wayland-modal-close-btn'>
-              <Close size={20} fill='#86909c' />
+              <X size={20} color='#86909c' />
             </button>
           </div>
         )}

@@ -1,21 +1,10 @@
+import { Bot, CloudCog, Cpu, Globe, Info, MessageCircle, Monitor, Puzzle, Sparkles, Zap } from 'lucide-react';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { SettingsViewModeProvider } from '@/renderer/components/settings/SettingsModal/settingsViewContext';
 import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
-import {
-  Communication,
-  Computer,
-  Earth,
-  Gemini,
-  Info,
-  Lightning,
-  LinkCloud,
-  Puzzle,
-  Robot,
-  System,
-} from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
@@ -34,40 +23,40 @@ type TranslateFn = (key: string, options?: { defaultValue?: string }) => string;
 
 export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): NavItem[] {
   const builtinMap: Record<string, NavItem> = {
-    gemini: { id: 'gemini', label: t('settings.gemini'), icon: <Gemini theme='outline' size='16' />, path: 'gemini' },
-    model: { id: 'model', label: t('settings.model'), icon: <LinkCloud theme='outline' size='16' />, path: 'model' },
+    gemini: { id: 'gemini', label: t('settings.gemini'), icon: <Sparkles size={16} />, path: 'gemini' },
+    model: { id: 'model', label: t('settings.model'), icon: <CloudCog size={16} />, path: 'model' },
     assistants: {
       id: 'assistants',
       label: t('settings.assistants', { defaultValue: 'Assistants' }),
-      icon: <Robot theme='outline' size='16' />,
+      icon: <Bot size={16} />,
       path: 'assistants',
     },
     agent: {
       id: 'agent',
       label: t('settings.agents', { defaultValue: 'Agents' }),
-      icon: <Robot theme='outline' size='16' />,
+      icon: <Bot size={16} />,
       path: 'agent',
     },
     capabilities: {
       id: 'capabilities',
       label: t('settings.capabilities', { defaultValue: 'Capabilities' }),
-      icon: <Lightning theme='outline' size='16' />,
+      icon: <Zap size={16} />,
       path: 'capabilities',
     },
     display: {
       id: 'display',
       label: t('settings.display'),
-      icon: <Computer theme='outline' size='16' />,
+      icon: <Monitor size={16} />,
       path: 'display',
     },
     webui: {
       id: 'webui',
       label: t('settings.webui'),
-      icon: isDesktop ? <Earth theme='outline' size='16' /> : <Communication theme='outline' size='16' />,
+      icon: isDesktop ? <Globe size={16} /> : <MessageCircle size={16} />,
       path: 'webui',
     },
-    system: { id: 'system', label: t('settings.system'), icon: <System theme='outline' size='16' />, path: 'system' },
-    about: { id: 'about', label: t('settings.about'), icon: <Info theme='outline' size='16' />, path: 'about' },
+    system: { id: 'system', label: t('settings.system'), icon: <Cpu size={16} />, path: 'system' },
+    about: { id: 'about', label: t('settings.about'), icon: <Info size={16} />, path: 'about' },
   };
 
   return BUILTIN_TAB_IDS.map((id) => builtinMap[id]);
@@ -125,7 +114,7 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
         icon: resolvedIcon ? (
           <img src={resolvedIcon} alt='' className='w-16px h-16px object-contain' />
         ) : (
-          <Puzzle theme='outline' size='16' />
+          <Puzzle size={16} />
         ),
         path: `ext/${tab.id}`,
       };

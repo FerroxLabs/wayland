@@ -46,6 +46,14 @@ vi.mock('@icon-park/react', () => ({
   Robot: () => <span data-testid='icon-robot'>RobotIcon</span>,
 }));
 
+vi.mock('lucide-react', () => ({
+  Settings: () => <span data-testid='icon-setting'>SettingIcon</span>,
+  PencilLine: () => <span data-testid='icon-edit'>EditIcon</span>,
+  Pencil: () => <span data-testid='icon-edit'>EditIcon</span>,
+  Trash2: () => <span data-testid='icon-delete'>DeleteIcon</span>,
+  Bot: () => <span data-testid='icon-robot'>RobotIcon</span>,
+}));
+
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';

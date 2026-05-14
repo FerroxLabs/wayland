@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Home, Plus } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
 import { Button, Typography } from '@arco-design/web-react';
-import { Home, Plus } from '@icon-park/react';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -106,7 +106,7 @@ const LocalAgents: React.FC = () => {
           <div className='flex flex-col gap-14px rounded-16px border border-solid border-[rgba(var(--primary-6),0.18)] bg-[rgba(var(--primary-6),0.06)] p-16px md:flex-row md:items-center md:justify-between'>
             <div className='flex items-center gap-12px'>
               <div className='flex h-40px w-40px items-center justify-center leading-none rounded-12px border border-solid border-[rgba(var(--primary-6),0.12)] bg-[rgba(var(--primary-6),0.10)] text-primary-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]'>
-                <Home theme='outline' size='20' strokeWidth={2} className='block' />
+                <Home size={20} strokeWidth={2} className='block' />
               </div>
               <div className='min-w-0'>
                 <Typography.Text className='mb-4px block text-15px font-medium text-t-primary'>
@@ -121,7 +121,7 @@ const LocalAgents: React.FC = () => {
             <Button
               type='primary'
               size='small'
-              icon={<Plus size='14' />}
+              icon={<Plus size={14} />}
               className='!rounded-10px md:!min-w-144px'
               onClick={() => setHubModalVisible(true)}
             >

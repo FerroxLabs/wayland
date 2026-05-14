@@ -1,16 +1,6 @@
+import { Check, Loader2, LogIn, PenSquare, RefreshCw, Settings, Trash2, X, XCircle } from 'lucide-react';
 import type { IMcpServer } from '@/common/config/storage';
 import { Button, Dropdown, Menu, Switch, Tooltip } from '@arco-design/web-react';
-import {
-  Check,
-  CloseOne,
-  CloseSmall,
-  LoadingOne,
-  Refresh,
-  Write,
-  DeleteFour,
-  SettingOne,
-  Login,
-} from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import McpAgentStatusDisplay from './McpAgentStatusDisplay';
@@ -35,11 +25,11 @@ interface McpServerHeaderProps {
 
 const getStatusIcon = (status?: IMcpServer['status'], oauthStatus?: McpOAuthStatus) => {
   if (status === 'testing' || oauthStatus?.isChecking) {
-    return <LoadingOne fill={iconColors.primary} className='h-[24px]' />;
+    return <Loader2 color={iconColors.primary} className='h-[24px]' />;
   }
 
   if (status === 'error') {
-    return <CloseSmall fill={iconColors.danger} className='h-[24px]' />;
+    return <X color={iconColors.danger} className='h-[24px]' />;
   }
 
   if (oauthStatus?.needsLogin) {
@@ -47,10 +37,10 @@ const getStatusIcon = (status?: IMcpServer['status'], oauthStatus?: McpOAuthStat
   }
 
   if (status === 'connected' || oauthStatus?.isAuthenticated) {
-    return <Check fill={iconColors.success} className='h-[24px] items-center' />;
+    return <Check color={iconColors.success} className='h-[24px] items-center' />;
   }
 
-  return <CloseOne fill={iconColors.secondary} className='h-[24px]' />;
+  return <XCircle color={iconColors.secondary} className='h-[24px]' />;
 };
 
 const getStatusText = (status?: IMcpServer['status'], oauthStatus?: McpOAuthStatus, t?: any) => {
@@ -119,7 +109,7 @@ const McpServerHeader: React.FC<McpServerHeaderProps> = ({
           <Button
             size='mini'
             type='primary'
-            icon={<Login size={'14'} />}
+            icon={<LogIn size={'14'} />}
             title={t('settings.mcpLogin') || 'Login'}
             loading={isLoggingIn}
             onClick={() => onOAuthLogin(server)}
@@ -130,7 +120,7 @@ const McpServerHeader: React.FC<McpServerHeaderProps> = ({
         {!isReadOnly && !needsLogin && (
           <Button
             size='mini'
-            icon={<Refresh size={'14'} />}
+            icon={<RefreshCw size={'14'} />}
             title={t('settings.mcpTestConnection')}
             loading={isTestingConnection}
             onClick={() => onTestConnection(server)}
@@ -152,20 +142,20 @@ const McpServerHeader: React.FC<McpServerHeaderProps> = ({
                   <Menu>
                     <Menu.Item key='edit' onClick={() => onEditServer(server)}>
                       <div className='flex items-center gap-2'>
-                        <Write size={'14'} />
+                        <PenSquare size={'14'} />
                         {t('settings.mcpEditServer')}
                       </div>
                     </Menu.Item>
                     <Menu.Item key='delete' onClick={() => onDeleteServer(server.id)}>
                       <div className='flex items-center gap-2 text-red-500'>
-                        <DeleteFour size={'14'} />
+                        <Trash2 size={'14'} />
                         {t('settings.mcpDeleteServer')}
                       </div>
                     </Menu.Item>
                   </Menu>
                 }
               >
-                <Button size='mini' icon={<SettingOne size={'14'} />} />
+                <Button size='mini' icon={<Settings size={'14'} />} />
               </Dropdown>
             )}
           </div>

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Moon, Sun } from 'lucide-react';
 import { useThemeContext } from '@/renderer/hooks/context/ThemeContext';
 import type { ThemePreference } from '@renderer/hooks/system/useTheme';
-import { IconMoon, IconMoonFill, IconSun, IconSunFill } from '@arco-design/web-react/icon';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -48,8 +48,8 @@ export const ThemeSwitcher = () => {
       icon: IconAuto,
       activeIcon: IconAuto,
     },
-    { value: 'light', label: t('settings.lightMode'), icon: IconSun, activeIcon: IconSunFill },
-    { value: 'dark', label: t('settings.darkMode'), icon: IconMoon, activeIcon: IconMoonFill },
+    { value: 'light', label: t('settings.lightMode'), icon: Sun, activeIcon: Sun },
+    { value: 'dark', label: t('settings.darkMode'), icon: Moon, activeIcon: Moon },
   ];
 
   const activeIndex = options.findIndex((o) => o.value === themePreference);

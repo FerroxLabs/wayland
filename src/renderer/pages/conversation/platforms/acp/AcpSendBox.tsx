@@ -1,3 +1,4 @@
+import { Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { isSideQuestionSupported } from '@/common/chat/sideQuestion';
 import type { AcpBackend } from '@/common/types/acpTypes';
@@ -32,7 +33,6 @@ import { emitter, useAddEventListener } from '@/renderer/utils/emitter';
 import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
 import { Tag } from '@arco-design/web-react';
-import { Shield } from '@icon-park/react';
 import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAcpInitialMessage } from './useAcpInitialMessage';
@@ -374,7 +374,7 @@ Please check your local CLI tool authentication status`,
                 conversationId={conversation_id}
                 compact
                 initialMode={sessionMode}
-                compactLeadingIcon={<Shield theme='outline' size='14' fill={iconColors.secondary} />}
+                compactLeadingIcon={<Shield size={14} color={iconColors.secondary} />}
                 modeLabelFormatter={(mode) => t(`agentMode.${mode.value}`, { defaultValue: mode.label })}
                 compactLabelPrefix={t('agentMode.permission')}
                 hideCompactLabelPrefixOnMobile

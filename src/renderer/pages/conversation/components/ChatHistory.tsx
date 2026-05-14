@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { MessageSquare, Pencil, Trash2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { TChatConversation } from '@/common/config/storage';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
@@ -14,7 +15,6 @@ import { blockMobileInputFocus, blurActiveElement } from '@/renderer/utils/ui/fo
 import { cleanupSiderTooltips, getSiderTooltipProps } from '@/renderer/utils/ui/siderTooltip';
 import { getActivityTime, createTimelineGrouper } from '@/renderer/utils/chat/timeline';
 import { Empty, Popconfirm, Input, Tooltip } from '@arco-design/web-react';
-import { DeleteOne, MessageOne, EditOne } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -205,7 +205,7 @@ const ChatHistory: React.FC<{ onSessionClick?: () => void; collapsed?: boolean }
           )}
           onClick={handleSelect.bind(null, conversation)}
         >
-          <MessageOne theme='outline' size='20' className='mt-2px flex' />
+          <MessageSquare size={20} className='mt-2px flex' />
           <FlexFullContainer className='h-24px collapsed-hidden ml-10px min-w-0'>
             {isEditing ? (
               <Input
@@ -248,7 +248,7 @@ const ChatHistory: React.FC<{ onSessionClick?: () => void; collapsed?: boolean }
                     handleEditStart(conversation);
                   }}
                 >
-                  <EditOne theme='outline' size='20' className='flex' />
+                  <Pencil size={20} className='flex' />
                 </span>
               )}
               {!isEditing && (
@@ -271,7 +271,7 @@ const ChatHistory: React.FC<{ onSessionClick?: () => void; collapsed?: boolean }
                       event.stopPropagation();
                     }}
                   >
-                    <DeleteOne theme='outline' size='20' className='flex' />
+                    <Trash2 size={20} className='flex' />
                   </span>
                 </Popconfirm>
               )}

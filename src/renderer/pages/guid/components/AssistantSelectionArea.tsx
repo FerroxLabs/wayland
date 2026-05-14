@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, Plus } from 'lucide-react';
 import coworkSvg from '@/renderer/assets/icons/cowork.svg';
 import {
   useDetectedAgents,
@@ -21,7 +22,6 @@ import { CUSTOM_AVATAR_IMAGE_MAP } from '../constants';
 import styles from '../index.module.css';
 import type { AcpBackendConfig, AvailableAgent, EffectiveAgentInfo } from '../types';
 import { Message } from '@arco-design/web-react';
-import { Plus, Robot } from '@icon-park/react';
 import React, { useCallback, useLayoutEffect, useMemo } from 'react';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { useTranslation } from 'react-i18next';
@@ -328,7 +328,7 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
                 ) : avatarValue ? (
                   <span style={{ fontSize: 16, lineHeight: '18px' }}>{avatarValue}</span>
                 ) : (
-                  <Robot theme='outline' size={16} />
+                  <Bot size={16} />
                 )}
                 <span className='text-14px text-2 hover:text-1'>
                   {assistant.nameI18n?.[localeKey] || assistant.name}
@@ -342,7 +342,7 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
           style={{ borderWidth: '1px', borderColor: 'color-mix(in srgb, var(--color-border-2) 70%, transparent)' }}
           onClick={() => navigate('/settings/assistants')}
         >
-          <Plus theme='outline' size={14} className='line-height-0 text-[var(--color-text-3)]' />
+          <Plus size={14} className='line-height-0 text-[var(--color-text-3)]' />
         </div>
       </div>
       {modalTree}

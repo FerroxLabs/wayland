@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Copy, Download, Loader2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IMessageToolGroup } from '@/common/chat/chatLib';
 import { iconColors } from '@/renderer/styles/colors';
 import { Alert, Button, Image, Message, Radio, Tag, Tooltip } from '@arco-design/web-react';
-import { Copy, Download, LoadingOne } from '@icon-park/react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import FileChangesPanel from '@/renderer/components/base/FileChangesPanel';
@@ -348,7 +348,7 @@ const ImageDisplay: React.FC<{
   if (loading) {
     return (
       <div className='flex items-center gap-8px my-8px'>
-        <LoadingOne className='loading' theme='outline' size='14' fill={iconColors.primary} />
+        <Loader2 className='loading' size={14} color={iconColors.primary} />
         <span className='text-t-secondary text-sm'>{t('common.loading', { defaultValue: 'Loading...' })}</span>
       </div>
     );
@@ -391,7 +391,7 @@ const ImageDisplay: React.FC<{
               type='secondary'
               size='small'
               shape='circle'
-              icon={<Copy theme='outline' size='14' fill={iconColors.primary} />}
+              icon={<Copy size={14} color={iconColors.primary} />}
               onClick={handleCopy}
             />
           </Tooltip>
@@ -400,7 +400,7 @@ const ImageDisplay: React.FC<{
               type='secondary'
               size='small'
               shape='circle'
-              icon={<Download theme='outline' size='14' fill={iconColors.primary} />}
+              icon={<Download size={14} color={iconColors.primary} />}
               onClick={handleDownload}
             />
           </Tooltip>
@@ -545,7 +545,7 @@ const MessageToolGroup: React.FC<IMessageToolGroupProps> = ({ message }) => {
               }
               icon={
                 isLoading && (
-                  <LoadingOne theme='outline' size='12' fill={iconColors.primary} className='loading lh-[1] flex' />
+                  <Loader2 size={12} color={iconColors.primary} className='loading lh-[1] flex' />
                 )
               }
               content={

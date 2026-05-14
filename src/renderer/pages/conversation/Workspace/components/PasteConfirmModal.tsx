@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FileText, FolderOpen } from 'lucide-react';
 import { Checkbox, Modal } from '@arco-design/web-react';
-import { FileText, FolderOpen } from '@icon-park/react';
 import React from 'react';
 import type { TFunction } from 'i18next';
 import type { PasteConfirmState, TargetFolderPath } from '../types';
@@ -48,7 +48,7 @@ const PasteConfirmModal: React.FC<PasteConfirmModalProps> = ({
             className='flex items-center justify-center w-48px h-48px rounded-full'
             style={{ backgroundColor: 'rgb(var(--primary-1))' }}
           >
-            <FileText theme='outline' size='24' fill='rgb(var(--primary-6))' />
+            <FileText size={24} color='rgb(var(--primary-6))' />
           </div>
           <div>
             <div className='text-16px font-semibold mb-4px'>{t('conversation.workspace.pasteConfirm_title')}</div>
@@ -65,7 +65,7 @@ const PasteConfirmModal: React.FC<PasteConfirmModalProps> = ({
         {/* Content area */}
         <div className='mb-20px px-12px py-16px rounded-8px' style={{ backgroundColor: 'var(--color-fill-2)' }}>
           <div className='flex items-start gap-12px mb-12px'>
-            <FileText theme='outline' size='18' fill='var(--color-text-2)' style={{ marginTop: '2px' }} />
+            <FileText size={18} color='var(--color-text-2)' style={{ marginTop: '2px' }} />
             <div className='flex-1'>
               <div className='text-13px mb-4px' style={{ color: 'var(--color-text-3)' }}>
                 {t('conversation.workspace.pasteConfirm_fileName')}
@@ -76,7 +76,7 @@ const PasteConfirmModal: React.FC<PasteConfirmModalProps> = ({
             </div>
           </div>
           <div className='flex items-start gap-12px'>
-            <FolderOpen theme='outline' size='18' fill='var(--color-text-2)' style={{ marginTop: '2px' }} />
+            <FolderOpen size={18} color='var(--color-text-2)' style={{ marginTop: '2px' }} />
             <div className='flex-1'>
               <div className='text-13px mb-4px' style={{ color: 'var(--color-text-3)' }}>
                 {t('conversation.workspace.pasteConfirm_targetFolder')}

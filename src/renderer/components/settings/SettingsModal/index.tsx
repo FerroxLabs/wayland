@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { CloudCog, Globe, Info, Monitor, Puzzle, Sparkles, Wrench } from 'lucide-react';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
 import { iconColors } from '@/renderer/styles/colors';
@@ -11,7 +12,6 @@ import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/pl
 import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
 import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
 import { Tabs } from '@arco-design/web-react';
-import { Computer, Earth, Gemini, Info, LinkCloud, Puzzle, Toolkit } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -203,17 +203,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
       {
         key: 'gemini',
         label: t('settings.gemini'),
-        icon: <Gemini theme='outline' size='20' fill={iconColors.secondary} />,
+        icon: <Sparkles size={20} color={iconColors.secondary} />,
       },
       {
         key: 'model',
         label: t('settings.model'),
-        icon: <LinkCloud theme='outline' size='20' fill={iconColors.secondary} />,
+        icon: <CloudCog size={20} color={iconColors.secondary} />,
       },
       {
         key: 'tools',
         label: t('settings.tools'),
-        icon: <Toolkit theme='outline' size='20' fill={iconColors.secondary} />,
+        icon: <Wrench size={20} color={iconColors.secondary} />,
       },
     ];
 
@@ -221,7 +221,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
       builtinItems.push({
         key: 'webui',
         label: t('settings.webui'),
-        icon: <Earth theme='outline' size='20' fill={iconColors.secondary} />,
+        icon: <Globe size={20} color={iconColors.secondary} />,
       });
     }
 
@@ -229,9 +229,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
       {
         key: 'system',
         label: t('settings.system'),
-        icon: <Computer theme='outline' size='20' fill={iconColors.secondary} />,
+        icon: <Monitor size={20} color={iconColors.secondary} />,
       },
-      { key: 'about', label: t('settings.about'), icon: <Info theme='outline' size='20' fill={iconColors.secondary} /> }
+      { key: 'about', label: t('settings.about'), icon: <Info size={20} color={iconColors.secondary} /> }
     );
 
     // Extension tabs — position anchoring
@@ -262,7 +262,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
         icon: resolvedIcon ? (
           <img src={resolvedIcon} alt='' className='w-20px h-20px object-contain' />
         ) : (
-          <Puzzle theme='outline' size='20' fill={iconColors.secondary} />
+          <Puzzle size={20} color={iconColors.secondary} />
         ),
       };
     };

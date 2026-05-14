@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
 import type { AcpSessionConfigOption } from '@/common/types/acpTypes';
@@ -11,7 +12,6 @@ import { getAgentModes, supportsModeSwitch, type AgentModeOption } from '@/rende
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { AgentLogoIcon } from './AgentBadge';
 import { Button, Dropdown, Menu, Message } from '@arco-design/web-react';
-import { Down } from '@icon-park/react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarqueePillLabel from './MarqueePillLabel';
@@ -298,7 +298,7 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
             {compactLeadingIcon && <span className='shrink-0 inline-flex items-center'>{compactLeadingIcon}</span>}
             {showLogoInCompact && <span className='shrink-0 inline-flex items-center'>{renderLogo()}</span>}
             <MarqueePillLabel>{compactLabel}</MarqueePillLabel>
-            {canInteract && <Down size={12} className='text-t-tertiary shrink-0' />}
+            {canInteract && <ChevronDown size={12} className='text-t-tertiary shrink-0' />}
           </span>
         </Button>
       </span>
@@ -331,7 +331,7 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
       {canSwitchMode && (
         <>
           {currentMode !== defaultMode && <span className='text-xs text-t-tertiary'>({getCurrentModeLabel()})</span>}
-          <Down size={12} className='text-t-tertiary' />
+          <ChevronDown size={12} className='text-t-tertiary' />
         </>
       )}
     </div>

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { MessageSquare, Search, X } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IMessageSearchItem } from '@/common/types/database';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
@@ -12,7 +13,6 @@ import { useOptionalConversationTabs } from '@/renderer/pages/conversation/hooks
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { blockMobileInputFocus, blurActiveElement } from '@/renderer/utils/ui/focus';
 import { Empty, Spin, Typography } from '@arco-design/web-react';
-import { Close, CloseSmall, MessageOne, Search } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -134,7 +134,7 @@ const ConversationAgentMark: React.FC<{ conversation: IMessageSearchItem['conver
     );
   }
 
-  return <MessageOne theme='outline' size='18' className='line-height-0 flex-shrink-0 text-t-secondary' />;
+  return <MessageSquare size={18} className='line-height-0 flex-shrink-0 text-t-secondary' />;
 };
 
 const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
@@ -472,19 +472,13 @@ const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
         >
           {fullWidth ? (
             <span className='w-28px h-28px flex items-center justify-center shrink-0'>
-              <Search
-                theme='outline'
-                size='20'
-                fill='currentColor'
+              <Search size={20}
                 className='block leading-none'
                 style={{ lineHeight: 0 }}
               />
             </span>
           ) : (
-            <Search
-              theme='outline'
-              size='20'
-              fill='currentColor'
+            <Search size={20}
               className='block leading-none shrink-0'
               style={{ lineHeight: 0 }}
             />
@@ -541,13 +535,13 @@ const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
               onClick={handleClose}
               aria-label='Close'
             >
-              <Close size={16} />
+              <X size={16} />
             </button>
           </div>
 
           <div className='mb-14px conversation-search-modal__input-wrap'>
             <div className='conversation-search-modal__searchbar'>
-              <Search theme='outline' size='16' className='conversation-search-modal__search-icon' />
+              <Search size={16} className='conversation-search-modal__search-icon' />
               <input
                 autoFocus={visible}
                 value={keyword}
@@ -562,7 +556,7 @@ const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
                   onClick={handleClearKeyword}
                   aria-label='Clear search'
                 >
-                  <CloseSmall theme='outline' size='14' />
+                  <X size={14} />
                 </button>
               ) : null}
             </div>

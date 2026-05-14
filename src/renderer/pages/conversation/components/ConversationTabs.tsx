@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, Plus, X } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
@@ -11,7 +12,6 @@ import { emitter } from '@/renderer/utils/emitter';
 import { cleanupSiderTooltips } from '@/renderer/utils/ui/siderTooltip';
 import { updateWorkspaceTime } from '@/renderer/utils/workspace/workspaceHistory';
 import { Dropdown, Menu, Message, Tag } from '@arco-design/web-react';
-import { Close, Plus, Robot } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -59,10 +59,7 @@ const ConversationTabView: React.FC<ConversationTabViewProps> = ({
         title={isMobile ? undefined : tabName}
       >
         <span className='text-15px whitespace-nowrap overflow-hidden text-ellipsis select-none flex-1'>{tabName}</span>
-        <Close
-          theme='outline'
-          size='14'
-          fill={iconColors.secondary}
+        <X size={14} color={iconColors.secondary}
           className='shrink-0 transition-all duration-200 hover:fill-[rgb(var(--danger-6))]'
           onClick={(event) => {
             event.stopPropagation();
@@ -87,7 +84,7 @@ const CreateConversationTrigger: React.FC<CreateConversationTriggerProps> = ({ d
       style={{ borderLeft: '1px solid var(--border-base)' }}
       title={title}
     >
-      <Plus theme='outline' size='16' fill={iconColors.primary} strokeWidth={3} />
+      <Plus size={16} color={iconColors.primary} strokeWidth={3} />
     </div>
   </Dropdown>
 );
@@ -280,7 +277,7 @@ const ConversationTabs: React.FC = () => {
                     {logo ? (
                       <img src={logo} alt={agent.name} style={{ width: 16, height: 16, objectFit: 'contain' }} />
                     ) : (
-                      <Robot size='16' />
+                      <Bot size={16} />
                     )}
                     <span>{agent.name}</span>
                     {agent.isExtension && (
@@ -307,7 +304,7 @@ const ConversationTabs: React.FC = () => {
                     ) : isEmoji ? (
                       <span style={{ fontSize: 14, lineHeight: '16px' }}>{agent.avatar}</span>
                     ) : (
-                      <Robot size='16' />
+                      <Bot size={16} />
                     )}
                     <span>{agent.name}</span>
                   </div>

@@ -1,6 +1,6 @@
+import { FolderOpen, Info, Plus, Puzzle, RefreshCw, Search, Trash2, Zap } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { Button, Message, Modal, Typography, Input, Dropdown, Menu } from '@arco-design/web-react';
-import { Delete, FolderOpen, Info, Lightning, Puzzle, Search, Plus, Refresh } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -263,7 +263,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                     onClick={() => void handleRefreshExternal()}
                     title={t('common.refresh', { defaultValue: 'Refresh' })}
                   >
-                    <Refresh theme='outline' size={16} className={refreshing ? 'animate-spin' : ''} />
+                    <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
                   </button>
                 </div>
                 <Typography.Text className='text-13px text-t-secondary block max-w-xl leading-relaxed'>
@@ -407,7 +407,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                 }}
                 title={t('common.refresh', { defaultValue: 'Refresh' })}
               >
-                <Refresh theme='outline' size={16} className={loading ? 'animate-spin' : ''} />
+                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               </button>
             </div>
 
@@ -573,7 +573,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                         }}
                         title={t('common.delete', { defaultValue: 'Delete' })}
                       >
-                        <Delete size={16} />
+                        <Trash2 size={16} />
                       </button>
                     )}
                   </div>
@@ -595,7 +595,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
         {extensionSkills.length > 0 && (
           <div className='px-[16px] md:px-[32px] py-32px bg-base rd-16px md:rd-24px shadow-sm border border-b-base relative overflow-hidden transition-all'>
             <div className='flex items-center gap-10px mb-24px'>
-              <Puzzle theme='filled' size={20} fill='var(--color-primary-6)' />
+              <Puzzle size={20} color='var(--color-primary-6)' />
               <span className='text-16px md:text-18px text-t-primary font-bold tracking-tight'>
                 {t('settings.extensionSkills', { defaultValue: 'Extension Skills' })}
               </span>
@@ -614,7 +614,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                 >
                   <div className='shrink-0 flex items-start sm:mt-2px'>
                     <div className='w-40px h-40px rd-10px bg-[rgba(var(--primary-6),0.08)] flex items-center justify-center shadow-sm'>
-                      <Puzzle theme='filled' size={20} fill='rgb(var(--primary-6))' />
+                      <Puzzle size={20} color='rgb(var(--primary-6))' />
                     </div>
                   </div>
                   <div className='flex-1 min-w-0 flex flex-col justify-center gap-4px'>
@@ -638,7 +638,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
         {builtinAutoSkills.length > 0 && (
           <div className='px-[16px] md:px-[32px] py-32px bg-base rd-16px md:rd-24px shadow-sm border border-b-base relative overflow-hidden transition-all'>
             <div className='flex items-center gap-10px mb-24px'>
-              <Lightning theme='filled' size={20} fill='var(--color-primary-6)' />
+              <Zap size={20} color='var(--color-primary-6)' />
               <span className='text-16px md:text-18px text-t-primary font-bold tracking-tight'>
                 {t('settings.autoInjectedSkills')}
               </span>
@@ -657,7 +657,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                 >
                   <div className='shrink-0 flex items-start sm:mt-2px'>
                     <div className='w-40px h-40px rd-10px bg-[rgba(var(--success-6),0.08)] flex items-center justify-center shadow-sm'>
-                      <Lightning theme='filled' size={20} fill='rgb(var(--success-6))' />
+                      <Zap size={20} color='rgb(var(--success-6))' />
                     </div>
                   </div>
                   <div className='flex-1 min-w-0 flex flex-col justify-center gap-4px'>

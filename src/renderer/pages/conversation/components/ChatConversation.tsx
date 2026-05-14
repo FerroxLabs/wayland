@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { History } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
@@ -12,7 +13,6 @@ import { CronJobManager } from '@/renderer/pages/cron';
 import { usePresetAssistantInfo, resolveAssistantConfigId } from '@/renderer/hooks/agent/usePresetAssistantInfo';
 import { iconColors } from '@/renderer/styles/colors';
 import { Button, Dropdown, Menu, Tooltip, Typography } from '@arco-design/web-react';
-import { History } from '@icon-park/react';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -76,10 +76,7 @@ const _AssociatedConversation: React.FC<{ conversation_id: string }> = ({ conver
       <Button
         size='mini'
         icon={
-          <History
-            theme='filled'
-            size='14'
-            fill={iconColors.primary}
+          <History size={14} color={iconColors.primary}
             strokeWidth={2}
             strokeLinejoin='miter'
             strokeLinecap='square'

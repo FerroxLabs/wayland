@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Copy, Eye } from 'lucide-react';
 import mermaid from 'mermaid';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { vs, vs2015 } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 import { copyText } from '@/renderer/utils/ui/clipboard';
 import { Message } from '@arco-design/web-react';
-import { Copy, PreviewOpen } from '@icon-park/react';
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -210,13 +210,10 @@ function MermaidBlock({ code, style, showOpenInPanelButton = true }: MermaidBloc
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             {showOpenInPanelButton && (
-              <PreviewOpen
-                data-testid='mermaid-open-in-panel'
-                theme='outline'
-                size='18'
-                style={{ cursor: 'pointer', flexShrink: 0 }}
-                fill='var(--text-secondary)'
-                title={t('preview.openInPanelTooltip')}
+              <Eye
+                data-testid='mermaid-open-in-panel' size={18}
+                style={{ cursor: 'pointer', flexShrink: 0 }} color='var(--text-secondary)'
+                aria-label={t('preview.openInPanelTooltip')}
                 onClick={() => {
                   openPreview(`\`\`\`mermaid\n${code}\n\`\`\``, 'markdown', {
                     title: previewTitle,
@@ -226,11 +223,8 @@ function MermaidBlock({ code, style, showOpenInPanelButton = true }: MermaidBloc
               />
             )}
             <Copy
-              data-testid='mermaid-copy'
-              theme='outline'
-              size='18'
-              style={{ cursor: 'pointer', flexShrink: 0 }}
-              fill='var(--text-secondary)'
+              data-testid='mermaid-copy' size={18}
+              style={{ cursor: 'pointer', flexShrink: 0 }} color='var(--text-secondary)'
               onClick={() => {
                 void copyText(code)
                   .then(() => {

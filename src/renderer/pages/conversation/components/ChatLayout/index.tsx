@@ -1,3 +1,4 @@
+import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { ConfigStorage } from '@/common/config/storage';
 import AgentBadge from '@/renderer/components/agent/AgentBadge';
 import type { PresetAssistantInfo } from '@/renderer/hooks/agent/usePresetAssistantInfo';
@@ -26,7 +27,6 @@ import {
   calcLayoutMetrics,
 } from '@/renderer/pages/conversation/utils/layoutCalc';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
-import { ExpandLeft, ExpandRight } from '@icon-park/react';
 import React from 'react';
 import useSWR from 'swr';
 import './chat-layout.css';
@@ -228,7 +228,7 @@ const ChatLayout: React.FC<{
               aria-label='Toggle workspace'
               onClick={() => dispatchWorkspaceToggleEvent()}
             >
-              {rightSiderCollapsed ? <ExpandRight size={16} /> : <ExpandLeft size={16} />}
+              {rightSiderCollapsed ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
             </button>
           )}
         </div>

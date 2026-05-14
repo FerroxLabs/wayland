@@ -1,20 +1,8 @@
+import { Bot, CloudCog, Cpu, Gauge, Globe, Info, MessageCircle, Monitor, Puzzle, Sparkles, Zap } from 'lucide-react';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
 import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
 import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
-import {
-  Communication,
-  Computer,
-  Earth,
-  Gemini,
-  Info,
-  Lightning,
-  LinkCloud,
-  Puzzle,
-  Robot,
-  Speed,
-  System,
-} from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -135,34 +123,34 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
   const { menus, groupHeaderAt } = useMemo(() => {
     // Build builtin items
     const builtinMap: Record<string, SiderItem> = {
-      gemini: { id: 'gemini', label: t('settings.gemini'), icon: <Gemini />, path: 'gemini' },
-      model: { id: 'model', label: t('settings.model'), icon: <LinkCloud />, path: 'model' },
+      gemini: { id: 'gemini', label: t('settings.gemini'), icon: <Sparkles />, path: 'gemini' },
+      model: { id: 'model', label: t('settings.model'), icon: <CloudCog />, path: 'model' },
       assistants: {
         id: 'assistants',
         label: t('settings.assistants', { defaultValue: 'Assistants' }),
-        icon: <Robot />,
+        icon: <Bot />,
         path: 'assistants',
       },
       agent: {
         id: 'agent',
         label: t('settings.agents', { defaultValue: 'Agents' }),
-        icon: <Speed />,
+        icon: <Gauge />,
         path: 'agent',
       },
       capabilities: {
         id: 'capabilities',
         label: t('settings.capabilities', { defaultValue: 'Capabilities' }),
-        icon: <Lightning />,
+        icon: <Zap />,
         path: 'capabilities',
       },
-      display: { id: 'display', label: t('settings.display'), icon: <Computer />, path: 'display' },
+      display: { id: 'display', label: t('settings.display'), icon: <Monitor />, path: 'display' },
       webui: {
         id: 'webui',
         label: t('settings.webui'),
-        icon: isDesktop ? <Earth /> : <Communication />,
+        icon: isDesktop ? <Globe /> : <MessageCircle />,
         path: 'webui',
       },
-      system: { id: 'system', label: t('settings.system'), icon: <System />, path: 'system' },
+      system: { id: 'system', label: t('settings.system'), icon: <Cpu />, path: 'system' },
       about: { id: 'about', label: t('settings.about'), icon: <Info />, path: 'about' },
     };
 

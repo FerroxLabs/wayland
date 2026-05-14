@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Brain, ChevronDown, Plus } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 import { iconColors } from '@/renderer/styles/colors';
@@ -12,7 +13,6 @@ import { formatAcpModelDisplayLabel, getAcpModelSourceLabel } from '@/renderer/u
 import type { AcpModelInfo } from '../types';
 import { getAvailableModels } from '../utils/modelUtils';
 import { Button, Dropdown, Menu, Tooltip } from '@arco-design/web-react';
-import { Brain, Down, Plus } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -123,7 +123,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
                     className='text-12px text-t-secondary'
                     onClick={() => navigate('/settings/model')}
                   >
-                    <Plus theme='outline' size='12' />
+                    <Plus size={12} />
                     {t('settings.addModel')}
                   </Menu.Item>,
                 ]
@@ -239,7 +239,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
                     className='text-12px text-t-secondary'
                     onClick={() => navigate('/settings/model')}
                   >
-                    <Plus theme='outline' size='12' />
+                    <Plus size={12} />
                     {t('settings.addModel')}
                   </Menu.Item>,
                 ]}
@@ -248,9 +248,9 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
       >
         <Button className={'sendbox-model-btn guid-config-btn'} shape='round' size='small'>
           <span className='flex items-center gap-6px min-w-0'>
-            <Brain theme='outline' size='14' fill={iconColors.secondary} className='shrink-0' />
+            <Brain size={14} color={iconColors.secondary} className='shrink-0' />
             <span>{geminiButtonLabel}</span>
-            <Down theme='outline' size='12' fill={iconColors.secondary} className='shrink-0' />
+            <ChevronDown size={12} color={iconColors.secondary} className='shrink-0' />
           </span>
         </Button>
       </Dropdown>
@@ -297,9 +297,9 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
         >
           <Button className={'sendbox-model-btn guid-config-btn'} shape='round' size='small'>
             <span className='flex items-center gap-6px min-w-0'>
-              <Brain theme='outline' size='14' fill={iconColors.secondary} className='shrink-0' />
+              <Brain size={14} color={iconColors.secondary} className='shrink-0' />
               <span>{acpButtonDisplayLabel}</span>
-              <Down theme='outline' size='12' fill={iconColors.secondary} className='shrink-0' />
+              <ChevronDown size={12} color={iconColors.secondary} className='shrink-0' />
             </span>
           </Button>
         </Dropdown>
@@ -315,7 +315,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
           style={{ cursor: 'default' }}
         >
           <span className='flex items-center gap-6px min-w-0'>
-            <Brain theme='outline' size='14' fill={iconColors.secondary} className='shrink-0' />
+            <Brain size={14} color={iconColors.secondary} className='shrink-0' />
             <span>{acpButtonDisplayLabel}</span>
           </span>
         </Button>
@@ -328,7 +328,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     <Tooltip content={t('conversation.welcome.modelSwitchNotSupported')} position='top'>
       <Button className={'sendbox-model-btn guid-config-btn'} shape='round' size='small' style={{ cursor: 'default' }}>
         <span className='flex items-center gap-6px min-w-0'>
-          <Brain theme='outline' size='14' fill={iconColors.secondary} className='shrink-0' />
+          <Brain size={14} color={iconColors.secondary} className='shrink-0' />
           <span>{defaultModelLabel}</span>
         </span>
       </Button>

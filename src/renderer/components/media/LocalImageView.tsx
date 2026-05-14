@@ -1,6 +1,6 @@
+import { Loader2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { joinPath } from '@/common/chat/chatLib';
-import { LoadingTwo } from '@icon-park/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { createContext } from '@renderer/utils/ui/createContext';
 import { iconColors } from '@/renderer/styles/colors';
@@ -53,12 +53,9 @@ const LocalImageView: React.FC<{
   if (loading)
     return (
       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-        <LoadingTwo
+        <Loader2
           className='loading'
-          style={{ display: 'flex' }}
-          theme='outline'
-          size='14'
-          fill={iconColors.primary}
+          style={{ display: 'flex' }} size={14} color={iconColors.primary}
           strokeWidth={2}
         />
         <span>{alt}</span>

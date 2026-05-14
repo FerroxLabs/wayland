@@ -1,5 +1,5 @@
+import { Minus, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Minus, CloseSmall } from '@icon-park/react';
 import { ipcBridge } from '@/common';
 
 const WindowMaximizeIcon: React.FC<{ size?: number }> = ({ size = 14 }) => (
@@ -78,7 +78,7 @@ const WindowControls: React.FC = () => {
   return (
     <div className='app-window-controls'>
       <button type='button' className='app-window-controls__button' onClick={handleMinimize} aria-label='Minimize'>
-        <Minus theme='outline' size='14' fill='currentColor' strokeWidth={4} />
+        <Minus size={14} strokeWidth={4} />
       </button>
       <button
         type='button'
@@ -94,7 +94,7 @@ const WindowControls: React.FC = () => {
         onClick={handleClose}
         aria-label='Close'
       >
-        <CloseSmall theme='outline' size='16' fill='currentColor' strokeWidth={3} />
+        <X size={16} strokeWidth={3} />
       </button>
     </div>
   );

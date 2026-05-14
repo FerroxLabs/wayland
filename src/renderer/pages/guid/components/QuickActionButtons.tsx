@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Globe } from 'lucide-react';
 import { webui } from '@/common/adapter/ipcBridge';
-import { Earth } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -177,10 +177,8 @@ const QuickActionButtons: React.FC<QuickActionButtonsProps> = ({
         >
           <div className='relative w-20px h-20px flex-shrink-0 leading-none'>
             <div className='absolute inset-0 flex items-center justify-center'>
-              <Earth
-                theme='outline'
+              <Globe
                 size={20}
-                fill='currentColor'
                 className='block transition-colors duration-360'
                 style={{ color: webuiIconColor }}
               />

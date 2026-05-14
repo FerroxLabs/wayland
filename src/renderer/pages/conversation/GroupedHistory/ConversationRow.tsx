@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { MessageSquare, Pencil, Pin, Trash2, Upload } from 'lucide-react';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
 import siderStyles from '@/renderer/components/layout/Sider/Sider.module.css';
@@ -12,7 +13,6 @@ import { CronJobIndicator } from '@/renderer/pages/cron';
 import { cleanupSiderTooltips, getSiderTooltipProps } from '@/renderer/utils/ui/siderTooltip';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { Checkbox, Dropdown, Menu, Spin, Tooltip } from '@arco-design/web-react';
-import { DeleteOne, EditOne, Export, MessageOne, Pushpin } from '@icon-park/react';
 import classNames from 'classnames';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -76,7 +76,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
       );
     }
 
-    return <MessageOne theme='outline' size='20' className='line-height-0 flex-shrink-0' />;
+    return <MessageSquare size={20} className='line-height-0 flex-shrink-0' />;
   };
 
   const handleRowClick = () => {
@@ -174,7 +174,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
         {renderCompletionUnreadDot()}
         {!batchMode && isPinned && !menuVisible && !isMobile && (
           <span className='absolute right-8px top-1/2 -translate-y-1/2 flex-center text-t-secondary pointer-events-none !collapsed-hidden group-hover:hidden'>
-            <Pushpin theme='outline' size='16' />
+            <Pin size={16} />
           </span>
         )}
         {!batchMode && (
@@ -218,27 +218,27 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
                 >
                   <Menu.Item key='pin'>
                     <div className='flex items-center gap-8px'>
-                      <Pushpin theme='outline' size='14' />
+                      <Pin size={14} />
                       <span>{isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}</span>
                     </div>
                   </Menu.Item>
                   <Menu.Item key='rename'>
                     <div className='flex items-center gap-8px'>
-                      <EditOne theme='outline' size='14' />
+                      <Pencil size={14} />
                       <span>{t('conversation.history.rename')}</span>
                     </div>
                   </Menu.Item>
                   {onExport && (
                     <Menu.Item key='export'>
                       <div className='flex items-center gap-8px'>
-                        <Export theme='outline' size='14' />
+                        <Upload size={14} />
                         <span>{t('conversation.history.export')}</span>
                       </div>
                     </Menu.Item>
                   )}
                   <Menu.Item key='delete'>
                     <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
-                      <DeleteOne theme='outline' size='14' />
+                      <Trash2 size={14} />
                       <span>{t('conversation.history.deleteTitle')}</span>
                     </div>
                   </Menu.Item>

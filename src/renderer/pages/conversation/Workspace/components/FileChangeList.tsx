@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, ChevronRight, Eye, Minus, Plus, Redo2, RefreshCw } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { FileChangeInfo, SnapshotInfo } from '@/common/types/fileSnapshot';
 import Diff2Html from '@/renderer/components/media/Diff2Html';
 import { isTextFile } from '@/renderer/services/FileService';
 import { Button, Empty, Spin, Tooltip } from '@arco-design/web-react';
-import { Down, Minus, Plus, PreviewOpen, Redo, Refresh, Right } from '@icon-park/react';
 import { createTwoFilesPatch } from 'diff';
 import type { TFunction } from 'i18next';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -98,7 +98,7 @@ const FileChangeItem: React.FC<{
       >
         <div className='flex items-center gap-6px min-w-0 flex-1'>
           <span className='w-14px flex items-center justify-center flex-shrink-0 text-t-quaternary'>
-            {expandable ? expanded ? <Down size={12} /> : <Right size={12} /> : null}
+            {expandable ? expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} /> : null}
           </span>
           <span className={`text-11px font-semibold w-14px text-center flex-shrink-0 ${statusColor}`}>
             {statusLabel}
@@ -282,7 +282,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
                 <>
                   <ActionBtn
                     tooltip={t('conversation.workspace.changes.discard')}
-                    icon={<Redo size={14} />}
+                    icon={<Redo2 size={14} />}
                     onClick={() => onDiscardFile(change.relativePath, change.operation)}
                   />
                   <ActionBtn
@@ -327,7 +327,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
               renderActions: (change: FileChangeInfo) => (
                 <ActionBtn
                   tooltip={t('conversation.workspace.changes.reset')}
-                  icon={<Redo size={14} />}
+                  icon={<Redo2 size={14} />}
                   onClick={() => onResetFile(change.relativePath, change.operation)}
                 />
               ),
@@ -370,7 +370,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
         </span>
         <ActionBtn
           tooltip={t('conversation.workspace.changes.refresh')}
-          icon={<Refresh size={14} />}
+          icon={<RefreshCw size={14} />}
           onClick={onRefresh}
         />
       </div>
@@ -404,7 +404,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
                       <>
                         <ActionBtn
                           tooltip={t('preview.preview')}
-                          icon={<PreviewOpen size={14} />}
+                          icon={<Eye size={14} />}
                           onClick={() => {
                             void handleOpenPreview(change);
                           }}

@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AlertTriangle, ChevronLeft, PenSquare, Play, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Message, Switch, Popconfirm, Spin, Empty } from '@arco-design/web-react';
-import { Left, Delete, PlayOne, Write, Attention } from '@icon-park/react';
 import { ipcBridge } from '@/common';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
 import { getAgentLogo } from '@renderer/utils/model/agentLogo';
@@ -121,7 +121,7 @@ const TaskDetailPage: React.FC = () => {
             type='text'
             size='small'
             className='w-fit !px-0 !text-14px md:!text-15px !text-t-secondary hover:!text-t-primary'
-            icon={<Left theme='outline' size={16} className='line-height-0 shrink-0' />}
+            icon={<ChevronLeft size={16} className='line-height-0 shrink-0' />}
             onClick={() => navigate('/scheduled')}
           >
             {t('cron.detail.backToAll')}
@@ -149,7 +149,7 @@ const TaskDetailPage: React.FC = () => {
           type='text'
           size='small'
           className='w-fit !px-0 !text-14px md:!text-15px !text-t-secondary hover:!text-t-primary'
-          icon={<Left theme='outline' size={16} className='line-height-0 shrink-0' />}
+          icon={<ChevronLeft size={16} className='line-height-0 shrink-0' />}
           onClick={() => navigate('/scheduled')}
         >
           {t('cron.detail.backToAll')}
@@ -166,7 +166,7 @@ const TaskDetailPage: React.FC = () => {
                   size='mini'
                   type='text'
                   className='!h-20px !min-w-20px !w-20px !rounded-0 !border-none !bg-transparent !p-0 !text-t-secondary hover:!bg-transparent hover:!text-t-primary translate-y-1px'
-                  icon={<Write theme='outline' size={16} fill='currentColor' />}
+                  icon={<PenSquare size={16} />}
                   onClick={() => setEditDialogVisible(true)}
                 />
                 <Popconfirm title={t('cron.confirmDeleteWithConversations')} onOk={handleDelete}>
@@ -174,14 +174,14 @@ const TaskDetailPage: React.FC = () => {
                     size='mini'
                     type='text'
                     className='!h-20px !min-w-20px !w-20px !rounded-0 !border-none !bg-transparent !p-0 !text-t-secondary hover:!bg-transparent hover:!text-t-primary translate-y-1px'
-                    icon={<Delete theme='outline' size={16} fill='currentColor' />}
+                    icon={<Trash2 size={16} />}
                   />
                 </Popconfirm>
                 <Button
                   type='primary'
                   shape='round'
                   loading={runningNow}
-                  icon={<PlayOne theme='outline' size={14} />}
+                  icon={<Play size={14} />}
                   onClick={handleRunNow}
                 >
                   {t('cron.detail.runNow')}
@@ -277,7 +277,7 @@ const TaskDetailPage: React.FC = () => {
               <h2 className='m-0 text-13px font-medium text-t-secondary'>{t('cron.page.form.executionMode')}</h2>
               <div className='inline-flex items-center gap-4px'>
                 <span className='text-14px leading-22px text-t-primary'>{currentExecutionModeLabel}</span>
-                <Attention theme='outline' size={12} className='line-height-0 shrink-0 text-t-secondary' />
+                <AlertTriangle size={12} className='line-height-0 shrink-0 text-t-secondary' />
               </div>
               <div className='box-border rounded-12px border border-solid border-[var(--color-border-2)] bg-fill-2 px-16px py-14px'>
                 <div className='flex flex-col gap-10px'>

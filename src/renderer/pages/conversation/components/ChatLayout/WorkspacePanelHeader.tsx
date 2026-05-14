@@ -1,6 +1,6 @@
+import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { WORKSPACE_HEADER_HEIGHT } from '@/renderer/pages/conversation/utils/layoutCalc';
 import { dispatchWorkspaceToggleEvent } from '@/renderer/utils/workspace/workspaceEvents';
-import { ExpandLeft, ExpandRight } from '@icon-park/react';
 import React from 'react';
 import WorkspaceOpenButton from './WorkspaceOpenButton';
 
@@ -33,7 +33,7 @@ const WorkspacePanelHeader: React.FC<WorkspaceHeaderProps> = ({
         aria-label='Toggle workspace'
         onClick={onToggle}
       >
-        {collapsed ? <ExpandRight size={16} /> : <ExpandLeft size={16} />}
+        {collapsed ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
       </button>
     )}
     <div className='flex-1 truncate'>{children}</div>
@@ -43,7 +43,7 @@ const WorkspacePanelHeader: React.FC<WorkspaceHeaderProps> = ({
 
     {showToggle && togglePlacement === 'right' && (
       <button type='button' className='workspace-header__toggle' aria-label='Toggle workspace' onClick={onToggle}>
-        {collapsed ? <ExpandRight size={16} /> : <ExpandLeft size={16} />}
+        {collapsed ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
       </button>
     )}
   </div>
@@ -58,7 +58,7 @@ export const DesktopWorkspaceToggle: React.FC = () => (
     onClick={() => dispatchWorkspaceToggleEvent()}
     aria-label='Expand workspace'
   >
-    <ExpandLeft size={16} />
+    <PanelRightClose size={16} />
   </button>
 );
 

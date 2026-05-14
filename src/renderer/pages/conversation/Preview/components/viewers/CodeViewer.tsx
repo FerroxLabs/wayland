@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { X } from 'lucide-react';
 import { useAutoScroll } from '@/renderer/hooks/chat/useAutoScroll';
 import { useTextSelection } from '@/renderer/hooks/ui/useTextSelection';
 import { useTypingAnimation } from '@/renderer/hooks/chat/useTypingAnimation';
 import { iconColors } from '@/renderer/styles/colors';
 import { LARGE_TEXT_VIEWER_RENDER_LIMIT, LARGE_TEXT_VIEWER_THRESHOLD } from '../../constants';
-import { Close } from '@icon-park/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SyntaxHighlighter from 'react-syntax-highlighter';

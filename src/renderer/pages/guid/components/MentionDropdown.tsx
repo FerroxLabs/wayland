@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, ChevronDown } from 'lucide-react';
 import type { MentionOption } from '../types';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { Dropdown, Menu } from '@arco-design/web-react';
-import { Down, Robot } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -49,7 +49,7 @@ const MentionDropdown: React.FC<MentionDropdownProps> = ({ menuRef, options, sel
                 ) : option.logo ? (
                   <img src={option.logo} alt={option.label} width={16} height={16} style={{ objectFit: 'contain' }} />
                 ) : (
-                  <Robot theme='outline' size={16} />
+                  <Bot size={16} />
                 )}
                 <span>{option.label}</span>
               </div>
@@ -102,7 +102,7 @@ export const MentionSelectorBadge: React.FC<MentionSelectorBadgeProps> = ({
       >
         <div className='flex items-center gap-6px bg-fill-2 px-10px py-4px rd-16px cursor-pointer select-none'>
           <span className='text-14px font-medium text-t-primary'>@{agentLabel}</span>
-          <Down theme='outline' size={12} />
+          <ChevronDown size={12} />
         </div>
       </Dropdown>
     </div>

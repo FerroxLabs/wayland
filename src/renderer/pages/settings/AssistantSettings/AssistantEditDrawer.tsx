@@ -2,13 +2,13 @@
  * AssistantEditDrawer — Drawer for creating/editing an assistant.
  * Contains name/avatar fields, agent selector, rules editor, and skills section.
  */
+import { Bot, Plus, Trash2, X } from 'lucide-react';
 import type { AssistantListItem, BuiltinAutoSkill, SkillInfo } from './types';
 import type { AvailableBackend } from '@/renderer/hooks/assistant';
 import { hasBuiltinSkills } from './assistantUtils';
 import EmojiPicker from '@/renderer/components/chat/EmojiPicker';
 import MarkdownView from '@/renderer/components/Markdown';
 import { Avatar, Button, Checkbox, Collapse, Drawer, Input, Select, Tag, Typography } from '@arco-design/web-react';
-import { Close, Delete, Plus, Robot } from '@icon-park/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -190,7 +190,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
             className='absolute right-4 top-2 cursor-pointer text-t-secondary hover:text-t-primary transition-colors p-1'
             style={{ zIndex: 10, WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           >
-            <Close size={18} />
+            <X size={18} />
           </div>
         </>
       }
@@ -256,7 +256,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
                   ) : editAvatar ? (
                     <span className='text-24px'>{editAvatar}</span>
                   ) : (
-                    <Robot theme='outline' size={20} />
+                    <Bot size={20} />
                   )}
                 </Avatar>
               ) : (
@@ -268,7 +268,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
                       ) : editAvatar ? (
                         <span className='text-24px'>{editAvatar}</span>
                       ) : (
-                        <Robot theme='outline' size={20} />
+                        <Bot size={20} />
                       )}
                     </Avatar>
                   </div>
@@ -487,7 +487,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
                           }}
                           title={t('settings.removeFromAssistant', { defaultValue: 'Remove from assistant' })}
                         >
-                          <Delete size={16} fill='var(--color-text-3)' />
+                          <Trash2 size={16} color='var(--color-text-3)' />
                         </button>
                       </div>
                     ))}
@@ -527,7 +527,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
                           }}
                           title={t('settings.removeFromAssistant', { defaultValue: 'Remove from assistant' })}
                         >
-                          <Delete size={16} fill='var(--color-text-3)' />
+                          <Trash2 size={16} color='var(--color-text-3)' />
                         </button>
                       </div>
                     ))}

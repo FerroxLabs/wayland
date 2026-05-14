@@ -1,5 +1,5 @@
+import { Check, CheckCircle2, Pencil, Plus, Shield, Trash2, XCircle } from 'lucide-react';
 import { Button, Input, Modal, Spin, Tooltip } from '@arco-design/web-react';
-import { CheckOne, CloseOne, Delete, Edit, Plus, DeleteFive, CheckSmall, Shield } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -145,9 +145,9 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
       case 'testing':
         return <Spin size={14} />;
       case 'valid':
-        return <CheckOne theme='filled' size={16} className='text-green-500 flex' />;
+        return <CheckCircle2 size={16} className='text-green-500 flex' />;
       case 'invalid':
-        return <CloseOne theme='filled' size={16} className='text-red-500 flex' />;
+        return <XCircle size={16} className='text-red-500 flex' />;
       default:
         return null;
     }
@@ -184,7 +184,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
                       <Button
                         type='text'
                         size='mini'
-                        icon={<CheckSmall theme='outline' size={16} className='flex' />}
+                        icon={<Check size={16} className='flex' />}
                         onClick={() => toggleEditing(key.id)}
                         status='success'
                       />
@@ -198,7 +198,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
                         <Button
                           type='text'
                           size='mini'
-                          icon={<Shield theme='outline' size={16} className='flex' />}
+                          icon={<Shield size={16} className='flex' />}
                           onClick={() => testKey(key.id)}
                           loading={key.status === 'testing'}
                         />
@@ -207,7 +207,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
                         <Button
                           type='text'
                           size='mini'
-                          icon={<Edit theme='outline' size={16} className='flex' />}
+                          icon={<Pencil size={16} className='flex' />}
                           onClick={() => toggleEditing(key.id)}
                         />
                       </Tooltip>
@@ -215,7 +215,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
                         <Button
                           type='text'
                           size='mini'
-                          icon={<Delete theme='outline' size={16} className='flex' />}
+                          icon={<Trash2 size={16} className='flex' />}
                           onClick={() => deleteKey(key.id)}
                           status='danger'
                         />
@@ -239,7 +239,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
                     <Button
                       type='text'
                       size='small'
-                      icon={<DeleteFive theme='outline' size={16} className='flex' />}
+                      icon={<Trash2 size={16} className='flex' />}
                       onClick={deleteInvalidKeys}
                       status='danger'
                     />
@@ -249,7 +249,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
                   <Button
                     type='text'
                     size='small'
-                    icon={<Shield theme='outline' size={16} className='flex' />}
+                    icon={<Shield size={16} className='flex' />}
                     onClick={testAllKeys}
                   />
                 </Tooltip>
@@ -259,7 +259,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
               className='flex'
               type='outline'
               size='small'
-              icon={<Plus theme='outline' size={14} className='' />}
+              icon={<Plus size={14} className='' />}
               onClick={addKey}
               style={{ minWidth: 70 }}
             >

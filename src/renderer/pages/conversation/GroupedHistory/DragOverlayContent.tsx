@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { MessageSquare } from 'lucide-react';
 import type { TChatConversation } from '@/common/config/storage';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
-import { MessageOne } from '@icon-park/react';
 import React from 'react';
 
 import { getBackendKeyFromConversation } from './utils/exportHelpers';
@@ -34,7 +34,7 @@ const DragOverlayContent: React.FC<DragOverlayContentProps> = ({ conversation })
       {logo ? (
         <img src={logo} alt={`${backendKey || 'agent'} logo`} className='w-18px h-18px rounded-50% flex-shrink-0' />
       ) : (
-        <MessageOne theme='outline' size='20' className='line-height-0 flex-shrink-0' />
+        <MessageSquare size={20} className='line-height-0 flex-shrink-0' />
       )}
       <div className='text-14px lh-24px text-t-primary truncate flex-1'>{conversation.name}</div>
     </div>

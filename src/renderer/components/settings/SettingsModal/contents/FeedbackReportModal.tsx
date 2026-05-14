@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Info, Plus } from 'lucide-react';
 import ModalWrapper from '@renderer/components/base/ModalWrapper';
 import { FEEDBACK_MODULES } from './feedbackModules';
 import { Input, Select, Message, Upload } from '@arco-design/web-react';
 import type { UploadItem } from '@arco-design/web-react/es/Upload';
-import { Info, Plus } from '@icon-park/react';
 import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -315,7 +315,7 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
                 data-testid='feedback-report-upload-trigger'
                 className='box-border flex min-h-180px w-full flex-col items-center justify-center gap-10px rd-8px border border-dashed border-border-2 bg-fill-1 px-20px py-28px text-center'
               >
-                <Plus theme='outline' size='20' fill='currentColor' className='text-t-secondary' />
+                <Plus size={20} className='text-t-secondary' />
                 <div className='max-w-320px text-16px leading-22px font-500 text-t-secondary'>
                   {t('settings.bugReportScreenshotDropzoneText')}
                 </div>
@@ -330,7 +330,7 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
               data-testid='feedback-report-auto-info'
               className='inline-flex max-w-full items-start gap-6px px-10px py-8px bg-fill-1 rd-8px text-12px leading-18px text-t-tertiary'
             >
-              <Info theme='outline' size='14' className='mt-2px flex-shrink-0' />
+              <Info size={14} className='mt-2px flex-shrink-0' />
               <span>{t('settings.bugReportAutoInfo')}</span>
             </div>
           </div>

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { CheckCircle2, Copy, Globe, MessageCircle, PencilLine, RefreshCw } from 'lucide-react';
 import { WEBUI_DEFAULT_PORT } from '@/common/config/constants';
 import { shell, webui, type IWebUIStatus } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
@@ -18,7 +19,6 @@ import ChannelWecomLogo from '@/renderer/assets/channel-logos/wecom.svg';
 import ChannelWeixinLogo from '@/renderer/assets/channel-logos/weixin.svg';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Button, Form, Input, Message, Switch, Tabs, Tooltip } from '@arco-design/web-react';
-import { CheckOne, Communication, Copy, Earth, EditTwo, Refresh } from '@icon-park/react';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettingsViewMode } from '../settingsViewContext';
@@ -655,7 +655,7 @@ const WebuiModalContent: React.FC = () => {
                 <span className='inline-flex items-center justify-center w-16px h-16px rd-50% text-10px font-600 bg-[rgba(var(--primary-6),0.12)] text-[rgb(var(--primary-6))]'>
                   {idx + 1}
                 </span>
-                <CheckOne theme='outline' size='12' className='text-[rgb(var(--primary-6))]' />
+                <CheckCircle2 size={12} className='text-[rgb(var(--primary-6))]' />
                 <span className='text-12px text-t-secondary'>{stepLabel}</span>
               </div>
             ))}
@@ -681,7 +681,7 @@ const WebuiModalContent: React.FC = () => {
         <div className='px-[12px] md:px-[28px] py-14px bg-2 rd-16px'>
           {/* WebUI hint */}
           <div className='mb-8px rd-10px border border-line bg-fill-1 px-10px py-8px flex items-start gap-6px'>
-            <Earth theme='outline' size='16' className='mt-1px text-[rgb(var(--primary-6))]' />
+            <Globe size={16} className='mt-1px text-[rgb(var(--primary-6))]' />
             <div className='text-12px text-t-secondary leading-relaxed'>{t('settings.webui.featureRemoteDesc')}</div>
           </div>
 
@@ -771,7 +771,7 @@ const WebuiModalContent: React.FC = () => {
                   className='rd-100px !px-6px inline-flex items-center !h-24px'
                   onClick={handleResetUsername}
                 >
-                  <EditTwo size={14} />
+                  <PencilLine size={14} />
                 </Button>
               </Tooltip>
             </div>
@@ -790,7 +790,7 @@ const WebuiModalContent: React.FC = () => {
                   onClick={handleResetPassword}
                   disabled={resetLoading}
                 >
-                  <EditTwo size={14} />
+                  <PencilLine size={14} />
                 </Button>
               </Tooltip>
             </div>
@@ -852,7 +852,7 @@ const WebuiModalContent: React.FC = () => {
                       onClick={() => void generateQRCode()}
                       disabled={qrLoading}
                     >
-                      <Refresh size={16} className={qrLoading ? 'animate-spin' : ''} />
+                      <RefreshCw size={16} className={qrLoading ? 'animate-spin' : ''} />
                     </button>
                   </Tooltip>
                 </div>
@@ -879,7 +879,7 @@ const WebuiModalContent: React.FC = () => {
               data-webui-tab='webui'
               className={`inline-flex items-center gap-6px transition-colors ${activeTab === 'webui' ? 'text-t-primary font-600' : 'text-t-secondary'}`}
             >
-              <Earth theme='outline' size='15' />
+              <Globe size={15} />
               <span>WebUI</span>
             </span>
           }
@@ -891,7 +891,7 @@ const WebuiModalContent: React.FC = () => {
               data-webui-tab='channels'
               className={`inline-flex items-center gap-6px transition-colors ${activeTab === 'channels' ? 'text-t-primary font-600' : 'text-t-secondary'}`}
             >
-              <Communication theme='outline' size='15' />
+              <MessageCircle size={15} />
               <span>Channels</span>
               <span className='inline-flex items-center gap-4px ml-2px'>
                 {CHANNEL_LOGOS.map((item) => (

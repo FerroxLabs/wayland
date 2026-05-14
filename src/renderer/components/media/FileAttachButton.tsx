@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Plus } from 'lucide-react';
 import { Button, Dropdown, Menu, Message } from '@arco-design/web-react';
-import { Plus } from '@icon-park/react';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { iconColors } from '@/renderer/styles/colors';
 import { isElectronDesktop } from '@/renderer/utils/platform';
@@ -55,7 +55,7 @@ const FileAttachButton: React.FC<FileAttachButtonProps> = ({ openFileSelector, o
     [conversationContext?.conversationId, onLocalFilesAdded, t]
   );
 
-  const plusIcon = <Plus theme='outline' size='14' strokeWidth={2} fill={iconColors.primary} />;
+  const plusIcon = <Plus size={14} strokeWidth={2} color={iconColors.primary} />;
 
   // Electron desktop: simple button, no dropdown needed
   if (isElectronDesktop()) {

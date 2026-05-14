@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Plus } from 'lucide-react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button, Switch, Message, Empty, Spin, Tooltip } from '@arco-design/web-react';
-import { Plus } from '@icon-park/react';
 import { useLayoutContext } from '@renderer/hooks/context/LayoutContext';
 import { useAllCronJobs } from '@renderer/pages/cron/useCronJobs';
 import { formatSchedule, formatNextRun } from '@renderer/pages/cron/cronUtils';
@@ -113,7 +113,7 @@ const ScheduledTasksPage: React.FC = () => {
               type='primary'
               shape='round'
               className='shrink-0'
-              icon={<Plus theme='outline' size={14} />}
+              icon={<Plus size={14} />}
               onClick={() => setCreateDialogVisible(true)}
             >
               {t('cron.page.newTask')}

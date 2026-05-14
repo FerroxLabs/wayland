@@ -1,7 +1,7 @@
+import { ChevronDown, Command, Folder, Terminal } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { isTemporaryWorkspace } from '@/renderer/utils/workspace/workspace';
-import { Command, Down, Folder, Terminal } from '@icon-park/react';
 import { Button, Dropdown, Tooltip } from '@arco-design/web-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -164,7 +164,7 @@ const WorkspaceOpenButton: React.FC<WorkspaceOpenButtonProps> = ({ workspacePath
           className='workspace-open-button__dropdown-btn px-4px'
           style={{ marginLeft: '-4px' }}
         >
-          <Down size={12} className={`transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown size={12} className={`transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
         </Button>
       </Dropdown>
     </div>

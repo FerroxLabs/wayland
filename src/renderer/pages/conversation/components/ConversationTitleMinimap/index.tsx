@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Search } from 'lucide-react';
 import { Empty, Input, Spin } from '@arco-design/web-react';
-import { IconSearch } from '@arco-design/web-react/icon';
 import classNames from 'classnames';
 import React, { useMemo } from 'react';
 import { createPortal } from 'react-dom';
@@ -103,7 +103,7 @@ const ConversationTitleMinimap: React.FC<ConversationTitleMinimapProps> = ({ con
             onBlur={handleSearchInputBlur}
             onCompositionStartCapture={handleSearchInputCompositionStart}
             onCompositionEndCapture={handleSearchInputCompositionEnd}
-            prefix={<IconSearch className='text-14px text-t-secondary' />}
+            prefix={<Search className='text-14px text-t-secondary' />}
             placeholder={isSearchMode ? '' : t('conversation.minimap.searchHint')}
           />
           {countNode}
@@ -249,7 +249,7 @@ const ConversationTitleMinimap: React.FC<ConversationTitleMinimapProps> = ({ con
             }
           }}
         >
-          <IconSearch
+          <Search
             className={classNames(
               'text-15px transition-all duration-150',
               visible

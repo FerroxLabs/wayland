@@ -1,6 +1,6 @@
+import { PencilLine, Trash2, Zap } from 'lucide-react';
 import { Button, Collapse, Modal, Input, Typography } from '@arco-design/web-react';
 import type { Message } from '@arco-design/web-react';
-import { EditTwo, Delete, Lightning } from '@icon-park/react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { mutate } from 'swr';
@@ -113,21 +113,21 @@ const PresetManagement: React.FC<PresetManagementProps> = ({ message }) => {
                 <div key={preset.id} className='p-4 bg-fill-2 rounded-lg'>
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-2'>
-                      <Lightning theme='filled' fill='var(--color-primary-6)' />
+                      <Zap color='var(--color-primary-6)' />
                       <div className='font-medium'>{preset.name}</div>
                     </div>
                     <div className='flex gap-2'>
                       <Button
                         type='text'
                         size='small'
-                        icon={<EditTwo size={'14'} />}
+                        icon={<PencilLine size={'14'} />}
                         onClick={() => handleEdit(preset)}
                       />
                       <Button
                         type='text'
                         size='small'
                         status='danger'
-                        icon={<Delete size={'14'} />}
+                        icon={<Trash2 size={'14'} />}
                         onClick={() => {
                           setPresetToDelete(preset);
                           setDeleteVisible(true);

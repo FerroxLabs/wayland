@@ -1,9 +1,9 @@
+import { Check } from 'lucide-react';
 import type { IMcpServer, IMcpTool } from '@/common/config/storage';
 import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
 import { Button, Select, Spin } from '@arco-design/web-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check } from '@icon-park/react';
 import { iconColors } from '@/renderer/styles/colors';
 import WaylandSteps from '@/renderer/components/base/WaylandSteps';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
@@ -174,7 +174,7 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
       ) : importableServers.length > 0 ? (
         <div>
           <div className='mb-3 flex items-center gap-2'>
-            <Check theme='filled' size={20} fill={iconColors.success} />
+            <Check size={20} color={iconColors.success} />
             <span className='text-t-primary'>{t('settings.mcpToolsLoaded', { count: importableServers.length })}</span>
           </div>
           <div className='bg-base rounded-lg max-h-[200px] overflow-y-auto'>
@@ -202,7 +202,7 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
       {importableServers.length > 0 ? (
         <div>
           <div className='mb-3 flex items-center gap-2'>
-            <Check theme='filled' size={20} fill={iconColors.success} />
+            <Check size={20} color={iconColors.success} />
             <span className='text-t-primary'>
               {t('settings.mcpImportedSuccess', { count: importableServers.length })}
             </span>
@@ -292,11 +292,11 @@ const OneClickImportModal: React.FC<OneClickImportModalProps> = ({ visible, onCa
           <WaylandSteps current={currentStep} size='small'>
             <WaylandSteps.Step
               title={t('settings.mcpStepSelectAgent')}
-              icon={currentStep > 1 ? <Check theme='filled' size={16} fill='#165dff' /> : undefined}
+              icon={currentStep > 1 ? <Check size={16} color='#165dff' /> : undefined}
             />
             <WaylandSteps.Step
               title={t('settings.mcpStepFetchTools')}
-              icon={currentStep > 2 ? <Check theme='filled' size={16} fill='#165dff' /> : undefined}
+              icon={currentStep > 2 ? <Check size={16} color='#165dff' /> : undefined}
             />
             <WaylandSteps.Step title={t('settings.mcpStepImportSuccess')} />
           </WaylandSteps>

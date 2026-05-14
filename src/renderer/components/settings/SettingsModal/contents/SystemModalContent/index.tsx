@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FolderSearch } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IStartOnBootStatus } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
@@ -13,7 +14,6 @@ import { AUTO_PREVIEW_OFFICE_FILES_SWR_KEY } from '@/renderer/hooks/system/useAu
 import { iconColors } from '@/renderer/styles/colors';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Alert, Button, Collapse, Form, InputNumber, Message, Modal, Switch, Tooltip } from '@arco-design/web-react';
-import { FolderSearch } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate as mutateSWR } from 'swr';
@@ -387,7 +387,7 @@ const SystemModalContent: React.FC = () => {
                     <Button
                       type='text'
                       style={{ borderLeft: '1px solid var(--color-border-2)', borderRadius: '0 8px 8px 0' }}
-                      icon={<FolderSearch theme='outline' size='18' fill={iconColors.primary} />}
+                      icon={<FolderSearch size={18} color={iconColors.primary} />}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (systemInfo?.logDir) {

@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { TEAM_MODE_ENABLED } from '@/common/config/constants';
 import { ConfigStorage, type ICssTheme } from '@/common/config/storage';
 import PwaPullToRefresh from '@/renderer/components/layout/PwaPullToRefresh';
 import Titlebar from '@/renderer/components/layout/Titlebar';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
-import { MenuFold, MenuUnfold } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -484,9 +484,9 @@ const Layout: React.FC<{
                     aria-label='Collapse sidebar'
                   >
                     {collapsed ? (
-                      <MenuUnfold theme='outline' size='18' fill='currentColor' />
+                      <PanelLeftOpen size={18} />
                     ) : (
-                      <MenuFold theme='outline' size='18' fill='currentColor' />
+                      <PanelLeftClose size={18} />
                     )}
                   </button>
                 )}

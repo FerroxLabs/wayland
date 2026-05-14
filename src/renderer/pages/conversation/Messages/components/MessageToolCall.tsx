@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { MessageCircleQuestion } from 'lucide-react';
 import type { IMessageToolCall } from '@/common/chat/chatLib';
 import FileChangesPanel from '@/renderer/components/base/FileChangesPanel';
 import { useDiffPreviewHandlers } from '@/renderer/hooks/file/useDiffPreviewHandlers';
 import { parseDiff } from '@/renderer/utils/file/diffUtils';
 import { Alert } from '@arco-design/web-react';
-import { MessageSearch } from '@icon-park/react';
 import { createTwoFilesPatch } from 'diff';
 import React, { useMemo } from 'react';
 import MarkdownView from '@renderer/components/Markdown';
@@ -59,7 +59,7 @@ const MessageToolCall: React.FC<{ message: IMessageToolCall }> = ({ message }) =
   if (message.content.name === 'google_web_search') {
     return (
       <Alert
-        icon={<MessageSearch theme='outline' fill={iconColors.primary} className='lh-[1]' />}
+        icon={<MessageCircleQuestion color={iconColors.primary} className='lh-[1]' />}
         content={message.content.args.query}
       ></Alert>
     );

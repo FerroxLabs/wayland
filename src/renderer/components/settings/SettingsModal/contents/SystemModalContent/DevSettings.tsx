@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, Copy, Link } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { Alert, Button, Collapse, Message, Switch, Tooltip } from '@arco-design/web-react';
-import { Copy, Down, Link } from '@icon-park/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
@@ -182,10 +182,10 @@ const DevSettings: React.FC = () => {
                   <div className='text-14px text-t-primary font-medium'>http://127.0.0.1:{status.port}</div>
                 </div>
                 <Tooltip content={t('settings.cdp.openInBrowser')}>
-                  <Button type='text' size='small' icon={<Link theme='outline' size='16' />} onClick={openCdpUrl} />
+                  <Button type='text' size='small' icon={<Link size={16} />} onClick={openCdpUrl} />
                 </Tooltip>
                 <Tooltip content={t('common.copy')}>
-                  <Button type='text' size='small' icon={<Copy theme='outline' size='16' />} onClick={copyCdpUrl} />
+                  <Button type='text' size='small' icon={<Copy size={16} />} onClick={copyCdpUrl} />
                 </Tooltip>
               </div>
               <div className='space-y-4px'>
@@ -208,15 +208,14 @@ const DevSettings: React.FC = () => {
                           <Button
                             type='text'
                             size='small'
-                            icon={<Copy theme='outline' size='16' />}
+                            icon={<Copy size={16} />}
                             onClick={(e) => {
                               e.stopPropagation();
                               copyMcpConfig();
                             }}
                           />
                         </Tooltip>
-                        <Down
-                          size='14'
+                        <ChevronDown size={14}
                           className={`text-t-tertiary shrink-0 transition-transform duration-200 ${expandedMcpKeys.includes('chrome-devtools') ? 'rotate-180' : ''}`}
                         />
                       </div>
@@ -252,15 +251,14 @@ const DevSettings: React.FC = () => {
                           <Button
                             type='text'
                             size='small'
-                            icon={<Copy theme='outline' size='16' />}
+                            icon={<Copy size={16} />}
                             onClick={(e) => {
                               e.stopPropagation();
                               copyPlaywrightMcpConfig();
                             }}
                           />
                         </Tooltip>
-                        <Down
-                          size='14'
+                        <ChevronDown size={14}
                           className={`text-t-tertiary shrink-0 transition-transform duration-200 ${expandedMcpKeys.includes('playwright') ? 'rotate-180' : ''}`}
                         />
                       </div>

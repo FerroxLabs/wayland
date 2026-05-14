@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronLeft, ChevronRight, Loader2, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Left, Right, Refresh, Loading } from '@icon-park/react';
 
 export interface WebviewHostProps {
   /** URL to display */
@@ -578,16 +578,16 @@ const WebviewHost: React.FC<WebviewHostProps> = ({
       {showNavBar && (
         <div className='aion-url-viewer-toolbar flex items-center gap-6px h-40px px-10px bg-bg-2 border-b border-border-1 flex-shrink-0'>
           <button onClick={handleGoBack} disabled={!canGoBack} className='toolbar-btn icon-btn' title='Back'>
-            <Left theme='outline' size={16} />
+            <ChevronLeft size={16} />
           </button>
           <button onClick={handleGoForward} disabled={!canGoForward} className='toolbar-btn icon-btn' title='Forward'>
-            <Right theme='outline' size={16} />
+            <ChevronRight size={16} />
           </button>
           <button onClick={handleRefresh} className='toolbar-btn icon-btn' title='Refresh'>
             {isLoading ? (
-              <Loading theme='outline' size={16} className='animate-spin' />
+              <Loader2 size={16} className='animate-spin' />
             ) : (
-              <Refresh theme='outline' size={16} />
+              <RefreshCw size={16} />
             )}
           </button>
           {isStarOffice && (
@@ -618,7 +618,7 @@ const WebviewHost: React.FC<WebviewHostProps> = ({
       {/* Loading indicator (when no nav bar) */}
       {!showNavBar && isLoading && (
         <div className='absolute inset-0 flex items-center justify-center text-t-secondary text-14px z-10 pointer-events-none'>
-          <span className='animate-pulse'>Loading…</span>
+          <span className='animate-pulse'>Loader2…</span>
         </div>
       )}
 

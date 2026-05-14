@@ -1,4 +1,4 @@
-import { CloseSmall, Edit } from '@icon-park/react';
+import { Pencil, X } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { TeammateStatus } from '@/common/types/teamTypes';
 import AgentStatusBadge from './AgentStatusBadge';
@@ -152,7 +152,7 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
           className='opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity duration-150 shrink-0 flex items-center'
           onClick={startEditing}
         >
-          <Edit theme='outline' size='12' fill='currentColor' />
+          <Pencil size={12} />
         </span>
       )}
       {!editing && !isLeader && onRemove && (
@@ -163,7 +163,7 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
             onRemove(slotId);
           }}
         >
-          <CloseSmall theme='outline' size='14' fill='currentColor' />
+          <X size={14} />
         </span>
       )}
     </div>

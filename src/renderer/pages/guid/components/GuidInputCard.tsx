@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FolderOpen, X } from 'lucide-react';
 import FilePreview from '@/renderer/components/media/FilePreview';
 import UploadProgressBar from '@/renderer/components/media/UploadProgressBar';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useCompositionInput } from '@/renderer/hooks/chat/useCompositionInput';
 import { Input, Tooltip } from '@arco-design/web-react';
-import { IconClose } from '@arco-design/web-react/icon';
-import { FolderOpen } from '@icon-park/react';
 import { iconColors } from '@/renderer/styles/colors';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -143,10 +142,7 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
         >
           <div className='flex items-start min-w-0 flex-1 gap-8px'>
             <FolderOpen
-              className='mt-1px flex-shrink-0'
-              theme='outline'
-              size='16'
-              fill={iconColors.secondary}
+              className='mt-1px flex-shrink-0' size={16} color={iconColors.secondary}
               style={{ lineHeight: 0 }}
             />
             <Tooltip content={dir} position='top' disabled={isMobile}>
@@ -169,7 +165,7 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
               aria-label={t('conversation.welcome.clearWorkspace')}
               style={{ border: '1px solid var(--border-base)' }}
             >
-              <IconClose strokeWidth={3} style={{ fontSize: 15 }} />
+              <X strokeWidth={3} style={{ fontSize: 15 }} />
             </button>
           </Tooltip>
         </div>

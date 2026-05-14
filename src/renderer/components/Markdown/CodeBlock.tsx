@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, ChevronUp, Copy } from 'lucide-react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { vs, vs2015 } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
@@ -11,7 +12,6 @@ import katex from 'katex';
 
 import { copyText } from '@/renderer/utils/ui/clipboard';
 import { Message } from '@arco-design/web-react';
-import { Copy, Down, Up } from '@icon-park/react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MermaidBlock from './MermaidBlock';
@@ -179,11 +179,8 @@ function CodeBlock(props: CodeBlockProps) {
             {'<' + language.toLocaleLowerCase() + '>'}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Copy
-              theme='outline'
-              size='18'
-              style={{ cursor: 'pointer' }}
-              fill='var(--text-secondary)'
+            <Copy size={18}
+              style={{ cursor: 'pointer' }} color='var(--text-secondary)'
               onClick={() => {
                 void copyText(formatCode(children))
                   .then(() => {
@@ -195,18 +192,15 @@ function CodeBlock(props: CodeBlockProps) {
               }}
             />
             {canCollapse && expanded && (
-              <Up
-                theme='outline'
-                size='20'
-                style={{ cursor: 'pointer' }}
-                fill='var(--text-secondary)'
+              <ChevronUp size={20}
+                style={{ cursor: 'pointer' }} color='var(--text-secondary)'
                 onMouseDown={(e: React.MouseEvent) => {
                   if (e.button === 0) {
                     e.preventDefault();
                     setExpanded(false);
                   }
                 }}
-                title={t('common.collapse', 'Collapse')}
+                aria-label={t('common.collapse', 'Collapse')}
               />
             )}
           </div>
@@ -255,11 +249,11 @@ function CodeBlock(props: CodeBlockProps) {
             }}
           >
             {expanded ? (
-              <Up theme='outline' size='20' fill='var(--text-secondary)' title={t('common.collapse', 'Collapse')} />
+              <ChevronUp size={20} color='var(--text-secondary)' aria-label={t('common.collapse', 'Collapse')} />
             ) : (
               <span style={{ color: 'var(--text-secondary)', fontSize: '12px', lineHeight: '20px' }}>
                 {t('common.viewMoreLines', { count: totalLines - PREVIEW_LINES })}{' '}
-                <Down theme='outline' size='14' fill='var(--text-secondary)' />
+                <ChevronDown size={14} color='var(--text-secondary)' />
               </span>
             )}
           </div>

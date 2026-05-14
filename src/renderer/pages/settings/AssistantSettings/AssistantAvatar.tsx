@@ -1,9 +1,9 @@
 /**
  * AssistantAvatar — Renders an assistant's avatar with emoji, image, or fallback icon.
  */
+import { Bot } from 'lucide-react';
 import type { AssistantListItem } from './types';
 import { Avatar } from '@arco-design/web-react';
-import { Robot } from '@icon-park/react';
 import React from 'react';
 import { isEmoji, resolveAvatarImageSrc } from './assistantUtils';
 
@@ -28,7 +28,7 @@ const AssistantAvatar: React.FC<AssistantAvatarProps> = ({ assistant, size = 32,
         ) : hasEmojiAvatar ? (
           <span style={{ fontSize: emojiSize }}>{resolvedAvatar}</span>
         ) : (
-          <Robot theme='outline' size={iconSize} />
+          <Bot size={iconSize} />
         )}
       </Avatar>
     </Avatar.Group>

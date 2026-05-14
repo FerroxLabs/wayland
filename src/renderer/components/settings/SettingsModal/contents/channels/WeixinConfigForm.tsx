@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { CheckCircle2, ChevronDown, Copy, RefreshCw, Trash2, XCircle } from 'lucide-react';
 import type { IChannelPairingRequest, IChannelPluginStatus, IChannelUser } from '@process/channels/types';
 import { acpConversation, channel } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
 import GeminiModelSelector from '@/renderer/pages/conversation/platforms/gemini/GeminiModelSelector';
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
 import { Button, Dropdown, Empty, Menu, Message, Spin, Tooltip } from '@arco-design/web-react';
-import { CheckOne, CloseOne, Copy, Delete, Down, Refresh } from '@icon-park/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react';
@@ -398,7 +398,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
     if (loginState === 'connected' || (pluginStatus?.hasToken && pluginStatus?.enabled)) {
       return (
         <div className='flex items-center gap-8px'>
-          <CheckOne theme='filled' size={16} className='text-green-500' />
+          <CheckCircle2 size={16} className='text-green-500' />
           <span className='text-14px text-t-primary'>{t('settings.weixin.connected', 'Connected')}</span>
           {pluginStatus?.botUsername && <span className='text-12px text-t-tertiary'>({pluginStatus.botUsername})</span>}
           <Button
@@ -520,7 +520,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
                 )?.name ||
                 selectedAgent.backend}
             </span>
-            <Down theme='outline' size={14} />
+            <ChevronDown size={14} />
           </Button>
         </Dropdown>
       </PreferenceRow>
@@ -577,7 +577,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
               <Button
                 size='mini'
                 type='text'
-                icon={<Refresh size={14} />}
+                icon={<RefreshCw size={14} />}
                 loading={pairingLoading}
                 onClick={loadPendingPairings}
               >
@@ -618,7 +618,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
                     <Button
                       type='primary'
                       size='small'
-                      icon={<CheckOne size={14} />}
+                      icon={<CheckCircle2 size={14} />}
                       onClick={() => handleApprovePairing(pairing.code)}
                     >
                       {t('settings.assistant.approve', 'Approve')}
@@ -627,7 +627,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
                       type='secondary'
                       size='small'
                       status='danger'
-                      icon={<CloseOne size={14} />}
+                      icon={<XCircle size={14} />}
                       onClick={() => handleRejectPairing(pairing.code)}
                     >
                       {t('settings.assistant.reject', 'Reject')}
@@ -649,7 +649,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
               <Button
                 size='mini'
                 type='text'
-                icon={<Refresh size={14} />}
+                icon={<RefreshCw size={14} />}
                 loading={usersLoading}
                 onClick={loadAuthorizedUsers}
               >
@@ -676,7 +676,7 @@ const WeixinConfigForm: React.FC<WeixinConfigFormProps> = ({ pluginStatus, model
                       type='text'
                       status='danger'
                       size='small'
-                      icon={<Delete size={16} />}
+                      icon={<Trash2 size={16} />}
                       onClick={() => handleRevokeUser(user.id)}
                     />
                   </Tooltip>

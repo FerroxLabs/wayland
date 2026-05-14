@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { CheckCircle2, ChevronDown, Copy, RefreshCw, Trash2, XCircle } from 'lucide-react';
 import type { IChannelPairingRequest, IChannelPluginStatus, IChannelUser } from '@process/channels/types';
 import { acpConversation, channel } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
@@ -11,7 +12,6 @@ import { openExternalUrl } from '@/renderer/utils/platform';
 import GeminiModelSelector from '@/renderer/pages/conversation/platforms/gemini/GeminiModelSelector';
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
 import { Button, Dropdown, Empty, Input, Menu, Message, Spin, Tooltip } from '@arco-design/web-react';
-import { CheckOne, CloseOne, Copy, Delete, Down, Refresh } from '@icon-park/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -533,7 +533,7 @@ const DingTalkConfigForm: React.FC<DingTalkConfigFormProps> = ({ pluginStatus, m
                   )?.name ||
                   selectedAgent.backend}
               </span>
-              <Down theme='outline' size={14} />
+              <ChevronDown size={14} />
             </Button>
           </Dropdown>
         </PreferenceRow>
@@ -618,7 +618,7 @@ const DingTalkConfigForm: React.FC<DingTalkConfigFormProps> = ({ pluginStatus, m
               <Button
                 size='mini'
                 type='text'
-                icon={<Refresh size={14} />}
+                icon={<RefreshCw size={14} />}
                 loading={pairingLoading}
                 onClick={loadPendingPairings}
               >
@@ -660,7 +660,7 @@ const DingTalkConfigForm: React.FC<DingTalkConfigFormProps> = ({ pluginStatus, m
                     <Button
                       type='primary'
                       size='small'
-                      icon={<CheckOne size={14} />}
+                      icon={<CheckCircle2 size={14} />}
                       onClick={() => handleApprovePairing(pairing.code)}
                     >
                       {t('settings.assistant.approve', 'Approve')}
@@ -669,7 +669,7 @@ const DingTalkConfigForm: React.FC<DingTalkConfigFormProps> = ({ pluginStatus, m
                       type='secondary'
                       size='small'
                       status='danger'
-                      icon={<CloseOne size={14} />}
+                      icon={<XCircle size={14} />}
                       onClick={() => handleRejectPairing(pairing.code)}
                     >
                       {t('settings.assistant.reject', 'Reject')}
@@ -691,7 +691,7 @@ const DingTalkConfigForm: React.FC<DingTalkConfigFormProps> = ({ pluginStatus, m
               <Button
                 size='mini'
                 type='text'
-                icon={<Refresh size={14} />}
+                icon={<RefreshCw size={14} />}
                 loading={usersLoading}
                 onClick={loadAuthorizedUsers}
               >
@@ -723,7 +723,7 @@ const DingTalkConfigForm: React.FC<DingTalkConfigFormProps> = ({ pluginStatus, m
                       type='text'
                       status='danger'
                       size='small'
-                      icon={<Delete size={16} />}
+                      icon={<Trash2 size={16} />}
                       onClick={() => handleRevokeUser(user.id)}
                     />
                   </Tooltip>

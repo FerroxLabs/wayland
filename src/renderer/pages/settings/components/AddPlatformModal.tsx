@@ -1,3 +1,4 @@
+import { CloudCog, Loader2, Pencil, Search } from 'lucide-react';
 import type { IProvider } from '@/common/config/storage';
 import type { ProtocolDetectionResponse, ProtocolType } from '@/common/utils/protocolDetector';
 import { ipcBridge } from '@/common';
@@ -5,7 +6,6 @@ import { uuid } from '@/common/utils';
 import { isGoogleApisHost } from '@/common/utils/urlValidation';
 import ModalHOC from '@/renderer/utils/ui/ModalHOC';
 import { Form, Input, Message, Select } from '@arco-design/web-react';
-import { LinkCloud, Edit, Search, Loading } from '@icon-park/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useModeModeList from '@renderer/hooks/agent/useModeModeList';
@@ -83,7 +83,7 @@ const ProtocolDetectionStatus: React.FC<ProtocolDetectionStatusProps> = ({
   if (isDetecting) {
     return (
       <div className='flex items-center gap-6px text-12px text-t-secondary py-4px'>
-        <Loading theme='outline' size={14} className='animate-spin' />
+        <Loader2 size={14} className='animate-spin' />
         <span>{t('settings.protocolDetecting')}</span>
       </div>
     );
@@ -182,7 +182,7 @@ const ProviderLogo: React.FC<{ logo: string | null; name: string; size?: number 
   if (logo) {
     return <img src={logo} alt={name} className='object-contain shrink-0' style={{ width: size, height: size }} />;
   }
-  return <LinkCloud theme='outline' size={size} className='text-t-secondary flex shrink-0' />;
+  return <CloudCog size={size} className='text-t-secondary flex shrink-0' />;
 };
 
 /**
@@ -467,8 +467,7 @@ const AddPlatformModal = ModalHOC<{
                 void modelListState.mutate();
               }}
               suffix={
-                <Edit
-                  theme='outline'
+                <Pencil
                   size={16}
                   className='cursor-pointer text-t-secondary hover:text-t-primary flex'
                   onClick={() => setApiKeyEditorVisible(true)}
@@ -632,7 +631,6 @@ const AddPlatformModal = ModalHOC<{
                     }
                     void modelListState.mutate();
                   }}
-                  theme='outline'
                   size={16}
                   className='cursor-pointer text-t-secondary hover:text-t-primary'
                 />

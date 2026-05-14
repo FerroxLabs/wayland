@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot, ChevronDown, X } from 'lucide-react';
 import { CUSTOM_AVATAR_IMAGE_MAP } from '../constants';
 import type { AcpBackendConfig, AvailableAgent } from '../types';
-import { IconClose } from '@arco-design/web-react/icon';
-import { Down, Robot } from '@icon-park/react';
 import React from 'react';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { Dropdown, Menu } from '@arco-design/web-react';
@@ -72,14 +71,14 @@ const PresetAgentTag: React.FC<PresetAgentTagProps> = ({
           <img src={agentLogo} alt='' width={15} height={15} className={styles.presetAgentTagAgentLogo} />
           {hasSwitcher ? (
             <span className={styles.presetAgentTagChevron} aria-hidden='true'>
-              <Down theme='outline' size={12} fill='currentColor' />
+              <ChevronDown size={12} />
             </span>
           ) : null}
           <span className={styles.presetAgentTagInnerDivider} aria-hidden='true' />
         </>
       ) : hasSwitcher ? (
         <span className={styles.presetAgentTagChevron} aria-hidden='true'>
-          <Down theme='outline' size={12} fill='currentColor' />
+          <ChevronDown size={12} />
         </span>
       ) : null}
       {isImageAvatar ? (
@@ -87,7 +86,7 @@ const PresetAgentTag: React.FC<PresetAgentTagProps> = ({
       ) : avatarValue ? (
         <span style={{ fontSize: 14, lineHeight: '15px', flexShrink: 0 }}>{avatarValue}</span>
       ) : (
-        <Robot theme='outline' size={15} style={{ flexShrink: 0 }} />
+        <Bot size={15} style={{ flexShrink: 0 }} />
       )}
       <span className={styles.presetAgentTagName}>{name}</span>
     </div>
@@ -115,7 +114,7 @@ const PresetAgentTag: React.FC<PresetAgentTagProps> = ({
           onClose();
         }}
       >
-        <IconClose style={{ fontSize: 12, color: 'var(--color-text-3)' }} />
+        <X style={{ fontSize: 12, color: 'var(--color-text-3)' }} />
       </div>
     </div>
   );

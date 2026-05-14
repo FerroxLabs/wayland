@@ -1,3 +1,4 @@
+import { FolderOpen, Wand2, Zap } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import {
   Button,
@@ -12,7 +13,6 @@ import {
   Typography,
   Input,
 } from '@arco-design/web-react';
-import { Magic, FolderOpen, Lightning } from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
@@ -138,9 +138,9 @@ Please acknowledge receiving this rule/skill and confirm you will apply it.
                 <div className='flex items-center gap-3'>
                   <div className='bg-[var(--color-primary-light-1)] p-2 rounded'>
                     {file.name.endsWith('.py') ? (
-                      <Lightning size={18} fill='var(--color-primary-6)' />
+                      <Zap size={18} color='var(--color-primary-6)' />
                     ) : (
-                      <FolderOpen size={18} fill='var(--color-primary-6)' />
+                      <FolderOpen size={18} color='var(--color-primary-6)' />
                     )}
                   </div>
                   <div className='flex-1'>
@@ -291,7 +291,7 @@ Requirements:
     <Menu>
       <Menu.Item key='generate' onClick={() => setGenerateVisible(true)}>
         <div className='flex items-center gap-2'>
-          <Magic />
+          <Wand2 />
           {t('conversation.skill_generator.menu_generate', { defaultValue: 'Generate from History' })}
         </div>
       </Menu.Item>
@@ -309,7 +309,7 @@ Requirements:
       <Dropdown droplist={menu} trigger='click' position='br'>
         <Button
           type='text'
-          icon={<Magic />}
+          icon={<Wand2 />}
           style={{ color: 'var(--color-text-2)' }}
           aria-label={t('conversation.skill_generator.title', { defaultValue: 'Skill & Rules' })}
         />

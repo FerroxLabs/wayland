@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Bot } from 'lucide-react';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { iconColors } from '@/renderer/styles/colors';
-import { Robot } from '@icon-park/react';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -40,7 +40,7 @@ export const AgentLogoIcon: React.FC<
     if (logo) {
       return <img src={logo} alt={`${backend} logo`} className='block w-16px h-16px object-contain' />;
     }
-    return <Robot theme='outline' size={16} fill={iconColors.primary} />;
+    return <Bot size={16} color={iconColors.primary} />;
   })();
 
   return (

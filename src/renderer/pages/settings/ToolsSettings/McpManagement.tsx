@@ -1,5 +1,5 @@
+import { ChevronDown, Plus } from 'lucide-react';
 import { Button, Collapse, Modal, Dropdown, Menu } from '@arco-design/web-react';
-import { Plus, Down } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { type IMcpServer, BUILTIN_IMAGE_GEN_ID } from '@/common/config/storage';
@@ -244,7 +244,7 @@ const McpManagement: React.FC<McpManagementProps> = ({ message }) => {
                 }
               >
                 <Button type='outline' icon={<Plus size={'14'} />} shape='round' onClick={(e) => e.stopPropagation()}>
-                  {t('settings.mcpAddServer')} <Down size={'12'} />
+                  {t('settings.mcpAddServer')} <ChevronDown size={'12'} />
                 </Button>
               </Dropdown>
             ) : (

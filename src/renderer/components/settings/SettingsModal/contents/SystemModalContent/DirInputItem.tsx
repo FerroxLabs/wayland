@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { FolderOpen } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { iconColors } from '@/renderer/styles/colors';
 import { Button, Form, Tooltip } from '@arco-design/web-react';
-import { FolderOpen } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -51,7 +51,7 @@ const DirInputItem: React.FC<{
             <Button
               type='text'
               style={{ borderLeft: '1px solid var(--color-border-2)', borderRadius: '0 8px 8px 0' }}
-              icon={<FolderOpen theme='outline' size='18' fill={iconColors.primary} />}
+              icon={<FolderOpen size={18} color={iconColors.primary} />}
               onClick={(e) => {
                 e.stopPropagation();
                 handlePick();

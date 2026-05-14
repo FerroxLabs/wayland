@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Close } from '@icon-park/react';
+import { X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { getFileExtension } from '@/renderer/services/FileService';
 import { ipcBridge } from '@/common';
@@ -126,7 +126,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ path, onRemove, readonly = fa
             className='absolute -top-4px -right-4px w-16px h-16px rd-50% bg-white dark:bg-gray-700 cursor-pointer flex items-center justify-center shadow-md hover:shadow-lg transition-all z-10 border-1 border-solid border-gray-200 dark:border-gray-600'
             onClick={handleRemove}
           >
-            <Close theme='filled' size='10' fill='#666' />
+            <X size={10} color='#666' />
           </div>
         )}
       </div>
@@ -154,7 +154,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ path, onRemove, readonly = fa
           className='absolute -top-4px -right-4px w-16px h-16px rd-50% bg-white dark:bg-gray-700 cursor-pointer flex items-center justify-center shadow-md hover:shadow-lg transition-all z-10 border-1 border-solid border-gray-200 dark:border-gray-600'
           onClick={handleRemove}
         >
-          <Close theme='filled' size='10' fill='#666' />
+          <X size={10} color='#666' />
         </div>
       )}
     </div>

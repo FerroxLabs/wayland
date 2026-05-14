@@ -1,10 +1,10 @@
+import { CloudCog } from 'lucide-react';
 import type { IProvider } from '@/common/config/storage';
 import ModalHOC from '@/renderer/utils/ui/ModalHOC';
 import { Form, Input, Message, Select } from '@arco-design/web-react';
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
-import { LinkCloud } from '@icon-park/react';
 import { ipcBridge } from '@/common';
 import useModeModeList from '@renderer/hooks/agent/useModeModeList';
 
@@ -97,7 +97,7 @@ const ProviderLogo: React.FC<{ logo: string | null; name: string; size?: number 
   if (logo) {
     return <img src={logo} alt={name} className='object-contain shrink-0' style={{ width: size, height: size }} />;
   }
-  return <LinkCloud theme='outline' size={size} className='text-t-secondary flex shrink-0' />;
+  return <CloudCog size={size} className='text-t-secondary flex shrink-0' />;
 };
 
 const EditModeModal = ModalHOC<{ data?: IProvider; onChange(data: IProvider): void }>(

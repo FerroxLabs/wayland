@@ -1,5 +1,5 @@
+import { Bot } from 'lucide-react';
 import React from 'react';
-import { Robot } from '@icon-park/react';
 import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import { CUSTOM_AVATAR_IMAGE_MAP } from '@renderer/pages/guid/constants';
 import type { AvailableAgent } from '@renderer/utils/model/agentTypes';
@@ -54,7 +54,7 @@ export const AgentOptionLabel: React.FC<{ agent: AvailableAgent }> = ({ agent })
       ) : logo ? (
         <img src={logo} alt={agent.name} style={{ width: 16, height: 16, objectFit: 'contain' }} />
       ) : (
-        <Robot size='16' />
+        <Bot size={16} />
       )}
       <span>{agent.name}</span>
     </div>

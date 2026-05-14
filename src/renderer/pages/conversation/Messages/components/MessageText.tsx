@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Copy } from 'lucide-react';
 import type { IMessageText } from '@/common/chat/chatLib';
 import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { iconColors } from '@/renderer/styles/colors';
 import { Alert, Message, Tooltip } from '@arco-design/web-react';
-import { Copy } from '@icon-park/react';
 import classNames from 'classnames';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -154,7 +154,7 @@ const MessageText: React.FC<{ message: IMessageText }> = ({ message }) => {
         onClick={handleCopy}
         style={{ lineHeight: 0 }}
       >
-        <Copy theme='outline' size='16' fill={iconColors.secondary} />
+        <Copy size={16} color={iconColors.secondary} />
       </div>
     </Tooltip>
   );

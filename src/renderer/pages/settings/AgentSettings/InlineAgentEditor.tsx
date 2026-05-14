@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { CheckCircle2, Plus, Trash2, XCircle } from 'lucide-react';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { acpConversation } from '@/common/adapter/ipcBridge';
 import { Alert, Avatar, Button, Collapse, Input, Typography } from '@arco-design/web-react';
-import { Plus, Delete, CheckOne, CloseOne } from '@icon-park/react';
 import EmojiPicker from '@/renderer/components/chat/EmojiPicker';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
@@ -298,7 +298,7 @@ const InlineAgentEditor: React.FC<InlineAgentEditorProps> = ({ agent, onSave, on
               <Button
                 type='text'
                 size='small'
-                icon={<Delete theme='outline' size={16} />}
+                icon={<Trash2 size={16} />}
                 onClick={() => removeEnvVar(envVar.id)}
                 className='!h-36px !w-36px !rounded-10px !px-0 text-t-tertiary hover:text-danger'
               />
@@ -308,7 +308,7 @@ const InlineAgentEditor: React.FC<InlineAgentEditorProps> = ({ agent, onSave, on
         <Button
           type='text'
           size='small'
-          icon={<Plus theme='outline' size={14} />}
+          icon={<Plus size={14} />}
           onClick={addEnvVar}
           className='mt-8px !px-0 text-t-secondary hover:!text-primary-6'
         >
@@ -332,7 +332,7 @@ const InlineAgentEditor: React.FC<InlineAgentEditorProps> = ({ agent, onSave, on
           <Alert
             className='mt-10px'
             type='success'
-            icon={<CheckOne theme='filled' size={16} />}
+            icon={<CheckCircle2 size={16} />}
             content={t('settings.testConnectionSuccess')}
           />
         )}
@@ -340,7 +340,7 @@ const InlineAgentEditor: React.FC<InlineAgentEditorProps> = ({ agent, onSave, on
           <Alert
             className='mt-10px'
             type='error'
-            icon={<CloseOne theme='filled' size={16} />}
+            icon={<XCircle size={16} />}
             content={t('settings.testConnectionFailCli')}
           />
         )}
@@ -348,7 +348,7 @@ const InlineAgentEditor: React.FC<InlineAgentEditorProps> = ({ agent, onSave, on
           <Alert
             className='mt-10px'
             type='warning'
-            icon={<CloseOne theme='filled' size={16} />}
+            icon={<XCircle size={16} />}
             content={t('settings.testConnectionFailAcp')}
           />
         )}

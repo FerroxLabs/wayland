@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Tv } from 'lucide-react';
 import type { PreviewMetadata } from '@renderer/pages/conversation/Preview/context/PreviewContext.tsx';
 import { Button, Input, Modal, Tooltip } from '@arco-design/web-react';
-import { Tv } from '@icon-park/react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
@@ -329,7 +329,7 @@ const StarOfficeMonitorCard: React.FC<StarOfficeMonitorCardProps> = ({ conversat
       aria-label={t('starOffice.monitor.openMonitor', { defaultValue: 'Open live monitor' })}
     >
       <span className='inline-flex items-center gap-2px rounded-full px-8px py-2px bg-2'>
-        <Tv theme='outline' size={16} fill={iconFill} />
+        <Tv size={16} color={iconFill} />
         <span className='ml-4px w-8px h-8px rounded-full' style={{ backgroundColor: statusBadgeColor }} />
       </span>
     </Button>

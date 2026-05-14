@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Minimize2, X } from 'lucide-react';
 import { iconColors } from '@/renderer/styles/colors';
-import { Close } from '@icon-park/react';
-import { IconShrink } from '@arco-design/web-react/icon';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TabFadeState } from '../../hooks/useTabOverflow';
@@ -119,10 +118,7 @@ const PreviewTabs: React.FC<PreviewTabsProps> = ({
                     <span className='w-6px h-6px rd-full bg-primary' title={t('preview.unsavedChangesTitle')} />
                   )}
                 </span>
-                <Close
-                  theme='outline'
-                  size='14'
-                  fill={iconColors.secondary}
+                <X size={14} color={iconColors.secondary}
                   className='hover:fill-primary'
                   onClick={(e) => {
                     e.stopPropagation();
@@ -144,7 +140,7 @@ const PreviewTabs: React.FC<PreviewTabsProps> = ({
               onClick={onClosePanel}
               title={t('preview.collapsePanel')}
             >
-              <IconShrink style={{ fontSize: 14, color: iconColors.secondary }} />
+              <Minimize2 style={{ fontSize: 14, color: iconColors.secondary }} />
             </div>
           </div>
         )}

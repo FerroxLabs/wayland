@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { Zap } from 'lucide-react';
 import type { TChatConversation } from '@/common/config/storage';
 import { iconColors } from '@/renderer/styles/colors';
 import { Popover } from '@arco-design/web-react';
-import { Lightning } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -59,7 +59,7 @@ const ConversationSkillsIndicator: React.FC<ConversationSkillsIndicatorProps> = 
         className='inline-flex items-center gap-4px rounded-full px-8px py-2px bg-2 cursor-pointer'
         data-testid='skills-indicator'
       >
-        <Lightning theme='filled' size={14} fill={iconColors.primary} strokeWidth={2} style={{ lineHeight: 0 }} />
+        <Zap size={14} color={iconColors.primary} strokeWidth={2} style={{ lineHeight: 0 }} />
         <span className='text-13px text-t-primary lh-[1]' data-testid='skills-indicator-count'>
           {loadedSkills.length}
         </span>

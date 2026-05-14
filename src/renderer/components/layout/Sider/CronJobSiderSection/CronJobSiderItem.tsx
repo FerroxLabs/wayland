@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DndContext } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import classNames from 'classnames';
-import { Down } from '@icon-park/react';
 import { Input, Message, Modal } from '@arco-design/web-react';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
 import type { TChatConversation } from '@/common/config/storage';
@@ -305,7 +305,7 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
         {/* Expand/collapse arrow — fixed 28px column to align with sibling rows' icons */}
         <span className='w-28px h-28px flex items-center justify-center shrink-0'>
           {hasChildren && (
-            <Down
+            <ChevronDown
               size={16}
               className={classNames(
                 'line-height-0 transition-transform duration-200 cursor-pointer',

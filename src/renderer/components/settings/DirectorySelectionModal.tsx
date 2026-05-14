@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronUp, FileText, FolderOpen } from 'lucide-react';
 import { Button, Modal, Spin } from '@arco-design/web-react';
-import { IconFile, IconFolder, IconUp } from '@arco-design/web-react/icon';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -155,7 +155,7 @@ const DirectorySelectionModal: React.FC<DirectorySelectionModalProps> = ({
                 className='flex items-center p-10px border-b border-b-light cursor-pointer hover:bg-hover transition'
                 onClick={handleGoUp}
               >
-                <IconUp className='mr-10px text-t-secondary' />
+                <ChevronUp className='mr-10px text-t-secondary' />
                 <span>..</span>
               </div>
             )}
@@ -177,9 +177,9 @@ const DirectorySelectionModal: React.FC<DirectorySelectionModalProps> = ({
               >
                 <div className='flex items-center flex-1 min-w-0'>
                   {item.isDirectory ? (
-                    <IconFolder className='mr-10px text-warning shrink-0' />
+                    <FolderOpen className='mr-10px text-warning shrink-0' />
                   ) : (
-                    <IconFile className='mr-10px text-primary shrink-0' />
+                    <FileText className='mr-10px text-primary shrink-0' />
                   )}
                   <span className='overflow-hidden text-ellipsis whitespace-nowrap'>{item.name}</span>
                 </div>

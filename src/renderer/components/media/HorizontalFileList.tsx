@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { IconLeft, IconRight } from '@arco-design/web-react/icon';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useRef, useState, useEffect } from 'react';
 
 interface HorizontalFileListProps {
@@ -143,7 +143,7 @@ const HorizontalFileList: React.FC<HorizontalFileListProps> = ({ children }) => 
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <IconLeft style={{ fontSize: '14px', color: 'var(--text-t-primary)' }} />
+            <ChevronLeft style={{ fontSize: '14px', color: 'var(--text-t-primary)' }} />
           </button>
         </div>
       )}
@@ -165,7 +165,7 @@ const HorizontalFileList: React.FC<HorizontalFileListProps> = ({ children }) => 
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <IconRight style={{ fontSize: '14px', color: 'var(--text-t-primary)' }} />
+            <ChevronRight style={{ fontSize: '14px', color: 'var(--text-t-primary)' }} />
           </button>
         </div>
       )}

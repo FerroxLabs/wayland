@@ -1,7 +1,7 @@
+import { Loader2 } from 'lucide-react';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { iconColors } from '@/renderer/styles/colors';
 import { Tag, Tooltip } from '@arco-design/web-react';
-import { LoadingOne } from '@icon-park/react';
 import React, { useEffect, useMemo, useState } from 'react';
 
 interface McpAgentStatusDisplayProps {
@@ -48,7 +48,7 @@ const McpAgentStatusDisplay: React.FC<McpAgentStatusDisplayProps> = ({
     <div className='flex items-center isolate'>
       <div className='flex items-center'>
         {isLoadingAgentStatus ? (
-          <LoadingOne fill={iconColors.primary} className='h-[16px] w-[16px]' />
+          <Loader2 color={iconColors.primary} className='h-[16px] w-[16px]' />
         ) : (
           agents.map((agent, index) => {
             const logo = getAgentLogo(agent);

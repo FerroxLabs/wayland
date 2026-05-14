@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown, Eye } from 'lucide-react';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { Down, PreviewOpen } from '@icon-park/react';
 import { diffColors, iconColors } from '@/renderer/styles/colors';
 import { useTranslation } from 'react-i18next';
 
@@ -82,10 +82,7 @@ const FileChangesPanel: React.FC<FileChangesPanelProps> = ({
           <span className='text-14px text-t-primary font-medium'>{title}</span>
         </div>
         {/* Expand/collapse arrow */}
-        <Down
-          theme='outline'
-          size='16'
-          fill={iconColors.secondary}
+        <ChevronDown size={16} color={iconColors.secondary}
           className={classNames('transition-transform duration-200', expanded && 'rotate-180')}
         />
       </div>
@@ -138,7 +135,7 @@ const FileChangesPanel: React.FC<FileChangesPanelProps> = ({
                     onFileClick?.(file);
                   }}
                 >
-                  <PreviewOpen className='line-height-8px' theme='outline' size='14' fill={iconColors.secondary} />
+                  <Eye className='line-height-8px' size={14} color={iconColors.secondary} />
                   {t('preview.preview')}
                 </span>
               </div>

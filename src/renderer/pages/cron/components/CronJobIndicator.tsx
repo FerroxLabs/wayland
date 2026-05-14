@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AlertTriangle, Clock, Pause } from 'lucide-react';
 import { iconColors } from '@/renderer/styles/colors';
 import { Tooltip } from '@arco-design/web-react';
-import { AlarmClock, Attention, PauseOne } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -43,7 +43,7 @@ const CronJobIndicator: React.FC<CronJobIndicatorProps> = ({ status, size = 14, 
         // Show alarm clock with red dot overlay for unread executions
         return (
           <span className='relative inline-flex'>
-            <AlarmClock {...iconProps} />
+            <Clock {...iconProps} />
             <span
               className='absolute rounded-full bg-red-500'
               style={{
@@ -56,13 +56,13 @@ const CronJobIndicator: React.FC<CronJobIndicatorProps> = ({ status, size = 14, 
           </span>
         );
       case 'active':
-        return <AlarmClock {...iconProps} />;
+        return <Clock {...iconProps} />;
       case 'paused':
-        return <PauseOne {...iconProps} />;
+        return <Pause {...iconProps} />;
       case 'error':
-        return <Attention {...iconProps} />;
+        return <AlertTriangle {...iconProps} />;
       case 'unconfigured':
-        return <AlarmClock {...iconProps} />;
+        return <Clock {...iconProps} />;
       default:
         return null;
     }

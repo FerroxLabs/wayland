@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ChevronDown } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { AcpSessionConfigOption } from '@/common/types/acpTypes';
 import { Button, Dropdown, Menu } from '@arco-design/web-react';
-import { Down } from '@icon-park/react';
 import React, { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarqueePillLabel from './MarqueePillLabel';
@@ -187,7 +187,7 @@ const AcpConfigSelector: React.FC<{
               <span className='flex items-center gap-6px min-w-0 leading-none'>
                 {leadingIcon && <span className='shrink-0 inline-flex items-center'>{leadingIcon}</span>}
                 <MarqueePillLabel>{currentLabel}</MarqueePillLabel>
-                <Down size={12} className='text-t-tertiary shrink-0' />
+                <ChevronDown size={12} className='text-t-tertiary shrink-0' />
               </span>
             </Button>
           </Dropdown>
