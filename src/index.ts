@@ -9,6 +9,7 @@
 import './process/utils/configureChromium';
 import * as Sentry from '@sentry/electron/main';
 import os from 'node:os';
+import { createScrubPii } from '@/common/utils/sentryPii';
 
 // L17 (AUDIT-05 F16): expose auto-updater bootstrap status to the renderer so the
 // System settings tab can surface "auto-updates disabled until next launch" when
@@ -18,51 +19,13 @@ declare global {
   var __waylandUpdateChannelStatus: { available: boolean; error?: string } | undefined;
 }
 
-// L11 (AUDIT-04 F20): strip PII from Sentry events before transmit.
-// Removes auth-style keys from event metadata and rewrites homedir-prefixed
-// paths to `~` in messages, exception values, and stacktrace filenames.
-function scrubPii(event: Sentry.ErrorEvent): Sentry.ErrorEvent {
-  const SENSITIVE_KEYS = /^(?:username|password|authorization|bearer|jwt_secret|.*token.*)$/i;
-  const HOME = os.homedir();
-  const stripObj = (obj: Record<string, unknown>): Record<string, unknown> => {
-    if (!obj) return obj;
-    for (const key of Object.keys(obj)) {
-      if (SENSITIVE_KEYS.test(key)) delete obj[key];
-    }
-    return obj;
-  };
-  if (event.extra) stripObj(event.extra);
-  if (event.tags) stripObj(event.tags as Record<string, unknown>);
-  if (event.contexts) {
-    for (const ctxKey of Object.keys(event.contexts)) {
-      const ctx = event.contexts[ctxKey];
-      if (ctx && typeof ctx === 'object') stripObj(ctx as Record<string, unknown>);
-    }
-  }
-  if (event.request?.headers) stripObj(event.request.headers as Record<string, unknown>);
-  if (event.request?.cookies) stripObj(event.request.cookies as Record<string, unknown>);
-  const replaceHome = (s: string) => (HOME ? s.replaceAll(HOME, '~') : s);
-  if (event.message) event.message = replaceHome(event.message);
-  if (event.exception?.values) {
-    for (const ex of event.exception.values) {
-      if (ex.value) ex.value = replaceHome(ex.value);
-      if (ex.stacktrace?.frames) {
-        for (const frame of ex.stacktrace.frames) {
-          if (frame.filename) frame.filename = replaceHome(frame.filename);
-        }
-      }
-    }
-  }
-  return event;
-}
-
 // Only init Sentry when DSN is actually set — otherwise the SDK installs
 // global handlers but transports are no-op, silently swallowing every
 // captured exception. H11 now logs explicitly; this keeps Sentry honest.
 if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim()) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    beforeSend: scrubPii,
+    beforeSend: createScrubPii(os.homedir()),
     sampleRate: 1.0,
     tracesSampleRate: 0.0,
   });

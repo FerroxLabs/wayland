@@ -7,12 +7,16 @@
 // Sentry must be initialized first
 // Use electron-specific renderer package only inside Electron; fall back to the
 // browser SDK when running as a standalone web server (no window.electronAPI).
+import { createScrubPii } from '@/common/utils/sentryPii';
 if ((window as { electronAPI?: unknown }).electronAPI) {
   // Dynamic import avoids bundling sentry-ipc:// protocol code into the web build
   import('@sentry/electron/renderer')
     .then((Sentry) => {
       try {
-        Sentry.init();
+        // L11 (AUDIT-04 F20): apply the same PII scrubber as main. Renderer has
+        // no Node access (sandbox + nodeIntegration:false), so homedir is omitted;
+        // the rest of the scrub (sensitive keys, request headers) still applies.
+        Sentry.init({ beforeSend: createScrubPii() });
       } catch (err) {
         console.warn('[Sentry] renderer init threw:', (err as Error)?.message ?? err);
       }
