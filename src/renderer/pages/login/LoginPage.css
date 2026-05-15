@@ -27,64 +27,6 @@ body.login-page-active {
   overflow: hidden;
 }
 
-.login-page__background {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.login-page__background-circle {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 107, 53, 0.04);
-  animation: login-float 20s infinite ease-in-out;
-  filter: blur(40px);
-}
-
-.login-page__background-circle--lg {
-  width: 500px;
-  height: 500px;
-  top: -200px;
-  left: -200px;
-  animation-delay: 0s;
-}
-
-.login-page__background-circle--md {
-  width: 350px;
-  height: 350px;
-  bottom: -150px;
-  right: -150px;
-  animation-delay: 5s;
-  background: rgba(255, 107, 53, 0.06);
-}
-
-.login-page__background-circle--sm {
-  width: 250px;
-  height: 250px;
-  top: 50%;
-  right: 10%;
-  animation-delay: 10s;
-  background: rgba(255, 107, 53, 0.03);
-}
-
-@keyframes login-float {
-  0%,
-  100% {
-    transform: translateY(0) translateX(0) scale(1);
-  }
-  25% {
-    transform: translateY(-20px) translateX(10px) scale(1.05);
-  }
-  50% {
-    transform: translateY(-10px) translateX(-10px) scale(0.95);
-  }
-  75% {
-    transform: translateY(10px) translateX(5px) scale(1.02);
-  }
-}
-
 .login-page__card {
   position: relative;
   z-index: 1;
@@ -436,9 +378,5 @@ body.login-page-active {
   .login-page__logo img {
     width: 60px;
     height: 60px;
-  }
-
-  .login-page__background-circle {
-    display: none;
   }
 }
