@@ -13,6 +13,8 @@ const { mockBrowserWindow, mockStartLogin } = vi.hoisted(() => {
     executeJavaScript: vi.fn(),
     on: vi.fn(),
     send: vi.fn(),
+    // Stubbed for the C6 popup-hijack denial wired in WeixinLoginHandler.
+    setWindowOpenHandler: vi.fn(),
   };
 
   const mockBrowserWindow = {
