@@ -192,12 +192,51 @@ function prepareWaylandCore() {
   const runtimeKey = `${platform}-${arch}`;
   const version = getVersion();
 
-  // Resolve the actual version tag — asset filenames include the tag
+  // Honor an explicit skip — same pattern as bundled-bun. Useful for CI
+  // matrices and forks where the TradeCanyon/wayland-core release stream
+  // does not yet exist; the packaged app falls back to runtime download.
+  if (process.env.WCORE_SKIP === '1' || process.env.WAYLAND_CORE_SKIP === '1' || process.env.AIONRS_SKIP === '1') {
+    const targetDir = path.join(projectRoot, 'resources', 'bundled-wayland-core', runtimeKey);
+    ensureDirectory(targetDir);
+    writeJson(path.join(targetDir, 'manifest.json'), {
+      platform,
+      arch,
+      version,
+      generatedAt: new Date().toISOString(),
+      sourceType: 'none',
+      source: {},
+      files: [],
+      skipped: true,
+      reason: 'WCORE_SKIP=1 set; runtime will fetch the engine on first launch.',
+    });
+    console.log(`  wayland-core skip requested (WCORE_SKIP=1); wrote skip manifest at resources/bundled-wayland-core/${runtimeKey}/manifest.json`);
+    return { prepared: false, reason: 'env_skip' };
+  }
+
+  // Resolve the actual version tag — asset filenames include the tag.
+  // If "latest" can't be resolved (e.g. TradeCanyon/wayland-core has no
+  // published releases yet), fall through to the skip-manifest path below
+  // instead of throwing. The comment at "Not found — write skip manifest"
+  // describes the intended behavior; this preserves it.
   let tag;
   if (version === 'latest') {
     const resolved = resolveLatestTag();
     if (!resolved) {
-      throw new Error('Failed to resolve latest wayland-core release tag from GitHub API');
+      console.warn('  Could not resolve latest wayland-core release tag; falling back to skip manifest.');
+      const targetDir = path.join(projectRoot, 'resources', 'bundled-wayland-core', runtimeKey);
+      ensureDirectory(targetDir);
+      writeJson(path.join(targetDir, 'manifest.json'), {
+        platform,
+        arch,
+        version: 'unresolved',
+        generatedAt: new Date().toISOString(),
+        sourceType: 'none',
+        source: {},
+        files: [],
+        skipped: true,
+        reason: 'Failed to resolve latest tag (likely no GitHub releases published yet).',
+      });
+      return { prepared: false, reason: 'unresolved_latest' };
     }
     tag = resolved;
     console.log(`Resolved wayland-core "latest" → ${tag}`);
