@@ -12,7 +12,6 @@
   "success": "로그인 성공! 리디렉션 중...",
   "showPassword": "비밀번호 표시",
   "hidePassword": "비밀번호 숨기기",
-  "languageToggle": "언어 변경",
   "footerPrimary": "Brilliant today, smarter tomorrow",
   "footerSecondary": "Perceives · Reasons · Adapts · Evolves",
   "errors": {
