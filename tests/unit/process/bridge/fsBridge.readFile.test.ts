@@ -126,6 +126,10 @@ function makeErrnoError(code: string, message: string): NodeJS.ErrnoException {
 describe('fsBridge readFile/readFileBuffer EBUSY handling', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    // clearAllMocks() does NOT clear mockResolvedValueOnce/mockRejectedValueOnce queues;
+    // reset the fs mocks explicitly so leftover one-shot values do not bleed across tests.
+    mockReadFile.mockReset();
+    mockStat.mockReset();
     // Re-import and initialize to capture provider callbacks
     vi.resetModules();
   });
@@ -181,6 +185,8 @@ describe('fsBridge readFile/readFileBuffer EBUSY handling', () => {
     }) => Promise<ArrayBuffer | null>;
     expect(readFileBufferCb).toBeDefined();
 
+    // readFileBuffer calls fs.stat before fs.readFile (M6 64MB cap), so both must be mocked.
+    mockStat.mockResolvedValueOnce({ size: 1024 });
     mockReadFile.mockRejectedValueOnce(makeErrnoError('EBUSY', 'EBUSY: resource busy or locked'));
 
     const result = await readFileBufferCb({ path: '/some/locked/file.pptx' });

@@ -20,9 +20,13 @@ export type DeepLinkParsed = {
   params: Record<string, string>;
   /**
    * Decoded base64-JSON payload from the `data` query param, if present and parseable.
-   * Stored as `unknown` so consumers must explicitly validate the shape before use —
-   * never spread into `params` (M8: prevents attacker-chosen keys from injecting
-   * trusted-looking fields like `redirectUrl`, `apiKey`, `baseUrl`).
+   * Stored as `unknown` so consumers can still inspect the original shape if needed.
+   *
+   * The decoded payload's string-valued keys ARE merged into `params` for
+   * backward compatibility with callers that index `params.baseUrl` / `params.apiKey`
+   * (one-api / new-api style URLs). Consumers handling sensitive actions MUST still
+   * validate caller-controlled keys before trusting them — decoding the base64
+   * envelope is purely an encoding convenience, not an authenticity signal.
    */
   decoded?: unknown;
 };
@@ -41,15 +45,21 @@ export const parseDeepLinkUrl = (url: string): DeepLinkParsed | null => {
       params[key] = value;
     });
 
-    // If data param exists, decode base64 JSON and expose it under an explicit
-    // `decoded` field. Consumers must opt in and validate the shape — keys are
-    // NOT merged into `params` (would allow attacker-controlled injection).
+    // If data param exists, decode base64 JSON. Expose the original payload
+    // under an explicit `decoded` field AND merge string-valued keys into
+    // `params` so callers reading `params.baseUrl` keep working (one-api /
+    // new-api style URLs). Non-string values are kept only in `decoded`.
     let decoded: unknown;
     if (params.data) {
       try {
         const json = JSON.parse(Buffer.from(params.data, 'base64').toString('utf-8'));
         if (json && typeof json === 'object') {
           decoded = json;
+          for (const [k, v] of Object.entries(json as Record<string, unknown>)) {
+            if (typeof v === 'string') {
+              params[k] = v;
+            }
+          }
         }
       } catch {
         // ignore malformed base64 data

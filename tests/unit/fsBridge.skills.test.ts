@@ -141,6 +141,21 @@ describe('fsBridge skills functionality', () => {
       };
     });
 
+    // Mock atomicWrite — the production code uses writeFileAtomic (writes a sibling
+    // .tmp file then renames). The fs/promises mock above only intercepts direct
+    // writeFile calls on the canonical filename, so atomic writes never hit the
+    // mockCustomExternalPaths slot. Forward to a plain writeFile here so the test
+    // mock's "ends with custom_external_skill_paths.json" branch fires.
+    vi.doMock('@process/utils/atomicWrite', async () => {
+      const fsMod = await import('fs/promises');
+      return {
+        writeFileAtomic: async (targetPath: string, data: string | Buffer, opts?: unknown) => {
+          await (fsMod as any).default.writeFile(targetPath, data, opts);
+        },
+        writeFileSyncAtomic: () => undefined,
+      };
+    });
+
     // Mock jszip
     vi.doMock('jszip', () => {
       class MockJSZip {
@@ -540,7 +555,11 @@ describe('fsBridge skills functionality', () => {
       const result = await handler({ skillName: '../config' });
 
       expect(result.success).toBe(false);
-      expect(result.msg).toContain('security check failed');
+      // M11 tightened the error: sanitizeSkillName now rejects `../config` upfront
+      // with "Invalid skill name ..." before the path-prefix containment check
+      // would otherwise produce "security check failed". Either message indicates
+      // the traversal was blocked; assert on the new, clearer one.
+      expect(result.msg).toContain('Invalid skill name');
     });
   });
 

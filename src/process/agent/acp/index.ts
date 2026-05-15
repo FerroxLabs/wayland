@@ -333,7 +333,10 @@ export class AcpAgent {
         console.log(`[ACP-PERF] start: session created ${Date.now() - sessionStart}ms`);
       }
 
-      // YOLO mode: bypass all permission checks for supported backends
+      // YOLO mode: bypass all permission checks for supported backends.
+      // fatal=true — if the user explicitly enabled YOLO and the backend rejects
+      // the mode, fail loudly rather than silently fall back to default permissions
+      // (which would surprise the user with prompts they thought they had disabled).
       if (this.extra.yoloMode) {
         const yoloModeMap: Partial<Record<AcpBackend, string>> = {
           claude: CLAUDE_YOLO_SESSION_MODE,
@@ -342,7 +345,7 @@ export class AcpAgent {
         };
         const sessionMode = yoloModeMap[this.extra.backend];
         if (sessionMode) {
-          await this.applySessionMode(sessionMode, false, `${this.extra.backend} YOLO mode`);
+          await this.applySessionMode(sessionMode, true, `${this.extra.backend} YOLO mode`);
         }
       } else if (this.extra.sessionMode && this.extra.sessionMode !== 'default') {
         // Apply non-default, non-YOLO session mode (e.g., acceptEdits, auto, dontAsk, plan)
