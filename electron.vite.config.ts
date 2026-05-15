@@ -181,6 +181,17 @@ export default defineConfig(({ mode }) => {
           '@worker': resolve('src/process/worker'),
           // Force ESM version of streamdown
           streamdown: resolve('node_modules/streamdown/dist/index.js'),
+          // Audit Phase 2-J: redirect shiki's base64-inlined oniguruma WASM module
+          // to a shim that loads onig.wasm as a separate Vite asset. This saves
+          // ~600ms first-render parse + ~200kB gzipped from the lazy code-block chunk.
+          // Match both the bare specifier (shiki/wasm.mjs re-export target) and the
+          // resolved path (in case anything imports the dist file directly).
+          '@shikijs/engine-oniguruma/wasm-inlined': resolve(
+            'src/renderer/shims/shiki-onig-wasm-shim.mjs'
+          ),
+          '@shikijs/engine-oniguruma/dist/wasm-inlined.mjs': resolve(
+            'src/renderer/shims/shiki-onig-wasm-shim.mjs'
+          ),
         },
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.css'],
         dedupe: ['react', 'react-dom', 'react-router-dom'],
@@ -197,6 +208,10 @@ export default defineConfig(({ mode }) => {
         reportCompressedSize: false,
         chunkSizeWarningLimit: 1500,
         cssCodeSplit: true,
+        // Audit Phase 2-J: keep Vite's default inline cutoff so any .wasm asset
+        // (e.g. shiki's onig.wasm via the shim alias above) ships as a sidecar
+        // file instead of being base64-inlined into the chunk that imports it.
+        assetsInlineLimit: 4096,
         rollupOptions: {
           input: {
             index: resolve('src/renderer/index.html'),
@@ -208,10 +223,20 @@ export default defineConfig(({ mode }) => {
             warn(warning);
           },
           output: {
+            // Audit Phase 2-J: split the main renderer chunk by vendor family.
+            // Before: a single ~1.5MB index-*.js. After: index drops below 1MB,
+            // each vendor group loads independently and benefits from per-chunk caching.
             manualChunks(id: string) {
               if (!id.includes('node_modules')) return undefined;
+              // react-router shipped in vendor-react previously; split it so
+              // the react chunk stays tiny and routing changes don't bust react's hash.
+              if (id.includes('/react-router-dom/') || id.includes('/react-router/'))
+                return 'vendor-router';
               if (id.includes('/react-dom/') || id.includes('/react/')) return 'vendor-react';
               if (id.includes('/@arco-design/')) return 'vendor-arco';
+              if (id.includes('/i18next') || id.includes('/react-i18next/')) return 'vendor-i18n';
+              if (id.includes('/@sentry/')) return 'vendor-sentry';
+              if (id.includes('/react-virtuoso/')) return 'vendor-virtuoso';
               if (
                 id.includes('/react-markdown/') ||
                 id.includes('/remark-') ||

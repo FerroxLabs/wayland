@@ -7,7 +7,6 @@
 // configureChromium sets app name (dev isolation) and Chromium flags — must run before
 // ANY module that calls app.getPath('userData'), because Electron caches the path on first call.
 import './process/utils/configureChromium';
-import * as Sentry from '@sentry/electron/main';
 import os from 'node:os';
 import { createScrubPii } from '@/common/utils/sentryPii';
 
@@ -19,16 +18,35 @@ declare global {
   var __waylandUpdateChannelStatus: { available: boolean; error?: string } | undefined;
 }
 
-// Only init Sentry when DSN is actually set — otherwise the SDK installs
-// global handlers but transports are no-op, silently swallowing every
-// captured exception. H11 now logs explicitly; this keeps Sentry honest.
+// Audit Phase 2-J: dynamic import of @sentry/electron/main keeps ~430KB of
+// Sentry transports + integrations out of the main-process boot path when no
+// DSN is configured (the common case in dev and self-hosted builds). The DSN
+// guard below mirrors the prior behavior — when DSN is set the SDK is loaded
+// asynchronously and init runs as soon as the chunk resolves. Renderer Sentry
+// is already lazy (see commit da1f173cc / src/renderer/main.tsx).
+//
+// `_sentry` is populated in the .then() callback below; the four capture
+// sites in this file use `_sentry?.captureException(...)` and tolerate the
+// short window between boot and chunk-load (any errors thrown in that window
+// are still surfaced via electron-log + console.error directly above each call).
+type SentryMainModule = typeof import('@sentry/electron/main');
+let _sentry: SentryMainModule | undefined;
 if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim()) {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    beforeSend: createScrubPii(os.homedir()),
-    sampleRate: 1.0,
-    tracesSampleRate: 0.0,
-  });
+  import('@sentry/electron/main')
+    .then((Sentry) => {
+      try {
+        Sentry.init({
+          dsn: process.env.SENTRY_DSN,
+          beforeSend: createScrubPii(os.homedir()),
+          sampleRate: 1.0,
+          tracesSampleRate: 0.0,
+        });
+        _sentry = Sentry;
+      } catch (err) {
+        console.warn('[Sentry] main init threw:', (err as Error)?.message ?? err);
+      }
+    })
+    .catch((err) => console.warn('[Sentry] main import skipped:', (err as Error)?.message ?? err));
 } else {
   console.warn('[Sentry] DSN not set; telemetry disabled');
 }
@@ -184,7 +202,7 @@ process.on('uncaughtException', (error) => {
   log.error('[uncaughtException]', error);
   console.error('[uncaughtException]', error);
   try {
-    Sentry.captureException(error);
+    _sentry?.captureException(error);
   } catch {
     // Ignore Sentry failures — we've already logged the original error.
   }
@@ -196,7 +214,7 @@ process.on('unhandledRejection', (reason, _promise) => {
   log.error('[unhandledRejection]', reason);
   console.error('[unhandledRejection]', reason);
   try {
-    Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)));
+    _sentry?.captureException(reason instanceof Error ? reason : new Error(String(reason)));
   } catch {
     // Ignore Sentry failures — we've already logged the original reason.
   }
@@ -552,7 +570,7 @@ const handleAppReady = async (): Promise<void> => {
     }
   }
 
-  Sentry.setUser({ id: getOrCreateAnalyticsId() });
+  _sentry?.setUser({ id: getOrCreateAnalyticsId() });
 
   try {
     await initializeProcess();
@@ -878,7 +896,7 @@ void app
     // wrong behavior when init itself failed.
     console.error('[Wayland] App initialization failed:', error);
     try {
-      Sentry.captureException(error);
+      _sentry?.captureException(error);
     } catch {
       // Ignore Sentry failures — we've already logged the original error.
     }
