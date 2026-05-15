@@ -1280,6 +1280,36 @@ const migration_v28: IMigration = {
 };
 
 /**
+ * Migration v28 -> v29: Add token_blacklist table
+ *
+ * Persists revoked-token hashes so logout survives a process restart. Each
+ * row stores the SHA-256 of the JWT and its exp timestamp so the cleanup
+ * timer can drop entries once the underlying token would have expired
+ * anyway.
+ */
+const migration_v29: IMigration = {
+  version: 29,
+  name: 'Add token_blacklist table',
+  up: (db) => {
+    const ddl = [
+      'CREATE TABLE IF NOT EXISTS token_blacklist (',
+      '  token_hash TEXT PRIMARY KEY,',
+      '  expires_at INTEGER NOT NULL',
+      ')',
+    ].join('\n');
+    const idxDdl = 'CREATE INDEX IF NOT EXISTS idx_token_blacklist_expires_at ON token_blacklist(expires_at)';
+    db.exec(ddl);
+    db.exec(idxDdl);
+    console.log('[Migration v29] Added token_blacklist table');
+  },
+  down: (db) => {
+    db.exec('DROP INDEX IF EXISTS idx_token_blacklist_expires_at');
+    db.exec('DROP TABLE IF EXISTS token_blacklist');
+    console.log('[Migration v29] Rolled back: Removed token_blacklist table');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -1288,7 +1318,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v7, migration_v8, migration_v9, migration_v10, migration_v11, migration_v12,
   migration_v13, migration_v14, migration_v15, migration_v16, migration_v17, migration_v18,
   migration_v19, migration_v20, migration_v21, migration_v22, migration_v23, migration_v24,
-  migration_v25, migration_v26, migration_v27, migration_v28,
+  migration_v25, migration_v26, migration_v27, migration_v28, migration_v29,
 ];
 
 /**

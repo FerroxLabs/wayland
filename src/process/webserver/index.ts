@@ -7,8 +7,8 @@
 import express from 'express';
 import net from 'net';
 import { createServer } from 'http';
+import https from 'node:https';
 import { WebSocketServer } from 'ws';
-import { execSync } from 'child_process';
 import { networkInterfaces } from 'os';
 import { AuthService } from '@process/webserver/auth/service/AuthService';
 import { UserRepository } from '@process/webserver/auth/repository/UserRepository';
@@ -77,28 +77,47 @@ function getLanIP(): string | null {
 }
 
 /**
+ * Fetch a plain-text public IP from a remote endpoint over HTTPS.
+ * Returns null on non-200, timeout, or network error.
+ */
+async function fetchPublicIp(url: string, timeoutMs = 5000): Promise<string | null> {
+  return new Promise((resolve) => {
+    const req = https.get(url, (res) => {
+      if (res.statusCode !== 200) {
+        res.resume();
+        resolve(null);
+        return;
+      }
+      let body = '';
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => {
+        body += chunk;
+      });
+      res.on('end', () => resolve(body.trim() || null));
+    });
+    req.setTimeout(timeoutMs, () => {
+      req.destroy();
+      resolve(null);
+    });
+    req.on('error', () => resolve(null));
+  });
+}
+
+/**
  * Get public IP address (Linux headless only)
  */
-function getPublicIP(): string | null {
+async function getPublicIP(): Promise<string | null> {
   // Only try to get public IP on Linux headless environment
   const isLinuxHeadless = process.platform === 'linux' && !process.env.DISPLAY;
   if (!isLinuxHeadless) {
     return null;
   }
 
-  try {
-    // Use curl to get public IP (with 2 second timeout)
-    const publicIP = execSync('curl -s --max-time 2 ifconfig.me || curl -s --max-time 2 api.ipify.org', {
-      encoding: 'utf8',
-      timeout: 3000,
-    }).trim();
+  const publicIP = (await fetchPublicIp('https://api.ipify.org')) ?? (await fetchPublicIp('https://ifconfig.io/ip'));
 
-    // Validate IPv4 address format
-    if (publicIP && /^(\d{1,3}\.){3}\d{1,3}$/.test(publicIP)) {
-      return publicIP;
-    }
-  } catch {
-    // Ignore errors (firewall, network issues, etc.)
+  // Validate IPv4 address format
+  if (publicIP && /^(\d{1,3}\.){3}\d{1,3}$/.test(publicIP)) {
+    return publicIP;
   }
 
   return null;
@@ -107,9 +126,9 @@ function getPublicIP(): string | null {
 /**
  * Get server IP address (prefer public IP, fallback to LAN IP)
  */
-function getServerIP(): string | null {
+async function getServerIP(): Promise<string | null> {
   // Linux headless: try to get public IP
-  const publicIP = getPublicIP();
+  const publicIP = await getPublicIP();
   if (publicIP) {
     return publicIP;
   }
@@ -288,6 +307,10 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
   // Initialize default admin account
   const initialCredentials = await initializeDefaultAdmin();
 
+  // Rehydrate the token blacklist from SQLite so logouts performed before
+  // the last restart still reject the corresponding tokens.
+  await AuthService.hydrateBlacklist();
+
   // Configure middleware
   setupBasicMiddleware(app);
   setupCors(app, port, allowRemote);
@@ -304,9 +327,9 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
   // Listen on 0.0.0.0 (all interfaces) or 127.0.0.1 (local only) based on allowRemote
   const host = allowRemote ? SERVER_CONFIG.REMOTE_HOST : SERVER_CONFIG.DEFAULT_HOST;
   return new Promise((resolve, reject) => {
-    server.listen(port, host, () => {
+    server.listen(port, host, async () => {
       const localUrl = `http://localhost:${port}`;
-      const serverIP = getServerIP();
+      const serverIP = await getServerIP();
       const displayUrl = serverIP ? `http://${serverIP}:${port}` : localUrl;
 
       // Display initial credentials (if first startup)

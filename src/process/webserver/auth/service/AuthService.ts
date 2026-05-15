@@ -7,9 +7,11 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import zxcvbn from 'zxcvbn';
 import type { AuthUser } from '../repository/UserRepository';
 import { UserRepository } from '../repository/UserRepository';
 import { TokenFamilyRepository } from '../repository/TokenFamilyRepository';
+import { TokenBlacklistRepository } from '../repository/TokenBlacklistRepository';
 import { AUTH_CONFIG } from '../../config/constants';
 import { withBcryptSlot } from './bcryptSemaphore';
 
@@ -91,32 +93,79 @@ export class AuthService {
   private static readonly TOKEN_EXPIRY = AUTH_CONFIG.TOKEN.SESSION_EXPIRY;
 
   /**
-   * Token blacklist - stores logged out tokens (in-memory, cleared on restart)
-   * Key: SHA-256 hash of the token; Value: expiry timestamp
+   * Token blacklist — stores hashes of revoked tokens.
+   *
+   * The in-memory `Map` is the hot path (synchronous lookup on every
+   * verifyToken call). The `token_blacklist` SQLite table is the durable
+   * backing store so a process restart cannot resurrect a stolen JWT.
+   *
+   * On startup `hydrateBlacklist()` reloads still-active rows into the map.
+   * Key: SHA-256 hash of the token; Value: expiry timestamp (epoch ms).
    */
   private static tokenBlacklist: Map<string, number> = new Map();
   private static readonly BLACKLIST_CLEANUP_INTERVAL = 60 * 60 * 1000; // 1 hour
   private static blacklistCleanupTimer: ReturnType<typeof setInterval> | null = null;
+  private static blacklistHydratePromise: Promise<void> | null = null;
 
   /**
-   * Add token to blacklist (called on logout)
+   * Load persisted blacklist rows into memory. Safe to call multiple times —
+   * subsequent calls return the same promise. Called eagerly at boot and
+   * lazily on the first blacklist check so verifyToken stays sync-fast.
+   */
+  public static hydrateBlacklist(): Promise<void> {
+    if (!this.blacklistHydratePromise) {
+      this.blacklistHydratePromise = (async () => {
+        try {
+          const now = Date.now();
+          // Drop already-expired rows up front so we never load them.
+          await TokenBlacklistRepository.pruneExpired(now);
+          const rows = await TokenBlacklistRepository.loadActive(now);
+          for (const row of rows) {
+            this.tokenBlacklist.set(row.token_hash, row.expires_at);
+          }
+          if (rows.length > 0) {
+            this.startBlacklistCleanup();
+          }
+        } catch (error) {
+          // Fail soft — without a hydrated blacklist verifyToken still works
+          // against the in-memory map populated by subsequent revokes.
+          console.error('[AuthService] Failed to hydrate token blacklist:', error);
+        }
+      })();
+    }
+    return this.blacklistHydratePromise;
+  }
+
+  /**
+   * Add token to blacklist (called on logout).
+   *
+   * The in-memory map is updated synchronously so an immediately-following
+   * verifyToken call sees the revocation. The database write is fire-and-
+   * forget; on storage failure the in-memory entry still protects this
+   * process for the token's remaining lifetime.
    */
   public static blacklistToken(token: string): void {
     // Use the token hash as key to avoid storing the raw token
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
     // Parse token to get expiry
+    let expiry: number;
     try {
       const decoded = jwt.decode(token) as { exp?: number } | null;
-      const expiry = decoded?.exp ? decoded.exp * 1000 : Date.now() + AUTH_CONFIG.TOKEN.COOKIE_MAX_AGE;
-      this.tokenBlacklist.set(tokenHash, expiry);
-
-      // Start the cleanup timer if not already running
-      this.startBlacklistCleanup();
+      expiry = decoded?.exp ? decoded.exp * 1000 : Date.now() + AUTH_CONFIG.TOKEN.COOKIE_MAX_AGE;
     } catch {
       // Even if parsing fails, add to blacklist (using default expiry)
-      this.tokenBlacklist.set(tokenHash, Date.now() + AUTH_CONFIG.TOKEN.COOKIE_MAX_AGE);
+      expiry = Date.now() + AUTH_CONFIG.TOKEN.COOKIE_MAX_AGE;
     }
+
+    this.tokenBlacklist.set(tokenHash, expiry);
+    this.startBlacklistCleanup();
+
+    // Persist so the revocation survives restart. Best-effort — the
+    // in-memory entry above already protects this process.
+    void TokenBlacklistRepository.add(tokenHash, expiry).catch((error) => {
+      console.error('[AuthService] Failed to persist blacklisted token:', error);
+    });
   }
 
   /**
@@ -154,6 +203,11 @@ export class AuthService {
           this.tokenBlacklist.delete(hash);
         }
       }
+      // Drop the same rows from the persistent store so the table doesn't
+      // grow unbounded across restarts.
+      void TokenBlacklistRepository.pruneExpired(now).catch((error) => {
+        console.error('[AuthService] Failed to prune token_blacklist:', error);
+      });
     }, this.BLACKLIST_CLEANUP_INTERVAL);
 
     // Allow the process to exit normally
@@ -578,6 +632,18 @@ export class AuthService {
     const weakPasswords = ['password', '12345678', '123456789', 'qwertyui', 'abcdefgh'];
     if (weakPasswords.includes(password.toLowerCase())) {
       errors.push('PASSWORD_TOO_COMMON');
+    }
+
+    // Require zxcvbn score >= 3 ("safely unguessable: moderate protection
+    // from offline slow-hash scenario"). Only evaluate when the password
+    // passes the length gates — zxcvbn on absurdly long inputs is slow.
+    if (password.length >= 8 && password.length <= 128) {
+      // Password is too predictable; try a longer passphrase or add more
+      // character variety.
+      const score = zxcvbn(password).score;
+      if (score < 3) {
+        errors.push('PASSWORD_TOO_PREDICTABLE');
+      }
     }
 
     return {

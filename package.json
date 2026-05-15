@@ -162,7 +162,8 @@
     "ws": "^8.20.1",
     "xlsx-republish": "^0.20.3",
     "xml2js": "^0.5.0",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
@@ -186,6 +187,7 @@
     "@types/semver": "^7.7.1",
     "@types/turndown": "^5.0.6",
     "@types/ws": "^8.18.1",
+    "@types/zxcvbn": "^4.4.5",
     "@vitest/coverage-v8": "^4.0.18",
     "cross-env": "^7.0.3",
     "dotenv": "^17.2.1",
