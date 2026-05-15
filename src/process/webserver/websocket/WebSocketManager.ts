@@ -38,30 +38,44 @@ export class WebSocketManager {
    */
   setupConnectionHandler(onMessage: (name: string, data: any, ws: WebSocket) => void): void {
     this.wss.on('connection', async (ws: WebSocket, req: IncomingMessage) => {
-      // Buffer messages that arrive before async auth completes so they are
-      // not lost due to the race between ws.on("message") registration and
-      // the await below.
+      // AUDIT-05 F19: register a SINGLE message handler from the start so
+      // there is no window during which messages arrive but no listener is
+      // attached. Until auth completes, the handler buffers the raw payload;
+      // after auth, it forwards to the real message processing path.
+      // Drain happens synchronously after auth completes, before this scope
+      // returns to the event loop.
       const pendingMessages: Buffer[] = [];
-      const bufferMessage = (raw: Buffer) => pendingMessages.push(raw);
-      ws.on('message', bufferMessage);
+      let authDone = false;
+      let processMessage: ((rawData: Buffer) => void) | null = null;
+
+      const messageHandler = (rawData: Buffer) => {
+        if (!authDone) {
+          pendingMessages.push(rawData);
+          return;
+        }
+        processMessage?.(rawData);
+      };
+      ws.on('message', messageHandler);
 
       const token = TokenMiddleware.extractWebSocketToken(req);
 
       if (!(await this.validateConnection(ws, token))) {
-        ws.off('message', bufferMessage);
+        ws.off('message', messageHandler);
         return;
       }
 
-      ws.off('message', bufferMessage);
       this.addClient(ws, token!);
-      this.setupMessageHandler(ws, onMessage);
+      processMessage = this.buildMessageProcessor(ws, onMessage);
       this.setupCloseHandler(ws);
       this.setupErrorHandler(ws);
+      authDone = true;
 
-      // Replay any messages that arrived during auth validation
+      // Drain any messages buffered during auth validation. Synchronous so
+      // the renderer never observes a "message accepted but dropped" gap.
       for (const raw of pendingMessages) {
-        ws.emit('message', raw, false);
+        processMessage(raw);
       }
+      pendingMessages.length = 0;
 
       console.log('[WebSocketManager] Client connected');
     });
@@ -108,10 +122,16 @@ export class WebSocketManager {
   }
 
   /**
-   * Setup message handler
+   * Build the post-auth message processor used by the single message handler
+   * registered in setupConnectionHandler. Kept as a builder (not a direct
+   * `ws.on('message', ...)`) so the connection handler can buffer pre-auth
+   * messages and replay them through the same processing path after auth.
    */
-  private setupMessageHandler(ws: WebSocket, onMessage: (name: string, data: any, ws: WebSocket) => void): void {
-    ws.on('message', (rawData) => {
+  private buildMessageProcessor(
+    ws: WebSocket,
+    onMessage: (name: string, data: any, ws: WebSocket) => void
+  ): (rawData: Buffer) => void {
+    return (rawData: Buffer) => {
       try {
         const parsed = JSON.parse(rawData.toString());
         const { name, data } = parsed;
@@ -142,7 +162,7 @@ export class WebSocketManager {
           // Socket may be broken; ignore send failure
         }
       }
-    });
+    };
   }
 
   /**
