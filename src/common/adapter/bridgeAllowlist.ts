@@ -128,12 +128,17 @@ export function isAllowedInboundName(name: string): boolean {
   }
 
   // Provider response from renderer-side provider: subscribe.callback-<key><id>
-  // The platform appends an 8-hex random id (see `i = (e) => e + Math.random()...`)
-  // so we match by prefix.
+  // The platform appends an 8-hex random id (see `i = (e) => e + Math.random()...`
+  // in @office-ai/platform: `Math.random().toString(16).slice(2,10)`), so the
+  // residual after stripping the key must be exactly 8 lowercase hex chars.
+  // Anchor the suffix to prevent a permitted key being a prefix of an arbitrary name.
   if (name.startsWith('subscribe.callback-')) {
     const rest = name.slice('subscribe.callback-'.length);
     for (const key of RENDERER_PROVIDED_KEYS) {
-      if (rest.startsWith(key)) return true;
+      if (rest.startsWith(key)) {
+        const suffix = rest.slice(key.length);
+        if (/^[0-9a-f]{8}$/.test(suffix)) return true;
+      }
     }
     return false;
   }

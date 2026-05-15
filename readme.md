@@ -696,7 +696,7 @@ Tech stack: Electron · Vite · React · Bun
 
 ```bash
 bun install        # install dependencies
-bun run dev        # start dev server
+bun start          # start dev server
 bun run test       # run unit tests
 ```
 

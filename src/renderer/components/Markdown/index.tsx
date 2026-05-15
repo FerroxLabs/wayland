@@ -89,7 +89,7 @@ const MarkdownView: React.FC<MarkdownViewProps> = React.memo(
           <a
             {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
             target='_blank'
-            rel='noreferrer'
+            rel='noopener noreferrer'
             onClick={handleLinkClick}
           />
         ),
