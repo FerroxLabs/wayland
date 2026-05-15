@@ -13,6 +13,7 @@ import { ipcMain, app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
+import { enforceRateLimit } from './webuiDirectAuth';
 
 /**
  * Get log file paths for the last N days.
@@ -37,7 +38,21 @@ const getRecentLogPaths = (logsDir: string, days: number): string[] => {
 
 const LOG_DAYS = 3;
 
+// SECURITY: gated by enforceRateLimit. Log content may contain PII/internal
+// state — a compromised renderer (XSS) could otherwise farm `feedback:collect-logs`
+// repeatedly to exfiltrate everything our app has ever logged. Path itself is
+// not renderer-controlled (`app.getPath('logs')`), so the risk is content
+// disclosure + filesystem I/O DoS, not path traversal. 5/60s matches the
+// existing C3/webui-direct gate; the legitimate flow (one click in the bug
+// report modal) is well under the limit.
 ipcMain.handle('feedback:collect-logs', async () => {
+  if (!enforceRateLimit('feedback:collect-logs')) {
+    // Return null (matches the no-logs path) instead of an error shape — the
+    // renderer typing is `{ filename, data } | null` and the caller already
+    // handles null as a graceful fallback. A compromised renderer hitting the
+    // rate limit just sees the same outcome as "no logs available".
+    return null;
+  }
   try {
     let logsDir: string;
     try {
