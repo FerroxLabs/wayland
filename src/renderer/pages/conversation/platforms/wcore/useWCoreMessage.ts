@@ -146,7 +146,7 @@ export const useWCoreMessage = (
           break;
         case 'finish':
           {
-            // aionrs stream_end carries usage in data field
+            // wcore stream_end carries usage in data field
             const usageData = message.data as TokenUsage | undefined;
             if (usageData && typeof usageData === 'object' && 'input_tokens' in usageData) {
               const newTokenUsage: TokenUsageData = {
@@ -281,7 +281,7 @@ export const useWCoreMessage = (
       setWaitingResponse(isRunning);
       waitingResponseRef.current = isRunning;
       // Load persisted token usage stats
-      if (res.type === 'aionrs' && res.extra?.lastTokenUsage) {
+      if (res.type === 'wcore' && res.extra?.lastTokenUsage) {
         const { lastTokenUsage } = res.extra;
         if (lastTokenUsage.totalTokens > 0) {
           setTokenUsage(lastTokenUsage);

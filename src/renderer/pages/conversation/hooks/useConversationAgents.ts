@@ -12,7 +12,7 @@ import { DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents } from '@/renderer/utils/m
 import type { AvailableAgent } from '@/renderer/utils/model/agentTypes';
 
 export type UseConversationAgentsResult = {
-  /** Detected execution engines (acp, extension, remote, aionrs, gemini, etc.) */
+  /** Detected execution engines (acp, extension, remote, wcore, gemini, etc.) */
   cliAgents: AvailableAgent[];
   /** Preset assistants from config layer */
   presetAssistants: AvailableAgent[];

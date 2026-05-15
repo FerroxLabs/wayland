@@ -48,10 +48,10 @@ const GeminiTeamChat: React.FC<{
   );
 };
 
-// Narrow to Aionrs conversations so model field is always available
-type WCoreConversation = Extract<TChatConversation, { type: 'aionrs' | 'wcore' }>;
+// Narrow to Wayland Core conversations so model field is always available
+type WCoreConversation = Extract<TChatConversation, { type: 'wcore' }>;
 
-/** Aionrs sub-component manages model selection state without adding a ChatLayout wrapper */
+/** Wayland Core sub-component manages model selection state without adding a ChatLayout wrapper */
 const WCoreTeamChat: React.FC<{
   conversation: WCoreConversation;
   teamId?: string;
@@ -132,7 +132,6 @@ const TeamChatView: React.FC<TeamChatViewProps> = ({ conversation, hideSendBox, 
           />
         );
       case 'wcore':
-      case 'aionrs':
         return (
           <WCoreTeamChat
             key={conversation.id}

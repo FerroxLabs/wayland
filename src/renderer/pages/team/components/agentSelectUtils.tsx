@@ -31,9 +31,9 @@ export function filterTeamSupportedAgents(
 
 export function resolveConversationType(
   backend: string
-): 'gemini' | 'acp' | 'aionrs' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' {
+): 'gemini' | 'acp' | 'wcore' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' {
   if (backend === 'gemini') return 'gemini';
-  if (backend === 'aionrs') return 'aionrs';
+  if (backend === 'wcore') return 'wcore';
   if (backend === 'codex') return 'acp';
   if (backend === 'openclaw-gateway') return 'openclaw-gateway';
   if (backend === 'nanobot') return 'nanobot';

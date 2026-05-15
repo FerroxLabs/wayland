@@ -191,7 +191,7 @@ const GeminiConversationPanel: React.FC<{
   );
 };
 
-type WCoreConversation = Extract<TChatConversation, { type: 'aionrs' | 'wcore' }>;
+type WCoreConversation = Extract<TChatConversation, { type: 'wcore' }>;
 
 const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; sliderTitle: React.ReactNode }> = ({
   conversation,
@@ -214,7 +214,7 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
   });
   const workspaceEnabled = Boolean(conversation.extra?.workspace);
   const { info: presetAssistantInfo } = usePresetAssistantInfo(conversation);
-  const aionrsAssistantId = resolveAssistantConfigId(conversation) ?? undefined;
+  const wcoreAssistantId = resolveAssistantConfigId(conversation) ?? undefined;
 
   const chatLayoutProps = {
     title: conversation.name,
@@ -232,8 +232,8 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
       </div>
     ),
     workspaceEnabled,
-    backend: 'aionrs' as const,
-    presetAssistant: presetAssistantInfo ? { ...presetAssistantInfo, id: aionrsAssistantId } : undefined,
+    backend: 'wcore' as const,
+    presetAssistant: presetAssistantInfo ? { ...presetAssistantInfo, id: wcoreAssistantId } : undefined,
   };
 
   return (
@@ -257,11 +257,10 @@ const ChatConversation: React.FC<{
   const workspaceEnabled = Boolean(conversation?.extra?.workspace);
 
   const isGeminiConversation = conversation?.type === 'gemini';
-  // Dual-read: post-E new conversations get type='wcore'; legacy rows are still 'aionrs'.
-  const isAionrsConversation = conversation?.type === 'wcore' || conversation?.type === 'aionrs';
+  const isWCoreConversation = conversation?.type === 'wcore';
 
   // Use unified hook for preset assistant info (ACP/Codex conversations)
-  const acpConversation = isGeminiConversation || isAionrsConversation ? undefined : conversation;
+  const acpConversation = isGeminiConversation || isWCoreConversation ? undefined : conversation;
   const { info: presetAssistantInfo, isLoading: isLoadingPreset } = usePresetAssistantInfo(acpConversation);
   const acpAssistantId = acpConversation ? (resolveAssistantConfigId(acpConversation) ?? undefined) : undefined;
 
@@ -269,7 +268,7 @@ const ChatConversation: React.FC<{
   const assistantDisplayName = presetAssistantInfo?.name || conversationAgentName;
 
   const conversationNode = useMemo(() => {
-    if (!conversation || isGeminiConversation || isAionrsConversation) return null;
+    if (!conversation || isGeminiConversation || isWCoreConversation) return null;
     switch (conversation.type) {
       case 'acp':
         return (
@@ -333,7 +332,7 @@ const ChatConversation: React.FC<{
       default:
         return null;
     }
-  }, [conversation, isGeminiConversation, isAionrsConversation, assistantDisplayName, hideSendBox]);
+  }, [conversation, isGeminiConversation, isWCoreConversation, assistantDisplayName, hideSendBox]);
 
   const sliderTitle = useMemo(() => {
     return (
@@ -347,7 +346,7 @@ const ChatConversation: React.FC<{
   // For other non-Gemini conversations, show disabled GeminiModelSelector.
   // NOTE: This must be placed before the Gemini early return to maintain consistent hook order.
   const modelSelector = useMemo(() => {
-    if (!conversation || isGeminiConversation || isAionrsConversation) return undefined;
+    if (!conversation || isGeminiConversation || isWCoreConversation) return undefined;
     if (conversation.type === 'acp') {
       const extra = conversation.extra as { backend?: string; currentModelId?: string };
       return (
@@ -362,11 +361,9 @@ const ChatConversation: React.FC<{
       return <AcpModelSelector conversationId={conversation.id} />;
     }
     return <GeminiModelSelector disabled={true} />;
-  }, [conversation, isGeminiConversation, isAionrsConversation]);
+  }, [conversation, isGeminiConversation, isWCoreConversation]);
 
-  if (conversation && (conversation.type === 'wcore' || conversation.type === 'aionrs')) {
-    // Dual-read: 'wcore' is the new conversation type post-rebrand; 'aionrs'
-    // remains for existing rows. Both route to the WCoreConversationPanel.
+  if (conversation && conversation.type === 'wcore') {
     return <WCoreConversationPanel key={conversation.id} conversation={conversation} sliderTitle={sliderTitle} />;
   }
 
@@ -393,8 +390,8 @@ const ChatConversation: React.FC<{
           backend:
             conversation?.type === 'acp'
               ? conversation?.extra?.backend
-              : conversation?.type === 'wcore' || conversation?.type === 'aionrs'
-                ? 'aionrs'
+              : conversation?.type === 'wcore'
+                ? 'wcore'
                 : conversation?.type === 'codex'
                   ? 'codex'
                   : conversation?.type === 'openclaw-gateway'

@@ -318,15 +318,15 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       return;
     }
 
-    // Aionrs path (direct selection or preset assistant with aionrs as main agent)
-    if (selectedAgent === 'aionrs' || (isPreset && finalEffectiveAgentType === 'aionrs')) {
+    // Wayland Core path (direct selection or preset assistant with wcore as main agent)
+    if (selectedAgent === 'wcore' || (isPreset && finalEffectiveAgentType === 'wcore')) {
       if (!currentModel) {
         Message.warning(t('conversation.noModelConfigured'));
         return;
       }
       try {
         const conversation = await ipcBridge.conversation.create.invoke({
-          type: 'aionrs',
+          type: 'wcore',
           name: input,
           model: currentModel,
           extra: {
@@ -342,7 +342,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         });
 
         if (!conversation || !conversation.id) {
-          alert('Failed to create Wayland Core conversation. Please ensure aionrs is installed.');
+          alert('Failed to create Wayland Core conversation. Please ensure wcore is installed.');
           return;
         }
 
@@ -358,7 +358,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`aionrs_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        sessionStorage.setItem(`wcore_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {

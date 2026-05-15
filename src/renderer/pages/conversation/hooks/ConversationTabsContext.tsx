@@ -18,7 +18,7 @@ export interface ConversationTab {
   /** Workspace path */
   workspace: string;
   /** Conversation type */
-  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'aionrs' | 'wcore';
+  type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
   /** Whether there are unsaved changes */
   isDirty?: boolean;
 }

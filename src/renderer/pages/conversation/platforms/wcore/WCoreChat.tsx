@@ -31,7 +31,7 @@ const WCoreChat: React.FC<{
     updateLocalImage({ root: workspace });
   }, [workspace]);
   const conversationValue = useMemo<ConversationContextValue>(() => {
-    return { conversationId: conversation_id, workspace, type: 'aionrs' };
+    return { conversationId: conversation_id, workspace, type: 'wcore' };
   }, [conversation_id, workspace]);
 
   return (

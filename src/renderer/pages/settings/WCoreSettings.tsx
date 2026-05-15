@@ -23,7 +23,7 @@ const WCoreSettings: React.FC = () => {
   useEffect(() => {
     void ipcBridge.acpConversation.getAvailableAgents.invoke().then((result) => {
       if (result.success) {
-        const agent = result.data.find((a) => a.backend === 'aionrs');
+        const agent = result.data.find((a) => a.backend === 'wcore');
         setAgentInfo(agent ? { available: true, path: agent.cliPath } : { available: false });
       }
     });
@@ -44,25 +44,25 @@ const WCoreSettings: React.FC = () => {
             </Typography.Text>
             <Tag color={agentInfo?.available ? 'green' : 'red'} size='small'>
               {agentInfo?.available
-                ? t('settings.aionrs.available', { defaultValue: 'Available' })
-                : t('settings.aionrs.notFound', { defaultValue: 'Not Found' })}
+                ? t('settings.wcore.available', { defaultValue: 'Available' })
+                : t('settings.wcore.notFound', { defaultValue: 'Not Found' })}
             </Tag>
           </div>
           {agentInfo?.version && (
             <Typography.Text type='secondary' className='text-12px'>
-              {t('settings.aionrs.version', { defaultValue: 'Version' })}: {agentInfo.version}
+              {t('settings.wcore.version', { defaultValue: 'Version' })}: {agentInfo.version}
             </Typography.Text>
           )}
           {agentInfo?.path && (
             <Typography.Text type='secondary' className='text-12px break-all'>
-              {t('settings.aionrs.path', { defaultValue: 'Path' })}: {agentInfo.path}
+              {t('settings.wcore.path', { defaultValue: 'Path' })}: {agentInfo.path}
             </Typography.Text>
           )}
         </div>
 
         {/* Info */}
         <Typography.Text type='secondary' className='text-12px'>
-          {t('settings.aionrs.providerNote', {
+          {t('settings.wcore.providerNote', {
             defaultValue:
               'Provider and API key settings are managed in the Models page. Wayland Core supports: Anthropic, OpenAI, AWS Bedrock.',
           })}

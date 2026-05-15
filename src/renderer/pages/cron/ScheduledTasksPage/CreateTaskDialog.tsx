@@ -240,12 +240,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       .catch(() => setCachedConfigOptions(undefined));
   }, [resolvedBackend]);
 
-  const isGeminiMode = resolvedBackend === 'gemini' || resolvedBackend === 'aionrs';
+  const isGeminiMode = resolvedBackend === 'gemini' || resolvedBackend === 'wcore';
 
   // WaylandCLI does not support Google Auth — filter it out (mirrors GuidPage.tsx logic)
   const filteredProviders = useMemo(
     () =>
-      resolvedBackend === 'aionrs'
+      resolvedBackend === 'wcore'
         ? providers.filter((p) => !p.platform?.toLowerCase().includes('gemini-with-google-auth'))
         : providers,
     [resolvedBackend, providers]
@@ -253,7 +253,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   // Build Gemini currentModel from modelId for GuidModelSelector
   const geminiCurrentModel = useMemo<TProviderWithModel | undefined>(() => {
-    if ((resolvedBackend !== 'gemini' && resolvedBackend !== 'aionrs') || !modelId) return undefined;
+    if ((resolvedBackend !== 'gemini' && resolvedBackend !== 'wcore') || !modelId) return undefined;
     for (const p of filteredProviders) {
       if (getAvailableModels(p).includes(modelId)) {
         return { ...p, useModel: modelId } as TProviderWithModel;
@@ -278,7 +278,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   // Load ACP cached model info when backend changes
   useEffect(() => {
-    if (!resolvedBackend || resolvedBackend === 'gemini' || resolvedBackend === 'aionrs') {
+    if (!resolvedBackend || resolvedBackend === 'gemini' || resolvedBackend === 'wcore') {
       setAcpCachedModelInfo(null);
       return;
     }
@@ -300,12 +300,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           if (preferred) setModelId(preferred);
         })
         .catch((err) => console.warn('[CreateTaskDialog.get gemini.defaultModel]', err));
-    } else if (resolvedBackend === 'aionrs') {
-      ConfigStorage.get('aionrs.defaultModel')
+    } else if (resolvedBackend === 'wcore') {
+      ConfigStorage.get('wcore.defaultModel')
         .then((saved) => {
           if (saved?.useModel) setModelId(saved.useModel);
         })
-        .catch((err) => console.warn('[CreateTaskDialog.get aionrs.defaultModel]', err));
+        .catch((err) => console.warn('[CreateTaskDialog.get wcore.defaultModel]', err));
     }
   }, [resolvedBackend, modelId]);
 

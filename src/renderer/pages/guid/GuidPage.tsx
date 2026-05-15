@@ -80,7 +80,7 @@ const GuidPage: React.FC = () => {
 
   // --- Hooks ---
   // Track which provider-based agent is selected so model selection persists per agent type
-  const [providerAgentKey, setProviderAgentKey] = useState<'gemini' | 'aionrs'>('aionrs');
+  const [providerAgentKey, setProviderAgentKey] = useState<'gemini' | 'wcore'>('wcore');
   const modelSelection = useGuidModelSelection(providerAgentKey);
 
   const resetAssistantRequested = (location.state as { resetAssistant?: boolean } | null)?.resetAssistant === true;
@@ -95,7 +95,7 @@ const GuidPage: React.FC = () => {
   // Sync providerAgentKey when selected agent changes
   useEffect(() => {
     const agent = agentSelection.selectedAgent;
-    if (agent === 'gemini' || agent === 'aionrs') {
+    if (agent === 'gemini' || agent === 'wcore') {
       setProviderAgentKey(agent);
     }
   }, [agentSelection.selectedAgent]);
@@ -473,7 +473,7 @@ const GuidPage: React.FC = () => {
     : agentSelection.selectedAgent;
 
   // Agents that use configured model providers instead of ACP probe-based models
-  const PROVIDER_BASED_AGENTS = new Set(['gemini', 'aionrs']);
+  const PROVIDER_BASED_AGENTS = new Set(['gemini', 'wcore']);
   const isGeminiMode =
     PROVIDER_BASED_AGENTS.has(effectiveAgentType) &&
     (!agentSelection.isPresetAgent || agentSelection.currentEffectiveAgentInfo.isAvailable);

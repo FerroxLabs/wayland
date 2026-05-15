@@ -89,9 +89,9 @@ const LocalAgents: React.FC = () => {
   );
 
   // Wayland Core and Gemini CLI first among detected agents
-  const aionrsAgent = detectedAgents?.find((a) => a.backend === 'aionrs');
+  const wcoreAgent = detectedAgents?.find((a) => a.backend === 'wcore');
   const geminiAgent = detectedAgents?.find((a) => a.backend === 'gemini');
-  const otherDetected = detectedAgents?.filter((a) => a.backend !== 'gemini' && a.backend !== 'aionrs') ?? [];
+  const otherDetected = detectedAgents?.filter((a) => a.backend !== 'gemini' && a.backend !== 'wcore') ?? [];
 
   const openCustomAgentEditor = useCallback(() => {
     setEditingAgent(null);
@@ -173,12 +173,12 @@ const LocalAgents: React.FC = () => {
         </Typography.Text>
       </div>
       <div className='grid grid-cols-2 gap-10px px-16px md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
-        {aionrsAgent && (
+        {wcoreAgent && (
           <AgentCard
             type='detected'
-            agent={aionrsAgent}
+            agent={wcoreAgent}
             settingsDisabled={false}
-            onSettings={() => navigate('/settings/aionrs')}
+            onSettings={() => navigate('/settings/wcore')}
             variant='grid'
           />
         )}

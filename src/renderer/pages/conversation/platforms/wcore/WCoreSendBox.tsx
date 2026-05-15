@@ -42,8 +42,8 @@ import { useTranslation } from 'react-i18next';
 import { useWCoreMessage } from './useWCoreMessage';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 
-const useAionrsSendBoxDraft = getSendBoxDraftHook('aionrs', {
-  _type: 'aionrs',
+const useWCoreSendBoxDraft = getSendBoxDraftHook('wcore', {
+  _type: 'wcore',
   atPath: [],
   content: '',
   uploadFile: [],
@@ -53,7 +53,7 @@ const EMPTY_AT_PATH: Array<string | FileOrFolderItem> = [];
 const EMPTY_UPLOAD_FILES: string[] = [];
 
 const useSendBoxDraft = (conversation_id: string) => {
-  const { data, mutate } = useAionrsSendBoxDraft(conversation_id);
+  const { data, mutate } = useWCoreSendBoxDraft(conversation_id);
 
   const atPath = data?.atPath ?? EMPTY_AT_PATH;
   const uploadFile = data?.uploadFile ?? EMPTY_UPLOAD_FILES;
@@ -103,7 +103,7 @@ const WCoreSendBox: React.FC<{
       onConfigChanged: (capabilities) => {
         const modes = (capabilities as { modes?: string[] })?.modes;
         if (modes && modes.length > 0) {
-          setDynamicModes(mergeWithCapabilities('aionrs', modes));
+          setDynamicModes(mergeWithCapabilities('wcore', modes));
         }
       },
     });
@@ -213,7 +213,7 @@ const WCoreSendBox: React.FC<{
         }
         emitter.emit('chat.history.refresh');
         if (files.length > 0) {
-          emitter.emit('aionrs.workspace.refresh');
+          emitter.emit('wcore.workspace.refresh');
         }
       } catch (error) {
         removeMessageByMsgId(msg_id);
@@ -260,8 +260,8 @@ const WCoreSendBox: React.FC<{
   useEffect(() => {
     if (!conversation_id) return;
 
-    const storageKey = `aionrs_initial_message_${conversation_id}`;
-    const processedKey = `aionrs_initial_processed_${conversation_id}`;
+    const storageKey = `wcore_initial_message_${conversation_id}`;
+    const processedKey = `wcore_initial_processed_${conversation_id}`;
 
     const processInitialMessage = async () => {
       if (sessionStorage.getItem(processedKey)) return;
@@ -291,7 +291,7 @@ const WCoreSendBox: React.FC<{
 
     const filesToSend = collectSelectedFiles(uploadFile, atPath);
     clearFiles();
-    emitter.emit('aionrs.selected.file.clear');
+    emitter.emit('wcore.selected.file.clear');
 
     if (
       shouldEnqueueConversationCommand({
@@ -313,7 +313,7 @@ const WCoreSendBox: React.FC<{
       setContent(item.input);
       setUploadFile(Array.from(new Set(item.files)));
       setAtPath([]);
-      emitter.emit('aionrs.selected.file.clear');
+      emitter.emit('wcore.selected.file.clear');
     },
     [remove, setAtPath, setContent, setUploadFile]
   );
@@ -328,8 +328,8 @@ const WCoreSendBox: React.FC<{
     onFilesSelected: appendSelectedFiles,
   });
 
-  useAddEventListener('aionrs.selected.file', setAtPath);
-  useAddEventListener('aionrs.selected.file.append', (selectedItems: Array<string | FileOrFolderItem>) => {
+  useAddEventListener('wcore.selected.file', setAtPath);
+  useAddEventListener('wcore.selected.file.append', (selectedItems: Array<string | FileOrFolderItem>) => {
     const merged = mergeFileSelectionItems(atPathRef.current, selectedItems);
     if (merged !== atPathRef.current) {
       setAtPath(merged as Array<string | FileOrFolderItem>);
@@ -368,7 +368,7 @@ const WCoreSendBox: React.FC<{
         onChange={setContent}
         selectedWorkspaceItems={atPath}
         onSelectedWorkspaceItemsChange={(items) => {
-          emitter.emit('aionrs.selected.file', items);
+          emitter.emit('wcore.selected.file', items);
           setAtPath(items);
         }}
         loading={isBusy}
@@ -389,7 +389,7 @@ const WCoreSendBox: React.FC<{
           <div className='flex items-center gap-4px'>
             <FileAttachButton openFileSelector={openFileSelector} onLocalFilesAdded={handleFilesAdded} />
             <AgentModeSelector
-              backend='aionrs'
+              backend='wcore'
               conversationId={conversation_id}
               compact
               initialMode={sessionMode}
@@ -433,7 +433,7 @@ const WCoreSendBox: React.FC<{
                         closable
                         onClose={() => {
                           const newAtPath = atPath.filter((v) => (typeof v === 'string' ? true : v.path !== item.path));
-                          emitter.emit('aionrs.selected.file', newAtPath);
+                          emitter.emit('wcore.selected.file', newAtPath);
                           setAtPath(newAtPath);
                         }}
                       >

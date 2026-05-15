@@ -32,7 +32,7 @@ type TeamPageContentProps = {
   onRenameTeam: (newName: string) => Promise<boolean>;
 };
 
-/** Compact aionrs model selector for the agent header */
+/** Compact Wayland Core model selector for the agent header */
 const WCoreHeaderModelSelector: React.FC<{ conversationId: string; initialModel?: TProviderWithModel }> = ({
   conversationId,
   initialModel,
@@ -62,7 +62,7 @@ const AgentChatSlot: React.FC<{
     ipcBridge.conversation.get.invoke({ id: agent.conversationId })
   );
 
-  const isAionrs = conversation?.type === 'aionrs';
+  const isWCore = conversation?.type === 'wcore';
   const initialModelId = (conversation?.extra as { currentModelId?: string })?.currentModelId;
   const isAcpLike = agent.conversationType === 'acp' || agent.conversationType === 'codex';
   const isGemini = agent.conversationType === 'gemini';
@@ -111,7 +111,7 @@ const AgentChatSlot: React.FC<{
           nameClassName='text-13px text-[color:var(--color-text-2)] font-medium'
         />
         <div className='flex items-center gap-8px shrink-0'>
-          {agent.conversationId && !isAionrs && isAcpLike && (
+          {agent.conversationId && !isWCore && isAcpLike && (
             <div className='min-w-0 max-w-140px [&_button]:max-w-full [&_button_span]:truncate'>
               <AcpModelSelector
                 key={agent.conversationId}
@@ -126,7 +126,7 @@ const AgentChatSlot: React.FC<{
               <GeminiModelSelector selection={geminiModelSelection} />
             </div>
           )}
-          {isAionrs && agent.conversationId && (
+          {isWCore && agent.conversationId && (
             <div className='min-w-0 max-w-140px [&_button]:max-w-full [&_button_span]:truncate'>
               <WCoreHeaderModelSelector
                 key={agent.conversationId}

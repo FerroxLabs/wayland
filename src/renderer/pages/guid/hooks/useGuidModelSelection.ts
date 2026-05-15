@@ -33,12 +33,12 @@ const isModelKeyAvailable = (key: string | null, providers?: IProvider[]) => {
 };
 
 /** Provider-based agent keys that share the model list UI */
-type ProviderAgentKey = 'gemini' | 'aionrs';
+type ProviderAgentKey = 'gemini' | 'wcore';
 
 /** Map agent key → storage key for persisting default model */
-const MODEL_STORAGE_KEY: Record<ProviderAgentKey, 'gemini.defaultModel' | 'aionrs.defaultModel'> = {
+const MODEL_STORAGE_KEY: Record<ProviderAgentKey, 'gemini.defaultModel' | 'wcore.defaultModel'> = {
   gemini: 'gemini.defaultModel',
-  aionrs: 'aionrs.defaultModel',
+  wcore: 'wcore.defaultModel',
 };
 
 export type GuidModelSelectionResult = {
@@ -53,7 +53,7 @@ export type GuidModelSelectionResult = {
 
 /**
  * Hook that manages Gemini model list and selection state for the Guid page.
- * @param agentKey - current provider-based agent ('gemini' | 'aionrs'), defaults to 'gemini'
+ * @param agentKey - current provider-based agent ('gemini' | 'wcore'), defaults to 'gemini'
  */
 export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): GuidModelSelectionResult => {
   const { geminiModeOptions, isGoogleAuth } = useGeminiGoogleAuthModels();
@@ -69,7 +69,7 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): Gu
     let allProviders: IProvider[] = [];
 
     // Only expose the Gemini Google Auth provider when the current agent is
-    // 'gemini'. Other provider-based agents (e.g. aionrs) do not support
+    // 'gemini'. Other provider-based agents (e.g. wcore) do not support
     // Google login, so surfacing this provider would make the default-model
     // fallback pick a Gemini auto model by mistake.
     if (isGoogleAuth && agentKey === 'gemini') {

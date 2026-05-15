@@ -78,7 +78,7 @@ export const useGuidAgentSelection = ({
   resetAssistant,
   locationKey,
 }: UseGuidAgentSelectionOptions): GuidAgentSelectionResult => {
-  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('aionrs');
+  const [selectedAgentKey, _setSelectedAgentKey] = useState<string>('wcore');
   const [availableAgents, setAvailableAgents] = useState<AvailableAgent[]>();
   const [selectedMode, _setSelectedMode] = useState<string>('default');
   // Track whether mode was loaded from preferences to avoid overwriting during initial load
@@ -236,7 +236,7 @@ export const useGuidAgentSelection = ({
     if (resetAssistant && !resetHandledRef.current) {
       resetHandledRef.current = true;
       const firstCliAgent = availableAgents.find((a) => !a.isPreset);
-      const fallbackKey = firstCliAgent ? getAgentKey(firstCliAgent) : 'aionrs';
+      const fallbackKey = firstCliAgent ? getAgentKey(firstCliAgent) : 'wcore';
       _setSelectedAgentKey(fallbackKey);
       ConfigStorage.set('guid.lastSelectedAgent', fallbackKey).catch((error) => {
         console.error('Failed to save reset agent key:', error);
@@ -403,8 +403,8 @@ export const useGuidAgentSelection = ({
           const config = await ConfigStorage.get('gemini.config');
           preferred = config?.preferredMode;
           yoloMode = config?.yoloMode ?? false;
-        } else if (configKey === 'aionrs') {
-          const config = await ConfigStorage.get('aionrs.config');
+        } else if (configKey === 'wcore') {
+          const config = await ConfigStorage.get('wcore.config');
           preferred = config?.preferredMode;
         } else {
           const config = await ConfigStorage.get('acp.config');
@@ -474,7 +474,7 @@ export const useGuidAgentSelection = ({
   // Key of the first non-preset CLI agent (used as fallback when leaving preset mode)
   const defaultAgentKey = useMemo(() => {
     const firstCliAgent = availableAgents?.find((a) => !a.isPreset);
-    return firstCliAgent ? getAgentKey(firstCliAgent) : 'aionrs';
+    return firstCliAgent ? getAgentKey(firstCliAgent) : 'wcore';
   }, [availableAgents]);
 
   return {

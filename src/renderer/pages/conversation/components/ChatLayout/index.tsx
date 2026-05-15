@@ -94,10 +94,9 @@ const ChatLayout: React.FC<{
   );
 
   // Display names for non-ACP backends (the ACP_BACKENDS_ALL registry only
-  // covers ACP-protocol agents; native-spawn backends like wcore/aionrs need
+  // covers ACP-protocol agents; native-spawn backends like wcore need
   // their own friendly-name lookup so the badge doesn't show the raw id).
   const NON_ACP_BACKEND_DISPLAY_NAMES: Record<string, string> = {
-    aionrs: 'Wayland Core',
     wcore: 'Wayland Core',
   };
 

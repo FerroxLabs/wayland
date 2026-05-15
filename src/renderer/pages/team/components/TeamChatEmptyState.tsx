@@ -18,7 +18,7 @@ const useOpenClawDraft = getSendBoxDraftHook('openclaw-gateway', {
 });
 const useNanobotDraft = getSendBoxDraftHook('nanobot', { _type: 'nanobot', atPath: [], content: '', uploadFile: [] });
 const useRemoteDraft = getSendBoxDraftHook('remote', { _type: 'remote', atPath: [], content: '', uploadFile: [] });
-const useAionrsDraft = getSendBoxDraftHook('aionrs', { _type: 'aionrs', atPath: [], content: '', uploadFile: [] });
+const useWCoreDraft = getSendBoxDraftHook('wcore', { _type: 'wcore', atPath: [], content: '', uploadFile: [] });
 
 type Props = {
   conversationId: string;
@@ -78,17 +78,14 @@ const TeamChatEmptyState: React.FC<Props> = ({ conversationId }) => {
   // DetectedAgentKind without wiring up a draft setter here becomes a typecheck error.
   const acpDraft = useAcpDraft(conversationId);
   const geminiDraft = useGeminiDraft(conversationId);
-  const aionrsDraft = useAionrsDraft(conversationId);
+  const wcoreDraft = useWCoreDraft(conversationId);
   const nanobotDraft = useNanobotDraft(conversationId);
   const remoteDraft = useRemoteDraft(conversationId);
   const openClawDraft = useOpenClawDraft(conversationId);
   const setContentByKind = {
     acp: (text: string) => acpDraft.mutate((prev) => ({ ...prev, content: text })),
     gemini: (text: string) => geminiDraft.mutate((prev) => ({ ...prev, content: text })),
-    // Dual-write/read: 'wcore' and 'aionrs' target the same wayland-core
-    // engine and share the same draft store.
-    aionrs: (text: string) => aionrsDraft.mutate((prev) => ({ ...prev, content: text })),
-    wcore: (text: string) => aionrsDraft.mutate((prev) => ({ ...prev, content: text })),
+    wcore: (text: string) => wcoreDraft.mutate((prev) => ({ ...prev, content: text })),
     nanobot: (text: string) => nanobotDraft.mutate((prev) => ({ ...prev, content: text })),
     remote: (text: string) => remoteDraft.mutate((prev) => ({ ...prev, content: text })),
     'openclaw-gateway': (text: string) => openClawDraft.mutate((prev) => ({ ...prev, content: text })),
