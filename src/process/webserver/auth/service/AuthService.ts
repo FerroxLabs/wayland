@@ -11,6 +11,11 @@ import type { AuthUser } from '../repository/UserRepository';
 import { UserRepository } from '../repository/UserRepository';
 import { TokenFamilyRepository } from '../repository/TokenFamilyRepository';
 import { AUTH_CONFIG } from '../../config/constants';
+import { withBcryptSlot } from './bcryptSemaphore';
+
+// Re-export so callers (route handlers) can identify a saturation rejection
+// without importing the semaphore module directly.
+export { BcryptBusyError } from './bcryptSemaphore';
 
 interface TokenPayload {
   userId: string;
@@ -47,26 +52,32 @@ interface UserCredentials {
 }
 
 const hashPasswordAsync = (password: string, saltRounds: number): Promise<string> =>
-  new Promise((resolve, reject) => {
-    bcrypt.hash(password, saltRounds, (error, hash) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(hash);
-    });
-  });
+  withBcryptSlot(
+    () =>
+      new Promise((resolve, reject) => {
+        bcrypt.hash(password, saltRounds, (error, hash) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(hash);
+        });
+      })
+  );
 
 const comparePasswordAsync = (password: string, hash: string): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    bcrypt.compare(password, hash, (error, same) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(same);
-    });
-  });
+  withBcryptSlot(
+    () =>
+      new Promise((resolve, reject) => {
+        bcrypt.compare(password, hash, (error, same) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(same);
+        });
+      })
+  );
 
 const DUMMY_BCRYPT_PASSWORD = 'wayland-auth-dummy-password';
 const DUMMY_BCRYPT_HASH = '$2a$12$s5cKddFA1hp06nhAubmZa.eT3/xT9Bmve36cul7fZ6ch2mz9EITDu';

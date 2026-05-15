@@ -5,7 +5,7 @@
  */
 
 import type { Express, Request, Response } from 'express';
-import { AuthService } from '@process/webserver/auth/service/AuthService';
+import { AuthService, BcryptBusyError } from '@process/webserver/auth/service/AuthService';
 import { AuthMiddleware } from '@process/webserver/auth/middleware/AuthMiddleware';
 import { UserRepository } from '@process/webserver/auth/repository/UserRepository';
 import { AUTH_CONFIG, getCookieOptions } from '../config/constants';
@@ -13,6 +13,7 @@ import { TokenUtils } from '@process/webserver/auth/middleware/TokenMiddleware';
 import { createAppError } from '../middleware/errorHandler';
 import { authRateLimiter, authenticatedActionLimiter, apiRateLimiter } from '../middleware/security';
 import { verifyQRTokenDirect } from '@process/bridge/webuiQR';
+import { pickLocale, QR_LOGIN_STRINGS, type QrLoginStrings } from '../i18n/qrLogin';
 
 /**
  * QR login page HTML.
@@ -22,15 +23,32 @@ import { verifyQRTokenDirect } from '@process/bridge/webuiQR';
  * request and injected into the <script> tag below.
  *
  * No user input is embedded — JavaScript reads the QR token from URL params
- * on the client side.
+ * on the client side. User-visible strings are sourced from the server-side
+ * i18n table in ../i18n/qrLogin.ts; the page is anglophone-first today but
+ * the table is keyed by locale so non-English copy can land later without
+ * touching this template.
  */
-function renderQrLoginPage(nonce: string): string {
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeJsString(value: string): string {
+  return JSON.stringify(value);
+}
+
+function buildQrLoginPageHtml(strings: QrLoginStrings, cspNonce?: string): string {
+  const nonce = cspNonce ?? '';
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${escapeHtml(strings.htmlLang)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QR Login · Wayland</title>
+  <title>${escapeHtml(strings.pageTitle)}</title>
   <style>
     :root {
       --brand: #ff6b35;
@@ -108,9 +126,9 @@ function renderQrLoginPage(nonce: string): string {
         <circle cx="5" cy="19" r="2"/>
       </svg>
     </div>
-    <div class="brand">Wayland</div>
+    <div class="brand">${escapeHtml(strings.brand)}</div>
     <div class="spinner"></div>
-    <p class="loading">Verifying QR code…</p>
+    <p class="loading">${escapeHtml(strings.verifying)}</p>
   </div>
   <script nonce="${nonce}">
     (async function() {
@@ -135,7 +153,7 @@ function renderQrLoginPage(nonce: string): string {
         for (var i = 0; i < paths.length; i++) svg.appendChild(el(paths[i][0], paths[i][1], SVG_NS));
         box.appendChild(svg);
         frag.appendChild(box);
-        var brand = el('div'); brand.className = 'brand'; brand.textContent = 'Wayland';
+        var brand = el('div'); brand.className = 'brand'; brand.textContent = ${escapeJsString(strings.brand)};
         frag.appendChild(brand);
         return frag;
       }
@@ -155,7 +173,7 @@ function renderQrLoginPage(nonce: string): string {
       var params = new URLSearchParams(window.location.search);
       var qrToken = params.get('token');
       if (!qrToken) {
-        render('error', 'Invalid QR code', 'The QR code is invalid or missing.');
+        render('error', ${escapeJsString(strings.invalidTitle)}, ${escapeJsString(strings.invalidDetail)});
         return;
       }
       try {
@@ -167,13 +185,13 @@ function renderQrLoginPage(nonce: string): string {
         });
         var data = await response.json();
         if (data.success) {
-          render('success', 'Login successful', 'Redirecting…');
+          render('success', ${escapeJsString(strings.successTitle)}, ${escapeJsString(strings.redirecting)});
           setTimeout(function() { window.location.href = '/'; }, 900);
         } else {
-          render('error', 'Login failed', data.error || 'QR code expired or invalid. Please scan a fresh one.');
+          render('error', ${escapeJsString(strings.failedTitle)}, data.error || ${escapeJsString(strings.expiredDetail)});
         }
       } catch (e) {
-        render('error', 'Network error', 'Could not reach the server. Please try again.');
+        render('error', ${escapeJsString(strings.networkErrorTitle)}, ${escapeJsString(strings.networkErrorDetail)});
       }
     })();
   </script>
@@ -238,6 +256,18 @@ export function registerAuthRoutes(app: Express): void {
         token,
       });
     } catch (error) {
+      // Bcrypt semaphore at capacity — event-loop saturation guard
+      // (AUDIT-04 F6 / M1, Option B). Tell the client to back off
+      // instead of pretending it was an auth failure, so attackers see
+      // fast 503s and legitimate clients can retry.
+      if (error instanceof BcryptBusyError) {
+        res.setHeader('Retry-After', String(error.retryAfterSeconds));
+        res.status(503).json({
+          success: false,
+          message: 'Service temporarily unavailable, please retry',
+        });
+        return;
+      }
       console.error('Login error:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
@@ -528,12 +558,15 @@ export function registerAuthRoutes(app: Express): void {
    * GET /qr-login
    * Security: Return static HTML, JavaScript reads token from URL to prevent XSS
    */
-  app.get('/qr-login', (_req: Request, res: Response) => {
+  app.get('/qr-login', (req: Request, res: Response) => {
     // cspNonceMiddleware (registered in setup.ts) populates res.locals.cspNonce
     // for every request; fall back to empty string if it's somehow absent so
     // we never silently emit an unauthenticated nonce.
     const nonce = typeof res.locals.cspNonce === 'string' ? res.locals.cspNonce : '';
-    res.send(renderQrLoginPage(nonce));
+    const acceptLanguage = typeof req.headers['accept-language'] === 'string' ? req.headers['accept-language'] : undefined;
+    const locale = pickLocale(acceptLanguage);
+    const strings = QR_LOGIN_STRINGS[locale];
+    res.send(buildQrLoginPageHtml(strings, nonce));
   });
 }
 
