@@ -10,32 +10,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import csrf from 'tiny-csrf';
 import crypto from 'crypto';
-import { networkInterfaces } from 'os';
 import { AuthMiddleware } from '@process/webserver/auth/middleware/AuthMiddleware';
 import { errorHandler } from './middleware/errorHandler';
 import { attachCsrfToken } from './middleware/security';
-
-/**
- * Get all non-internal IPv4 addresses (LAN, VPN, Tailscale, etc.)
- */
-function getAllNonInternalIPs(): string[] {
-  const ips: string[] = [];
-  const nets = networkInterfaces();
-  for (const name of Object.keys(nets)) {
-    const netInfo = nets[name];
-    if (!netInfo) continue;
-
-    for (const net of netInfo) {
-      // Node.js 18.4+ returns number (4/6), older versions return string ('IPv4'/'IPv6')
-      const isIPv4 = net.family === 'IPv4' || (net.family as unknown) === 4;
-      const isNotInternal = !net.internal;
-      if (isIPv4 && isNotInternal) {
-        ips.push(net.address);
-      }
-    }
-  }
-  return ips;
-}
 
 /**
  * Get or generate CSRF secret
@@ -106,15 +83,39 @@ function normalizeOrigin(origin: string): string | null {
   }
 }
 
+function parseAllowedOriginsEnv(): string[] {
+  return (process.env.WAYLAND_ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .map((origin) => normalizeOrigin(origin))
+    .filter((origin): origin is string => Boolean(origin));
+}
+
 function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
+  // Localhost is always permitted. Network interface auto-detection was removed
+  // because, on coffee-shop wifi / VPN / Docker bridges, it silently exposed the
+  // API with `credentials: true` to every routable origin the box could see.
   const baseOrigins = new Set<string>([`http://localhost:${port}`, `http://127.0.0.1:${port}`]);
 
-  // When remote access is enabled, add all network interface IPs (LAN, VPN, Tailscale, etc.)
+  const envOrigins = parseAllowedOriginsEnv();
+
   if (allowRemote) {
-    const allIPs = getAllNonInternalIPs();
-    for (const ip of allIPs) {
-      baseOrigins.add(`http://${ip}:${port}`);
-      console.log(`[CORS] Added IP to allowed origins: http://${ip}:${port}`);
+    if (envOrigins.length === 0) {
+      console.warn(
+        '[security] remote mode without WAYLAND_ALLOWED_ORIGINS: only localhost allowed'
+      );
+    } else {
+      // In remote mode, WAYLAND_ALLOWED_ORIGINS is the explicit allowlist.
+      for (const origin of envOrigins) {
+        baseOrigins.add(origin);
+      }
+    }
+  } else {
+    // In local-only mode, the env var still augments the allowlist (e.g. for a
+    // user-configured reverse proxy on the same host).
+    for (const origin of envOrigins) {
+      baseOrigins.add(origin);
     }
   }
 
@@ -124,15 +125,6 @@ function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
       baseOrigins.add(normalizedBase);
     }
   }
-
-  const extraOrigins = (process.env.WAYLAND_ALLOWED_ORIGINS || '')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean)
-    .map((origin) => normalizeOrigin(origin))
-    .filter((origin): origin is string => Boolean(origin));
-
-  extraOrigins.forEach((origin) => baseOrigins.add(origin));
 
   return baseOrigins;
 }

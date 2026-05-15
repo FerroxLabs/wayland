@@ -452,6 +452,15 @@ wayland --webui --remote
 
 **Security Note**: Remote mode allows network access. Use only on trusted networks. Consider setting up authentication and firewall rules for production use.
 
+**CORS Allowlist (required for browser access from another device):** For safety, remote mode no longer auto-adds every detected network interface (Tailscale, VPN, Docker bridges, NAT'd interfaces) to the CORS allowlist. You must opt in by listing the exact origins the browser will use, comma-separated, in the `WAYLAND_ALLOWED_ORIGINS` environment variable. Example:
+
+```bash
+export WAYLAND_ALLOWED_ORIGINS="http://192.168.1.42:3000,http://wayland.tailnet-abc.ts.net:3000"
+wayland --webui --remote
+```
+
+If `WAYLAND_ALLOWED_ORIGINS` is unset, remote mode falls back to localhost-only and a `[security] remote mode without WAYLAND_ALLOWED_ORIGINS: only localhost allowed` warning is logged on startup.
+
 ### Finding Your Local IP Address
 
 **Windows:**
