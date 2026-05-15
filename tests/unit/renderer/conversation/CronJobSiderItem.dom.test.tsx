@@ -48,16 +48,8 @@ vi.mock('@/renderer/pages/conversation/utils/conversationCache', () => ({
   refreshConversationCache: vi.fn(),
 }));
 
-vi.mock('@icon-park/react', () => ({
-  Down: ({ className, onClick }: { className?: string; onClick?: (e: React.MouseEvent) => void }) => (
-    <span data-testid='icon-down' className={className} onClick={onClick} />
-  ),
-  DeleteOne: () => <span data-testid='icon-delete' />,
-  EditOne: () => <span data-testid='icon-edit' />,
-  Pushpin: () => <span data-testid='icon-pushpin' />,
-  Export: () => <span data-testid='icon-export' />,
-  MessageOne: () => <span data-testid='icon-message' />,
-}));
+// Lucide icons are stamped with `icon-<ComponentName>` test ids by the global
+// mock in tests/vitest.dom.setup.ts — no per-file mock needed.
 
 const ModalComponent = vi.hoisted(() => {
   const Comp = ({
@@ -309,7 +301,7 @@ describe('CronJobSiderItem', () => {
     render(<CronJobSiderItem job={mockJobNewConversation} pathname='/' onNavigate={mockOnNavigate} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('icon-down')).toBeInTheDocument();
+      expect(screen.getByTestId('icon-ChevronDown')).toBeInTheDocument();
     });
   });
 
@@ -319,7 +311,7 @@ describe('CronJobSiderItem', () => {
     render(<CronJobSiderItem job={mockJobNewConversation} pathname='/' onNavigate={mockOnNavigate} />);
 
     await waitFor(() => {
-      expect(screen.queryByTestId('icon-down')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('icon-ChevronDown')).not.toBeInTheDocument();
     });
   });
 
@@ -328,14 +320,14 @@ describe('CronJobSiderItem', () => {
 
     // Wait for conversations to load and children to be hidden initially
     await waitFor(() => {
-      expect(screen.getByTestId('icon-down')).toBeInTheDocument();
+      expect(screen.getByTestId('icon-ChevronDown')).toBeInTheDocument();
     });
 
     // Initially collapsed, children not visible
     expect(screen.queryByTestId('conversation-row-conv-1')).not.toBeInTheDocument();
 
     // Click arrow to expand
-    const arrow = screen.getByTestId('icon-down');
+    const arrow = screen.getByTestId('icon-ChevronDown');
     fireEvent.click(arrow);
 
     // Children should now be visible
@@ -379,7 +371,7 @@ describe('CronJobSiderItem', () => {
 
     // Expand first
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -417,7 +409,7 @@ describe('CronJobSiderItem', () => {
 
     // Expand to see the existing conversation
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -432,7 +424,7 @@ describe('CronJobSiderItem', () => {
     render(<CronJobSiderItem job={mockJobNewConversation} pathname='/' onNavigate={mockOnNavigate} />);
 
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -449,7 +441,7 @@ describe('CronJobSiderItem', () => {
 
     // Expand first
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -469,7 +461,7 @@ describe('CronJobSiderItem', () => {
 
     // Expand first
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -512,7 +504,7 @@ describe('CronJobSiderItem', () => {
     render(<CronJobSiderItem job={mockJobNewConversation} pathname='/' onNavigate={mockOnNavigate} />);
 
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -525,7 +517,7 @@ describe('CronJobSiderItem', () => {
 
     // Expand first
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -566,7 +558,7 @@ describe('CronJobSiderItem', () => {
 
     // Expand first
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 
@@ -599,7 +591,7 @@ describe('CronJobSiderItem', () => {
 
     // Expand first
     await waitFor(() => {
-      const arrow = screen.getByTestId('icon-down');
+      const arrow = screen.getByTestId('icon-ChevronDown');
       fireEvent.click(arrow);
     });
 

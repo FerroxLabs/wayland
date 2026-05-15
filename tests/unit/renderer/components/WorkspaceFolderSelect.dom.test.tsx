@@ -25,16 +25,10 @@ vi.mock('@arco-design/web-react', () => ({
   ),
 }));
 
-vi.mock('@icon-park/react', () => ({
-  Check: () => <span data-testid='icon-check' />,
-  Close: ({ onClick }: { onClick?: (e: React.MouseEvent) => void }) => (
-    <span data-testid='icon-close' onClick={onClick} />
-  ),
-  Down: () => <span data-testid='icon-down' />,
-  Folder: () => <span data-testid='icon-folder' />,
-  FolderOpen: () => <span data-testid='icon-folder-open' />,
-  FolderPlus: () => <span data-testid='icon-folder-plus' />,
-}));
+// Lucide icons are stamped with `icon-<ComponentName>` by tests/vitest.dom.setup.ts.
+// Mapping after the icon-park → Lucide migration:
+//   Check → icon-Check, Close → icon-X, Down → icon-ChevronDown,
+//   Folder → icon-Folder, FolderOpen → icon-FolderOpen, FolderPlus → icon-FolderPlus.
 
 import WorkspaceFolderSelect from '@/renderer/components/workspace/WorkspaceFolderSelect';
 
@@ -290,7 +284,7 @@ describe('WorkspaceFolderSelect - browse interactions', () => {
       />
     );
     fireEvent.click(screen.getByTestId('ws-trigger'));
-    expect(screen.getByTestId('icon-check')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-Check')).toBeInTheDocument();
   });
 
   it('handles corrupted localStorage data gracefully', () => {
@@ -330,7 +324,7 @@ describe('WorkspaceFolderSelect - clear button', () => {
         chooseDifferentLabel='Browse'
       />
     );
-    fireEvent.click(screen.getByTestId('icon-close'));
+    fireEvent.click(screen.getByTestId('icon-X'));
     expect(onClear).toHaveBeenCalled();
     expect(onChange).not.toHaveBeenCalled();
   });
@@ -346,7 +340,7 @@ describe('WorkspaceFolderSelect - clear button', () => {
         chooseDifferentLabel='Browse'
       />
     );
-    fireEvent.click(screen.getByTestId('icon-close'));
+    fireEvent.click(screen.getByTestId('icon-X'));
     expect(onChange).toHaveBeenCalledWith('');
   });
 });
