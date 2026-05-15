@@ -112,8 +112,16 @@ global.cancelAnimationFrame = (id: number) => {
 Element.prototype.scrollTo = () => {};
 Element.prototype.scrollIntoView = () => {};
 
-// Mock localStorage (not always available in jsdom)
-if (typeof globalThis.localStorage === 'undefined' || typeof globalThis.localStorage?.clear !== 'function') {
+// Mock localStorage (not always available in jsdom).
+// Probe via own-property descriptor on globalThis so we don't invoke Node's
+// experimental built-in `localStorage` getter — that getter logs the
+// `--localstorage-file` warning to stderr the first time it's touched per
+// worker fork, polluting test output and masking real warnings.
+const localStorageDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+const localStorageInstalled =
+  localStorageDescriptor !== undefined &&
+  typeof (localStorageDescriptor.value as { clear?: unknown } | undefined)?.clear === 'function';
+if (!localStorageInstalled) {
   const store = new Map<string, string>();
   const localStorageMock = {
     getItem: (key: string) => store.get(key) ?? null,
