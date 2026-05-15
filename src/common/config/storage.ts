@@ -95,11 +95,11 @@ export interface IConfigStorageRefer {
   'css.themes': ICssTheme[]; // 自定义 CSS 主题列表 / Custom CSS themes list
   'css.activeThemeId': string; // 当前激活的主题 ID / Currently active theme ID
   'gemini.defaultModel': string | { id: string; useModel: string };
-  'aionrs.config'?: {
+  'wcore.config'?: {
     /** Preferred session mode for new conversations / 新会话的默认模式 */
     preferredMode?: string;
   };
-  'aionrs.defaultModel'?: { id: string; useModel: string };
+  'wcore.defaultModel'?: { id: string; useModel: string };
   'tools.imageGenerationModel': TProviderWithModel & {
     /** @deprecated Image generation is now controlled via built-in MCP server toggle */
     switch?: boolean;
@@ -440,11 +440,9 @@ export type TChatConversation =
       >,
       'model'
     >
-  // Dual-write/read variant: 'wcore' is the new conversation type written
-  // post-rebrand; 'aionrs' remains for backward compat with existing rows.
-  // Both share the same shape — they're the same wayland-core engine.
+  // Wayland-Core engine conversation variant.
   | IChatConversation<
-      'aionrs' | 'wcore',
+      'wcore',
       {
         workspace: string;
         customWorkspace?: boolean;

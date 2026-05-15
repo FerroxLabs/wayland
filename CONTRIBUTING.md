@@ -14,7 +14,7 @@ See [docs/contributing/development.md](docs/contributing/development.md) for env
 
 To keep builds and reviews reproducible across contributors, this repo enforces a small set of pins. **Use `mise` to honor them automatically.**
 
-- **Toolchain versions** are pinned in the workspace `mise.toml` (Node, Bun, just). Rust is intentionally unpinned — `app/` has no Rust deps, and `upstream/aionrs/` ships its own `rust-toolchain.toml`.
+- **Toolchain versions** are pinned in the workspace `mise.toml` (Node, Bun, just). Rust is intentionally unpinned — `app/` has no Rust deps, and the upstream Wayland-Core source tree ships its own `rust-toolchain.toml`.
 - **`packageManager`** in `package.json` is tied to the Bun pin in `mise.toml`. If you bump one, bump the other.
 - **`engines.bun` / `engines.node`** in `package.json` are the runtime contract. CI rejects installs that violate them.
 

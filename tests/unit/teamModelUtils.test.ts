@@ -229,9 +229,9 @@ describe('getTeamAvailableModels', () => {
     expect(result.some((m) => m.id === 'auto')).toBe(false);
   });
 
-  // --- Aionrs backend ---
+  // --- Wcore backend ---
 
-  it('UT-10: Aionrs backend takes all enabled providers models', () => {
+  it('UT-10: Wcore backend takes all enabled providers models', () => {
     const providers: IProvider[] = [
       makeProvider({
         id: 'p1',
@@ -244,7 +244,7 @@ describe('getTeamAvailableModels', () => {
         model: ['another-model'],
       }),
     ];
-    const result = getTeamAvailableModels('aionrs', {}, providers);
+    const result = getTeamAvailableModels('wcore', {}, providers);
     expect(result).toEqual([
       { id: 'gpt-4o', label: 'gpt-4o' },
       { id: 'gpt-4o-mini', label: 'gpt-4o-mini' },
@@ -252,7 +252,7 @@ describe('getTeamAvailableModels', () => {
     ]);
   });
 
-  it('UT-11: Aionrs backend with no enabled provider returns empty array', () => {
+  it('UT-11: Wcore backend with no enabled provider returns empty array', () => {
     const providers: IProvider[] = [
       makeProvider({
         platform: 'openai-compatible',
@@ -260,11 +260,11 @@ describe('getTeamAvailableModels', () => {
         model: ['gpt-4o'],
       }),
     ];
-    const result = getTeamAvailableModels('aionrs', {}, providers);
+    const result = getTeamAvailableModels('wcore', {}, providers);
     expect(result).toEqual([]);
   });
 
-  it('UT-12: Aionrs backend excludes models with modelEnabled === false', () => {
+  it('UT-12: Wcore backend excludes models with modelEnabled === false', () => {
     const providers: IProvider[] = [
       makeProvider({
         platform: 'openai-compatible',
@@ -272,11 +272,11 @@ describe('getTeamAvailableModels', () => {
         modelEnabled: { 'gpt-4o': true, 'gpt-4o-mini': false },
       }),
     ];
-    const result = getTeamAvailableModels('aionrs', {}, providers);
+    const result = getTeamAvailableModels('wcore', {}, providers);
     expect(result).toEqual([{ id: 'gpt-4o', label: 'gpt-4o' }]);
   });
 
-  it('UT-30: Aionrs backend deduplicates models across providers', () => {
+  it('UT-30: Wcore backend deduplicates models across providers', () => {
     const providers: IProvider[] = [
       makeProvider({
         id: 'p1',
@@ -289,7 +289,7 @@ describe('getTeamAvailableModels', () => {
         model: ['gpt-4o', 'custom-model'],
       }),
     ];
-    const result = getTeamAvailableModels('aionrs', {}, providers);
+    const result = getTeamAvailableModels('wcore', {}, providers);
     expect(result).toEqual([
       { id: 'gpt-4o', label: 'gpt-4o' },
       { id: 'gpt-4o-mini', label: 'gpt-4o-mini' },
@@ -297,9 +297,9 @@ describe('getTeamAvailableModels', () => {
     ]);
   });
 
-  // --- Aionrs capability filtering ---
+  // --- Wcore capability filtering ---
 
-  it('UT-32: Aionrs backend excludes models without function_calling capability', () => {
+  it('UT-32: Wcore backend excludes models without function_calling capability', () => {
     const providers: IProvider[] = [
       makeProvider({
         id: 'p1',
@@ -308,11 +308,11 @@ describe('getTeamAvailableModels', () => {
         model: ['gpt-4o', 'dall-e-3', 'imagen-3'],
       }),
     ];
-    const result = getTeamAvailableModels('aionrs', {}, providers);
+    const result = getTeamAvailableModels('wcore', {}, providers);
     expect(result).toEqual([{ id: 'gpt-4o', label: 'gpt-4o' }]);
   });
 
-  it('UT-33: Aionrs backend excludes gemini-with-google-auth platform providers', () => {
+  it('UT-33: Wcore backend excludes gemini-with-google-auth platform providers', () => {
     const providers: IProvider[] = [
       makeProvider({
         id: 'google-auth',
@@ -325,7 +325,7 @@ describe('getTeamAvailableModels', () => {
         model: ['gpt-4o'],
       }),
     ];
-    const result = getTeamAvailableModels('aionrs', {}, providers);
+    const result = getTeamAvailableModels('wcore', {}, providers);
     // google-auth provider excluded entirely
     expect(result.some((m) => m.id === 'auto')).toBe(false);
     expect(result).toEqual([{ id: 'gpt-4o', label: 'gpt-4o' }]);
@@ -366,8 +366,8 @@ describe('getTeamAvailableModels', () => {
     expect(result).toEqual([]);
   });
 
-  it('UT-15: providers is undefined — Aionrs returns empty array', () => {
-    const result = getTeamAvailableModels('aionrs', {}, undefined);
+  it('UT-15: providers is undefined — Wcore returns empty array', () => {
+    const result = getTeamAvailableModels('wcore', {}, undefined);
     expect(result).toEqual([]);
   });
 

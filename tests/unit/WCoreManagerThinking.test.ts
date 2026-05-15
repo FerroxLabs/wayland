@@ -132,9 +132,9 @@ function createManager(): WCoreManager {
   return new WCoreManager(data as any, model);
 }
 
-/** Simulate emitting an aionrs event */
+/** Simulate emitting a wcore event */
 function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
-  (manager as any).emit('aionrs.message', event);
+  (manager as any).emit('wcore.message', event);
 }
 
 /** Find all ipcBridge emissions of a specific type */
@@ -273,7 +273,7 @@ describe('GAP-1: WCoreManager Thinking Message Display & Persistence', () => {
       expect(mockAddOrUpdateMessage).not.toHaveBeenCalledWith(
         'conv-think-1',
         expect.objectContaining({ type: 'thinking' }),
-        'aionrs'
+        'wcore'
       );
 
       vi.advanceTimersByTime(120);
@@ -288,7 +288,7 @@ describe('GAP-1: WCoreManager Thinking Message Display & Persistence', () => {
             status: 'thinking',
           }),
         }),
-        'aionrs'
+        'wcore'
       );
     });
 
@@ -307,7 +307,7 @@ describe('GAP-1: WCoreManager Thinking Message Display & Persistence', () => {
             status: 'done',
           }),
         }),
-        'aionrs'
+        'wcore'
       );
     });
 

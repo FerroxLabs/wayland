@@ -1,5 +1,5 @@
 /**
- * Wayland Core (wcore / aionrs engine) — agent E2E.
+ * Wayland Core (wcore engine) — agent E2E.
  *
  * Wayland Core is the always-present in-tree engine. Detection runs even
  * without the binary on disk because AgentRegistry hardcodes a wcore entry
@@ -9,7 +9,7 @@
  * Spawn-boundary strategy: the Electron app under test owns the spawn; we
  * can't reroute it from a Playwright test. So:
  *   - detection: assert wcore appears in the agent list (always).
- *   - send/abort/restart: gated on a `wayland-core` / `aionrs` binary being
+ *   - send/abort/restart: gated on a `wayland-core` binary being
  *     resolvable. When unresolvable, skip cleanly with a clear message.
  *     `WCORE_SKIP=1` (set in CI) short-circuits these to skipped.
  *
@@ -39,7 +39,7 @@ const WCORE_RUNTIME_AVAILABLE = !process.env.WCORE_SKIP && isCliOnPath('wayland-
 test.describe('Agent: Wayland Core (wcore)', () => {
   test('detection: appears in AgentRegistry list', async ({ page }) => {
     const agents = await listAgents(page);
-    const wcore = agents.find((a) => a.backend === 'aionrs' || a.kind === 'wcore' || a.kind === 'aionrs');
+    const wcore = agents.find((a) => a.backend === 'wcore' || a.kind === 'wcore');
     expect(wcore, `agents=${agents.map((a) => `${a.backend}/${a.kind}`).join(',')}`).toBeDefined();
     expect(wcore?.name?.toLowerCase()).toContain('wayland');
   });
@@ -55,9 +55,8 @@ test.describe('Agent: Wayland Core (wcore)', () => {
       const b = await pills.nth(i).getAttribute('data-agent-backend');
       if (b) backends.push(b);
     }
-    // wcore registers under the 'aionrs' backend id (locked decision; see
-    // AgentRegistry.createWCoreAgent comment).
-    expect(backends).toContain('aionrs');
+    // wcore registers under the 'wcore' backend id.
+    expect(backends).toContain('wcore');
   });
 
   test('start: wcore binary spawn (requires wayland-core on PATH)', async ({ page }) => {
@@ -65,7 +64,7 @@ test.describe('Agent: Wayland Core (wcore)', () => {
     // Just exercise the registry call path — a real prompt would require a
     // conversation, which is covered by conversation-full-cycle.e2e.ts.
     const agents = await listAgents(page);
-    expect(agents.some((a) => a.backend === 'aionrs')).toBe(true);
+    expect(agents.some((a) => a.backend === 'wcore')).toBe(true);
   });
 
   test('send/receive: round trip (requires wayland-core on PATH)', async ({ page: _page }) => {

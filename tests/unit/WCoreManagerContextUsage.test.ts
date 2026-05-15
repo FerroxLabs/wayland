@@ -24,7 +24,7 @@ const {
   emitConfirmationRemove: vi.fn(),
   mockDb: {
     getConversationMessages: vi.fn(() => ({ data: [] })),
-    getConversation: vi.fn(() => ({ success: true, data: { type: 'aionrs', extra: {} } })),
+    getConversation: vi.fn(() => ({ success: true, data: { type: 'wcore', extra: {} } })),
     updateConversation: vi.fn(),
     createConversation: vi.fn(() => ({ success: true })),
     insertMessage: vi.fn(),
@@ -167,7 +167,7 @@ function createManager(conversationId = CONV_ID): WCoreManager {
 }
 
 function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
-  (manager as any).emit('aionrs.message', event);
+  (manager as any).emit('wcore.message', event);
 }
 
 // ── Tests ──────────────────────────────────────────────────────────
@@ -180,7 +180,7 @@ describe('GAP-2: WCoreManager Context Usage Persistence', () => {
     vi.useFakeTimers();
     mockDb.getConversation.mockReturnValue({
       success: true,
-      data: { type: 'aionrs', extra: { workspace: '/test' } },
+      data: { type: 'wcore', extra: { workspace: '/test' } },
     });
     manager = createManager();
     vi.spyOn(manager as any, 'postMessagePromise').mockResolvedValue(undefined);

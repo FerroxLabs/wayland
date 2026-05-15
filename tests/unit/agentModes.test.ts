@@ -68,17 +68,17 @@ describe('supportsModeSwitch', () => {
 
 describe('mergeWithCapabilities', () => {
   it('should return static modes when capabilityModes is null', () => {
-    const result = mergeWithCapabilities('aionrs', null);
-    expect(result).toEqual(getAgentModes('aionrs'));
+    const result = mergeWithCapabilities('wcore', null);
+    expect(result).toEqual(getAgentModes('wcore'));
   });
 
   it('should return static modes when capabilityModes is empty', () => {
-    const result = mergeWithCapabilities('aionrs', []);
-    expect(result).toEqual(getAgentModes('aionrs'));
+    const result = mergeWithCapabilities('wcore', []);
+    expect(result).toEqual(getAgentModes('wcore'));
   });
 
   it('should use static labels for known modes', () => {
-    const result = mergeWithCapabilities('aionrs', ['default', 'auto_edit', 'yolo']);
+    const result = mergeWithCapabilities('wcore', ['default', 'auto_edit', 'yolo']);
     expect(result).toEqual([
       { value: 'default', label: 'Default' },
       { value: 'auto_edit', label: 'Auto-Accept Edits' },
@@ -87,7 +87,7 @@ describe('mergeWithCapabilities', () => {
   });
 
   it('should include unknown modes from capabilities with title-cased label', () => {
-    const result = mergeWithCapabilities('aionrs', ['default', 'auto_edit', 'plan']);
+    const result = mergeWithCapabilities('wcore', ['default', 'auto_edit', 'plan']);
     expect(result).toEqual([
       { value: 'default', label: 'Default' },
       { value: 'auto_edit', label: 'Auto-Accept Edits' },
@@ -96,7 +96,7 @@ describe('mergeWithCapabilities', () => {
   });
 
   it('should exclude static modes not in capabilities', () => {
-    const result = mergeWithCapabilities('aionrs', ['default', 'yolo']);
+    const result = mergeWithCapabilities('wcore', ['default', 'yolo']);
     expect(result).toEqual([
       { value: 'default', label: 'Default' },
       { value: 'yolo', label: 'YOLO' },

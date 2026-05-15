@@ -15,7 +15,7 @@ const FULL_AUTO_MODE: Record<string, string> = {
   qwen: 'yolo',
   opencode: 'build',
   gemini: 'yolo',
-  aionrs: 'yolo',
+  wcore: 'yolo',
   codex: CODEX_MODE_FULL_AUTO,
   cursor: 'agent',
   snow: 'yolo',

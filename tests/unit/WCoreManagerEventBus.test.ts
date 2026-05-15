@@ -153,7 +153,7 @@ function createManager(conversationId = CONV_ID): WCoreManager {
 }
 
 function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
-  (manager as any).emit('aionrs.message', event);
+  (manager as any).emit('wcore.message', event);
 }
 
 function findIpcEmissions(type: string) {

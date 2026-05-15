@@ -2,7 +2,7 @@
  * GAP-10: WCoreManager Performance Monitoring — Black-box tests
  *
  * Tests based on GAP-10-plan.md acceptance criteria.
- * Validates that WCoreManager emits [AIONRS-PERF] logs when
+ * Validates that WCoreManager emits [WCORE-PERF] logs when
  * transform/DB/pipeline stages exceed their thresholds.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -192,7 +192,7 @@ function createManager(conversationId = CONV_ID): WCoreManager {
 }
 
 function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
-  (manager as any).emit('aionrs.message', event);
+  (manager as any).emit('wcore.message', event);
 }
 
 function perfLogs(): string[] {
@@ -228,7 +228,7 @@ describe('GAP-10: WCoreManager Performance Monitoring', () => {
 
   // ── AC-1: Slow transform logs ─────────────────────────────────────
 
-  describe('AC-1: transform > 5ms triggers [AIONRS-PERF] log', () => {
+  describe('AC-1: transform > 5ms triggers [WCORE-PERF] log', () => {
     it('logs transform duration when transformMessage is slow', () => {
       mockTransformMessage.mockImplementation(() => {
         now += 6; // simulate 6ms transform
@@ -245,7 +245,7 @@ describe('GAP-10: WCoreManager Performance Monitoring', () => {
 
   // ── AC-2: Slow DB logs ────────────────────────────────────────────
 
-  describe('AC-2: DB write > 5ms triggers [AIONRS-PERF] log', () => {
+  describe('AC-2: DB write > 5ms triggers [WCORE-PERF] log', () => {
     it('logs db duration when addOrUpdateMessage is slow', () => {
       mockTransformMessage.mockReturnValue({
         type: 'info',
@@ -288,7 +288,7 @@ describe('GAP-10: WCoreManager Performance Monitoring', () => {
 
   // ── AC-4: Slow pipeline logs ───────────────────────────────────────
 
-  describe('AC-4: pipeline > 10ms triggers [AIONRS-PERF] pipeline log', () => {
+  describe('AC-4: pipeline > 10ms triggers [WCORE-PERF] pipeline log', () => {
     it('logs pipeline duration when total exceeds 10ms', () => {
       mockTransformMessage.mockImplementation(() => {
         now += 6;

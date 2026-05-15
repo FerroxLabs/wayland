@@ -170,7 +170,7 @@ function createManager(conversationId = CONV_ID): WCoreManager {
 }
 
 function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
-  (manager as any).emit('aionrs.message', event);
+  (manager as any).emit('wcore.message', event);
 }
 
 // ── Tests ──────────────────────────────────────────────────────────
@@ -225,7 +225,7 @@ describe('GAP-9: WCoreManager Turn Completion Service', () => {
         expect.objectContaining({
           status: 'finished',
           workspace: '/test/workspace',
-          backend: 'aionrs',
+          backend: 'wcore',
           pendingConfirmations: 0,
           modelId: 'test-model',
         })
@@ -258,7 +258,7 @@ describe('GAP-9: WCoreManager Turn Completion Service', () => {
         expect.objectContaining({
           status: 'finished',
           workspace: '/test/workspace',
-          backend: 'aionrs',
+          backend: 'wcore',
         })
       );
     });

@@ -214,7 +214,7 @@ describe('useConversationAgents', () => {
       setupMocks([
         makePresetConfig({ id: 'c1', name: 'Codex', presetAgentType: 'codex' }),
         makePresetConfig({ id: 'c2', name: 'CodeBuddy', presetAgentType: 'codebuddy' }),
-        makePresetConfig({ id: 'c3', name: 'Aionrs', presetAgentType: 'aionrs' }),
+        makePresetConfig({ id: 'c3', name: 'Wcore', presetAgentType: 'wcore' }),
       ]);
 
       const { result } = renderHook(() => useConversationAgents());
@@ -225,7 +225,7 @@ describe('useConversationAgents', () => {
 
       expect(result.current.presetAssistants[0].backend).toBe('codex');
       expect(result.current.presetAssistants[1].backend).toBe('codebuddy');
-      expect(result.current.presetAssistants[2].backend).toBe('aionrs');
+      expect(result.current.presetAssistants[2].backend).toBe('wcore');
     });
   });
 

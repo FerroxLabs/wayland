@@ -88,8 +88,8 @@ export function getTeamAvailableModels(
     return merged;
   }
 
-  // Aionrs: all enabled providers' enabled models (deduplicated), excluding google-auth platform
-  if (backend === 'aionrs') {
+  // Wcore: all enabled providers' enabled models (deduplicated), excluding google-auth platform
+  if (backend === 'wcore') {
     const seen = new Set<string>();
     const result: TeamAvailableModel[] = [];
     const enabledProviders = (providers || []).filter(

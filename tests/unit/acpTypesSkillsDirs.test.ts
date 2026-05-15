@@ -4,7 +4,7 @@ import { ACP_BACKENDS_ALL, hasNativeSkillSupport, getSkillsDirsForBackend } from
 describe('acpTypes — skillsDirs integration', () => {
   describe('ACP_BACKENDS_ALL skillsDirs consistency', () => {
     it('should have skillsDirs for all backends that support native skill discovery', () => {
-      // Note: aionrs was removed from ACP_BACKENDS_ALL (non-ACP protocol)
+      // Note: wcore was removed from ACP_BACKENDS_ALL (non-ACP protocol)
       const expectedSkillsDirs: Record<string, string[]> = {
         claude: ['.claude/skills'],
         qwen: ['.qwen/skills'],
@@ -55,7 +55,7 @@ describe('acpTypes — skillsDirs integration', () => {
         'cursor',
         'opencode',
         'gemini',
-        'aionrs',
+        'wcore',
       ];
       for (const backend of supported) {
         expect(hasNativeSkillSupport(backend), `${backend}`).toBe(true);
@@ -86,9 +86,9 @@ describe('acpTypes — skillsDirs integration', () => {
     });
 
     it('should return true for non-ACP agents with native skill dirs', () => {
-      // gemini and aionrs are not ACP backends but support native skill discovery
+      // gemini and wcore are not ACP backends but support native skill discovery
       expect(hasNativeSkillSupport('gemini')).toBe(true);
-      expect(hasNativeSkillSupport('aionrs')).toBe(true);
+      expect(hasNativeSkillSupport('wcore')).toBe(true);
     });
   });
 
@@ -97,11 +97,10 @@ describe('acpTypes — skillsDirs integration', () => {
       expect(getSkillsDirsForBackend('claude')).toEqual(['.claude/skills']);
       expect(getSkillsDirsForBackend('droid')).toEqual(['.factory/skills']);
       expect(getSkillsDirsForBackend('gemini')).toEqual(['.gemini/skills']); // non-ACP but has skill dirs
-      // Both 'wcore' (post-rebrand) and 'aionrs' (legacy) resolve to the
-      // engine's actual project-level skill discovery path. The engine looks
-      // in `.wayland-core/skills/` (see wcore-skills/src/paths.rs).
+      // 'wcore' resolves to the engine's actual project-level skill discovery
+      // path. The engine looks in `.wayland-core/skills/` (see
+      // wcore-skills/src/paths.rs).
       expect(getSkillsDirsForBackend('wcore')).toEqual(['.wayland-core/skills']);
-      expect(getSkillsDirsForBackend('aionrs')).toEqual(['.wayland-core/skills']);
     });
 
     it('should return undefined for unsupported backends', () => {

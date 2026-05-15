@@ -479,11 +479,11 @@ describe('platform send box queue integration', () => {
       />,
     ],
     [
-      'aionrs',
+      'wcore',
       <WCoreSendBox
-        conversation_id='conv-aionrs'
+        conversation_id='conv-wcore'
         modelSelection={{
-          currentModel: { useModel: 'aionrs-1' },
+          currentModel: { useModel: 'wcore-1' },
           getDisplayModelName: (modelId: string) => modelId,
         }}
       />,
@@ -547,18 +547,18 @@ describe('platform send box queue integration', () => {
       },
     ],
     [
-      'aionrs',
+      'wcore',
       <WCoreSendBox
-        conversation_id='conv-aionrs'
+        conversation_id='conv-wcore'
         modelSelection={{
-          currentModel: { useModel: 'aionrs-1' },
+          currentModel: { useModel: 'wcore-1' },
           getDisplayModelName: (modelId: string) => modelId,
         }}
       />,
       mockConversationSendInvoke,
       (payload: { input: string; conversation_id: string }) => {
         expect(payload.input).toContain('queued command');
-        expect(payload.conversation_id).toBe('conv-aionrs');
+        expect(payload.conversation_id).toBe('conv-wcore');
       },
     ],
     [
@@ -661,11 +661,11 @@ describe('platform send box queue integration', () => {
       />,
     ],
     [
-      'aionrs',
+      'wcore',
       <WCoreSendBox
-        conversation_id='conv-aionrs'
+        conversation_id='conv-wcore'
         modelSelection={{
-          currentModel: { useModel: 'aionrs-1' },
+          currentModel: { useModel: 'wcore-1' },
           getDisplayModelName: (modelId: string) => modelId,
         }}
       />,

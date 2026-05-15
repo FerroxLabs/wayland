@@ -78,9 +78,9 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      // Aionrs always first, Gemini always second, then ACP agents
+      // Wcore always first, Gemini always second, then ACP agents
       expect(agents).toHaveLength(4);
-      expect(agents[0].backend).toBe('aionrs');
+      expect(agents[0].backend).toBe('wcore');
       expect(agents[1].backend).toBe('gemini');
       expect(agents[2]).toMatchObject({ backend: 'claude', cliPath: 'claude' });
       expect(agents[3]).toMatchObject({ backend: 'qwen', cliPath: 'qwen' });
@@ -95,18 +95,18 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(3); // gemini + aionrs + claude
+      expect(agents).toHaveLength(3); // gemini + wcore + claude
       expect(agents.find((a) => a.backend === 'qwen')).toBeUndefined();
       expect(agents.find((a) => a.backend === 'auggie')).toBeUndefined();
     });
 
-    it('should always include Aionrs first and Gemini second', async () => {
+    it('should always include Wcore first and Gemini second', async () => {
       const registry = await createFreshRegistry();
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(2); // aionrs + gemini
-      expect(agents[0]).toMatchObject({ backend: 'aionrs', name: 'Wayland Core' });
+      expect(agents).toHaveLength(2); // wcore + gemini
+      expect(agents[0]).toMatchObject({ backend: 'wcore', name: 'Wayland Core' });
       expect(agents[1]).toMatchObject({ backend: 'gemini', name: 'Gemini CLI' });
     });
 
@@ -138,7 +138,7 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(2); // gemini + aionrs
+      expect(agents).toHaveLength(2); // gemini + wcore
     });
 
     it('should not run twice (isDetected guard)', async () => {
@@ -206,13 +206,13 @@ describe('AgentRegistry', () => {
       expect(agent!.isExtension).toBe(true);
     });
 
-    it('should always include aionrs and gemini', async () => {
+    it('should always include wcore and gemini', async () => {
       const registry = await createFreshRegistry();
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
       expect(agents).toHaveLength(2);
-      expect(agents[0].backend).toBe('aionrs');
+      expect(agents[0].backend).toBe('wcore');
       expect(agents[1].backend).toBe('gemini');
     });
   });
@@ -299,7 +299,7 @@ describe('AgentRegistry', () => {
   });
 
   describe('refreshBuiltinAgents', () => {
-    it('should keep Aionrs and Gemini ahead of builtin agents after refresh', async () => {
+    it('should keep Wcore and Gemini ahead of builtin agents after refresh', async () => {
       mockDetectBuiltinAgents.mockResolvedValue([
         makeAcpAgent({ id: 'claude', name: 'Claude Code', backend: 'claude', cliPath: 'claude' }),
         makeAcpAgent({ id: 'qwen', name: 'Qwen Code', backend: 'qwen', cliPath: 'qwen' }),
@@ -311,7 +311,7 @@ describe('AgentRegistry', () => {
       await registry.refreshBuiltinAgents();
       const agents = registry.getDetectedAgents();
 
-      expect(agents[0].backend).toBe('aionrs');
+      expect(agents[0].backend).toBe('wcore');
       expect(agents[1].backend).toBe('gemini');
       expect(agents.slice(2).map((agent) => agent.backend)).toEqual(['claude', 'qwen']);
     });

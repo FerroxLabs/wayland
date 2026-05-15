@@ -66,13 +66,13 @@ describe('savePreferredMode', () => {
     });
   });
 
-  it('saves preferred mode for aionrs under aionrs.config', async () => {
+  it('saves preferred mode for wcore under wcore.config', async () => {
     configStorageMocks.get.mockResolvedValue({});
 
-    await savePreferredMode('aionrs', 'yolo');
+    await savePreferredMode('wcore', 'yolo');
 
-    expect(configStorageMocks.get).toHaveBeenCalledWith('aionrs.config');
-    expect(configStorageMocks.set).toHaveBeenCalledWith('aionrs.config', {
+    expect(configStorageMocks.get).toHaveBeenCalledWith('wcore.config');
+    expect(configStorageMocks.set).toHaveBeenCalledWith('wcore.config', {
       preferredMode: 'yolo',
     });
   });

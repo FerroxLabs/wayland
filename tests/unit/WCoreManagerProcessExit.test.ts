@@ -149,7 +149,7 @@ function createManager(conversationId = 'conv-pe-1'): WCoreManager {
 }
 
 function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
-  (manager as Record<string, unknown> & { emit: (name: string, data: unknown) => void }).emit('aionrs.message', event);
+  (manager as Record<string, unknown> & { emit: (name: string, data: unknown) => void }).emit('wcore.message', event);
 }
 
 function findEmissions(type: string) {

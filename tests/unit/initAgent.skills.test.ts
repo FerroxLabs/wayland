@@ -89,7 +89,7 @@ describe('initAgent — skill support', () => {
 
   describe('hasNativeSkillSupport', () => {
     it('should return true for all backends with verified native skill dirs', () => {
-      // Includes both ACP backends and non-ACP agents (gemini, aionrs) with native skill support
+      // Includes both ACP backends and non-ACP agents (gemini, wcore) with native skill support
       const supported = [
         'claude',
         'codebuddy',
@@ -101,7 +101,7 @@ describe('initAgent — skill support', () => {
         'vibe',
         'cursor',
         'gemini',
-        'aionrs',
+        'wcore',
         'opencode',
       ];
       for (const backend of supported) {
@@ -195,18 +195,17 @@ describe('initAgent — skill support', () => {
       expect(symlinkCalls[0].target).toBe('/tmp/workspace/.codebuddy/skills/morph-ppt');
     });
 
-    it('should create symlink in .wayland-core/skills for wcore/aionrs backend', async () => {
+    it('should create symlink in .wayland-core/skills for wcore backend', async () => {
       statResults['/mock/user/skills/officecli-docx'] = true;
 
       await setupAssistantWorkspace('/tmp/workspace', {
-        agentType: 'aionrs',
+        agentType: 'wcore',
         enabledSkills: ['officecli-docx'],
       });
 
-      // wcore/aionrs is a non-ACP agent but still supports native skill discovery.
+      // wcore is a non-ACP agent but still supports native skill discovery.
       // The engine looks in `.wayland-core/skills/` (wcore-skills/src/paths.rs);
-      // both 'wcore' (post-rebrand) and 'aionrs' (legacy) agentType keys map to
-      // that path in NON_ACP_SKILLS_DIRS.
+      // the 'wcore' agentType key maps to that path in NON_ACP_SKILLS_DIRS.
       expect(mkdirCalls).toContain('/tmp/workspace/.wayland-core/skills');
       expect(symlinkCalls).toHaveLength(1);
       expect(symlinkCalls[0].target).toBe('/tmp/workspace/.wayland-core/skills/officecli-docx');

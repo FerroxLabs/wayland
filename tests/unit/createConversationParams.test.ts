@@ -149,7 +149,7 @@ describe('createConversationParams', () => {
     expect(params.model.platform).toBe('gemini-with-google-auth');
   });
 
-  it('resolves aionrs model from enabled provider', async () => {
+  it('resolves wcore model from enabled provider', async () => {
     configGet.mockResolvedValue([
       {
         id: 'provider-1',
@@ -164,24 +164,24 @@ describe('createConversationParams', () => {
 
     const params = await buildCliAgentParams(
       {
-        backend: 'aionrs',
+        backend: 'wcore',
         name: 'Wayland Core Agent',
       },
       '/tmp/workspace'
     );
 
-    expect(params.type).toBe('aionrs');
+    expect(params.type).toBe('wcore');
     expect(params.model.id).toBe('provider-1');
     expect(params.model.useModel).toBe('gpt-4.1');
   });
 
-  it('throws error for aionrs if no provider configured', async () => {
+  it('throws error for wcore if no provider configured', async () => {
     configGet.mockResolvedValue([]);
 
     await expect(
       buildCliAgentParams(
         {
-          backend: 'aionrs',
+          backend: 'wcore',
           name: 'Wayland Core Agent',
         },
         '/tmp/workspace'
@@ -298,9 +298,9 @@ describe('createConversationParams', () => {
     expect(params.extra.currentModelId).toBe('gpt-5');
   });
 
-  it('throws error for aionrs if no enabled provider', async () => {
+  it('throws error for wcore if no enabled provider', async () => {
     configGet.mockResolvedValue([{ id: 'p1', enabled: false, model: ['m1'] }]);
-    await expect(buildCliAgentParams({ backend: 'aionrs', name: 'Agent' }, '/tmp')).rejects.toThrow(
+    await expect(buildCliAgentParams({ backend: 'wcore', name: 'Agent' }, '/tmp')).rejects.toThrow(
       'No enabled model provider for Wayland Core'
     );
   });
@@ -326,7 +326,7 @@ describe('createConversationParams', () => {
     }
   });
 
-  it('falls back to first model if none enabled for aionrs', async () => {
+  it('falls back to first model if none enabled for wcore', async () => {
     configGet.mockResolvedValue([
       {
         id: 'p1',
@@ -340,7 +340,7 @@ describe('createConversationParams', () => {
       },
     ]);
 
-    const params = await buildCliAgentParams({ backend: 'aionrs', name: 'A' }, '/tmp');
+    const params = await buildCliAgentParams({ backend: 'wcore', name: 'A' }, '/tmp');
     expect(params.model.useModel).toBe('m1');
   });
 

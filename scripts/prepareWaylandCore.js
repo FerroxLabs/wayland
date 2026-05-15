@@ -2,7 +2,7 @@
  * Prepare wayland-core binary for Electron packaging.
  *
  * Resolution order:
- *  1. GitHub release download (requires WCORE_VERSION (or legacy AIONRS_VERSION) or defaults to "latest")
+ *  1. GitHub release download (requires WCORE_VERSION or defaults to "latest")
  *
  * Output: resources/bundled-wayland-core/{platform}-{arch}/wayland-core[.exe]
  *
@@ -52,7 +52,7 @@ function getBinaryName(platform) {
 }
 
 function getVersion() {
-  return (process.env.WCORE_VERSION || process.env.AIONRS_VERSION || 'latest').trim();
+  return (process.env.WCORE_VERSION || 'latest').trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -187,15 +187,15 @@ function downloadAndExtract(platform, arch, tag) {
 function prepareWaylandCore() {
   const projectRoot = path.resolve(__dirname, '..');
   const platform = process.platform;
-  // Support cross-compilation: WCORE_ARCH > legacy AIONRS_ARCH > npm_config_target_arch > process.arch
-  const arch = process.env.WCORE_ARCH || process.env.AIONRS_ARCH || process.env.npm_config_target_arch || process.arch;
+  // Support cross-compilation: WCORE_ARCH > npm_config_target_arch > process.arch
+  const arch = process.env.WCORE_ARCH || process.env.npm_config_target_arch || process.arch;
   const runtimeKey = `${platform}-${arch}`;
   const version = getVersion();
 
   // Honor an explicit skip — same pattern as bundled-bun. Useful for CI
   // matrices and forks where the TradeCanyon/wayland-core release stream
   // does not yet exist; the packaged app falls back to runtime download.
-  if (process.env.WCORE_SKIP === '1' || process.env.WAYLAND_CORE_SKIP === '1' || process.env.AIONRS_SKIP === '1') {
+  if (process.env.WCORE_SKIP === '1' || process.env.WAYLAND_CORE_SKIP === '1') {
     const targetDir = path.join(projectRoot, 'resources', 'bundled-wayland-core', runtimeKey);
     ensureDirectory(targetDir);
     writeJson(path.join(targetDir, 'manifest.json'), {

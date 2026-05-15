@@ -143,7 +143,7 @@ The three assistant types map to file workflows, and the final outputs are direc
 
 If you already use Claude Code, Codex, Hermes Agent, or OpenClaw, Wayland auto-detects them and lets you Cowork with all of them — alongside the built-in agent.
 
-**Supported Agents:** Built-in Agent (zero setup) • Claude Code • Codex • Qwen Code • Goose AI • OpenClaw • Augment Code • CodeBuddy • Kimi CLI • OpenCode • Factory Droid • GitHub Copilot • Qoder CLI • Mistral Vibe • Nanobot • Aion CLI (aionrs, the Rust-based backend service bundled with Wayland) • Snow CLI • Kiro • Hermes Agent • Cursor Agent and more
+**Supported Agents:** Built-in Agent (zero setup) • Claude Code • Codex • Qwen Code • Goose AI • OpenClaw • Augment Code • CodeBuddy • Kimi CLI • OpenCode • Factory Droid • GitHub Copilot • Qoder CLI • Mistral Vibe • Nanobot • Wayland-Core (Rust engine, bundled zero-config agent) • Snow CLI • Kiro • Hermes Agent • Cursor Agent and more
 
 <p align="center">
   <img src="./resources/multi-agent支持openclaw.gif" alt="Multi-Agent Cowork" width="800">
@@ -163,7 +163,7 @@ Run multiple AI agents as an organized team: a **Leader** agent receives your in
   <img src="./resources/Wayland_team.gif" alt="Team Mode overview" width="800">
 </p>
 
-- **Parallel multi-agent execution** — Leader breaks tasks into subtasks and delegates to Teammate agents running in parallel; each Teammate uses its own model via ACP (Agent Communication Protocol, Wayland's multi-agent coordination layer), Gemini, or Aionrs
+- **Parallel multi-agent execution** — Leader breaks tasks into subtasks and delegates to Teammate agents running in parallel; each Teammate uses its own model via ACP (Agent Communication Protocol, Wayland's multi-agent coordination layer), Gemini, or Wayland-Core
 - **Leader orchestration** — Leader assigns, tracks, and aggregates results; supported backends include Claude Code, Codex, Hermes Agent, Gemini, Snow CLI, and Aion CLI
 - **Team-isolated workspace** — all agents share the same folder; each has its own permission dialog with sidebar badge for pending approvals
 
@@ -173,7 +173,7 @@ Run multiple AI agents as an organized team: a **Leader** agent receives your in
 <br>
 
 - **Shared Workspace** — all agents read/write the same folder; the file panel stays visible throughout
-- **Supported backends** — Claude Code, Codex, Gemini, Snow CLI, Aion CLI (aionrs); other ACP backends with `mcpCapabilities.stdio` are auto-supported
+- **Supported backends** — Claude Code, Codex, Gemini, Snow CLI, Wayland-Core; other ACP backends with `mcpCapabilities.stdio` are auto-supported
 - **Dynamic scaling** — add or remove Teammates while the team is running; silent agents auto-escalate to failed with one-click removal
 - **Granular permissions** — each agent has its own permission confirmation dialog; sidebar badge shows pending approvals
 - **File sharing** — Leader can pass file attachments to Teammates
@@ -191,7 +191,7 @@ Other AI apps give you a chatbox with your API key. **Wayland gives you a full C
 | Gemini API Key (or Google login — free) | Gemini-powered Cowork Agent                 |
 | OpenAI API Key                          | GPT-powered Cowork Agent                    |
 | Anthropic API Key                       | Claude-powered Cowork Agent                 |
-| AWS Bedrock credentials                 | Bedrock-powered Agent via Aion CLI (aionrs) |
+| AWS Bedrock credentials                 | Bedrock-powered Agent via Wayland-Core      |
 | Ollama / LM Studio (local)              | Local model Cowork Agent                    |
 | NewAPI Gateway                          | Unified access to 20+ models                |
 

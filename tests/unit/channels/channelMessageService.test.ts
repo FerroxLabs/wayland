@@ -72,7 +72,7 @@ describe('ChannelMessageService', () => {
     await expect(streamPromise).resolves.toContain('channel_msg_');
   });
 
-  it('sends content payloads for aionrs tasks', async () => {
+  it('sends content payloads for wcore tasks', async () => {
     const service = new ChannelMessageService();
 
     vi.spyOn(databaseModule, 'getDatabase').mockResolvedValue({
@@ -81,22 +81,22 @@ describe('ChannelMessageService', () => {
 
     const sendTaskMessage = vi.fn().mockResolvedValue(undefined);
     vi.spyOn(workerTaskManager, 'getOrBuildTask').mockResolvedValue({
-      type: 'aionrs',
+      type: 'wcore',
       sendMessage: sendTaskMessage,
     } as any);
 
-    const streamPromise = service.sendMessage('session-1', 'conv-aionrs', 'hello aionrs', vi.fn());
+    const streamPromise = service.sendMessage('session-1', 'conv-wcore', 'hello wcore', vi.fn());
     await flushMicrotasks();
 
     expect(sendTaskMessage).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: 'hello aionrs',
+        content: 'hello wcore',
         msg_id: expect.stringContaining('channel_msg_'),
       })
     );
-    expect(sendTaskMessage).not.toHaveBeenCalledWith(expect.objectContaining({ input: 'hello aionrs' }));
+    expect(sendTaskMessage).not.toHaveBeenCalledWith(expect.objectContaining({ input: 'hello wcore' }));
 
-    service.clearStreamByConversationId('conv-aionrs');
+    service.clearStreamByConversationId('conv-wcore');
     await expect(streamPromise).resolves.toContain('channel_msg_');
   });
 

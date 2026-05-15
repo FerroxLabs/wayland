@@ -149,11 +149,11 @@ function createManager(): WCoreManager {
 
 /** Simulate a complete turn: start → content deltas → finish */
 function simulateTurn(manager: WCoreManager, textChunks: string[], msgId = 'msg-1') {
-  (manager as any).emit('aionrs.message', { type: 'start', data: '', msg_id: msgId });
+  (manager as any).emit('wcore.message', { type: 'start', data: '', msg_id: msgId });
   for (const chunk of textChunks) {
-    (manager as any).emit('aionrs.message', { type: 'content', data: chunk, msg_id: msgId });
+    (manager as any).emit('wcore.message', { type: 'content', data: chunk, msg_id: msgId });
   }
-  (manager as any).emit('aionrs.message', { type: 'finish', data: '', msg_id: msgId });
+  (manager as any).emit('wcore.message', { type: 'finish', data: '', msg_id: msgId });
 }
 
 // ── Tests ───────────────────────────────────────────────────────────
@@ -207,7 +207,7 @@ message: Generate daily report
           expect.objectContaining({
             name: 'Daily Report',
             conversationId: 'conv-test-1',
-            agentType: 'aionrs',
+            agentType: 'wcore',
           })
         );
       });
@@ -234,7 +234,7 @@ message: Generate daily report
 
   // ── AC-4: Feedback loop ───────────────────────────────────────────
 
-  describe('AC-4: sends feedback to aionrs agent', () => {
+  describe('AC-4: sends feedback to wcore agent', () => {
     it('sends [System Response] feedback via sendMessage after cron execution', async () => {
       const sendSpy = vi.spyOn(manager, 'sendMessage').mockResolvedValue(undefined);
       simulateTurn(manager, ['[CRON_LIST]']);
@@ -369,16 +369,16 @@ message: Generate morning report
 
     it('handles empty content on finish (no start event)', async () => {
       // Directly emit finish without any content — should not crash
-      (manager as any).emit('aionrs.message', { type: 'finish', data: '', msg_id: 'msg-empty' });
+      (manager as any).emit('wcore.message', { type: 'finish', data: '', msg_id: 'msg-empty' });
       await new Promise((r) => setTimeout(r, 50));
       expect(mockCronService.listJobsByConversation).not.toHaveBeenCalled();
     });
 
     it('handles non-string content data gracefully', async () => {
-      (manager as any).emit('aionrs.message', { type: 'start', data: '', msg_id: 'msg-x' });
+      (manager as any).emit('wcore.message', { type: 'start', data: '', msg_id: 'msg-x' });
       // Non-string data should be ignored (not accumulated)
-      (manager as any).emit('aionrs.message', { type: 'content', data: 12345, msg_id: 'msg-x' });
-      (manager as any).emit('aionrs.message', { type: 'finish', data: '', msg_id: 'msg-x' });
+      (manager as any).emit('wcore.message', { type: 'content', data: 12345, msg_id: 'msg-x' });
+      (manager as any).emit('wcore.message', { type: 'finish', data: '', msg_id: 'msg-x' });
       await new Promise((r) => setTimeout(r, 50));
       expect(mockCronService.listJobsByConversation).not.toHaveBeenCalled();
     });

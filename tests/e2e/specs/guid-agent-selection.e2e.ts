@@ -27,13 +27,13 @@ test.describe('Guid Agent Selection', () => {
     await goToGuid(page);
 
     const geminiPill = page.locator(agentPillByBackend('gemini'));
-    const aionrsPill = page.locator(agentPillByBackend('aionrs'));
+    const wcorePill = page.locator(agentPillByBackend('wcore'));
 
-    // Try gemini first, fallback to aionrs (fork gemini)
-    const targetPill = (await geminiPill.isVisible().catch(() => false)) ? geminiPill : aionrsPill;
+    // Try gemini first, fallback to wcore (Wayland-Core engine)
+    const targetPill = (await geminiPill.isVisible().catch(() => false)) ? geminiPill : wcorePill;
     const pillVisible = await targetPill.isVisible().catch(() => false);
     if (!pillVisible) {
-      test.skip(true, 'Neither gemini nor aionrs pill available');
+      test.skip(true, 'Neither gemini nor wcore pill available');
       return;
     }
 

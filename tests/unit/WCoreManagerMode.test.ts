@@ -267,7 +267,7 @@ describe('WCoreManager.setMode', () => {
     vi.clearAllMocks();
   });
 
-  it('should send set_mode command to aionrs agent', async () => {
+  it('should send set_mode command to wcore agent', async () => {
     const manager = createManager('default');
     (manager as any).agent = {
       approveTool: mockApproveTool,

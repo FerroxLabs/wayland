@@ -40,8 +40,8 @@ describe('resolveConversationType', () => {
     expect(resolveConversationType('gemini')).toBe('gemini');
   });
 
-  it('maps aionrs to aionrs', () => {
-    expect(resolveConversationType('aionrs')).toBe('aionrs');
+  it('maps wcore to wcore', () => {
+    expect(resolveConversationType('wcore')).toBe('wcore');
   });
 
   it('maps codex to acp (MCP injectable)', () => {
@@ -75,7 +75,7 @@ describe('isTeamCapableBackend', () => {
   const cached = makeCachedInit(['claude', 'codex']);
 
   it('returns true for known team-capable backends regardless of cached data', () => {
-    for (const backend of ['gemini', 'claude', 'codex', 'aionrs']) {
+    for (const backend of ['gemini', 'claude', 'codex', 'wcore']) {
       expect(isTeamCapableBackend(backend, null)).toBe(true);
       expect(isTeamCapableBackend(backend, undefined)).toBe(true);
       expect(isTeamCapableBackend(backend, {})).toBe(true);

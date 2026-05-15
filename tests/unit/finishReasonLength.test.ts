@@ -1,8 +1,8 @@
 /**
  * finish_reason: length — Truncation warning surface
  *
- * Covers Worker D scope (BLACKBOARD.md row D): when an aionrs turn ends with
- * `finish_reason: 'length'` (or matches the heuristic for aionrs ≤0.1.21
+ * Covers Worker D scope (BLACKBOARD.md row D): when a wcore turn ends with
+ * `finish_reason: 'length'` (or matches the heuristic for wcore ≤0.1.21
  * binaries that don't yet emit finish_reason), WCoreManager must attach
  * `truncatedDueToBudget: true` to the resulting assistant message so the
  * renderer can show a "response truncated" banner instead of an empty bubble.
@@ -27,7 +27,7 @@ const {
   emitConfirmationRemove: vi.fn(),
   mockDb: {
     getConversationMessages: vi.fn(() => ({ data: [] })),
-    getConversation: vi.fn(() => ({ success: true, data: { type: 'aionrs', extra: {} } })),
+    getConversation: vi.fn(() => ({ success: true, data: { type: 'wcore', extra: {} } })),
     updateConversation: vi.fn(),
     createConversation: vi.fn(() => ({ success: true })),
     insertMessage: vi.fn(),
@@ -172,7 +172,7 @@ function createManager(maxTokens?: number): WCoreManager {
 }
 
 function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
-  (manager as any).emit('aionrs.message', event);
+  (manager as any).emit('wcore.message', event);
 }
 
 function truncationEmits(): Array<{ data: { content?: string; truncatedDueToBudget?: boolean } }> {
@@ -196,7 +196,7 @@ describe('finish_reason: length — truncation flag plumbing', () => {
     vi.useFakeTimers();
     mockDb.getConversation.mockReturnValue({
       success: true,
-      data: { type: 'aionrs', extra: { workspace: '/test' } },
+      data: { type: 'wcore', extra: { workspace: '/test' } },
     });
   });
 
@@ -244,7 +244,7 @@ describe('finish_reason: length — truncation flag plumbing', () => {
   });
 
   it('flags truncation via heuristic when finish_reason missing but output_tokens at budget with empty content', async () => {
-    // Simulates aionrs ≤0.1.21 binary (no finish_reason in protocol) + Gemini Pro
+    // Simulates wcore ≤0.1.21 binary (no finish_reason in protocol) + Gemini Pro
     // reasoning model: thinking tokens consume the entire 60-token budget,
     // content emitted is the 3-char fragment "the".
     manager = createManager(60);

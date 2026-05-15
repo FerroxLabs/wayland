@@ -172,9 +172,9 @@ function setupMocks(overrides?: {
         return geminiConfig;
       case 'gemini.defaultModel':
         return null;
-      case 'aionrs.config':
+      case 'wcore.config':
         return null;
-      case 'aionrs.defaultModel':
+      case 'wcore.defaultModel':
         return null;
       default:
         return null;
@@ -360,8 +360,8 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
         case 'acp.config':
         case 'gemini.config':
         case 'gemini.defaultModel':
-        case 'aionrs.config':
-        case 'aionrs.defaultModel':
+        case 'wcore.config':
+        case 'wcore.defaultModel':
           return null;
         default:
           return null;
