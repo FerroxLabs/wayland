@@ -103,18 +103,27 @@ async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal
 
     case 'terminal': {
       if (platform === 'win32') {
-        // Windows: Use PowerShell via cmd /c start
-        // Using 'start' command ensures PowerShell opens in a visible window
+        // Windows: spawn PowerShell directly with arg-array semantics — no cmd.exe shell
+        // interpolation. Validate folderPath first to reject metacharacters and ensure
+        // the target is an existing directory (defense-in-depth against command injection).
+        let stat: fs.Stats;
+        try {
+          stat = fs.statSync(folderPath);
+        } catch (err) {
+          console.error('[shellBridge] terminal: folderPath does not exist:', folderPath, err);
+          return;
+        }
+        if (!stat.isDirectory()) {
+          console.error('[shellBridge] terminal: folderPath is not a directory:', folderPath);
+          return;
+        }
+        if (/[&|<>"^]/.test(folderPath)) {
+          console.error('[shellBridge] terminal: folderPath contains forbidden characters:', folderPath);
+          return;
+        }
         const child = spawn(
-          'cmd.exe',
-          [
-            '/c',
-            'start',
-            'powershell.exe',
-            '-NoExit',
-            '-Command',
-            `Set-Location -LiteralPath '${folderPath.replace(/'/g, "''")}'`,
-          ],
+          'powershell.exe',
+          ['-NoProfile', '-Command', 'Start-Process', '-FilePath', 'powershell.exe', '-WorkingDirectory', folderPath],
           {
             detached: true,
             windowsHide: false,
