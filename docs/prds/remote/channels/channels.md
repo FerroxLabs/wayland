@@ -287,7 +287,7 @@ idle → loading_qr → showing_qr → scanned → connected
 
 **用户故事**：作为用户，我希望为每个 IM 渠道独立设置默认使用的 AI 模型，以便控制不同渠道的回复质量和速度。
 
-**前置条件**：当前 Agent 为 Gemini 兼容类型（`backend === 'gemini'` 或 `'aionrs'`）
+**前置条件**：当前 Agent 为 Gemini 兼容类型（`backend === 'gemini'` 或 `'wcore'`）
 
 **正常流程**（用户视角）：
 
@@ -301,7 +301,7 @@ idle → loading_qr → showing_qr → scanned → connected
 
 **条件渲染**：
 
-- Agent 为 Gemini/aionrs 类型：正常显示模型选择器
+- Agent 为 Gemini/wcore 类型：正常显示模型选择器
 - Agent 为其他类型（如 Custom Agent）：显示灰色文案"Automatically follow the model when CLI is running"，选择器禁用
 
 **异常情况**：

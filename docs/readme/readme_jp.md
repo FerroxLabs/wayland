@@ -103,7 +103,7 @@ _Wayland には専用の Morph PPT アシスタントが内蔵されています
 
 すでに Claude Code、Codex、Hermes Agent、または OpenClaw を使用している場合、Wayland は自動的に検出し、それらすべてと Cowork できます——内蔵 Agent と一緒に。
 
-**サポートされている Agent：** 内蔵 Agent（ゼロ設定） • Claude Code • Codex • Qwen Code • Goose AI • OpenClaw • Augment Code • CodeBuddy • Kimi CLI • OpenCode • Factory Droid • GitHub Copilot • Qoder CLI • Mistral Vibe • Nanobot • Aion CLI（aionrs、Wayland に同梱の Rust バックエンドサービス） • Snow CLI • Kiro • Hermes Agent • Cursor Agent など
+**サポートされている Agent：** 内蔵 Agent（ゼロ設定） • Claude Code • Codex • Qwen Code • Goose AI • OpenClaw • Augment Code • CodeBuddy • Kimi CLI • OpenCode • Factory Droid • GitHub Copilot • Qoder CLI • Mistral Vibe • Nanobot • Wayland-Core • Snow CLI • Kiro • Hermes Agent • Cursor Agent など
 
 <p align="center">
   <img src="../../resources/multi-agent支持openclaw.gif" alt="Multi-Agent Cowork" width="800">
@@ -123,8 +123,8 @@ _Wayland には専用の Morph PPT アシスタントが内蔵されています
   <img src="../../resources/Wayland_team.gif" alt="Team Mode overview" width="800">
 </p>
 
-- **並列マルチエージェント実行** — Leader がタスクをサブタスクに分解して並行実行する Teammate Agent に委任；各 Teammate は ACP（Agent Communication Protocol、Wayland のマルチエージェント調整層）、Gemini、または Aionrs を通じて独自のモデルを使用
-- **Leader によるオーケストレーション** — Leader が割り当て、追跡、集約；対応バックエンドは Claude Code、Codex、Hermes Agent、Gemini、Snow CLI、Aion CLI
+- **並列マルチエージェント実行** — Leader がタスクをサブタスクに分解して並行実行する Teammate Agent に委任；各 Teammate は ACP（Agent Communication Protocol、Wayland のマルチエージェント調整層）、Gemini、または Wayland-Core を通じて独自のモデルを使用
+- **Leader によるオーケストレーション** — Leader が割り当て、追跡、集約；対応バックエンドは Claude Code、Codex、Hermes Agent、Gemini、Snow CLI、Wayland-Core
 - **チーム隔離ワークスペース** — すべての Agent が同じフォルダを共有；各エージェントに独自の権限確認ダイアログがあり、サイドバーバッジで承認待ちを表示
 
 <details>
@@ -133,7 +133,7 @@ _Wayland には専用の Morph PPT アシスタントが内蔵されています
 <br>
 
 - **共有ワークスペース** — すべての Agent が同じフォルダを読み書き；ファイルパネルは常に表示
-- **対応バックエンド** — Claude Code、Codex、Gemini、Snow CLI、Aion CLI（aionrs）；`mcpCapabilities.stdio` を持つ他の ACP バックエンドも自動対応
+- **対応バックエンド** — Claude Code、Codex、Gemini、Snow CLI、Wayland-Core；`mcpCapabilities.stdio` を持つ他の ACP バックエンドも自動対応
 - **動的スケーリング** — チーム実行中に Teammate の追加・削除が可能；応答しない Agent は自動的に失敗状態に昇格しワンクリックで削除
 - **細粒度の権限** — 各 Agent に独自の権限確認ダイアログ；サイドバーバッジで承認待ちを表示
 - **ファイル共有** — Leader が Teammate にファイル添付を渡せる

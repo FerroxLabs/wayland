@@ -90,7 +90,7 @@ Wayland viene con un motor de Agent AI completo. A diferencia de las herramienta
 
 Si ya usas Claude Code, Codex, Hermes Agent u OpenClaw, Wayland los detecta automáticamente y te permite hacer Cowork con todos ellos — junto con el Agent integrado.
 
-**Agents compatibles:** Agent integrado (configuración cero) • Claude Code • Codex • Qwen Code • Goose AI • OpenClaw • Augment Code • CodeBuddy • Kimi CLI • OpenCode • Factory Droid • GitHub Copilot • Qoder CLI • Mistral Vibe • Nanobot • Aion CLI (aionrs, el servicio backend en Rust incluido con Wayland) • Snow CLI • Kiro • Hermes Agent • Cursor Agent y más
+**Agents compatibles:** Agent integrado (configuración cero) • Claude Code • Codex • Qwen Code • Goose AI • OpenClaw • Augment Code • CodeBuddy • Kimi CLI • OpenCode • Factory Droid • GitHub Copilot • Qoder CLI • Mistral Vibe • Nanobot • Wayland-Core • Snow CLI • Kiro • Hermes Agent • Cursor Agent y más
 
 <p align="center">
   <img src="../../resources/multi-agent支持openclaw.gif" alt="Multi-Agent Cowork" width="800">
@@ -110,8 +110,8 @@ Ejecuta múltiples AI Agents como un equipo organizado: un agente **Leader** rec
   <img src="../../resources/Wayland_team.gif" alt="Team Mode overview" width="800">
 </p>
 
-- **Ejecución paralela multi-agent** — Leader divide las tareas en subtareas y las delega a agentes Teammate que se ejecutan en paralelo; cada Teammate usa su propio modelo a través de ACP (Agent Communication Protocol, la capa de coordinación multi-agent de Wayland), Gemini o Aionrs
-- **Orquestación del Leader** — Leader asigna, rastrea y agrega resultados; backends compatibles: Claude Code, Codex, Hermes Agent, Gemini, Snow CLI y Aion CLI
+- **Ejecución paralela multi-agent** — Leader divide las tareas en subtareas y las delega a agentes Teammate que se ejecutan en paralelo; cada Teammate usa su propio modelo a través de ACP (Agent Communication Protocol, la capa de coordinación multi-agent de Wayland), Gemini o Wayland-Core
+- **Orquestación del Leader** — Leader asigna, rastrea y agrega resultados; backends compatibles: Claude Code, Codex, Hermes Agent, Gemini, Snow CLI y Wayland-Core
 - **Espacio de trabajo aislado por equipo** — todos los Agents comparten la misma carpeta; cada uno tiene su propio diálogo de permisos con badge en la barra lateral para aprobaciones pendientes
 
 <details>
@@ -120,7 +120,7 @@ Ejecuta múltiples AI Agents como un equipo organizado: un agente **Leader** rec
 <br>
 
 - **Espacio de trabajo compartido** — todos los Agents leen/escriben en la misma carpeta; el panel de archivos permanece visible durante todo el proceso
-- **Backends compatibles** — Claude Code, Codex, Gemini, Snow CLI, Aion CLI (aionrs); otros backends ACP con `mcpCapabilities.stdio` son compatibles automáticamente
+- **Backends compatibles** — Claude Code, Codex, Gemini, Snow CLI, Wayland-Core; otros backends ACP con `mcpCapabilities.stdio` son compatibles automáticamente
 - **Escalado dinámico** — agrega o elimina Teammates mientras el equipo está en ejecución; los agentes silenciosos se escalan automáticamente a fallido con eliminación en un clic
 - **Permisos granulares** — cada Agent tiene su propio diálogo de confirmación de permisos; el badge en la barra lateral muestra aprobaciones pendientes
 - **Compartir archivos** — Leader puede pasar archivos adjuntos a los Teammates

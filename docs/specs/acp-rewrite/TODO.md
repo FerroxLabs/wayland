@@ -115,7 +115,7 @@ Agent 实际收到的是一堆乱码而非图片数据。
 
 **调研方向**：
 
-1. 调研各 Agent backend（claude, codex, gemini, aionrs 等）对 SDK `ContentBlock` 类型的支持情况
+1. 调研各 Agent backend（claude, codex, gemini, wcore 等）对 SDK `ContentBlock` 类型的支持情况
 2. ACP SDK 的 `initialize` 响应中有 `promptCapabilities` 声明（类似 model/mode），记录了 Agent 支持哪些 prompt 内容类型
 3. 考虑像 model、mode 一样将 `promptCapabilities` 缓存到 `acp.cachedInitializeResult`，在发送消息时根据当前 Agent 的能力做不同处理：
    - 支持 `file` ContentBlock → 直接发 file block

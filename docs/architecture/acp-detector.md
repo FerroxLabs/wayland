@@ -39,7 +39,7 @@ initialize()
 
 - 必须有 `cliCommand`
 - 必须 `enabled: true`
-- 排除 `gemini`（内置，无需检测）、`custom`（用户配置）、`aionrs`（非 ACP 协议）
+- 排除 `gemini`（内置，无需检测）、`custom`（用户配置）、`wcore`（非 ACP 协议）
 
 返回包含 `backend`, `name`, `cliPath`, `acpArgs` 的 DetectedAgent 数组。
 
@@ -175,7 +175,7 @@ which <command>
 | ---------- | ----------------------------------- |
 | `gemini`   | 内置 agent，始终可用，无需 CLI 检测 |
 | `custom`   | 用户自定义，无 `cliCommand`         |
-| `aionrs`   | 非 ACP 协议（JSON Lines），显式排除 |
+| `wcore`    | 非 ACP 协议（JSON Lines），显式排除 |
 | `remote`   | 无本地 CLI，通过 WebSocket URL 连接 |
 
 ## 合并与去重
