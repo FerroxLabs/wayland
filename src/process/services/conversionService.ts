@@ -11,7 +11,8 @@ import type { BrowserWindow } from 'electron';
 import { electronBrowserWindow as BrowserWindowCtor } from '@/common/electronSafe';
 import fs from 'fs/promises';
 import mammoth from 'mammoth';
-import PPTX2Json from 'pptx2json';
+// Vendored from npm pptx2json@0.0.10 (abandoned) — see M22 and src/vendor/pptx2json/.
+import PPTX2Json from '@/vendor/pptx2json';
 import TurndownService from 'turndown';
 import * as XLSX from 'xlsx-republish';
 import * as yauzl from 'yauzl';

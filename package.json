@@ -125,6 +125,7 @@
     "i18next": "^23.7.16",
     "jsonrepair": "^3.13.0",
     "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.1",
     "katex": "^0.16.22",
     "lucide-react": "^1.14.0",
     "mammoth": "^1.11.0",
@@ -132,7 +133,6 @@
     "multer": "^2.1.1",
     "officeparser": "^5.2.2",
     "openai": "^5.12.2",
-    "pptx2json": "^0.0.10",
     "process": "^0.11.10",
     "qrcode-terminal": "^0.12.0",
     "qrcode.react": "^4.2.0",
@@ -161,6 +161,7 @@
     "web-tree-sitter": "^0.25.10",
     "ws": "^8.20.1",
     "xlsx-republish": "^0.20.3",
+    "xml2js": "^0.5.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
