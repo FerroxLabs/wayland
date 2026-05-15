@@ -43,8 +43,13 @@
  * so specs that need clean-quit semantics don't have to inline the
  * app.exit→close fallback dance.
  */
-import { test, expect } from '../fixtures';
-import { _electron as electron, type ElectronApplication, type Page } from 'playwright';
+// Opt out of the shared `../fixtures` singleton — this spec needs to launch
+// its OWN Electron instances per test. Uses our custom spawn+CDP driver
+// (helpers/cdpDriver.ts) instead of Playwright's electron.launch() because
+// Playwright's Node Inspector attach freezes V8 enough to block Chromium's
+// own CDP port bind for this app. See cdpDriver.ts header for the full story.
+import { test, expect } from '@playwright/test';
+import { launchAppViaCdp, type CdpApp } from '../helpers/cdpDriver';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
@@ -61,11 +66,6 @@ const RELAUNCH_TIMEOUT_MS = 120_000;
 
 type StorageNamespace = 'agent.chat' | 'agent.chat.message' | 'agent.config' | 'agent.env';
 
-type ElectronApi = {
-  emit?: (name: string, data: unknown) => Promise<unknown>;
-  on?: (callback: (payload: { event: unknown; value: unknown }) => void) => () => void;
-};
-
 /**
  * Per-test sandbox: a unique userData dir + extension-states file so we can
  * relaunch against the same on-disk state without colliding with the
@@ -74,6 +74,14 @@ type ElectronApi = {
 interface Sandbox {
   userDataDir: string;
   extensionStatesFile: string;
+  /** Per-test CDP port so parallel workers don't collide on 9876. */
+  cdpPort: number;
+}
+
+let nextCdpPort = 9876;
+function allocCdpPort(): number {
+  // Bump in 1-port steps; CDP servers are short-lived per test.
+  return nextCdpPort++;
 }
 
 function createSandbox(testName: string): Sandbox {
@@ -82,124 +90,37 @@ function createSandbox(testName: string): Sandbox {
   return {
     userDataDir: path.join(root, 'userData'),
     extensionStatesFile: path.join(root, 'extension-states.json'),
+    cdpPort: allocCdpPort(),
   };
 }
 
-function isDevToolsWindow(page: Page): boolean {
-  return page.url().startsWith('devtools://');
-}
-
-function isSatelliteWindow(page: Page): boolean {
-  const url = page.url().toLowerCase();
-  return (
-    url.includes('/ambient/') ||
-    url.includes('/pet/') ||
-    url.includes('ambient.html') ||
-    url.includes('pet.html') ||
-    url.includes('pet-hit.html') ||
-    url.includes('pet-confirm.html')
-  );
-}
-
-async function resolveMainWindow(electronApp: ElectronApplication): Promise<Page> {
-  const deadline = Date.now() + 20_000;
-  while (Date.now() < deadline) {
-    const existing = electronApp.windows().find((w) => !isDevToolsWindow(w) && !isSatelliteWindow(w));
-    if (existing) {
-      await existing.waitForLoadState('domcontentloaded');
-      return existing;
-    }
-    const win = await electronApp.waitForEvent('window', { timeout: 1_000 }).catch(() => null);
-    if (win && !isDevToolsWindow(win) && !isSatelliteWindow(win)) {
-      await win.waitForLoadState('domcontentloaded');
-      return win;
-    }
-  }
-  throw new Error('Failed to resolve main renderer window in sandboxed app');
-}
-
 /**
- * Wait for the renderer's `electronAPI` bridge to be exposed via the preload
- * (mirrors the singleton fixture's stability gate). Without this, the first
- * `page.evaluate` after navigation can blow up with "Execution context
- * destroyed".
+ * Launch a sandboxed Electron instance pinned to a private userData dir,
+ * driven via the custom spawn+CDP helper (see helpers/cdpDriver.ts header for
+ * why we don't use Playwright's electron.launch() here).
  */
-async function waitForBridge(page: Page, timeoutMs = 12_000): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  let stable = 0;
-  while (Date.now() < deadline) {
-    const ok = await page
-      .evaluate(() => typeof (window as { electronAPI?: unknown }).electronAPI !== 'undefined')
-      .catch(() => false);
-    if (ok) {
-      stable = stable || Date.now();
-      if (Date.now() - stable >= 300) return;
-    } else {
-      stable = 0;
-    }
-    await new Promise((r) => setTimeout(r, 50));
-  }
-  throw new Error('electronAPI bridge did not stabilise in renderer');
+async function launchSandboxedApp(sandbox: Sandbox): Promise<CdpApp> {
+  return launchAppViaCdp({
+    userDataDir: sandbox.userDataDir,
+    cdpPort: sandbox.cdpPort,
+    readyTimeoutMs: RELAUNCH_TIMEOUT_MS,
+    env: {
+      WAYLAND_EXTENSIONS_PATH: process.env.WAYLAND_EXTENSIONS_PATH || path.join(path.resolve(__dirname, '../..'), 'examples'),
+      WAYLAND_EXTENSION_STATES_FILE: sandbox.extensionStatesFile,
+    },
+  });
 }
 
-/**
- * Launch a sandboxed Electron instance pinned to a private userData dir so we
- * don't pollute the singleton app's settings. Mirrors the dev-mode launch
- * path in `fixtures.ts` (`launchAppWithEnv`) but adds `--user-data-dir`.
- */
-async function launchSandboxedApp(sandbox: Sandbox): Promise<ElectronApplication> {
-  const projectRoot = path.resolve(__dirname, '../..');
-  const launchArgs = ['.', `--user-data-dir=${sandbox.userDataDir}`];
-  if (process.platform === 'linux' && process.env.CI) {
-    launchArgs.push('--no-sandbox');
-  }
-
-  const env = {
-    ...process.env,
-    WAYLAND_EXTENSIONS_PATH: process.env.WAYLAND_EXTENSIONS_PATH || path.join(projectRoot, 'examples'),
-    WAYLAND_EXTENSION_STATES_FILE: sandbox.extensionStatesFile,
-    WAYLAND_DISABLE_AUTO_UPDATE: '1',
-    WAYLAND_DISABLE_DEVTOOLS: '1',
-    WAYLAND_E2E_TEST: '1',
-    // Disable CDP for the sandbox — the singleton already owns the port, and
-    // we don't need debugging access to the throwaway instance.
-    WAYLAND_CDP_PORT: '0',
-    NODE_ENV: 'development',
-  };
-
-  const app = await electron.launch({
-    args: launchArgs,
-    cwd: projectRoot,
-    env,
-    timeout: RELAUNCH_TIMEOUT_MS,
+/** Tear down the spawned Electron — fires SIGTERM, waits, then SIGKILL. */
+async function quitApp(app: CdpApp): Promise<void> {
+  await Promise.race([
+    app.quit(),
+    new Promise<void>((_, reject) => setTimeout(() => reject(new Error('quit timeout')), QUIT_TIMEOUT_MS)),
+  ]).catch(() => {
+    // Best-effort: process is dead or kill failed. Either way, relaunch reads
+    // from disk so the test continues.
+    console.warn('[settings-persistence] quit timeout — process may still be exiting');
   });
-
-  return app;
-}
-
-/** Cleanly quit an Electron app — prefer app.exit(0); fall back to .close(). */
-async function quitApp(app: ElectronApplication): Promise<void> {
-  let gracefullyExited = false;
-  try {
-    await Promise.race([
-      app.evaluate(async ({ app: electronApp }) => {
-        electronApp.exit(0);
-      }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('app.exit timeout')), QUIT_TIMEOUT_MS)),
-    ]);
-    gracefullyExited = true;
-  } catch {
-    // Fall back to .close() below
-  }
-  await app.close().catch(() => {
-    // Process may already be gone if app.exit succeeded
-  });
-  if (!gracefullyExited) {
-    // Process didn't exit cleanly — log so the failure mode is visible.
-    // Persistence may still be intact (writeFileAtomic is synchronous in
-    // current code paths) but flag it for human review.
-    console.warn('[settings-persistence] app did not exit cleanly; relied on .close() fallback');
-  }
 }
 
 function cleanupSandbox(sandbox: Sandbox): void {
@@ -217,104 +138,12 @@ function cleanupSandbox(sandbox: Sandbox): void {
  *   set → `subscribe-<ns>.storage.set` with `{ key, data: value }`
  *   get → `subscribe-<ns>.storage.get` with `<key>`
  */
-async function storageSet(page: Page, namespace: StorageNamespace, key: string, value: unknown): Promise<void> {
-  await page.evaluate(
-    async ({ ns, k, v }) => {
-      const api = (window as unknown as { electronAPI?: ElectronApi }).electronAPI;
-      if (!api?.emit || !api?.on) throw new Error('electronAPI bridge missing');
-      const id = `set_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`;
-      const requestEvent = `subscribe-${ns}.storage.set`;
-      const callbackEvent = `subscribe.callback-${ns}.storage.set${id}`;
-      await new Promise<void>((resolve, reject) => {
-        let settled = false;
-        const off = api.on?.((payload) => {
-          try {
-            const raw = payload?.value;
-            const parsed =
-              typeof raw === 'string'
-                ? (JSON.parse(raw) as { name?: string })
-                : (raw as { name?: string });
-            if (parsed?.name !== callbackEvent) return;
-            if (settled) return;
-            settled = true;
-            off?.();
-            clearTimeout(timer);
-            resolve();
-          } catch (err) {
-            if (settled) return;
-            settled = true;
-            off?.();
-            clearTimeout(timer);
-            reject(err);
-          }
-        });
-        const timer = setTimeout(() => {
-          if (settled) return;
-          settled = true;
-          off?.();
-          reject(new Error(`storageSet timeout: ${ns}/${k}`));
-        }, 10_000);
-        api.emit?.(requestEvent, { id, data: { key: k, data: v } }).catch((e) => {
-          if (settled) return;
-          settled = true;
-          off?.();
-          clearTimeout(timer);
-          reject(e);
-        });
-      });
-    },
-    { ns: namespace, k: key, v: value }
-  );
+async function storageSet(app: CdpApp, namespace: StorageNamespace, key: string, value: unknown): Promise<void> {
+  await app.invokeBridge(`${namespace}.storage.set`, { key, data: value });
 }
 
-async function storageGet<T = unknown>(page: Page, namespace: StorageNamespace, key: string): Promise<T> {
-  return page.evaluate(
-    async ({ ns, k }) => {
-      const api = (window as unknown as { electronAPI?: ElectronApi }).electronAPI;
-      if (!api?.emit || !api?.on) throw new Error('electronAPI bridge missing');
-      const id = `get_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`;
-      const requestEvent = `subscribe-${ns}.storage.get`;
-      const callbackEvent = `subscribe.callback-${ns}.storage.get${id}`;
-      return new Promise((resolve, reject) => {
-        let settled = false;
-        const off = api.on?.((payload) => {
-          try {
-            const raw = payload?.value;
-            const parsed =
-              typeof raw === 'string'
-                ? (JSON.parse(raw) as { name?: string; data?: unknown })
-                : (raw as { name?: string; data?: unknown });
-            if (parsed?.name !== callbackEvent) return;
-            if (settled) return;
-            settled = true;
-            off?.();
-            clearTimeout(timer);
-            resolve(parsed.data);
-          } catch (err) {
-            if (settled) return;
-            settled = true;
-            off?.();
-            clearTimeout(timer);
-            reject(err);
-          }
-        });
-        const timer = setTimeout(() => {
-          if (settled) return;
-          settled = true;
-          off?.();
-          reject(new Error(`storageGet timeout: ${ns}/${k}`));
-        }, 10_000);
-        api.emit?.(requestEvent, { id, data: k }).catch((e) => {
-          if (settled) return;
-          settled = true;
-          off?.();
-          clearTimeout(timer);
-          reject(e);
-        });
-      });
-    },
-    { ns: namespace, k: key }
-  ) as Promise<T>;
+async function storageGet<T = unknown>(app: CdpApp, namespace: StorageNamespace, key: string): Promise<T> {
+  return app.invokeBridge<T>(`${namespace}.storage.get`, key);
 }
 
 /**
@@ -331,17 +160,15 @@ async function runPersistenceCase<T>(
   equalityCheck: (actual: unknown) => void
 ): Promise<void> {
   const sandbox = createSandbox(testInfo.title);
-  let app: ElectronApplication | null = null;
+  let app: CdpApp | null = null;
 
   try {
     await test.step('write — launch app, set value, verify in-process', async () => {
       app = await launchSandboxedApp(sandbox);
-      const page = await resolveMainWindow(app);
-      await waitForBridge(page);
-      await storageSet(page, namespace, key, value);
+      await storageSet(app, namespace, key, value);
       // Sanity read against the same instance — proves the write returned and
       // the bridge round-trips before we trust persistence.
-      const before = await storageGet<unknown>(page, namespace, key);
+      const before = await storageGet<unknown>(app, namespace, key);
       equalityCheck(before);
     });
 
@@ -353,9 +180,7 @@ async function runPersistenceCase<T>(
 
     await test.step('relaunch — re-open with same userData and verify', async () => {
       app = await launchSandboxedApp(sandbox);
-      const page = await resolveMainWindow(app);
-      await waitForBridge(page);
-      const after = await storageGet<unknown>(page, namespace, key);
+      const after = await storageGet<unknown>(app, namespace, key);
       equalityCheck(after);
     });
   } finally {
@@ -376,71 +201,11 @@ async function runPersistenceCase<T>(
 test.describe.configure({ mode: 'serial', timeout: 180_000 });
 
 test.describe('Settings persistence across app restart', () => {
-  // ── Skip-until-harness-supports-clean-quit ────────────────────────────────
-  //
-  // The test bodies below are complete and correct: each one writes a known
-  // value via the storage bridge, terminates Electron, relaunches against the
-  // same `userData` directory, and re-reads the value. The blocker is the
-  // *harness*, not the test logic.
-  //
-  // Running these specs alongside the shared singleton (`tests/e2e/fixtures.ts`)
-  // requires launching a *second* Electron instance per test, pinned to a
-  // unique `--user-data-dir`. In practice Playwright's `electron.launch`
-  // attaches to the new process's Node inspector but then never observes
-  // app-ready / window-created — likely because the dev-mode launch path
-  // depends on host state the singleton has already claimed (Vite dev server
-  // handle, lockfiles under `~/Library/Application Support/<dev-app-name>/`,
-  // or the userData-derived single-instance lock skipped only for the
-  // singleton's worker pid). The launch hangs past 120s and Playwright kills
-  // it with a TimeoutError.
-  //
-  // The clean fix lives in the harness, not here:
-  //   - tests/e2e/fixtures.ts should expose a `quitApp()` helper plus a
-  //     fresh-userData launch factory (`launchAppWithEnv` + `--user-data-dir`)
-  //     gated to specs that opt into restart testing.
-  //   - Alternatively, give this spec its own Playwright project entry so it
-  //     runs in a worker that *doesn't* spin up the singleton at all.
-  //
-  // Until then we skip the live runs with a pointed reason, so the coverage
-  // intent (System / Agents / Models / WebUI / Channels / Skills / Tools /
-  // Update + per-namespace round-trip) is documented for the next pass and
-  // the spec stays runnable as soon as the harness lands.
-  //
-  // HARNESS BLOCKER (deep root cause documented 2026-05-15):
-  // Playwright Electron's electron.launch() against this app hangs at the
-  // post-WS-connect / pre-__playwright_run handshake step. Plain Electron
-  // launches the app fine (env diag prints, whenReady fires). But under
-  // Playwright's loader.js, app.whenReady() is intercepted and only resolved
-  // when Playwright calls globalThis.__playwright_run() over the Node
-  // Inspector — and that call never arrives. Verified ALL of:
-  //   - with/without --user-data-dir flag
-  //   - with/without WAYLAND_CDP_PORT=0
-  //   - with NODE_ENV=production / development / unset
-  //   - with executablePath + script path vs args:['.']
-  //   - opt out of ../fixtures singleton (this spec runs alone in worker)
-  // None unblock the hang. The Node Inspector WS connects ("ws connected"),
-  // env diag prints, but our `whenReady().then(handleAppReady)` chain never
-  // runs. Likely a subtle interaction between configureChromium.ts (top-level
-  // app.setName + app.setPath) and Playwright's app.emit/whenReady override.
-  //
-  // FOLLOW-UP — alternative test design (not implemented):
-  //   1. Use singleton fixture, write storage via bridge, fsync, then
-  //      read userData JSON files directly from disk and assert content.
-  //      Validates writeFileAtomic + C1 storage allowlist without relaunch.
-  //   2. OR replace electron.launch() in this spec with child_process.spawn
-  //      of the Electron binary, parse stdout for ready signal, manually
-  //      drive via stdin JSON-RPC.
-  //
-  // Until then: skip the live runs with a pointed reason; test bodies are
-  // complete and reusable when the harness lands.
-  test.beforeAll(() => {
-    test.skip(
-      true,
-      'Harness blocker: Playwright electron.launch() hangs at __playwright_run handshake against this app. ' +
-        'Plain Electron works (env diag fires, whenReady fires). Under Playwright loader, ' +
-        'app.whenReady is overridden + never resolved. Test bodies complete; see comment above for follow-up plan.'
-    );
-  });
+  // Uses helpers/cdpDriver.ts (spawn + Chromium CDP) instead of Playwright's
+  // electron.launch(). Playwright's Node Inspector attach freezes V8 init
+  // long enough to block Chromium's own CDP port bind for this app — see
+  // cdpDriver.ts header. The CDP driver doesn't use --inspect, so it sidesteps
+  // the issue cleanly.
 
   // ── System Settings ────────────────────────────────────────────────────────
   // `src/renderer/pages/Settings/SystemSettings.tsx` toggles like close-to-tray
@@ -575,10 +340,14 @@ test.describe('Settings persistence across app restart', () => {
     ];
     await runPersistenceCase(test.info(), 'agent.config', 'mcp.config', servers, (actual) => {
       expect(Array.isArray(actual), 'mcp.config is an array').toBe(true);
+      // Relaunch initializes builtin MCP servers (e.g. wayland-image-generation),
+      // so the list may grow. Assert our user-added entry is present + unchanged,
+      // not that it's the ONLY entry.
       const arr = actual as typeof servers;
-      expect(arr).toHaveLength(1);
-      expect(arr[0]).toMatchObject({ id: 'e2e-mcp-1', enabled: false });
-      expect(arr[0]?.transport).toMatchObject({ type: 'stdio', command: '/bin/true' });
+      const ours = arr.find((s) => s.id === 'e2e-mcp-1');
+      expect(ours, 'e2e MCP entry persisted').toBeDefined();
+      expect(ours).toMatchObject({ id: 'e2e-mcp-1', enabled: false });
+      expect(ours?.transport).toMatchObject({ type: 'stdio', command: '/bin/true' });
     });
   });
 
