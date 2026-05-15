@@ -164,7 +164,7 @@ Run multiple AI agents as an organized team: a **Leader** agent receives your in
 </p>
 
 - **Parallel multi-agent execution** — Leader breaks tasks into subtasks and delegates to Teammate agents running in parallel; each Teammate uses its own model via ACP (Agent Communication Protocol, Wayland's multi-agent coordination layer), Gemini, or Wayland-Core
-- **Leader orchestration** — Leader assigns, tracks, and aggregates results; supported backends include Claude Code, Codex, Hermes Agent, Gemini, Snow CLI, and Aion CLI
+- **Leader orchestration** — Leader assigns, tracks, and aggregates results; supported backends include Claude Code, Codex, Hermes Agent, Gemini, Snow CLI, and Wayland-Core
 - **Team-isolated workspace** — all agents share the same folder; each has its own permission dialog with sidebar badge for pending approvals
 
 <details>
