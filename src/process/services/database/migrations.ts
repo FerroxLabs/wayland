@@ -1413,6 +1413,49 @@ const migration_v31: IMigration = {
 };
 
 /**
+ * Migration v32 — purge transient Gemini retry-noise tips from the messages
+ * table.
+ *
+ * Background: before commit d0f2fad1d (2026-05-16), Wayland was forwarding
+ * `@office-ai/aioncli-core`'s internal `Retry` / `InvalidStream` events to
+ * the renderer as `type: 'error'` stream events. The renderer rendered them
+ * as red banner "tips" AND persisted them to the messages table, so every
+ * subsequent reopen of an affected conversation re-rendered the same
+ * scary-looking history. The library was actually recovering successfully
+ * via its `streamWithRetries` + "Please continue." mechanism — these
+ * weren't real failures.
+ *
+ * The forwarding bug is fixed going forward; this migration cleans the
+ * persisted history accumulated by users running the broken code, so any
+ * conversation that was poisoned by old retry chatter renders cleanly
+ * after the upgrade.
+ *
+ * Idempotent: re-running DELETE-by-content is harmless once rows are gone.
+ *
+ * No down(): the deleted rows were never useful information.
+ */
+const migration_v32: IMigration = {
+  version: 32,
+  name: 'Purge persisted Gemini retry-noise tips messages',
+  up: (db) => {
+    const r = db
+      .prepare(
+        "DELETE FROM messages " +
+          "WHERE type = 'tips' " +
+          "AND (content LIKE '%Invalid response stream detected%' " +
+          "OR content LIKE '%Request is being retried after a temporary failure%')"
+      )
+      .run();
+    console.log(
+      `[Migration v32] Purged Gemini retry-noise tips: ${r.changes} rows removed`
+    );
+  },
+  down: (_db) => {
+    console.log('[Migration v32] No rollback — deleted rows were never useful information');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -1422,7 +1465,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v13, migration_v14, migration_v15, migration_v16, migration_v17, migration_v18,
   migration_v19, migration_v20, migration_v21, migration_v22, migration_v23, migration_v24,
   migration_v25, migration_v26, migration_v27, migration_v28, migration_v29, migration_v30,
-  migration_v31,
+  migration_v31, migration_v32,
 ];
 
 /**
