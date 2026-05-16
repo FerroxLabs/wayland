@@ -24,11 +24,18 @@
 }
 
 .conversation-search-trigger-full:hover {
-  background: var(--color-fill-3) !important;
+  background: color-mix(in srgb, rgb(var(--primary-6)) 14%, transparent) !important;
+  color: var(--color-text-1) !important;
+}
+
+.conversation-search-trigger-full:hover .lucide,
+.conversation-search-trigger-full:hover svg {
+  color: var(--color-text-1) !important;
 }
 
 .conversation-search-trigger-full:active {
-  background: var(--color-fill-4) !important;
+  background: color-mix(in srgb, rgb(var(--primary-6)) 22%, transparent) !important;
+  color: var(--color-text-1) !important;
 }
 
 .conversation-search-trigger-full:focus,
