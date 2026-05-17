@@ -68,6 +68,8 @@ import { loadShellEnvironmentAsync, logEnvironmentDiagnostics, mergePaths } from
 import { initializeAcpDetector, registerWindowMaximizeListeners, disposeAllTeamSessions } from '@process/bridge';
 import './process/bridge/feedbackBridge';
 import { wasLaunchedAtLogin } from '@process/bridge/applicationBridge';
+import { applyFirstRunDefaults } from '@process/utils/firstRunDefaults';
+import { migrateCredentialsToSafeStorage_v1 } from '@process/utils/credentialMigration';
 import { onCloseToTrayChanged, onLanguageChanged } from './process/bridge/systemSettingsBridge';
 import { setInitialLanguage } from '@process/services/i18n';
 import { workerTaskManager } from './process/task/workerTaskManagerSingleton';
@@ -632,6 +634,21 @@ const handleAppReady = async (): Promise<void> => {
       setCloseToTrayEnabled(false);
       destroyTray();
     } else {
+      // Apply smart defaults once per install (close-to-tray ON, start-on-boot ON).
+      // Must run BEFORE reading system.closeToTray so the default takes effect on first launch.
+      await applyFirstRunDefaults();
+
+      // Re-encrypt legacy base64-obfuscated channel credentials with Electron
+      // safeStorage. One-shot per install, gated by
+      // system.credentialsCryptoMigrated_v1. Must run BEFORE any channel
+      // plugin starts so plugins read the safeStorage-backed ciphertext.
+      // Wrapped in try/catch because migration MUST NOT block app launch.
+      try {
+        await migrateCredentialsToSafeStorage_v1();
+      } catch (err) {
+        console.error('[Wayland] credential migration threw:', err);
+      }
+
       try {
         const savedCloseToTray = await ProcessConfig.get('system.closeToTray');
         setCloseToTrayEnabled(savedCloseToTray ?? false);

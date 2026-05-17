@@ -14,6 +14,7 @@ import { workerTaskManager } from '@process/task/workerTaskManagerSingleton';
 import { TeamSessionService, SqliteTeamRepository } from '@process/team';
 import { initTeamGuideService } from '@process/team/mcp/guide/teamGuideSingleton';
 import { prewarmProviderSdks } from '@process/utils/prewarmProviders';
+import { startModelRefreshScheduler } from '@process/providers/refresh/ModelRefreshScheduler';
 
 logger.config({ print: true });
 
@@ -56,6 +57,9 @@ void cronService
   .catch((error) => {
     console.error('[initBridge] Failed to initialize CronService:', error);
   });
+
+// Start provider catalog refresh scheduler (5s delay, then every 24h)
+startModelRefreshScheduler();
 
 // Start in-process Wayland Core MCP server for team-guide tools (aion_create_team)
 void initTeamGuideService(teamSessionService).catch((error) => {

@@ -19,11 +19,11 @@ import { useTranslation } from 'react-i18next';
 import { useSettingsViewMode } from '../../settingsViewContext';
 import ChannelItem from './ChannelItem';
 import type { ChannelConfig } from './types';
-import DingTalkConfigForm from './DingTalkConfigForm';
-import LarkConfigForm from './LarkConfigForm';
-import TelegramConfigForm from './TelegramConfigForm';
-import WeixinConfigForm from './WeixinConfigForm';
-import WecomConfigForm from './WecomConfigForm';
+import DingTalkConfigForm from './chat/DingTalkConfigForm';
+import LarkConfigForm from './chat/LarkConfigForm';
+import TelegramConfigForm from './chat/TelegramConfigForm';
+import WeixinConfigForm from './chat/WeixinConfigForm';
+import WecomConfigForm from './chat/WecomConfigForm';
 
 type ChannelModelConfigKey =
   | 'assistant.telegram.defaultModel'

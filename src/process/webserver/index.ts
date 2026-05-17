@@ -19,6 +19,7 @@ import { registerAuthRoutes } from './routes/authRoutes';
 import { registerApiRoutes } from './routes/apiRoutes';
 import { registerStaticRoutes, resolveRendererPath, VITE_DEV_PORT } from './routes/staticRoutes';
 import { generateQRLoginUrlDirect } from '@process/bridge/webuiQR';
+import { mountWebhookRoutes } from '@process/channels/webhook';
 
 // Express Request type extension is defined in src/webserver/types/express.d.ts
 
@@ -311,9 +312,15 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
   // the last restart still reject the corresponding tokens.
   await AuthService.hydrateBlacklist();
 
-  // Configure middleware
-  setupBasicMiddleware(app);
+  // Mount webhook receiver BEFORE basic middleware so each /webhooks/* route
+  // can install its own `express.raw()` body parser (signature verification
+  // requires the unparsed body) and so inbound webhooks bypass CSRF — they
+  // are authenticated by per-platform signatures, not by browser cookies.
   setupCors(app, port, allowRemote);
+  mountWebhookRoutes(app);
+
+  // Configure middleware (applies to all non-webhook routes)
+  setupBasicMiddleware(app);
 
   // Register routes
   registerAuthRoutes(app);

@@ -16,8 +16,14 @@ import { LarkPlugin } from '../plugins/lark/LarkPlugin';
 import { TelegramPlugin } from '../plugins/telegram/TelegramPlugin';
 import { WeixinPlugin } from '../plugins/weixin/WeixinPlugin';
 import { WecomPlugin } from '../plugins/wecom/WecomPlugin';
+import { DiscordPlugin } from '../plugins/tier1/discord/DiscordPlugin';
+import { SlackPlugin } from '../plugins/tier1/slack/SlackPlugin';
+import { SmsTwilioPlugin } from '../plugins/tier1/sms/SmsTwilioPlugin';
+import { WhatsAppPlugin } from '../plugins/tier1/whatsapp/WhatsAppPlugin';
 import { isBuiltinChannelPlatform, resolveChannelConvType } from '../types';
 import type { ChannelPlatform, IChannelPluginConfig, PluginType } from '../types';
+import { getTokenStore, registerWebhookDispatcher } from '../webhook';
+import { ProcessConfig } from '@process/utils/initStorage';
 import { SessionManager } from './SessionManager';
 
 /**
@@ -54,6 +60,10 @@ export class ChannelManager {
     registerPlugin('dingtalk', DingTalkPlugin);
     registerPlugin('weixin', WeixinPlugin);
     registerPlugin('wecom', WecomPlugin);
+    registerPlugin('discord', DiscordPlugin);
+    registerPlugin('slack', SlackPlugin);
+    registerPlugin('sms-twilio', SmsTwilioPlugin);
+    registerPlugin('whatsapp', WhatsAppPlugin);
   }
 
   /**
@@ -116,6 +126,12 @@ export class ChannelManager {
         }
       });
 
+      // Hydrate the webhook connection-token store from persisted state so
+      // URLs minted in prior sessions still resolve after restart. Then wire
+      // the inbound dispatcher: every signature-verified webhook lands here
+      // and we look up the target plugin instance via PluginManager.
+      await this.wireWebhookDispatcher();
+
       // Load and start enabled plugins from database
       await this.loadEnabledPlugins();
 
@@ -166,6 +182,48 @@ export class ChannelManager {
    */
   isInitialized(): boolean {
     return this.initialized;
+  }
+
+  /**
+   * Hydrate the singleton webhook token store from persisted state and
+   * register the inbound dispatcher. Called once during initialize() AFTER
+   * pluginManager exists.
+   *
+   * The dispatcher routes signature-verified payloads to the target plugin
+   * by resolving pluginInstanceId → BasePlugin via PluginManager.getPlugin
+   * and calling plugin.handleWebhookPayload(payload, headers, instanceId).
+   *
+   * If the plugin is missing (e.g. disabled), we log + drop; the receiver
+   * still responds 202 so the platform doesn't retry forever.
+   */
+  private async wireWebhookDispatcher(): Promise<void> {
+    try {
+      const persisted = await ProcessConfig.get('webhook.connectionTokens');
+      if (Array.isArray(persisted) && persisted.length > 0) {
+        getTokenStore().hydrate(persisted);
+        console.log(`[ChannelManager] Hydrated ${persisted.length} webhook connection token(s)`);
+      }
+    } catch (err) {
+      console.error('[ChannelManager] Failed to hydrate webhook tokens:', err);
+    }
+
+    registerWebhookDispatcher(async (event) => {
+      const plugin = this.pluginManager?.getPlugin(event.pluginInstanceId);
+      if (!plugin) {
+        console.warn(
+          `[ChannelManager] Webhook arrived for unknown plugin instance: ${event.pluginInstanceId} (platform=${event.platform})`
+        );
+        return;
+      }
+      try {
+        await plugin.handleWebhookPayload(event.payload, event.headers, event.pluginInstanceId);
+      } catch (err) {
+        console.error(
+          `[ChannelManager] Plugin ${event.pluginInstanceId} threw on webhook delivery:`,
+          err
+        );
+      }
+    });
   }
 
   /**

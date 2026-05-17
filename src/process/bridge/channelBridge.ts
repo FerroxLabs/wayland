@@ -341,5 +341,43 @@ export function initChannelBridge(channelRepo: IChannelRepository): void {
     }
   });
 
+  // ==================== Webhook Token Rotation ====================
+
+  /**
+   * Rotate the webhook connection token for a (platform, plugin, agent) tuple.
+   * Revokes the existing token (tombstone, audit trail preserved) and mints a
+   * fresh one. Surfaces the new record back to the renderer so the UI can
+   * re-display the freshly minted webhook URL.
+   */
+  channel.rotateWebhookToken.provider(async ({ platform, pluginInstanceId, agentId }) => {
+    try {
+      if (!platform || !pluginInstanceId || !agentId) {
+        return { success: false, msg: 'platform, pluginInstanceId and agentId are required' };
+      }
+      const { getTokenStore } = await import('@process/channels/webhook');
+      const store = getTokenStore();
+      // Revoke any prior token(s) for this exact tuple so the old URL can no
+      // longer be used to deliver messages.
+      for (const record of store.serialize()) {
+        if (
+          record.revokedAt === undefined &&
+          record.platform === platform &&
+          record.pluginInstanceId === pluginInstanceId &&
+          record.agentId === agentId
+        ) {
+          store.revoke(record.token);
+        }
+      }
+      const minted = store.register(platform, pluginInstanceId, agentId);
+      return {
+        success: true,
+        data: { token: minted.token, platform: minted.platform, createdAt: minted.createdAt },
+      };
+    } catch (error: any) {
+      console.error('[ChannelBridge] rotateWebhookToken error:', error);
+      return { success: false, msg: error.message };
+    }
+  });
+
   console.log('[ChannelBridge] Initialized');
 }

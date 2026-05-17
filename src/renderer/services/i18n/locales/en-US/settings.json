@@ -1,5 +1,24 @@
 {
   "title": "Settings",
+  "commandPalette": {
+    "placeholder": "Search settings…",
+    "noResults": "No results found"
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "openPalette": "Open command palette",
+    "showShortcuts": "Show keyboard shortcuts",
+    "navigateResults": "Navigate results",
+    "selectResult": "Select result",
+    "close": "Close"
+  },
+  "displayPage": {
+    "matchSystem": "Match System Theme",
+    "reduceMotion": "Reduce Motion",
+    "densityComfortable": "Comfortable",
+    "densityCompact": "Compact",
+    "sidebarWidth": "Sidebar Width"
+  },
   "skillsHub": {
     "title": "Skills Hub",
     "description": "Centrally manage AI agent skills. Install once, use across all assistants.",
@@ -159,8 +178,8 @@
   "autoPreviewOfficeFiles": "Auto Preview New Office Files",
   "autoPreviewOfficeFilesDesc": "Automatically open newly created Word, Excel, and PowerPoint files in the current workspace. Office temporary lock files are ignored.",
   "startOnBoot": "Start on Boot",
-  "startOnBootDesc": "Launch Wayland automatically when you sign in to macOS or Windows.",
-  "startOnBootUnsupported": "Available only in packaged macOS and Windows apps.",
+  "startOnBootDesc": "Launch Wayland automatically when you sign in to macOS, Windows, or Linux.",
+  "startOnBootUnsupported": "Available only in packaged macOS, Windows, and Linux apps.",
   "startOnBootUpdateFailed": "Failed to update start on boot setting",
   "closeToTray": "Close to Tray",
   "notification": "Notifications",
@@ -250,7 +269,298 @@
   "webui": "Remote",
   "installed": "Installed",
   "builtin": "Built-in",
-  "channels": "Channels",
+  "channels": {
+    "label": "Channels",
+    "telegram": {
+      "help": "Chat with your Wayland AI assistant via Telegram. Create a bot with @BotFather to get started."
+    },
+    "slack": {
+      "comingSoonTitle": "Slack support coming in {{phase}}",
+      "comingSoonBody": "Bot integration via Socket Mode. Post and receive messages in any channel of your workspace.",
+      "learnMore": "Learn more",
+      "help": "Native Slack bot integration via @slack/bolt. Choose Socket Mode for the simplest setup (no public webhook URL required) or Events API if you already have a stable HTTPS endpoint.",
+      "replaceWarning": "Connecting a new Slack workspace will replace your existing one.",
+      "connectionSuccess": "Connected! Bot: @{{username}}",
+      "connectionFailed": "Connection failed",
+      "pluginEnabled": "Slack bot enabled",
+      "enableFailed": "Failed to enable plugin",
+      "testAndEnable": "Test & Enable",
+      "credentials": {
+        "transport": {
+          "label": "Transport",
+          "help": "Socket Mode opens an outbound WebSocket Slack initiates — no public URL needed. Events API uses an inbound HTTPS webhook verified with a signing secret.",
+          "socket": "Socket Mode",
+          "events": "Events API"
+        },
+        "botToken": {
+          "label": "Bot Token",
+          "placeholder": "xoxb-...your-bot-token...",
+          "help": "OAuth & Permissions → Bot User OAuth Token. Starts with \"xoxb-\".",
+          "required": "Please enter a bot token"
+        },
+        "appToken": {
+          "label": "App-Level Token",
+          "placeholder": "xapp-...your-app-token...",
+          "help": "Required for Socket Mode. Basic Information → App-Level Tokens → Generate Token and Scopes with connections:write. Starts with \"xapp-\".",
+          "required": "Socket Mode requires an app-level token"
+        },
+        "signingSecret": {
+          "label": "Signing Secret",
+          "placeholder": "32-character hex signing secret",
+          "help": "Required for Events API. Basic Information → App Credentials → Signing Secret. Used to verify the X-Slack-Signature HMAC on every webhook delivery.",
+          "required": "Events API transport requires a signing secret"
+        }
+      }
+    },
+    "discord": {
+      "comingSoonTitle": "Discord support coming in {{phase}}",
+      "comingSoonBody": "Bot integration via the Discord Gateway. Servers, threads, DMs, slash commands.",
+      "learnMore": "Learn more",
+      "help": "Native Discord bot integration via the Gateway. Create a Discord application and bot in the Developer Portal, then paste the bot token below.",
+      "replaceWarning": "Connecting a new Discord bot will replace your existing one.",
+      "connectionSuccess": "Connected! Bot: @{{username}}",
+      "connectionFailed": "Connection failed",
+      "pluginEnabled": "Discord bot enabled",
+      "enableFailed": "Failed to enable plugin",
+      "testAndEnable": "Test & Enable",
+      "credentials": {
+        "botToken": {
+          "label": "Bot Token",
+          "placeholder": "MTI...your-bot-token...",
+          "help": "Find this in the Discord Developer Portal under your application → Bot → Reset Token.",
+          "required": "Please enter a bot token"
+        },
+        "applicationId": {
+          "label": "Application ID",
+          "placeholder": "1234567890123456789",
+          "help": "Optional. Required only when you register slash commands for this bot."
+        },
+        "publicKey": {
+          "label": "Public Key",
+          "placeholder": "ed25519 public key in hex",
+          "help": "Optional. Required only if you later switch to the HTTP interaction endpoint instead of the Gateway."
+        }
+      }
+    },
+    "webhook": {
+      "comingSoonTitle": "Webhook channel coming in {{phase}}",
+      "comingSoonBody": "Generic inbound HTTP endpoint with HMAC signature verification. Use for custom integrations.",
+      "learnMore": "Learn more"
+    },
+    "dingtalk": {
+      "help": "Enterprise messaging via DingTalk bots. Create a custom bot inside a DingTalk group to get the access token."
+    },
+    "lark": {
+      "help": "Workspace messaging for Lark / Feishu groups. Create a custom app in the Lark developer console to get App ID and App Secret."
+    },
+    "wechat": {
+      "help": "QR-based pairing with WeChat personal accounts. Scan the pairing QR with WeChat to enable conversation routing."
+    },
+    "wecom": {
+      "help": "Enterprise WeChat for company workspaces. Register a self-built application to get Corp ID, Agent ID, and Secret."
+    },
+    "whatsapp": {
+      "comingSoonTitle": "WhatsApp coming in {{phase}}",
+      "comingSoonBody": "Meta WhatsApp Business Cloud API. Inbound via verified webhooks, outbound REST. 24-hour customer service window applies to free-form replies.",
+      "help": "Three backends: Baileys (direct WhatsApp Web protocol, recommended), WhatsApp Web.js (alternate Puppeteer-based), or Meta Business Cloud API (verified business numbers).",
+      "replaceWarning": "Connecting a new WhatsApp account will replace your existing one.",
+      "accountLockWarning": "Connecting a new WhatsApp account will replace your existing one. Existing QR pairing or webhook URL becomes invalid.",
+      "connectionSuccess": "WhatsApp connected",
+      "connectionFailed": "Connection failed",
+      "pluginEnabled": "WhatsApp plugin enabled",
+      "enableFailed": "Failed to enable plugin",
+      "testAndEnable": "Test & Enable",
+      "credentials": {
+        "backend": {
+          "label": "Backend",
+          "placeholder": "baileys",
+          "help": "Baileys is recommended for personal accounts. Meta Business is required for verified business accounts and templated messaging.",
+          "required": "Please select a backend",
+          "baileys": "Baileys (recommended)",
+          "whatsappWeb": "WhatsApp Web.js",
+          "metaBusiness": "Meta Business"
+        },
+        "accessToken": {
+          "label": "Access Token",
+          "placeholder": "EAAG...your-token...",
+          "help": "Meta system-user or temporary access token. Generated in Meta Business Suite → System Users.",
+          "required": "Access Token and Phone Number ID are required for Meta backend"
+        },
+        "phoneNumberId": {
+          "label": "Phone Number ID",
+          "placeholder": "123456789012345",
+          "help": "Numeric ID from Meta Business → WhatsApp → Phone Numbers. Not the phone number itself.",
+          "required": "Phone Number ID is required for Meta backend"
+        },
+        "businessAccountId": {
+          "label": "Business Account ID",
+          "placeholder": "987654321098765",
+          "help": "Optional. Enables richer metadata in inbound message events.",
+          "required": ""
+        },
+        "verifyToken": {
+          "label": "Verify Token",
+          "placeholder": "a long random string",
+          "help": "Operator-chosen string Meta echoes during the GET /webhook handshake. Must match what you paste into the Meta dashboard.",
+          "required": ""
+        }
+      },
+      "qrPairing": {
+        "title": "QR Pairing",
+        "help": "Open WhatsApp on your phone → Settings → Linked Devices → Link a Device, then scan the code below. The code rotates every minute until paired.",
+        "refreshing": "Waiting for pairing code from bridge…"
+      },
+      "webhookUrl": {
+        "label": "Inbound Webhook URL",
+        "help": "Paste this URL into Meta Business → WhatsApp → Configuration → Webhook callback URL.",
+        "tunnelPlaceholder": "(configure tunnel in Phase 4)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Copy",
+        "rotateButton": "Rotate",
+        "rotateSuccess": "Webhook URL rotated",
+        "rotateFailed": "Rotation failed"
+      }
+    },
+    "smsTwilio": {
+      "comingSoonTitle": "SMS (Twilio) coming in {{phase}}",
+      "comingSoonBody": "Send and receive SMS via Twilio Programmable Messaging. Per-number webhook routing with HMAC-SHA1 signature verification. US deployments require A2P 10DLC registration.",
+      "accountLockWarning": "Connecting a new SMS account will replace your existing one. Existing webhook URL becomes invalid.",
+      "a2pNotice": "US deployments require A2P 10DLC brand and campaign registration. Toll-free numbers require separate verification. Both processes can take several days.",
+      "credentials": {
+        "accountSid": {
+          "label": "Account SID",
+          "placeholder": "ACxxxxxxxxxxxxxxxx",
+          "help": "Find your Account SID in the Twilio Console dashboard. Starts with \"AC\"."
+        },
+        "authToken": {
+          "label": "Auth Token",
+          "placeholder": "auth token",
+          "help": "Treat the auth token like a password — Twilio signs every webhook with it."
+        },
+        "fromNumber": {
+          "label": "From Number",
+          "placeholder": "+14155550123",
+          "help": "E.164 format, e.g. +14155550123. Provide either a From Number or a Messaging Service SID.",
+          "invalid": "Must be E.164 format, e.g. +14155550123"
+        },
+        "messagingServiceSid": {
+          "label": "Messaging Service SID",
+          "placeholder": "MGxxxxxxxxxxxxxxxx",
+          "help": "Optional alternative to From Number. Use a Messaging Service to enable number pooling or sender ID rotation."
+        }
+      },
+      "webhookUrl": {
+        "label": "Inbound Webhook URL",
+        "help": "Paste this URL into the Twilio number \"A Message Comes In\" webhook field (POST).",
+        "tunnelPlaceholder": "(configure tunnel in Phase 4)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Copy",
+        "rotateButton": "Rotate",
+        "rotateSuccess": "Webhook URL rotated",
+        "rotateFailed": "Rotation failed"
+      }
+    },
+    "signal": {
+      "comingSoonTitle": "Signal coming in {{phase}}",
+      "comingSoonBody": "Connect via signal-cli subprocess. End-to-end encrypted. Requires a dedicated phone number for one-time registration."
+    },
+    "matrix": {
+      "comingSoonTitle": "Matrix coming in {{phase}}",
+      "comingSoonBody": "Federation-aware via matrix-js-sdk. Optional E2E encryption with device verification. Compatible with any homeserver."
+    },
+    "msTeams": {
+      "comingSoonTitle": "MS Teams coming in {{phase}}",
+      "comingSoonBody": "Microsoft Bot Framework via Azure Bot Service. Adaptive Cards for rich messages. Requires Azure subscription and Teams admin approval."
+    },
+    "line": {
+      "comingSoonTitle": "LINE coming in {{phase}}",
+      "comingSoonBody": "Bot integration via the LINE Messaging API. Free tier: 500 outbound messages per month."
+    },
+    "imessage": {
+      "comingSoonTitle": "iMessage coming in {{phase}}",
+      "comingSoonBody": "macOS-only, experimental. AppleScript bridge to Messages.app. Apple silently rate-limits scripted sends so messaging is throttled."
+    },
+    "viber": {
+      "comingSoonTitle": "Viber coming in {{phase}}",
+      "comingSoonBody": "Bot integration via the Viber Bot API. Webhook for inbound, REST for outbound. Public URL required."
+    },
+    "bluebubbles": {
+      "comingSoonTitle": "BlueBubbles coming in {{phase}}",
+      "comingSoonBody": "iMessage via the BlueBubbles relay server. Requires a spare Mac on your network running the BlueBubbles server."
+    },
+    "threema": {
+      "comingSoonTitle": "Threema coming in {{phase}}",
+      "comingSoonBody": "Threema Gateway API. B2B contract with per-message pricing. End-to-end encrypted."
+    },
+    "mastodon": {
+      "comingSoonTitle": "Mastodon coming in {{phase}}",
+      "comingSoonBody": "OAuth per-instance plus WebSocket streaming. One credential set per account on one instance."
+    },
+    "bluesky": {
+      "comingSoonTitle": "Bluesky coming in {{phase}}",
+      "comingSoonBody": "AT Protocol via @atproto/api. Jetstream firehose for mentions; XRPC for posting. Use an app password, not your main login."
+    },
+    "reddit": {
+      "comingSoonTitle": "Reddit DMs coming in {{phase}}",
+      "comingSoonBody": "Reddit API for direct messages. Polling-only (no streaming endpoint for DMs)."
+    },
+    "twitch": {
+      "comingSoonTitle": "Twitch coming in {{phase}}",
+      "comingSoonBody": "Twitch chat via the IRC bridge or EventSub. Connects to one channel per token."
+    },
+    "nostr": {
+      "comingSoonTitle": "Nostr coming in {{phase}}",
+      "comingSoonBody": "Encrypted DMs over Nostr relays. Bring your own private key (nsec)."
+    },
+    "telegramUserbot": {
+      "comingSoonTitle": "Telegram Userbot coming in {{phase}}",
+      "comingSoonBody": "MTProto user-mode (gramjs / mtcute). Separate from the Bot API. WARNING — running a userbot can get the phone number banned for ToS violation."
+    },
+    "mattermost": {
+      "comingSoonTitle": "Mattermost coming in {{phase}}",
+      "comingSoonBody": "Self-hostable Slack alternative. WebSocket events plus REST."
+    },
+    "googleChat": {
+      "comingSoonTitle": "Google Chat coming in {{phase}}",
+      "comingSoonBody": "Google Workspace integration via the Chat API. OAuth required."
+    },
+    "nextcloudTalk": {
+      "comingSoonTitle": "Nextcloud Talk coming in {{phase}}",
+      "comingSoonBody": "Self-hosted chat for Nextcloud instances. Username + app password."
+    },
+    "synologyChat": {
+      "comingSoonTitle": "Synology Chat coming in {{phase}}",
+      "comingSoonBody": "Chat on Synology NAS. Webhook for inbound, REST for outbound."
+    },
+    "irc": {
+      "comingSoonTitle": "IRC coming in {{phase}}",
+      "comingSoonBody": "Classic IRC connectivity. Server, port, channels, optional SASL authentication."
+    },
+    "qq": {
+      "comingSoonTitle": "QQ coming in {{phase}}",
+      "comingSoonBody": "Tencent QQ messaging. Limited utility outside China."
+    },
+    "xiaomi": {
+      "comingSoonTitle": "Xiaomi coming in {{phase}}",
+      "comingSoonBody": "Xiaomi MIUI messaging. China-only."
+    },
+    "zalo": {
+      "comingSoonTitle": "Zalo coming in {{phase}}",
+      "comingSoonBody": "Vietnamese messaging platform. Webhook + REST."
+    },
+    "xDms": {
+      "comingSoonTitle": "X / Twitter DMs",
+      "premiumGate": "Premium API tier required ($200/month). Subscribe to X Developer Platform Basic or higher to enable DMs. The X Basic tier is closed to new signups as of 2026."
+    },
+    "emailAgentmail": {
+      "comingSoonTitle": "Email (AgentMail) coming in {{phase}}",
+      "comingSoonBody": "Per-agent dedicated inbox at <agent-slug>@<workspace>.agentmail.to. AgentMail handles deliverability, threading, attachments."
+    },
+    "emailImap": {
+      "comingSoonTitle": "Email (IMAP/SMTP) coming in {{phase}}",
+      "comingSoonBody": "Bring your own inbox. IMAP IDLE for inbound, SMTP for outbound. OAuth supported for Gmail and Outlook."
+    }
+  },
   "webui.description": "Use Wayland as your \"24/7 Remote Assistant\" - arrange tasks from any remote device, anytime, anywhere.",
   "webui.steps": "Step 1. Turn on WebUI; Step 2. Copy the access URL; Step 3. Open in remote browser",
   "webui.configuration": "WebUI Configuration",
@@ -337,6 +647,17 @@
   "webui.featureChannelsTitle": "Messaging Control",
   "webui.featureChannelsDesc": "Connect Telegram, Lark, DingTalk, and WeChat to interact with Wayland from IM apps.",
   "webui.goToChannels": "Go to Channels",
+  "webui.pairedDevices.title": "Paired Devices",
+  "webui.pairedDevices.empty": "No devices paired yet",
+  "webui.pairedDevices.lastSeen": "Last seen {{time}}",
+  "webui.pairedDevices.revokeTitle": "Revoke Device",
+  "webui.pairedDevices.revoke": "Revoke",
+  "webui.pairedDevices.revokeConfirm": "This will immediately invalidate the session for this device. The device will need to log in again.",
+  "webui.activityLog.title": "Recent Activity",
+  "webui.activityLog.empty": "No activity recorded yet",
+  "webui.activityLog.refresh": "Refresh",
+  "webui.activityLog.viewAll": "View all {{count}} events →",
+  "webui.activityLog.showLess": "Show less",
   "assistant.telegramConfig": "Telegram Bot Configuration",
   "assistant.botToken": "Bot Token",
   "assistant.botTokenDesc": "Open Telegram, find @BotFather and send /newbot to get your Bot Token.",
@@ -414,6 +735,21 @@
   "channels.extension.noConfig": "No extra configuration required.",
   "channels.extension.selectPlaceholder": "Please select",
   "channels.extension.defaultDesc": "Extension channel plugin",
+  "channels.discord.comingSoonTitle": "Discord support coming soon",
+  "channels.discord.comingSoonBody": "Native Discord bot integration is under development. Configure your bot token, Application ID, and allowed servers once available.",
+  "channels.discord.learnMore": "Learn more",
+  "channels.lark.comingSoonTitle": "Lark / Feishu support coming soon",
+  "channels.lark.comingSoonBody": "Native Lark and Feishu bot integration is under development. Domain picker, AppId/Secret, and advanced webhook options will be available once shipped.",
+  "channels.lark.learnMore": "Learn more",
+  "channels.dingtalk.comingSoonTitle": "DingTalk support coming soon",
+  "channels.dingtalk.comingSoonBody": "Native DingTalk bot integration is under development. ClientId/Secret and stream mode will be available once shipped.",
+  "channels.dingtalk.learnMore": "Learn more",
+  "channels.wechat.comingSoonTitle": "WeChat support coming soon",
+  "channels.wechat.comingSoonBody": "WeChat QR pairing integration is under development. Scan with WeChat to connect once available.",
+  "channels.wechat.learnMore": "Learn more",
+  "channels.wecom.comingSoonTitle": "WeCom support coming soon",
+  "channels.wecom.comingSoonBody": "WeCom (Enterprise WeChat) bot integration is under development. Webhook and WebSocket modes with callback URL configuration will be available once shipped.",
+  "channels.wecom.learnMore": "Learn more",
   "channels.mediaSendFailed": "Failed to send {{name}}",
   "channels.mediaPathNotAllowed": "Couldn't send {{name}} because the file is outside the allowed send directories",
   "display": "Display",
@@ -909,5 +1245,308 @@
     "version": "Version",
     "path": "Path",
     "providerNote": "Provider and API key settings are managed in the Models page. Wayland Core supports: Anthropic, OpenAI, AWS Bedrock."
+  },
+  "shared": {
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveFailed": "Save failed",
+    "restartRequired": "This change requires a restart to take effect.",
+    "restartNow": "Restart Now",
+    "discardChange": "Discard Change",
+    "confirm": "Confirm",
+    "dismiss": "Dismiss",
+    "statusPrefix": "Status: {{label}}",
+    "comingSoonTitle": "Coming in the next release",
+    "back": "Back",
+    "next": "Next"
+  },
+  "sider": {
+    "groupWorkspace": "WORKSPACE",
+    "groupAiModels": "AI MODELS",
+    "groupIntegrations": "INTEGRATIONS",
+    "groupAppearance": "APPEARANCE",
+    "groupSystem": "SYSTEM",
+    "groupAbout": "ABOUT",
+    "providers": "Providers",
+    "images": "Image Generation",
+    "voice": "Voice",
+    "channels": "Channels",
+    "mcp": "MCP Servers",
+    "theme": "Theme & Display",
+    "editor": "Editor",
+    "general": "General",
+    "notifications": "Notifications",
+    "storage": "Storage",
+    "skills": "Skills & Tools",
+    "agents": "Agents"
+  },
+  "channelsIndex": {
+    "title": "Channels",
+    "subtitle": "Connect Wayland to messaging platforms. Each connection has its own setup, credentials, and status.",
+    "tier1Tab": "Tier 1",
+    "tier2Tab": "Tier 2",
+    "tier3Tab": "Tier 3",
+    "phase1Label": "Phase 1",
+    "phase2Label": "Phase 2",
+    "phase3Label": "Phase 3",
+    "phase5Label": "Phase 5",
+    "whatsappTagline": "Meta WhatsApp Business Cloud API.",
+    "smsTwilioTagline": "Send and receive SMS via Twilio.",
+    "signalTagline": "End-to-end encrypted via signal-cli.",
+    "matrixTagline": "Federation-aware via matrix-js-sdk.",
+    "msteamsTagline": "Bot Framework via Azure Bot Service.",
+    "lineTagline": "Bot via LINE Messaging API.",
+    "imessageTagline": "macOS-only via AppleScript (experimental).",
+    "viberTagline": "Viber Bot API integration.",
+    "bluebubblesTagline": "iMessage relay (requires a spare Mac).",
+    "threemaTagline": "Threema Gateway (B2B contract).",
+    "mastodonTagline": "OAuth + streaming per instance.",
+    "blueskyTagline": "AT Protocol via @atproto/api.",
+    "redditTagline": "Direct messages via Reddit API.",
+    "twitchTagline": "Twitch chat via IRC or EventSub.",
+    "nostrTagline": "Encrypted DMs over Nostr relays.",
+    "telegramUserbotTagline": "Telegram MTProto user-mode (gramjs).",
+    "mattermostTagline": "Self-hostable Slack alternative.",
+    "googleChatTagline": "Google Workspace Chat API.",
+    "nextcloudTalkTagline": "Self-hosted Nextcloud chat.",
+    "synologyChatTagline": "Chat on Synology NAS.",
+    "ircTagline": "Classic IRC connectivity.",
+    "qqTagline": "Tencent QQ (CN audience).",
+    "xiaomiTagline": "Xiaomi MIUI messaging (CN).",
+    "zaloTagline": "Vietnamese messaging platform.",
+    "xDmsTagline": "Premium API tier required.",
+    "emailAgentMailTagline": "Per-agent dedicated inbox via AgentMail.",
+    "emailImapTagline": "Bring your own IMAP / SMTP inbox.",
+    "slackTagline": "Post and receive messages in your Slack workspace.",
+    "telegramTagline": "Bot-based messaging via the Telegram Bot API.",
+    "discordTagline": "Bot integration for Discord servers and DMs.",
+    "larkTagline": "Workspace messaging for Lark / Feishu groups.",
+    "dingtalkTagline": "Enterprise messaging via DingTalk bots.",
+    "wechatTagline": "QR-based pairing with WeChat personal accounts.",
+    "wecomTagline": "Enterprise WeChat for company workspaces.",
+    "webhookTagline": "Generic inbound webhook for custom integrations.",
+    "emailTagline": "Inbound & outbound email via IMAP / SMTP.",
+    "notConnected": "Not connected",
+    "connected": "Connected",
+    "comingSoon": "Coming soon",
+    "setUp": "Set up",
+    "configure": "Configure",
+    "footerText": "More channels arrive via extensions.",
+    "browseExtensions": "Browse extensions →",
+    "channelsMovedHint": "Channels have been moved to Integrations →",
+    "detailComingSoon": "Per-channel setup with credential fields and Connection Card UI lands in the next release."
+  },
+  "providersPage": {
+    "title": "Providers",
+    "subtitle": "Connect AI model providers. Paste a key to auto-detect the provider and fetch its model catalog.",
+    "emptyHint": "No providers connected yet. Paste a key above to get started."
+  },
+  "mcpPage": {
+    "title": "MCP Servers",
+    "subtitle": "Connect Wayland to external tool servers via Model Context Protocol. Add, configure, and sync MCP servers across your agents."
+  },
+  "imageGenPage": {
+    "title": "Image Generation",
+    "subtitle": "Pick which configured image-capable model the in-chat image generation tool should use by default.",
+    "dedicatedPageTitle": "Dedicated page coming next release",
+    "dedicatedPageBody": "For now, configure the image generation default model in Skills & Tools → MCP & Voice. We are moving this to its own first-class page.",
+    "openInSkills": "Open in Skills & Tools"
+  },
+  "voicePage": {
+    "title": "Voice",
+    "subtitle": "Speech-to-text providers used by the chat box on desktop and WebUI. Toggle on to enable voice input."
+  },
+  "generalPage": {
+    "title": "General",
+    "subtitle": "App-wide preferences: language, startup behaviour, timeouts, notifications, and storage paths."
+  },
+  "notificationsPage": {
+    "title": "Notifications",
+    "subtitle": "When and how Wayland alerts you.",
+    "comingSoon": "Per-category toggles, quiet hours, and sound controls land in the next release.",
+    "systemTitle": "System notifications",
+    "master": "Master switch",
+    "masterHelp": "When off, Wayland sends no system notifications. Other rules below are ignored.",
+    "agentFinished": "Notify when agent finishes",
+    "agentFinishedHelp": "Fires when a long-running task or team launcher completes.",
+    "scheduledTask": "Notify on scheduled task fire",
+    "scheduledTaskHelp": "Cron-style tasks notify when they run.",
+    "agentError": "Notify on agent error",
+    "agentErrorHelp": "Failures, timeouts, lost connections.",
+    "channelMessage": "Notify on channel message",
+    "channelMessageHelp": "Telegram / Lark / DingTalk / WeChat messages from connected channels.",
+    "soundTitle": "Sound",
+    "playSound": "Play sound on notification",
+    "playSoundHelp": "Uses the system default sound.",
+    "quietHours": "Quiet hours",
+    "quietHoursHelp": "Suppress sound between these times."
+  },
+  "storagePage": {
+    "title": "Storage",
+    "comingSoon": "Usage breakdown, backup, restore, and sync land in the next release.",
+    "usageTitle": "Storage usage",
+    "totalUsed": "{{used}} used of {{total}}",
+    "usageStale": "Updated {{ago}}",
+    "refresh": "Refresh",
+    "conversations": "Conversations",
+    "cache": "Cache",
+    "logs": "Logs",
+    "directoriesTitle": "Directories",
+    "workspace": "Workspace",
+    "cacheDir": "Cache",
+    "logsDir": "Logs",
+    "open": "Open",
+    "clear": "Clear",
+    "clearConfirmTitle": "Clear directory?",
+    "clearConfirmBody": "This permanently removes the files inside. Wayland will rebuild them as needed.",
+    "backupTitle": "Backup & restore",
+    "exportIncludeKeys": "Include API keys in export",
+    "exportPassphraseLabel": "Encryption passphrase",
+    "exportPassphrasePlaceholder": "Required when keys are included",
+    "exportAll": "Export everything",
+    "restore": "Restore from backup",
+    "syncTitle": "Sync (E2EE)",
+    "syncComingSoon": "End-to-end encrypted sync to a folder or relay.",
+    "resetTitle": "Reset Wayland",
+    "resetDescription": "Permanently delete all conversations, settings, and cached data.",
+    "resetAction": "Reset everything",
+    "resetConfirmTitle": "Reset everything?",
+    "resetConfirmBody": "This permanently deletes all data including providers, conversations, and settings. This cannot be undone.",
+    "resetTypePlaceholder": "Type \"reset\" to confirm",
+    "sync": {
+      "title": "Sync (E2EE)",
+      "betaTag": "Beta",
+      "disabledDescription": "End-to-end encrypted sync to a local folder. Keys never leave this device.",
+      "enableButton": "Enable sync",
+      "enableTitle": "Enable end-to-end encrypted sync",
+      "enabledStatus": "Sync enabled",
+      "disableButton": "Disable sync",
+      "disableConfirmTitle": "Disable sync?",
+      "disableConfirmBody": "Stops syncing this device. Backup files in the chosen folder remain untouched.",
+      "syncNow": "Sync now",
+      "lastSync": "Last sync: {{when}}",
+      "never": "never",
+      "itemsCount": "{{count}} items synced",
+      "passphrase": "Passphrase",
+      "passphrasePlaceholder": "At least 16 characters",
+      "passphraseConfirm": "Confirm passphrase",
+      "passphraseConfirmPlaceholder": "Re-enter passphrase",
+      "passphraseWarning": "This passphrase encrypts your data. We can't recover it if you forget — write it down somewhere safe.",
+      "passphraseTooShort": "Passphrase must be at least {{min}} characters",
+      "passphraseMismatch": "Passphrases do not match",
+      "backendIntro": "Choose where the encrypted bundle is stored.",
+      "backendLocalFile": "Local folder",
+      "backendCloudRelay": "Cloud relay (coming soon)",
+      "folderPath": "Sync folder",
+      "pickFolder": "Pick folder",
+      "pickFolderFirst": "Pick a folder first",
+      "enable": "Enable sync"
+    }
+  },
+  "editorPage": {
+    "title": "Editor",
+    "comingSoon": "Editor preferences are coming in the next release.",
+    "preferencesTitle": "Editor preferences",
+    "defaultMode": "Default mode",
+    "defaultModeHelp": "Which view to open new documents in.",
+    "modeEditor": "Editor",
+    "modeSource": "Source",
+    "modePreview": "Preview",
+    "autoSaveDelay": "Auto-save delay",
+    "autoSaveDelayHelp": "How long to wait after typing stops before saving.",
+    "frontmatter": "Preserve YAML frontmatter",
+    "frontmatterHelp": "Keep `--- ... ---` blocks at the top of Markdown files intact.",
+    "spellCheck": "Spell check",
+    "syntaxHighlight": "Syntax highlighting",
+    "syntaxHighlightHelp": "Highlight code blocks in Markdown documents."
+  },
+  "skillsPage": {
+    "title": "Skills & Tools"
+  },
+  "agentsPage": {
+    "title": "Agents",
+    "subtitle": "Auto-detected local agents and remote agent connections. Built-in agents are always available."
+  },
+  "providers": {
+    "heroTitle": "Connect a provider",
+    "heroPlaceholder": "Paste an API key...",
+    "detectButton": "Detect & connect",
+    "browseButton": "Browse 24+ providers",
+    "connected": "Connected",
+    "refreshed": "Refreshed {{n}}h ago",
+    "refreshNow": "Refresh now",
+    "disconnect": "Disconnect",
+    "configure": "Configure",
+    "deprecationBanner": "Some models in this provider’s catalog have been removed",
+    "defaultsTitle": "Default models",
+    "defaultChat": "Default chat model",
+    "defaultCoding": "Default coding model",
+    "defaultVision": "Default vision model",
+    "defaultImage": "Default image model",
+    "defaultAudio": "Default audio model",
+    "noDefault": "No default set",
+    "connect": {
+      "entryTitle": "Connect a provider",
+      "placeholder": "Paste your API key here...",
+      "detectButton": "Detect & connect",
+      "browseButton": "Browse 24+ providers",
+      "detectingProvider": "Detecting provider…",
+      "verifyingKey": "Verifying key…",
+      "fetchingCatalog": "Fetching model catalog…",
+      "moreInfoTitle": "Additional details required",
+      "pickerTitle": "Choose a provider",
+      "pickerSearch": "Search providers…",
+      "resultsTitle": "Select models to enable",
+      "resultsSelectAll": "Select all",
+      "resultsDeselectAll": "Deselect all",
+      "connectButton": "Connect",
+      "cancel": "Cancel",
+      "retry": "Try again",
+      "editKey": "Edit key",
+      "openConsole": "Open provider console",
+      "errorTitle": "Connection failed",
+      "errorNetwork": "Could not reach the provider. Check your network connection.",
+      "errorUnauthorized": "Invalid API key. Check your key and try again.",
+      "errorForbidden": "This key does not have the required permissions.",
+      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
+      "errorUnknown": "An unexpected error occurred.",
+      "fieldRegion": "AWS Region",
+      "fieldSecretKey": "Secret Access Key",
+      "fieldAccessKeyId": "Access Key ID",
+      "fieldEndpoint": "Endpoint URL",
+      "fieldDeployment": "Deployment Name",
+      "fieldApiVersion": "API Version",
+      "fieldProjectId": "Google Cloud Project ID",
+      "fieldServiceAccount": "Service Account JSON",
+      "browseServiceAccount": "Browse…"
+    },
+    "tiers": {
+      "flagship": "Flagship",
+      "everyday": "Everyday",
+      "fast": "Fast",
+      "reasoning": "Reasoning",
+      "legacy": "Legacy"
+    },
+    "capabilities": {
+      "chat": "Chat",
+      "vision": "Vision",
+      "image": "Image generation",
+      "audio": "Audio",
+      "embeddings": "Embeddings",
+      "reasoning": "Reasoning"
+    },
+    "search": {
+      "placeholder": "Search models…",
+      "noResults": "No models match your search"
+    },
+    "categories": {
+      "frontier": "Frontier",
+      "openInference": "Open inference",
+      "cloud": "Cloud",
+      "chineseFrontier": "Chinese frontier",
+      "specialised": "Specialised",
+      "voice": "Voice",
+      "custom": "Custom"
+    }
   }
 }

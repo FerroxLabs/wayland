@@ -336,6 +336,61 @@ body[arco-theme='dark'] .arco-message-error {
   }
 }
 
+/* ---------- Form input placeholder contrast ----------
+   Arco's default placeholder color (`--color-text-3`) sits near `--bg-6` in
+   dark mode (~#4d4d4d) — barely readable on a near-black input background.
+   Pin every Arco input/textarea/select placeholder to `--text-muted` so they
+   pass WCAG AA in both themes. */
+.arco-input::placeholder,
+.arco-input-inner-wrapper input::placeholder,
+.arco-input-tag input::placeholder,
+.arco-textarea::placeholder,
+.arco-textarea-wrapper textarea::placeholder,
+.arco-select-view-input::placeholder,
+.arco-picker-input input::placeholder {
+  color: var(--text-placeholder) !important;
+  opacity: 1;
+}
+/* Arco's Select shows an empty-state placeholder via this span, not an input. */
+.arco-select-view-value > .arco-select-view-input,
+.arco-select-view-value [class*='arco-select-view-input'],
+.arco-select .arco-select-view-value .arco-select-view-input,
+.arco-select-view-value::placeholder {
+  color: var(--text-placeholder);
+}
+
+/* ---------- Form input field boundary contrast ----------
+   Arco's default input/select/picker uses a faint tinted background and no
+   visible border in dark mode, which makes form fields disappear into the
+   page. Pin a solid background + visible border so each field is clearly
+   delineated. Focus state uses the brand color. */
+.arco-input-inner-wrapper:not(.arco-input-inner-wrapper-disabled),
+.arco-textarea-wrapper:not(.arco-textarea-wrapper-disabled),
+.arco-select-view:not(.arco-select-view-disabled),
+.arco-picker:not(.arco-picker-disabled),
+.arco-input-tag:not(.arco-input-tag-disabled) {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  transition: border-color 120ms ease;
+}
+.arco-input-inner-wrapper:hover,
+.arco-textarea-wrapper:hover,
+.arco-select-view:hover,
+.arco-picker:hover,
+.arco-input-tag:hover {
+  background-color: var(--input-bg);
+  border-color: var(--border-bright);
+}
+.arco-input-inner-wrapper.arco-input-inner-wrapper-focus,
+.arco-textarea-wrapper.arco-textarea-wrapper-focus,
+.arco-select-view.arco-select-view-focus,
+.arco-select.arco-select-focused .arco-select-view,
+.arco-picker.arco-picker-focused,
+.arco-input-tag.arco-input-tag-focus {
+  background-color: var(--input-bg);
+  border-color: var(--input-border-focus);
+}
+
 /* WebUI / Channels tabs in Remote settings */
 .settings-remote-tabs {
   .arco-tabs-nav {

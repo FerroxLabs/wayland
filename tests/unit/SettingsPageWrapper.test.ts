@@ -3,14 +3,20 @@ import { getBuiltinSettingsNavItems } from '@/renderer/pages/settings/components
 
 const t = (key: string, options?: { defaultValue?: string }) => {
   const labels: Record<string, string> = {
-    'settings.gemini': 'Gemini',
-    'settings.model': 'Models',
     'settings.assistants': 'Assistants',
-    'settings.agents': 'Agents',
-    'settings.capabilities': 'Capabilities',
-    'settings.display': 'Display',
+    'settings.sider.agents': 'Agents',
+    'settings.sider.skills': 'Skills & Tools',
+    'settings.sider.providers': 'Providers',
+    'settings.sider.images': 'Image Generation',
+    'settings.sider.voice': 'Voice',
     'settings.webui': 'WebUI',
-    'settings.system': 'System',
+    'settings.sider.channels': 'Channels',
+    'settings.sider.mcp': 'MCP Servers',
+    'settings.sider.theme': 'Theme & Display',
+    'settings.sider.editor': 'Editor',
+    'settings.sider.general': 'General',
+    'settings.sider.notifications': 'Notifications',
+    'settings.sider.storage': 'Storage',
     'settings.about': 'About',
   };
 
@@ -22,26 +28,38 @@ describe('getBuiltinSettingsNavItems', () => {
     const items = getBuiltinSettingsNavItems(false, t);
 
     expect(items.map((item) => item.id)).toEqual([
-      'gemini',
-      'agent',
-      'model',
       'assistants',
-      'capabilities',
-      'display',
+      'agents',
+      'skills',
+      'providers',
+      'images',
+      'voice',
       'webui',
-      'system',
+      'channels',
+      'mcp',
+      'theme',
+      'editor',
+      'general',
+      'notifications',
+      'storage',
       'about',
     ]);
 
     expect(items.map((item) => item.label)).toEqual([
-      'Gemini',
-      'Agents',
-      'Models',
       'Assistants',
-      'Capabilities',
-      'Display',
+      'Agents',
+      'Skills & Tools',
+      'Providers',
+      'Image Generation',
+      'Voice',
       'WebUI',
-      'System',
+      'Channels',
+      'MCP Servers',
+      'Theme & Display',
+      'Editor',
+      'General',
+      'Notifications',
+      'Storage',
       'About',
     ]);
   });

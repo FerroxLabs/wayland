@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CheckCircle2, Copy, Globe, MessageCircle, PencilLine, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Copy, Globe, PencilLine, RefreshCw } from 'lucide-react';
 import { WEBUI_DEFAULT_PORT } from '@/common/config/constants';
 import { shell, webui, type IWebUIStatus } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
@@ -18,7 +18,7 @@ import ChannelTelegramLogo from '@/renderer/assets/channel-logos/telegram.svg';
 import ChannelWecomLogo from '@/renderer/assets/channel-logos/wecom.svg';
 import ChannelWeixinLogo from '@/renderer/assets/channel-logos/weixin.svg';
 import { isElectronDesktop } from '@/renderer/utils/platform';
-import { Button, Form, Input, Message, Switch, Tabs, Tooltip } from '@arco-design/web-react';
+import { Button, Form, Input, Message, Switch, Tooltip } from '@arco-design/web-react';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettingsViewMode } from '../settingsViewContext';
@@ -70,7 +70,7 @@ const WebuiModalContent: React.FC = () => {
   const { t } = useTranslation();
   const viewMode = useSettingsViewMode();
   const isPageMode = viewMode === 'page';
-  const [activeTab, setActiveTab] = useState<'webui' | 'channels'>('webui');
+  // Channels lifted to /settings/channels — webui-only panel here
 
   // Check if running in Electron desktop environment
   const isDesktop = isElectronDesktop();
@@ -868,61 +868,7 @@ const WebuiModalContent: React.FC = () => {
 
   return (
     <div className='flex flex-col h-full w-full'>
-      <Tabs
-        activeTab={activeTab}
-        onChange={(key) => setActiveTab((key as 'webui' | 'channels') || 'webui')}
-        type='line'
-        className='mb-12px settings-remote-tabs'
-      >
-        <Tabs.TabPane
-          key='webui'
-          title={
-            <span
-              data-webui-tab='webui'
-              className={`inline-flex items-center gap-6px transition-colors ${activeTab === 'webui' ? 'text-t-primary font-600' : 'text-t-secondary'}`}
-            >
-              <Globe size={15} />
-              <span>WebUI</span>
-            </span>
-          }
-        />
-        <Tabs.TabPane
-          key='channels'
-          title={
-            <span
-              data-webui-tab='channels'
-              className={`inline-flex items-center gap-6px transition-colors ${activeTab === 'channels' ? 'text-t-primary font-600' : 'text-t-secondary'}`}
-            >
-              <MessageCircle size={15} />
-              <span>Channels</span>
-              <span className='inline-flex items-center gap-4px ml-2px'>
-                {CHANNEL_LOGOS.map((item) => (
-                  <span
-                    key={item.alt}
-                    className='inline-flex items-center justify-center w-16px h-16px rd-50% border border-line bg-fill-1'
-                    title={item.alt}
-                    aria-label={item.alt}
-                  >
-                    <img src={item.src} alt={item.alt} className='w-14px h-14px object-contain' />
-                  </span>
-                ))}
-              </span>
-            </span>
-          }
-        />
-      </Tabs>
-
-      {activeTab === 'webui' ? (
-        webuiPanel
-      ) : (
-        <div className='flex-1 min-h-0'>
-          <Suspense
-            fallback={<div className='px-[12px] md:px-[28px] text-13px text-t-secondary'>{t('common.loading')}</div>}
-          >
-            <ChannelModalContentLazy />
-          </Suspense>
-        </div>
-      )}
+      {webuiPanel}
 
       <WaylandModal
         visible={setUsernameModalVisible}

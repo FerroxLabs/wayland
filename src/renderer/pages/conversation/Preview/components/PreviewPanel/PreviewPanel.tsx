@@ -11,6 +11,7 @@ import { PreviewToolbarExtrasProvider, type PreviewToolbarExtras } from '../../c
 import { usePreviewContext } from '../../context/PreviewContext';
 import { useResizableSplit } from '@/renderer/hooks/ui/useResizableSplit';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEditorSettings } from '@renderer/hooks/settings/useEditorSettings';
 import CodePreview from '../viewers/CodeViewer';
 import DiffPreview from '../viewers/DiffViewer';
 import ExcelPreview from '../viewers/ExcelViewer';
@@ -59,6 +60,7 @@ const isMdFile = (filePath?: string): boolean => !!filePath && /\.(md|markdown|m
  */
 const PreviewPanel: React.FC = () => {
   const { t } = useTranslation();
+  const { settings: editorSettings } = useEditorSettings();
   const {
     isOpen,
     tabs,
@@ -128,10 +130,10 @@ const PreviewPanel: React.FC = () => {
   // Auto-save on idle: after the last edit, wait AUTO_SAVE_DELAY_MS and
   // flush to disk if the tab is still dirty. Each new edit resets the
   // timer; explicit Cmd+S still works (saveContent itself clears isDirty,
-  // so the timer will see isDirty=false and bail). 1.5s feels natural and
-  // matches Notion / Linear. Only fires for editable preview tabs, not
-  // while an agent is actively streaming content into the same file.
-  const AUTO_SAVE_DELAY_MS = 1500;
+  // so the timer will see isDirty=false and bail). Only fires for editable
+  // preview tabs, not while an agent is actively streaming content into
+  // the same file. Delay is read from editor settings (null = off).
+  const AUTO_SAVE_DELAY_MS = editorSettings.autoSaveDelay === 'off' ? null : editorSettings.autoSaveDelay;
   const dirty = activeTab?.isDirty ?? false;
   const streaming = activeTab?.isStreaming ?? false;
   const tabIdForSave = activeTab?.id;
@@ -140,11 +142,12 @@ const PreviewPanel: React.FC = () => {
     if (!tabIdForSave) return;
     if (!dirty) return;
     if (streaming) return;
+    if (AUTO_SAVE_DELAY_MS === null) return;
     const handle = setTimeout(() => {
       void saveContent(tabIdForSave);
     }, AUTO_SAVE_DELAY_MS);
     return () => clearTimeout(handle);
-  }, [tabIdForSave, contentForSave, dirty, streaming, saveContent]);
+  }, [tabIdForSave, contentForSave, dirty, streaming, saveContent, AUTO_SAVE_DELAY_MS]);
 
   // Default-landing mode for newly opened tabs.
   // - MD file + not streaming → land in 'editor' (WYSIWYG)

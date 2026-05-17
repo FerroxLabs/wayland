@@ -44,7 +44,11 @@ import { initWorkspaceSnapshotBridge } from './workspaceSnapshotBridge';
 import { initRemoteAgentBridge } from './remoteAgentBridge';
 import { initHubBridge } from './hubBridge';
 import { initTeamBridge } from './teamBridge';
+import { initStorageBridge } from '@process/storage/storageIpc';
+import { initNicknamesBridge } from '@process/storage/nicknamesIpc';
+import { initSyncIpc } from '@process/sync/syncIpc';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
+import { initProvidersIpc } from '@process/providers/ipc/providersIpc';
 
 export interface BridgeDependencies {
   conversationService: IConversationService;
@@ -94,6 +98,10 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initRemoteAgentBridge();
   initHubBridge();
   initTeamBridge(deps.teamSessionService);
+  void initProvidersIpc();
+  initStorageBridge();
+  initNicknamesBridge();
+  initSyncIpc();
 }
 
 /**
@@ -145,6 +153,7 @@ export {
   initWeixinLoginBridge,
   initWorkspaceSnapshotBridge,
 };
+export { initProvidersIpc } from '@process/providers/ipc/providersIpc';
 export { disposeAllSnapshots } from './workspaceSnapshotBridge';
 export { disposeAllTeamSessions } from './teamBridge';
 // Export window-control utility functions

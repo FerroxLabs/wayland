@@ -336,6 +336,19 @@
   "webui.featureChannelsTitle": "Messaging Control",
   "webui.featureChannelsDesc": "Telegram、Lark、DingTalk、WeChat を接続して、IM アプリから Wayland とやり取りできます。",
   "webui.goToChannels": "Channels へ",
+  "webui.pairedDevices.title": "Paired Devices",
+  "webui.pairedDevices.empty": "No devices paired yet",
+  "webui.pairedDevices.lastSeen": "Last seen {{time}}",
+  "webui.pairedDevices.revokeTitle": "Revoke Device",
+  "webui.pairedDevices.revoke": "Revoke",
+  "webui.pairedDevices.revokeConfirm": "This will immediately invalidate the session for this device. The device will need to log in again.",
+  "webui.activityLog.title": "Recent Activity",
+  "webui.activityLog.empty": "No activity recorded yet",
+  "webui.activityLog.refresh": "Refresh",
+  "webui.activityLog.viewAll": "View all {{count}} events →",
+  "webui.activityLog.showLess": "Show less",
+  "providers.search.placeholder": "Search models…",
+  "providers.search.noResults": "No models match your search",
   "assistant.telegramConfig": "Telegram Bot Configuration",
   "assistant.botToken": "Bot Token",
   "assistant.botTokenDesc": "Open Telegram, find @BotFather and send /newbot to get your Bot Token.",
@@ -910,5 +923,155 @@
     "version": "バージョン",
     "path": "パス",
     "providerNote": "プロバイダーとAPIキーの設定はモデルページで管理します。Wayland Coreは以下をサポート：Anthropic、OpenAI、AWS Bedrock。"
+  },
+  "shared": {
+    "saving": "保存中…",
+    "saved": "保存済み",
+    "saveFailed": "保存に失敗しました",
+    "restartRequired": "この変更を反映するには再起動が必要です。",
+    "restartNow": "今すぐ再起動",
+    "discardChange": "変更を破棄",
+    "confirm": "確認",
+    "dismiss": "閉じる",
+    "statusPrefix": "ステータス: {{label}}"
+  },
+  "sider": {
+    "groupWorkspace": "ワークスペース",
+    "groupAiModels": "AIモデル",
+    "groupIntegrations": "連携",
+    "groupAppearance": "外観",
+    "groupSystem": "システム",
+    "groupAbout": "情報",
+    "providers": "プロバイダー",
+    "channels": "チャンネル",
+    "mcp": "MCPサーバー",
+    "theme": "テーマと表示",
+    "editor": "エディター",
+    "general": "一般",
+    "notifications": "通知",
+    "storage": "ストレージ",
+    "skills": "スキルとツール",
+    "agents": "エージェント"
+  },
+  "channelsIndex": {
+    "title": "チャンネル",
+    "slackTagline": "Slack でチャット",
+    "telegramTagline": "Telegram でチャット",
+    "discordTagline": "Discord でチャット",
+    "larkTagline": "Lark / Feishu でチャット",
+    "dingtalkTagline": "DingTalk でチャット",
+    "wechatTagline": "WeChat でチャット",
+    "wecomTagline": "WeCom でチャット",
+    "webhookTagline": "Webhook でメッセージ受信",
+    "emailTagline": "メールでチャット",
+    "comingSoon": "近日公開",
+    "setUp": "セットアップ →",
+    "configure": "設定 →",
+    "footerText": "拡張機能でさらに多くのチャンネルを追加できます。",
+    "browseExtensions": "拡張機能を見る →",
+    "channelsMovedHint": "チャンネルは連携に移動しました →"
+  },
+  "providersPage": {
+    "title": "プロバイダー"
+  },
+  "mcpPage": {
+    "title": "MCPサーバー"
+  },
+  "generalPage": {
+    "title": "一般"
+  },
+  "notificationsPage": {
+    "title": "通知"
+  },
+  "storagePage": {
+    "title": "ストレージ"
+  },
+  "editorPage": {
+    "title": "エディター",
+    "comingSoon": "エディター設定は次のリリースで追加されます。"
+  },
+  "skillsPage": {
+    "title": "スキルとツール"
+  },
+  "agentsPage": {
+    "title": "エージェント"
+  },
+  "providers": {
+    "heroTitle": "Connect a provider",
+    "heroPlaceholder": "Paste an API key...",
+    "detectButton": "Detect & connect",
+    "browseButton": "Browse 24+ providers",
+    "connected": "Connected",
+    "refreshed": "Refreshed {{n}}h ago",
+    "refreshNow": "Refresh now",
+    "disconnect": "Disconnect",
+    "configure": "Configure",
+    "deprecationBanner": "Some models in this provider’s catalog have been removed",
+    "defaultsTitle": "Default models",
+    "defaultChat": "Default chat model",
+    "defaultCoding": "Default coding model",
+    "defaultVision": "Default vision model",
+    "defaultImage": "Default image model",
+    "defaultAudio": "Default audio model",
+    "noDefault": "No default set",
+    "connect": {
+      "entryTitle": "Connect a provider",
+      "placeholder": "Paste your API key here...",
+      "detectButton": "Detect & connect",
+      "browseButton": "Browse 24+ providers",
+      "detectingProvider": "Detecting provider…",
+      "verifyingKey": "Verifying key…",
+      "fetchingCatalog": "Fetching model catalog…",
+      "moreInfoTitle": "Additional details required",
+      "pickerTitle": "Choose a provider",
+      "pickerSearch": "Search providers…",
+      "resultsTitle": "Select models to enable",
+      "resultsSelectAll": "Select all",
+      "resultsDeselectAll": "Deselect all",
+      "connectButton": "Connect",
+      "cancel": "Cancel",
+      "retry": "Try again",
+      "editKey": "Edit key",
+      "openConsole": "Open provider console",
+      "errorTitle": "Connection failed",
+      "errorNetwork": "Could not reach the provider. Check your network connection.",
+      "errorUnauthorized": "Invalid API key. Check your key and try again.",
+      "errorForbidden": "This key does not have the required permissions.",
+      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
+      "errorUnknown": "An unexpected error occurred.",
+      "fieldRegion": "AWS Region",
+      "fieldSecretKey": "Secret Access Key",
+      "fieldAccessKeyId": "Access Key ID",
+      "fieldEndpoint": "Endpoint URL",
+      "fieldDeployment": "Deployment Name",
+      "fieldApiVersion": "API Version",
+      "fieldProjectId": "Google Cloud Project ID",
+      "fieldServiceAccount": "Service Account JSON",
+      "browseServiceAccount": "Browse…"
+    },
+    "tiers": {
+      "flagship": "Flagship",
+      "everyday": "Everyday",
+      "fast": "Fast",
+      "reasoning": "Reasoning",
+      "legacy": "Legacy"
+    },
+    "capabilities": {
+      "chat": "Chat",
+      "vision": "Vision",
+      "image": "Image generation",
+      "audio": "Audio",
+      "embeddings": "Embeddings",
+      "reasoning": "Reasoning"
+    },
+    "categories": {
+      "frontier": "Frontier",
+      "openInference": "Open inference",
+      "cloud": "Cloud",
+      "chineseFrontier": "Chinese frontier",
+      "specialised": "Specialised",
+      "voice": "Voice",
+      "custom": "Custom"
+    }
   }
 }

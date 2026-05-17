@@ -37,8 +37,8 @@ import { useSettingsViewMode } from '../settingsViewContext';
 type MessageInstance = ReturnType<typeof Message.useMessage>[0];
 
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
-const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
-const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
+export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
+export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
   enabled: false,
   provider: 'openai',
   openai: {
@@ -58,7 +58,7 @@ const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
   },
 };
 
-const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): SpeechToTextConfig => ({
+export const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): SpeechToTextConfig => ({
   ...DEFAULT_SPEECH_TO_TEXT_CONFIG,
   ...config,
   openai: {
@@ -71,7 +71,7 @@ const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): SpeechToTextC
   },
 });
 
-const SpeechToTextSettingsSection: React.FC<{
+export const SpeechToTextSettingsSection: React.FC<{
   config: SpeechToTextConfig;
   onChange: (updater: (current: SpeechToTextConfig) => SpeechToTextConfig) => void;
 }> = ({ config, onChange }) => {

@@ -1456,6 +1456,89 @@ const migration_v32: IMigration = {
 };
 
 /**
+ * Migration v32 -> v33: Add provider_catalogs, provider_models, default_models tables.
+ *
+ * provider_catalogs  — one row per connected provider (encrypted key + metadata).
+ * provider_models    — one row per model discovered in a provider's /v1/models response.
+ * default_models     — user-selected default per capability scope (chat/coding/vision/image/audio).
+ */
+const migration_v33: IMigration = {
+  version: 33,
+  name: 'Add provider_catalogs, provider_models, default_models tables',
+  up: (db) => {
+    db.exec(`CREATE TABLE IF NOT EXISTS provider_catalogs (
+      id TEXT PRIMARY KEY,
+      provider_id TEXT NOT NULL,
+      display_name TEXT,
+      api_key_encrypted TEXT NOT NULL,
+      additional_fields TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'connected',
+      last_refreshed_at INTEGER,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )`);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_provider_catalogs_provider_id ON provider_catalogs(provider_id)');
+
+    db.exec(`CREATE TABLE IF NOT EXISTS provider_models (
+      id TEXT PRIMARY KEY,
+      catalog_id TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      tier TEXT NOT NULL,
+      capabilities TEXT NOT NULL DEFAULT '[]',
+      enabled INTEGER NOT NULL DEFAULT 1,
+      deprecated INTEGER NOT NULL DEFAULT 0,
+      deprecated_at INTEGER,
+      context_window INTEGER,
+      pricing TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      FOREIGN KEY (catalog_id) REFERENCES provider_catalogs(id) ON DELETE CASCADE
+    )`);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_provider_models_catalog_id ON provider_models(catalog_id)');
+    db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_provider_models_catalog_model ON provider_models(catalog_id, model_id)');
+
+    db.exec(`CREATE TABLE IF NOT EXISTS default_models (
+      scope TEXT PRIMARY KEY,
+      catalog_id TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    )`);
+
+    console.log('[Migration v33] Added provider_catalogs, provider_models, default_models tables');
+  },
+  down: (db) => {
+    db.exec('DROP TABLE IF EXISTS default_models');
+    db.exec('DROP INDEX IF EXISTS idx_provider_models_catalog_model');
+    db.exec('DROP INDEX IF EXISTS idx_provider_models_catalog_id');
+    db.exec('DROP TABLE IF EXISTS provider_models');
+    db.exec('DROP INDEX IF EXISTS idx_provider_catalogs_provider_id');
+    db.exec('DROP TABLE IF EXISTS provider_catalogs');
+    console.log('[Migration v33] Rolled back: Removed provider tables');
+  },
+};
+
+const migration_v34: IMigration = {
+  version: 34,
+  name: 'Add webui_paired_devices table',
+  up: (db) => {
+    db.exec(`CREATE TABLE IF NOT EXISTS webui_paired_devices (
+      id TEXT PRIMARY KEY,
+      device_name TEXT NOT NULL DEFAULT 'Unknown Device',
+      ua TEXT NOT NULL DEFAULT '',
+      ip_first_seen TEXT NOT NULL DEFAULT '',
+      last_seen_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL
+    )`);
+    console.log('[Migration v34] Added webui_paired_devices table');
+  },
+  down: (db) => {
+    db.exec('DROP TABLE IF EXISTS webui_paired_devices');
+    console.log('[Migration v34] Rolled back: Removed webui_paired_devices table');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -1465,7 +1548,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v13, migration_v14, migration_v15, migration_v16, migration_v17, migration_v18,
   migration_v19, migration_v20, migration_v21, migration_v22, migration_v23, migration_v24,
   migration_v25, migration_v26, migration_v27, migration_v28, migration_v29, migration_v30,
-  migration_v31, migration_v32,
+  migration_v31, migration_v32, migration_v33, migration_v34,
 ];
 
 /**

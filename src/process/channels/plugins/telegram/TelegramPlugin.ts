@@ -8,7 +8,13 @@ import type { Context } from 'grammy';
 import { Bot, GrammyError, HttpError } from 'grammy';
 
 import type { UserFromGetMe } from 'grammy/types';
-import type { BotInfo, IChannelPluginConfig, IUnifiedOutgoingMessage, PluginType } from '../../types';
+import type {
+  BotInfo,
+  IChannelPluginConfig,
+  IPluginCapabilities,
+  IUnifiedOutgoingMessage,
+  PluginType,
+} from '../../types';
 import { BasePlugin } from '../BasePlugin';
 import {
   splitMessage,
@@ -26,6 +32,13 @@ import { extractAction, extractCategory } from './TelegramKeyboards';
  */
 export class TelegramPlugin extends BasePlugin {
   readonly type: PluginType = 'telegram';
+
+  readonly capabilities: IPluginCapabilities = {
+    canEdit: true,
+    canReact: false,
+    canStream: true,
+    canTypingIndicator: true,
+  };
 
   private bot: Bot | null = null;
   private botInfo: UserFromGetMe | null = null;

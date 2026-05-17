@@ -5,6 +5,7 @@
  */
 
 import type {
+  IPluginCapabilities,
   IChannelPluginConfig,
   IUnifiedIncomingMessage,
   IUnifiedOutgoingMessage,
@@ -46,6 +47,12 @@ export abstract class BasePlugin {
    * Plugin type identifier
    */
   abstract readonly type: PluginType;
+
+  /**
+   * Capability declaration. Lets ActionExecutor pick edit-driven vs buffered
+   * streaming and gate optional plugin behaviors (reactions, typing).
+   */
+  abstract readonly capabilities: IPluginCapabilities;
 
   /**
    * Current plugin status
@@ -217,12 +224,51 @@ export abstract class BasePlugin {
   abstract sendMessage(chatId: string, message: IUnifiedOutgoingMessage): Promise<string>;
 
   /**
-   * Edit an existing message (for streaming updates)
+   * Edit an existing message (for streaming updates).
+   *
+   * Default is a no-op. Concrete plugins with `capabilities.canEdit === true`
+   * MUST override; the ActionExecutor only calls this when capabilities permit.
+   * Plugins without edit support (e.g. SMS, email) can rely on the default.
+   *
    * @param chatId Platform-specific chat/channel ID
    * @param messageId Message ID returned from sendMessage
    * @param message Updated message content
    */
-  abstract editMessage(chatId: string, messageId: string, message: IUnifiedOutgoingMessage): Promise<void>;
+  async editMessage(_chatId: string, _messageId: string, _message: IUnifiedOutgoingMessage): Promise<void> {
+    // Default no-op for plugins that don't support edits (SMS, email).
+    // Concrete plugins with canEdit=true MUST override this.
+  }
+
+  /**
+   * Handle an inbound webhook payload that the WebhookReceiver has already
+   * signature-verified, deduplicated against replays, and routed via the
+   * plugin's connection token.
+   *
+   * Default implementation throws — plugins that register with
+   * `registerWebhookDispatcher` MUST override. Plugins that do not accept
+   * webhooks (Telegram polling, Slack Socket Mode, Discord Gateway) can rely
+   * on the default.
+   *
+   * The receiver owns the HTTP response. This method is pure side-effect:
+   * convert payload → IUnifiedIncomingMessage → call `this.messageHandler`.
+   * Throwing from here triggers the receiver's audit-log reject path but
+   * always returns a stable 202 / 200 to the caller — never leak handler
+   * state to the platform.
+   *
+   * @param payload Parsed JSON body the verifier already validated
+   * @param headers Original request headers (lowercased keys)
+   * @param pluginInstanceId The connection-token-resolved plugin instance id
+   *   that should process this payload. Useful for multi-account debugging.
+   */
+  async handleWebhookPayload(
+    _payload: object,
+    _headers: Record<string, string | string[] | undefined>,
+    _pluginInstanceId: string,
+  ): Promise<void> {
+    throw new Error(
+      `[${this.type}Plugin] handleWebhookPayload not implemented — plugin does not accept webhook deliveries`,
+    );
+  }
 
   /**
    * Get the number of active users connected through this plugin

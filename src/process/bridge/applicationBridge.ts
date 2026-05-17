@@ -6,6 +6,9 @@
 
 import type { BrowserWindow } from 'electron';
 import { app } from 'electron';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { ipcBridge } from '@/common';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -16,11 +19,19 @@ import type { IStartOnBootStatus } from '@/common/adapter/ipcBridge';
 
 let mainWindowRef: BrowserWindow | null = null;
 
-const START_ON_BOOT_UNSUPPORTED_MESSAGE = 'Start on boot is only available in packaged macOS and Windows apps.';
+const START_ON_BOOT_UNSUPPORTED_MESSAGE =
+  'Start on boot requires a packaged macOS, Windows, or Linux app.';
 export const START_ON_BOOT_WINDOWS_ARG = '--start-on-boot';
+const START_ON_BOOT_LINUX_ARG = '--start-on-boot';
+const LINUX_DESKTOP_FILE_NAME = 'wayland.desktop';
 
 const isStartOnBootSupported = (): boolean => {
-  return app.isPackaged && (process.platform === 'darwin' || process.platform === 'win32');
+  if (!app.isPackaged) return false;
+  return (
+    process.platform === 'darwin' ||
+    process.platform === 'win32' ||
+    process.platform === 'linux'
+  );
 };
 
 const getStartOnBootWindowsArgs = (): string[] => [START_ON_BOOT_WINDOWS_ARG];
@@ -29,6 +40,50 @@ const getLoginItemSettings = () => {
   return process.platform === 'win32'
     ? app.getLoginItemSettings({ args: getStartOnBootWindowsArgs() })
     : app.getLoginItemSettings();
+};
+
+// ---------- Linux XDG autostart (~/.config/autostart/wayland.desktop) ----------
+const getLinuxAutostartPath = (): string => {
+  const xdg = process.env['XDG_CONFIG_HOME'];
+  const base = xdg && xdg.length > 0 ? xdg : path.join(os.homedir(), '.config');
+  return path.join(base, 'autostart', LINUX_DESKTOP_FILE_NAME);
+};
+
+const getLinuxExecPath = (): string => {
+  // AppImage mounts at a temp path each launch; $APPIMAGE points at the stable file.
+  return process.env['APPIMAGE'] || process.execPath;
+};
+
+const getLinuxAutostartEnabled = (): boolean => {
+  try {
+    const file = getLinuxAutostartPath();
+    if (!fs.existsSync(file)) return false;
+    const contents = fs.readFileSync(file, 'utf8');
+    // Honor explicit X-GNOME-Autostart-enabled=false override; presence of the file alone is "enabled".
+    return !/^\s*X-GNOME-Autostart-enabled\s*=\s*false\s*$/im.test(contents);
+  } catch {
+    return false;
+  }
+};
+
+const setLinuxAutostart = (enabled: boolean): void => {
+  const file = getLinuxAutostartPath();
+  if (!enabled) {
+    if (fs.existsSync(file)) fs.unlinkSync(file);
+    return;
+  }
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const exec = getLinuxExecPath();
+  const body = `[Desktop Entry]
+Type=Application
+Name=Wayland
+Comment=Wayland AI Agent
+Exec="${exec}" ${START_ON_BOOT_LINUX_ARG}
+Terminal=false
+X-GNOME-Autostart-enabled=true
+NoDisplay=false
+`;
+  fs.writeFileSync(file, body, 'utf8');
 };
 
 export function wasLaunchedAtLogin(): boolean {
@@ -44,6 +99,10 @@ export function wasLaunchedAtLogin(): boolean {
     return process.argv.includes(START_ON_BOOT_WINDOWS_ARG);
   }
 
+  if (process.platform === 'linux') {
+    return process.argv.includes(START_ON_BOOT_LINUX_ARG);
+  }
+
   return false;
 }
 
@@ -57,11 +116,16 @@ export function getStartOnBootStatus(): IStartOnBootStatus {
     };
   }
 
-  const settings = getLoginItemSettings();
-  const enabled =
-    process.platform === 'win32'
-      ? Boolean(settings.openAtLogin || settings.executableWillLaunchAtLogin)
-      : Boolean(settings.openAtLogin);
+  let enabled = false;
+  if (process.platform === 'linux') {
+    enabled = getLinuxAutostartEnabled();
+  } else {
+    const settings = getLoginItemSettings();
+    enabled =
+      process.platform === 'win32'
+        ? Boolean(settings.openAtLogin || settings.executableWillLaunchAtLogin)
+        : Boolean(settings.openAtLogin);
+  }
 
   return {
     supported: true,
@@ -77,15 +141,19 @@ export function setStartOnBootEnabled(enabled: boolean): IStartOnBootStatus {
     return currentStatus;
   }
 
-  app.setLoginItemSettings({
-    openAtLogin: enabled,
-    ...(process.platform === 'win32'
-      ? {
-          args: getStartOnBootWindowsArgs(),
-          enabled: true,
-        }
-      : {}),
-  });
+  if (process.platform === 'linux') {
+    setLinuxAutostart(enabled);
+  } else {
+    app.setLoginItemSettings({
+      openAtLogin: enabled,
+      ...(process.platform === 'win32'
+        ? {
+            args: getStartOnBootWindowsArgs(),
+            enabled: true,
+          }
+        : {}),
+    });
+  }
 
   return getStartOnBootStatus();
 }

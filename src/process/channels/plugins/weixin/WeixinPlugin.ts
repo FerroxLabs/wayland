@@ -8,7 +8,13 @@ import fs from 'fs';
 import path from 'path';
 
 import { getPlatformServices } from '@/common/platform';
-import type { IChannelMediaAction, IChannelPluginConfig, IUnifiedOutgoingMessage, PluginType } from '../../types';
+import type {
+  IChannelMediaAction,
+  IChannelPluginConfig,
+  IPluginCapabilities,
+  IUnifiedOutgoingMessage,
+  PluginType,
+} from '../../types';
 import { BasePlugin } from '../BasePlugin';
 import { toUnifiedIncomingMessage, stripHtml } from './WeixinAdapter';
 import { startMonitor } from './WeixinMonitor';
@@ -32,6 +38,13 @@ interface PendingResponse {
 
 export class WeixinPlugin extends BasePlugin {
   readonly type: PluginType = 'weixin';
+
+  readonly capabilities: IPluginCapabilities = {
+    canEdit: true,
+    canReact: false,
+    canStream: true,
+    canTypingIndicator: false,
+  };
 
   private accountId = '';
   private botToken = '';

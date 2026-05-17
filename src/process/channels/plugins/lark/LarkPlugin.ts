@@ -6,7 +6,13 @@
 
 import * as lark from '@larksuiteoapi/node-sdk';
 
-import type { BotInfo, IChannelPluginConfig, IUnifiedOutgoingMessage, PluginType } from '../../types';
+import type {
+  BotInfo,
+  IChannelPluginConfig,
+  IPluginCapabilities,
+  IUnifiedOutgoingMessage,
+  PluginType,
+} from '../../types';
 import { BasePlugin } from '../BasePlugin';
 import { extractCardAction, LARK_MESSAGE_LIMIT, toLarkSendParams, toUnifiedIncomingMessage } from './LarkAdapter';
 
@@ -22,6 +28,13 @@ const EVENT_CACHE_CLEANUP_INTERVAL = 60 * 1000; // 1 minute
 
 export class LarkPlugin extends BasePlugin {
   readonly type: PluginType = 'lark';
+
+  readonly capabilities: IPluginCapabilities = {
+    canEdit: true,
+    canReact: false,
+    canStream: true,
+    canTypingIndicator: false,
+  };
 
   private client: lark.Client | null = null;
   private wsClient: lark.WSClient | null = null;

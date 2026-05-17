@@ -15,7 +15,13 @@ import {
   upsertStreamContent,
 } from './WecomStreamState';
 import type { WecomStreamRecord } from './WecomStreamState';
-import type { IChannelPluginConfig, IUnifiedIncomingMessage, IUnifiedOutgoingMessage, PluginType } from '../../types';
+import type {
+  IChannelPluginConfig,
+  IPluginCapabilities,
+  IUnifiedIncomingMessage,
+  IUnifiedOutgoingMessage,
+  PluginType,
+} from '../../types';
 import AiBot from '@wecom/aibot-node-sdk';
 
 const WECOM_CALLBACK_PATH = '/channels/wecom/webhook';
@@ -57,6 +63,13 @@ async function postResponseUrlMessage(url: string, text: string): Promise<void> 
  */
 export class WecomPlugin extends BasePlugin {
   readonly type: PluginType = 'wecom';
+
+  readonly capabilities: IPluginCapabilities = {
+    canEdit: true,
+    canReact: false,
+    canStream: true,
+    canTypingIndicator: false,
+  };
 
   private mode: 'webhook' | 'websocket' = 'webhook';
   private token = '';

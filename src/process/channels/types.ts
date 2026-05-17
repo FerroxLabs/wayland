@@ -7,9 +7,35 @@
 // ==================== Plugin Types ====================
 
 /**
+ * Plugin capability flags — declared per concrete plugin so the ActionExecutor
+ * can adapt streaming behavior, agent UX cues, and per-platform fallbacks.
+ *
+ * Lifted concept from OpenClaw src/channels/plugins/outbound.types.ts (MIT).
+ */
+export type IPluginCapabilities = {
+  /** Plugin supports editing a previously-sent message in place */
+  readonly canEdit: boolean;
+  /** Plugin supports reactions (emoji/ack) on inbound messages */
+  readonly canReact: boolean;
+  /** Plugin supports streaming partial response chunks (vs single-shot send) */
+  readonly canStream: boolean;
+  /** Plugin supports a transient typing indicator */
+  readonly canTypingIndicator: boolean;
+};
+
+/**
  * Built-in platform types for channel plugins.
  */
-export type BuiltinPluginType = 'telegram' | 'slack' | 'discord' | 'lark' | 'dingtalk' | 'weixin' | 'wecom';
+export type BuiltinPluginType =
+  | 'telegram'
+  | 'slack'
+  | 'discord'
+  | 'whatsapp'
+  | 'sms-twilio'
+  | 'lark'
+  | 'dingtalk'
+  | 'weixin'
+  | 'wecom';
 
 /**
  * Supported platform types for plugins.
@@ -51,6 +77,30 @@ export interface IPluginCredentials {
   // WeCom (Enterprise WeChat AI Bot websocket)
   botId?: string;
   secret?: string;
+  // Discord (Tier 1) — applicationId and publicKey are only required if the
+  // operator opts into slash commands or the HTTP interaction endpoint.
+  botToken?: string;
+  applicationId?: string;
+  publicKey?: string;
+  // SMS (Twilio)
+  accountSid?: string;
+  authToken?: string;
+  fromNumber?: string;
+  messagingServiceSid?: string;
+  // Slack (Tier 1) — transport is 'socket' or 'events'; appToken is required
+  // for Socket Mode, signingSecret for the Events API HTTPS webhook transport.
+  appToken?: string;
+  signingSecret?: string;
+  transport?: string;
+  // WhatsApp (Tier 1) — backend is 'baileys' | 'whatsapp-web' | 'meta-business'.
+  // Baileys/whatsapp-web pair via QR code at runtime; only Meta Cloud API
+  // needs credentials at form-time. verifyToken is the static string Meta GET
+  // /webhook handshake checks against (operator-chosen).
+  backend?: string;
+  accessToken?: string;
+  phoneNumberId?: string;
+  businessAccountId?: string;
+  verifyToken?: string;
   // Extension plugins: arbitrary credential fields
   [key: string]: string | number | boolean | undefined;
 }
@@ -65,6 +115,24 @@ export function hasPluginCredentials(type: PluginType, credentials?: IPluginCred
   if (type === 'lark') return !!(credentials.appId && credentials.appSecret);
   if (type === 'dingtalk') return !!(credentials.clientId && credentials.clientSecret);
   if (type === 'telegram') return !!credentials.token;
+  if (type === 'slack') return !!credentials.botToken;
+  if (type === 'discord') return !!credentials.botToken;
+  if (type === 'sms-twilio') {
+    return !!(
+      credentials.accountSid &&
+      credentials.authToken &&
+      (credentials.fromNumber || credentials.messagingServiceSid)
+    );
+  }
+  if (type === 'whatsapp') {
+    // Baileys / whatsapp-web pair via QR at runtime — no form-time creds.
+    // Meta Business Cloud API requires accessToken + phoneNumberId up front.
+    const backend = (credentials.backend ?? 'baileys') as string;
+    if (backend === 'meta-business') {
+      return !!(credentials.accessToken && credentials.phoneNumberId);
+    }
+    return true;
+  }
   if (type === 'weixin') return !!(credentials.accountId && credentials.botToken);
   if (type === 'wecom') {
     const key = credentials.encodingAesKey;
@@ -120,6 +188,13 @@ export interface IChannelPluginStatus {
   botUsername?: string;
   /** Whether the plugin has a token configured (token itself is not exposed for security) */
   hasToken?: boolean;
+  /**
+   * Pending QR-pairing payload for plugins whose runtime initiates a code-scan
+   * handshake (e.g. WhatsApp Baileys / whatsapp-web.js). Renderer surfaces it
+   * in the config form. Cleared once the plugin status transitions to
+   * `running` after a successful pair.
+   */
+  qrCode?: string;
   /** Whether this plugin comes from an extension (not built-in) */
   isExtension?: boolean;
   /** Extension-contributed metadata for dynamic UI rendering */
@@ -148,6 +223,12 @@ export interface IChannelPluginStatus {
     extensionName?: string;
     /** Icon URL for the extension channel plugin */
     icon?: string;
+    /**
+     * Credential keys (from `credentialFields[].key`) that the secrets layer
+     * should encrypt at rest. Omitting this falls back to the default policy
+     * of encrypting every credential value.
+     */
+    sensitiveFields?: readonly string[];
   };
 }
 
@@ -321,6 +402,14 @@ export interface IUnifiedIncomingMessage {
   replyToMessageId?: string;
   action?: IMessageAction;
   raw?: unknown;
+  readonly email?: {
+    readonly from: string;
+    readonly to: string;
+    readonly subject?: string;
+    readonly messageId?: string;
+    readonly inReplyTo?: string;
+    readonly references?: readonly string[];
+  };
 }
 
 /**
@@ -360,6 +449,8 @@ export interface IUnifiedOutgoingMessage {
   mediaActions?: IChannelMediaAction[];
   replyToMessageId?: string;
   silent?: boolean;
+  subject?: string; // email subject
+  capabilities?: IPluginCapabilities; // hint from agent to plugin
 }
 
 /**

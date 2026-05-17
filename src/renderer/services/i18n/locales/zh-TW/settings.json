@@ -336,6 +336,19 @@
   "webui.featureChannelsTitle": "Messaging Control",
   "webui.featureChannelsDesc": "連接 Telegram、Lark、釘釘、微信，在即時通訊軟體中與 Wayland 互動。",
   "webui.goToChannels": "前往 Channels",
+  "webui.pairedDevices.title": "Paired Devices",
+  "webui.pairedDevices.empty": "No devices paired yet",
+  "webui.pairedDevices.lastSeen": "Last seen {{time}}",
+  "webui.pairedDevices.revokeTitle": "Revoke Device",
+  "webui.pairedDevices.revoke": "Revoke",
+  "webui.pairedDevices.revokeConfirm": "This will immediately invalidate the session for this device. The device will need to log in again.",
+  "webui.activityLog.title": "Recent Activity",
+  "webui.activityLog.empty": "No activity recorded yet",
+  "webui.activityLog.refresh": "Refresh",
+  "webui.activityLog.viewAll": "View all {{count}} events →",
+  "webui.activityLog.showLess": "Show less",
+  "providers.search.placeholder": "Search models…",
+  "providers.search.noResults": "No models match your search",
   "assistant.telegramConfig": "Telegram Bot Configuration",
   "assistant.botToken": "Bot Token",
   "assistant.botTokenDesc": "Open Telegram, find @BotFather and send /newbot to get your Bot Token.",
@@ -910,5 +923,155 @@
     "version": "版本",
     "path": "路徑",
     "providerNote": "服務商和 API 金鑰設定在模型頁面管理。Wayland Core 支援：Anthropic、OpenAI、AWS Bedrock。"
+  },
+  "shared": {
+    "saving": "儲存中…",
+    "saved": "已儲存",
+    "saveFailed": "儲存失敗",
+    "restartRequired": "此變更需要重新啟動才能生效。",
+    "restartNow": "立即重啟",
+    "discardChange": "捨棄變更",
+    "confirm": "確認",
+    "dismiss": "關閉",
+    "statusPrefix": "狀態：{{label}}"
+  },
+  "sider": {
+    "groupWorkspace": "工作區",
+    "groupAiModels": "AI 模型",
+    "groupIntegrations": "整合",
+    "groupAppearance": "外觀",
+    "groupSystem": "系統",
+    "groupAbout": "關於",
+    "providers": "模型提供商",
+    "channels": "訊息渠道",
+    "mcp": "MCP 伺服器",
+    "theme": "主題與顯示",
+    "editor": "編輯器",
+    "general": "一般",
+    "notifications": "通知",
+    "storage": "儲存",
+    "skills": "技能與工具",
+    "agents": "智能體"
+  },
+  "channelsIndex": {
+    "title": "訊息渠道",
+    "slackTagline": "透過 Slack 聊天",
+    "telegramTagline": "透過 Telegram 聊天",
+    "discordTagline": "透過 Discord 聊天",
+    "larkTagline": "透過飛書 / Lark 聊天",
+    "dingtalkTagline": "透過釘釘聊天",
+    "wechatTagline": "透過微信聊天",
+    "wecomTagline": "透過企業微信聊天",
+    "webhookTagline": "透過 Webhook 接收訊息",
+    "emailTagline": "透過電子郵件聊天",
+    "comingSoon": "即將推出",
+    "setUp": "開始設定 →",
+    "configure": "進入設定 →",
+    "footerText": "更多渠道可透過擴充套件新增。",
+    "browseExtensions": "瀏覽擴充套件 →",
+    "channelsMovedHint": "訊息渠道已移至整合 →"
+  },
+  "providersPage": {
+    "title": "模型提供商"
+  },
+  "mcpPage": {
+    "title": "MCP 伺服器"
+  },
+  "generalPage": {
+    "title": "一般"
+  },
+  "notificationsPage": {
+    "title": "通知"
+  },
+  "storagePage": {
+    "title": "儲存"
+  },
+  "editorPage": {
+    "title": "編輯器",
+    "comingSoon": "編輯器偏好設定將在下一版本中推出。"
+  },
+  "skillsPage": {
+    "title": "技能與工具"
+  },
+  "agentsPage": {
+    "title": "智能體"
+  },
+  "providers": {
+    "heroTitle": "Connect a provider",
+    "heroPlaceholder": "Paste an API key...",
+    "detectButton": "Detect & connect",
+    "browseButton": "Browse 24+ providers",
+    "connected": "Connected",
+    "refreshed": "Refreshed {{n}}h ago",
+    "refreshNow": "Refresh now",
+    "disconnect": "Disconnect",
+    "configure": "Configure",
+    "deprecationBanner": "Some models in this provider’s catalog have been removed",
+    "defaultsTitle": "Default models",
+    "defaultChat": "Default chat model",
+    "defaultCoding": "Default coding model",
+    "defaultVision": "Default vision model",
+    "defaultImage": "Default image model",
+    "defaultAudio": "Default audio model",
+    "noDefault": "No default set",
+    "connect": {
+      "entryTitle": "Connect a provider",
+      "placeholder": "Paste your API key here...",
+      "detectButton": "Detect & connect",
+      "browseButton": "Browse 24+ providers",
+      "detectingProvider": "Detecting provider…",
+      "verifyingKey": "Verifying key…",
+      "fetchingCatalog": "Fetching model catalog…",
+      "moreInfoTitle": "Additional details required",
+      "pickerTitle": "Choose a provider",
+      "pickerSearch": "Search providers…",
+      "resultsTitle": "Select models to enable",
+      "resultsSelectAll": "Select all",
+      "resultsDeselectAll": "Deselect all",
+      "connectButton": "Connect",
+      "cancel": "Cancel",
+      "retry": "Try again",
+      "editKey": "Edit key",
+      "openConsole": "Open provider console",
+      "errorTitle": "Connection failed",
+      "errorNetwork": "Could not reach the provider. Check your network connection.",
+      "errorUnauthorized": "Invalid API key. Check your key and try again.",
+      "errorForbidden": "This key does not have the required permissions.",
+      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
+      "errorUnknown": "An unexpected error occurred.",
+      "fieldRegion": "AWS Region",
+      "fieldSecretKey": "Secret Access Key",
+      "fieldAccessKeyId": "Access Key ID",
+      "fieldEndpoint": "Endpoint URL",
+      "fieldDeployment": "Deployment Name",
+      "fieldApiVersion": "API Version",
+      "fieldProjectId": "Google Cloud Project ID",
+      "fieldServiceAccount": "Service Account JSON",
+      "browseServiceAccount": "Browse…"
+    },
+    "tiers": {
+      "flagship": "Flagship",
+      "everyday": "Everyday",
+      "fast": "Fast",
+      "reasoning": "Reasoning",
+      "legacy": "Legacy"
+    },
+    "capabilities": {
+      "chat": "Chat",
+      "vision": "Vision",
+      "image": "Image generation",
+      "audio": "Audio",
+      "embeddings": "Embeddings",
+      "reasoning": "Reasoning"
+    },
+    "categories": {
+      "frontier": "Frontier",
+      "openInference": "Open inference",
+      "cloud": "Cloud",
+      "chineseFrontier": "Chinese frontier",
+      "specialised": "Specialised",
+      "voice": "Voice",
+      "custom": "Custom"
+    }
   }
 }

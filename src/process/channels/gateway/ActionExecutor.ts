@@ -17,7 +17,7 @@ import type { IActionContext, IRegisteredAction } from '../actions/types';
 import { getChannelMessageService } from '../agent/ChannelMessageService';
 import type { SessionManager } from '../core/SessionManager';
 import type { PairingService } from '../pairing/PairingService';
-import type { PluginMessageHandler } from '../plugins/BasePlugin';
+import type { BasePlugin, PluginMessageHandler } from '../plugins/BasePlugin';
 import { getChannelConversationName, resolveChannelConvType } from '../types';
 import { createMainMenuCard, createErrorRecoveryCard, createToolConfirmationCard } from '../plugins/lark/LarkCards';
 import { convertHtmlToLarkMarkdown } from '../plugins/lark/LarkAdapter';
@@ -128,6 +128,31 @@ function canFlushTextDraft(plugin: unknown): plugin is { flushTextDraft: (chatId
     plugin !== null &&
     'flushTextDraft' in plugin &&
     typeof plugin.flushTextDraft === 'function'
+  );
+}
+
+/**
+ * Streaming dispatch mode picked per turn from the source plugin's capability flags.
+ *
+ * - `edit-driven`: send a placeholder, then call `editMessage` repeatedly per chunk
+ *   (Telegram, Lark, DingTalk, WeChat, WeCom — anything with both `canStream` and `canEdit`).
+ * - `buffered`: accumulate every chunk in memory; emit ONE `sendMessage` at end-of-turn.
+ *   This is the path for plugins like SMS or email where every "chunk" would otherwise
+ *   become a new outbound message.
+ */
+type StreamingMode = 'edit-driven' | 'buffered';
+
+/**
+ * Duck-typed typing-indicator hook. The method itself is plugin-private today;
+ * we read it via property check rather than adding a method to BasePlugin
+ * (sibling W3.B/W3.C are editing BasePlugin & friends concurrently).
+ */
+function canSendTypingIndicator(plugin: unknown): plugin is { sendTypingIndicator: (chatId: string) => Promise<void> } {
+  return (
+    typeof plugin === 'object' &&
+    plugin !== null &&
+    'sendTypingIndicator' in plugin &&
+    typeof (plugin as { sendTypingIndicator?: unknown }).sendTypingIndicator === 'function'
   );
 }
 
@@ -575,7 +600,7 @@ export class ActionExecutor {
         await this.executeAction(context, content.text, {});
       } else if (content.type === 'text' && content.text) {
         // Regular text message - send to AI
-        await this.handleChatMessage(context, content.text);
+        await this.handleChatMessage(context, content.text, plugin);
       } else {
         // Unsupported content type
         await context.sendMessage({
@@ -633,14 +658,46 @@ export class ActionExecutor {
   }
 
   /**
-   * Handle chat message - send to AI and stream response
+   * Pure capability-driven streaming-mode selector. Picked ONCE at dispatch
+   * start; we don't switch modes mid-stream.
+   *
+   * Edit-driven requires BOTH `canStream` and `canEdit` — without `canEdit`
+   * we cannot mutate the placeholder, so streaming chunks would become
+   * separate outbound messages (e.g. one SMS per chunk).
    */
-  private async handleChatMessage(context: IActionContext, text: string): Promise<void> {
+  private resolveStreamingMode(plugin: BasePlugin): StreamingMode {
+    const caps = plugin.capabilities;
+    if (caps.canStream && caps.canEdit) {
+      return 'edit-driven';
+    }
+    return 'buffered';
+  }
+
+  /**
+   * Handle chat message - send to AI and dispatch via the appropriate
+   * streaming mode for the source plugin.
+   */
+  private async handleChatMessage(context: IActionContext, text: string, plugin: BasePlugin): Promise<void> {
     // Update session activity (scoped by chatId)
     if (context.channelUser) {
       this.sessionManager.updateSessionActivity(context.channelUser.id, context.chatId);
     }
 
+    const mode = this.resolveStreamingMode(plugin);
+    if (mode === 'buffered') {
+      await this.dispatchBufferedStream(context, text, plugin);
+      return;
+    }
+
+    await this.dispatchEditDrivenStream(context, text);
+  }
+
+  /**
+   * Mode A — edit-driven streaming. Send a placeholder, then repeatedly call
+   * `editMessage` as chunks arrive. Preserves the pre-W3.A behavior verbatim
+   * for Telegram, Lark, DingTalk, WeChat, WeCom.
+   */
+  private async dispatchEditDrivenStream(context: IActionContext, text: string): Promise<void> {
     // Send "thinking" indicator
     const thinkingMsgId = await context.sendMessage({
       type: 'text',
@@ -862,6 +919,101 @@ export class ActionExecutor {
         parseMode: errorResponse.parseMode,
         replyMarkup: errorResponse.replyMarkup,
       });
+    }
+  }
+
+  /**
+   * Mode B — buffered streaming. For plugins where every chunk would become a
+   * separate outbound message (SMS, email, anything with `canEdit === false`
+   * or `canStream === false`), accumulate all chunks in memory and emit ONE
+   * `sendMessage` call at end-of-turn.
+   *
+   * Optional pre-stream typing indicator via duck-typed `sendTypingIndicator`
+   * when `canTypingIndicator === true`.
+   *
+   * On mid-stream error: emit a single message with whatever was buffered plus
+   * an error notice — never silently drop a partial response.
+   */
+  private async dispatchBufferedStream(context: IActionContext, text: string, plugin: BasePlugin): Promise<void> {
+    // Optional typing indicator (capability-gated + duck-typed)
+    if (plugin.capabilities.canTypingIndicator && canSendTypingIndicator(plugin)) {
+      try {
+        await plugin.sendTypingIndicator(context.chatId);
+      } catch {
+        // Best-effort. A failed typing indicator must not abort the turn.
+      }
+    }
+
+    const sessionId = context.sessionId;
+    const conversationId = context.conversationId;
+
+    if (!sessionId || !conversationId) {
+      await context.sendMessage({
+        type: 'text',
+        text: '❌ Session not initialized',
+        parseMode: 'HTML',
+      });
+      return;
+    }
+
+    let lastMessageContent: IUnifiedOutgoingMessage | null = null;
+
+    try {
+      const messageService = getChannelMessageService();
+
+      await messageService.sendMessage(
+        sessionId,
+        conversationId,
+        text,
+        async (message: TMessage, _isInsert: boolean) => {
+          // Convert chunk; ignore null / unsupported renderings for this platform.
+          const outgoing = convertTMessageToOutgoing(message, context.platform as PluginType, false);
+          if (!outgoing) {
+            return;
+          }
+          // Last-write-wins: streaming agents emit successive cumulative-text
+          // snapshots (the same shape edit-driven mode relies on for editMessage).
+          // We keep the most recent one as the final outbound payload.
+          lastMessageContent = {
+            ...outgoing,
+            replyMarkup: undefined,
+          };
+        }
+      );
+
+      // Stream complete — emit the single buffered message.
+      const finalText = lastMessageContent?.text;
+      const responseMarkup = getResponseActionsMarkup(context.platform as PluginType, finalText);
+      const finalReplyMarkup =
+        responseMarkup ?? (context.platform === 'wecom' ? ({ __waylandFinal: true } as unknown) : undefined);
+      const finalMessage: IUnifiedOutgoingMessage = lastMessageContent
+        ? { ...lastMessageContent, replyMarkup: finalReplyMarkup }
+        : {
+            type: 'text',
+            text: isWeixinPlatform(context.platform) ? '⚠️ No response content.' : '✅ Done',
+            parseMode: 'HTML',
+            replyMarkup: finalReplyMarkup,
+          };
+
+      await context.sendMessage(finalMessage);
+    } catch (error: any) {
+      console.error(`[ActionExecutor] Buffered chat processing failed:`, error);
+
+      // Emit a single message with whatever was buffered + an error notice.
+      const errorResponse = buildChatErrorResponse(error?.message ?? 'Unknown error');
+      const bufferedText = lastMessageContent?.text;
+      const combinedText = bufferedText ? `${bufferedText}\n\n${errorResponse.text}` : errorResponse.text;
+
+      try {
+        await context.sendMessage({
+          type: 'text',
+          text: combinedText,
+          parseMode: errorResponse.parseMode,
+          replyMarkup: errorResponse.replyMarkup,
+        });
+      } catch {
+        // Surface in logs only; we tried our best to deliver something.
+      }
     }
   }
 

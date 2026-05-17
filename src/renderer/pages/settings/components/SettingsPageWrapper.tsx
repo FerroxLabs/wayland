@@ -1,7 +1,27 @@
-import { Bot, CloudCog, Cpu, Globe, Info, MessageCircle, Monitor, Puzzle, Sparkles, Zap } from 'lucide-react';
+import {
+  BookOpen,
+  Bot,
+  Cable,
+  Cpu,
+  Globe,
+  Image as ImageIcon,
+  Info,
+  MessageCircle,
+  Mic,
+  Monitor,
+  Pencil,
+  Puzzle,
+  Radio,
+  Server,
+  Sparkles,
+  Zap,
+} from 'lucide-react';
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
+import CommandPalette from '@/renderer/components/settings/shared/CommandPalette/CommandPalette';
+import ShortcutsOverlay from '@/renderer/components/settings/shared/ShortcutsOverlay/ShortcutsOverlay';
+import { useGlobalKeybind } from '@/renderer/hooks/settings/useGlobalKeybind';
 import { SettingsViewModeProvider } from '@/renderer/components/settings/SettingsModal/settingsViewContext';
 import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
@@ -23,31 +43,41 @@ type TranslateFn = (key: string, options?: { defaultValue?: string }) => string;
 
 export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): NavItem[] {
   const builtinMap: Record<string, NavItem> = {
-    gemini: { id: 'gemini', label: t('settings.gemini'), icon: <Sparkles size={16} />, path: 'gemini' },
-    model: { id: 'model', label: t('settings.model'), icon: <CloudCog size={16} />, path: 'model' },
     assistants: {
       id: 'assistants',
       label: t('settings.assistants', { defaultValue: 'Assistants' }),
-      icon: <Bot size={16} />,
+      icon: <BookOpen size={16} />,
       path: 'assistants',
     },
-    agent: {
-      id: 'agent',
-      label: t('settings.agents', { defaultValue: 'Agents' }),
+    agents: {
+      id: 'agents',
+      label: t('settings.sider.agents', { defaultValue: 'Agents' }),
       icon: <Bot size={16} />,
-      path: 'agent',
+      path: 'agents',
     },
-    capabilities: {
-      id: 'capabilities',
-      label: t('settings.capabilities', { defaultValue: 'Capabilities' }),
+    skills: {
+      id: 'skills',
+      label: t('settings.sider.skills', { defaultValue: 'Skills & Tools' }),
       icon: <Zap size={16} />,
-      path: 'capabilities',
+      path: 'skills',
     },
-    display: {
-      id: 'display',
-      label: t('settings.display'),
-      icon: <Monitor size={16} />,
-      path: 'display',
+    providers: {
+      id: 'providers',
+      label: t('settings.sider.providers', { defaultValue: 'Providers' }),
+      icon: <Sparkles size={16} />,
+      path: 'providers',
+    },
+    images: {
+      id: 'images',
+      label: t('settings.sider.images', { defaultValue: 'Image Generation' }),
+      icon: <ImageIcon size={16} />,
+      path: 'images',
+    },
+    voice: {
+      id: 'voice',
+      label: t('settings.sider.voice', { defaultValue: 'Voice' }),
+      icon: <Mic size={16} />,
+      path: 'voice',
     },
     webui: {
       id: 'webui',
@@ -55,7 +85,48 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       icon: isDesktop ? <Globe size={16} /> : <MessageCircle size={16} />,
       path: 'webui',
     },
-    system: { id: 'system', label: t('settings.system'), icon: <Cpu size={16} />, path: 'system' },
+    channels: {
+      id: 'channels',
+      label: t('settings.sider.channels', { defaultValue: 'Channels' }),
+      icon: <Radio size={16} />,
+      path: 'channels',
+    },
+    mcp: {
+      id: 'mcp',
+      label: t('settings.sider.mcp', { defaultValue: 'MCP Servers' }),
+      icon: <Server size={16} />,
+      path: 'mcp',
+    },
+    theme: {
+      id: 'theme',
+      label: t('settings.sider.theme', { defaultValue: 'Theme & Display' }),
+      icon: <Monitor size={16} />,
+      path: 'theme',
+    },
+    editor: {
+      id: 'editor',
+      label: t('settings.sider.editor', { defaultValue: 'Editor' }),
+      icon: <Pencil size={16} />,
+      path: 'editor',
+    },
+    general: {
+      id: 'general',
+      label: t('settings.sider.general', { defaultValue: 'General' }),
+      icon: <Cpu size={16} />,
+      path: 'general',
+    },
+    notifications: {
+      id: 'notifications',
+      label: t('settings.sider.notifications', { defaultValue: 'Notifications' }),
+      icon: <Cable size={16} />,
+      path: 'notifications',
+    },
+    storage: {
+      id: 'storage',
+      label: t('settings.sider.storage', { defaultValue: 'Storage' }),
+      icon: <Globe size={16} />,
+      path: 'storage',
+    },
     about: { id: 'about', label: t('settings.about'), icon: <Info size={16} />, path: 'about' },
   };
 
@@ -71,6 +142,15 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
   const isDesktop = isElectronDesktop();
 
   const [extensionTabs, setExtensionTabs] = useState<IExtensionSettingsTab[]>([]);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+  const closePalette = useCallback(() => setPaletteOpen(false), []);
+  useGlobalKeybind('k', openPalette, { meta: true, skipInputs: false });
+
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const openShortcuts = useCallback(() => setShortcutsOpen(true), []);
+  const closeShortcuts = useCallback(() => setShortcutsOpen(false), []);
+  useGlobalKeybind('?', openShortcuts, { meta: false, skipInputs: true });
 
   useEffect(() => {
     void extensionsIpc.getSettingsTabs
@@ -143,10 +223,15 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
     className
   );
 
-  const contentClass = classNames('settings-page-content mx-auto w-full md:max-w-1024px', contentClassName);
+  const contentClass = classNames(
+    'settings-page-content mx-auto w-full',
+    contentClassName || 'md:max-w-[1120px]'
+  );
 
   return (
     <SettingsViewModeProvider value='page'>
+      <CommandPalette open={paletteOpen} onClose={closePalette} />
+      <ShortcutsOverlay open={shortcutsOpen} onClose={closeShortcuts} />
       <div className={containerClass}>
         {isMobile && (
           <div className='settings-mobile-top-nav'>

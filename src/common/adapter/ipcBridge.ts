@@ -816,6 +816,34 @@ export const webui = {
   resetPasswordResult: buildEmitter<{ success: boolean; newPassword?: string; msg?: string }>(
     'webui.reset-password-result'
   ),
+  // Paired devices
+  listPairedDevices: buildProvider<
+    IBridgeResponse<{
+      devices: Array<{
+        id: string;
+        deviceName: string;
+        ua: string;
+        ipFirstSeen: string;
+        lastSeenAt: number;
+        createdAt: number;
+      }>;
+    }>,
+    void
+  >('webui.list-paired-devices'),
+  revokeDevice: buildProvider<IBridgeResponse, { id: string }>('webui.revoke-device'),
+  // Activity log
+  activityLog: buildProvider<
+    IBridgeResponse<{
+      events: Array<{
+        id: string;
+        type: 'login' | 'command' | 'chat' | 'paired-device-added' | 'paired-device-revoked';
+        detail: string;
+        deviceId?: string;
+        ts: number;
+      }>;
+    }>,
+    { limit?: number }
+  >('webui.activity-log'),
 };
 
 // Cron job management API
@@ -1248,6 +1276,14 @@ export const channel = {
   // Session Management (MVP: read-only view)
   getActiveSessions: buildProvider<IBridgeResponse<IChannelSession[]>, void>('channel.get-active-sessions'),
 
+  // Webhook connection token rotation (revokes existing token + mints a new one).
+  // Used by webhook-driven plugins (SMS, WhatsApp Meta) so the operator can roll
+  // the inbound URL without disabling the plugin.
+  rotateWebhookToken: buildProvider<
+    IBridgeResponse<{ token: string; platform: string; createdAt: number }>,
+    { platform: string; pluginInstanceId: string; agentId: string }
+  >('channel.rotate-webhook-token'),
+
   // Settings Sync
   syncChannelSettings: buildProvider<
     IBridgeResponse,
@@ -1287,6 +1323,63 @@ export const hub = {
     'hub.state-changed'
   ),
 };
+// Provider catalog API
+export type IProviderErrorKind = 'network' | 'unauthorized' | 'forbidden' | 'rate-limit' | 'unknown';
+
+export type IProviderError = {
+  kind: IProviderErrorKind;
+  message: string;
+};
+
+export type IConnectedProviderView = {
+  id: string;
+  providerId: string;
+  displayName: string | null;
+  status: 'connected' | 'error' | 'refreshing';
+  lastRefreshedAt: number | null;
+  models: Array<{
+    id: string;
+    displayName: string;
+    tier: string;
+    capabilities: string[];
+    enabled: boolean;
+    deprecated: boolean;
+    deprecatedAt?: number;
+    contextWindow?: number;
+  }>;
+};
+
+export type IDefaultModelView = {
+  scope: 'chat' | 'coding' | 'vision' | 'image' | 'audio';
+  catalogId: string;
+  modelId: string;
+};
+
+export const providers = {
+  list: buildProvider<IBridgeResponse<{ providers: IConnectedProviderView[]; defaults: IDefaultModelView[] }>, void>(
+    'providers.list'
+  ),
+  connect: buildProvider<
+    IBridgeResponse<{ provider: IConnectedProviderView }>,
+    { key: string; additionalFields?: Record<string, string> }
+  >('providers.connect'),
+  refresh: buildProvider<IBridgeResponse<{ provider: IConnectedProviderView }>, { catalogId: string }>(
+    'providers.refresh'
+  ),
+  disconnect: buildProvider<IBridgeResponse, { catalogId: string }>('providers.disconnect'),
+  toggleModel: buildProvider<IBridgeResponse, { catalogId: string; modelId: string; enabled: boolean }>(
+    'providers.toggleModel'
+  ),
+  setDisplayName: buildProvider<IBridgeResponse, { catalogId: string; displayName: string }>(
+    'providers.setDisplayName'
+  ),
+  setDefault: buildProvider<
+    IBridgeResponse,
+    { scope: 'chat' | 'coding' | 'vision' | 'image' | 'audio'; catalogId: string; modelId: string }
+  >('providers.setDefault'),
+  catalogUpdated: buildEmitter<{ catalogId: string }>('providers.catalogUpdated'),
+};
+
 // Team Mode API
 export type ICreateTeamParams = {
   userId: string;
@@ -1324,4 +1417,46 @@ export const team = {
   agentRenamed: buildEmitter<import('@/common/types/teamTypes').ITeamAgentRenamedEvent>('team.agent.renamed'),
   listChanged: buildEmitter<import('@/common/types/teamTypes').ITeamListChangedEvent>('team.list-changed'),
   mcpStatus: buildEmitter<import('@/common/types/teamTypes').ITeamMcpStatusEvent>('team.mcp.status'),
+};
+
+export type StorageUsageResult = {
+  total: number;
+  used: number;
+  breakdown: { label: string; bytes: number; color: string }[];
+  computedAt: number;
+};
+
+// Model nickname: store a user-visible display name per model, keyed by
+// providerId + modelId. Persisted in main-process userData/nicknames.json.
+// Separate from `providers.setDisplayName` (catalog-level rename); this is
+// per-model. Renamed to `providerNicknames` to avoid name collision.
+export const providerNicknames = {
+  setDisplayName: buildProvider<void, { providerId: string; modelId: string; nickname: string }>(
+    'providers:setDisplayName'
+  ),
+  getDisplayNames: buildProvider<Record<string, string>, { providerId: string }>('providers:getDisplayNames'),
+};
+
+// Settings sync (Beta) — E2EE settings sync across devices.
+// Crypto: scrypt key derivation + NaCl secretbox (see src/process/sync/crypto/).
+// Passphrase is never transmitted; derived key held in-memory only.
+export const sync = {
+  enable: buildProvider<{ ok: boolean }, { passphrase: string; backendType: 'local-file'; backendPath: string }>(
+    'sync.enable'
+  ),
+  disable: buildProvider<void, void>('sync.disable'),
+  status: buildProvider<{ enabled: boolean; lastSync?: number; itemsCount?: number }, void>('sync.status'),
+  forceSync: buildProvider<{ pulled: number; pushed: number }, void>('sync.forceSync'),
+};
+
+export const storage = {
+  computeUsage: buildProvider<StorageUsageResult, void>('storage:computeUsage'),
+  openDir: buildProvider<void, string>('storage:openDir'),
+  clearDir: buildProvider<void, string>('storage:clearDir'),
+  changeDir: buildProvider<string | null, void>('storage:changeDir'),
+  exportAll: buildProvider<{ ok: boolean; path?: string }, { includeKeys: boolean; passphrase?: string }>(
+    'storage:exportAll'
+  ),
+  importBackup: buildProvider<{ ok: boolean }, { passphrase?: string }>('storage:importBackup'),
+  resetAll: buildProvider<void, void>('storage:resetAll'),
 };

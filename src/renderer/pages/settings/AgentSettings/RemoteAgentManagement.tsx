@@ -15,7 +15,6 @@ import {
   Form,
   Input,
   Link,
-  Message,
   Modal,
   Select,
   Spin,
@@ -27,6 +26,7 @@ import WaylandModal from '@/renderer/components/base/WaylandModal';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
+import { useToast } from '@renderer/hooks/settings/useToast';
 
 const FormItem = Form.Item;
 
@@ -67,6 +67,7 @@ const RemoteAgentFormModal: React.FC<{
   onSaved: () => void;
 }> = ({ visible, editAgent, onClose, onSaved }) => {
   const { t } = useTranslation();
+  const toast = useToast();
   const [form] = Form.useForm<RemoteAgentInput>();
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -115,7 +116,7 @@ const RemoteAgentFormModal: React.FC<{
           if (result.status === 'ok') {
             stopPolling();
             setPairingState('idle');
-            Message.success(t('settings.remoteAgent.created'));
+            toast.show({ variant: 'success', title: t('settings.remoteAgent.created') });
             onSaved();
             onClose();
           }
@@ -136,7 +137,7 @@ const RemoteAgentFormModal: React.FC<{
       allowInsecure?: boolean;
     };
     if (!values.url) {
-      Message.warning(t('settings.remoteAgent.urlRequired'));
+      toast.show({ variant: 'info', title: t('settings.remoteAgent.urlRequired') });
       return;
     }
     setTesting(true);
@@ -148,12 +149,12 @@ const RemoteAgentFormModal: React.FC<{
         allowInsecure: values.allowInsecure,
       });
       if (result.success) {
-        Message.success(t('settings.remoteAgent.testSuccess'));
+        toast.show({ variant: 'success', title: t('settings.remoteAgent.testSuccess') });
       } else {
-        Message.error(t('settings.remoteAgent.testFailed', { error: result.error }));
+        toast.show({ variant: 'error', title: t('settings.remoteAgent.testFailed', { error: result.error }) });
       }
     } catch (error) {
-      Message.error(t('settings.remoteAgent.testError', { error: String(error) }));
+      toast.show({ variant: 'error', title: t('settings.remoteAgent.testError', { error: String(error) }) });
     } finally {
       setTesting(false);
     }
@@ -181,21 +182,22 @@ const RemoteAgentFormModal: React.FC<{
         const result = await ipcBridge.remoteAgent.handshake.invoke({ id: agentId });
 
         if (result.status === 'ok') {
-          Message.success(editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created'));
+          toast.show({ variant: 'success', title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created') });
           onSaved();
           onClose();
         } else if (result.status === 'pending_approval') {
           startPairingPoll(agentId);
           onSaved(); // refresh list to show 'pending' status
         } else {
-          Message.warning(
-            `${editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created')} — ${result.error || 'Handshake failed'}`
-          );
+          toast.show({
+            variant: 'info',
+            title: `${editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created')} — ${result.error || 'Handshake failed'}`,
+          });
           onSaved();
           onClose();
         }
       } else {
-        Message.success(editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created'));
+        toast.show({ variant: 'success', title: editAgent ? t('settings.remoteAgent.updated') : t('settings.remoteAgent.created') });
         onSaved();
         onClose();
       }
@@ -408,6 +410,7 @@ const RemoteAgentFormModal: React.FC<{
 
 const RemoteAgentManagement: React.FC = () => {
   const { t } = useTranslation();
+  const toast = useToast();
   const { data: agents, mutate } = useSWR('remote-agents.list', () => ipcBridge.remoteAgent.list.invoke());
   const [modalVisible, setModalVisible] = useState(false);
   const [editAgent, setEditAgent] = useState<RemoteAgentConfig>();
@@ -431,7 +434,7 @@ const RemoteAgentManagement: React.FC = () => {
         okButtonProps: { status: 'danger' },
         onOk: async () => {
           await ipcBridge.remoteAgent.delete.invoke({ id: agent.id });
-          Message.success(t('settings.remoteAgent.deleted'));
+          toast.show({ variant: 'success', title: t('settings.remoteAgent.deleted') });
           await mutate();
         },
       });

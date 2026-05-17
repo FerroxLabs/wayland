@@ -334,6 +334,19 @@
   "webui.featureChannelsTitle": "Керування повідомленнями",
   "webui.featureChannelsDesc": "Підключіть Telegram, Lark, DingTalk та WeChat для взаємодії з Wayland з месенджерів.",
   "webui.goToChannels": "Перейти до каналів",
+  "webui.pairedDevices.title": "Paired Devices",
+  "webui.pairedDevices.empty": "No devices paired yet",
+  "webui.pairedDevices.lastSeen": "Last seen {{time}}",
+  "webui.pairedDevices.revokeTitle": "Revoke Device",
+  "webui.pairedDevices.revoke": "Revoke",
+  "webui.pairedDevices.revokeConfirm": "This will immediately invalidate the session for this device. The device will need to log in again.",
+  "webui.activityLog.title": "Recent Activity",
+  "webui.activityLog.empty": "No activity recorded yet",
+  "webui.activityLog.refresh": "Refresh",
+  "webui.activityLog.viewAll": "View all {{count}} events →",
+  "webui.activityLog.showLess": "Show less",
+  "providers.search.placeholder": "Search models…",
+  "providers.search.noResults": "No models match your search",
   "assistant.telegramConfig": "Налаштування бота Telegram",
   "assistant.botToken": "Токен бота",
   "assistant.botTokenDesc": "Відкрийте Telegram, знайдіть @BotFather та надішліть /newbot для отримання токена бота.",
@@ -873,5 +886,155 @@
     "version": "Версія",
     "path": "Шлях",
     "providerNote": "Налаштування провайдера та API-ключів керуються на сторінці моделей. Wayland Core підтримує: Anthropic, OpenAI, AWS Bedrock."
+  },
+  "shared": {
+    "saving": "Збереження…",
+    "saved": "Збережено",
+    "saveFailed": "Помилка збереження",
+    "restartRequired": "Для застосування змін потрібен перезапуск.",
+    "restartNow": "Перезапустити",
+    "discardChange": "Скасувати зміну",
+    "confirm": "Підтвердити",
+    "dismiss": "Закрити",
+    "statusPrefix": "Статус: {{label}}"
+  },
+  "sider": {
+    "groupWorkspace": "РОБОЧИЙ ПРОСТІР",
+    "groupAiModels": "AI МОДЕЛІ",
+    "groupIntegrations": "ІНТЕГРАЦІЇ",
+    "groupAppearance": "ЗОВНІШНІЙ ВИГЛЯД",
+    "groupSystem": "СИСТЕМА",
+    "groupAbout": "ПРО ПРОГРАМУ",
+    "providers": "Провайдери",
+    "channels": "Канали",
+    "mcp": "MCP сервери",
+    "theme": "Тема та відображення",
+    "editor": "Редактор",
+    "general": "Загальні",
+    "notifications": "Сповіщення",
+    "storage": "Сховище",
+    "skills": "Навички та інструменти",
+    "agents": "Агенти"
+  },
+  "channelsIndex": {
+    "title": "Канали",
+    "slackTagline": "Чат через Slack",
+    "telegramTagline": "Чат через Telegram",
+    "discordTagline": "Чат через Discord",
+    "larkTagline": "Чат через Lark / Feishu",
+    "dingtalkTagline": "Чат через DingTalk",
+    "wechatTagline": "Чат через WeChat",
+    "wecomTagline": "Чат через WeCom",
+    "webhookTagline": "Отримання повідомлень через Webhook",
+    "emailTagline": "Чат електронною поштою",
+    "comingSoon": "Незабаром",
+    "setUp": "Налаштувати →",
+    "configure": "Налаштування →",
+    "footerText": "Додаткові канали доступні через розширення.",
+    "browseExtensions": "Переглянути розширення →",
+    "channelsMovedHint": "Канали переміщено до розділу Інтеграції →"
+  },
+  "providersPage": {
+    "title": "Провайдери"
+  },
+  "mcpPage": {
+    "title": "MCP сервери"
+  },
+  "generalPage": {
+    "title": "Загальні"
+  },
+  "notificationsPage": {
+    "title": "Сповіщення"
+  },
+  "storagePage": {
+    "title": "Сховище"
+  },
+  "editorPage": {
+    "title": "Редактор",
+    "comingSoon": "Налаштування редактора зʼявляться в наступному випуску."
+  },
+  "skillsPage": {
+    "title": "Навички та інструменти"
+  },
+  "agentsPage": {
+    "title": "Агенти"
+  },
+  "providers": {
+    "heroTitle": "Connect a provider",
+    "heroPlaceholder": "Paste an API key...",
+    "detectButton": "Detect & connect",
+    "browseButton": "Browse 24+ providers",
+    "connected": "Connected",
+    "refreshed": "Refreshed {{n}}h ago",
+    "refreshNow": "Refresh now",
+    "disconnect": "Disconnect",
+    "configure": "Configure",
+    "deprecationBanner": "Some models in this provider’s catalog have been removed",
+    "defaultsTitle": "Default models",
+    "defaultChat": "Default chat model",
+    "defaultCoding": "Default coding model",
+    "defaultVision": "Default vision model",
+    "defaultImage": "Default image model",
+    "defaultAudio": "Default audio model",
+    "noDefault": "No default set",
+    "connect": {
+      "entryTitle": "Connect a provider",
+      "placeholder": "Paste your API key here...",
+      "detectButton": "Detect & connect",
+      "browseButton": "Browse 24+ providers",
+      "detectingProvider": "Detecting provider…",
+      "verifyingKey": "Verifying key…",
+      "fetchingCatalog": "Fetching model catalog…",
+      "moreInfoTitle": "Additional details required",
+      "pickerTitle": "Choose a provider",
+      "pickerSearch": "Search providers…",
+      "resultsTitle": "Select models to enable",
+      "resultsSelectAll": "Select all",
+      "resultsDeselectAll": "Deselect all",
+      "connectButton": "Connect",
+      "cancel": "Cancel",
+      "retry": "Try again",
+      "editKey": "Edit key",
+      "openConsole": "Open provider console",
+      "errorTitle": "Connection failed",
+      "errorNetwork": "Could not reach the provider. Check your network connection.",
+      "errorUnauthorized": "Invalid API key. Check your key and try again.",
+      "errorForbidden": "This key does not have the required permissions.",
+      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
+      "errorUnknown": "An unexpected error occurred.",
+      "fieldRegion": "AWS Region",
+      "fieldSecretKey": "Secret Access Key",
+      "fieldAccessKeyId": "Access Key ID",
+      "fieldEndpoint": "Endpoint URL",
+      "fieldDeployment": "Deployment Name",
+      "fieldApiVersion": "API Version",
+      "fieldProjectId": "Google Cloud Project ID",
+      "fieldServiceAccount": "Service Account JSON",
+      "browseServiceAccount": "Browse…"
+    },
+    "tiers": {
+      "flagship": "Flagship",
+      "everyday": "Everyday",
+      "fast": "Fast",
+      "reasoning": "Reasoning",
+      "legacy": "Legacy"
+    },
+    "capabilities": {
+      "chat": "Chat",
+      "vision": "Vision",
+      "image": "Image generation",
+      "audio": "Audio",
+      "embeddings": "Embeddings",
+      "reasoning": "Reasoning"
+    },
+    "categories": {
+      "frontier": "Frontier",
+      "openInference": "Open inference",
+      "cloud": "Cloud",
+      "chineseFrontier": "Chinese frontier",
+      "specialised": "Specialised",
+      "voice": "Voice",
+      "custom": "Custom"
+    }
   }
 }

@@ -58,6 +58,16 @@ function createDuckTypedWrapper(
   return class ExtensionDuckTypedWrapper extends BasePlugin {
     readonly type = pluginType as any;
 
+    // Conservative default for extension-contributed plugins. The wrapper
+    // implements editMessage (falling back to sendMessage), so canEdit is safe;
+    // extensions opt into stream/react/typing via their own runtime contracts.
+    readonly capabilities = {
+      canEdit: true,
+      canReact: false,
+      canStream: true,
+      canTypingIndicator: false,
+    } as const;
+
     private impl: LegacyExternalPlugin | null = null;
 
     override onMessage(handler: PluginMessageHandler): void {

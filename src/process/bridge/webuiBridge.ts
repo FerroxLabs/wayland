@@ -20,6 +20,8 @@ import {
 // Preload webserver module to avoid startup delay
 import { startWebServerWithInstance } from '@process/webserver/index';
 import { cleanupWebAdapter } from '@process/webserver/adapter';
+import { ipcListPairedDevices, ipcRevokeDevice } from '@process/webui/pairedDevices';
+import { getActivity } from '@process/webui/activityLog';
 
 export { generateQRLoginUrlDirect, verifyQRTokenDirect };
 
@@ -334,6 +336,36 @@ export function initWebuiBridge(): void {
       }, 'Direct IPC: Change username');
     }
   );
+
+  // Paired devices: list
+  webui.listPairedDevices.provider(async () => {
+    try {
+      const devices = await ipcListPairedDevices();
+      return { success: true, data: { devices } };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : 'Failed to list paired devices' };
+    }
+  });
+
+  // Paired devices: revoke
+  webui.revokeDevice.provider(async ({ id }) => {
+    try {
+      await ipcRevokeDevice(id);
+      return { success: true };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : 'Failed to revoke device' };
+    }
+  });
+
+  // Activity log
+  webui.activityLog.provider(async ({ limit } = {} as { limit?: number }) => {
+    try {
+      const events = getActivity(limit);
+      return { success: true, data: { events } };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : 'Failed to get activity log' };
+    }
+  });
 
   // Direct IPC: Generate QR token
   // Gated by: rate limit. QR tokens are short-lived bearer credentials for

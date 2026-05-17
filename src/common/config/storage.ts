@@ -105,6 +105,12 @@ export interface IConfigStorageRefer {
     switch?: boolean;
   };
   'tools.speechToText'?: SpeechToTextConfig;
+  // Per-category notification preferences (master switch lives in system.notificationEnabled via systemSettingsBridge)
+  'notifications.agentFinished'?: boolean;
+  'notifications.agentError'?: boolean;
+  'notifications.channelMessage'?: boolean;
+  'notifications.playSound'?: boolean;
+  'notifications.quietHours'?: { start: string; end: string };
   // 是否在粘贴文件到工作区时询问确认（true = 不再询问）
   'workspace.pasteConfirm'?: boolean;
   // 上传的文件是否保存到工作区目录（true = 保存到工作区，false = 保存到缓存目录）
@@ -126,6 +132,27 @@ export interface IConfigStorageRefer {
   'migration.electronConfigImported'?: boolean;
   // 关闭窗口时最小化到系统托盘 / Minimize to system tray when closing window
   'system.closeToTray'?: boolean;
+  // First-run flag: set once after applying smart defaults (close-to-tray on, start-on-boot on).
+  // Once true, the app never re-applies defaults — user's explicit choices win.
+  'system.firstRunDefaultsApplied'?: boolean;
+  // One-shot migration flag for the credentials crypto upgrade.
+  // Set to true after every plugin's credentials have been re-encrypted from
+  // the legacy base64 `b64:` / `plain:` / `enc:` formats into `enc:v1:`
+  // Electron-safeStorage ciphertext. See process/utils/credentialMigration.
+  'system.credentialsCryptoMigrated_v1'?: boolean;
+  // Persisted webhook connection-token records. Hydrated by ChannelManager
+  // on startup so URLs survive app restarts. Shape mirrors
+  // ConnectionTokenRecord in src/process/channels/webhook/types.ts —
+  // declared inline here to keep src/common/config/ free of channel deps.
+  'webhook.connectionTokens'?: ReadonlyArray<{
+    token: string;
+    platform: string;
+    pluginInstanceId: string;
+    agentId: string;
+    createdAt: number;
+    lastUsedAt?: number;
+    revokedAt?: number;
+  }>;
   // 任务完成时显示系统通知 / Show system notification when task completes
   'system.notificationEnabled'?: boolean;
   // 定时任务完成时显示系统通知 / Show system notification when scheduled task completes

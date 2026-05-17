@@ -1,4 +1,21 @@
-import { Bot, CloudCog, Cpu, Gauge, Globe, Info, MessageCircle, Monitor, Puzzle, Sparkles, Zap } from 'lucide-react';
+import {
+  Bot,
+  BookOpen,
+  Cable,
+  Cpu,
+  Globe,
+  Image as ImageIcon,
+  Info,
+  Mic,
+  MessageCircle,
+  Monitor,
+  Pencil,
+  Puzzle,
+  Radio,
+  Server,
+  Sparkles,
+  Zap,
+} from 'lucide-react';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
 import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
@@ -12,36 +29,55 @@ import { getSiderTooltipProps } from '@/renderer/utils/ui/siderTooltip';
 
 /** Builtin settings tab IDs in display order (must match router paths). */
 export const BUILTIN_TAB_IDS = [
-  'gemini',
-  'agent',
-  'model',
+  // WORKSPACE
   'assistants',
-  'capabilities',
-  'display',
+  'agents',
+  'skills',
+  // AI MODELS
+  'providers',
+  'images',
+  'voice',
+  // INTEGRATIONS
   'webui',
-  'system',
+  'channels',
+  'mcp',
+  // APPEARANCE
+  'theme',
+  'editor',
+  // SYSTEM
+  'general',
+  'notifications',
+  'storage',
+  // ABOUT
   'about',
 ] as const;
 
 /**
  * Legacy anchor IDs that have been merged into other tabs.
- * When an extension anchors to one of these, it is redirected to the new host.
- * This keeps older extensions working without requiring them to update.
+ * Keeps older extensions working without requiring them to update.
  */
 export const LEGACY_ANCHOR_REMAP: Record<string, string> = {
-  'skills-hub': 'capabilities',
-  tools: 'capabilities',
+  'skills-hub': 'skills',
+  tools: 'mcp',
+  capabilities: 'skills',
+  gemini: 'providers',
+  model: 'providers',
+  display: 'theme',
+  agent: 'agents',
+  system: 'general',
 };
 
 /**
  * Group headers displayed above specific builtin tabs.
- * The header is rendered once, immediately before the first item whose id matches.
- * Extension tabs anchored between these builtins inherit the enclosing group visually.
+ * The key is the first tab ID in the group; value is the i18n key.
  */
 const GROUP_HEADER_BEFORE: Record<string, string> = {
-  gemini: 'settings.groupAiCore',
-  display: 'settings.groupApp',
-  about: 'settings.groupAbout',
+  assistants: 'settings.sider.groupWorkspace',
+  providers: 'settings.sider.groupAiModels',
+  webui: 'settings.sider.groupIntegrations',
+  theme: 'settings.sider.groupAppearance',
+  general: 'settings.sider.groupSystem',
+  about: 'settings.sider.groupAbout',
 };
 
 type SiderItem = {
@@ -49,7 +85,6 @@ type SiderItem = {
   label: string;
   icon: React.ReactElement;
   isImageIcon?: boolean;
-  /** Route path segment — for builtins: `/settings/{path}`, for extensions: `/settings/ext/{id}` */
   path: string;
 };
 
@@ -121,37 +156,97 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
   }, [loadExtensionTabs]);
 
   const { menus, groupHeaderAt } = useMemo(() => {
-    // Build builtin items
     const builtinMap: Record<string, SiderItem> = {
-      gemini: { id: 'gemini', label: t('settings.gemini'), icon: <Sparkles />, path: 'gemini' },
-      model: { id: 'model', label: t('settings.model'), icon: <CloudCog />, path: 'model' },
       assistants: {
         id: 'assistants',
         label: t('settings.assistants', { defaultValue: 'Assistants' }),
-        icon: <Bot />,
+        icon: <BookOpen />,
         path: 'assistants',
       },
-      agent: {
-        id: 'agent',
-        label: t('settings.agents', { defaultValue: 'Agents' }),
-        icon: <Gauge />,
-        path: 'agent',
+      agents: {
+        id: 'agents',
+        label: t('settings.sider.agents', { defaultValue: 'Agents' }),
+        icon: <Bot />,
+        path: 'agents',
       },
-      capabilities: {
-        id: 'capabilities',
-        label: t('settings.capabilities', { defaultValue: 'Capabilities' }),
+      skills: {
+        id: 'skills',
+        label: t('settings.sider.skills', { defaultValue: 'Skills & Tools' }),
         icon: <Zap />,
-        path: 'capabilities',
+        path: 'skills',
       },
-      display: { id: 'display', label: t('settings.display'), icon: <Monitor />, path: 'display' },
+      providers: {
+        id: 'providers',
+        label: t('settings.sider.providers', { defaultValue: 'Providers' }),
+        icon: <Sparkles />,
+        path: 'providers',
+      },
+      images: {
+        id: 'images',
+        label: t('settings.sider.images', { defaultValue: 'Image Generation' }),
+        icon: <ImageIcon />,
+        path: 'images',
+      },
+      voice: {
+        id: 'voice',
+        label: t('settings.sider.voice', { defaultValue: 'Voice' }),
+        icon: <Mic />,
+        path: 'voice',
+      },
       webui: {
         id: 'webui',
         label: t('settings.webui'),
         icon: isDesktop ? <Globe /> : <MessageCircle />,
         path: 'webui',
       },
-      system: { id: 'system', label: t('settings.system'), icon: <Cpu />, path: 'system' },
-      about: { id: 'about', label: t('settings.about'), icon: <Info />, path: 'about' },
+      channels: {
+        id: 'channels',
+        label: t('settings.sider.channels', { defaultValue: 'Channels' }),
+        icon: <Radio />,
+        path: 'channels',
+      },
+      mcp: {
+        id: 'mcp',
+        label: t('settings.sider.mcp', { defaultValue: 'MCP Servers' }),
+        icon: <Server />,
+        path: 'mcp',
+      },
+      theme: {
+        id: 'theme',
+        label: t('settings.sider.theme', { defaultValue: 'Theme & Display' }),
+        icon: <Monitor />,
+        path: 'theme',
+      },
+      editor: {
+        id: 'editor',
+        label: t('settings.sider.editor', { defaultValue: 'Editor' }),
+        icon: <Pencil />,
+        path: 'editor',
+      },
+      general: {
+        id: 'general',
+        label: t('settings.sider.general', { defaultValue: 'General' }),
+        icon: <Cpu />,
+        path: 'general',
+      },
+      notifications: {
+        id: 'notifications',
+        label: t('settings.sider.notifications', { defaultValue: 'Notifications' }),
+        icon: <Cable />,
+        path: 'notifications',
+      },
+      storage: {
+        id: 'storage',
+        label: t('settings.sider.storage', { defaultValue: 'Storage' }),
+        icon: <Globe />,
+        path: 'storage',
+      },
+      about: {
+        id: 'about',
+        label: t('settings.about'),
+        icon: <Info />,
+        path: 'about',
+      },
     };
 
     const result: SiderItem[] = BUILTIN_TAB_IDS.map((id) => builtinMap[id]);
@@ -177,7 +272,6 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       list.push(tab);
     }
 
-    // Helper to create SiderItem from extension tab
     const toSiderItem = (tab: IExtensionSettingsTab): SiderItem => {
       const resolvedIcon = resolveExtensionAssetUrl(tab.icon) || tab.icon;
       return {
@@ -189,7 +283,6 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       };
     };
 
-    // Insert anchored tabs (reverse iteration to preserve indices)
     for (let i = result.length - 1; i >= 0; i--) {
       const builtinId = result[i].id;
       const afters = afterMap.get(builtinId);
@@ -202,19 +295,14 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       }
     }
 
-    // Append unanchored before "system"
+    // Append unanchored before "general" (system group)
     if (unanchored.length > 0) {
-      const systemIdx = result.findIndex((item) => item.id === 'system');
-      const insertIdx = systemIdx >= 0 ? systemIdx : result.length;
+      const generalIdx = result.findIndex((item) => item.id === 'general');
+      const insertIdx = generalIdx >= 0 ? generalIdx : result.length;
       result.splice(insertIdx, 0, ...unanchored.map(toSiderItem));
     }
 
-    // Compute group header render positions.
-    //
-    // A header must appear before the first *visible* item of its group, which may
-    // be an extension tab anchored with placement='before' to the group's first
-    // builtin — not the builtin itself. Otherwise such an extension would render
-    // above the header and visually belong to the previous group.
+    // Compute group header render positions
     const headerAt = new Map<number, string>();
     for (const [builtinId, headerKey] of Object.entries(GROUP_HEADER_BEFORE)) {
       const builtinIdx = result.findIndex((item) => item.id === builtinId);
@@ -227,6 +315,7 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
   }, [t, isDesktop, extensionTabs, resolveExtTabName]);
 
   const siderTooltipProps = getSiderTooltipProps(tooltipEnabled);
+
   return (
     <div
       className={classNames('h-full settings-sider flex flex-col gap-2px overflow-y-auto overflow-x-hidden', {
@@ -234,7 +323,8 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       })}
     >
       {menus.map((item, index) => {
-        const isSelected = pathname.includes(item.path);
+        const isSelected =
+          pathname === `/settings/${item.path}` || pathname.startsWith(`/settings/${item.path}/`);
         const groupHeaderKey = groupHeaderAt.get(index);
         const groupHeader =
           groupHeaderKey && !collapsed ? (
@@ -263,7 +353,6 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
                   });
                 }}
               >
-                {/* Leading icon — fixed 28px column to align with main sider rows */}
                 <span className='w-28px h-28px flex items-center justify-center shrink-0'>
                   {item.isImageIcon ? (
                     <span className='w-18px h-18px flex items-center justify-center'>{item.icon}</span>

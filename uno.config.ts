@@ -9,7 +9,7 @@ const textColors = {
   // 自定义语义化文字色 / Custom semantic text colors
   't-primary': 'var(--text-primary)', // text-t-primary - 主要文字
   't-secondary': 'var(--text-secondary)', // text-t-secondary - 次要文字
-  't-tertiary': 'var(--bg-6)', // text-t-tertiary - 三级说明/提示文字
+  't-tertiary': 'var(--text-muted)', // text-t-tertiary - 三级说明/提示文字 (muted but WCAG-AA readable)
   't-disabled': 'var(--text-disabled)', // text-t-disabled - 禁用文字
 };
 

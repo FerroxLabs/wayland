@@ -172,7 +172,7 @@ const LocalAgents: React.FC = () => {
           {t('settings.agentManagement.detected')}
         </Typography.Text>
       </div>
-      <div className='grid grid-cols-2 gap-10px px-16px md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
+      <div className='grid grid-cols-1 gap-10px px-16px sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
         {wcoreAgent && (
           <AgentCard
             type='detected'

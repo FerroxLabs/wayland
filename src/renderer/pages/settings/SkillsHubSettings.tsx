@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
+import { useToast } from '@renderer/hooks/settings/useToast';
 
 // Skill info type
 interface SkillInfo {
@@ -47,6 +48,7 @@ interface SkillsHubSettingsProps {
 
 const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = true }) => {
   const { t } = useTranslation();
+  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const highlightName = searchParams.get('highlight');
   const [highlightedSkill, setHighlightedSkill] = useState<string | null>(null);
@@ -97,7 +99,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
       setBuiltinAutoSkills(autoSkills);
     } catch (error) {
       console.error('Failed to fetch skills:', error);
-      Message.error(t('settings.skillsHub.fetchError', { defaultValue: 'Failed to fetch skills' }));
+      toast.show({ variant: 'error', title: t('settings.skillsHub.fetchError', { defaultValue: 'Failed to fetch skills' }) });
     } finally {
       setLoading(false);
     }
@@ -129,16 +131,14 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
     try {
       const result = await ipcBridge.fs.importSkillWithSymlink.invoke({ skillPath });
       if (result.success) {
-        Message.success(
-          result.msg || t('settings.skillsHub.importSuccess', { defaultValue: 'Skill imported successfully' })
-        );
+        toast.show({ variant: 'success', title: result.msg || t('settings.skillsHub.importSuccess', { defaultValue: 'Skill imported successfully' }) });
         void fetchData();
       } else {
-        Message.error(result.msg || t('settings.skillsHub.importFailed', { defaultValue: 'Failed to import skill' }));
+        toast.show({ variant: 'error', title: result.msg || t('settings.skillsHub.importFailed', { defaultValue: 'Failed to import skill' }) });
       }
     } catch (error) {
       console.error('Failed to import skill:', error);
-      Message.error(t('settings.skillsHub.importError', { defaultValue: 'Error importing skill' }));
+      toast.show({ variant: 'error', title: t('settings.skillsHub.importError', { defaultValue: 'Error importing skill' }) });
     }
   };
 
@@ -153,12 +153,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
       }
     }
     if (successCount > 0) {
-      Message.success(
-        t('settings.skillsHub.importAllSuccess', {
-          count: successCount,
-          defaultValue: `${successCount} skills imported`,
-        })
-      );
+      toast.show({ variant: 'success', title: t('settings.skillsHub.importAllSuccess', { count: successCount, defaultValue: `${successCount} skills imported` }) });
       void fetchData();
     }
   };
@@ -167,14 +162,14 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
     try {
       const result = await ipcBridge.fs.deleteSkill.invoke({ skillName });
       if (result.success) {
-        Message.success(result.msg || t('settings.skillsHub.deleteSuccess', { defaultValue: 'Skill deleted' }));
+        toast.show({ variant: 'success', title: result.msg || t('settings.skillsHub.deleteSuccess', { defaultValue: 'Skill deleted' }) });
         void fetchData();
       } else {
-        Message.error(result.msg || t('settings.skillsHub.deleteFailed', { defaultValue: 'Failed to delete skill' }));
+        toast.show({ variant: 'error', title: result.msg || t('settings.skillsHub.deleteFailed', { defaultValue: 'Failed to delete skill' }) });
       }
     } catch (error) {
       console.error('Failed to delete skill:', error);
-      Message.error(t('settings.skillsHub.deleteError', { defaultValue: 'Error deleting skill' }));
+      toast.show({ variant: 'error', title: t('settings.skillsHub.deleteError', { defaultValue: 'Error deleting skill' }) });
     }
   };
 
@@ -201,7 +196,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
           setActiveSourceTab(external.data[0].source);
         }
       }
-      Message.success(t('common.refreshSuccess', { defaultValue: 'Refreshed' }));
+      toast.show({ variant: 'success', title: t('common.refreshSuccess', { defaultValue: 'Refreshed' }) });
     } catch (error) {
       console.error('Failed to refresh external skills:', error);
     } finally {
@@ -222,10 +217,10 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
         setCustomPathValue('');
         void handleRefreshExternal();
       } else {
-        Message.error(result.msg || 'Failed to add path');
+        toast.show({ variant: 'error', title: result.msg || 'Failed to add path' });
       }
     } catch (error) {
-      Message.error('Failed to add custom path');
+      toast.show({ variant: 'error', title: 'Failed to add custom path' });
     }
   }, [customPathName, customPathValue, handleRefreshExternal]);
 
@@ -403,7 +398,7 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                 className='outline-none border-none bg-transparent cursor-pointer p-6px text-t-tertiary hover:text-primary-6 transition-colors rd-full hover:bg-fill-2 ml-4px'
                 onClick={async () => {
                   await fetchData();
-                  Message.success(t('common.refreshSuccess', { defaultValue: 'Refreshed' }));
+                  toast.show({ variant: 'success', title: t('common.refreshSuccess', { defaultValue: 'Refreshed' }) });
                 }}
                 title={t('common.refresh', { defaultValue: 'Refresh' })}
               >
@@ -520,24 +515,15 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
 
                                     hide();
                                     if (result.success) {
-                                      Message.success(
-                                        t('settings.skillsHub.exportSuccess', {
-                                          defaultValue: 'Skill exported successfully',
-                                        })
-                                      );
+                                      toast.show({ variant: 'success', title: t('settings.skillsHub.exportSuccess', { defaultValue: 'Skill exported successfully' }) });
                                     } else {
-                                      Message.error(
-                                        result.msg ||
-                                          t('settings.skillsHub.exportFailed', {
-                                            defaultValue: 'Failed to export skill',
-                                          })
-                                      );
+                                      toast.show({ variant: 'error', title: result.msg || t('settings.skillsHub.exportFailed', { defaultValue: 'Failed to export skill' }) });
                                     }
                                   } catch (error) {
                                     hide();
                                     console.error('[SkillsHub] Export error:', error);
                                     const errMsg = error instanceof Error ? error.message : String(error);
-                                    Message.error(errMsg);
+                                    toast.show({ variant: 'error', title: errMsg });
                                   }
                                 }}
                               >
@@ -693,7 +679,11 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
 
   return (
     <>
-      {withWrapper ? <SettingsPageWrapper>{mainContent}</SettingsPageWrapper> : mainContent}
+      {withWrapper ? (
+        <SettingsPageWrapper contentClassName='md:max-w-[1600px]'>{mainContent}</SettingsPageWrapper>
+      ) : (
+        mainContent
+      )}
 
       {/* Add Custom External Path Modal */}
       <Modal

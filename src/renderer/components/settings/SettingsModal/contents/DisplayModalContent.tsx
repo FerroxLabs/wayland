@@ -4,12 +4,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Switch, Slider, Radio } from '@arco-design/web-react';
 import FontSizeControl from '@/renderer/components/settings/FontSizeControl';
 import { ThemeSwitcher } from '@/renderer/components/settings/ThemeSwitcher';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
 import { useSettingsViewMode } from '../settingsViewContext';
+
+const STORAGE_KEYS = {
+  reduceMotion: 'wayland:reduce-motion',
+  density: 'wayland:density',
+  sidebarWidth: 'wayland:sidebar-width',
+} as const;
+
+const DEFAULT_SIDEBAR_WIDTH = 260;
+
+/** Apply reduce-motion preference to document.body */
+const applyReduceMotion = (enabled: boolean) => {
+  document.body.classList.toggle('reduce-motion', enabled);
+};
+
+/** Apply density preference to document.body */
+const applyDensity = (compact: boolean) => {
+  document.body.classList.toggle('density-compact', compact);
+};
 
 /**
  * Preference row component
@@ -41,6 +60,40 @@ const DisplayModalContent: React.FC = () => {
   const viewMode = useSettingsViewMode();
   const isPageMode = viewMode === 'page';
 
+  const [reduceMotion, setReduceMotion] = useState(
+    () => localStorage.getItem(STORAGE_KEYS.reduceMotion) === 'true'
+  );
+  const [densityCompact, setDensityCompact] = useState(
+    () => localStorage.getItem(STORAGE_KEYS.density) === 'compact'
+  );
+  const [sidebarWidth, setSidebarWidth] = useState(
+    () => parseInt(localStorage.getItem(STORAGE_KEYS.sidebarWidth) ?? String(DEFAULT_SIDEBAR_WIDTH), 10)
+  );
+
+  // Apply persisted values on mount
+  useEffect(() => {
+    applyReduceMotion(reduceMotion);
+  }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+  const toggleReduceMotion = (checked: boolean) => {
+    setReduceMotion(checked);
+    localStorage.setItem(STORAGE_KEYS.reduceMotion, String(checked));
+    applyReduceMotion(checked);
+  };
+
+  const toggleDensity = (value: string) => {
+    const compact = value === 'compact';
+    setDensityCompact(compact);
+    localStorage.setItem(STORAGE_KEYS.density, compact ? 'compact' : 'comfortable');
+    applyDensity(compact);
+  };
+
+  const onSidebarWidthChange = (value: number) => {
+    setSidebarWidth(value);
+    localStorage.setItem(STORAGE_KEYS.sidebarWidth, String(value));
+    document.documentElement.style.setProperty('--sidebar-width', `${value}px`);
+  };
+
   // Display items configuration
   const displayItems = [
     { key: 'theme', label: t('settings.theme'), component: <ThemeSwitcher /> },
@@ -60,6 +113,31 @@ const DisplayModalContent: React.FC = () => {
                   {item.component}
                 </PreferenceRow>
               ))}
+              <PreferenceRow label={t('settings.displayPage.reduceMotion')}>
+                <Switch checked={reduceMotion} onChange={toggleReduceMotion} />
+              </PreferenceRow>
+              <PreferenceRow label={t('settings.displayPage.densityComfortable')}>
+                <Radio.Group
+                  value={densityCompact ? 'compact' : 'comfortable'}
+                  onChange={toggleDensity}
+                  type='button'
+                  size='small'
+                >
+                  <Radio value='comfortable'>{t('settings.displayPage.densityComfortable')}</Radio>
+                  <Radio value='compact'>{t('settings.displayPage.densityCompact')}</Radio>
+                </Radio.Group>
+              </PreferenceRow>
+              <PreferenceRow label={t('settings.displayPage.sidebarWidth')}>
+                <div className='w-full max-w-200px'>
+                  <Slider
+                    min={200}
+                    max={400}
+                    step={4}
+                    value={sidebarWidth}
+                    onChange={(v) => onSidebarWidthChange(v as number)}
+                  />
+                </div>
+              </PreferenceRow>
             </div>
           </div>
         </div>

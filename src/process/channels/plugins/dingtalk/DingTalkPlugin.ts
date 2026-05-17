@@ -8,7 +8,13 @@ import { DWClient, TOPIC_ROBOT, TOPIC_CARD, EventAck } from 'dingtalk-stream';
 import type { DWClientDownStream } from 'dingtalk-stream';
 import https from 'https';
 
-import type { BotInfo, IChannelPluginConfig, IUnifiedOutgoingMessage, PluginType } from '../../types';
+import type {
+  BotInfo,
+  IChannelPluginConfig,
+  IPluginCapabilities,
+  IUnifiedOutgoingMessage,
+  PluginType,
+} from '../../types';
 import { BasePlugin } from '../BasePlugin';
 import {
   DINGTALK_MESSAGE_LIMIT,
@@ -67,6 +73,13 @@ interface IAICardSession {
 
 export class DingTalkPlugin extends BasePlugin {
   readonly type: PluginType = 'dingtalk';
+
+  readonly capabilities: IPluginCapabilities = {
+    canEdit: true,
+    canReact: false,
+    canStream: true,
+    canTypingIndicator: false,
+  };
 
   private client: DWClient | null = null;
   private isConnected: boolean = false;

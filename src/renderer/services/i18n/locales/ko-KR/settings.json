@@ -336,6 +336,19 @@
   "webui.featureChannelsTitle": "Messaging Control",
   "webui.featureChannelsDesc": "Telegram, Lark, DingTalk, WeChat을 연결해 IM 앱에서 Wayland와 상호작용하세요.",
   "webui.goToChannels": "Channels로 이동",
+  "webui.pairedDevices.title": "Paired Devices",
+  "webui.pairedDevices.empty": "No devices paired yet",
+  "webui.pairedDevices.lastSeen": "Last seen {{time}}",
+  "webui.pairedDevices.revokeTitle": "Revoke Device",
+  "webui.pairedDevices.revoke": "Revoke",
+  "webui.pairedDevices.revokeConfirm": "This will immediately invalidate the session for this device. The device will need to log in again.",
+  "webui.activityLog.title": "Recent Activity",
+  "webui.activityLog.empty": "No activity recorded yet",
+  "webui.activityLog.refresh": "Refresh",
+  "webui.activityLog.viewAll": "View all {{count}} events →",
+  "webui.activityLog.showLess": "Show less",
+  "providers.search.placeholder": "Search models…",
+  "providers.search.noResults": "No models match your search",
   "assistant.telegramConfig": "Telegram Bot Configuration",
   "assistant.botToken": "Bot Token",
   "assistant.botTokenDesc": "Open Telegram, find @BotFather and send /newbot to get your Bot Token.",
@@ -910,5 +923,155 @@
     "version": "버전",
     "path": "경로",
     "providerNote": "제공자 및 API 키 설정은 모델 페이지에서 관리합니다. Wayland Core는 Anthropic, OpenAI, AWS Bedrock을 지원합니다."
+  },
+  "shared": {
+    "saving": "저장 중…",
+    "saved": "저장됨",
+    "saveFailed": "저장 실패",
+    "restartRequired": "이 변경 사항은 재시작 후 적용됩니다.",
+    "restartNow": "지금 재시작",
+    "discardChange": "변경 취소",
+    "confirm": "확인",
+    "dismiss": "닫기",
+    "statusPrefix": "상태: {{label}}"
+  },
+  "sider": {
+    "groupWorkspace": "워크스페이스",
+    "groupAiModels": "AI 모델",
+    "groupIntegrations": "통합",
+    "groupAppearance": "외관",
+    "groupSystem": "시스템",
+    "groupAbout": "정보",
+    "providers": "제공업체",
+    "channels": "채널",
+    "mcp": "MCP 서버",
+    "theme": "테마 및 디스플레이",
+    "editor": "편집기",
+    "general": "일반",
+    "notifications": "알림",
+    "storage": "저장소",
+    "skills": "스킬 및 도구",
+    "agents": "에이전트"
+  },
+  "channelsIndex": {
+    "title": "채널",
+    "slackTagline": "Slack으로 채팅",
+    "telegramTagline": "Telegram으로 채팅",
+    "discordTagline": "Discord로 채팅",
+    "larkTagline": "Lark / Feishu로 채팅",
+    "dingtalkTagline": "DingTalk으로 채팅",
+    "wechatTagline": "WeChat으로 채팅",
+    "wecomTagline": "WeCom으로 채팅",
+    "webhookTagline": "Webhook으로 메시지 수신",
+    "emailTagline": "이메일로 채팅",
+    "comingSoon": "출시 예정",
+    "setUp": "설정하기 →",
+    "configure": "구성하기 →",
+    "footerText": "확장 프로그램으로 더 많은 채널을 추가할 수 있습니다.",
+    "browseExtensions": "확장 프로그램 보기 →",
+    "channelsMovedHint": "채널이 통합으로 이동되었습니다 →"
+  },
+  "providersPage": {
+    "title": "제공업체"
+  },
+  "mcpPage": {
+    "title": "MCP 서버"
+  },
+  "generalPage": {
+    "title": "일반"
+  },
+  "notificationsPage": {
+    "title": "알림"
+  },
+  "storagePage": {
+    "title": "저장소"
+  },
+  "editorPage": {
+    "title": "편집기",
+    "comingSoon": "편집기 환경설정은 다음 릴리즈에 추가됩니다."
+  },
+  "skillsPage": {
+    "title": "스킬 및 도구"
+  },
+  "agentsPage": {
+    "title": "에이전트"
+  },
+  "providers": {
+    "heroTitle": "Connect a provider",
+    "heroPlaceholder": "Paste an API key...",
+    "detectButton": "Detect & connect",
+    "browseButton": "Browse 24+ providers",
+    "connected": "Connected",
+    "refreshed": "Refreshed {{n}}h ago",
+    "refreshNow": "Refresh now",
+    "disconnect": "Disconnect",
+    "configure": "Configure",
+    "deprecationBanner": "Some models in this provider’s catalog have been removed",
+    "defaultsTitle": "Default models",
+    "defaultChat": "Default chat model",
+    "defaultCoding": "Default coding model",
+    "defaultVision": "Default vision model",
+    "defaultImage": "Default image model",
+    "defaultAudio": "Default audio model",
+    "noDefault": "No default set",
+    "connect": {
+      "entryTitle": "Connect a provider",
+      "placeholder": "Paste your API key here...",
+      "detectButton": "Detect & connect",
+      "browseButton": "Browse 24+ providers",
+      "detectingProvider": "Detecting provider…",
+      "verifyingKey": "Verifying key…",
+      "fetchingCatalog": "Fetching model catalog…",
+      "moreInfoTitle": "Additional details required",
+      "pickerTitle": "Choose a provider",
+      "pickerSearch": "Search providers…",
+      "resultsTitle": "Select models to enable",
+      "resultsSelectAll": "Select all",
+      "resultsDeselectAll": "Deselect all",
+      "connectButton": "Connect",
+      "cancel": "Cancel",
+      "retry": "Try again",
+      "editKey": "Edit key",
+      "openConsole": "Open provider console",
+      "errorTitle": "Connection failed",
+      "errorNetwork": "Could not reach the provider. Check your network connection.",
+      "errorUnauthorized": "Invalid API key. Check your key and try again.",
+      "errorForbidden": "This key does not have the required permissions.",
+      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
+      "errorUnknown": "An unexpected error occurred.",
+      "fieldRegion": "AWS Region",
+      "fieldSecretKey": "Secret Access Key",
+      "fieldAccessKeyId": "Access Key ID",
+      "fieldEndpoint": "Endpoint URL",
+      "fieldDeployment": "Deployment Name",
+      "fieldApiVersion": "API Version",
+      "fieldProjectId": "Google Cloud Project ID",
+      "fieldServiceAccount": "Service Account JSON",
+      "browseServiceAccount": "Browse…"
+    },
+    "tiers": {
+      "flagship": "Flagship",
+      "everyday": "Everyday",
+      "fast": "Fast",
+      "reasoning": "Reasoning",
+      "legacy": "Legacy"
+    },
+    "capabilities": {
+      "chat": "Chat",
+      "vision": "Vision",
+      "image": "Image generation",
+      "audio": "Audio",
+      "embeddings": "Embeddings",
+      "reasoning": "Reasoning"
+    },
+    "categories": {
+      "frontier": "Frontier",
+      "openInference": "Open inference",
+      "cloud": "Cloud",
+      "chineseFrontier": "Chinese frontier",
+      "specialised": "Specialised",
+      "voice": "Voice",
+      "custom": "Custom"
+    }
   }
 }
