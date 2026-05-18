@@ -2585,6 +2585,7 @@ export type I18nKey =
   | 'teams.import.fileReadError'
   | 'teams.import.intro'
   | 'teams.import.missingSpecialists'
+  | 'teams.import.networkNotice'
   | 'teams.import.sandboxCta'
   | 'teams.import.success'
   | 'teams.import.title'

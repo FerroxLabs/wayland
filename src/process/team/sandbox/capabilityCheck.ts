@@ -11,12 +11,14 @@
  * Used by the MCP tool dispatch (TeamMcpServer) and will be reused by the
  * workspace-FS IPC handlers in W4c.
  *
- * Contract:
- *   - A team that is NOT sandboxed bypasses the grant map entirely — every
- *     capability is considered granted. Pre-W4 teams have `isSandboxed`
- *     undefined; we treat that as "trusted" (non-sandboxed).
- *   - A sandboxed team consults `importCapabilityGrants[cap].by_user`. Any
- *     missing entry, or `by_user: false`, denies the capability.
+ * Contract (W4 audit CRIT-2 fix — 2026-05-19):
+ *   - Imported teams (`team.importedFrom != null`) ALWAYS consult the
+ *     per-capability grant map regardless of the `isSandboxed` flag. The
+ *     `isSandboxed` flag is informational/visual only — it drives UI
+ *     badges and prompt-injection wrap, but the security gate is the
+ *     grant map itself. Granting one cap NEVER de-sandboxes the team.
+ *   - Non-imported (legitimately user-created) teams: full trust by
+ *     definition; every capability is considered granted.
  *
  * `assertCapGranted` throws `TeamSandboxedError` (defined in W4a) so the
  * existing MCP error path serializes a uniform message to the agent.
@@ -41,12 +43,19 @@ export type TeamCapabilities = {
 export type TeamCapability = keyof TeamCapabilities;
 
 /**
- * Returns true when `cap` is currently allowed on `team`. Non-sandboxed
- * teams always return true. Sandboxed teams require an explicit
- * `by_user: true` entry in `importCapabilityGrants`.
+ * Returns true when `cap` is currently allowed on `team`.
+ *
+ * W4 audit CRIT-2 fix: the security gate is the per-capability grant map,
+ * NOT the `isSandboxed` flag. Imported teams (`importedFrom != null`)
+ * ALWAYS check the grant map regardless of `isSandboxed` — granting one
+ * cap never de-sandboxes the others. Non-imported teams (legitimately
+ * user-created) are fully trusted by definition.
  */
 export function isCapGranted(team: TTeam, cap: TeamCapability): boolean {
-  if (team.isSandboxed !== true) return true;
+  // Non-imported teams: full trust. Pre-W4 teams (no importedFrom) and
+  // user-created teams fall in this bucket.
+  if (!team.importedFrom) return true;
+  // Imported teams: per-capability grant gate, independent of isSandboxed.
   const grants = team.importCapabilityGrants ?? {};
   return grants[cap]?.by_user === true;
 }

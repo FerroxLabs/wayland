@@ -120,7 +120,16 @@ describe('buildCapabilityGrants', () => {
   });
 });
 
-describe('isSandboxedAfterImport — final sandbox-flag derivation', () => {
+describe('isSandboxedAfterImport — legacy helper kept for historical coverage', () => {
+  // W4 audit CRIT-2 fix (2026-05-19): the production code in
+  // `TeamSessionService.acceptTeamImport` no longer consults this helper.
+  // Imported teams are now ALWAYS persisted with `isSandboxed: true`; the
+  // security gate is the per-capability grant map consulted by
+  // `isCapGranted` whenever `team.importedFrom` is set.
+  //
+  // Granting one cap MUST NOT de-sandbox the other caps. The full
+  // invariant is verified by the `isCapGranted` regression tests in
+  // tests/unit/process/team/sandbox/capabilityCheck.test.ts.
   const allFalseCaps = {
     canReadFiles: false,
     canWriteFiles: false,
@@ -129,31 +138,8 @@ describe('isSandboxedAfterImport — final sandbox-flag derivation', () => {
     canCrossTeamMessage: false,
   };
 
-  it('returns true when the user granted zero capabilities (always sandboxed)', () => {
+  it('returns true when no caps granted (legacy semantics preserved)', () => {
     expect(isSandboxedAfterImport(allFalseCaps, {})).toBe(true);
-    expect(
-      isSandboxedAfterImport(allFalseCaps, {
-        canReadFiles: false,
-        canWriteFiles: false,
-        canSpawnAgents: false,
-        canNetworkRequest: false,
-        canCrossTeamMessage: false,
-      })
-    ).toBe(true);
-  });
-
-  it('returns false when every capability the payload requested has a matching user grant', () => {
-    // v1 export always declares allFalseCaps; granting any cap satisfies the
-    // condition because there are no declared caps left to mismatch.
-    expect(
-      isSandboxedAfterImport(allFalseCaps, {
-        canReadFiles: true,
-        canWriteFiles: true,
-        canSpawnAgents: true,
-        canNetworkRequest: true,
-        canCrossTeamMessage: true,
-      })
-    ).toBe(false);
   });
 
   it('returns true when the payload declares a cap that the user did NOT grant', () => {

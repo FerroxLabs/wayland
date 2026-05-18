@@ -196,6 +196,9 @@ export class AcpAgent {
     };
 
     this.connection = new AcpConnection();
+    // W4 audit CRIT-1 (2026-05-19): bind the conversation id so the ACP
+    // file-op handlers can look up imported-team sandbox context.
+    this.connection.setConversationId(this.id);
     this.adapter = new AcpAdapter(this.id, this.extra.backend);
 
     this.setupConnectionHandlers();

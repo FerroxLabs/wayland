@@ -30,6 +30,13 @@ const CapabilitiesSchema = z
     canReadFiles: z.boolean().default(false),
     canWriteFiles: z.boolean().default(false),
     canSpawnAgents: z.boolean().default(false),
+    /**
+     * W4 audit HIGH-1 (2026-05-19): NOT user-toggleable in v1. Schema retains
+     * the field for forward-compat parsing, but `CapabilityReviewModal` does
+     * not render a grant row and `acceptTeamImport` forces it to
+     * `by_user: false` regardless of incoming value. Runtime enforcement is
+     * v2 work (agent-process network boundary).
+     */
     canNetworkRequest: z.boolean().default(false),
     canCrossTeamMessage: z.boolean().default(false),
   })

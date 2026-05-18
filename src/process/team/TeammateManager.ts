@@ -13,6 +13,14 @@ import type { Mailbox } from './Mailbox';
 import { buildRolePrompt } from './prompts/buildRolePrompt';
 import { formatMessages } from './prompts/formatHelpers';
 import { agentRegistry } from '@process/agent/AgentRegistry';
+// W4 audit CRIT-1 (2026-05-19): register / unregister team context for
+// each agent conversation so the ACP file-op gate can resolve the team
+// when sandboxed imported agents request file ops.
+import type { TTeam } from './types';
+import {
+  registerTeamConversation,
+  unregisterTeamConversation,
+} from './sandbox/acpTeamContextRegistry';
 
 type TeammateManagerParams = {
   teamId: string;
@@ -27,6 +35,21 @@ type TeammateManagerParams = {
    * suffixed with a non-overridable SYSTEM SANDBOX NOTICE.
    */
   isSandboxed?: boolean;
+  /**
+   * W4 audit CRIT-1 (2026-05-19): true when the team was imported (i.e.
+   * `team.importedFrom != null`). When set, every agent's conversation id
+   * is registered with the ACP file-op gate so sandboxed reads/writes go
+   * through `withOpenInsideWorkspace`. Distinct from `isSandboxed`: the
+   * `isImported` flag is the SECURITY trigger; `isSandboxed` is the
+   * cosmetic/prompt-wrap trigger.
+   */
+  isImported?: boolean;
+  /**
+   * W4 audit CRIT-1 (2026-05-19): async accessor for the current TTeam
+   * snapshot used by the ACP file-op gate. Required when `isImported` is
+   * true so the gate can re-check the per-cap grant map after live edits.
+   */
+  getTeamSnapshot?: () => Promise<TTeam | null>;
   /** Called after an agent is removed from in-memory list, so the caller can persist the change (e.g. update DB) */
   onAgentRemoved?: (teamId: string, agents: TeamAgent[]) => void;
   /**
@@ -51,6 +74,10 @@ export class TeammateManager extends EventEmitter {
   private readonly teamWorkspace: string | undefined;
   /** W4c — when true, wrap outgoing role prompts as imported untrusted content */
   private readonly isSandboxed: boolean;
+  /** W4 audit CRIT-1 — true when the team was imported (gates ACP fs ops). */
+  private readonly isImported: boolean;
+  /** W4 audit CRIT-1 — async accessor used by the ACP file-op gate. */
+  private readonly getTeamSnapshot: (() => Promise<TTeam | null>) | undefined;
   /** W1e — optional team_event_log writer */
   private readonly eventLogger: EventLogger | undefined;
 
@@ -79,10 +106,13 @@ export class TeammateManager extends EventEmitter {
     this.onAgentRemovedFn = params.onAgentRemoved;
     this.teamWorkspace = params.teamWorkspace;
     this.isSandboxed = params.isSandboxed === true;
+    this.isImported = params.isImported === true;
+    this.getTeamSnapshot = params.getTeamSnapshot;
     this.eventLogger = params.eventLogger;
 
     for (const agent of this.agents) {
       this.ownedConversationIds.add(agent.conversationId);
+      this.registerAcpTeamContext(agent.conversationId);
     }
 
     // Listen on teamEventBus instead of ipcBridge: ipcBridge.emit() routes through
@@ -101,8 +131,33 @@ export class TeammateManager extends EventEmitter {
   addAgent(agent: TeamAgent): void {
     this.agents = [...this.agents, agent];
     this.ownedConversationIds.add(agent.conversationId);
+    this.registerAcpTeamContext(agent.conversationId);
     // Notify renderer so it can refresh team data (tabs, status, etc.)
     ipcBridge.team.agentSpawned.emit({ teamId: this.teamId, agent });
+  }
+
+  /**
+   * W4 audit CRIT-1 (2026-05-19) — Register the ACP file-op gate context
+   * for an agent's conversation. No-op for non-imported teams; the gate
+   * checks `isImported` and falls through to the legacy direct-fs path.
+   */
+  private registerAcpTeamContext(conversationId: string | undefined | null): void {
+    if (!conversationId || !this.isImported || !this.getTeamSnapshot) return;
+    const getTeam = this.getTeamSnapshot;
+    registerTeamConversation(conversationId, {
+      teamId: this.teamId,
+      isImported: true,
+      getTeam,
+    });
+  }
+
+  /**
+   * W4 audit CRIT-1 (2026-05-19) — Unregister an agent's ACP file-op gate
+   * context. Safe to call for non-imported teams.
+   */
+  private unregisterAcpTeamContext(conversationId: string | undefined | null): void {
+    if (!conversationId) return;
+    unregisterTeamConversation(conversationId);
   }
 
   /**
@@ -687,6 +742,7 @@ export class TeammateManager extends EventEmitter {
     // Clean up owned conversation tracking
     if (agent.conversationId) {
       this.ownedConversationIds.delete(agent.conversationId);
+      this.unregisterAcpTeamContext(agent.conversationId);
       this.finalizedTurns.delete(agent.conversationId);
     }
 

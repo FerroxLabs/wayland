@@ -177,7 +177,14 @@ describe('TeamMcpServer — sandbox gates', () => {
     beforeEach(async () => {
       mailbox = makeMailbox();
       taskManager = makeTaskManager();
-      const team = makeTeam({ isSandboxed: true, importCapabilityGrants: {} });
+      // W4 audit CRIT-2 fix (2026-05-19): imported teams gate via the
+      // per-cap grant map; non-imported teams bypass. Set `importedFrom`
+      // so the sandbox gate engages even though `isSandboxed: true`.
+      const team = makeTeam({
+        importedFrom: 'pack.json',
+        isSandboxed: true,
+        importCapabilityGrants: {},
+      });
       handle = await startServer(team, mailbox, taskManager);
     });
 
@@ -219,7 +226,14 @@ describe('TeamMcpServer — sandbox gates', () => {
     beforeEach(async () => {
       mailbox = makeMailbox();
       taskManager = makeTaskManager();
-      const team = makeTeam({ isSandboxed: true, importCapabilityGrants: {} });
+      // W4 audit CRIT-2 fix (2026-05-19): imported teams gate via the
+      // per-cap grant map; non-imported teams bypass. Set `importedFrom`
+      // so the sandbox gate engages even though `isSandboxed: true`.
+      const team = makeTeam({
+        importedFrom: 'pack.json',
+        isSandboxed: true,
+        importCapabilityGrants: {},
+      });
       handle = await startServer(team, mailbox, taskManager);
     });
 
@@ -239,7 +253,14 @@ describe('TeamMcpServer — sandbox gates', () => {
     beforeEach(async () => {
       mailbox = makeMailbox();
       taskManager = makeTaskManager();
-      const team = makeTeam({ isSandboxed: true, importCapabilityGrants: {} });
+      // W4 audit CRIT-2 fix (2026-05-19): imported teams gate via the
+      // per-cap grant map; non-imported teams bypass. Set `importedFrom`
+      // so the sandbox gate engages even though `isSandboxed: true`.
+      const team = makeTeam({
+        importedFrom: 'pack.json',
+        isSandboxed: true,
+        importCapabilityGrants: {},
+      });
       handle = await startServer(team, mailbox, taskManager);
     });
 
@@ -304,6 +325,7 @@ describe('TeamMcpServer — sandbox gates', () => {
       mailbox = makeMailbox();
       taskManager = makeTaskManager();
       const team = makeTeam({
+        importedFrom: 'pack.json',
         isSandboxed: true,
         importCapabilityGrants: {
           canSpawnAgents: { granted_at: 1, by_user: true },

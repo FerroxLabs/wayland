@@ -31,7 +31,7 @@ collapses to "allow".
 | IPC | `team.workspace.writeFile` (parent must exist) | n/a | allow (if cap=true) within workspace_dir, non-symlink | n/a | n/a | n/a |
 | IPC | `team.workspace.mkdir` (non-recursive) | n/a | allow (if cap=true) within workspace_dir, non-symlink | n/a | n/a | n/a |
 | IPC | `team.workspace.*` where path is `.env` / `.ENV` / `.Ssh/*` / `node_modules/.cache/*` / `node_modules/.bin/*` (case-insensitive + NFKC) | **deny** (always) | **deny** (always) | n/a | n/a | n/a |
-| Network | `fetch` / `https.request` from team agent | n/a | n/a | n/a | **deny** (if cap=false) | n/a |
+| Network | `fetch` / `https.request` from team agent | n/a | n/a | n/a | **ALWAYS DENIED in v1** | n/a |
 
 ---
 
@@ -72,6 +72,8 @@ so the W4c implementer follows it.
 | Any FS path matching `node_modules/.cache/*` or `node_modules/.bin/*` (NFKC + case-insensitive) | always deny | n/a | TRIAGE round-5 Gemini HIGH: blocks fake CLI plant + downstream shell-exec escape. |
 | Any FS path traversing a symlink at an ancestor | always deny | n/a | `lstat`-walk rejects before `fs.open` is attempted. |
 | Any FS path whose final component is a symlink | always deny | n/a | `O_NOFOLLOW` causes the open to fail with `ELOOP`; the wrapper rethrows as `TeamSandboxedError`. |
+| ACP `READ_TEXT_FILE` (imported team agent) | allow if path-OK | `canReadFiles` | W4 audit CRIT-1 (2026-05-19): routed through `gateAcpFileOp` → `withOpenInsideWorkspace`. Non-imported teams + non-team conversations remain on the legacy direct-fs path. |
+| ACP `WRITE_TEXT_FILE` (imported team agent) | allow if path-OK | `canWriteFiles` | W4 audit CRIT-1 (2026-05-19): same gate as `READ_TEXT_FILE` plus parent-must-exist. |
 
 ---
 
@@ -79,7 +81,7 @@ so the W4c implementer follows it.
 
 | Surface | Behavior in sandbox | Capability gate | Notes |
 |---|---|---|---|
-| `fetch` / `https.request` from team agent | deny | `canNetworkRequest` | Enforcement lives at the agent-process boundary (out of W4b scope). |
+| `fetch` / `https.request` from team agent | **ALWAYS DENIED in v1** | `canNetworkRequest` | W4 audit HIGH-1 (2026-05-19) fix: the review UI does NOT expose a grant row for this capability; `acceptTeamImport` forces `by_user: false` regardless of input. Agent-process network enforcement is v2 work. |
 
 ---
 

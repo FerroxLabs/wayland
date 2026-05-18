@@ -90,17 +90,23 @@ afterEach(() => {
 });
 
 describe('CapabilityReviewModal', () => {
-  it('renders title, team name, all three buttons, and one row per declared capability', () => {
+  it('renders title, team name, all three buttons, and one row per declared capability (excluding canNetworkRequest)', () => {
     renderModal();
     expect(screen.getByText('Review team capabilities')).toBeTruthy();
     expect(screen.getByTestId('capability-review-team-name').textContent).toBe('Renewal Push');
     expect(screen.getByTestId('capability-review-trust')).toBeTruthy();
     expect(screen.getByTestId('capability-review-sandbox')).toBeTruthy();
     expect(screen.getByTestId('capability-review-cancel')).toBeTruthy();
-    // 5 declared capabilities → 5 rows.
-    for (const cap of Object.keys(ALL_TRUE)) {
+    // W4 audit HIGH-1 (2026-05-19): canNetworkRequest is intentionally
+    // never rendered — it has no runtime gate in v1. Renderable rows
+    // exclude it even when the import declares it true.
+    const renderableCaps = Object.keys(ALL_TRUE).filter((c) => c !== 'canNetworkRequest');
+    for (const cap of renderableCaps) {
       expect(screen.getByTestId(`capability-review-row-${cap}`)).toBeTruthy();
     }
+    expect(screen.queryByTestId('capability-review-row-canNetworkRequest')).toBeNull();
+    // Network notice surfaces because canNetworkRequest=true was declared.
+    expect(screen.getByTestId('capability-review-network-notice')).toBeTruthy();
   });
 
   it('hides rows for capabilities the import file declared as false', () => {
@@ -114,7 +120,10 @@ describe('CapabilityReviewModal', () => {
       },
     });
     expect(screen.getByTestId('capability-review-row-canReadFiles')).toBeTruthy();
-    expect(screen.getByTestId('capability-review-row-canNetworkRequest')).toBeTruthy();
+    // W4 audit HIGH-1 (2026-05-19): canNetworkRequest is intentionally
+    // never rendered as a grant row; the network notice is surfaced instead.
+    expect(screen.queryByTestId('capability-review-row-canNetworkRequest')).toBeNull();
+    expect(screen.getByTestId('capability-review-network-notice')).toBeTruthy();
     expect(screen.queryByTestId('capability-review-row-canWriteFiles')).toBeNull();
     expect(screen.queryByTestId('capability-review-row-canSpawnAgents')).toBeNull();
     expect(screen.queryByTestId('capability-review-row-canCrossTeamMessage')).toBeNull();
@@ -157,7 +166,8 @@ describe('CapabilityReviewModal', () => {
 
   it('per-row checkboxes default OFF', () => {
     renderModal();
-    for (const cap of Object.keys(ALL_TRUE)) {
+    const renderableCaps = Object.keys(ALL_TRUE).filter((c) => c !== 'canNetworkRequest');
+    for (const cap of renderableCaps) {
       const cb = screen
         .getByTestId(`capability-review-checkbox-${cap}`)
         .querySelector('input[type="checkbox"]') as HTMLInputElement;

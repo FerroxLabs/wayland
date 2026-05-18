@@ -29,25 +29,38 @@ const baseTeam: TTeam = {
 };
 
 describe('isCapGranted', () => {
-  it('returns true for non-sandboxed teams regardless of grants map', () => {
-    expect(isCapGranted({ ...baseTeam, isSandboxed: false }, 'canReadFiles')).toBe(true);
-    expect(isCapGranted({ ...baseTeam }, 'canSpawnAgents')).toBe(true); // undefined === non-sandboxed
+  // W4 audit CRIT-2 fix (2026-05-19): the gate is `importedFrom`, not
+  // `isSandboxed`. Non-imported teams (no importedFrom) bypass the grant
+  // map; imported teams ALWAYS consult the grant map, regardless of
+  // `isSandboxed` value. This defeats the "grant one cap = de-sandbox
+  // all caps" attack codified by the pre-fix test suite.
+  it('returns true for non-imported teams regardless of isSandboxed / grants', () => {
+    // No importedFrom set → user-created team, full trust.
+    expect(isCapGranted({ ...baseTeam }, 'canReadFiles')).toBe(true);
+    expect(isCapGranted({ ...baseTeam, isSandboxed: false }, 'canSpawnAgents')).toBe(true);
+    expect(isCapGranted({ ...baseTeam, isSandboxed: true }, 'canWriteFiles')).toBe(true);
   });
 
-  it('returns true for a sandboxed team with by_user: true grant', () => {
+  it('returns true for an imported team with by_user: true grant (regardless of isSandboxed)', () => {
     const team: TTeam = {
       ...baseTeam,
+      importedFrom: 'evil-pack.json',
       isSandboxed: true,
       importCapabilityGrants: {
         canReadFiles: { granted_at: 1700000000000, by_user: true },
       },
     };
     expect(isCapGranted(team, 'canReadFiles')).toBe(true);
+    // Legacy DB rows may have isSandboxed=false but still be imported;
+    // per-cap grant must still gate.
+    const legacyRow: TTeam = { ...team, isSandboxed: false };
+    expect(isCapGranted(legacyRow, 'canReadFiles')).toBe(true);
   });
 
-  it('returns false for a sandboxed team with by_user: false grant', () => {
+  it('returns false for an imported team with by_user: false grant', () => {
     const team: TTeam = {
       ...baseTeam,
+      importedFrom: 'pack.json',
       isSandboxed: true,
       importCapabilityGrants: {
         canReadFiles: { granted_at: 1700000000000, by_user: false },
@@ -56,9 +69,10 @@ describe('isCapGranted', () => {
     expect(isCapGranted(team, 'canReadFiles')).toBe(false);
   });
 
-  it('returns false for a sandboxed team with no grant entry for the capability', () => {
+  it('returns false for an imported team with no grant entry for the capability', () => {
     const team: TTeam = {
       ...baseTeam,
+      importedFrom: 'pack.json',
       isSandboxed: true,
       importCapabilityGrants: {},
     };
@@ -67,16 +81,53 @@ describe('isCapGranted', () => {
       false
     );
   });
+
+  // W4 audit CRIT-2 — the load-bearing regression: granting ONE cap must
+  // NOT grant the OTHERS. Pre-fix behavior flipped `isSandboxed=false`
+  // when any cap was granted and `isCapGranted` short-circuited on that
+  // flag, effectively turning a single approval into full trust.
+  it('REGRESSION: granting one cap does NOT implicitly grant the others', () => {
+    const team: TTeam = {
+      ...baseTeam,
+      importedFrom: 'pack.json',
+      // Even if a legacy code path persisted isSandboxed=false, the gate
+      // is the grant map, not the flag.
+      isSandboxed: false,
+      importCapabilityGrants: {
+        canReadFiles: { granted_at: 1700000000000, by_user: true },
+      },
+    };
+    expect(isCapGranted(team, 'canReadFiles')).toBe(true);
+    expect(isCapGranted(team, 'canSpawnAgents')).toBe(false);
+    expect(isCapGranted(team, 'canWriteFiles')).toBe(false);
+    expect(isCapGranted(team, 'canCrossTeamMessage')).toBe(false);
+    expect(isCapGranted(team, 'canNetworkRequest')).toBe(false);
+  });
+
+  it('REGRESSION: imported team without isSandboxed (legacy DB row) still respects grant map', () => {
+    const team: TTeam = {
+      ...baseTeam,
+      importedFrom: 'pack.json',
+      // legacy persisted shape — no isSandboxed field at all
+      importCapabilityGrants: {
+        canReadFiles: { granted_at: 1700000000000, by_user: true },
+      },
+    };
+    expect(isCapGranted(team, 'canReadFiles')).toBe(true);
+    expect(isCapGranted(team, 'canWriteFiles')).toBe(false);
+  });
 });
 
 describe('assertCapGranted', () => {
-  it('does not throw when capability is granted', () => {
+  it('does not throw for non-imported teams (full trust by definition)', () => {
     expect(() => assertCapGranted({ ...baseTeam, isSandboxed: false }, 'canReadFiles')).not.toThrow();
+    expect(() => assertCapGranted({ ...baseTeam }, 'canReadFiles')).not.toThrow();
   });
 
-  it('throws TeamSandboxedError when capability is denied; message names the capability', () => {
+  it('throws TeamSandboxedError when imported-team capability is denied; message names the capability', () => {
     const team: TTeam = {
       ...baseTeam,
+      importedFrom: 'pack.json',
       isSandboxed: true,
       importCapabilityGrants: {},
     };

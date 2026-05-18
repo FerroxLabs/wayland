@@ -926,8 +926,36 @@ export class TeamSessionService {
     }
 
     const now = Date.now();
-    const grants = buildCapabilityGrants(capabilityGrants, now);
-    const sandboxed = isSandboxedAfterImport(parsed.capabilities, capabilityGrants);
+    // W4 audit CRIT-2 + HIGH-1 fix (2026-05-19):
+    //  - Whitelist grants to ONLY capabilities the import file declared.
+    //    Any incoming grant for an undeclared cap is dropped.
+    //  - Force `canNetworkRequest` to `by_user: false`: the capability has
+    //    no runtime gate in v1 (HIGH-1), so we never honor a grant for it.
+    //  - Imported teams ALWAYS persist `isSandboxed: true`. The flag is
+    //    informational (drives UI badges + prompt-injection wrap); the
+    //    security gate is the per-cap grant map consulted by
+    //    `isCapGranted` whenever `importedFrom` is set.
+    const declaredCaps = (Object.keys(parsed.capabilities) as Array<keyof TeamExport['capabilities']>).filter(
+      (k) => parsed.capabilities[k] === true
+    );
+    const sanitizedGrants: Record<string, boolean> = {};
+    for (const cap of declaredCaps) {
+      // Never honor a grant for canNetworkRequest until W4 v2 wires the gate.
+      sanitizedGrants[cap] = cap === 'canNetworkRequest' ? false : capabilityGrants[cap] === true;
+    }
+    const grants = buildCapabilityGrants(sanitizedGrants, now);
+    // Mark the by_user=false grants explicitly so the audit trail records
+    // that the user was shown the capability and we deliberately denied it.
+    for (const cap of declaredCaps) {
+      if (!grants[cap]) {
+        grants[cap] = { granted_at: now, by_user: false };
+      }
+    }
+    // Reference isSandboxedAfterImport to keep the legacy helper exported
+    // for the unit-test surface; the value is intentionally ignored — imports
+    // are always sandboxed per the audit fix.
+    void isSandboxedAfterImport;
+    const sandboxed = true;
 
     // Build the agents roster from the payload. Leader first, then teammates.
     // The renderer-side launcher path also uses `ext-${id}` for customAgentId,

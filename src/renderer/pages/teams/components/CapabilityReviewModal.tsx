@@ -29,11 +29,16 @@ export type TeamCapabilities = {
 
 type CapabilityName = keyof TeamCapabilities;
 
+// W4 audit HIGH-1 (2026-05-19): `canNetworkRequest` is intentionally
+// EXCLUDED from the review UI. The capability has no runtime gate in v1,
+// so showing a grant row would be a broken security promise. The schema
+// still parses the field for forward-compat, and `acceptTeamImport`
+// forces it to `by_user: false` regardless of any incoming grant value.
+// A footer notice (teams.import.networkNotice) explains this to the user.
 const ALL_CAPABILITIES: CapabilityName[] = [
   'canReadFiles',
   'canWriteFiles',
   'canSpawnAgents',
-  'canNetworkRequest',
   'canCrossTeamMessage',
 ];
 
@@ -96,6 +101,9 @@ const CapabilityReviewModal: React.FC<Props> = ({
     () => ALL_CAPABILITIES.filter((cap) => capabilities[cap] === true),
     [capabilities]
   );
+  // W4 audit HIGH-1: surface a notice when the import requested network
+  // access so the user understands why no grant row is offered.
+  const showNetworkNotice = capabilities.canNetworkRequest === true;
 
   const missingCount = missingSpecialists?.length ?? 0;
   const hasMissing = missingCount > 0;
@@ -186,6 +194,17 @@ const CapabilityReviewModal: React.FC<Props> = ({
                 'Missing specialists: {{names}}. Install them first or use a different team.',
             })}
           />
+        )}
+        {showNetworkNotice && (
+          <p
+            className='text-12px text-t-tertiary m-0'
+            data-testid='capability-review-network-notice'
+          >
+            {t('teams.import.networkNotice', {
+              defaultValue:
+                'Network access for imported teams is currently disabled. This capability cannot be granted in v1.',
+            })}
+          </p>
         )}
         <div className='flex flex-col gap-12px' data-testid='capability-review-rows'>
           {declaredCaps.map((cap) => (

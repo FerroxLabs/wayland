@@ -66,6 +66,10 @@ export class TeamSession extends EventEmitter {
       workerTaskManager,
       teamWorkspace: team.workspace || undefined,
       isSandboxed: team.isSandboxed === true,
+      // W4 audit CRIT-1 (2026-05-19): wire imported-team context so the
+      // ACP file-op gate can resolve per-cap grants for sandboxed agents.
+      isImported: team.importedFrom != null,
+      getTeamSnapshot: () => this.repo.findById(team.id),
       onAgentRemoved: (teamId, agents) => {
         void this.repo.update(teamId, { agents, updatedAt: Date.now() });
       },

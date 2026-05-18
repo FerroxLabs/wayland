@@ -108,6 +108,7 @@
     "sandboxCta": "Sandbox mode (no capabilities)",
     "cancelCta": "Cancel",
     "missingSpecialists": "Missing specialists: {{names}}. Install them first or use a different team.",
+    "networkNotice": "Network access for imported teams is currently disabled. This capability cannot be granted in v1.",
     "success": "Team imported",
     "error": "Failed to import team",
     "busyError": "Import queue full — try again in a few seconds",

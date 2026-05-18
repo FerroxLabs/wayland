@@ -27,6 +27,9 @@ import path from 'path';
 import { connectClaude, connectCodebuddy, connectCodex, spawnGenericBackend } from './acpConnectors';
 import type { SpawnResult } from './acpConnectors';
 import { killChild, readTextFile, writeJsonRpcMessage, writeTextFile } from './utils';
+// W4 audit CRIT-1 (2026-05-19): route ACP fs ops through the imported-team
+// sandbox gate before falling back to the legacy direct-fs helpers.
+import { gateAcpFileOp } from '@process/team/sandbox/acpFileOpGate';
 
 // Re-export for unit tests that import from this module
 export { createGenericSpawnConfig } from './acpConnectors';
@@ -100,6 +103,13 @@ export class AcpConnection {
   private backend: AcpBackend | null = null;
   private initializeResult: AcpInitializeResult | null = null;
   private workingDir: string = process.cwd();
+  /**
+   * W4 audit CRIT-1 (2026-05-19): conversation id this connection serves.
+   * Used by the imported-team sandbox gate to look up team context. When
+   * unset (legacy callers), `gateAcpFileOp` short-circuits to the
+   * unchanged fallback path.
+   */
+  private conversationId: string | null = null;
 
   // Cached session capabilities from session/new response
   private configOptions: AcpSessionConfigOption[] | null = null;
@@ -128,6 +138,15 @@ export class AcpConnection {
    */
   setPromptTimeout(seconds: number): void {
     this.promptTimeoutMs = Math.max(30, seconds) * 1000;
+  }
+
+  /**
+   * W4 audit CRIT-1 (2026-05-19): bind this connection to a conversation
+   * id so the imported-team sandbox gate can resolve team context.
+   * Idempotent; safe to call once per AcpAgent construction.
+   */
+  setConversationId(id: string): void {
+    this.conversationId = id;
   }
 
   // Disconnect callback - called when child process exits unexpectedly during runtime
@@ -1137,26 +1156,64 @@ export class AcpConnection {
 
   // Normalize read operations to the conversation workspace before touching the filesystem
   // 访问文件前先把读取操作映射到会话工作区
+  //
+  // W4 audit CRIT-1 (2026-05-19): for imported (sandboxed) team
+  // conversations, route through `gateAcpFileOp` which asserts
+  // `canReadFiles` and uses `withOpenInsideWorkspace` for path
+  // validation + O_NOFOLLOW. Non-team conversations and non-imported
+  // teams fall through to the unchanged legacy direct-fs path.
   private async handleReadOperation(params: { path: string; sessionId?: string }): Promise<{ content: string }> {
-    const resolvedReadPath = this.resolveWorkspacePath(params.path);
-    this.onFileOperation({
-      method: 'fs/read_text_file',
-      path: resolvedReadPath,
-      sessionId: params.sessionId || '',
-    });
-    return await readTextFile(resolvedReadPath);
+    const conversationId = this.conversationId ?? '';
+    const gated = await gateAcpFileOp(
+      conversationId,
+      'read',
+      { path: params.path },
+      async () => {
+        const resolvedReadPath = this.resolveWorkspacePath(params.path);
+        this.onFileOperation({
+          method: 'fs/read_text_file',
+          path: resolvedReadPath,
+          sessionId: params.sessionId || '',
+        });
+        const { content } = await readTextFile(resolvedReadPath);
+        return { kind: 'read' as const, content };
+      }
+    );
+    if (gated.kind !== 'read') {
+      throw new Error('handleReadOperation: gate returned non-read result');
+    }
+    return { content: gated.content };
   }
 
   // Normalize write operations and emit UI events so the workspace view stays in sync
   // 将写入操作归一化并通知 UI，保持工作区视图同步
+  //
+  // W4 audit CRIT-1 (2026-05-19): for imported (sandboxed) team
+  // conversations, route through `gateAcpFileOp` which asserts
+  // `canWriteFiles` and uses `withOpenInsideWorkspace` for path
+  // validation + O_NOFOLLOW. Non-team conversations and non-imported
+  // teams fall through to the unchanged legacy direct-fs path.
   private async handleWriteOperation(params: { path: string; content: string; sessionId?: string }): Promise<null> {
-    const resolvedWritePath = this.resolveWorkspacePath(params.path);
-    this.onFileOperation({
-      method: 'fs/write_text_file',
-      path: resolvedWritePath,
-      content: params.content,
-      sessionId: params.sessionId || '',
-    });
-    return await writeTextFile(resolvedWritePath, params.content);
+    const conversationId = this.conversationId ?? '';
+    const gated = await gateAcpFileOp(
+      conversationId,
+      'write',
+      { path: params.path, content: params.content },
+      async () => {
+        const resolvedWritePath = this.resolveWorkspacePath(params.path);
+        this.onFileOperation({
+          method: 'fs/write_text_file',
+          path: resolvedWritePath,
+          content: params.content,
+          sessionId: params.sessionId || '',
+        });
+        await writeTextFile(resolvedWritePath, params.content);
+        return { kind: 'write' as const, result: null };
+      }
+    );
+    if (gated.kind !== 'write') {
+      throw new Error('handleWriteOperation: gate returned non-write result');
+    }
+    return gated.result;
   }
 }
