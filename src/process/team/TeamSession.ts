@@ -41,7 +41,10 @@ export class TeamSession extends EventEmitter {
     this.repo = repo;
     this.workerTaskManager = workerTaskManager;
     this.mailbox = new Mailbox(repo);
-    this.taskManager = new TaskManager(repo);
+    // TaskManager validates task owners against the *current* team roster.
+    // Pass a thunk (not a snapshot) so spawned/removed agents are reflected
+    // on the next call without needing to rebuild TaskManager.
+    this.taskManager = new TaskManager(repo, () => this.teammateManager.getAgents());
     this.teammateManager = new TeammateManager({
       teamId: team.id,
       agents: team.agents,

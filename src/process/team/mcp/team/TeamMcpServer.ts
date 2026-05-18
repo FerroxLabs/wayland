@@ -260,7 +260,7 @@ export class TeamMcpServer {
       case 'team_task_update':
         return this.handleTaskUpdate(args);
       case 'team_task_list':
-        return this.handleTaskList();
+        return this.handleTaskList(args);
       case 'team_members':
         return this.handleTeamMembers();
       case 'team_rename_agent':
@@ -487,16 +487,22 @@ export class TeamMcpServer {
     return `Task ${taskId.slice(0, 8)} updated.${status ? ` Status: ${status}.` : ''}${owner ? ` Owner: ${owner}.` : ''}`;
   }
 
-  private async handleTaskList(): Promise<string> {
+  private async handleTaskList(args: Record<string, unknown>): Promise<string> {
     const { teamId, taskManager } = this.params;
-    const tasks = await taskManager.list(teamId);
+    const ownerSlotId = typeof args?.owner_slot_id === 'string' && args.owner_slot_id ? args.owner_slot_id : undefined;
+    const tasks = ownerSlotId
+      ? await taskManager.getByOwner(teamId, ownerSlotId)
+      : await taskManager.list(teamId);
     if (tasks.length === 0) {
-      return 'No tasks on the board yet.';
+      return ownerSlotId
+        ? `No tasks owned by ${ownerSlotId} on this team.`
+        : 'No tasks on the board yet.';
     }
     const lines = tasks.map(
       (t) => `- [${t.id.slice(0, 8)}] ${t.subject} (${t.status}${t.owner ? `, owner: ${t.owner}` : ', unassigned'})`
     );
-    return `## Team Tasks\n${lines.join('\n')}`;
+    const header = ownerSlotId ? `## Team Tasks (owner: ${ownerSlotId})` : '## Team Tasks';
+    return `${header}\n${lines.join('\n')}`;
   }
 
   private async handleTeamMembers(): Promise<string> {

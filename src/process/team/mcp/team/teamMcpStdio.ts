@@ -179,11 +179,19 @@ Use this to:
 createTeamTool(
   server,
   'team_task_list',
-  `List all tasks on the team's task board.
+  `List tasks on the team's task board.
 
 Shows task ID, subject, status, and owner for each task.
-Use this to check what work is pending, in progress, or completed.`,
-  {},
+Use this to check what work is pending, in progress, or completed.
+
+Pass owner_slot_id to scope the list to a single teammate's tasks
+(e.g. your own slotId for self-checking). Omit it to see the whole board.`,
+  {
+    owner_slot_id: z
+      .string()
+      .optional()
+      .describe('Optional slotId. When set, returns only tasks owned by this teammate; omit for the full board.'),
+  },
   TEAM_MCP_PORT,
   TEAM_AGENT_SLOT_ID,
   TEAM_MCP_TOKEN
