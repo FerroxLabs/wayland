@@ -22,6 +22,13 @@ import { useCustomAgentsLoader } from './useCustomAgentsLoader';
 export type GuidAgentSelectionResult = {
   selectedAgentKey: string;
   setSelectedAgentKey: (key: string) => void;
+  /**
+   * Select a preset assistant with the "Rory rule": derives the chat's
+   * backend from preset.presetAgentType and sets the canonical agent key
+   * via getAgentKey() — no modal, no prompt. The existing per-backend
+   * preferred-model/mode chain then applies the right model automatically.
+   */
+  selectPresetAssistant: (preset: { id: string; presetAgentType?: string }) => void;
   defaultAgentKey: string;
   selectedAgent: string;
   selectedAgentInfo: AvailableAgent | undefined;
@@ -477,9 +484,31 @@ export const useGuidAgentSelection = ({
     return firstCliAgent ? getAgentKey(firstCliAgent) : 'wcore';
   }, [availableAgents]);
 
+  /**
+   * Select a preset assistant. Routes through getAgentKey() so the resulting
+   * selection format matches the codebase's convention ("custom:X" for local
+   * presets, "remote:X" when the backend is "remote") instead of a hand-formatted
+   * string. The existing per-backend preferred-model + mode chain (earlier in
+   * this hook) then applies the right model for the assistant's recommended
+   * backend — without prompting the user.
+   *
+   * This is the load-bearing "Rory rule" implementation for the chat-redesign
+   * Phase 2/3 surfaces (intent pills + library cards): pick an assistant, the
+   * backend follows. No modal, no question.
+   */
+  const selectPresetAssistant = useCallback(
+    (preset: { id: string; presetAgentType?: string }) => {
+      const backend = (preset.presetAgentType ?? 'gemini') as AcpBackend;
+      const key = getAgentKey({ backend, customAgentId: preset.id });
+      setSelectedAgentKey(key);
+    },
+    [setSelectedAgentKey]
+  );
+
   return {
     selectedAgentKey,
     setSelectedAgentKey,
+    selectPresetAssistant,
     defaultAgentKey,
     selectedAgent,
     selectedAgentInfo,

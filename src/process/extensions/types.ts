@@ -250,6 +250,9 @@ export const ExtMcpServerSchema = z.object({
 
 // ============ Assistant Schema ============
 
+/** Categories used by the chat-surface assistant picker. Matches AssistantPreset.category. */
+export const ASSISTANT_CATEGORIES = ['sell', 'write', 'research', 'build', 'run', 'office', 'general'] as const;
+
 export const ExtAssistantSchema = z.object({
   id: z.string().min(1, 'Assistant id is required'),
   name: z.string().min(1, 'Assistant name is required'),
@@ -260,6 +263,8 @@ export const ExtAssistantSchema = z.object({
     z.enum(PRESET_AGENT_TYPES),
     z.string().min(1, 'presetAgentType must be a non-empty string'),
   ]),
+  /** Optional category aligned with built-in AssistantPreset.category for Phase 2 routing. */
+  category: z.enum(ASSISTANT_CATEGORIES).optional(),
   contextFile: z.string().min(1, 'contextFile is required'),
   models: z.array(z.string()).optional(),
   enabledSkills: z.array(z.string()).optional(),
