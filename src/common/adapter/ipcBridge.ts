@@ -1387,6 +1387,7 @@ export type ICreateTeamParams = {
   workspace: string;
   workspaceMode: 'shared' | 'isolated';
   agents: import('@process/team/types').TeamAgent[];
+  sourceLauncherId?: string;
 };
 
 export type IAddTeamAgentParams = {

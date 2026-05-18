@@ -9,6 +9,7 @@ import { CUSTOM_AVATAR_IMAGE_MAP } from '../constants';
 import type { AcpBackendConfig, AvailableAgent } from '../types';
 import React from 'react';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
+import { isImageAvatar } from '@/renderer/utils/avatar';
 import { Dropdown, Menu } from '@arco-design/web-react';
 import styles from '../index.module.css';
 
@@ -41,11 +42,7 @@ const PresetAgentTag: React.FC<PresetAgentTagProps> = ({
   const mappedAvatar = avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
   const resolvedAvatar = avatarValue ? resolveExtensionAssetUrl(avatarValue) : undefined;
   const avatarImage = mappedAvatar || resolvedAvatar;
-  const isImageAvatar = Boolean(
-    avatarImage &&
-    (/\.(svg|png|jpe?g|webp|gif)$/i.test(avatarImage) ||
-      /^(https?:|wayland-asset:\/\/|file:\/\/|data:)/i.test(avatarImage))
-  );
+  const showImage = Boolean(avatarImage && isImageAvatar(avatarImage));
   const agent = customAgents.find((a) => a.id === agentInfo.customAgentId);
   const name = agent?.nameI18n?.[localeKey] || agent?.name || agentInfo.name;
 
@@ -81,7 +78,7 @@ const PresetAgentTag: React.FC<PresetAgentTagProps> = ({
           <ChevronDown size={12} />
         </span>
       ) : null}
-      {isImageAvatar ? (
+      {showImage ? (
         <img src={avatarImage} alt='' width={15} height={15} style={{ objectFit: 'contain', flexShrink: 0 }} />
       ) : avatarValue ? (
         <span style={{ fontSize: 14, lineHeight: '15px', flexShrink: 0 }}>{avatarValue}</span>

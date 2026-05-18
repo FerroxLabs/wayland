@@ -17,6 +17,8 @@ export { default as WaylandCollapse } from './WaylandCollapse';
 export { default as WaylandSelect } from './WaylandSelect';
 export { default as WaylandScrollArea } from './WaylandScrollArea';
 export { default as WaylandSteps } from './WaylandSteps';
+export { default as Avatar } from './Avatar';
+export type { AvatarProps } from './Avatar';
 
 // ==================== Type Exports ====================
 

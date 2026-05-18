@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
+import { isImageAvatar } from '@/renderer/utils/avatar';
 import styles from './TeamCard.module.css';
 
 export type TeamCardProps = {
@@ -18,10 +19,6 @@ export type TeamCardProps = {
   localeKey: string;
   onLaunch: (team: AssistantListItem) => void;
 };
-
-const isImageAvatar = (resolved: string): boolean =>
-  /\.(svg|png|jpe?g|webp|gif)$/i.test(resolved) ||
-  /^(https?:|wayland-asset:\/\/|file:\/\/|data:)/i.test(resolved);
 
 const TeamCard: React.FC<TeamCardProps> = ({ team, localeKey, onLaunch }) => {
   const { t } = useTranslation();

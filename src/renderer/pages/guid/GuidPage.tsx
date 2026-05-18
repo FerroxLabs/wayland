@@ -10,6 +10,7 @@ import { resolveLocaleKey } from '@/common/utils';
 
 import { useInputFocusRing } from '@/renderer/hooks/chat/useInputFocusRing';
 import { openExternalUrl, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
+import { isImageAvatar } from '@/renderer/utils/avatar';
 import { useConversationTabs } from '@/renderer/pages/conversation/hooks/ConversationTabsContext';
 import { CUSTOM_AVATAR_IMAGE_MAP } from './constants';
 import AgentPillBar from './components/AgentPillBar';
@@ -381,12 +382,8 @@ const GuidPage: React.FC = () => {
     const mappedAvatar = CUSTOM_AVATAR_IMAGE_MAP[avatarValue];
     const resolvedAvatar = resolveExtensionAssetUrl(avatarValue);
     const avatarImage = mappedAvatar || resolvedAvatar;
-    const isImageAvatar = Boolean(
-      avatarImage &&
-      (/\.(svg|png|jpe?g|webp|gif)$/i.test(avatarImage) ||
-        /^(https?:|wayland-asset:\/\/|file:\/\/|data:)/i.test(avatarImage))
-    );
-    if (isImageAvatar && avatarImage) {
+    const showImage = Boolean(avatarImage && isImageAvatar(avatarImage));
+    if (showImage && avatarImage) {
       return { kind: 'image' as const, value: avatarImage };
     }
     return { kind: 'emoji' as const, value: avatarValue };

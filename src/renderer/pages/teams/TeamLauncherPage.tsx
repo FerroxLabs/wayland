@@ -37,6 +37,7 @@ import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import type { TTeam, TeamAgent } from '@/common/types/teamTypes';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
+import { isImageAvatar } from '@/renderer/utils/avatar';
 import { resolveConversationType } from '../team/components/agentSelectUtils';
 import AddTeammatePicker from './components/AddTeammatePicker';
 import LauncherRosterTable, { type RosterEntry } from './components/LauncherRosterTable';
@@ -50,10 +51,6 @@ type LauncherState = {
 };
 
 const SPECIALIST_PREFIX = 'ext-';
-
-const isImageAvatar = (resolved: string): boolean =>
-  /\.(svg|png|jpe?g|webp|gif)$/i.test(resolved) ||
-  /^(https?:|wayland-asset:\/\/|file:\/\/|data:)/i.test(resolved);
 
 const TeamLauncherPage: React.FC = () => {
   const { t } = useTranslation();
@@ -277,6 +274,7 @@ const TeamLauncherPage: React.FC = () => {
         workspace: '',
         workspaceMode: 'shared',
         agents,
+        sourceLauncherId: isBuildMyOwn ? undefined : (launcher?.id ?? teamId),
       })) as TTeam & { __bridgeError?: boolean; message?: string };
 
       if (team && team.__bridgeError) {

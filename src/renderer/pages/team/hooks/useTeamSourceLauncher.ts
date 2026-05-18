@@ -4,14 +4,8 @@
 // by W2c to surface launcher-only metadata (rituals + Standing badge) in
 // the team page header + right rail.
 //
-// Match strategy: case-insensitive name compare against the launcher's
-// localized name (falling back to en-US, then `launcher.name`). The team
-// schema does not persist a back-reference to its source launcher today —
-// if the user has renamed the team since launch the lookup quietly
-// returns `null` and the caller renders the no-launcher fallback.
-//
-// Documented follow-up: persist `team.sourceLauncherId` at create-time
-// so we can stop name-matching. Tracked alongside the W3a roster live-edit.
+// Prefers team.sourceLauncherId (persisted at create-time); falls back to
+// case-insensitive name match for legacy teams created before v36.
 
 import { useMemo } from 'react';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
@@ -21,6 +15,11 @@ export type UseTeamSourceLauncherResult = {
   launcher: AssistantListItem | null;
 };
 
+export type UseTeamSourceLauncherInput = {
+  name: string;
+  sourceLauncherId?: string;
+} | null | undefined;
+
 const resolveLauncherName = (launcher: AssistantListItem, localeKey: string): string => {
   const localized = launcher.nameI18n?.[localeKey];
   if (localized) return localized;
@@ -29,12 +28,26 @@ const resolveLauncherName = (launcher: AssistantListItem, localeKey: string): st
   return launcher.name ?? '';
 };
 
-export const useTeamSourceLauncher = (teamName: string): UseTeamSourceLauncherResult => {
+export const useTeamSourceLauncher = (team: UseTeamSourceLauncherInput): UseTeamSourceLauncherResult => {
   const { assistants, localeKey } = useAssistantList();
 
   const launcher = useMemo<AssistantListItem | null>(() => {
-    if (!teamName) return null;
-    const needle = teamName.trim().toLowerCase();
+    if (!team) return null;
+
+    // Strict ID match (preferred): when the team carries a sourceLauncherId
+    // we honor it exclusively. A stale ID returns null rather than falling
+    // back to name match — that would silently re-bind to an unrelated
+    // launcher after the source bundle was uninstalled.
+    if (team.sourceLauncherId) {
+      for (const a of assistants) {
+        if (a._kind === 'team' && a.id === team.sourceLauncherId) return a;
+      }
+      return null;
+    }
+
+    // Legacy name-match fallback for teams created before v36.
+    if (!team.name) return null;
+    const needle = team.name.trim().toLowerCase();
     if (!needle) return null;
     for (const a of assistants) {
       if (a._kind !== 'team') continue;
@@ -42,7 +55,7 @@ export const useTeamSourceLauncher = (teamName: string): UseTeamSourceLauncherRe
       if (resolved && resolved === needle) return a;
     }
     return null;
-  }, [assistants, localeKey, teamName]);
+  }, [assistants, localeKey, team]);
 
   return { launcher };
 };

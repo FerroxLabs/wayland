@@ -17,6 +17,7 @@ type TeamRow = {
   lead_agent_id: string;
   agents: string;
   session_mode: string | null;
+  source_launcher_id: string | null;
   created_at: number;
   updated_at: number;
 };
@@ -72,6 +73,7 @@ function rowToTeam(row: TeamRow): TTeam {
     leaderAgentId: row.lead_agent_id,
     agents: JSON.parse(row.agents) as TeamAgent[],
     sessionMode: row.session_mode ?? undefined,
+    sourceLauncherId: row.source_launcher_id ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -148,8 +150,8 @@ export class SqliteTeamRepository implements ITeamRepository {
   async create(team: TTeam): Promise<TTeam> {
     const db = await this.getDb();
     db.prepare(
-      `INSERT INTO teams (id, user_id, name, workspace, workspace_mode, lead_agent_id, agents, session_mode, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO teams (id, user_id, name, workspace, workspace_mode, lead_agent_id, agents, session_mode, source_launcher_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       team.id,
       team.userId,
@@ -159,6 +161,7 @@ export class SqliteTeamRepository implements ITeamRepository {
       team.leaderAgentId,
       JSON.stringify(team.agents),
       team.sessionMode ?? null,
+      team.sourceLauncherId ?? null,
       team.createdAt,
       team.updatedAt
     );
@@ -184,7 +187,7 @@ export class SqliteTeamRepository implements ITeamRepository {
     const db = await this.getDb();
     db.prepare(
       `UPDATE teams
-       SET name = ?, workspace = ?, workspace_mode = ?, lead_agent_id = ?, agents = ?, session_mode = ?, updated_at = ?
+       SET name = ?, workspace = ?, workspace_mode = ?, lead_agent_id = ?, agents = ?, session_mode = ?, source_launcher_id = ?, updated_at = ?
        WHERE id = ?`
     ).run(
       merged.name,
@@ -193,6 +196,7 @@ export class SqliteTeamRepository implements ITeamRepository {
       merged.leaderAgentId,
       JSON.stringify(merged.agents),
       merged.sessionMode ?? null,
+      merged.sourceLauncherId ?? null,
       merged.updatedAt,
       id
     );

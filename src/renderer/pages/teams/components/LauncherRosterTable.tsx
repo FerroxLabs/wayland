@@ -20,9 +20,8 @@ import { Button, Input } from '@arco-design/web-react';
 import { Plus, Trash2 } from 'lucide-react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
+import Avatar from '@/renderer/components/base/Avatar';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
-import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import BackendPill from './BackendPill';
 import styles from './LauncherRosterTable.module.css';
 
@@ -55,10 +54,6 @@ export type LauncherRosterTableProps = {
   onPickLeader: () => void;
 };
 
-const isImageAvatar = (resolved: string): boolean =>
-  /\.(svg|png|jpe?g|webp|gif)$/i.test(resolved) ||
-  /^(https?:|wayland-asset:\/\/|file:\/\/|data:)/i.test(resolved);
-
 const resolveSpecialistName = (
   specialist: AssistantListItem | undefined,
   localeKey: string,
@@ -76,26 +71,6 @@ const resolveSpecialistDesc = (specialist: AssistantListItem | undefined, locale
     specialist.description ||
     ''
   );
-};
-
-const initialsFor = (name: string): string => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '??';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-};
-
-const Avatar: React.FC<{ specialist: AssistantListItem | undefined; name: string }> = ({
-  specialist,
-  name,
-}) => {
-  const avatarValue = specialist?.avatar?.trim();
-  const mapped = avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
-  const resolved = avatarValue ? mapped || resolveExtensionAssetUrl(avatarValue) || avatarValue : undefined;
-  const showImage = resolved ? isImageAvatar(resolved) : false;
-  if (showImage && resolved) return <img src={resolved} alt='' />;
-  if (avatarValue && !showImage) return <span>{avatarValue}</span>;
-  return <span>{initialsFor(name)}</span>;
 };
 
 type RowProps = {
@@ -133,7 +108,7 @@ const RosterRow: React.FC<RowProps> = ({
       data-specialist-id={entry.specialistId}
     >
       <div className={styles.avatar} aria-hidden='true'>
-        <Avatar specialist={specialist} name={name} />
+        <Avatar avatar={specialist?.avatar} name={name} />
       </div>
       <div className={styles.identity}>
         <div className={styles.nameLine}>

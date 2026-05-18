@@ -73,6 +73,8 @@ export type TTeam = {
   workspaceMode: WorkspaceMode;
   leaderAgentId: string;
   agents: TeamAgent[];
+  /** Bundle launcher id this team was spawned from. Used to resolve rituals/Standing badge after rename. */
+  sourceLauncherId?: string;
   /** Current session permission mode (e.g. 'plan', 'auto'). Persisted so newly spawned agents inherit it. */
   sessionMode?: string;
   createdAt: number;

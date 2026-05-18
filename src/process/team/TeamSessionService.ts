@@ -489,6 +489,7 @@ export class TeamSessionService {
     workspaceMode: TTeam['workspaceMode'];
     agents: TeamAgent[];
     sessionMode?: string;
+    sourceLauncherId?: string;
   }): Promise<TTeam> {
     const now = Date.now();
     const teamId = uuid(36);
@@ -561,6 +562,7 @@ export class TeamSessionService {
       leaderAgentId: leadAgent.slotId,
       agents: agentsWithConversations,
       sessionMode: params.sessionMode,
+      sourceLauncherId: params.sourceLauncherId,
       createdAt: now,
       updatedAt: now,
     };

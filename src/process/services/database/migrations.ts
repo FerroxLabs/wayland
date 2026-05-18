@@ -1578,6 +1578,29 @@ const migration_v35: IMigration = {
 };
 
 /**
+ * Migration v35 -> v36: Add source_launcher_id to teams table.
+ *
+ * Persists the bundle launcher id a team was spawned from so the renderer
+ * can resolve rituals / Standing badge after a rename. Nullable for teams
+ * created before v36 and for the build-my-own path.
+ */
+const migration_v36: IMigration = {
+  version: 36,
+  name: 'Add source_launcher_id to teams table',
+  up: (db) => {
+    const columns = new Set((db.pragma('table_info(teams)') as Array<{ name: string }>).map((c) => c.name));
+    if (!columns.has('source_launcher_id')) {
+      db.exec('ALTER TABLE teams ADD COLUMN source_launcher_id TEXT');
+    }
+    console.log('[Migration v36] Added source_launcher_id column to teams table');
+  },
+  down: (_db) => {
+    // SQLite does not support DROP COLUMN before 3.35.0; skip rollback to prevent data loss.
+    console.warn('[Migration v36] Rollback skipped: cannot drop columns safely.');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -1587,7 +1610,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v13, migration_v14, migration_v15, migration_v16, migration_v17, migration_v18,
   migration_v19, migration_v20, migration_v21, migration_v22, migration_v23, migration_v24,
   migration_v25, migration_v26, migration_v27, migration_v28, migration_v29, migration_v30,
-  migration_v31, migration_v32, migration_v33, migration_v34, migration_v35,
+  migration_v31, migration_v32, migration_v33, migration_v34, migration_v35, migration_v36,
 ];
 
 /**

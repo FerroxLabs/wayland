@@ -190,7 +190,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
 
   // W2c — best-effort lookup of the bundle launcher this team was spawned
   // from. Used for header Standing badge + right-rail rituals.
-  const { launcher } = useTeamSourceLauncher(team.name);
+  const { launcher } = useTeamSourceLauncher(team);
 
   const activeAgent = agents.find((a) => a.slotId === activeSlotId);
   const leadAgent = agents.find((a) => a.role === 'leader');
