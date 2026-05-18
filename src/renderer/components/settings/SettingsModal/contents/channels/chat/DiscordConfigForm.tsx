@@ -40,9 +40,14 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, onS
   const { t } = useTranslation();
 
   const [botToken, setBotToken] = useState('');
-  const [applicationId, setApplicationId] = useState('');
-  const [publicKey, setPublicKey] = useState('');
   const [testLoading, setTestLoading] = useState(false);
+
+  // F-3: Application ID and Public Key were collected but never wired to
+  // anything — the verifier reads its secret from the webhook subsystem and
+  // there is no slash-command registration (see F-6 in REVIEW-discord.md).
+  // Dropping the dead inputs avoids primed expectations and removes a
+  // maintenance hazard. When the HTTP interactions endpoint is wired, add
+  // these fields back alongside the registration code that consumes them.
 
   const hasExistingBot = !!pluginStatus?.hasToken;
 
@@ -77,8 +82,6 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, onS
         pluginId: 'discord_default',
         config: {
           botToken: botToken.trim(),
-          ...(applicationId.trim() ? { applicationId: applicationId.trim() } : {}),
-          ...(publicKey.trim() ? { publicKey: publicKey.trim() } : {}),
         },
       });
 
@@ -122,12 +125,16 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, onS
         <Input.Password
           value={botToken}
           onChange={setBotToken}
+          // F-2: previous placeholder ('MTI...your-bot-token...') misled
+          // users into believing tokens always start with `MTI`. The prefix
+          // depends on the application's snowflake epoch (MT, OD, Mj, Nz...).
+          // Use a neutral placeholder.
           placeholder={
             hasExistingBot
               ? '••••••••••••••••'
               : t(
                   'settings.channels.discord.credentials.botToken.placeholder',
-                  'MTI...your-bot-token...',
+                  'Paste your bot token from the Developer Portal',
                 )
           }
           style={{ width: 280 }}
@@ -135,41 +142,21 @@ const DiscordConfigForm: React.FC<DiscordConfigFormProps> = ({ pluginStatus, onS
         />
       </PreferenceRow>
 
-      <PreferenceRow
-        label={t('settings.channels.discord.credentials.applicationId.label', 'Application ID')}
-        description={t(
-          'settings.channels.discord.credentials.applicationId.help',
-          'Optional. Required only when you register slash commands for this bot.',
-        )}
-      >
-        <Input
-          value={applicationId}
-          onChange={setApplicationId}
-          placeholder={t(
-            'settings.channels.discord.credentials.applicationId.placeholder',
-            '1234567890123456789',
+      {/* F-1: surface the privileged-intent toggle requirement up-front so
+        * first-time users don't see "Connection failed" with no actionable
+        * next step. The Test & Enable button uses an intent set matching the
+        * production client (see DiscordPlugin.testConnection), so a missing
+        * toggle returns a translated, actionable message rather than the raw
+        * discord.js error. */}
+      <div className='flex items-start gap-8px p-12px rd-8px bg-warning-1 text-warning border border-warning'>
+        <AlertTriangle size={16} className='mt-2px flex-shrink-0' />
+        <span className='text-12px'>
+          {t(
+            'settings.channels.discord.privilegedIntentsHint',
+            'Before testing: in the Developer Portal → your app → Bot → Privileged Gateway Intents, enable "Message Content Intent" AND "Server Members Intent". Both are required for Wayland to read messages and resolve members. Without them, Test & Enable will fail.',
           )}
-          style={{ width: 280 }}
-        />
-      </PreferenceRow>
-
-      <PreferenceRow
-        label={t('settings.channels.discord.credentials.publicKey.label', 'Public Key')}
-        description={t(
-          'settings.channels.discord.credentials.publicKey.help',
-          'Optional. Required only if you later switch to the HTTP interaction endpoint instead of the Gateway.',
-        )}
-      >
-        <Input
-          value={publicKey}
-          onChange={setPublicKey}
-          placeholder={t(
-            'settings.channels.discord.credentials.publicKey.placeholder',
-            'ed25519 public key in hex',
-          )}
-          style={{ width: 280 }}
-        />
-      </PreferenceRow>
+        </span>
+      </div>
 
       <div className='flex justify-end pt-8px'>
         <Button type='primary' loading={testLoading} onClick={() => void handleTestAndEnable()}>

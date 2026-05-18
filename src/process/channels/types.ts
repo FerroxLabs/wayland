@@ -80,6 +80,9 @@ export interface IPluginCredentials {
   // WeCom (Enterprise WeChat AI Bot websocket)
   botId?: string;
   secret?: string;
+  // WeCom CorpID / ReceiveID — required for webhook mode so we can validate
+  // the trailing receiveid bytes in the decrypted payload (CRIT-2 fix).
+  corpId?: string;
   // Discord (Tier 1) — applicationId and publicKey are only required if the
   // operator opts into slash commands or the HTTP interaction endpoint.
   botToken?: string;
@@ -175,7 +178,7 @@ export function hasPluginCredentials(type: PluginType, credentials?: IPluginCred
   if (type === 'weixin') return !!(credentials.accountId && credentials.botToken);
   if (type === 'wecom') {
     const key = credentials.encodingAesKey;
-    const hasWebhook = !!(credentials.token && key && key.length === 43);
+    const hasWebhook = !!(credentials.token && key && key.length === 43 && credentials.corpId);
     const hasWebsocket = !!(credentials.botId && credentials.secret);
     return hasWebhook || hasWebsocket;
   }
@@ -438,6 +441,14 @@ export interface IUnifiedIncomingMessage {
   user: IUnifiedUser;
   content: IUnifiedMessageContent;
   timestamp: number;
+  /**
+   * True when the message originated in a group/multi-party chat (e.g. WhatsApp
+   * group, Discord channel) rather than a 1:1 DM. Optional because not every
+   * channel exposes group state (e.g. Meta Cloud API is 1:1-only); plugins
+   * that DO know should forward it so downstream permission/scoping logic can
+   * branch on it.
+   */
+  isGroup?: boolean;
   replyToMessageId?: string;
   action?: IMessageAction;
   raw?: unknown;

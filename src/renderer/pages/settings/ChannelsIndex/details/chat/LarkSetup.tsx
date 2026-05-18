@@ -39,7 +39,7 @@ const LarkSetup: React.FC = () => {
       displayName='Lark / Feishu'
       helpText={t(
         'settings.channels.lark.help',
-        'Connect Wayland to Lark / Feishu. Create a bot in the Feishu Developer Console and paste its credentials below.'
+        'Connect Wayland to Lark / Feishu. Create a self-built app in the Feishu Developer Console and paste its credentials below. Before connecting: (1) under Permissions & Scopes, grant im:message, im:message.group_at_msg, and im:message:send_as_bot; (2) under Event Subscriptions, switch delivery mode to "Long Connection (use cloud server)"; (3) subscribe to im.message.receive_v1, card.action.trigger, and application.bot.menu_v6. Without these the bot will appear connected but receive nothing or fail on every send.'
       )}
       showDisconnect={!!pluginStatus?.enabled}
     >

@@ -139,7 +139,18 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, onStatu
           'Socket Mode opens an outbound WebSocket Slack initiates — no public URL needed. Events API uses an inbound HTTPS webhook verified with a signing secret.',
         )}
       >
-        <Radio.Group value={transport} onChange={(value: SlackTransport) => setTransport(value)} type='button'>
+        <Radio.Group
+          value={transport}
+          onChange={(value: SlackTransport) => {
+            // LOW finding: clear the secret tied to the opposite transport so a
+            // stale credential isn't silently re-submitted after a flip. The
+            // bot token stays — both transports need it.
+            setTransport(value);
+            if (value === 'socket') setSigningSecret('');
+            else setAppToken('');
+          }}
+          type='button'
+        >
           <Radio value='socket'>
             {t('settings.channels.slack.credentials.transport.socket', 'Socket Mode')}
           </Radio>

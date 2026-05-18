@@ -58,7 +58,12 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, o
   const [accessToken, setAccessToken] = useState('');
   const [phoneNumberId, setPhoneNumberId] = useState('');
   const [businessAccountId, setBusinessAccountId] = useState('');
+  // W-2: Meta uses TWO secrets — `verifyToken` is operator-chosen and used
+  // only on the GET subscription handshake; `appSecret` is the Facebook App
+  // Secret used as HMAC key for the POST X-Hub-Signature-256 verification.
+  // Both must be collected separately.
   const [verifyToken, setVerifyToken] = useState('');
+  const [appSecret, setAppSecret] = useState('');
 
   const [webhookToken, setWebhookToken] = useState<string | null>(null);
   const [rotating, setRotating] = useState(false);
@@ -68,15 +73,25 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, o
   const hasExistingBot = !!pluginStatus?.hasToken;
   const qrCode = pluginStatus?.qrCode ?? null;
 
+  // Audit fix v0.4.2: same pattern as webhook channel. Until the tunnel layer
+  // resolves to a real hostname, do NOT compose a URL containing the
+  // placeholder — Meta will reject it on validation and the operator gets a
+  // confusing error after pasting `(configure tunnel in Phase 4)` into the
+  // Meta dashboard.
+  const TUNNEL_PLACEHOLDER = '(configure tunnel in Phase 4)';
+  const rawTunnelHost = t(
+    'settings.channels.whatsapp.webhookUrl.tunnelPlaceholder',
+    TUNNEL_PLACEHOLDER,
+  );
+  const tunnelConfigured =
+    rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
+
   const webhookUrl = useMemo(() => {
-    const tunnelHost = t(
-      'settings.channels.whatsapp.webhookUrl.tunnelPlaceholder',
-      '(configure tunnel in Phase 4)',
-    );
+    if (!tunnelConfigured) return '';
     const tokenSegment =
       webhookToken ?? t('settings.channels.whatsapp.webhookUrl.notMinted', '<not-minted>');
-    return `https://${tunnelHost}/webhooks/whatsapp/${tokenSegment}`;
-  }, [webhookToken, t]);
+    return `https://${rawTunnelHost}/webhooks/whatsapp/${tokenSegment}`;
+  }, [webhookToken, tunnelConfigured, rawTunnelHost, t]);
 
   const handleCopyWebhookUrl = useCallback(() => {
     void navigator.clipboard
@@ -152,6 +167,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, o
         credentials.phoneNumberId = phoneNumberId.trim();
         if (businessAccountId.trim()) credentials.businessAccountId = businessAccountId.trim();
         if (verifyToken.trim()) credentials.verifyToken = verifyToken.trim();
+        if (appSecret.trim()) credentials.appSecret = appSecret.trim();
       }
       const enableResult = await channel.enablePlugin.invoke({
         pluginId: 'whatsapp_default',
@@ -176,7 +192,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, o
     } finally {
       setTestLoading(false);
     }
-  }, [backend, accessToken, phoneNumberId, businessAccountId, verifyToken, t, onStatusChange]);
+  }, [backend, accessToken, phoneNumberId, businessAccountId, verifyToken, appSecret, t, onStatusChange]);
 
   const showMetaFields = backend === 'meta-business';
   const showQrSection = backend !== 'meta-business';
@@ -197,7 +213,7 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, o
         label={t('settings.channels.whatsapp.credentials.backend.label', 'Backend')}
         description={t(
           'settings.channels.whatsapp.credentials.backend.help',
-          'Baileys is recommended for personal accounts. Meta Business is required for verified business accounts and templated messaging.',
+          'Baileys is recommended for personal accounts. Meta Business is required for verified business accounts and templated messaging. Changing the backend after the channel is enabled requires disabling and re-enabling the plugin to take effect.',
         )}
         required
       >
@@ -287,8 +303,9 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, o
             label={t('settings.channels.whatsapp.credentials.verifyToken.label', 'Verify Token')}
             description={t(
               'settings.channels.whatsapp.credentials.verifyToken.help',
-              'Operator-chosen string Meta echoes during the GET /webhook handshake. Must match what you paste into the Meta dashboard.',
+              'Operator-chosen string Meta echoes during the GET /webhook handshake. Must match what you paste into the Meta dashboard — Meta will 403 the subscription if blank or wrong.',
             )}
+            required
           >
             <Input.Password
               value={verifyToken}
@@ -296,6 +313,26 @@ const WhatsAppConfigForm: React.FC<WhatsAppConfigFormProps> = ({ pluginStatus, o
               placeholder={t(
                 'settings.channels.whatsapp.credentials.verifyToken.placeholder',
                 'a long random string',
+              )}
+              visibilityToggle
+              style={{ width: 280 }}
+            />
+          </PreferenceRow>
+
+          <PreferenceRow
+            label={t('settings.channels.whatsapp.credentials.appSecret.label', 'App Secret')}
+            description={t(
+              'settings.channels.whatsapp.credentials.appSecret.help',
+              'Meta App Secret (Meta App Dashboard → Settings → Basic → App Secret). Used to HMAC-verify the X-Hub-Signature-256 header on incoming webhook deliveries. Different from the Verify Token above.',
+            )}
+            required
+          >
+            <Input.Password
+              value={appSecret}
+              onChange={setAppSecret}
+              placeholder={t(
+                'settings.channels.whatsapp.credentials.appSecret.placeholder',
+                '32-character hex string',
               )}
               visibilityToggle
               style={{ width: 280 }}

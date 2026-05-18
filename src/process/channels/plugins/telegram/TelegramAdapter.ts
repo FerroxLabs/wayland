@@ -202,11 +202,40 @@ function extractMessageContent(message: Message): IUnifiedMessageContent {
     };
   }
 
+  // Recognize content types we do not yet have first-class mappings for
+  // (location, contact, poll, dice, animation/GIF, video_note). Surface a
+  // descriptive sentinel text instead of forwarding an empty string to the
+  // agent, so the LLM can at least respond intelligibly.
+  const unsupportedKind = detectUnsupportedKind(message);
+  if (unsupportedKind) {
+    return {
+      type: 'text',
+      text: `[unsupported telegram content: ${unsupportedKind}]`,
+    };
+  }
+
   // Default to text type for unsupported content
   return {
     type: 'text',
     text: '',
   };
+}
+
+/**
+ * Return a human-readable kind name when the message carries a content type
+ * the unified pipeline does not yet model. Returns null otherwise.
+ */
+function detectUnsupportedKind(message: Message): string | null {
+  const m = message as unknown as Record<string, unknown>;
+  if (m.location) return 'location';
+  if (m.venue) return 'venue';
+  if (m.contact) return 'contact';
+  if (m.poll) return 'poll';
+  if (m.dice) return 'dice';
+  if (m.animation) return 'animation';
+  if (m.video_note) return 'video_note';
+  if (m.game) return 'game';
+  return null;
 }
 
 /**
@@ -279,9 +308,16 @@ export function escapeMarkdownV2(text: string): string {
 /**
  * Convert Markdown to Telegram HTML
  * Basic conversion for common patterns
+ *
+ * Streaming LLM output frequently arrives with unbalanced markers (a half-typed
+ * `**bold` chunk during mid-stream edit). Telegram rejects such payloads with
+ * `can't parse entities`. To stay robust we pre-balance any odd-count markers
+ * by appending the missing closer before running the regex pass. The output is
+ * therefore always parse-mode-safe HTML even on partial input.
  */
 export function markdownToTelegramHtml(text: string): string {
-  let result = escapeHtml(text);
+  const balanced = balanceMarkdownMarkers(text);
+  let result = escapeHtml(balanced);
 
   // Code block must be processed before inline code to avoid partial matches
   result = result.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
@@ -301,6 +337,60 @@ export function markdownToTelegramHtml(text: string): string {
   result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
   return result;
+}
+
+/**
+ * Pre-balance markdown markers so partial streaming output produces valid HTML.
+ *
+ * Strategy: count occurrences of each marker family OUTSIDE code spans/blocks
+ * and append a matching closer for any odd count. Code is left untouched so we
+ * don't accidentally rewrite literal asterisks inside ` ``` ` blocks.
+ */
+export function balanceMarkdownMarkers(text: string): string {
+  // Strip fenced code blocks and inline code so their contents don't count.
+  const stripped = text.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
+
+  let appended = '';
+
+  // Unclosed fenced code block — close it.
+  const fenceCount = (text.match(/```/g) || []).length;
+  if (fenceCount % 2 === 1) {
+    appended += '\n```';
+  }
+
+  // Unclosed inline code — close it. Count only single backticks not part of fences.
+  const inlineCodeOpen = (text.replace(/```[\s\S]*?```/g, '').match(/`/g) || []).length;
+  if (inlineCodeOpen % 2 === 1) {
+    appended += '`';
+  }
+
+  // Bold **...**
+  const boldMatches = (stripped.match(/\*\*/g) || []).length;
+  if (boldMatches % 2 === 1) {
+    appended += '**';
+  }
+
+  // Bold __...__
+  const boldUnderMatches = (stripped.match(/__/g) || []).length;
+  if (boldUnderMatches % 2 === 1) {
+    appended += '__';
+  }
+
+  // Italic single * (after removing double-star pairs)
+  const italicStrip = stripped.replace(/\*\*/g, '');
+  const italicStarMatches = (italicStrip.match(/\*/g) || []).length;
+  if (italicStarMatches % 2 === 1) {
+    appended += '*';
+  }
+
+  // Italic single _ (after removing double-underscore pairs)
+  const italicUnderStrip = stripped.replace(/__/g, '');
+  const italicUnderMatches = (italicUnderStrip.match(/_/g) || []).length;
+  if (italicUnderMatches % 2 === 1) {
+    appended += '_';
+  }
+
+  return text + appended;
 }
 
 // ==================== Message Length Utilities ====================

@@ -104,10 +104,25 @@ export function splitSlackMessage(text: string, limit = SLACK_MESSAGE_LIMIT): st
   return chunks;
 }
 
+/**
+ * Outbound attachment descriptor passed from the unified message to the
+ * plugin so it can drive Slack's 3-step external upload flow
+ * (files.getUploadURLExternal → POST → completeUploadExternal). F10 MED:
+ * prior code carried text-only outgoing payloads, silently dropping
+ * attachments uploaded via the compose box.
+ */
+export type SlackOutgoingAttachment = {
+  data: Buffer | Uint8Array | string;
+  filename?: string;
+  mimeType?: string;
+  title?: string;
+};
+
 export type SlackSendParams = {
   text: string;
   blocks?: (Block | KnownBlock)[];
   thread_ts?: string;
+  attachments?: SlackOutgoingAttachment[];
 };
 
 /**
@@ -122,6 +137,13 @@ export function toSlackSendParams(message: IUnifiedOutgoingMessage): SlackSendPa
   };
   if (blocks) params.blocks = blocks;
   if (message.replyToMessageId) params.thread_ts = message.replyToMessageId;
+  // F10 MED: forward outbound attachments through to the plugin so it can
+  // call Slack's 3-step external upload flow alongside chat.postMessage.
+  const outgoing = (message as { attachments?: SlackOutgoingAttachment[] }).attachments;
+  if (Array.isArray(outgoing) && outgoing.length > 0) {
+    const usable = outgoing.filter((a) => a && a.data !== undefined && a.data !== null);
+    if (usable.length > 0) params.attachments = usable;
+  }
   // Ensure a non-empty `text` accompanies blocks: Slack requires text as the
   // notification fallback when blocks are present.
   if (params.blocks && !params.text.trim()) {
@@ -158,8 +180,21 @@ export function toUnifiedIncomingMessage(
   if (!event?.ts || !event.channel) return null;
   // Drop messages from ourselves to avoid feedback loops.
   if (selfBotUserId && event.user === selfBotUserId) return null;
-  // Drop message_changed / message_deleted etc; only forward fresh user posts.
-  if (event.subtype && event.subtype !== 'file_share') return null;
+  // F7 MED: forward fresh user posts plus subtypes a Wayland-driven bot
+  // routinely cares about (app_mention, bot_message from other bots,
+  // me_message, thread_broadcast, file_share). Drop edit/delete-style
+  // subtypes that would otherwise replay state changes (message_changed,
+  // message_deleted, channel_join, etc.).
+  if (
+    event.subtype &&
+    event.subtype !== 'file_share' &&
+    event.subtype !== 'app_mention' &&
+    event.subtype !== 'bot_message' &&
+    event.subtype !== 'me_message' &&
+    event.subtype !== 'thread_broadcast'
+  ) {
+    return null;
+  }
 
   const file = event.files?.[0];
   const attachmentType: AttachmentType | null = file ? mapSlackFileToAttachmentType(file) : null;
@@ -187,7 +222,9 @@ export function toUnifiedIncomingMessage(
           }
         : {}),
     },
-    timestamp: Number.parseInt(event.ts.split('.')[0], 10) * 1000,
+    // LOW finding: preserve millisecond precision from Slack's
+    // "<seconds>.<microseconds>" ts so sub-second ordering is retained.
+    timestamp: Math.floor(Number.parseFloat(event.ts) * 1000),
     ...(event.thread_ts && event.thread_ts !== event.ts ? { replyToMessageId: event.thread_ts } : {}),
     raw: event,
   };

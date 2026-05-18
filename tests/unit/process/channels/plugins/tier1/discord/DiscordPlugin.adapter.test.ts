@@ -141,6 +141,49 @@ describe('DiscordAdapter — toDiscordSendParams', () => {
     const out: IUnifiedOutgoingMessage = { type: 'text' };
     expect(toDiscordSendParams(out).content).toBe('');
   });
+
+  // F-9: replyToMessageId must map to native Discord messageReference so the
+  // client renders as a quote-reply rather than a flat send.
+  it('maps replyToMessageId to messageReference for native reply rendering', () => {
+    const out: IUnifiedOutgoingMessage = { type: 'text', text: 'thread reply', replyToMessageId: 'parent-99' };
+    const params = toDiscordSendParams(out);
+    expect(params.content).toBe('thread reply');
+    expect(params.messageReference).toEqual({ messageId: 'parent-99' });
+  });
+
+  // F-9: silent: true should suppress all mention categories. `repliedUser:
+  // false` prevents pinging the original author when quote-replying.
+  it('silences all mentions when silent=true', () => {
+    const out: IUnifiedOutgoingMessage = { type: 'text', text: 'no pings', silent: true };
+    const params = toDiscordSendParams(out);
+    expect(params.allowedMentions).toEqual({ parse: [], repliedUser: false });
+  });
+
+  it('omits allowedMentions/messageReference when neither is set', () => {
+    const out: IUnifiedOutgoingMessage = { type: 'text', text: 'plain' };
+    const params = toDiscordSendParams(out);
+    expect(params.allowedMentions).toBeUndefined();
+    expect(params.messageReference).toBeUndefined();
+  });
+});
+
+// F-8: raw must be a plain, IPC-safe primitives object — not the full
+// discord.js Message graph (which has circular Client/Channel/Guild refs).
+describe('DiscordAdapter — toUnifiedIncomingMessage raw shape', () => {
+  it('survives JSON.stringify (no circular structures from discord.js Message)', () => {
+    const unified = toUnifiedIncomingMessage(
+      makeMessage({ guildId: 'guild-1', webhookId: null } as unknown as Partial<DiscordMessage>),
+    );
+    expect(unified).not.toBeNull();
+    expect(() => JSON.stringify(unified)).not.toThrow();
+    expect(unified?.raw).toEqual({
+      guildId: 'guild-1',
+      channelId: 'chan-7',
+      authorId: '1001',
+      authorIsBot: false,
+      webhookId: null,
+    });
+  });
 });
 
 describe('DiscordAdapter — splitMessage', () => {

@@ -104,7 +104,17 @@ export function toUnifiedIncomingMessage(msg: DiscordMessage): IUnifiedIncomingM
     content: extractContent(msg),
     timestamp: msg.createdTimestamp,
     replyToMessageId: msg.reference?.messageId ?? undefined,
-    raw: msg,
+    // F-8: do NOT stash the full discord.js Message — it carries circular
+    // back-references to Client/Channel/Guild that break JSON.stringify and
+    // structured-clone (used by IPC). Keep only the small set of primitives
+    // downstream moderation/action handlers actually need.
+    raw: {
+      guildId: msg.guildId ?? null,
+      channelId: msg.channelId,
+      authorId: msg.author?.id ?? null,
+      authorIsBot: msg.author?.bot ?? false,
+      webhookId: msg.webhookId ?? null,
+    },
   };
 }
 
@@ -114,21 +124,46 @@ export interface DiscordSendParams {
   content: string;
   /** Render hint for clients that style markdown differently per surface. */
   flags?: number;
+  /** Native Discord reply pointer — populated from `replyToMessageId`. */
+  messageReference?: { messageId: string };
+  /**
+   * Mention-allowlist control. `parse: []` silences all `@here`/`@everyone`/
+   * role/user mentions — safer default for `silent: true` agent output.
+   */
+  allowedMentions?: { parse: Array<'users' | 'roles' | 'everyone'>; repliedUser?: boolean };
 }
 
 /**
  * Convert a unified outgoing message into discord.js channel.send() options.
  *
- * discord.js accepts a string OR a MessagePayload; we always return a
- * normalized object so callers can spread extra fields (allowedMentions,
- * components) without re-parsing parseMode.
+ * Field mapping:
+ *   - `text`             → `content`
+ *   - `replyToMessageId` → `messageReference.messageId` (F-9: without this,
+ *                          agent replies become plain channel sends and
+ *                          threading goes flat on the Discord client)
+ *   - `silent: true`     → `allowedMentions.parse = []` (suppress mentions)
+ *
+ * Embeds/components/attachments are intentionally not wired here — the
+ * unified surface doesn't model them yet and the interactions outbound path
+ * (F-6) is unimplemented. When that lands, extend this function rather than
+ * shaping at the plugin level.
  */
 export function toDiscordSendParams(message: IUnifiedOutgoingMessage): DiscordSendParams {
-  // Discord renders markdown server-side. parseMode 'HTML' is not supported;
-  // we down-convert to plain (Discord ignores HTML and renders it literally).
-  return {
+  const params: DiscordSendParams = {
     content: message.text ?? '',
   };
+
+  if (message.replyToMessageId) {
+    params.messageReference = { messageId: message.replyToMessageId };
+  }
+
+  if (message.silent === true) {
+    // `repliedUser: false` mirrors discord.js silent-reply semantics so the
+    // original author isn't pinged when the agent quote-replies.
+    params.allowedMentions = { parse: [], repliedUser: false };
+  }
+
+  return params;
 }
 
 /**

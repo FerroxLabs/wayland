@@ -6,6 +6,7 @@
 
 import { DWClient, TOPIC_ROBOT, TOPIC_CARD, EventAck } from 'dingtalk-stream';
 import type { DWClientDownStream } from 'dingtalk-stream';
+import crypto from 'crypto';
 import https from 'https';
 
 import type {
@@ -20,12 +21,30 @@ import {
   DINGTALK_MESSAGE_LIMIT,
   encodeChatId,
   extractCardAction,
+  inferConversationTypeFromSpace,
   parseChatId,
+  splitMessage,
   toDingTalkSendParams,
   toUnifiedIncomingMessage,
   convertHtmlToDingTalkMarkdown,
 } from './DingTalkAdapter';
 import type { DingTalkStreamMessage } from './DingTalkAdapter';
+
+/**
+ * Default display name surfaced everywhere we present the bot identity.
+ * Plugins can override via `credentials.displayName`. L2/L6: single source.
+ */
+const DEFAULT_DISPLAY_NAME = 'Wayland DingTalk Bot';
+
+/**
+ * Default DingTalk AI Card template ID. Plugins can override via
+ * `credentials.aiCardTemplateId` to use an org-scoped template. L1.
+ */
+const DEFAULT_AI_CARD_TEMPLATE_ID = '382e4302-551d-4880-bf29-a30acfab2e71.schema';
+
+/** Reconnect backoff bounds for the Stream WebSocket. M8. */
+const RECONNECT_BASE_DELAY_MS = 1000;
+const RECONNECT_MAX_DELAY_MS = 60_000;
 
 /**
  * DingTalkPlugin - DingTalk Bot integration for Personal Assistant
@@ -41,9 +60,6 @@ const EVENT_CACHE_CLEANUP_INTERVAL = 60 * 1000; // 1 minute
 
 // DingTalk API base URL (new version)
 const DINGTALK_API_BASE = 'https://api.dingtalk.com';
-
-// AI Card template ID (DingTalk built-in streaming card)
-const AI_CARD_TEMPLATE_ID = '382e4302-551d-4880-bf29-a30acfab2e71.schema';
 
 // AI Card flow status values
 const AICardStatus = {
@@ -87,9 +103,24 @@ export class DingTalkPlugin extends BasePlugin {
   // Credentials
   private clientId: string = '';
   private clientSecret: string = '';
+  // HIGH-1: optional custom-robot signing secret (set on open-dev.dingtalk.com under
+  // Robot → Security Settings → "Signing Secret"). When non-empty, every webhook POST
+  // is signed with HMAC-SHA256 and appended as `&timestamp=&sign=`.
+  private webhookSecret: string = '';
+
+  // Per-plugin overrides (L1, L2)
+  private displayName: string = DEFAULT_DISPLAY_NAME;
+  private aiCardTemplateId: string = DEFAULT_AI_CARD_TEMPLATE_ID;
 
   // Token management
   private tokenCache: ITokenCache | null = null;
+  // M1: single-flight token refresh — concurrent callers share one promise.
+  private tokenRefreshInFlight: Promise<void> | null = null;
+
+  // M8: reconnect bookkeeping
+  private reconnectAttempt: number = 0;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private shouldReconnect: boolean = false;
 
   // Track active users for status reporting
   private activeUsers: Set<string> = new Set();
@@ -100,6 +131,9 @@ export class DingTalkPlugin extends BasePlugin {
 
   // AI Card sessions: messageId -> card session
   private aiCardSessions: Map<string, IAICardSession> = new Map();
+  // M4: reverse index from outTrackId -> openSpaceId so card callbacks can
+  // recover the originating space and infer conversationType correctly.
+  private trackIdToSpace: Map<string, string> = new Map();
 
   // Store sessionWebhook per chatId for fallback sending
   private webhookCache: Map<string, string> = new Map();
@@ -117,6 +151,19 @@ export class DingTalkPlugin extends BasePlugin {
 
     this.clientId = clientId;
     this.clientSecret = clientSecret;
+
+    // L1/L2: optional per-plugin overrides
+    const creds = config.credentials as Record<string, unknown> | undefined;
+    const overrideName = creds && typeof creds.displayName === 'string' ? (creds.displayName as string) : '';
+    if (overrideName.trim()) this.displayName = overrideName.trim();
+    const overrideTemplate =
+      creds && typeof creds.aiCardTemplateId === 'string' ? (creds.aiCardTemplateId as string) : '';
+    if (overrideTemplate.trim()) this.aiCardTemplateId = overrideTemplate.trim();
+
+    // HIGH-1: optional custom-robot signing secret (empty when robot has no Security
+    // Settings → Signing Secret enabled, in which case unsigned posts are accepted).
+    const webhookSecret = creds && typeof creds.webhookSecret === 'string' ? (creds.webhookSecret as string) : '';
+    this.webhookSecret = webhookSecret.trim();
   }
 
   /**
@@ -171,9 +218,26 @@ export class DingTalkPlugin extends BasePlugin {
         }
       });
 
+      // M8: best-effort disconnect/error listeners. dingtalk-stream's typings
+      // do not expose .on() on DWClient, but the underlying EventEmitter does
+      // surface 'disconnect' / 'error' / 'close' on its socket. We attach via
+      // an any-cast so we never crash if the SDK changes; reconnect will then
+      // rely on keepAlive only.
+      const emitter = this.client as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void };
+      if (typeof emitter.on === 'function') {
+        emitter.on('disconnect', () => this.handleStreamDisconnect('disconnect'));
+        emitter.on('close', () => this.handleStreamDisconnect('close'));
+        emitter.on('error', (err: unknown) => {
+          console.error('[DingTalkPlugin] Stream error:', err);
+          this.handleStreamDisconnect('error');
+        });
+      }
+
       // Connect
+      this.shouldReconnect = true;
       await this.client.connect();
       this.isConnected = true;
+      this.reconnectAttempt = 0;
 
       // Start event cache cleanup timer
       this.startEventCleanup();
@@ -186,10 +250,51 @@ export class DingTalkPlugin extends BasePlugin {
   }
 
   /**
+   * Handle Stream disconnect / error events. M8.
+   * Schedules an exponential-backoff reconnect attempt unless onStop() ran.
+   */
+  private handleStreamDisconnect(reason: string): void {
+    if (!this.shouldReconnect) return;
+    if (this.reconnectTimer) return; // already scheduled
+    this.isConnected = false;
+    const delay = Math.min(
+      RECONNECT_MAX_DELAY_MS,
+      RECONNECT_BASE_DELAY_MS * 2 ** Math.min(this.reconnectAttempt, 6)
+    );
+    this.reconnectAttempt += 1;
+    console.warn(
+      `[DingTalkPlugin] Stream ${reason}; reconnect attempt ${this.reconnectAttempt} in ${delay}ms`
+    );
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      if (!this.shouldReconnect) return;
+      void this.client
+        ?.connect()
+        .then(() => {
+          this.isConnected = true;
+          this.reconnectAttempt = 0;
+          console.log('[DingTalkPlugin] Stream reconnected');
+        })
+        .catch((err) => {
+          console.error('[DingTalkPlugin] Reconnect failed:', err);
+          // Re-arm with the next backoff slot.
+          this.handleStreamDisconnect('reconnect-failed');
+        });
+    }, delay);
+  }
+
+  /**
    * Stop connection and cleanup
    */
   protected async onStop(): Promise<void> {
+    this.shouldReconnect = false;
     this.stopEventCleanup();
+
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    this.reconnectAttempt = 0;
 
     if (this.client) {
       try {
@@ -201,9 +306,11 @@ export class DingTalkPlugin extends BasePlugin {
     }
 
     this.tokenCache = null;
+    this.tokenRefreshInFlight = null;
     this.activeUsers.clear();
     this.processedEvents.clear();
     this.aiCardSessions.clear();
+    this.trackIdToSpace.clear();
     this.webhookCache.clear();
     this.isConnected = false;
 
@@ -224,7 +331,7 @@ export class DingTalkPlugin extends BasePlugin {
     if (!this.clientId) return null;
     return {
       id: this.clientId,
-      displayName: 'Wayland Core Assistant',
+      displayName: this.displayName,
     };
   }
 
@@ -291,15 +398,16 @@ export class DingTalkPlugin extends BasePlugin {
     const { rawText } = toDingTalkSendParams(message);
     const text = rawText || message.text || '';
 
-    // Truncate if too long
-    const truncatedText =
-      text.length > DINGTALK_MESSAGE_LIMIT ? text.slice(0, DINGTALK_MESSAGE_LIMIT - 3) + '...' : text;
-
+    // HIGH-3 fix: DINGTALK_MESSAGE_LIMIT (4000) is the webhook *markdown* limit, NOT the AI Card
+    // `msgContent` limit — AI Card streaming accepts much larger payloads. Truncating + appending
+    // '...' here previously caused two bugs: (a) silent data loss on long agent replies, and
+    // (b) the trailing ellipsis got persisted into the finalized card. We're in the AI Card branch
+    // here (cardSession is non-null), so pass `text` through unmodified.
     try {
-      await this.streamAICard(cardSession.outTrackId, truncatedText, isFinal);
+      await this.streamAICard(cardSession.outTrackId, text, isFinal);
 
       if (isFinal) {
-        await this.finishAICard(cardSession.outTrackId, truncatedText);
+        await this.finishAICard(cardSession.outTrackId, text);
         this.aiCardSessions.set(messageId, { ...cardSession, isFinished: true });
       }
     } catch (error: any) {
@@ -327,7 +435,10 @@ export class DingTalkPlugin extends BasePlugin {
    */
   private async handleRobotMessage(data: DingTalkStreamMessage, streamMessageId: string): Promise<void> {
     try {
-      const eventId = data.msgId || streamMessageId;
+      // M5: namespace robot events to avoid hash collisions with card events
+      // (which use `card_` prefix at line below).
+      const rawId = data.msgId || streamMessageId;
+      const eventId = rawId ? `robot_${rawId}` : '';
 
       // Event deduplication
       if (eventId && this.isEventProcessed(eventId)) {
@@ -343,10 +454,14 @@ export class DingTalkPlugin extends BasePlugin {
       // Track user
       this.activeUsers.add(userId);
 
-      // Cache sessionWebhook for this chat
-      if (data.sessionWebhook) {
+      // HIGH-1 fix: validate sessionWebhook URL before trusting it. A spoofed Stream
+      // payload could otherwise redirect outbound messages anywhere. Accept ONLY https
+      // URLs on the official oapi.dingtalk.com /robot/send endpoint.
+      if (data.sessionWebhook && DingTalkPlugin.isValidDingTalkWebhook(data.sessionWebhook)) {
         const chatId = encodeChatId(data);
         this.webhookCache.set(chatId, data.sessionWebhook);
+      } else if (data.sessionWebhook) {
+        console.warn('[DingTalkPlugin] Rejected suspicious sessionWebhook URL');
       }
 
       // Convert to unified message
@@ -420,12 +535,27 @@ export class DingTalkPlugin extends BasePlugin {
         return;
       }
 
+      // M4: recover the originating space from outTrackId so group callbacks
+      // route back to the group context instead of being misclassified as a
+      // private DM. Falls back to '1' (private) when no mapping is known.
+      const outTrackId = (data.outTrackId as string) || '';
+      const openSpaceId = outTrackId ? this.trackIdToSpace.get(outTrackId) : undefined;
+      const conversationType = inferConversationTypeFromSpace(openSpaceId);
+      // For groups, extract the conversation id from the space string
+      // (`dtv1.card//IM_GROUP.<conversationId>`).
+      let conversationId: string | undefined;
+      if (conversationType === '2' && openSpaceId) {
+        const idx = openSpaceId.indexOf('IM_GROUP.');
+        if (idx >= 0) conversationId = openSpaceId.slice(idx + 'IM_GROUP.'.length);
+      }
+
       // Build a minimal DingTalkStreamMessage for conversion
       const mockData: DingTalkStreamMessage = {
         senderStaffId: userId,
         senderNick: `User ${userId.slice(-6)}`,
         msgId: streamMessageId,
-        conversationType: '1', // Assume private for card actions
+        conversationType,
+        conversationId,
         createAt: Date.now(),
       };
 
@@ -466,7 +596,7 @@ export class DingTalkPlugin extends BasePlugin {
 
     // 1. Create AI Card instance with STREAM callback type and space models
     await this.apiRequest('POST', '/v1.0/card/instances', token, {
-      cardTemplateId: AI_CARD_TEMPLATE_ID,
+      cardTemplateId: this.aiCardTemplateId,
       outTrackId,
       cardData: {
         cardParamMap: {},
@@ -495,6 +625,9 @@ export class DingTalkPlugin extends BasePlugin {
       isFinished: false,
       inputingStarted: false,
     });
+    // M4/L8: index outTrackId -> openSpaceId so card callbacks can recover
+    // the originating space (group vs private) for correct routing.
+    this.trackIdToSpace.set(outTrackId, openSpaceId);
 
     return messageId;
   }
@@ -600,25 +733,79 @@ export class DingTalkPlugin extends BasePlugin {
     content: Record<string, unknown>,
     rawText?: string
   ): Promise<string> {
-    let body: Record<string, unknown>;
-
+    // HIGH-1 fix: defence-in-depth — re-validate the URL at send time. Cached webhook
+    // URLs are validated at intake (handleRobotMessage), but a caller could in theory
+    // pass an unvalidated URL here.
+    if (!DingTalkPlugin.isValidDingTalkWebhook(webhook)) {
+      throw new Error('Refusing to POST to non-DingTalk webhook URL');
+    }
+    // HIGH-1 fix: if a custom-robot signing secret is configured, append the
+    // `&timestamp=&sign=` HMAC-SHA256 query params that DingTalk requires when the
+    // robot has "Signing Secret" security enabled. Without this, robots with secrets
+    // configured return 310000 / "sign not match" and the send silently fails.
+    const signedWebhook = this.signWebhookUrl(webhook);
     if (contentType === 'actionCard') {
-      body = {
+      const response = await this.httpPost(signedWebhook, {
         msgtype: 'actionCard',
         actionCard: content,
-      };
-    } else {
-      body = {
-        msgtype: 'markdown',
-        markdown: {
-          title: 'Message',
-          text: rawText || JSON.stringify(content),
-        },
-      };
+      });
+      return response?.messageId || `webhook_${Date.now()}`;
     }
 
-    const response = await this.httpPost(webhook, body);
-    return response?.messageId || `webhook_${Date.now()}`;
+    // Markdown path: M2 split + H4 mitigation (convert HTML→DingTalk markdown).
+    const text = rawText || (typeof content.text === 'string' ? (content.text as string) : JSON.stringify(content));
+    const rendered = convertHtmlToDingTalkMarkdown(text);
+    const chunks = splitMessage(rendered, DINGTALK_MESSAGE_LIMIT);
+    let lastResponse: { messageId?: string } | undefined;
+    for (const chunk of chunks) {
+      lastResponse = await this.httpPost(signedWebhook, {
+        msgtype: 'markdown',
+        markdown: {
+          title: this.displayName,
+          text: chunk,
+        },
+      });
+    }
+    return lastResponse?.messageId || `webhook_${Date.now()}`;
+  }
+
+  /**
+   * HIGH-1 fix: validate that a webhook URL is an https URL on the official
+   * DingTalk custom-robot endpoint. Rejects http://, non-DingTalk hosts, and
+   * URLs missing the /robot/send path.
+   */
+  static isValidDingTalkWebhook(url: string): boolean {
+    try {
+      const u = new URL(url);
+      if (u.protocol !== 'https:') return false;
+      if (u.hostname !== 'oapi.dingtalk.com') return false;
+      if (u.pathname !== '/robot/send') return false;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * HIGH-1 fix: append HMAC-SHA256 signature to a custom-robot webhook URL when a
+   * `webhookSecret` is configured. Per DingTalk docs:
+   *   stringToSign = `${timestamp}\n${secret}`
+   *   sign = urlEncode(base64(HmacSHA256(stringToSign, secret)))
+   *   url += `&timestamp=${timestamp}&sign=${sign}`
+   * If no secret is set the URL is returned unmodified (safe for robots without
+   * the Signing Secret security setting enabled).
+   */
+  private signWebhookUrl(webhook: string): string {
+    if (!this.webhookSecret) return webhook;
+    const timestamp = Date.now().toString();
+    const stringToSign = `${timestamp}\n${this.webhookSecret}`;
+    const signature = crypto
+      .createHmac('sha256', this.webhookSecret)
+      .update(stringToSign, 'utf8')
+      .digest('base64');
+    const sign = encodeURIComponent(signature);
+    const sep = webhook.includes('?') ? '&' : '?';
+    return `${webhook}${sep}timestamp=${timestamp}&sign=${sign}`;
   }
 
   /**
@@ -633,35 +820,51 @@ export class DingTalkPlugin extends BasePlugin {
   ): Promise<string> {
     const token = await this.getAccessToken();
 
-    if (chatType === 'user') {
-      // Send to individual user via robot
-      const body: Record<string, unknown> = {
+    if (contentType === 'actionCard') {
+      // Cards are sent as-is — DingTalk handles size limits server-side.
+      if (chatType === 'user') {
+        const response = await this.apiRequest('POST', '/v1.0/robot/oToMessages/batchSend', token, {
+          robotCode: this.clientId,
+          userIds: [id],
+          msgKey: 'sampleActionCard6',
+          msgParam: JSON.stringify(content),
+        });
+        return response?.processQueryKey || `api_${Date.now()}`;
+      }
+      const response = await this.apiRequest('POST', '/v1.0/robot/groupMessages/send', token, {
         robotCode: this.clientId,
-        userIds: [id],
-        msgKey: contentType === 'actionCard' ? 'sampleActionCard6' : 'sampleMarkdown',
-        msgParam:
-          contentType === 'actionCard'
-            ? JSON.stringify(content)
-            : JSON.stringify({ title: 'Message', text: rawText || '' }),
-      };
-
-      const response = await this.apiRequest('POST', '/v1.0/robot/oToMessages/batchSend', token, body);
+        openConversationId: id,
+        msgKey: 'sampleActionCard6',
+        msgParam: JSON.stringify(content),
+      });
       return response?.processQueryKey || `api_${Date.now()}`;
     }
 
-    // Send to group via robot
-    const body: Record<string, unknown> = {
-      robotCode: this.clientId,
-      openConversationId: id,
-      msgKey: contentType === 'actionCard' ? 'sampleActionCard6' : 'sampleMarkdown',
-      msgParam:
-        contentType === 'actionCard'
-          ? JSON.stringify(content)
-          : JSON.stringify({ title: 'Message', text: rawText || '' }),
-    };
+    // Markdown path: M2 split + H4 mitigation (HTML→DingTalk markdown).
+    const text = rawText || (typeof content.text === 'string' ? (content.text as string) : '');
+    const rendered = convertHtmlToDingTalkMarkdown(text);
+    const chunks = splitMessage(rendered, DINGTALK_MESSAGE_LIMIT);
+    let lastResponse: { processQueryKey?: string } | undefined;
 
-    const response = await this.apiRequest('POST', '/v1.0/robot/groupMessages/send', token, body);
-    return response?.processQueryKey || `api_${Date.now()}`;
+    for (const chunk of chunks) {
+      const msgParam = JSON.stringify({ title: this.displayName, text: chunk });
+      if (chatType === 'user') {
+        lastResponse = await this.apiRequest('POST', '/v1.0/robot/oToMessages/batchSend', token, {
+          robotCode: this.clientId,
+          userIds: [id],
+          msgKey: 'sampleMarkdown',
+          msgParam,
+        });
+      } else {
+        lastResponse = await this.apiRequest('POST', '/v1.0/robot/groupMessages/send', token, {
+          robotCode: this.clientId,
+          openConversationId: id,
+          msgKey: 'sampleMarkdown',
+          msgParam,
+        });
+      }
+    }
+    return lastResponse?.processQueryKey || `api_${Date.now()}`;
   }
 
   // ==================== Access Token Management ====================
@@ -675,14 +878,23 @@ export class DingTalkPlugin extends BasePlugin {
   }
 
   /**
-   * Ensure access token is valid
+   * Ensure access token is valid.
+   * M1: concurrent callers share a single in-flight refresh to avoid
+   * stampeding `/v1.0/oauth2/accessToken` (rate-limited 60/min/appKey).
    */
   private async ensureAccessToken(): Promise<void> {
     const now = Date.now();
-    // Refresh if token expires in less than 60 seconds
-    if (!this.tokenCache || this.tokenCache.expiresAt - now < 60 * 1000) {
-      await this.refreshAccessToken();
+    if (this.tokenCache && this.tokenCache.expiresAt - now >= 60 * 1000) {
+      return;
     }
+    if (this.tokenRefreshInFlight) {
+      await this.tokenRefreshInFlight;
+      return;
+    }
+    this.tokenRefreshInFlight = this.refreshAccessToken().finally(() => {
+      this.tokenRefreshInFlight = null;
+    });
+    await this.tokenRefreshInFlight;
   }
 
   /**

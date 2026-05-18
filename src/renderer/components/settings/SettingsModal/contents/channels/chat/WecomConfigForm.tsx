@@ -11,7 +11,7 @@ import { ConfigStorage } from '@/common/config/storage';
 import { openExternalUrl } from '@/renderer/utils/platform';
 import GeminiModelSelector from '@/renderer/pages/conversation/platforms/gemini/GeminiModelSelector';
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
-import { Button, Dropdown, Empty, Input, Menu, Message, Spin, Tooltip } from '@arco-design/web-react';
+import { Button, Dropdown, Empty, Input, Menu, Message, Radio, Spin, Tooltip } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -57,7 +57,10 @@ interface WecomConfigFormProps {
   webuiStatus: IWebUIStatus | null;
 }
 
+type WecomMode = 'websocket' | 'webhook';
+
 const WECOM_DEV_DOCS_URL = 'https://developer.work.weixin.qq.com/document/path/101463';
+const WECOM_WEBHOOK_DOCS_URL = 'https://developer.work.weixin.qq.com/document/path/90930';
 
 const WecomConfigForm: React.FC<WecomConfigFormProps> = ({
   pluginStatus,
@@ -67,11 +70,23 @@ const WecomConfigForm: React.FC<WecomConfigFormProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  const [mode, setMode] = useState<WecomMode>('websocket');
+  // WebSocket-mode creds
   const [botId, setBotId] = useState('');
   const [secret, setSecret] = useState('');
+  // Webhook-mode creds
+  const [token, setToken] = useState('');
+  const [encodingAesKey, setEncodingAesKey] = useState('');
+  const [corpId, setCorpId] = useState('');
 
   const [saveLoading, setSaveLoading] = useState(false);
-  const [touched, setTouched] = useState({ botId: false, secret: false });
+  const [touched, setTouched] = useState({
+    botId: false,
+    secret: false,
+    token: false,
+    encodingAesKey: false,
+    corpId: false,
+  });
   const [pairingLoading, setPairingLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
   const [pendingPairings, setPendingPairings] = useState<IChannelPairingRequest[]>([]);
@@ -201,22 +216,44 @@ const WecomConfigForm: React.FC<WecomConfigFormProps> = ({
   }, []);
 
   const handleSaveAndEnable = async () => {
-    setTouched({ botId: true, secret: true });
-    const id = botId.trim();
-    const sec = secret.trim();
-    if (!id || !sec) {
-      Message.warning(t('settings.wecom.credentialsRequired', 'Please enter Bot ID and Secret'));
-      return;
+    setTouched({ botId: true, secret: true, token: true, encodingAesKey: true, corpId: true });
+
+    // Validate per mode and build the correct payload. ChannelManager normalizes
+    // these flat fields into IPluginCredentials based on plugin type.
+    let payload: Record<string, string> | null = null;
+    if (mode === 'websocket') {
+      const id = botId.trim();
+      const sec = secret.trim();
+      if (!id || !sec) {
+        Message.warning(t('settings.wecom.credentialsRequired', 'Please enter Bot ID and Secret'));
+        return;
+      }
+      payload = { botId: id, secret: sec };
+    } else {
+      const tok = token.trim();
+      const key = encodingAesKey.trim();
+      const corp = corpId.trim();
+      if (!tok || !key || !corp) {
+        Message.warning(
+          t(
+            'settings.wecom.webhookCredentialsRequired',
+            'Please enter Token, EncodingAESKey, and CorpID for webhook mode'
+          )
+        );
+        return;
+      }
+      if (key.length !== 43) {
+        Message.warning(t('settings.wecom.aesKeyLengthError', 'EncodingAESKey must be exactly 43 characters'));
+        return;
+      }
+      payload = { token: tok, encodingAesKey: key, corpId: corp };
     }
 
     setSaveLoading(true);
     try {
       const result = await channel.enablePlugin.invoke({
         pluginId: 'wecom_default',
-        config: {
-          botId: id,
-          secret: sec,
-        },
+        config: payload,
       });
 
       if (result.success) {
@@ -240,7 +277,7 @@ const WecomConfigForm: React.FC<WecomConfigFormProps> = ({
   };
 
   const handleCredentialsChange = () => {
-    /* reserved for future “dirty” indicators */
+    /* reserved for future "dirty" indicators */
   };
 
   // Approve pairing
@@ -311,123 +348,220 @@ const WecomConfigForm: React.FC<WecomConfigFormProps> = ({
   const agentOptions: Array<{ backend: string; name: string; customAgentId?: string; isExtension?: boolean }> =
     availableAgents.length > 0 ? availableAgents : [{ backend: 'gemini', name: 'Gemini CLI' }];
 
+  // Prefer LAN/network URL (operators usually expose that to the public DNS),
+  // fall back to localUrl for local-only testing setups.
+  const webuiBase = webuiStatus?.networkUrl || webuiStatus?.localUrl || '';
+  const callbackUrl = webuiBase ? `${webuiBase.replace(/\/$/, '')}/channels/wecom/webhook` : '';
+
   return (
     <div className='flex flex-col gap-24px'>
-      <div className='text-12px leading-relaxed p-10px rd-8px bg-[rgba(var(--orange-6),0.08)] border border-[rgba(var(--orange-6),0.3)] text-t-secondary'>
-        <div className='font-500 text-t-primary mb-6px'>
-          {t('settings.wecom.wsTitle', 'WeCom WebSocket connection')}
+      {/* Mode toggle — WS vs webhook. Both code paths are implemented in
+          WecomPlugin.ts; the form has to pick one before collecting creds. */}
+      <PreferenceRow
+        label={t('settings.wecom.mode', 'Connection Mode')}
+        description={t(
+          'settings.wecom.modeDesc',
+          'Long-Connection (WS) needs no public URL. Webhook needs a reachable HTTPS callback URL.'
+        )}
+        required
+      >
+        <Radio.Group
+          type='button'
+          value={mode}
+          onChange={(value) => setMode(value as WecomMode)}
+          disabled={hasExistingUsers}
+        >
+          <Radio value='websocket'>{t('settings.wecom.modeWebsocket', 'Long Connection (WS)')}</Radio>
+          <Radio value='webhook'>{t('settings.wecom.modeWebhook', 'Encrypted Callback (Webhook)')}</Radio>
+        </Radio.Group>
+      </PreferenceRow>
+
+      {mode === 'websocket' ? (
+        <div className='text-12px leading-relaxed p-10px rd-8px bg-[rgba(var(--orange-6),0.08)] border border-[rgba(var(--orange-6),0.3)] text-t-secondary'>
+          <div className='font-500 text-t-primary mb-6px'>
+            {t('settings.wecom.wsTitle', 'WeCom WebSocket connection')}
+          </div>
+          <div className='mt-6px'>
+            {t(
+              'settings.wecom.wsHint',
+              'Use the WeCom Intelligent Bot "Long Connection (WebSocket)" mode. No callback URL / domain / public IP required.'
+            )}
+          </div>
+          <div className='mt-4px'>
+            <a
+              className='text-primary hover:underline cursor-pointer text-12px'
+              href={WECOM_DEV_DOCS_URL}
+              onClick={(e) => {
+                e.preventDefault();
+                openExternalUrl(WECOM_DEV_DOCS_URL).catch(console.error);
+              }}
+            >
+              {t('settings.wecom.devDocLink', 'WeCom developer documentation')}
+            </a>
+          </div>
         </div>
-        <div className='mt-6px'>
-          {t(
-            'settings.wecom.wsHint',
-            'Use the WeCom Intelligent Bot “Long Connection (WebSocket)” mode. No callback URL / domain / public IP required.'
+      ) : (
+        <div className='text-12px leading-relaxed p-10px rd-8px bg-[rgba(var(--blue-6),0.08)] border border-[rgba(var(--blue-6),0.3)] text-t-secondary'>
+          <div className='font-500 text-t-primary mb-6px'>
+            {t('settings.wecom.webhookTitle', 'WeCom Encrypted Callback')}
+          </div>
+          <div className='mt-6px'>
+            {t(
+              'settings.wecom.webhookHint',
+              'Paste the Token + EncodingAESKey from your WeCom admin console, and your CorpID (used to validate decrypted callbacks).'
+            )}
+          </div>
+          {callbackUrl && (
+            <div className='mt-8px flex items-center gap-6px'>
+              <span className='text-12px text-t-tertiary'>{t('settings.wecom.callbackUrl', 'Callback URL')}:</span>
+              <code className='bg-fill-2 px-6px py-2px rd-4px text-12px'>{callbackUrl}</code>
+              <Tooltip content={t('common.copy', 'Copy')}>
+                <Button
+                  size='mini'
+                  type='text'
+                  icon={<Copy size={12} />}
+                  onClick={() => copyToClipboard(callbackUrl)}
+                />
+              </Tooltip>
+            </div>
           )}
+          <div className='mt-4px'>
+            <a
+              className='text-primary hover:underline cursor-pointer text-12px'
+              href={WECOM_WEBHOOK_DOCS_URL}
+              onClick={(e) => {
+                e.preventDefault();
+                openExternalUrl(WECOM_WEBHOOK_DOCS_URL).catch(console.error);
+              }}
+            >
+              {t('settings.wecom.webhookDocLink', 'WeCom callback documentation')}
+            </a>
+          </div>
         </div>
-        <div className='mt-4px'>
-          <a
-            className='text-primary hover:underline cursor-pointer text-12px'
-            href={WECOM_DEV_DOCS_URL}
-            onClick={(e) => {
-              e.preventDefault();
-              openExternalUrl(WECOM_DEV_DOCS_URL).catch(console.error);
-            }}
-          >
-            {t('settings.wecom.devDocLink', 'WeCom developer documentation')}
-          </a>
-        </div>
-      </div>
+      )}
 
-      <PreferenceRow
-        label={t('settings.wecom.botId', 'Bot ID')}
-        description={t('settings.wecom.botIdDesc', 'Bot ID from WeCom Intelligent Bot (Long Connection mode)')}
-        required
-      >
-        {hasExistingUsers ? (
-          <Tooltip
-            content={t(
-              'settings.assistant.tokenLocked',
-              'Please close the Channel and delete all authorized users before modifying'
-            )}
+      {mode === 'websocket' ? (
+        <>
+          <PreferenceRow
+            label={t('settings.wecom.botId', 'Bot ID')}
+            description={t('settings.wecom.botIdDesc', 'Bot ID from WeCom Intelligent Bot (Long Connection mode)')}
+            required
           >
-            <span>
-              <Input
-                value={botId}
-                onChange={(value) => {
-                  setBotId(value);
-                  handleCredentialsChange();
-                }}
-                onBlur={() => setTouched((prev) => ({ ...prev, botId: true }))}
-                placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
-                style={{ width: 260 }}
-                status={touched.botId && !botId.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
-                disabled={hasExistingUsers}
-              />
-            </span>
-          </Tooltip>
-        ) : (
-          <Input
-            value={botId}
-            onChange={(value) => {
-              setBotId(value);
-              handleCredentialsChange();
-            }}
-            onBlur={() => setTouched((prev) => ({ ...prev, botId: true }))}
-            placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
-            style={{ width: 260 }}
-            status={touched.botId && !botId.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
-            disabled={hasExistingUsers}
-          />
-        )}
-      </PreferenceRow>
+            <Input.Password
+              value={botId}
+              onChange={(value) => {
+                setBotId(value);
+                handleCredentialsChange();
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, botId: true }))}
+              placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
+              style={{ width: 260 }}
+              status={touched.botId && !botId.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
+              visibilityToggle
+              disabled={hasExistingUsers}
+            />
+          </PreferenceRow>
 
-      <PreferenceRow
-        label={t('settings.wecom.secret', 'Secret')}
-        description={t('settings.wecom.secretDesc', 'Secret from WeCom Intelligent Bot (Long Connection mode)')}
-        required
-      >
-        {hasExistingUsers ? (
-          <Tooltip
-            content={t(
-              'settings.assistant.tokenLocked',
-              'Please close the Channel and delete all authorized users before modifying'
-            )}
+          <PreferenceRow
+            label={t('settings.wecom.secret', 'Secret')}
+            description={t('settings.wecom.secretDesc', 'Secret from WeCom Intelligent Bot (Long Connection mode)')}
+            required
           >
-            <span>
-              <Input.Password
-                value={secret}
-                onChange={(value) => {
-                  setSecret(value);
-                  handleCredentialsChange();
-                }}
-                onBlur={() => setTouched((prev) => ({ ...prev, secret: true }))}
-                placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
-                style={{ width: 260 }}
-                status={touched.secret && !secret.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
-                visibilityToggle
-                disabled={hasExistingUsers}
-              />
-            </span>
-          </Tooltip>
-        ) : (
-          <Input.Password
-            value={secret}
-            onChange={(value) => {
-              setSecret(value);
-              handleCredentialsChange();
-            }}
-            onBlur={() => setTouched((prev) => ({ ...prev, secret: true }))}
-            placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
-            style={{ width: 260 }}
-            status={touched.secret && !secret.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
-            visibilityToggle
-            disabled={hasExistingUsers}
-          />
-        )}
-      </PreferenceRow>
+            <Input.Password
+              value={secret}
+              onChange={(value) => {
+                setSecret(value);
+                handleCredentialsChange();
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, secret: true }))}
+              placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
+              style={{ width: 260 }}
+              status={touched.secret && !secret.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
+              visibilityToggle
+              disabled={hasExistingUsers}
+            />
+          </PreferenceRow>
+        </>
+      ) : (
+        <>
+          <PreferenceRow
+            label={t('settings.wecom.token', 'Callback Token')}
+            description={t(
+              'settings.wecom.tokenDesc',
+              'Operator-chosen token from your WeCom bot admin Callback config'
+            )}
+            required
+          >
+            <Input.Password
+              value={token}
+              onChange={(value) => {
+                setToken(value);
+                handleCredentialsChange();
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, token: true }))}
+              placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
+              style={{ width: 260 }}
+              status={touched.token && !token.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
+              visibilityToggle
+              disabled={hasExistingUsers}
+            />
+          </PreferenceRow>
+
+          <PreferenceRow
+            label={t('settings.wecom.encodingAesKey', 'EncodingAESKey')}
+            description={t('settings.wecom.encodingAesKeyDesc', 'Exactly 43 characters; from WeCom admin Callback')}
+            required
+          >
+            <Input.Password
+              value={encodingAesKey}
+              onChange={(value) => {
+                setEncodingAesKey(value);
+                handleCredentialsChange();
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, encodingAesKey: true }))}
+              placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : ''}
+              style={{ width: 260 }}
+              status={
+                touched.encodingAesKey &&
+                (!encodingAesKey.trim() || encodingAesKey.trim().length !== 43) &&
+                !pluginStatus?.hasToken
+                  ? 'error'
+                  : undefined
+              }
+              visibilityToggle
+              disabled={hasExistingUsers}
+            />
+          </PreferenceRow>
+
+          <PreferenceRow
+            label={t('settings.wecom.corpId', 'CorpID')}
+            description={t(
+              'settings.wecom.corpIdDesc',
+              'Your enterprise CorpID. Used to validate the decrypted receiveid (anti-forgery).'
+            )}
+            required
+          >
+            <Input
+              value={corpId}
+              onChange={(value) => {
+                setCorpId(value);
+                handleCredentialsChange();
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, corpId: true }))}
+              placeholder={hasExistingUsers || pluginStatus?.hasToken ? '••••••••••••••••' : 'ww1234567890abcdef'}
+              style={{ width: 260 }}
+              status={touched.corpId && !corpId.trim() && !pluginStatus?.hasToken ? 'error' : undefined}
+              disabled={hasExistingUsers}
+            />
+          </PreferenceRow>
+        </>
+      )}
 
       {!hasExistingUsers && (
         <div className='flex justify-end'>
-          {pluginStatus?.hasToken && !botId.trim() && !secret.trim() ? (
+          {pluginStatus?.hasToken &&
+          ((mode === 'websocket' && !botId.trim() && !secret.trim()) ||
+            (mode === 'webhook' && !token.trim() && !encodingAesKey.trim() && !corpId.trim())) ? (
             <span className='text-12px text-t-tertiary mr-12px self-center'>
               {t('settings.wecom.credentialsSaved', 'Credentials already configured. Enter new values to update.')}
             </span>
@@ -436,7 +570,11 @@ const WecomConfigForm: React.FC<WecomConfigFormProps> = ({
             type='primary'
             loading={saveLoading}
             onClick={() => void handleSaveAndEnable()}
-            disabled={pluginStatus?.hasToken && !botId.trim() && !secret.trim()}
+            disabled={
+              !!pluginStatus?.hasToken &&
+              ((mode === 'websocket' && !botId.trim() && !secret.trim()) ||
+                (mode === 'webhook' && !token.trim() && !encodingAesKey.trim() && !corpId.trim()))
+            }
           >
             {t('settings.wecom.saveAndEnable', 'Save & Enable')}
           </Button>

@@ -39,6 +39,13 @@ export const slackVerifier: WebhookVerifier = (input, secret) => {
     return { ok: false, reason: 'stale-timestamp', status: 401 };
   }
 
+  // Slack reserves the signature version prefix (`v0=`) for forward
+  // compatibility. Reject any other scheme up front rather than letting it
+  // fall through to a constant-time compare against a nonsense pad. F1 HIGH.
+  if (!signature.startsWith('v0=')) {
+    return { ok: false, reason: 'invalid-scheme', status: 401 };
+  }
+
   const basestring = `v0:${timestamp}:${input.rawBody.toString('utf8')}`;
   const expected = 'v0=' + createHmac('sha256', secret).update(basestring).digest('hex');
 

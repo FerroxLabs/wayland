@@ -19,6 +19,10 @@ import {
 } from '@process/channels/plugins/wecom/WecomStreamState';
 
 const WECOM_WEBHOOK_PATH = '/channels/wecom/webhook';
+/** Max clock skew allowed between WeCom's `timestamp` query param and our
+ *  server clock. WeCom spec recommends a 5-minute window; outside it we
+ *  reject as a replay-attack defence (HIGH-4 audit fix 2026-05-18). */
+const WECOM_TIMESTAMP_WINDOW_MS = 5 * 60 * 1000;
 
 function parseBody(req: Request): Record<string, unknown> | null {
   if (typeof req.body === 'string') {
@@ -68,6 +72,20 @@ async function wecomWebhookHandler(req: Request, res: Response): Promise<void> {
 
   if (!msgSignature || !timestamp || !nonce) {
     res.status(400).send('missing query signature params');
+    return;
+  }
+
+  // HIGH-4: reject requests whose timestamp drifts outside the configured
+  // window before we waste cycles on signature math or call into the
+  // plugin. WeCom timestamps are seconds-since-epoch. We compare both as ms.
+  const tsSeconds = Number(timestamp);
+  if (!Number.isFinite(tsSeconds) || tsSeconds <= 0) {
+    res.status(400).send('invalid timestamp');
+    return;
+  }
+  const skewMs = Math.abs(Date.now() - tsSeconds * 1000);
+  if (skewMs > WECOM_TIMESTAMP_WINDOW_MS) {
+    res.status(403).send('timestamp outside replay window');
     return;
   }
 
@@ -126,7 +144,7 @@ async function wecomWebhookHandler(req: Request, res: Response): Promise<void> {
     if (!stream) {
       const expired = createStream(streamId, 'expired');
       upsertStreamContent(streamId, {
-        visibleContent: '会话已过期',
+        visibleContent: 'Session expired',
         thinkingContent: '',
         finished: true,
       });
@@ -156,7 +174,7 @@ async function wecomWebhookHandler(req: Request, res: Response): Promise<void> {
 
   plugin.handleInboundMessage(payload, streamId).catch((error) => {
     upsertStreamContent(streamId, {
-      visibleContent: `处理失败: ${error instanceof Error ? error.message : String(error)}`,
+      visibleContent: `Failed: ${error instanceof Error ? error.message : String(error)}`,
       thinkingContent: '',
     });
     finishStream(streamId);

@@ -59,11 +59,13 @@ async function apiPost(params: {
   try {
     const res = await fetch(url, {
       method: 'POST',
+      // Codex v0.4.2 re-audit NEW: drop manual Content-Length (fetch sets it
+      // automatically; manual setting causes drift if bodyStr is later mutated).
+      // Same fix already applied to WeixinMonitor under MED-3.
       headers: {
         'Content-Type': 'application/json',
         AuthorizationType: 'ilink_bot_token',
         Authorization: `Bearer ${params.token}`,
-        'Content-Length': String(Buffer.byteLength(bodyStr, 'utf-8')),
         'X-WECHAT-UIN': params.wechatUin,
       },
       body: bodyStr,

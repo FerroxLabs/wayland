@@ -114,8 +114,16 @@ export function encodeChatId(data: DingTalkStreamMessage): string {
 }
 
 /**
- * Parse encoded chatId into type and id
+ * Parse encoded chatId into type and id.
+ *
+ * Expected formats: `user:<staffId>` or `group:<conversationId>`.
+ *
+ * M3: bare/unprefixed chatIds previously silent-defaulted to 'user' and
+ * misrouted as staffIds. Default is preserved for backwards compatibility,
+ * but we now emit a one-time warning per unknown chatId so the misroute is
+ * detectable in logs.
  */
+const _parseChatIdWarned = new Set<string>();
 export function parseChatId(chatId: string): { type: 'user' | 'group'; id: string } {
   if (chatId.startsWith('user:')) {
     return { type: 'user', id: chatId.slice(5) };
@@ -123,8 +131,24 @@ export function parseChatId(chatId: string): { type: 'user' | 'group'; id: strin
   if (chatId.startsWith('group:')) {
     return { type: 'group', id: chatId.slice(6) };
   }
-  // Default to user
+  if (!_parseChatIdWarned.has(chatId)) {
+    _parseChatIdWarned.add(chatId);
+    console.warn(
+      `[DingTalkAdapter] parseChatId received unprefixed chatId "${chatId}"; defaulting to type='user'. ` +
+        `Callers should encode with "user:" or "group:" prefix.`
+    );
+  }
   return { type: 'user', id: chatId };
+}
+
+/**
+ * Infer conversationType ('1' = private, '2' = group) from a stored
+ * openSpaceId. AI Card spaces look like `dtv1.card//IM_ROBOT.<id>` for
+ * private chats and `dtv1.card//IM_GROUP.<id>` for groups. (M4 helper.)
+ */
+export function inferConversationTypeFromSpace(openSpaceId: string | undefined): '1' | '2' {
+  if (openSpaceId && openSpaceId.includes('IM_GROUP.')) return '2';
+  return '1';
 }
 
 /**
@@ -297,52 +321,29 @@ export function toDingTalkSendParams(message: IUnifiedOutgoingMessage): {
     };
   }
 
-  // If message has buttons, convert to actionCard
-  if (message.buttons && message.buttons.length > 0) {
-    const card = buildActionCard(message.text || '', message.buttons);
-    return {
-      contentType: 'actionCard',
-      content: card,
-    };
-  }
-
-  // Default to markdown message
+  // HIGH-5 fix: drop the buttons → actionCard path.
+  // The previous implementation built `actionURL: 'dingtalk://dingtalkclient/action/openAppAction?...'`,
+  // which is NOT a documented DingTalk deep link — tapping the buttons no-ops in production AND
+  // never round-trips back to the bot (it's a client-side intent, not a card callback). Interactive
+  // round-trip on DingTalk is only supported via AI Card `cardPrivateData` callbacks, which are
+  // handled in DingTalkPlugin.handleCardCallback. Until we wire a documented action scheme,
+  // render the message body as plain markdown (without buttons) so the text still reaches the user.
+  // HIGH-4 fix: always run HTML through convertHtmlToDingTalkMarkdown so <b>/<a>/<i> render properly
+  // on the webhook + API send paths (which previously passed rawText through unconverted).
   const text = message.text || '';
+  const renderedText = convertHtmlToDingTalkMarkdown(text);
   return {
     contentType: 'markdown',
     content: {
       title: 'Message',
-      text,
+      text: renderedText,
     },
-    rawText: text,
+    rawText: renderedText,
   };
 }
 
-/**
- * Build an action card with buttons
- */
-function buildActionCard(text: string, buttons: IUnifiedOutgoingMessage['buttons']): Record<string, unknown> {
-  const markdownText = convertHtmlToDingTalkMarkdown(text);
-  const btnList: Array<Record<string, unknown>> = [];
-
-  if (buttons && buttons.length > 0) {
-    buttons.forEach((row) => {
-      row.forEach((button) => {
-        btnList.push({
-          title: button.label,
-          actionURL: `dingtalk://dingtalkclient/action/openAppAction?action=${encodeURIComponent(button.action)}&params=${encodeURIComponent(JSON.stringify(button.params || {}))}`,
-        });
-      });
-    });
-  }
-
-  return {
-    title: 'Message',
-    text: markdownText,
-    btnOrientation: '1', // Horizontal layout
-    btns: btnList,
-  };
-}
+// (HIGH-5) buildActionCard removed — see toDingTalkSendParams comment above.
+// Re-add only with a documented DingTalk action scheme and a callback round-trip path.
 
 // ==================== Text Formatting ====================
 
@@ -374,14 +375,19 @@ export function convertHtmlToDingTalkMarkdown(html: string): string {
   result = result.replace(/<code>(.+?)<\/code>/gi, '`$1`');
   result = result.replace(/<pre><code>([\s\S]+?)<\/code><\/pre>/gi, '```\n$1\n```');
 
-  // 3. Convert links with protocol whitelist
-  result = result.replace(/<a href="([^"]+)">(.+?)<\/a>/gi, (_, url: string, text: string) => {
-    const normalizedUrl = url.trim().toLowerCase();
+  // 3. Convert links with protocol whitelist.
+  // M6: accept double/single-quoted href in any attribute order, with extra
+  // attributes before or after href (class, target, rel, etc.).
+  const linkPattern = /<a\b[^>]*?\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))[^>]*>([\s\S]*?)<\/a>/gi;
+  result = result.replace(linkPattern, (_match, dq?: string, sq?: string, unq?: string, text?: string) => {
+    const url = ((dq ?? sq ?? unq) || '').trim();
+    const linkText = (text ?? '').replace(/<[^>]+>/g, '');
+    const normalizedUrl = url.toLowerCase();
     const isSafeUrl = /^(https?:\/\/|mailto:|\/)|^[^:]*$/.test(normalizedUrl);
-    if (isSafeUrl) {
-      return `[${text}](${url})`;
+    if (url && isSafeUrl) {
+      return `[${linkText}](${url})`;
     }
-    return text;
+    return linkText;
   });
 
   // 4. Remove all remaining HTML tags (loop until stable)
@@ -404,7 +410,11 @@ export function escapeDingTalkMarkdown(text: string): string {
 // ==================== Message Length Utilities ====================
 
 /**
- * Split long text into chunks that fit DingTalk's message limit
+ * Split long text into chunks that fit DingTalk's message limit.
+ *
+ * Prefers newline > space. M7: when neither boundary exists in the search
+ * window, falls back to a hard split at `maxLength` and emits a single
+ * warning so operators notice mid-token splits.
  */
 export function splitMessage(text: string, maxLength: number = DINGTALK_MESSAGE_LIMIT): string[] {
   if (text.length <= maxLength) {
@@ -413,6 +423,7 @@ export function splitMessage(text: string, maxLength: number = DINGTALK_MESSAGE_
 
   const chunks: string[] = [];
   let remaining = text;
+  let hardSplitWarned = false;
 
   while (remaining.length > 0) {
     if (remaining.length <= maxLength) {
@@ -420,18 +431,26 @@ export function splitMessage(text: string, maxLength: number = DINGTALK_MESSAGE_
       break;
     }
 
-    // Find a good split point (prefer newline, then space)
     let splitIndex = maxLength;
-
+    let usedBoundary = false;
     const newlineSearchStart = Math.floor(maxLength * 0.8);
     const lastNewline = remaining.lastIndexOf('\n', maxLength);
     if (lastNewline > newlineSearchStart) {
       splitIndex = lastNewline + 1;
+      usedBoundary = true;
     } else {
       const lastSpace = remaining.lastIndexOf(' ', maxLength);
       if (lastSpace > newlineSearchStart) {
         splitIndex = lastSpace + 1;
+        usedBoundary = true;
       }
+    }
+
+    if (!usedBoundary && !hardSplitWarned) {
+      console.warn(
+        '[DingTalkAdapter] splitMessage: no whitespace boundary found, falling back to hard split at maxLength'
+      );
+      hardSplitWarned = true;
     }
 
     chunks.push(remaining.slice(0, splitIndex).trim());
@@ -463,28 +482,77 @@ function mapToActionCategory(prefix: string): 'platform' | 'system' | 'chat' {
 }
 
 /**
- * Extract action info from DingTalk card callback
+ * Extract action info from DingTalk card callback.
+ *
+ * Accepted formats for the `action` field:
+ *   1. JSON: `{"name":"category.action","params":{"key":"val=with=eq"}}`
+ *      (preferred — survives values containing `=`, `,`, `:`. L4.)
+ *   2. Legacy DSL: `category.action` or `category.action:key1=val1,key2=val2`
+ *      Values containing `=` should use the JSON form.
+ *
+ * Sibling params in the callback `params` map are merged in unconditionally,
+ * matching prior behavior.
  */
 export function extractCardAction(params: Record<string, string>): IMessageAction | null {
   const actionName = params.action || '';
   if (!actionName) return null;
 
-  // Parse action name and params
-  // Format: "category.action" or "category.action:param1=value1"
-  const [fullAction, paramsStr] = actionName.split(':');
-  const [prefix, name] = fullAction.includes('.') ? fullAction.split('.') : ['system', fullAction];
-
+  let prefix = 'system';
+  let name = actionName;
   const actionParams: Record<string, string> = {};
-  if (paramsStr) {
-    paramsStr.split(',').forEach((param) => {
-      const [key, val] = param.split('=');
-      if (key && val) {
-        actionParams[key] = val;
+  const trimmed = actionName.trim();
+  let parsedAsJson = false;
+
+  // Preferred JSON form.
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed) as { name?: string; params?: Record<string, unknown> };
+      const fullName = (parsed.name || '').toString();
+      if (fullName.includes('.')) {
+        const idx = fullName.indexOf('.');
+        prefix = fullName.slice(0, idx);
+        name = fullName.slice(idx + 1);
+      } else if (fullName) {
+        name = fullName;
       }
-    });
+      if (parsed.params && typeof parsed.params === 'object') {
+        for (const [k, v] of Object.entries(parsed.params)) {
+          if (typeof v === 'string') actionParams[k] = v;
+          else if (v != null) actionParams[k] = String(v);
+        }
+      }
+      parsedAsJson = true;
+    } catch {
+      // Fall through to DSL parsing
+    }
   }
 
-  // Merge with other action values
+  // Legacy DSL fallback.
+  if (!parsedAsJson) {
+    const colonIdx = actionName.indexOf(':');
+    const fullAction = colonIdx >= 0 ? actionName.slice(0, colonIdx) : actionName;
+    const paramsStr = colonIdx >= 0 ? actionName.slice(colonIdx + 1) : '';
+    if (fullAction.includes('.')) {
+      const dotIdx = fullAction.indexOf('.');
+      prefix = fullAction.slice(0, dotIdx);
+      name = fullAction.slice(dotIdx + 1);
+    } else {
+      name = fullAction;
+    }
+    if (paramsStr) {
+      paramsStr.split(',').forEach((param) => {
+        const eqIdx = param.indexOf('=');
+        if (eqIdx > 0) {
+          // Split only on the FIRST `=` so JWT / signed-value tokens survive.
+          const key = param.slice(0, eqIdx).trim();
+          const val = param.slice(eqIdx + 1);
+          if (key) actionParams[key] = val;
+        }
+      });
+    }
+  }
+
+  // Merge with other action values (sibling params from callback).
   Object.entries(params).forEach(([key, val]) => {
     if (key !== 'action' && typeof val === 'string') {
       actionParams[key] = val;

@@ -56,7 +56,9 @@ interface DingTalkConfigFormProps {
   onStatusChange: (status: IChannelPluginStatus | null) => void;
 }
 
-const DINGTALK_DEV_DOCS_URL = 'https://github.com/TradeCanyon/Wayland/wiki/DingTalk-Bot-Setup-Guide';
+// CRIT-1 fix: point at the actual DingTalk Open Platform (the Wayland wiki page does not exist).
+// Use the dev console where corp apps (AppKey/AppSecret) and Stream Mode subscriptions are created.
+const DINGTALK_DEV_DOCS_URL = 'https://open-dev.dingtalk.com/';
 
 const DingTalkConfigForm: React.FC<DingTalkConfigFormProps> = ({ pluginStatus, modelSelection, onStatusChange }) => {
   const { t } = useTranslation();

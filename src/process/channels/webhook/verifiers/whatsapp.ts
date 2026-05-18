@@ -13,19 +13,39 @@ import type { WebhookVerifier } from '../types';
  * Reference:
  *   https://developers.facebook.com/docs/graph-api/webhooks/getting-started
  *
- * Two paths:
- *   - GET subscription challenge: when Meta first registers the webhook URL
- *     it issues `GET ?hub.mode=subscribe&hub.verify_token=<token>&hub.challenge=<n>`.
- *     We accept iff `hub.verify_token` matches the connection secret and
- *     surface the challenge as the payload so the route handler can echo it.
- *   - POST event delivery: HMAC-SHA256(rawBody) keyed by the app secret;
- *     header `X-Hub-Signature-256: sha256=<hex>`. Timing-safe compare.
+ * Per Meta's spec the GET handshake and the POST delivery use TWO different
+ * secrets:
+ *   - GET subscription challenge: operator-chosen `verify_token` echoed back.
+ *   - POST event delivery: HMAC-SHA256(rawBody) keyed by the App Secret;
+ *     header `X-Hub-Signature-256: sha256=<hex>`.
  *
- * The verifier returns a payload shape the receiver can recognize: GET
- * challenges set `__challenge` so the dispatcher / route can short-circuit.
+ * The WebhookVerifier contract gives us one `secret` string. To carry both
+ * values without breaking peer verifiers we JSON-encode `{appSecret,
+ * verifyToken}` at registration time. Legacy single-string secrets are still
+ * accepted and used for BOTH paths (the broken pre-W-2 behaviour) so existing
+ * deployments don't 500 mid-rollout.
  */
+type WhatsAppSecrets = { appSecret: string; verifyToken: string };
+function parseSecret(secret: string): WhatsAppSecrets {
+  if (secret.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(secret) as Partial<WhatsAppSecrets>;
+      const appSecret = typeof parsed.appSecret === 'string' ? parsed.appSecret : '';
+      const verifyToken = typeof parsed.verifyToken === 'string' ? parsed.verifyToken : '';
+      if (appSecret || verifyToken) {
+        return { appSecret: appSecret || secret, verifyToken: verifyToken || secret };
+      }
+    } catch {
+      // fall through to legacy single-string handling.
+    }
+  }
+  return { appSecret: secret, verifyToken: secret };
+}
+
 export const whatsappVerifier: WebhookVerifier = (input, secret) => {
-  // GET subscription challenge — no signature; verified via shared token.
+  const { appSecret, verifyToken: expectedVerifyToken } = parseSecret(secret);
+
+  // GET subscription challenge — no signature; verified via verify_token.
   if (isGetChallenge(input.query)) {
     const mode = input.query['hub.mode'];
     const verifyToken = input.query['hub.verify_token'];
@@ -34,7 +54,7 @@ export const whatsappVerifier: WebhookVerifier = (input, secret) => {
     if (mode !== 'subscribe') {
       return { ok: false, reason: 'invalid-mode', status: 400 };
     }
-    if (verifyToken !== secret) {
+    if (verifyToken !== expectedVerifyToken) {
       return { ok: false, reason: 'invalid-verify-token', status: 403 };
     }
     if (typeof challenge !== 'string' || challenge.length === 0) {
@@ -44,13 +64,13 @@ export const whatsappVerifier: WebhookVerifier = (input, secret) => {
     return { ok: true, payload: { __challenge: challenge } };
   }
 
-  // POST event delivery — HMAC-SHA256.
+  // POST event delivery — HMAC-SHA256 keyed by App Secret.
   const headerSig = pickHeader(input.headers['x-hub-signature-256']);
   if (!headerSig || !headerSig.startsWith('sha256=')) {
     return { ok: false, reason: 'missing-signature', status: 401 };
   }
 
-  const expected = 'sha256=' + createHmac('sha256', secret).update(input.rawBody).digest('hex');
+  const expected = 'sha256=' + createHmac('sha256', appSecret).update(input.rawBody).digest('hex');
   if (!safeEqual(expected, headerSig)) {
     return { ok: false, reason: 'invalid-signature', status: 401 };
   }

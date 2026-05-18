@@ -126,6 +126,23 @@ export async function createBackend({ emit, sessionDir }) {
   let stopRequested = false;
   let saveCreds = null;
 
+  /**
+   * Bounded in-memory message store keyed by `msg.key.id`. Baileys's
+   * `getMessage` callback consults this during E2EE Signal-session resync
+   * (LOW finding). Capacity is kept tight to bound memory: only recent
+   * conversation traffic is recoverable.
+   */
+  const messageStore = new Map();
+  const MESSAGE_STORE_CAP = 2048;
+  function rememberMessage(key, message) {
+    if (!key?.id || !message) return;
+    if (messageStore.size >= MESSAGE_STORE_CAP) {
+      const oldest = messageStore.keys().next().value;
+      if (oldest !== undefined) messageStore.delete(oldest);
+    }
+    messageStore.set(key.id, message);
+  }
+
   function setStatus(state, extra = {}) {
     connectionState = state;
     emit('connection.status', { state, backend: 'baileys', ...extra });
@@ -149,8 +166,16 @@ export async function createBackend({ emit, sessionDir }) {
         keys: makeCacheableSignalKeyStore(auth.state.keys, logger),
       },
       // Without getMessage, Baileys 7.x silently drops messages that need
-      // E2EE session re-establishment (msg.message === null).
-      getMessage: async () => ({ conversation: '' }),
+      // E2EE session re-establishment (msg.message === null). We keep a
+      // small in-memory message store (last MESSAGE_STORE_CAP messages,
+      // keyed by msg.key.id) so resync after temporary disconnects can
+      // re-decrypt recent traffic. Full persistent history is out of scope
+      // for the bridge; operators who need that should run a file-backed
+      // Baileys store.
+      getMessage: async (key) => {
+        const cached = key?.id ? messageStore.get(key.id) : null;
+        return cached || { conversation: '' };
+      },
     });
 
     sock.ev.on('creds.update', () => {
@@ -163,13 +188,20 @@ export async function createBackend({ emit, sessionDir }) {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
-        // Render to stderr for humans launching the bridge directly during dev.
-        try {
-          qrcode.generate(qr, { small: true }, (rendered) => {
-            process.stderr.write(`${rendered}\n`);
-          });
-        } catch {
-          // best-effort QR render
+        // Render to stderr only for humans running the bridge directly during
+        // dev (no IPC parent). Under the Electron parent the renderer paints
+        // the QR via QRCodeSVG and stderr is inherited into the packaged-app
+        // log file — left unguarded, every QR refresh would dump 50 lines of
+        // ANSI into the log every ~minute until pairing completes.
+        const hasIpc = typeof process.send === 'function';
+        if (!hasIpc) {
+          try {
+            qrcode.generate(qr, { small: true }, (rendered) => {
+              process.stderr.write(`${rendered}\n`);
+            });
+          } catch {
+            // best-effort QR render
+          }
         }
         emit('qr.update', { qr });
       }
@@ -251,16 +283,39 @@ export async function createBackend({ emit, sessionDir }) {
         }
         if (!body && !mediaType) continue;
 
+        // W-5: extract quoted-message id from Baileys contextInfo so the agent
+        // can reply to specific messages. Both `extendedTextMessage.contextInfo`
+        // and per-media `contextInfo` shapes carry `stanzaId`.
+        const contextInfo =
+          c.extendedTextMessage?.contextInfo ||
+          c.imageMessage?.contextInfo ||
+          c.videoMessage?.contextInfo ||
+          c.audioMessage?.contextInfo ||
+          c.documentMessage?.contextInfo ||
+          null;
+        const replyToMessageId =
+          typeof contextInfo?.stanzaId === 'string' && contextInfo.stanzaId.length > 0
+            ? contextInfo.stanzaId
+            : undefined;
+
+        // Persist for getMessage() Signal-resync lookups (LOW finding).
+        rememberMessage(msg.key, msg.message);
+
         emit('inbound.message', {
           messageId: msg.key.id,
           chatId,
+          // W-9: keep the full JID alongside the normalized bare-digit form.
+          // Agents that echo `senderId` back into `sendText({chatId: ...})`
+          // need the JID host or Baileys outbound will fail.
           senderId: normalizeIdentifier(senderId),
+          senderRawJid: typeof senderId === 'string' ? senderId : undefined,
           senderName: msg.pushName || normalizeIdentifier(senderId),
           isGroup,
           fromMe: !!msg.key.fromMe,
           body,
           mediaType: mediaType || undefined,
           mediaPath: mediaPath || undefined,
+          replyToMessageId,
           timestamp: Number(msg.messageTimestamp) || Date.now() / 1000,
         });
       }

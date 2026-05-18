@@ -22,6 +22,8 @@ export type WeixinAttachment = {
 
 export type WeixinChatRequest = {
   conversationId: string;
+  /** Tencent iLink msg_id — used downstream as the unified message id for dedup/threading (LOW-4). */
+  msgId?: string;
   text?: string;
   attachments?: WeixinAttachment[];
   sendTextNow?: (text: string) => Promise<void>;
@@ -40,6 +42,15 @@ export type MonitorOptions = {
   baseUrl: string;
   token: string;
   accountId: string;
+  /**
+   * Persisted per-account WeChat UIN sent in the `X-WECHAT-UIN` header.
+   * Must be stable across process restarts — Tencent treats UIN rotation
+   * as a strong bot-activity signal (audit CRIT-3). Generated and cached
+   * by `WeixinPlugin.loadOrCreateWechatUin`; tests may pass a literal.
+   * When omitted, `startMonitor` falls back to a deterministic
+   * accountId-derived UIN so the value is still stable across restarts.
+   */
+  wechatUin?: string;
   /** Directory used to persist get_updates_buf. Pass getPlatformServices().paths.getDataDir(). */
   dataDir: string;
   agent: WeixinAgent;
@@ -92,6 +103,8 @@ const LONG_POLL_TIMEOUT_MS = 35_000;
 const API_TIMEOUT_MS = 15_000;
 const RETRY_DELAY_MS = 2_000;
 const BACKOFF_DELAY_MS = 30_000;
+/** MED-7: cap derived from a Retry-After header so a missing/invalid value can't pin us forever. */
+const MAX_RATE_LIMIT_BACKOFF_MS = 5 * 60_000;
 const MAX_CONSECUTIVE_FAILURES = 3;
 const UPLOAD_MAX_RETRIES = 3;
 const TEXT_ITEM_TYPE = 1;
@@ -139,6 +152,20 @@ type GetUploadUrlResp = {
   upload_full_url?: string;
 };
 
+/** MED-7: error subclass that lets the monitor loop respect Tencent's Retry-After hint on 429. */
+class RateLimitError extends Error {
+  readonly rateLimited = true;
+  readonly retryAfterMs?: number;
+  constructor(message: string, retryAfterMs?: number) {
+    super(message);
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
+function isRateLimitError(err: unknown): err is RateLimitError {
+  return err instanceof Error && (err as Partial<RateLimitError>).rateLimited === true;
+}
+
 // ==================== HTTP ====================
 
 async function apiPost<T>(
@@ -165,13 +192,23 @@ async function apiPost<T>(
         'Content-Type': 'application/json',
         AuthorizationType: 'ilink_bot_token',
         Authorization: `Bearer ${token}`,
-        'Content-Length': String(Buffer.byteLength(body, 'utf-8')),
+        // MED-3: Content-Length set automatically by fetch (undici); manual computation invites drift.
         'X-WECHAT-UIN': wechatUin,
       },
       body,
       signal: controller.signal,
     });
     if (!res.ok) {
+      // MED-7: surface 429 so the monitor loop can honor Retry-After instead of flat 30s backoff.
+      if (res.status === 429) {
+        const retryAfterRaw = res.headers.get('retry-after');
+        const retryAfterSec = Number(retryAfterRaw ?? 0);
+        const retryAfterMs =
+          Number.isFinite(retryAfterSec) && retryAfterSec > 0
+            ? Math.min(retryAfterSec * 1000, MAX_RATE_LIMIT_BACKOFF_MS)
+            : undefined;
+        throw new RateLimitError(`HTTP 429 rate-limited`, retryAfterMs);
+      }
       throw new Error(`HTTP ${res.status}`);
     }
     return (await res.json()) as T;
@@ -252,6 +289,9 @@ function getAesEcbPaddedSize(size: number): number {
   return Math.ceil((size + 1) / 16) * 16;
 }
 
+// MED-4: AES-128-ECB is required by the Tencent iLink CDN protocol (both upload + download
+// directions are ECB-encrypted blobs). Not a Wayland security choice — do not "fix" to CBC/GCM
+// without a corresponding protocol change on Tencent's side or attachments will be rejected.
 function encryptAesEcb(buffer: Buffer, key: Buffer): Buffer {
   const cipher = crypto.createCipheriv('aes-128-ecb', key, null);
   cipher.setAutoPadding(true);
@@ -536,9 +576,16 @@ async function downloadMediaItem(
   const safeName = declaredName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 64);
   const safeMsgId = msgId.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 48);
   const fileName = `${safeMsgId}-${idx}-${safeName}${ext}`;
-  const filePath = path.join(uploadsDir, fileName);
 
+  // Defense-in-depth: prevent any future regex regression that allows path-traversal chars
+  // (e.g. `..`) from escaping uploadsDir. The sanitizer already strips `/` and `\`, but the
+  // resolved path must still land under uploadsDir.
   fs.mkdirSync(uploadsDir, { recursive: true });
+  const filePath = path.resolve(uploadsDir, fileName);
+  const uploadsRoot = path.resolve(uploadsDir) + path.sep;
+  if (!filePath.startsWith(uploadsRoot)) {
+    throw new Error(`unsafe attachment path: ${fileName}`);
+  }
   fs.writeFileSync(filePath, resultBuf);
   return { path: filePath, kind, name: declaredName };
 }
@@ -580,11 +627,18 @@ function cleanUploads(uploadsDir: string): void {
 
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    const t = setTimeout(resolve, ms);
+    // MED-1: detach the abort listener on the happy path so long-lived monitors don't accumulate
+    // listeners across thousands of sleep() calls (otherwise MaxListenersExceededWarning fires
+    // and listeners begin to silently leak).
     const onAbort = () => {
       clearTimeout(t);
+      signal?.removeEventListener('abort', onAbort);
       reject(new Error('aborted'));
     };
+    const t = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
     signal?.addEventListener('abort', onAbort, { once: true });
   });
 }
@@ -630,16 +684,27 @@ async function runMonitor(
 
       consecutiveFailures = 0;
 
-      if (resp.get_updates_buf) {
-        buf = resp.get_updates_buf;
-        saveBuf(dataDir, accountId, buf);
-      }
+      // MED-8: do NOT advance buf until every message in this batch has been handled (or
+      // explicitly errored). Previously buf was persisted immediately on poll success, which
+      // meant any agent-timeout / agent-error mid-batch silently dropped the message because
+      // the next poll skipped past it. We now defer saveBuf to the end of the loop body.
+      const nextBuf = resp.get_updates_buf;
 
       for (const msg of resp.msgs ?? []) {
         const items = msg.item_list ?? [];
         const textItem = items.find((i) => i.type === TEXT_ITEM_TYPE);
-        const voiceTextItems = items.filter((i) => i.type === VOICE_ITEM_TYPE && i.voice_item?.text);
+        const voiceItems = items.filter((i) => i.type === VOICE_ITEM_TYPE);
+        const voiceTextItems = voiceItems.filter((i) => i.voice_item?.text);
         const mediaItems = items.filter((i) => i.type === IMAGE_ITEM_TYPE || i.type === FILE_ITEM_TYPE);
+
+        // MED-5: voice arrived but Tencent didn't transcribe it. Log so operators can detect
+        // a silently-broken voice path (user hears a "sent" indicator, bot gets nothing).
+        const droppedVoice = voiceItems.length - voiceTextItems.length;
+        if (droppedVoice > 0) {
+          log(
+            `[weixin] voice received but no transcript (${droppedVoice} item${droppedVoice === 1 ? '' : 's'}) for ${msg.from_user_id ?? 'unknown'} msg=${msg.msg_id ?? 'unknown'}`
+          );
+        }
 
         if (!textItem && voiceTextItems.length === 0 && mediaItems.length === 0) continue;
 
@@ -673,6 +738,10 @@ async function runMonitor(
           // oxlint-disable-next-line eslint/no-await-in-loop
           response = await agent.chat({
             conversationId,
+            // LOW-4: thread the real Tencent msg_id through so downstream dedup/threading
+            // sees a per-message id instead of conversationId (which collides across messages
+            // from the same user).
+            msgId,
             text,
             attachments: attachments.length > 0 ? attachments : undefined,
             sendTextNow: (outgoingText) =>
@@ -715,8 +784,27 @@ async function runMonitor(
           }
         }
       }
+
+      // MED-8: now safe to advance — every message in the batch has either been processed
+      // or explicitly errored (with the error logged). A crash before this point causes the
+      // next poll to redeliver the entire batch.
+      if (nextBuf) {
+        buf = nextBuf;
+        saveBuf(dataDir, accountId, buf);
+      }
     } catch (err) {
       if (signal?.aborted) return;
+
+      // MED-7: honor Tencent's Retry-After hint on 429 instead of the flat 30s backoff.
+      if (isRateLimitError(err)) {
+        const wait = err.retryAfterMs ?? BACKOFF_DELAY_MS;
+        log(`[weixin] rate-limited by Tencent; backing off ${wait}ms`);
+        consecutiveFailures = 0;
+        // oxlint-disable-next-line eslint/no-await-in-loop
+        await sleep(wait, signal);
+        continue;
+      }
+
       consecutiveFailures++;
       log(`[weixin] getUpdates error (${consecutiveFailures}/${MAX_CONSECUTIVE_FAILURES}): ${String(err)}`);
       if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
@@ -736,11 +824,20 @@ async function runMonitor(
  * Errors are logged via opts.log. Loop stops when abortSignal fires.
  */
 export function startMonitor(opts: MonitorOptions): void {
-  const { baseUrl, token, accountId, dataDir, agent, abortSignal, log } = opts;
+  const { baseUrl, token, accountId, wechatUin, dataDir, agent, abortSignal, log } = opts;
   const logFn = log ?? ((_msg: string) => {});
-  const wechatUin = crypto.randomBytes(4).toString('base64');
+  // CRIT-3 + LOW-2: prefer a caller-supplied UIN persisted by the plugin so
+  // restarts keep the same header. Fall back to a deterministic
+  // accountId-derived hex value (NOT per-startup randomBytes) so even the
+  // legacy callable shape avoids "bot rotation" signals to risk-control.
+  // Hex stays in the safe ASCII subset; base64 padding `=` and `+` may
+  // not be valid header characters depending on Tencent's parser.
+  const effectiveUin =
+    wechatUin && wechatUin.length > 0
+      ? wechatUin
+      : crypto.createHash('sha256').update(accountId).digest('hex').slice(0, 8);
 
-  void runMonitor(baseUrl, token, accountId, dataDir, agent, wechatUin, abortSignal, logFn).catch((err: unknown) => {
+  void runMonitor(baseUrl, token, accountId, dataDir, agent, effectiveUin, abortSignal, logFn).catch((err: unknown) => {
     if (!abortSignal?.aborted) {
       logFn(`[weixin] monitor terminated unexpectedly: ${String(err)}`);
     }

@@ -21,9 +21,13 @@ describe('toUnifiedIncomingMessage', () => {
     expect(msg.user.id).toBe('user_abc123');
   });
 
-  it('uses last 6 chars of conversationId as displayName fallback', () => {
+  it('falls back to the full platform user id as displayName (not a 6-char slice)', () => {
+    // Audit HIGH-3: Tencent iLink getupdates carries no nickname; the
+    // prior `conversationId.slice(-6)` produced meaningless garbage like
+    // `abc123` and surfaced it to users as a "name". Surface the full id
+    // so users at least know it's an ID, not a name.
     const msg = toUnifiedIncomingMessage(baseRequest);
-    expect(msg.user.displayName).toBe('user_abc123'.slice(-6));
+    expect(msg.user.displayName).toBe('user_abc123');
   });
 
   it('sets platform to weixin', () => {

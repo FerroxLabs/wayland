@@ -14,7 +14,17 @@
  */
 export type WebhookVerificationResult =
   | { ok: true; payload: object; eventId?: string; timestamp?: number }
-  | { ok: false; reason: string; status: number };
+  | {
+      ok: false;
+      reason: string;
+      status: number;
+      /**
+       * Optional debug field — verifiers MAY surface the exact URL they hashed
+       * when computing a signature. Useful for tunnel-host mismatch debugging
+       * (e.g. Twilio signs the public host but we hash localhost).
+       */
+      signingUrl?: string;
+    };
 
 /**
  * A platform-specific verifier. Receives raw request data and the connection

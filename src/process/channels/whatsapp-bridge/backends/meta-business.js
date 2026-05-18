@@ -87,6 +87,8 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
           let body = '';
           let mediaType;
           let mediaId;
+          /** W-6: id of the message a reaction targets. */
+          let reactionMessageId;
           if (msg.type === 'text') {
             body = msg.text?.body || '';
           } else if (msg.type === 'image') {
@@ -104,9 +106,21 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
             mediaType = 'document';
             mediaId = msg.document?.id;
             body = msg.document?.caption || '';
+          } else if (msg.type === 'sticker') {
+            mediaType = 'sticker';
+            mediaId = msg.sticker?.id;
           } else if (msg.type === 'reaction') {
             body = msg.reaction?.emoji || '';
+            reactionMessageId =
+              typeof msg.reaction?.message_id === 'string' ? msg.reaction.message_id : undefined;
           }
+
+          // W-5: Meta forwards the original message id via `msg.context.id`
+          // whenever this inbound message is a reply.
+          const replyToMessageId =
+            typeof msg.context?.id === 'string' && msg.context.id.length > 0
+              ? msg.context.id
+              : undefined;
 
           emit('inbound.message', {
             messageId: msg.id,
@@ -118,6 +132,8 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
             body,
             mediaType,
             mediaId,
+            replyToMessageId,
+            reactionMessageId,
             timestamp: Number(msg.timestamp) || Date.now() / 1000,
           });
           count += 1;
@@ -184,6 +200,14 @@ export async function createBackend({ emit, sessionDir: _sessionDir }) {
       if (!mediaUrl && !mediaId) throw new Error('mediaUrl or mediaId required');
       requireConfig();
       const type = mediaType || 'document';
+      // Meta accepts only this exact set; anything else returns an opaque
+      // schema error from the Graph API.
+      const ALLOWED_MEDIA_TYPES = ['image', 'video', 'audio', 'document', 'sticker'];
+      if (!ALLOWED_MEDIA_TYPES.includes(type)) {
+        throw new Error(
+          `unsupported_media_type: ${type} (allowed: ${ALLOWED_MEDIA_TYPES.join(', ')})`,
+        );
+      }
       const media = mediaId ? { id: mediaId } : { link: mediaUrl };
       if (caption && ['image', 'video', 'document'].includes(type)) {
         media.caption = caption;

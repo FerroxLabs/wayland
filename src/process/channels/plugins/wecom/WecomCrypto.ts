@@ -9,9 +9,19 @@ import crypto from 'crypto';
 /**
  * WeCom AI Bot / callback crypto (AES-256-CBC + SHA1 signature).
  * Matches Enterprise WeChat encrypted callback specification.
+ *
+ * Spec reference: https://developer.work.weixin.qq.com/document/path/90968
  */
 export function sha1Sign(token: string, timestamp: string, nonce: string, encrypted: string): string {
-  const sorted = [token, String(timestamp), String(nonce), encrypted].toSorted();
+  // Explicit ascending lexicographic comparator to (a) avoid relying on
+  // Array.prototype.toSorted (Node 20+) and (b) make the ordering
+  // unambiguous for non-ASCII operator tokens. Per WeCom spec all four
+  // inputs are sorted ascending then concatenated and SHA1-hashed.
+  const sorted = [token, String(timestamp), String(nonce), encrypted].slice().sort((a, b) => {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  });
   return crypto.createHash('sha1').update(sorted.join('')).digest('hex');
 }
 
@@ -30,7 +40,20 @@ function encodePkcs7(buffer: Buffer): Buffer {
   return Buffer.concat([buffer, pad]);
 }
 
-export function decryptPayload(encodingAesKey: string, encrypted: string): string {
+export type DecryptedPayload = {
+  /** The JSON / XML payload string the server sent. */
+  message: string;
+  /** The trailing receiveid bytes (CorpID or AgentID) decoded as UTF-8. */
+  receiveId: string;
+};
+
+/**
+ * Decrypts a WeCom callback encrypted body. The plaintext layout is
+ * `random(16) | msg_len(4 BE) | msg | receiveid`. We return both the message
+ * AND the receiveid so the caller can enforce the CorpID match WeCom requires
+ * to prevent cross-tenant replay (CRIT-2 audit fix 2026-05-18).
+ */
+export function decryptPayloadFull(encodingAesKey: string, encrypted: string): DecryptedPayload {
   const aesKey = Buffer.from(`${encodingAesKey}=`, 'base64');
   const iv = aesKey.subarray(0, 16);
   const decipher = crypto.createDecipheriv('aes-256-cbc', aesKey, iv);
@@ -39,17 +62,28 @@ export function decryptPayload(encodingAesKey: string, encrypted: string): strin
   const raw = decodePkcs7(decrypted);
   const body = raw.subarray(16);
   const len = body.subarray(0, 4).readUInt32BE(0);
-  return body.subarray(4, 4 + len).toString('utf8');
+  const message = body.subarray(4, 4 + len).toString('utf8');
+  const receiveId = body.subarray(4 + len).toString('utf8');
+  return { message, receiveId };
 }
 
-export function encryptPayload(encodingAesKey: string, plainText: string): string {
+/**
+ * Legacy entry point — returns just the message string. New code should
+ * prefer {@link decryptPayloadFull} and verify the receiveid.
+ */
+export function decryptPayload(encodingAesKey: string, encrypted: string): string {
+  return decryptPayloadFull(encodingAesKey, encrypted).message;
+}
+
+export function encryptPayload(encodingAesKey: string, plainText: string, receiveId = ''): string {
   const aesKey = Buffer.from(`${encodingAesKey}=`, 'base64');
   const iv = aesKey.subarray(0, 16);
   const random16 = crypto.randomBytes(16);
   const message = Buffer.from(plainText);
   const len = Buffer.alloc(4);
   len.writeUInt32BE(message.length, 0);
-  const encoded = encodePkcs7(Buffer.concat([random16, len, message]));
+  const receiveIdBuf = Buffer.from(receiveId, 'utf8');
+  const encoded = encodePkcs7(Buffer.concat([random16, len, message, receiveIdBuf]));
   const cipher = crypto.createCipheriv('aes-256-cbc', aesKey, iv);
   cipher.setAutoPadding(false);
   return Buffer.concat([cipher.update(encoded), cipher.final()]).toString('base64');

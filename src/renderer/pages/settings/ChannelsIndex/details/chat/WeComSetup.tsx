@@ -49,7 +49,7 @@ const WeComSetup: React.FC = () => {
       displayName='WeCom'
       helpText={t(
         'settings.channels.wecom.help',
-        'Connect Wayland to WeCom (Enterprise WeChat) using a callback Token + EncodingAESKey from your bot admin console.'
+        'Connect Wayland to WeCom (Enterprise WeChat). Choose Long Connection (botId + secret, no public URL) or Encrypted Callback (Token + EncodingAESKey + CorpID, requires a reachable HTTPS callback URL).'
       )}
       showDisconnect={!!pluginStatus?.enabled}
     >

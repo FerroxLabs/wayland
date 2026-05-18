@@ -495,11 +495,21 @@ async function resolvePersistedSecretForPlatform(
         return typeof creds.webhookSecret === 'string' ? creds.webhookSecret : '';
       case 'sms-twilio':
         return typeof creds.authToken === 'string' ? creds.authToken : '';
-      case 'whatsapp':
-        // Meta Cloud API uses verifyToken for the GET handshake + app secret
-        // for HMAC. Prefer verifyToken (used by current verifier path).
-        if (typeof creds.verifyToken === 'string' && creds.verifyToken) return creds.verifyToken;
-        return typeof creds.appSecret === 'string' ? creds.appSecret : '';
+      case 'whatsapp': {
+        // W-2: Meta requires TWO secrets — verifyToken (GET handshake) and
+        // appSecret (X-Hub-Signature-256 HMAC). The WebhookVerifier contract
+        // gives us one string, so we JSON-encode both. The verifier parses
+        // it back; legacy single-string secrets are still accepted there.
+        const verifyToken = typeof creds.verifyToken === 'string' ? creds.verifyToken : '';
+        const appSecret = typeof creds.appSecret === 'string' ? creds.appSecret : '';
+        if (verifyToken && appSecret) {
+          return JSON.stringify({ appSecret, verifyToken });
+        }
+        // Fall back to whichever single value the operator provided so
+        // pre-W-2 deployments don't break mid-rollout.
+        if (verifyToken) return verifyToken;
+        return appSecret;
+      }
       case 'webhook':
         // Generic webhook: operator-provided outboundSecret doubles as inbound
         // HMAC key. If unset, fall back to '' (operator must set it before

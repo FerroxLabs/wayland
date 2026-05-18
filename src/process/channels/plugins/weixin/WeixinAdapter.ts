@@ -15,7 +15,7 @@ import type { IUnifiedIncomingMessage } from '../../types';
  * agent can read them with its file-read tools.
  */
 export function toUnifiedIncomingMessage(request: WeixinChatRequest): IUnifiedIncomingMessage {
-  const { conversationId, text, attachments } = request;
+  const { conversationId, msgId, text, attachments } = request;
 
   let fullText = text ?? '';
   if (attachments && attachments.length > 0) {
@@ -25,13 +25,23 @@ export function toUnifiedIncomingMessage(request: WeixinChatRequest): IUnifiedIn
     fullText = fullText ? `${fullText}\n\n${lines.join('\n')}` : lines.join('\n');
   }
 
+  // displayName falls back to the full opaque platform id (e.g.
+  // `wxid_xxxxxxxxx`). The Tencent iLink getupdates response carries
+  // no nickname field; the previous `conversationId.slice(-6)` produced
+  // meaningless garbage like `abc123` and surfaced it to users as their
+  // "name" (audit HIGH-3). Until a separate get_user_info call is wired
+  // in, surfacing the full id at least tells the user this is an ID, not
+  // a name.
   return {
-    id: conversationId,
+    // LOW-4: use the per-message Tencent msg_id so downstream dedup/threading sees a unique
+    // id per message. Falls back to conversationId only when the monitor couldn't supply one
+    // (legacy callers / unit tests).
+    id: msgId ?? conversationId,
     platform: 'weixin',
     chatId: conversationId,
     user: {
       id: conversationId,
-      displayName: conversationId.slice(-6),
+      displayName: conversationId,
     },
     content: {
       type: 'text',

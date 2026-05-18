@@ -35,6 +35,9 @@ const SmsSetup: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  // F9 doc note: webhook rotate currently pins agentId='default'. Per-channel
+  // agent assignment is a separate roadmap item; multi-agent operators will
+  // see a single agent route until that ships.
   return (
     <ChannelDetailLayout
       channelId='sms-twilio'

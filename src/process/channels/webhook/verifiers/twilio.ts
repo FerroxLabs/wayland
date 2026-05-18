@@ -35,7 +35,11 @@ export const twilioVerifier: WebhookVerifier = (input, secret) => {
   const expected = createHmac('sha1', secret).update(data).digest('base64');
 
   if (!safeEqual(expected, headerSig)) {
-    return { ok: false, reason: 'invalid-signature', status: 401 };
+    // F5: surface the URL we hashed so operators can debug tunnel URL
+    // mismatches (most common: tunnel does not preserve x-forwarded-host,
+    // so we hash `localhost:port` while Twilio signed the public host).
+    console.warn(`[twilioVerifier] signature mismatch; signing-url=${input.url}`);
+    return { ok: false, reason: 'invalid-signature', status: 401, signingUrl: input.url };
   }
 
   return { ok: true, payload: params };

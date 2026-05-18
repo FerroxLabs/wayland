@@ -17,12 +17,30 @@ import type { WebhookVerifier } from '../types';
  * application's hex-encoded Ed25519 public key (from Discord developer
  * portal), supplied as the connection secret.
  */
+/**
+ * Max age (seconds) of an interaction timestamp before it's rejected as a
+ * replay. Discord's docs recommend ±5 minutes; we match that window. Without
+ * this, a captured (signature, timestamp, body) triple stays valid forever
+ * because Ed25519 alone has no notion of freshness.
+ */
+const DISCORD_REPLAY_WINDOW_SECONDS = 300;
+
 export const discordVerifier: WebhookVerifier = (input, secret) => {
   const signature = pickHeader(input.headers['x-signature-ed25519']);
   const timestamp = pickHeader(input.headers['x-signature-timestamp']);
 
   if (!signature || !timestamp) {
     return { ok: false, reason: 'missing-signature', status: 401 };
+  }
+
+  // F-5: enforce ±5 min freshness window. Non-numeric timestamps fail closed.
+  const tsSeconds = Number(timestamp);
+  if (!Number.isFinite(tsSeconds)) {
+    return { ok: false, reason: 'invalid-timestamp', status: 401 };
+  }
+  const nowSeconds = Date.now() / 1000;
+  if (Math.abs(nowSeconds - tsSeconds) > DISCORD_REPLAY_WINDOW_SECONDS) {
+    return { ok: false, reason: 'stale-timestamp', status: 401 };
   }
 
   let sigBuf: Buffer;

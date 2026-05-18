@@ -153,15 +153,85 @@ export class TelegramPlugin extends BasePlugin {
       const chunkOptions = isLastChunk ? options : { ...options, reply_markup: undefined };
 
       try {
-        const result = await this.bot.api.sendMessage(chatId, chunks[i], chunkOptions);
+        const result = await this.sendWithRetry(chatId, chunks[i], chunkOptions);
         lastMessageId = result.message_id.toString();
       } catch (error) {
         console.error(`[TelegramPlugin] Failed to send message chunk ${i + 1}/${chunks.length}:`, error);
+        // 403 — user blocked the bot. Prune from activeUsers and surface a
+        // signal so the caller (and any upstream pairing store) can react.
+        if (error instanceof GrammyError && this.isBlockedByUserError(error)) {
+          console.warn(`[TelegramPlugin] User ${chatId} has blocked the bot. Pruning from active users.`);
+          this.activeUsers.delete(chatId);
+        }
         throw error;
       }
     }
 
     return lastMessageId;
+  }
+
+  /**
+   * Detect 403 "blocked / kicked / deactivated" responses from Telegram so the
+   * caller can prune the user from any local cache.
+   */
+  private isBlockedByUserError(error: GrammyError): boolean {
+    if (error.error_code !== 403) return false;
+    const description = (error.description || '').toLowerCase();
+    return (
+      description.includes('blocked') ||
+      description.includes('user is deactivated') ||
+      description.includes('chat not found') ||
+      description.includes('bot was kicked')
+    );
+  }
+
+  /**
+   * Send a Telegram message with automatic retry on 429 (Too Many Requests).
+   *
+   * Telegram returns `retry_after` (seconds) in the GrammyError. We honour it
+   * once and retry the call. Bounded by `maxRetries` to avoid pathological
+   * loops if the API keeps returning 429.
+   */
+  private async sendWithRetry(
+    chatId: string,
+    text: string,
+    options: Parameters<NonNullable<typeof this.bot>['api']['sendMessage']>[2],
+    maxRetries: number = 2
+  ): Promise<{ message_id: number }> {
+    let attempt = 0;
+    while (true) {
+      try {
+        return await this.bot!.api.sendMessage(chatId, text, options);
+      } catch (error) {
+        if (
+          error instanceof GrammyError &&
+          error.error_code === 429 &&
+          attempt < maxRetries
+        ) {
+          const retryAfter = this.extractRetryAfter(error);
+          const waitMs = Math.max(1, retryAfter) * 1000;
+          console.warn(
+            `[TelegramPlugin] 429 from Telegram, retrying in ${retryAfter}s (attempt ${attempt + 1}/${maxRetries})`
+          );
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+          attempt++;
+          continue;
+        }
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Extract retry_after from a 429 GrammyError. Falls back to 1 second.
+   */
+  private extractRetryAfter(error: GrammyError): number {
+    const params = (error as unknown as { parameters?: { retry_after?: number } }).parameters;
+    const retryAfter = params?.retry_after;
+    if (typeof retryAfter === 'number' && retryAfter > 0) {
+      return retryAfter;
+    }
+    return 1;
   }
 
   /**
@@ -234,15 +304,56 @@ export class TelegramPlugin extends BasePlugin {
       await this.handleMediaMessage(ctx);
     });
 
+    // Handle edited messages — forward as a normal incoming message so the
+    // agent sees the new content. Without this, Telegram silently drops user
+    // edits even though we explicitly subscribe to the update type.
+    this.bot.on('edited_message', async (ctx) => {
+      await this.handleEditedMessage(ctx);
+    });
+
     // Error handler - grammY wraps errors in BotError which has .error property
     this.bot.catch((botError) => {
       const actualError = botError.error || botError;
       const errorMessage = actualError instanceof Error ? actualError.message : String(actualError);
       console.error('[TelegramPlugin] Bot error:', errorMessage, botError);
+
+      // Token revoked or otherwise unauthorized mid-poll: do NOT silently
+      // continue. setError alone leaves the bot in `running` while every send
+      // throws, presenting a dead bot to users. Treat 401 as terminal: stop
+      // the bot and surface 'error' status so the UI prompts for a new token.
+      if (actualError instanceof GrammyError && actualError.error_code === 401) {
+        console.error('[TelegramPlugin] Bot token unauthorized (401). Stopping bot.');
+        this.setError('Telegram bot token unauthorized (revoked or invalid)');
+        // Fire and forget; stop() handles its own teardown
+        void this.stop().catch((stopErr) =>
+          console.error('[TelegramPlugin] Error stopping after 401:', stopErr)
+        );
+        return;
+      }
+
       this.setError(errorMessage);
       // Don't re-throw - let the bot continue running
       // 不要重新抛出 - 让 bot 继续运行
     });
+  }
+
+  /**
+   * Handle an edited Telegram message. The incoming `id` is reused (matches
+   * the original message_id) so downstream consumers can correlate the edit
+   * with the prior message if they wish.
+   */
+  private async handleEditedMessage(ctx: Context): Promise<void> {
+    const userId = ctx.from?.id.toString();
+    if (!userId) return;
+
+    this.activeUsers.add(userId);
+
+    const unifiedMessage = toUnifiedIncomingMessage(ctx);
+    if (unifiedMessage && this.messageHandler) {
+      void this.messageHandler(unifiedMessage).catch((error) =>
+        console.error('[TelegramPlugin] Error handling edited message:', error)
+      );
+    }
   }
 
   /**
@@ -513,7 +624,7 @@ export class TelegramPlugin extends BasePlugin {
           console.log(`[TelegramPlugin] onStart callback fired! Polling started for @${botInfo.username}`);
           resolve();
         },
-        allowed_updates: ['message', 'callback_query'],
+        allowed_updates: ['message', 'edited_message', 'callback_query'],
         // Drop pending updates on startup to avoid processing stale messages
         // 启动时丢弃待处理的更新，避免处理过时的消息
         drop_pending_updates: true,

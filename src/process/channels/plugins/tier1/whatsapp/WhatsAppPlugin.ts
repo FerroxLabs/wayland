@@ -32,7 +32,9 @@
 
 import type { ChildProcess} from 'child_process';
 import { fork } from 'child_process';
+import { randomUUID } from 'crypto';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import axios from 'axios';
 import { app } from 'electron';
@@ -77,14 +79,25 @@ interface BridgeInboundMessage {
   messageId: string;
   chatId: string;
   senderId: string;
+  /** Baileys-only: full JID `<num>@s.whatsapp.net` for outbound reply targeting (W-9). */
+  senderRawJid?: string;
   senderName?: string;
   isGroup?: boolean;
   fromMe?: boolean;
   body?: string;
   mediaType?: string;
   mediaId?: string;
+  mediaPath?: string;
   timestamp?: number;
+  /** Reply / quote context. Baileys: `contextInfo.stanzaId`. Meta: `msg.context.id`. (W-5) */
+  replyToMessageId?: string;
+  /** Meta reaction event: id of the message the emoji reacted to. (W-6) */
+  reactionMessageId?: string;
 }
+
+/** Hard deadline for webhookDelivery RPC; without it a wedged bridge would
+ *  hang the WebhookReceiver Express handler. Mirrors onStop's race pattern. */
+const WEBHOOK_DELIVERY_TIMEOUT_MS = 5_000;
 
 /**
  * Resolve the bridge entry path for both dev and packaged Electron builds.
@@ -250,14 +263,33 @@ export class WhatsAppPlugin extends BasePlugin {
     if (hasMedia) {
       const mediaType = message.type === 'image' || message.imageUrl ? 'image' : 'document';
       const mediaUrl = message.imageUrl ?? message.fileUrl ?? '';
-      const result = (await this.rpc('sendMedia', {
+      // W-1 CRIT: Meta accepts `link` (URL); Baileys / whatsapp-web.js require
+      // a local `filePath`. For QR backends, download the media to a temp file
+      // first and pass `filePath`; for Meta, keep the URL.
+      const params: Record<string, JsonValue> = {
         chatId,
         mediaType,
-        mediaUrl,
         caption: message.text ?? '',
         fileName: message.fileName ?? '',
-      })) as { messageId: string | null } | null;
-      return result?.messageId ?? '';
+      };
+      let tempPath: string | null = null;
+      try {
+        if (this.backend === 'meta-business') {
+          params.mediaUrl = mediaUrl;
+        } else {
+          tempPath = await this.downloadMediaToTemp(mediaUrl, mediaType, message.fileName);
+          params.filePath = tempPath;
+          params.mediaUrl = mediaUrl; // fall-back hint for bridges that accept either
+        }
+        const result = (await this.rpc('sendMedia', params)) as { messageId: string | null } | null;
+        return result?.messageId ?? '';
+      } finally {
+        if (tempPath) {
+          fs.promises.unlink(tempPath).catch(() => {
+            // best-effort cleanup; OS will sweep tmp eventually.
+          });
+        }
+      }
     }
     const text = (message.text ?? '').trim();
     if (!text) throw new Error('WhatsApp message body cannot be empty');
@@ -265,6 +297,68 @@ export class WhatsAppPlugin extends BasePlugin {
       | { messageId: string | null }
       | null;
     return result?.messageId ?? '';
+  }
+
+  /**
+   * W-1 CRIT helper: download a remote media URL to a tmp file for handoff to
+   * the Baileys / whatsapp-web bridge. Returns the absolute path. Caller is
+   * responsible for unlinking after the RPC completes.
+   */
+  private async downloadMediaToTemp(
+    mediaUrl: string,
+    mediaType: string,
+    fileName?: string,
+  ): Promise<string> {
+    if (!mediaUrl) throw new Error('WhatsApp media send: mediaUrl required');
+    const ext = (() => {
+      if (fileName && /\.[A-Za-z0-9]+$/.test(fileName)) {
+        return fileName.slice(fileName.lastIndexOf('.'));
+      }
+      if (mediaType === 'image') return '.jpg';
+      if (mediaType === 'video') return '.mp4';
+      if (mediaType === 'audio') return '.ogg';
+      return '.bin';
+    })();
+    // SSRF guard (codex v0.4.2 re-audit NEW): reject mediaUrl pointing at
+    // private/local-network destinations. Without this an agent-supplied URL
+    // could pivot the Electron main process to internal HTTP endpoints
+    // before handing the temp file to Baileys. Allow only http(s) scheme +
+    // resolve host against IPv4/IPv6 private ranges.
+    let parsed: URL;
+    try {
+      parsed = new URL(mediaUrl);
+    } catch {
+      throw new Error(`WhatsApp media send: invalid mediaUrl: ${mediaUrl}`);
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      throw new Error(`WhatsApp media send: unsupported scheme ${parsed.protocol} (http/https only)`);
+    }
+    const host = parsed.hostname.toLowerCase();
+    const isPrivateHost =
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '0.0.0.0' ||
+      host === '::1' ||
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2[0-9]|3[01])\./.test(host) ||
+      /^169\.254\./.test(host) || // link-local
+      /^f[cd][0-9a-f]{2}:/i.test(host) || // IPv6 ULA
+      /^fe80:/i.test(host); // IPv6 link-local
+    if (isPrivateHost) {
+      throw new Error(
+        `WhatsApp media send: refusing to fetch private-network host (${host}). Use a public CDN URL.`,
+      );
+    }
+    const tempPath = path.join(os.tmpdir(), `wayland-wa-${randomUUID()}${ext}`);
+    const res = await axios.get<ArrayBuffer>(mediaUrl, {
+      responseType: 'arraybuffer',
+      timeout: 60_000,
+      maxContentLength: 100 * 1024 * 1024, // Meta caps inbound/outbound media at 100MB.
+      maxRedirects: 3, // limit redirect-chain to prevent open-redirect bypass of SSRF guard
+    });
+    await fs.promises.writeFile(tempPath, Buffer.from(res.data));
+    return tempPath;
   }
 
   /**
@@ -301,10 +395,27 @@ export class WhatsAppPlugin extends BasePlugin {
     if (!this.child) {
       throw new Error('[whatsappPlugin] webhook delivery received but bridge not running');
     }
-    await this.rpc('webhookDelivery', {
-      payload: payload as Record<string, JsonValue>,
-      headers: this.normalizeHeaders(headers),
+    // Race the RPC against a hard deadline. Without this, a wedged bridge
+    // child would hang the WebhookReceiver Express handler forever and
+    // exhaust receiver concurrency. Mirrors onStop's disconnect-race.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error('whatsapp bridge webhookDelivery timeout')),
+        WEBHOOK_DELIVERY_TIMEOUT_MS,
+      );
     });
+    try {
+      await Promise.race([
+        this.rpc('webhookDelivery', {
+          payload: payload as Record<string, JsonValue>,
+          headers: this.normalizeHeaders(headers),
+        }),
+        timeout,
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   getActiveUserCount(): number {
@@ -454,6 +565,37 @@ export class WhatsAppPlugin extends BasePlugin {
     if (msg.fromMe) return; // ignore self-echoes to avoid loops.
     this.activeUsers.add(msg.senderId);
 
+    // W-7: preserve audio/document/video/sticker. Previously these collapsed
+    // to `text`, hiding the payload — audio voicenotes (extremely common on
+    // WhatsApp) silently disappeared.
+    const contentType: IUnifiedIncomingMessage['content']['type'] = (() => {
+      switch (msg.mediaType) {
+        case 'image':
+          return 'photo';
+        case 'video':
+          return 'video';
+        case 'audio':
+          return 'audio';
+        case 'document':
+          return 'document';
+        case 'sticker':
+          return 'sticker';
+        default:
+          return 'text';
+      }
+    })();
+
+    // W-8: defensive timestamp coercion. Baileys/Meta wires emit seconds; a
+    // fork that emits milliseconds would otherwise double-multiply silently.
+    // Heuristic: any value above 1e12 is already milliseconds (year > 33658).
+    const tsRaw = msg.timestamp;
+    const timestamp =
+      typeof tsRaw === 'number' && Number.isFinite(tsRaw)
+        ? tsRaw > 1e12
+          ? tsRaw
+          : tsRaw * 1000
+        : Date.now();
+
     const unified: IUnifiedIncomingMessage = {
       id: msg.messageId,
       platform: 'whatsapp',
@@ -463,10 +605,17 @@ export class WhatsAppPlugin extends BasePlugin {
         displayName: msg.senderName ?? msg.senderId,
       },
       content: {
-        type: msg.mediaType === 'image' || msg.mediaType === 'video' ? 'photo' : 'text',
+        type: contentType,
         text: msg.body ?? '',
       },
-      timestamp: typeof msg.timestamp === 'number' ? msg.timestamp * 1000 : Date.now(),
+      // W-5 / W-6: forward reply context. Meta reactions re-use the same
+      // field — reactionMessageId is the id of the message the emoji reacts to.
+      ...(msg.replyToMessageId
+        ? { replyToMessageId: msg.replyToMessageId }
+        : msg.reactionMessageId
+          ? { replyToMessageId: msg.reactionMessageId }
+          : {}),
+      timestamp,
       raw: msg as unknown,
     };
     void this.emitMessage(unified).catch((err) =>

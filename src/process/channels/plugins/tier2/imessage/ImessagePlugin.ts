@@ -52,6 +52,14 @@ const MAX_POLL_INTERVAL_MS = 60_000;
 const CHAT_DB_RELATIVE = path.join('Library', 'Messages', 'chat.db');
 
 /**
+ * F12: hard cap on the outbound osascript queue. If the orchestrator pushes
+ * sends faster than Messages.app drains, we reject rather than letting
+ * unbounded promises pile up. 50 is generous for a single chat and protects
+ * against runaway loops.
+ */
+const SEND_QUEUE_MAX = 50;
+
+/**
  * AppleScript tapback action codes used by Messages.app.
  * 2000 = thumbs up, 2001 = thumbs down, 2002 = ha ha, 2003 = !!, 2004 = ?,
  * 2005 = heart. Negative values remove the tapback.
@@ -73,25 +81,59 @@ const TAPBACK_CODES: Record<string, number> = {
  * Fetch new inbound messages since a given rowid, joining handle for the
  * sender address and chat for the chat GUID.
  *
+ * F5: `c.style = 43` is the historical group-chat constant (Big Sur → Sonoma)
+ * but undocumented; Sequoia could rev it. We OR a secondary heuristic on
+ * `chat.chat_identifier LIKE 'chat%'` so a future style code change degrades
+ * gracefully (1:1 chat_identifiers are phone numbers or emails, groups always
+ * start with the literal `chat`).
+ *
+ * F7: `AND m.handle_id != 0` guards against rows where the LEFT JOIN to
+ * `handle` returns NULL — most commonly messages from "Me" on another Apple
+ * device which would otherwise slip past the `is_from_me=0` filter.
+ *
  * Columns returned match ChatDbRow in ImessageAdapter.ts.
  */
 const SQL_NEW_MESSAGES = `
   SELECT
-    m.rowid          AS rowid,
-    m.text           AS text,
-    m.is_from_me     AS is_from_me,
-    m.date           AS date,
-    c.guid           AS chat_guid,
-    h.id             AS sender_handle,
-    CASE WHEN c.style = 43 THEN 1 ELSE 0 END AS is_group
+    m.rowid           AS rowid,
+    m.text            AS text,
+    m.attributedBody  AS attributed_body,
+    m.is_from_me      AS is_from_me,
+    m.date            AS date,
+    c.guid            AS chat_guid,
+    c.service_name    AS chat_service_name,
+    h.id              AS sender_handle,
+    CASE WHEN c.style = 43 OR c.chat_identifier LIKE 'chat%' THEN 1 ELSE 0 END AS is_group
   FROM message m
   LEFT JOIN handle h ON h.rowid = m.handle_id
   LEFT JOIN chat_message_join cmj ON cmj.message_id = m.rowid
   LEFT JOIN chat c ON c.rowid = cmj.chat_id
   WHERE m.rowid > ?
     AND m.is_from_me = 0
+    AND m.handle_id != 0
   ORDER BY m.rowid ASC
 `;
+
+/**
+ * F11 — Post-send delivery verification. After osascript exit 0 we poll
+ * chat.db for the most-recent outbound row created after `sinceDateNs`:
+ *   - is_delivered=1   → Apple acked delivery
+ *   - error != 0       → Apple rejected (rate limit, no iMessage, etc.)
+ *   - neither yet      → still pending; treat as best-effort success
+ */
+const SQL_DELIVERY_CHECK = `
+  SELECT rowid, is_delivered, error, date_delivered
+  FROM message
+  WHERE is_from_me = 1
+    AND date >= ?
+  ORDER BY rowid DESC
+  LIMIT 1
+`;
+
+/** F11 — 5 × 600 ms = 3 s ceiling on delivery polling; bounded to keep
+ *  callers responsive while catching the common failure cases. */
+const DELIVERY_POLL_CYCLES = 5;
+const DELIVERY_POLL_INTERVAL_MS = 600;
 
 // ---------------------------------------------------------------------------
 // Plugin
@@ -115,6 +157,13 @@ export class ImessagePlugin extends BasePlugin {
   private pollIntervalMs = DEFAULT_POLL_INTERVAL_MS;
   private allowedHandles: Set<string> | null = null;
   private stopped = false;
+
+  // F12: serialize osascript calls per channel + bound the queue depth.
+  // sendChain is the tail of a promise chain; each new sendMessage call awaits
+  // the previous one before invoking osascript. sendQueueDepth tracks the
+  // number of in-flight + pending calls so we can reject past SEND_QUEUE_MAX.
+  private sendChain: Promise<unknown> = Promise.resolve();
+  private sendQueueDepth = 0;
 
   // ── lifecycle ──────────────────────────────────────────────────────────────
 
@@ -189,7 +238,44 @@ export class ImessagePlugin extends BasePlugin {
     const text = (message.text ?? '').trim();
     if (!text) throw new Error('iMessage: cannot send empty message');
 
-    const script = buildSendScript(chatId, text);
+    // F12: bound the queue. A burst of sendMessage calls against a hung
+    // Messages.app would otherwise pile up 15s timeouts indefinitely.
+    if (this.sendQueueDepth >= SEND_QUEUE_MAX) {
+      throw new Error(
+        `iMessage: send queue full (${SEND_QUEUE_MAX} in flight). Messages.app may be hung; ` +
+          `back off and retry.`,
+      );
+    }
+
+    this.sendQueueDepth++;
+    // Chain this send behind the prior one so osascript invocations serialize
+    // per plugin instance — concurrent AppleScript calls against Messages.app
+    // can interleave and corrupt the send queue.
+    const run: Promise<string> = this.sendChain.then((): Promise<string> => this.runSend(chatId, text));
+    // Update the chain tail even on failure so subsequent sends still proceed.
+    this.sendChain = run.catch((): undefined => undefined);
+
+    try {
+      return await run;
+    } finally {
+      this.sendQueueDepth--;
+    }
+  }
+
+  /**
+   * Single send invocation. Extracted from sendMessage so the F12 chain wrapper
+   * stays focused on queue mechanics.
+   */
+  private async runSend(chatId: string, text: string): Promise<string> {
+    // F8: pick iMessage vs SMS based on chat.service_name. Without this an
+    // SMS-relay (green-bubble) recipient queues on the iMessage service and
+    // never delivers — silent failure to the orchestrator.
+    const serviceName = this.lookupChatServiceName(chatId);
+    const script = buildSendScript(chatId, text, serviceName);
+    // F11: capture send-start in chat.db time units so the post-send poll
+    // can scope to rows created by THIS call (1s pad for clock skew).
+    const sendStartNs = jsTimeMsToChatDbNs(Date.now()) - 1_000_000_000;
+
     const result = await execFileNoThrow('osascript', ['-e', script], { timeoutMs: 15_000 });
 
     if (result.exitCode !== 0) {
@@ -198,12 +284,99 @@ export class ImessagePlugin extends BasePlugin {
           'iMessage Automation access denied. Grant in System Settings → Privacy & Security → Automation → <app name> → Messages.',
         );
       }
+      // F10: brand-new group chats raise AppleScript -1728 ("Can't get chat
+      // id...") because Messages.app caches its chat list; surfacing the raw
+      // stderr leaves the user with no idea this is a "wake the chat" issue.
+      if (isMissingChatStderr(result.stderr)) {
+        throw new Error(
+          'iMessage: target chat not found. Open it once in Messages.app to refresh, then retry.',
+        );
+      }
       throw new Error(`iMessage: osascript send failed (exit ${result.exitCode}): ${result.stderr}`);
     }
 
-    // iMessage has no server-assigned message ID at send time; return a
-    // client-generated stable key so the caller has something to track.
-    return `imessage-sent-${Date.now()}`;
+    // F11: verify delivery via chat.db is_delivered / error columns. osascript
+    // exit 0 only means Messages.app queued the request — not that Apple
+    // delivered. Surface non-zero error codes as a thrown send-failed error.
+    const delivery = await this.pollDeliveryStatus(sendStartNs);
+    if (delivery && delivery.error !== 0) {
+      throw new Error(
+        `iMessage: send not delivered (chat.db error=${delivery.error}). Recipient may not have ` +
+          `iMessage, or Apple rejected the send.`,
+      );
+    }
+
+    // iMessage has no server-assigned message ID at send time. Suffix encodes
+    // whether delivery was confirmed (`d`) or still-pending (`p`) so downstream
+    // observability can distinguish.
+    const confirmed = delivery && delivery.is_delivered === 1 ? 'd' : 'p';
+    return `imessage-sent-${confirmed}-${Date.now()}`;
+  }
+
+  // ── send helpers (F8 + F11) ────────────────────────────────────────────────
+
+  /**
+   * F8 — look up `chat.service_name` ("iMessage" | "SMS") for the chatId so
+   * `buildSendScript` can choose the right AppleScript service. For group
+   * chats (`chat...` GUID) matches `chat.guid`; for 1:1 sends matches the
+   * most-recent chat where the handle appears. Returns null if unknown —
+   * caller defaults to iMessage.
+   */
+  private lookupChatServiceName(chatId: string): string | null {
+    if (!this.db) return null;
+    try {
+      if (/^chat[0-9a-f]+$/i.test(chatId)) {
+        const row = this.db
+          .prepare('SELECT service_name FROM chat WHERE guid = ? LIMIT 1')
+          .get(chatId) as { service_name: string | null } | undefined;
+        return row?.service_name ?? null;
+      }
+      const row = this.db
+        .prepare(
+          `SELECT c.service_name AS service_name
+           FROM chat c
+           JOIN chat_handle_join chj ON chj.chat_id = c.rowid
+           JOIN handle h ON h.rowid = chj.handle_id
+           WHERE h.id = ?
+           ORDER BY c.rowid DESC
+           LIMIT 1`,
+        )
+        .get(chatId) as { service_name: string | null } | undefined;
+      return row?.service_name ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * F11 — poll chat.db for the most-recent outbound row created since send.
+   * Returns when is_delivered=1 OR error!=0, or null after the cycle budget.
+   */
+  private async pollDeliveryStatus(
+    sinceDateNs: number,
+  ): Promise<{ rowid: number; is_delivered: number; error: number; date_delivered: number } | null> {
+    if (!this.db) return null;
+    let stmt: Database.Statement;
+    try {
+      stmt = this.db.prepare(SQL_DELIVERY_CHECK);
+    } catch {
+      return null;
+    }
+
+    for (let i = 0; i < DELIVERY_POLL_CYCLES; i++) {
+      await new Promise((r) => setTimeout(r, DELIVERY_POLL_INTERVAL_MS));
+      try {
+        const row = stmt.get(sinceDateNs) as
+          | { rowid: number; is_delivered: number; error: number; date_delivered: number }
+          | undefined;
+        if (!row) continue;
+        if (row.error !== 0) return row;
+        if (row.is_delivered === 1) return row;
+      } catch {
+        return null;
+      }
+    }
+    return null;
   }
 
   // ── reactions (tapbacks) ───────────────────────────────────────────────────
@@ -255,6 +428,12 @@ export class ImessagePlugin extends BasePlugin {
       if (isAutomationDeniedStderr(result.stderr)) {
         throw new Error(
           'iMessage Automation access denied. Grant in System Settings → Privacy & Security → Automation → <app name> → Messages.',
+        );
+      }
+      // F10: same brand-new-chat cache miss as sendMessage.
+      if (isMissingChatStderr(result.stderr)) {
+        throw new Error(
+          'iMessage: target chat not found. Open it once in Messages.app to refresh, then retry.',
         );
       }
       throw new Error(`iMessage: tapback failed (exit ${result.exitCode}): ${result.stderr}`);
@@ -367,6 +546,26 @@ export class ImessagePlugin extends BasePlugin {
       return { success: false, error: `osascript smoke-test failed: ${probe.stderr}` };
     }
 
+    // 6. F2: TCC Automation probe. The smoke-test above only proves osascript
+    //    runs; it does not touch Messages.app, so the user's first real send
+    //    would be the moment macOS asks for Automation consent (or fails if
+    //    denied). Probe Messages directly here so that prompt surfaces during
+    //    Test & Enable. We swallow non-TCC errors (e.g. Messages.app not
+    //    running yet) so they don't block setup — only an explicit Automation
+    //    denial fails the test.
+    const tccProbe = await execFileNoThrow(
+      'osascript',
+      ['-e', 'tell application "Messages" to return name'],
+      { timeoutMs: 5_000 },
+    );
+    if (tccProbe.exitCode !== 0 && isAutomationDeniedStderr(tccProbe.stderr)) {
+      return {
+        success: false,
+        error:
+          'iMessage Automation access denied. Grant in System Settings → Privacy & Security → Automation → this app → Messages, then retry.',
+      };
+    }
+
     return { success: true, botUsername: 'imessage-bot' };
   }
 }
@@ -389,7 +588,7 @@ function chatDbPath(): string {
  * Security: message text and handle are both passed through
  * quoteAppleScriptString before interpolation.
  */
-function buildSendScript(chatId: string, text: string): string {
+function buildSendScript(chatId: string, text: string, serviceName?: string | null): string {
   const quotedText = quoteAppleScriptString(text);
 
   // Group chat GUIDs look like "chat" followed by hex digits.
@@ -403,15 +602,30 @@ function buildSendScript(chatId: string, text: string): string {
     ].join('\n');
   }
 
-  // 1:1 handle (phone or email).
+  // 1:1 handle (phone or email). F8: respect chat.service_name so SMS-relay
+  // (green-bubble) recipients route through the SMS service rather than the
+  // iMessage service — otherwise the send silently queues on iMessage and
+  // never delivers. Default to iMessage when serviceName is unknown.
   const quotedHandle = quoteAppleScriptString(chatId);
+  const useSms = typeof serviceName === 'string' && serviceName.toUpperCase() === 'SMS';
+  const serviceType = useSms ? 'SMS' : 'iMessage';
   return [
     'tell application "Messages"',
-    `  set targetService to 1st service whose service type = iMessage`,
+    `  set targetService to 1st service whose service type = ${serviceType}`,
     `  set targetBuddy to buddy ${quotedHandle} of targetService`,
     `  send ${quotedText} to targetBuddy`,
     'end tell',
   ].join('\n');
+}
+
+/**
+ * Convert a JS millisecond timestamp to chat.db's `date` column unit
+ * (nanoseconds since 2001-01-01 UTC, Apple's CoreData epoch). Used by F11
+ * to scope post-send delivery polls to rows created by THIS sendMessage call.
+ */
+function jsTimeMsToChatDbNs(jsMs: number): number {
+  const APPLE_EPOCH_OFFSET_S = 978_307_200;
+  return (jsMs - APPLE_EPOCH_OFFSET_S * 1000) * 1_000_000;
 }
 
 /**
@@ -420,6 +634,12 @@ function buildSendScript(chatId: string, text: string): string {
  * address messages by rowid/guid, so we match by body — exact equality on the
  * iMessage body text. The orchestrator MUST resolve `bodyText` from chat.db
  * via the Wayland message id before calling this; do not pass arbitrary text.
+ *
+ * F9 (known limitation): if two messages in the same chat share identical
+ * body text the tapback lands on the FIRST match (exit repeat). If `m.text`
+ * (chat.db) and `text of m` (AppleScript view) diverge for an edited or rich
+ * message the loop finds nothing. Documented in the setup help copy so users
+ * understand tapbacks are best-effort.
  */
 function buildTapbackScript(chatId: string, actionCode: number, bodyText: string): string {
   const quotedChat = quoteAppleScriptString(chatId);
@@ -453,4 +673,16 @@ function isAutomationDeniedStderr(stderr: string | undefined): boolean {
     stderr.includes('-1743') ||
     stderr.includes('AppleScript')
   );
+}
+
+/**
+ * F10: detect AppleScript -1728 "Can't get chat id ..." which Messages.app
+ * throws when the target chat exists in chat.db but is missing from the live
+ * AppleScript chat list cache (common for brand-new groups, merged threads,
+ * or renamed chats). Mapped to a friendlier "open it once in Messages.app"
+ * error rather than the raw osascript stderr.
+ */
+function isMissingChatStderr(stderr: string | undefined): boolean {
+  if (!stderr) return false;
+  return stderr.includes('-1728') || stderr.includes("Can't get chat id");
 }

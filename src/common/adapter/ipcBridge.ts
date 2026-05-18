@@ -1259,7 +1259,7 @@ export const channel = {
   disablePlugin: buildProvider<IBridgeResponse, { pluginId: string }>('channel.disable-plugin'),
   testPlugin: buildProvider<
     IBridgeResponse<{ success: boolean; botUsername?: string; error?: string }>,
-    { pluginId: string; token: string; extraConfig?: { appId?: string; appSecret?: string } }
+    { pluginId: string; token: string; extraConfig?: { appId?: string; appSecret?: string; domain?: 'feishu' | 'lark' } }
   >('channel.test-plugin'),
 
   // Pairing Management

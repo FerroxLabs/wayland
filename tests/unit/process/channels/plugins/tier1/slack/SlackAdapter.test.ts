@@ -49,10 +49,22 @@ describe('SlackAdapter — toUnifiedIncomingMessage', () => {
     expect(toUnifiedIncomingMessage(makeEvent({ channel: '' }), undefined)).toBeNull();
   });
 
-  it('drops subtype events except file_share', () => {
+  it('drops edit/delete subtypes but forwards forwarded subtypes (F7)', () => {
     expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'message_changed' }), undefined)).toBeNull();
     expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'message_deleted' }), undefined)).toBeNull();
+    expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'channel_join' }), undefined)).toBeNull();
     expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'file_share' }), undefined)).not.toBeNull();
+    // F7 MED — forwarded subtypes a Wayland-driven bot routinely cares about.
+    expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'app_mention' }), undefined)).not.toBeNull();
+    expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'bot_message' }), undefined)).not.toBeNull();
+    expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'me_message' }), undefined)).not.toBeNull();
+    expect(toUnifiedIncomingMessage(makeEvent({ subtype: 'thread_broadcast' }), undefined)).not.toBeNull();
+  });
+
+  it('preserves millisecond precision from Slack ts (LOW finding)', () => {
+    // ts="1700000000.654321" → 1_700_000_000_654 (floor of seconds*1000).
+    const unified = toUnifiedIncomingMessage(makeEvent({ ts: '1700000000.654321' }), undefined);
+    expect(unified?.timestamp).toBe(1_700_000_000_654);
   });
 
   it('classifies image file attachments as photo content', () => {
@@ -136,6 +148,30 @@ describe('SlackAdapter — toSlackSendParams', () => {
       replyToMessageId: '1700000000.000200',
     };
     expect(toSlackSendParams(out).thread_ts).toBe('1700000000.000200');
+  });
+
+  it('forwards outbound attachments through SlackSendParams (F10 MED)', () => {
+    const out = {
+      type: 'text',
+      text: 'see attached',
+      attachments: [
+        { data: Buffer.from('hello'), filename: 'note.txt', mimeType: 'text/plain' },
+      ],
+    } as unknown as IUnifiedOutgoingMessage;
+    const params = toSlackSendParams(out);
+    expect(params.attachments).toBeDefined();
+    expect(params.attachments).toHaveLength(1);
+    expect(params.attachments?.[0]?.filename).toBe('note.txt');
+  });
+
+  it('drops attachments missing data (defensive)', () => {
+    const out = {
+      type: 'text',
+      text: 'x',
+      attachments: [{ filename: 'empty.txt' }],
+    } as unknown as IUnifiedOutgoingMessage;
+    const params = toSlackSendParams(out);
+    expect(params.attachments).toBeUndefined();
   });
 
   it('fills the notification fallback text when blocks have no text', () => {

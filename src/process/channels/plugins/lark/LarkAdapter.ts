@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import * as lark from '@larksuiteoapi/node-sdk';
+
 import type {
   IMessageAction,
   IUnifiedIncomingMessage,
@@ -28,6 +30,60 @@ import type {
  * Lark message length limit (for text messages)
  */
 export const LARK_MESSAGE_LIMIT = 4000;
+
+// ==================== Domain Resolution ====================
+
+/**
+ * Supported Lark/Feishu domain identifiers (configured via the UI).
+ * - 'feishu': mainland-China endpoint (feishu.cn) — the default.
+ * - 'lark': international/Singapore endpoint (larksuite.com).
+ */
+export type LarkDomainId = 'feishu' | 'lark';
+
+/**
+ * Resolve a UI-supplied domain id to the SDK Domain enum.
+ * Defaults to Feishu (mainland China) for backward compatibility with existing configs.
+ */
+export function resolveLarkDomain(domainId?: string): lark.Domain {
+  const normalized = (domainId || '').trim().toLowerCase();
+  if (normalized === 'lark') return lark.Domain.Lark;
+  return lark.Domain.Feishu;
+}
+
+// ==================== Mention Filtering ====================
+
+/**
+ * Lark message-event mention entry.
+ */
+export type LarkMention = {
+  key?: string;
+  id?: {
+    open_id?: string;
+    user_id?: string;
+    union_id?: string;
+  };
+  name?: string;
+  tenant_key?: string;
+};
+
+/**
+ * Return true if the bot (identified by its open_id) is mentioned in the message.
+ * When the bot's open_id is unknown we conservatively return true so the assistant
+ * still responds — the alternative (silent drop on every message) is worse.
+ */
+export function isBotMentioned(mentions: unknown, botOpenId: string | undefined): boolean {
+  if (!botOpenId) return true;
+  if (!Array.isArray(mentions)) return false;
+
+  for (const raw of mentions as LarkMention[]) {
+    if (!raw || typeof raw !== 'object') continue;
+    const id = raw.id;
+    if (id && (id.open_id === botOpenId || id.user_id === botOpenId)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 // ==================== Incoming Message Conversion ====================
 

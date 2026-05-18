@@ -4,12 +4,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const DEFAULT_THINKING_TEXT = '思考中...';
+export const DEFAULT_THINKING_TEXT = 'Thinking...';
 
 const STREAM_IDLE_MS = 30_000;
 const STREAM_TTL_MS = 5 * 60_000;
 const EVENT_TTL_MS = 5 * 60_000;
 const RESPONSE_URL_TTL_MS = 55 * 60_000;
+/** Hard cap on each in-memory map. Bounds memory under a hostile peer who
+ *  floods unique chatIds / msgids (MED-4 audit fix 2026-05-18). When the
+ *  cap is hit on insert we evict the oldest entry (insertion order). */
+const MAX_ENTRIES = 10_000;
+
+function enforceLimit<K, V>(map: Map<K, V>): void {
+  while (map.size >= MAX_ENTRIES) {
+    const firstKey = map.keys().next().value as K | undefined;
+    if (firstKey === undefined) break;
+    map.delete(firstKey);
+  }
+}
 
 export type WecomStreamRecord = {
   streamId: string;
@@ -74,6 +86,7 @@ export function createStream(streamId: string, chatId: string, initialText = DEF
     lastMessageId: null,
     finalizedAt: 0,
   };
+  enforceLimit(streamStore);
   streamStore.set(streamId, record);
   return record;
 }
@@ -123,6 +136,7 @@ export function shouldDropDuplicate(eventId: string): boolean {
   if (ts !== undefined && current - ts < EVENT_TTL_MS) {
     return true;
   }
+  enforceLimit(eventDeduper);
   eventDeduper.set(eventId, current);
   return false;
 }
@@ -131,6 +145,7 @@ export function registerResponseUrl(chatId: string, responseUrl: string): void {
   const normalizedChatId = String(chatId || '').trim();
   const normalizedUrl = String(responseUrl || '').trim();
   if (!normalizedChatId || !normalizedUrl) return;
+  enforceLimit(responseUrlStore);
   responseUrlStore.set(normalizedChatId, {
     url: normalizedUrl,
     expiresAt: now() + RESPONSE_URL_TTL_MS,

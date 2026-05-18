@@ -66,6 +66,9 @@ const LarkConfigForm: React.FC<LarkConfigFormProps> = ({ pluginStatus, modelSele
   const [appSecret, setAppSecret] = useState('');
   const [encryptKey, setEncryptKey] = useState('');
   const [verificationToken, setVerificationToken] = useState('');
+  // Domain: 'feishu' (mainland China, feishu.cn) or 'lark' (international, larksuite.com).
+  // Defaults to 'feishu' to preserve behaviour for existing configs.
+  const [domain, setDomain] = useState<'feishu' | 'lark'>('feishu');
 
   const [showOptional, setShowOptional] = useState(false);
   const [testLoading, setTestLoading] = useState(false);
@@ -220,6 +223,7 @@ const LarkConfigForm: React.FC<LarkConfigFormProps> = ({ pluginStatus, modelSele
         extraConfig: {
           appId: appId.trim(),
           appSecret: appSecret.trim(),
+          domain,
         },
       });
 
@@ -251,6 +255,7 @@ const LarkConfigForm: React.FC<LarkConfigFormProps> = ({ pluginStatus, modelSele
           appSecret: appSecret.trim(),
           encryptKey: encryptKey.trim() || undefined,
           verificationToken: verificationToken.trim() || undefined,
+          domain,
         },
       });
 
@@ -347,6 +352,59 @@ const LarkConfigForm: React.FC<LarkConfigFormProps> = ({ pluginStatus, modelSele
 
   return (
     <div className='flex flex-col gap-24px'>
+      {/* Domain selector — Feishu (mainland China) vs Lark (international) */}
+      <PreferenceRow
+        label={t('settings.lark.domain', 'Domain')}
+        description={t(
+          'settings.lark.domainDesc',
+          'Use Feishu for mainland China (feishu.cn) or Lark for international (larksuite.com)'
+        )}
+        required
+      >
+        <Dropdown
+          trigger='click'
+          position='br'
+          disabled={hasExistingUsers}
+          droplist={
+            <Menu selectedKeys={[domain]}>
+              <Menu.Item
+                key='feishu'
+                onClick={() => {
+                  if (domain === 'feishu') return;
+                  setDomain('feishu');
+                  handleCredentialsChange();
+                }}
+              >
+                {t('settings.lark.domainFeishu', 'Feishu (China)')}
+              </Menu.Item>
+              <Menu.Item
+                key='lark'
+                onClick={() => {
+                  if (domain === 'lark') return;
+                  setDomain('lark');
+                  handleCredentialsChange();
+                }}
+              >
+                {t('settings.lark.domainLark', 'Lark (International)')}
+              </Menu.Item>
+            </Menu>
+          }
+        >
+          <Button
+            type='secondary'
+            className='min-w-160px flex items-center justify-between gap-8px'
+            disabled={hasExistingUsers}
+          >
+            <span className='truncate'>
+              {domain === 'lark'
+                ? t('settings.lark.domainLark', 'Lark (International)')
+                : t('settings.lark.domainFeishu', 'Feishu (China)')}
+            </span>
+            <ChevronDown size={14} />
+          </Button>
+        </Dropdown>
+      </PreferenceRow>
+
       {/* App ID */}
       <PreferenceRow
         label={t('settings.lark.appId', 'App ID')}

@@ -27,12 +27,18 @@ function signDiscord(timestamp: string, body: string): string {
   return cryptoSign(null, message, privateKey).toString('hex');
 }
 
+// F-5: verifier enforces a ±5 min freshness window. Use `now` in the cases
+// where we want signature validation to be the focus rather than staleness.
+function freshTs(): string {
+  return String(Math.floor(Date.now() / 1000));
+}
+
 describe('discordVerifier', () => {
   const url = 'https://example.com/webhooks/discord/abc123';
   const body = JSON.stringify({ id: 'interaction-1', type: 1 });
 
   it('accepts a request with a valid Ed25519 signature', () => {
-    const ts = '1700000000';
+    const ts = freshTs();
     const sig = signDiscord(ts, body);
     const result = discordVerifier(
       {
@@ -49,7 +55,7 @@ describe('discordVerifier', () => {
 
   it('rejects a request signed with the wrong key', () => {
     const otherKp = generateKeyPairSync('ed25519');
-    const ts = '1700000000';
+    const ts = freshTs();
     const message = Buffer.concat([Buffer.from(ts, 'utf8'), Buffer.from(body, 'utf8')]);
     const badSig = cryptoSign(null, message, otherKp.privateKey).toString('hex');
 
@@ -69,7 +75,7 @@ describe('discordVerifier', () => {
   it('rejects a missing signature header', () => {
     const result = discordVerifier(
       {
-        headers: { 'x-signature-timestamp': '1700000000' },
+        headers: { 'x-signature-timestamp': freshTs() },
         rawBody: Buffer.from(body),
         query: {},
         url,
@@ -80,7 +86,7 @@ describe('discordVerifier', () => {
   });
 
   it('rejects when body has been tampered after signing', () => {
-    const ts = '1700000000';
+    const ts = freshTs();
     const sig = signDiscord(ts, body);
     const tampered = JSON.stringify({ id: 'interaction-1', type: 99 });
     const result = discordVerifier(
@@ -93,5 +99,38 @@ describe('discordVerifier', () => {
       publicKeyHex
     );
     expect(result.ok).toBe(false);
+  });
+
+  // F-5: replay-window coverage (gap G-6 in REVIEW-discord.md).
+  it('rejects a timestamp older than the ±5 min replay window', () => {
+    const ts = String(Math.floor(Date.now() / 1000) - 600); // 10 min old
+    const sig = signDiscord(ts, body);
+    const result = discordVerifier(
+      {
+        headers: { 'x-signature-ed25519': sig, 'x-signature-timestamp': ts },
+        rawBody: Buffer.from(body),
+        query: {},
+        url,
+      },
+      publicKeyHex
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe('stale-timestamp');
+  });
+
+  it('rejects a non-numeric timestamp (fail-closed)', () => {
+    const ts = 'not-a-number';
+    const sig = signDiscord(ts, body);
+    const result = discordVerifier(
+      {
+        headers: { 'x-signature-ed25519': sig, 'x-signature-timestamp': ts },
+        rawBody: Buffer.from(body),
+        query: {},
+        url,
+      },
+      publicKeyHex
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe('invalid-timestamp');
   });
 });

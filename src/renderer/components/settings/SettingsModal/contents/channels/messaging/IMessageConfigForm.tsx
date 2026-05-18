@@ -149,7 +149,9 @@ const IMessageConfigForm: React.FC<IMessageConfigFormProps> = ({ pluginStatus, o
           value={pollIntervalMs}
           onChange={(v) => setPollIntervalMs(typeof v === 'number' ? v : 2000)}
           min={500}
-          max={30000}
+          // F3: aligned with the plugin's MAX_POLL_INTERVAL_MS clamp (60 s).
+          // Power users who want 30-60 s polling can now actually set it.
+          max={60000}
           step={500}
           style={{ width: 120 }}
         />

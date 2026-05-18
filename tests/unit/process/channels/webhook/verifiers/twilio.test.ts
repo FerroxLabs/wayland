@@ -89,4 +89,46 @@ describe('twilioVerifier', () => {
     );
     expect(result.ok).toBe(false);
   });
+
+  // F5 / F10: URL mismatch is the most likely live-test failure (tunnel
+  // does not preserve x-forwarded-host). Verifier must surface the
+  // signing-url it hashed so operators can debug.
+  it('rejects a URL mismatch and surfaces signingUrl on failure (F5)', () => {
+    const signature = signTwilio('https://public.tunnel.example/webhooks/twilio/abc123', params);
+    const result = twilioVerifier(
+      {
+        headers: { 'x-twilio-signature': signature },
+        rawBody: buildBody(params),
+        query: {},
+        url: 'http://localhost:51234/webhooks/twilio/abc123', // what the receiver saw
+      },
+      AUTH_TOKEN
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe('invalid-signature');
+      expect(result.signingUrl).toBe('http://localhost:51234/webhooks/twilio/abc123');
+    }
+  });
+
+  // F10: pin the repeated-key behavior. URLSearchParams collapses to the
+  // last value; this is the behavior the verifier signs against.
+  it('collapses repeated form keys to the last value (F10)', () => {
+    const rawBody = Buffer.from('Body=first&Body=second&MessageSid=SM1', 'utf8');
+    // Sign against the collapsed view to confirm parity with the verifier.
+    const signature = signTwilio(url, { Body: 'second', MessageSid: 'SM1' });
+    const result = twilioVerifier(
+      {
+        headers: { 'x-twilio-signature': signature },
+        rawBody,
+        query: {},
+        url,
+      },
+      AUTH_TOKEN
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect((result.payload as Record<string, string>).Body).toBe('second');
+    }
+  });
 });

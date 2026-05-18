@@ -56,15 +56,22 @@ const EmailAgentMailConfigForm: React.FC<EmailAgentMailConfigFormProps> = ({
 
   const pluginInstanceId = pluginStatus?.id ?? 'email-agentmail_default';
 
+  // Audit fix v0.4.2: same pattern as webhook channel. Don't compose a URL
+  // with the placeholder literal — AgentMail will reject the webhook config.
+  const TUNNEL_PLACEHOLDER = '(configure tunnel in Phase 4)';
+  const rawTunnelHost = t(
+    'settings.channels.emailAgentMail.webhookUrl.tunnelPlaceholder',
+    TUNNEL_PLACEHOLDER
+  );
+  const tunnelConfigured =
+    rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
+
   const webhookUrl = useMemo(() => {
-    const tunnelHost = t(
-      'settings.channels.emailAgentMail.webhookUrl.tunnelPlaceholder',
-      '(configure tunnel in Phase 4)'
-    );
+    if (!tunnelConfigured) return '';
     const tokenSegment =
       webhookToken ?? t('settings.channels.emailAgentMail.webhookUrl.notMinted', '<not-minted>');
-    return `https://${tunnelHost}/webhooks/email-agentmail/${tokenSegment}`;
-  }, [webhookToken, t]);
+    return `https://${rawTunnelHost}/webhooks/email-agentmail/${tokenSegment}`;
+  }, [webhookToken, tunnelConfigured, rawTunnelHost, t]);
 
   const handleCopyWebhookUrl = useCallback(() => {
     void navigator.clipboard

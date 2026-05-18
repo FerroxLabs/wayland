@@ -55,14 +55,22 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
 
   const pluginInstanceId = pluginStatus?.id ?? 'sms-twilio_default';
 
+  // Audit fix v0.4.2: same pattern as webhook channel. Until the tunnel layer
+  // resolves to a real hostname, do NOT compose a URL containing the
+  // placeholder — Twilio Console rejects the URL on save and the operator
+  // gets a confusing error after pasting `(configure tunnel in Phase 4)`.
+  const TUNNEL_PLACEHOLDER = '(configure tunnel in Phase 4)';
+  const rawTunnelHost = t(
+    'settings.channels.smsTwilio.webhookUrl.tunnelPlaceholder',
+    TUNNEL_PLACEHOLDER
+  );
+  const tunnelConfigured = rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
+
   const webhookUrl = useMemo(() => {
-    const tunnelHost = t(
-      'settings.channels.smsTwilio.webhookUrl.tunnelPlaceholder',
-      '(configure tunnel in Phase 4)'
-    );
+    if (!tunnelConfigured) return '';
     const tokenSegment = webhookToken ?? t('settings.channels.smsTwilio.webhookUrl.notMinted', '<not-minted>');
-    return `https://${tunnelHost}/webhooks/sms-twilio/${tokenSegment}`;
-  }, [webhookToken, t]);
+    return `https://${rawTunnelHost}/webhooks/sms-twilio/${tokenSegment}`;
+  }, [webhookToken, tunnelConfigured, rawTunnelHost, t]);
 
   const fromNumberInvalid = fromNumber.length > 0 && !E164_REGEX.test(fromNumber);
 

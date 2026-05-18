@@ -417,13 +417,13 @@ describe('WeixinPlugin — Promise bridge', () => {
 });
 
 describe('WeixinPlugin — testConnection', () => {
-  it('returns false when buf file does not exist', async () => {
+  it('returns false when buf file does not exist (legacy no-token path)', async () => {
     const WeixinPlugin = await loadPluginClass();
     const result = await WeixinPlugin.testConnection('nonexistent_account_id_xyz');
     expect(result.success).toBe(false);
   });
 
-  it('returns true when buf file exists at <dataDir>/weixin-monitor/<accountId>.buf', async () => {
+  it('returns true when buf file exists (legacy no-token path)', async () => {
     const WeixinPlugin = await loadPluginClass();
     const monitorDir = path.join(TEST_DATA_DIR, 'weixin-monitor');
     fs.mkdirSync(monitorDir, { recursive: true });
@@ -434,5 +434,87 @@ describe('WeixinPlugin — testConnection', () => {
     expect(result.success).toBe(true);
 
     fs.unlinkSync(bufFile);
+  });
+
+  // Audit HIGH-1 / CRIT-10: real token validation via the iLink API,
+  // not a stale `.buf` file probe that ignored botToken entirely.
+  it('issues an authenticated getupdates probe when botToken is supplied', async () => {
+    const WeixinPlugin = await loadPluginClass();
+    const fetchCalls: Array<{ url: string; init: RequestInit | undefined }> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(async (url: string, init?: RequestInit) => {
+        fetchCalls.push({ url, init });
+        return { ok: true, json: async () => ({ ret: 0 }) } as Response;
+      })
+    );
+
+    const result = await WeixinPlugin.testConnection('acct_live', 'tok_live');
+
+    expect(result.success).toBe(true);
+    expect(fetchCalls).toHaveLength(1);
+    expect(fetchCalls[0]?.url).toContain('ilink/bot/getupdates');
+    const headers = (fetchCalls[0]?.init?.headers ?? {}) as Record<string, string>;
+    expect(headers.Authorization).toBe('Bearer tok_live');
+    expect(headers.AuthorizationType).toBe('ilink_bot_token');
+    expect(headers['X-WECHAT-UIN']).toBeTruthy();
+    vi.unstubAllGlobals();
+  });
+
+  it('treats non-zero ret as a failed connection test', async () => {
+    const WeixinPlugin = await loadPluginClass();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ ret: 401, errmsg: 'invalid token' }),
+      } as Response)
+    );
+
+    const result = await WeixinPlugin.testConnection('acct_bad', 'tok_revoked');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('invalid token');
+    vi.unstubAllGlobals();
+  });
+});
+
+describe('WeixinPlugin — capability flags', () => {
+  // Audit HIGH-2: TypingManager is actively wired in WeixinMonitor;
+  // the capability flag must match.
+  it('declares canTypingIndicator: true to match the live TypingManager wiring', async () => {
+    const WeixinPlugin = await loadPluginClass();
+    const plugin = new WeixinPlugin();
+    expect(plugin.capabilities.canTypingIndicator).toBe(true);
+  });
+});
+
+describe('WeixinPlugin — WeChat UIN persistence', () => {
+  // Audit CRIT-3: the prior implementation regenerated 4 random bytes per
+  // process startup and shipped that as `X-WECHAT-UIN`. That looks like
+  // bot rotation to Tencent risk-control and accelerates token revocation.
+  it('persists wechatUin to <dataDir>/weixin-monitor/<accountId>.uin and reuses it across starts', async () => {
+    const WeixinPlugin = await loadPluginClass();
+    mockStartFn = vi.fn();
+
+    const plugin1 = new WeixinPlugin();
+    await plugin1.initialize(createConfig({ accountId: 'acct_uin_persist' }));
+    await plugin1.start();
+    const uinFirstCall = (mockStartFn.mock.calls[0][0] as MonitorOptions).wechatUin;
+    await plugin1.stop();
+
+    const uinFile = path.join(TEST_DATA_DIR, 'weixin-monitor', 'acct_uin_persist.uin');
+    expect(fs.existsSync(uinFile)).toBe(true);
+    const persisted = fs.readFileSync(uinFile, 'utf-8').trim();
+    expect(persisted).toBe(uinFirstCall);
+
+    const plugin2 = new WeixinPlugin();
+    await plugin2.initialize(createConfig({ accountId: 'acct_uin_persist' }));
+    await plugin2.start();
+    const uinSecondCall = (mockStartFn.mock.calls[1][0] as MonitorOptions).wechatUin;
+    expect(uinSecondCall).toBe(uinFirstCall);
+    await plugin2.stop();
+
+    fs.unlinkSync(uinFile);
   });
 });

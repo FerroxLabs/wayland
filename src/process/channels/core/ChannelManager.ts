@@ -407,12 +407,19 @@ export class ChannelManager {
       const secret = config.secret as string | undefined;
       const token = config.token as string | undefined;
       const encodingAesKey = config.encodingAesKey as string | undefined;
+      const corpId = config.corpId as string | undefined;
 
       if (botId && secret) {
         credentials = { botId: botId.trim(), secret: secret.trim() };
         pluginRuntimeConfig = { ...pluginRuntimeConfig, mode: 'websocket' };
-      } else if (token && encodingAesKey) {
-        credentials = { token: token.trim(), encodingAesKey: encodingAesKey.trim() };
+      } else if (token && encodingAesKey && corpId) {
+        // Webhook mode requires corpId so we can validate the trailing
+        // receiveid bytes per WeCom spec (CRIT-2 audit fix 2026-05-18).
+        credentials = {
+          token: token.trim(),
+          encodingAesKey: encodingAesKey.trim(),
+          corpId: corpId.trim(),
+        };
         pluginRuntimeConfig = { ...pluginRuntimeConfig, mode: 'webhook' };
       }
     } else {

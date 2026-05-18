@@ -15,7 +15,7 @@ vi.mock('twilio', () => ({
   default: (_sid: string, _token: string) => ({ messages: { create: createMock } }),
 }));
 
-import { SmsTwilioPlugin } from '@process/channels/plugins/tier1/sms/SmsTwilioPlugin';
+import { SmsTwilioPlugin, TwilioRestError } from '@process/channels/plugins/tier1/sms/SmsTwilioPlugin';
 
 const baseConfig: IChannelPluginConfig = {
   id: 'sms-twilio_default',
@@ -114,5 +114,129 @@ describe('SmsTwilioPlugin.sendMessage', () => {
     expect(info).not.toBeNull();
     expect(info?.id).toBe('AC00000000000000000000000000000000');
     expect(info?.displayName).toBe('+14155550123');
+  });
+
+  // F7 fix: backend enforces E.164 + MG-SID shape, so malformed values fail
+  // with a clear local error instead of an opaque Twilio REST 400.
+  it('rejects a non-E.164 fromNumber at initialize (F7)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await expect(
+      plugin.initialize({
+        ...baseConfig,
+        credentials: {
+          accountSid: 'AC00000000000000000000000000000000',
+          authToken: 'x',
+          fromNumber: '4155550123', // missing leading +
+        },
+      })
+    ).rejects.toThrow(/E\.164/);
+  });
+
+  it('rejects a malformed messagingServiceSid at initialize (F7)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await expect(
+      plugin.initialize({
+        ...baseConfig,
+        credentials: {
+          accountSid: 'AC00000000000000000000000000000000',
+          authToken: 'x',
+          messagingServiceSid: 'NOT_A_MG_SID',
+        },
+      })
+    ).rejects.toThrow(/MG/);
+  });
+
+  // F4 fix: outbound MMS — mediaUrl flows through to twilio.messages.create.
+  it('forwards mediaUrl when present on the outgoing message (F4)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await plugin.initialize(baseConfig);
+    await plugin.sendMessage('+15551234567', {
+      type: 'text',
+      text: 'see photo',
+      mediaUrl: ['https://cdn.example.com/photo.jpg'],
+    } as never);
+    expect(createMock).toHaveBeenCalledWith({
+      to: '+15551234567',
+      body: 'see photo',
+      from: '+14155550123',
+      mediaUrl: ['https://cdn.example.com/photo.jpg'],
+    });
+  });
+
+  it('allows MMS sends with empty body when mediaUrl is present (F4)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await plugin.initialize(baseConfig);
+    await expect(
+      plugin.sendMessage('+15551234567', {
+        type: 'text',
+        text: '',
+        mediaUrl: 'https://cdn.example.com/x.jpg',
+      } as never)
+    ).resolves.toBe('SM_sent_0001');
+  });
+
+  // F6 fix: retry on 429 / 5xx; typed non-retryable error on 21408 / 21610.
+  it('retries on HTTP 429 and eventually succeeds (F6)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await plugin.initialize(baseConfig);
+    createMock
+      .mockRejectedValueOnce(Object.assign(new Error('rate limited'), { status: 429, code: 20429 }))
+      .mockRejectedValueOnce(Object.assign(new Error('rate limited'), { status: 429, code: 20429 }))
+      .mockResolvedValueOnce({ sid: 'SM_retried_ok' });
+    const sid = await plugin.sendMessage('+15551234567', { type: 'text', text: 'retry me' });
+    expect(sid).toBe('SM_retried_ok');
+    expect(createMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('retries on HTTP 503 then surfaces final failure (F6)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await plugin.initialize(baseConfig);
+    createMock.mockRejectedValue(
+      Object.assign(new Error('upstream down'), { status: 503, code: null })
+    );
+    await expect(
+      plugin.sendMessage('+15551234567', { type: 'text', text: 'never lands' })
+    ).rejects.toThrow(/upstream down/);
+    expect(createMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('throws typed non-retryable TwilioRestError on 21610 opted-out (F6)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await plugin.initialize(baseConfig);
+    createMock.mockRejectedValueOnce(
+      Object.assign(new Error('recipient opted out'), { status: 403, code: 21610 })
+    );
+    await expect(
+      plugin.sendMessage('+15551234567', { type: 'text', text: 'blocked' })
+    ).rejects.toBeInstanceOf(TwilioRestError);
+    // Non-retryable: must have only fired once.
+    expect(createMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws typed non-retryable TwilioRestError on 21408 permission denied (F6)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await plugin.initialize(baseConfig);
+    createMock.mockRejectedValueOnce(
+      Object.assign(new Error('region blocked'), { status: 403, code: 21408 })
+    );
+    const err = await plugin
+      .sendMessage('+15551234567', { type: 'text', text: 'blocked' })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(TwilioRestError);
+    expect((err as TwilioRestError).code).toBe(21408);
+    expect((err as TwilioRestError).retryable).toBe(false);
+    expect(createMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry on a generic 400 (F6)', async () => {
+    const plugin = new SmsTwilioPlugin();
+    await plugin.initialize(baseConfig);
+    createMock.mockRejectedValueOnce(
+      Object.assign(new Error('bad request'), { status: 400, code: 21211 })
+    );
+    await expect(
+      plugin.sendMessage('+15551234567', { type: 'text', text: 'malformed' })
+    ).rejects.toThrow(/bad request/);
+    expect(createMock).toHaveBeenCalledTimes(1);
   });
 });

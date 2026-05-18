@@ -6,10 +6,11 @@
  * IMessageSetup — settings detail page for the macOS iMessage channel plugin.
  */
 
+import { Button, Message } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { channel } from '@/common/adapter/ipcBridge';
+import { application, channel, shell } from '@/common/adapter/ipcBridge';
 import type { IChannelPluginStatus } from '@process/channels/types';
 import IMessageConfigForm from '@renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm';
 import ChannelDetailLayout from '../../ChannelDetailLayout';
@@ -40,6 +41,25 @@ const IMessageSetup: React.FC = () => {
     return () => unsub();
   }, []);
 
+  // F1: deep-link to macOS Full Disk Access pane. Apple's stable URL scheme
+  // for the FDA pane is x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles
+  const handleOpenFda = useCallback(() => {
+    void shell.openExternal
+      .invoke('x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles')
+      .catch((err) => {
+        Message.error(`Unable to open System Settings: ${err instanceof Error ? err.message : String(err)}`);
+      });
+  }, []);
+
+  // F1: explicit relaunch CTA. macOS only re-reads Full Disk Access at
+  // process launch, so the user MUST relaunch after granting — otherwise
+  // setup loops forever with "chat.db not readable".
+  const handleRelaunch = useCallback(() => {
+    void application.restart.invoke().catch((err) => {
+      Message.error(`Unable to relaunch: ${err instanceof Error ? err.message : String(err)}`);
+    });
+  }, []);
+
   return (
     <ChannelDetailLayout
       channelId='imessage'
@@ -52,11 +72,24 @@ const IMessageSetup: React.FC = () => {
         ) +
         ' ' +
         t(
+          'settings.channels.imessage.fdaRelaunchHelp',
+          'IMPORTANT: After granting Full Disk Access for the first time, you MUST fully quit and relaunch the app — macOS only re-reads FDA on app launch, so without a relaunch you will loop on "chat.db not readable" errors.',
+        ) +
+        ' ' +
+        t(
           'settings.channels.imessage.attachmentsHelp',
           'Text-only — image, video, and audio attachments are dropped silently on inbound and not supported on outbound.',
         )
       }
     >
+      <div className='flex gap-8px mb-12px'>
+        <Button size='small' onClick={handleOpenFda}>
+          {t('settings.channels.imessage.openFdaPane', 'Open Full Disk Access Settings')}
+        </Button>
+        <Button size='small' status='warning' onClick={handleRelaunch}>
+          {t('settings.channels.imessage.relaunchApp', 'Relaunch app (after granting FDA)')}
+        </Button>
+      </div>
       <IMessageConfigForm pluginStatus={pluginStatus} onStatusChange={setPluginStatus} />
     </ChannelDetailLayout>
   );
