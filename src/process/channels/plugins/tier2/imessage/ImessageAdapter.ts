@@ -72,7 +72,7 @@ export function quoteAppleScriptString(s: string): string {
   // 2. Escape double-quotes.
   // 3. Wrap in double-quotes to produce a valid AppleScript string literal.
   const escaped = s
-    .replace(/\0/g, '')
+    .replaceAll('\u0000', '')
     .replace(/\\/g, '\\\\')
     .replace(/"/g, '\\"')
     .replace(/\n/g, '\\n')
