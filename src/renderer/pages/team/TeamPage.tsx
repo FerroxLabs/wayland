@@ -25,7 +25,9 @@ import { TeamTabsProvider, useTeamTabs } from './hooks/TeamTabsContext';
 import { TeamPermissionProvider } from './hooks/TeamPermissionContext';
 import { useTeamSession } from './hooks/useTeamSession';
 import { useTeamSourceLauncher } from './hooks/useTeamSourceLauncher';
+import { resolveConversationType } from './components/agentSelectUtils';
 import { dispatchWorkspaceHasFilesEvent } from '@/renderer/utils/workspace/workspaceEvents';
+import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 
 type Props = {
   team: TTeam;
@@ -225,6 +227,47 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
       }
     },
     [statusMap, doRemoveAgent, t]
+  );
+
+  // W3a — right-rail + Add teammate. The picker hands the chosen specialist
+  // up to this handler; we build the agent payload using the specialist's
+  // preferred backend (preset agent type) and fall back to the leader's
+  // backend so unknown specialists still get a sensible default. The
+  // `agentSpawned` IPC subscription in useTeamSession refreshes the tabs.
+  const handleAddTeammate = useCallback(
+    async (specialist: AssistantListItem) => {
+      const leaderAgentType = leadAgent?.agentType ?? 'claude';
+      const agentType =
+        ('presetAgentType' in specialist && (specialist as { presetAgentType?: string }).presetAgentType) ||
+        leaderAgentType;
+      const agentName =
+        specialist.nameI18n?.['en-US'] || specialist.name || specialist.id;
+      try {
+        const result = (await ipcBridge.team.addAgent.invoke({
+          teamId: team.id,
+          agent: {
+            conversationId: '',
+            role: 'teammate',
+            agentType,
+            agentName,
+            conversationType: resolveConversationType(agentType),
+            status: 'pending',
+            customAgentId: specialist.id,
+          },
+        })) as TeamAgent | { __bridgeError: true; message?: string };
+        if (result && typeof result === 'object' && '__bridgeError' in result) {
+          Message.error(
+            result.message ?? t('teams.rightRail.addTeammateError', { defaultValue: 'Failed to add teammate' })
+          );
+          return;
+        }
+        Message.success(t('teams.rightRail.addTeammateSuccess', { defaultValue: 'Teammate added' }));
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        Message.error(msg || t('teams.rightRail.addTeammateError', { defaultValue: 'Failed to add teammate' }));
+      }
+    },
+    [team.id, leadAgent?.agentType, t]
   );
   const leaderConversationId = leadAgent?.conversationId ?? '';
   const isLeaderAgent = activeAgent?.role === 'leader';
@@ -504,6 +547,8 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
             statusMap={statusMap}
             launcher={launcher}
             workspacePath={effectiveWorkspace}
+            teamId={team.id}
+            onTeammateAdded={handleAddTeammate}
           />
         </div>
       </ChatLayout>

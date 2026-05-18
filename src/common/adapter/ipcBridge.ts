@@ -1402,6 +1402,7 @@ export const team = {
   remove: buildProvider<void, { id: string }>('team.remove'),
   addAgent: buildProvider<import('@process/team/types').TeamAgent, IAddTeamAgentParams>('team.add-agent'),
   removeAgent: buildProvider<void, { teamId: string; slotId: string }>('team.remove-agent'),
+  restartAgent: buildProvider<void, { teamId: string; slotId: string }>('team.restart-agent'),
   sendMessage: buildProvider<void, { teamId: string; content: string; files?: string[] }>('team.send-message'),
   sendMessageToAgent: buildProvider<void, { teamId: string; slotId: string; content: string; files?: string[] }>(
     'team.send-message-to-agent'

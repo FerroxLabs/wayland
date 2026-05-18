@@ -228,6 +228,20 @@ export class TeamSession extends EventEmitter {
     this.teammateManager.removeAgent(slotId);
   }
 
+  /**
+   * Kill the CLI process for an agent slot without removing it from the roster.
+   * Used by `TeamSessionService.restartAgent` so the next `wake()` rebuilds the
+   * worker from a clean state.
+   */
+  killAgentProcess(slotId: string): void {
+    this.teammateManager.killAgentProcess(slotId);
+  }
+
+  /** True when the named agent currently has a wake in flight. */
+  isWakeActive(slotId: string): boolean {
+    return this.teammateManager.isWakeActive(slotId);
+  }
+
   /** Get current agent states */
   getAgents(): TeamAgent[] {
     return this.teammateManager.getAgents();

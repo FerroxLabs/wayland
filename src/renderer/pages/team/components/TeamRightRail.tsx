@@ -1,7 +1,8 @@
 // src/renderer/pages/team/components/TeamRightRail.tsx
 //
 // W2c — Right-rail surface inside the team page. Mockup §4:
-//   - Teammates: avatar + name + role + backend (status dot)
+//   - Teammates: avatar + name + role + backend (status dot); failed agents
+//     get a Restart icon next to the dot (W3a — user-driven crash recovery).
 //   - Workspace: placeholder list (real per-team workspace browser is
 //     already in the workspace sider; the rail link is a thin pointer
 //     for now — W2d may flesh this out alongside the cost meter)
@@ -9,19 +10,35 @@
 //     record itself does not carry rituals, so we look up the launcher
 //     by team name (best-effort — see useTeamSourceLauncher). When no
 //     launcher resolves, the section renders empty with a hint.
+//   - "+ Add teammate" button (W3a) opens AddTeammatePicker; the picked
+//     specialist is handed up to TeamPage, which owns the IPC call so it
+//     can build the agent payload with the leader's backend as fallback.
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { Button, Message } from '@arco-design/web-react';
+import { Plus, RotateCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { ipcBridge } from '@/common';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import type { TeamAgent, TeammateStatus } from '@/common/types/teamTypes';
+import { useAssistantList } from '@/renderer/hooks/assistant';
 import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import { getBackendLabel } from '@renderer/utils/model/backendLabel';
+import AddTeammatePicker from '@/renderer/pages/teams/components/AddTeammatePicker';
 
 type Props = {
   agents: TeamAgent[];
   statusMap: Map<string, { status: TeammateStatus }>;
   launcher: AssistantListItem | null;
   workspacePath?: string;
+  teamId: string;
+  /**
+   * Called when the user picks a specialist from the + Add teammate picker.
+   * TeamPage owns the IPC call so it can build the agent payload with the
+   * leader's backend as fallback. Awaited so the rail can keep the picker
+   * open if the parent reports an error.
+   */
+  onTeammateAdded?: (specialist: AssistantListItem) => void | Promise<void>;
 };
 
 const STATUS_DOT_COLOR: Record<TeammateStatus, string> = {
@@ -42,11 +59,12 @@ const initialsFromName = (name: string): string => {
 const TeammateRow: React.FC<{
   agent: TeamAgent;
   status: TeammateStatus;
-}> = ({ agent, status }) => {
+  teamId: string;
+}> = ({ agent, status, teamId }) => {
   const { t } = useTranslation();
-  // Inline avatar resolution: there are already 5 isImageAvatar copies in the
-  // codebase. Per W3a opening commit task, we deliberately avoid adding a 6th
-  // util and rely on the backend logo or initials fallback for the rail rows.
+  // Rail rows use the backend logo when available; otherwise fall back to
+  // initials. No per-agent avatar field is read here — the consolidated avatar
+  // helper landed for chat surfaces; the rail keeps its own compact look.
   const backendLogo = getAgentLogo(agent.agentType);
   const showLogo = Boolean(backendLogo);
   const roleLabel =
@@ -55,6 +73,24 @@ const TeammateRow: React.FC<{
       : t('teams.rightRail.roleSpecialist', { defaultValue: 'specialist' });
   const backend = getBackendLabel(agent.agentType);
   const dotClass = STATUS_DOT_COLOR[status] ?? STATUS_DOT_COLOR.idle;
+
+  const handleRestart = async () => {
+    try {
+      const result = (await ipcBridge.team.restartAgent.invoke({ teamId, slotId: agent.slotId })) as
+        | void
+        | { __bridgeError: true; message?: string };
+      if (result && typeof result === 'object' && '__bridgeError' in result) {
+        Message.error(
+          result.message ?? t('teams.rightRail.restartAgentError', { defaultValue: 'Failed to restart agent' })
+        );
+        return;
+      }
+      Message.success(t('teams.rightRail.restartAgentSuccess', { defaultValue: 'Restart initiated' }));
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      Message.error(msg || t('teams.rightRail.restartAgentError', { defaultValue: 'Failed to restart agent' }));
+    }
+  };
 
   return (
     <div
@@ -83,20 +119,63 @@ const TeammateRow: React.FC<{
           </div>
         </div>
       </div>
-      <span
-        data-testid='team-right-rail-status-dot'
-        data-status={status}
-        className={`w-1.5 h-1.5 rd-full shrink-0 ${dotClass} ${status === 'active' ? 'animate-pulse' : ''}`}
-        aria-label={status}
-      />
+      <div className='flex items-center gap-6px shrink-0'>
+        {status === 'failed' && (
+          <button
+            type='button'
+            data-testid='team-right-rail-restart'
+            onClick={handleRestart}
+            aria-label={t('teams.rightRail.restartAgent', { defaultValue: 'Restart' })}
+            title={t('teams.rightRail.restartAgent', { defaultValue: 'Restart' })}
+            className='flex items-center justify-center w-18px h-18px rd-4px text-[color:var(--color-text-3)] hover:text-[color:var(--color-text-1)] hover:bg-[color:var(--fill-3)] border-0 bg-transparent cursor-pointer p-0'
+          >
+            <RotateCw size={12} />
+          </button>
+        )}
+        <span
+          data-testid='team-right-rail-status-dot'
+          data-status={status}
+          className={`w-1.5 h-1.5 rd-full ${dotClass} ${status === 'active' ? 'animate-pulse' : ''}`}
+          aria-label={status}
+        />
+      </div>
     </div>
   );
 };
 
-const TeamRightRail: React.FC<Props> = ({ agents, statusMap, launcher, workspacePath }) => {
+const TeamRightRail: React.FC<Props> = ({
+  agents,
+  statusMap,
+  launcher,
+  workspacePath,
+  teamId,
+  onTeammateAdded,
+}) => {
   const { t } = useTranslation();
   const rituals = launcher?._rituals ?? [];
   const hasWorkspace = Boolean(workspacePath && workspacePath.length > 0);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const { assistants, localeKey } = useAssistantList();
+  const specialists = useMemo(() => assistants.filter((a) => a._kind === 'specialist'), [assistants]);
+  const specialistsById = useMemo(() => {
+    const map = new Map<string, AssistantListItem>();
+    for (const s of specialists) map.set(s.id, s);
+    return map;
+  }, [specialists]);
+  const existingSpecialistIds = useMemo(
+    () => agents.map((a) => a.customAgentId).filter((id): id is string => Boolean(id)),
+    [agents]
+  );
+
+  const handlePick = async (specialistId: string) => {
+    const specialist = specialistsById.get(specialistId);
+    if (!specialist || !onTeammateAdded) {
+      setPickerVisible(false);
+      return;
+    }
+    setPickerVisible(false);
+    await onTeammateAdded(specialist);
+  };
 
   return (
     <aside
@@ -113,8 +192,21 @@ const TeamRightRail: React.FC<Props> = ({ agents, statusMap, launcher, workspace
               key={agent.slotId}
               agent={agent}
               status={statusMap.get(agent.slotId)?.status ?? agent.status}
+              teamId={teamId}
             />
           ))}
+        </div>
+        <div className='mt-8px'>
+          <Button
+            type='outline'
+            size='small'
+            icon={<Plus size={14} />}
+            onClick={() => setPickerVisible(true)}
+            data-testid='team-right-rail-add-teammate'
+            long
+          >
+            {t('teams.rightRail.addTeammate', { defaultValue: 'Add teammate' })}
+          </Button>
         </div>
       </section>
 
@@ -155,6 +247,18 @@ const TeamRightRail: React.FC<Props> = ({ agents, statusMap, launcher, workspace
           </div>
         )}
       </section>
+
+      {pickerVisible && (
+        <AddTeammatePicker
+          visible={pickerVisible}
+          onClose={() => setPickerVisible(false)}
+          onPick={handlePick}
+          specialists={specialists}
+          excludeIds={existingSpecialistIds}
+          localeKey={localeKey}
+          mode='teammate'
+        />
+      )}
     </aside>
   );
 };

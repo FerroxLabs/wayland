@@ -763,6 +763,49 @@ export class TeamSessionService {
     }
   }
 
+  /**
+   * Restart a crashed teammate's CLI process while keeping the slot + history
+   * intact. Refuses to act mid-wake to avoid corrupting an in-flight turn.
+   *
+   * Flow: kill residual process (if any) → reset status to 'pending' → emit
+   * IPC so the right rail flips the dot back → append a `wake` event with
+   * `{ outcome: 'restarted_by_user', actor: 'user' }` for the Activity tab.
+   * The next user message or leader wake will rebuild the worker task and the
+   * full role prompt is replayed because `status === 'pending'`.
+   */
+  async restartAgent(teamId: string, slotId: string): Promise<void> {
+    const team = await this.repo.findById(teamId);
+    if (!team) throw new Error(`Team "${teamId}" not found`);
+
+    const agent = team.agents.find((a) => a.slotId === slotId);
+    if (!agent) throw new Error(`Agent "${slotId}" not found in team "${teamId}"`);
+
+    const session = this.sessions.get(teamId);
+    if (session?.isWakeActive(slotId)) {
+      throw new Error('Cannot restart while wake in progress');
+    }
+
+    // Kill residual process + clear wake state when a session is live; otherwise
+    // there's nothing in-memory to clean up — the repo update below is the only
+    // state change needed.
+    session?.killAgentProcess(slotId);
+
+    const updatedAgents = team.agents.map((a) => (a.slotId === slotId ? { ...a, status: 'pending' as const } : a));
+    await this.repo.update(teamId, { agents: updatedAgents, updatedAt: Date.now() });
+
+    ipcBridge.team.agentStatusChanged.emit({ teamId, slotId, status: 'pending' });
+
+    void this.eventLogger.append({
+      teamId,
+      eventType: 'wake',
+      actorSlotId: slotId,
+      payload: {
+        outcome: 'restarted_by_user',
+        actor: 'user',
+      },
+    });
+  }
+
   async removeAgent(teamId: string, slotId: string): Promise<void> {
     const team = await this.repo.findById(teamId);
     if (!team) throw new Error(`Team "${teamId}" not found`);

@@ -97,6 +97,34 @@ export class TeammateManager extends EventEmitter {
   }
 
   /**
+   * Kill the underlying CLI process for a slot and clear in-memory wake state,
+   * but keep the agent in the roster. Used by both crash handling (lifecycle
+   * managed internally) and by `TeamSessionService.restartAgent` (user-driven
+   * recovery) so neither path duplicates the kill/timeout cleanup logic.
+   */
+  killAgentProcess(slotId: string): void {
+    const agent = this.agents.find((a) => a.slotId === slotId);
+    if (!agent) return;
+
+    if (agent.conversationId) {
+      this.workerTaskManager.kill(agent.conversationId);
+      this.finalizedTurns.delete(agent.conversationId);
+    }
+
+    const timeoutHandle = this.wakeTimeouts.get(slotId);
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle);
+      this.wakeTimeouts.delete(slotId);
+    }
+    this.activeWakes.delete(slotId);
+  }
+
+  /** True when a wake is currently in flight for the given slot. */
+  isWakeActive(slotId: string): boolean {
+    return this.activeWakes.has(slotId);
+  }
+
+  /**
    * Wake an agent: read unread mailbox, build payload, send to agent.
    * Sets status to 'active' during API call, 'idle' when done.
    * Skips if the agent's wake is already in progress.

@@ -68,6 +68,12 @@ export function initTeamBridge(teamSessionService: TeamSessionService): void {
     })
   );
 
+  ipcBridge.team.restartAgent.provider(
+    safeProvider(async ({ teamId, slotId }) => {
+      await teamSessionService.restartAgent(teamId, slotId);
+    })
+  );
+
   ipcBridge.team.renameAgent.provider(
     safeProvider(async ({ teamId, slotId, newName }) => {
       await teamSessionService.renameAgent(teamId, slotId, newName);

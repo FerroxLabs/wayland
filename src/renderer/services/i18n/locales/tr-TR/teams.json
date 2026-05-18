@@ -66,7 +66,13 @@
     "rituals": "[TODO:translate] Rituals",
     "ritualsEmpty": "[TODO:translate] No rituals — not a Standing Company.",
     "roleLeader": "[TODO:translate] leader",
-    "roleSpecialist": "[TODO:translate] specialist"
+    "roleSpecialist": "[TODO:translate] specialist",
+    "addTeammate": "[TODO:translate] Add teammate",
+    "addTeammateSuccess": "[TODO:translate] Teammate added",
+    "addTeammateError": "[TODO:translate] Failed to add teammate",
+    "restartAgent": "[TODO:translate] Restart",
+    "restartAgentSuccess": "[TODO:translate] Restart initiated",
+    "restartAgentError": "[TODO:translate] Failed to restart agent"
   },
   "activity": {
     "tabLabel": "[TODO:translate] Activity",
