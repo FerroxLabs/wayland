@@ -56,5 +56,12 @@
       "interview": "Plan an in-depth interview between agents",
       "expert_review": "Have multiple experts analyze the same problem"
     }
+  },
+  "errors": {
+    "loadFailed": {
+      "title": "This team could not be loaded",
+      "body": "It may have been deleted, or its data is no longer available. Head back to the Teams library to pick another team or start a new one.",
+      "backCta": "Back to Teams"
+    }
   }
 }

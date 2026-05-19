@@ -56,5 +56,12 @@
       "interview": "策劃一場深度訪談",
       "expert_review": "多位專家會診同一個問題"
     }
+  },
+  "errors": {
+    "loadFailed": {
+      "title": "[TODO:translate] This team could not be loaded",
+      "body": "[TODO:translate] It may have been deleted, or its data is no longer available. Head back to the Teams library to pick another team or start a new one.",
+      "backCta": "[TODO:translate] Back to Teams"
+    }
   }
 }

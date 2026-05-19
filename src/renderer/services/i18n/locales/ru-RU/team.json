@@ -56,5 +56,12 @@
       "interview": "Спланировать глубинное интервью между агентами",
       "expert_review": "Несколько экспертов анализируют одну проблему"
     }
+  },
+  "errors": {
+    "loadFailed": {
+      "title": "[TODO:translate] This team could not be loaded",
+      "body": "[TODO:translate] It may have been deleted, or its data is no longer available. Head back to the Teams library to pick another team or start a new one.",
+      "backCta": "[TODO:translate] Back to Teams"
+    }
   }
 }
