@@ -106,11 +106,27 @@ const TeamsLibraryPage: React.FC = () => {
         return;
       }
       try {
-        const preview = await ipcBridge.team.importPreview.invoke({ jsonText });
+        // safeProvider returns { __bridgeError } sentinels instead of throwing
+        // — check before reading .parsed so the real error surfaces in the
+        // toast (otherwise we'd hit "Cannot read property 'parsed' of
+        // undefined" and mask the real reason: oversize file, prototype
+        // pollution, invalid skill id, etc.). W5 LOW-1.
+        const previewRaw = (await ipcBridge.team.importPreview.invoke({ jsonText })) as unknown as {
+          parsed?: { capabilities: TeamCapabilities };
+          missingSpecialists?: string[];
+          __bridgeError?: boolean;
+          message?: string;
+        };
+        if (previewRaw.__bridgeError) {
+          throw new Error(previewRaw.message ?? 'Import preview failed');
+        }
+        if (!previewRaw.parsed) {
+          throw new Error('Import preview returned no payload');
+        }
         setImportPreview({
-          parsed: preview.parsed,
-          capabilities: preview.parsed.capabilities as TeamCapabilities,
-          missingSpecialists: preview.missingSpecialists,
+          parsed: previewRaw.parsed as ImportPreviewState['parsed'],
+          capabilities: previewRaw.parsed.capabilities as TeamCapabilities,
+          missingSpecialists: previewRaw.missingSpecialists ?? [],
           source: file.name,
         });
       } catch (e) {
