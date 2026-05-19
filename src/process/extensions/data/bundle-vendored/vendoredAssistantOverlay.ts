@@ -32,8 +32,13 @@
  * "Sync policy" section.
  */
 
-import fs from 'fs/promises';
-import * as path from 'path';
+// Static JSON import — vite/electron-vite inlines this at build time so the
+// overlay works in both `electron-vite dev` (where __dirname resolves to
+// src/ paths) and packaged mode (where __dirname resolves to out/main/).
+// Earlier versions used `fs.readFile(__dirname/assistants.json)` which failed
+// with ENOENT because the JSON was never copied to out/main/, silently
+// disabling the standing/teammates/rituals overlay in production.
+import vendoredAssistantsJson from './assistants.json';
 
 type VendoredOverlayEntry = {
   standing?: boolean;
@@ -46,13 +51,9 @@ type VendoredOverlayMap = Map<string, VendoredOverlayEntry>;
 let cachedOverlay: VendoredOverlayMap | null = null;
 let cachedOverlayPromise: Promise<VendoredOverlayMap> | null = null;
 
-const VENDORED_ASSISTANTS_PATH = path.join(__dirname, 'assistants.json');
-
 /**
- * Load the vendored manifest from disk. Cached after the first successful
- * read. On parse failure or missing file, the cache is populated with an
- * empty map so callers degrade to a no-op overlay without retrying every
- * invocation.
+ * Load the vendored manifest. Backed by the static JSON import above —
+ * deterministic, no file-read failure modes, cached after first build.
  */
 async function loadOverlay(): Promise<VendoredOverlayMap> {
   if (cachedOverlay) return cachedOverlay;
@@ -61,8 +62,7 @@ async function loadOverlay(): Promise<VendoredOverlayMap> {
   cachedOverlayPromise = (async (): Promise<VendoredOverlayMap> => {
     const map: VendoredOverlayMap = new Map();
     try {
-      const raw = await fs.readFile(VENDORED_ASSISTANTS_PATH, 'utf-8');
-      const parsed = JSON.parse(raw);
+      const parsed = vendoredAssistantsJson as unknown;
       if (!Array.isArray(parsed)) {
         console.warn('[Extensions] Vendored overlay: assistants.json is not an array; overlay disabled.');
         cachedOverlay = map;
