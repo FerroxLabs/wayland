@@ -736,7 +736,7 @@
     "prompts": [
       "Run this content idea through the 10-stage chain.",
       "Build three publish-ready variants of [topic] in my voice.",
-      "Strategy → packaging → hooks → clarity → positioning → … → verdict."
+      "Strategy \u2192 packaging \u2192 hooks \u2192 clarity \u2192 positioning \u2192 \u2026 \u2192 verdict."
     ],
     "category": "write",
     "kind": "team",
@@ -974,5 +974,25 @@
         "cadence": "weekly:monday:11:00"
       }
     ]
+  },
+  {
+    "id": "humanizer",
+    "name": "Humanizer",
+    "description": "Catches AI-tells in your drafts and rewrites them to read human. Diagnose first, then rewrite for rhythm and vocabulary. Plugs into your Voiceprint file so the result sounds like you, not a model.",
+    "avatar": "icons/humanizer.svg",
+    "presetAgentType": "gemini",
+    "contextFile": "assistants/roles/humanizer.md",
+    "enabledSkills": [
+      "humanizer-tell-detector",
+      "humanizer-rewrite-pass",
+      "humanizer-voice-match"
+    ],
+    "prompts": [
+      "Scan this draft for AI tells - give me a score.",
+      "Humanize this so it doesn't read as AI slop.",
+      "Rewrite this in my voice - I have a voice profile."
+    ],
+    "category": "write",
+    "kind": "specialist"
   }
 ]
