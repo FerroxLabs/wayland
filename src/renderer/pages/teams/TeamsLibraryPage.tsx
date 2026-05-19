@@ -69,9 +69,17 @@ const TeamsLibraryPage: React.FC = () => {
 
   const totalTeams = standing.length + teams.length;
 
+  // Synchronous navigation guard — debounces double-clicks on launcher cards
+  // so we don't push 2 history entries (Bug from adversarial e2e). The ref
+  // resets on every render via the effect below, so a normal sequential
+  // user click still works after each navigation completes.
+  const navigatingRef = useRef(false);
   const handleLaunchTeam = useCallback(
     (team: AssistantListItem) => {
+      if (navigatingRef.current) return;
+      navigatingRef.current = true;
       void Promise.resolve(navigate(`/teams/${team.id}/launch`)).catch((error) => {
+        navigatingRef.current = false;
         console.error('Navigation to team launcher failed:', error);
       });
     },
@@ -79,7 +87,10 @@ const TeamsLibraryPage: React.FC = () => {
   );
 
   const handleBuildMyOwn = useCallback(() => {
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
     void Promise.resolve(navigate('/teams/new')).catch((error) => {
+      navigatingRef.current = false;
       console.error('Navigation to team builder failed:', error);
     });
   }, [navigate]);

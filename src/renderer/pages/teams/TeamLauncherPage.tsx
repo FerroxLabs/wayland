@@ -130,6 +130,11 @@ const TeamLauncherPage: React.FC = () => {
   }, []);
 
   const [launching, setLaunching] = useState(false);
+  // Synchronous guard against double-launch — `launching` state lags by a
+  // microtask, so triple-clicking the CTA before the first IPC starts
+  // (Bug from adversarial e2e: rapid-click → 2 teams). The ref flips
+  // immediately, the state flips for the spinner UI.
+  const launchingRef = useRef(false);
   const [suggesting, setSuggesting] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [pickerMode, setPickerMode] = useState<'leader' | 'teammate'>('teammate');
@@ -288,6 +293,7 @@ const TeamLauncherPage: React.FC = () => {
   };
 
   const handleLaunch = async () => {
+    if (launchingRef.current) return;
     const trimmedName = state.name.trim();
     if (!trimmedName) {
       Message.warning(
@@ -330,7 +336,17 @@ const TeamLauncherPage: React.FC = () => {
       ...state.teammates.map((tm) => buildAgent(tm, specialistsById.get(tm.specialistId), 'teammate')),
     ];
 
+    launchingRef.current = true;
     setLaunching(true);
+    // We intentionally do NOT reset launchingRef on success — team.create is
+    // fast enough (~50ms) that resetting in `finally` lets queued click
+    // events through and creates duplicate teams. On success we navigate
+    // away and the component unmounts. Ref/state only reset on the failure
+    // paths so the user can retry without reloading.
+    const resetForRetry = () => {
+      launchingRef.current = false;
+      setLaunching(false);
+    };
     try {
       const team = (await ipcBridge.team.create.invoke({
         userId,
@@ -345,11 +361,13 @@ const TeamLauncherPage: React.FC = () => {
         Message.error(
           team.message ?? t('teams.launcher.launchError', { defaultValue: 'Failed to launch the team.' })
         );
+        resetForRetry();
         return;
       }
 
       if (!team || !team.id) {
         Message.error(t('teams.launcher.launchError', { defaultValue: 'Failed to launch the team.' }));
+        resetForRetry();
         return;
       }
 
@@ -359,8 +377,7 @@ const TeamLauncherPage: React.FC = () => {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       Message.error(msg || t('teams.launcher.launchError', { defaultValue: 'Failed to launch the team.' }));
-    } finally {
-      setLaunching(false);
+      resetForRetry();
     }
   };
 
@@ -534,6 +551,7 @@ const TeamLauncherPage: React.FC = () => {
             <Button
               type='primary'
               loading={launching}
+              disabled={launching}
               onClick={handleLaunch}
               data-testid='launcher-launch-cta'
             >
