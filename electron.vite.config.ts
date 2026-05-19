@@ -228,41 +228,68 @@ export default defineConfig(({ mode }) => {
             // each vendor group loads independently and benefits from per-chunk caching.
             manualChunks(id: string) {
               if (!id.includes('node_modules')) return undefined;
-              // react-router shipped in vendor-react previously; split it so
-              // the react chunk stays tiny and routing changes don't bust react's hash.
-              if (id.includes('/react-router-dom/') || id.includes('/react-router/'))
-                return 'vendor-router';
-              if (id.includes('/react-dom/') || id.includes('/react/')) return 'vendor-react';
-              if (id.includes('/@arco-design/')) return 'vendor-arco';
-              if (id.includes('/i18next') || id.includes('/react-i18next/')) return 'vendor-i18n';
-              if (id.includes('/@sentry/')) return 'vendor-sentry';
-              if (id.includes('/react-virtuoso/')) return 'vendor-virtuoso';
+              // CRITICAL: predicates use STRICT package-name boundaries
+              // (`/node_modules/<pkg>/`) so a package like `@monaco-editor/react`
+              // does NOT greedy-match the bare `/react/` substring and get
+              // misclassified into vendor-react. Earlier substring-based
+              // predicates created a circular vendor-react → vendor-i18n →
+              // vendor-react dependency at module-init time, leaving
+              // `React.createContext` as `undefined` and silently killing
+              // renderer bootstrap under file:// (see HANDOFF-2026-05-19).
+              const NM = /[\\/]node_modules[\\/]/;
+              const pkg = (name: string) => new RegExp(`[\\\\/]node_modules[\\\\/]${name}[\\\\/]`).test(id);
+              const scoped = (org: string, name?: string) =>
+                name
+                  ? new RegExp(`[\\\\/]node_modules[\\\\/]${org}[\\\\/]${name}[\\\\/]`).test(id)
+                  : new RegExp(`[\\\\/]node_modules[\\\\/]${org}[\\\\/]`).test(id);
+              if (!NM.test(id)) return undefined;
+
+              // Core React + scheduler — no application code, no wrappers.
+              if (pkg('react') || pkg('react-dom') || pkg('scheduler') || pkg('use-sync-external-store'))
+                return 'vendor-react';
+
+              // Router as a separate chunk so routing changes don't bust React's hash.
+              if (pkg('react-router-dom') || pkg('react-router') || pkg('@remix-run')) return 'vendor-router';
+
+              // i18n bucket — strictly i18next family.
+              if (pkg('i18next') || pkg('react-i18next') || /[\\/]node_modules[\\/]i18next-[^/\\]+[\\/]/.test(id))
+                return 'vendor-i18n';
+
+              // Arco — both packages and CSS.
+              if (scoped('@arco-design')) return 'vendor-arco';
+
+              if (scoped('@sentry')) return 'vendor-sentry';
+              if (pkg('react-virtuoso')) return 'vendor-virtuoso';
+
               if (
-                id.includes('/react-markdown/') ||
-                id.includes('/remark-') ||
-                id.includes('/rehype-') ||
-                id.includes('/unified/') ||
-                id.includes('/mdast-') ||
-                id.includes('/hast-') ||
-                id.includes('/micromark')
+                pkg('react-markdown') ||
+                /[\\/]node_modules[\\/]remark-[^/\\]+[\\/]/.test(id) ||
+                /[\\/]node_modules[\\/]rehype-[^/\\]+[\\/]/.test(id) ||
+                pkg('unified') ||
+                /[\\/]node_modules[\\/]mdast-[^/\\]+[\\/]/.test(id) ||
+                /[\\/]node_modules[\\/]hast-[^/\\]+[\\/]/.test(id) ||
+                /[\\/]node_modules[\\/]micromark[^/\\]*[\\/]/.test(id)
               )
                 return 'vendor-markdown';
-              if (
-                id.includes('/react-syntax-highlighter/') ||
-                id.includes('/refractor/') ||
-                id.includes('/highlight.js/')
-              )
+
+              if (pkg('react-syntax-highlighter') || pkg('refractor') || pkg('highlight.js'))
                 return 'vendor-highlight';
+
+              // Editor family. NOTE: @monaco-editor/react is bundled HERE (not in
+              // vendor-react) — it's a Monaco wrapper, not React core. Same for
+              // @uiw/react-codemirror.
               if (
-                id.includes('/monaco-editor/') ||
-                id.includes('/@monaco-editor/') ||
-                id.includes('/codemirror/') ||
-                id.includes('/@codemirror/')
+                pkg('monaco-editor') ||
+                scoped('@monaco-editor') ||
+                pkg('codemirror') ||
+                scoped('@codemirror') ||
+                scoped('@uiw')
               )
                 return 'vendor-editor';
-              if (id.includes('/katex/')) return 'vendor-katex';
-              if (id.includes('/@icon-park/')) return 'vendor-icons';
-              if (id.includes('/diff2html/')) return 'vendor-diff';
+
+              if (pkg('katex')) return 'vendor-katex';
+              if (scoped('@icon-park')) return 'vendor-icons';
+              if (pkg('diff2html')) return 'vendor-diff';
               return undefined;
             },
           },
