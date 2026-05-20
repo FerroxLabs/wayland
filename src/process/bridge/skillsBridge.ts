@@ -54,9 +54,13 @@ export function initSkillsBridge(): void {
   });
 
   ipcBridge.skills.setPinned.provider(async ({ name, pinned }) => {
-    const prefs = (await ProcessConfig.get('skills.preferences')) ?? {};
-    const current: string[] = Array.isArray(prefs.pinned) ? prefs.pinned : [];
+    const prefs = (await ProcessConfig.get('skills.preferences')) ?? { pinned: [], disabled: [], revision: 0 };
+    const current = prefs.pinned ?? [];
     const next = pinned ? [...new Set([...current, name])] : current.filter((n) => n !== name);
-    await ProcessConfig.set('skills.preferences', { ...prefs, pinned: next });
+    await ProcessConfig.set('skills.preferences', {
+      pinned: next,
+      disabled: prefs.disabled ?? [],
+      revision: (prefs.revision ?? 0) + 1,
+    });
   });
 }
