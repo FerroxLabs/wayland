@@ -18,20 +18,25 @@ import { skillGuardLlmScan, type LlmScanCall } from './skillGuardLlmScan';
  */
 export class SkillGuard {
   static async scan(skills: SkillScanInput[], opts: { llm?: boolean; llmCall?: LlmScanCall } = {}): Promise<SkillSecurityReport[]> {
-    const llmScanned = !!opts.llm;
-    const llmResults = llmScanned ? await skillGuardLlmScan(skills, opts.llmCall) : skills.map(() => ({ findings: [] as SkillFinding[] }));
+    // `llmScanned` on the report must reflect whether the LLM layer ACTUALLY
+    // ran for each skill — not whether the caller merely requested it. If
+    // `opts.llm` is true but no `llmCall` is wired, the seam returns
+    // `ran: false` per skill and the report stays honest. (C2 fix.)
+    const llmResults = opts.llm
+      ? await skillGuardLlmScan(skills, opts.llmCall)
+      : skills.map(() => ({ findings: [] as SkillFinding[], ran: false }));
 
     const scannedAt = Date.now();
     return skills.map((skill, i) => {
       const regexFindings = SKILL_GUARD_RULES.flatMap((rule) => rule.test(skill));
-      const llmFindings = llmResults[i]?.findings ?? [];
-      const findings = [...regexFindings, ...llmFindings];
+      const llmResult = llmResults[i] ?? { findings: [] as SkillFinding[], ran: false };
+      const findings = [...regexFindings, ...llmResult.findings];
       return {
         verdict: computeVerdict(findings),
         findings,
         scannedAt,
         scannerVersion: SKILL_SCANNER_VERSION,
-        llmScanned,
+        llmScanned: llmResult.ran,
       };
     });
   }

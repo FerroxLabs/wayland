@@ -128,10 +128,24 @@ describe('SkillGuard.scan — LLM layer (injectable)', () => {
     expect(withLlm.verdict).toBe('review');
   });
 
-  it('llmScanned reflects opts.llm in the report', async () => {
+  it('llmScanned reflects whether an LLM call actually ran, not whether one was requested (C2)', async () => {
+    // No opts → no LLM layer touched → llmScanned: false
     const [r1] = await SkillGuard.scan([skill()]);
     expect(r1.llmScanned).toBe(false);
+
+    // opts.llm: true but no llmCall provided → the stub seam returns
+    // ran: false. The report MUST stay honest: no model looked at this
+    // skill, so the UI must not claim it did.
     const [r2] = await SkillGuard.scan([skill()], { llm: true });
-    expect(r2.llmScanned).toBe(true);
+    expect(r2.llmScanned).toBe(false);
+
+    // opts.llm: true with a real injected llmCall → the LLM actually ran,
+    // so llmScanned: true.
+    const fakeCall = vi.fn(async (batch: { name: string; body: string }[]) =>
+      batch.map(() => ({ findings: [] }))
+    );
+    const [r3] = await SkillGuard.scan([skill()], { llm: true, llmCall: fakeCall });
+    expect(r3.llmScanned).toBe(true);
+    expect(fakeCall).toHaveBeenCalledOnce();
   });
 });
