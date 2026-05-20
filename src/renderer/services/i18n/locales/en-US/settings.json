@@ -1643,10 +1643,12 @@
   },
   "imageGenPage": {
     "title": "Image Generation",
-    "subtitle": "Pick which configured image-capable model the in-chat image generation tool should use by default.",
-    "dedicatedPageTitle": "Dedicated page coming next release",
-    "dedicatedPageBody": "For now, configure the image generation default model in Skills & Tools → MCP & Voice. We are moving this to its own first-class page.",
-    "openInSkills": "Open in Skills & Tools"
+    "subtitle": "Configure the built-in image generation tool: choose a default model and enable or disable the MCP server.",
+    "mcpToggleLabel": "Enable image generation tool",
+    "mcpToggleDescription": "When enabled, agents can generate and edit images using the configured model.",
+    "defaultModelLabel": "Default image model",
+    "noModels": "No image-capable models configured.",
+    "toggleError": "Failed to toggle image generation. Please try again."
   },
   "voicePage": {
     "title": "Voice",

@@ -976,6 +976,15 @@
   "mcpPage": {
     "title": "MCP Sunucuları"
   },
+  "imageGenPage": {
+    "title": "Görsel Oluşturma",
+    "subtitle": "Yerleşik görsel oluşturma aracını yapılandırın: varsayılan modeli seçin, MCP sunucusunu etkinleştirin veya devre dışı bırakın.",
+    "mcpToggleLabel": "Görsel oluşturma aracını etkinleştir",
+    "mcpToggleDescription": "Etkinleştirildiğinde ajanlar, yapılandırılan modeli kullanarak görsel oluşturabilir ve düzenleyebilir.",
+    "defaultModelLabel": "Varsayılan görsel modeli",
+    "noModels": "Görsel oluşturmaya uygun model yapılandırılmamış.",
+    "toggleError": "Görsel oluşturma değiştirilemedi. Lütfen tekrar deneyin."
+  },
   "generalPage": {
     "title": "Genel"
   },

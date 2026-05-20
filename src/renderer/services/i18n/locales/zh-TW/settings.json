@@ -978,6 +978,15 @@
   "mcpPage": {
     "title": "MCP 伺服器"
   },
+  "imageGenPage": {
+    "title": "圖像生成",
+    "subtitle": "設定內建圖像生成工具：選擇預設模型並啟用或停用 MCP 伺服器。",
+    "mcpToggleLabel": "啟用圖像生成工具",
+    "mcpToggleDescription": "啟用後，智能體可使用所設定的模型生成和編輯圖像。",
+    "defaultModelLabel": "預設圖像模型",
+    "noModels": "尚未設定支援圖像生成的模型。",
+    "toggleError": "切換圖像生成失敗，請重試。"
+  },
   "generalPage": {
     "title": "一般"
   },

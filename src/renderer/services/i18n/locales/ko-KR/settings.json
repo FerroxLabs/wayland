@@ -978,6 +978,15 @@
   "mcpPage": {
     "title": "MCP 서버"
   },
+  "imageGenPage": {
+    "title": "이미지 생성",
+    "subtitle": "내장 이미지 생성 도구를 구성합니다. 기본 모델을 선택하고 MCP 서버를 활성화하거나 비활성화하세요.",
+    "mcpToggleLabel": "이미지 생성 도구 활성화",
+    "mcpToggleDescription": "활성화하면 에이전트가 설정된 모델을 사용하여 이미지를 생성하고 편집할 수 있습니다.",
+    "defaultModelLabel": "기본 이미지 모델",
+    "noModels": "이미지 생성 가능한 모델이 설정되지 않았습니다.",
+    "toggleError": "이미지 생성 전환에 실패했습니다. 다시 시도해 주세요."
+  },
   "generalPage": {
     "title": "일반"
   },

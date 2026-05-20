@@ -977,6 +977,15 @@
   "mcpPage": {
     "title": "MCP 服务器"
   },
+  "imageGenPage": {
+    "title": "图像生成",
+    "subtitle": "配置内置图像生成工具：选择默认模型并启用或禁用 MCP 服务器。",
+    "mcpToggleLabel": "启用图像生成工具",
+    "mcpToggleDescription": "启用后，智能体可以使用所配置的模型生成和编辑图像。",
+    "defaultModelLabel": "默认图像模型",
+    "noModels": "未配置支持图像生成的模型。",
+    "toggleError": "切换图像生成失败，请重试。"
+  },
   "generalPage": {
     "title": "通用"
   },

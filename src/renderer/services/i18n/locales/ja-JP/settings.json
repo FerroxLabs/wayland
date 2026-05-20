@@ -978,6 +978,15 @@
   "mcpPage": {
     "title": "MCPサーバー"
   },
+  "imageGenPage": {
+    "title": "画像生成",
+    "subtitle": "組み込みの画像生成ツールを設定します。デフォルトモデルを選択し、MCPサーバーを有効または無効にします。",
+    "mcpToggleLabel": "画像生成ツールを有効にする",
+    "mcpToggleDescription": "有効にすると、エージェントは設定されたモデルを使用して画像の生成・編集ができます。",
+    "defaultModelLabel": "デフォルト画像モデル",
+    "noModels": "画像生成に対応したモデルが設定されていません。",
+    "toggleError": "画像生成の切り替えに失敗しました。もう一度お試しください。"
+  },
   "generalPage": {
     "title": "一般"
   },
