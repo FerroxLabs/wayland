@@ -19,7 +19,7 @@ import SkillDetailDrawer from './SkillDetailDrawer';
 import SkillRow from './SkillRow';
 
 const SkillsSettings: React.FC = () => {
-  const { t } = useTranslation('skills');
+  const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
 
   const [entries, setEntries] = useState<SkillIndexEntry[]>([]);
   const [stats, setStats] = useState<SkillStats | null>(null);
@@ -174,7 +174,11 @@ const SkillsSettings: React.FC = () => {
               className='text-center text-13px py-40px'
               style={{ color: 'var(--text-secondary)' }}
             >
-              {query.trim() ? t('search.empty') : t('search.placeholder')}
+              {query.trim()
+                ? t('search.empty')
+                : entries.length === 0
+                  ? t('search.emptyLibrary', 'No skills loaded yet — try importing one.')
+                  : t('search.empty')}
             </div>
           ) : (
             <Virtuoso

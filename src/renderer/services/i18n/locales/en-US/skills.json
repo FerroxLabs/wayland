@@ -4,7 +4,19 @@
   "search": {
     "placeholder": "Search skills...",
     "empty": "No skills match your search",
+    "emptyLibrary": "No skills loaded yet — try importing one, or restart to reload the bundled library.",
     "resultsCount": "{{count}} matching skills"
+  },
+  "stats": {
+    "total": "Total skills",
+    "pinned": "Pinned",
+    "flagged": "Flagged",
+    "sources": "Sources"
+  },
+  "sections": {
+    "sources": "Sources",
+    "status": "Status",
+    "categories": "Categories"
   },
   "filters": {
     "allSources": "All sources",

@@ -37,7 +37,7 @@ const MetaRow: React.FC<MetaRowProps> = ({ label, value }) => (
 );
 
 const SkillDetailDrawer: React.FC<Props> = ({ entry, open, onClose, onTogglePin }) => {
-  const { t } = useTranslation('skills');
+  const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
 
   if (!entry) return null;
 

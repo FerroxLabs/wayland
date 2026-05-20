@@ -14,7 +14,7 @@ type Props = {
 };
 
 const LibraryHealth: React.FC<Props> = ({ stats }) => {
-  const { t } = useTranslation('skills');
+  const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
 
   const total = stats?.total ?? 0;
   const pinned = stats?.pinned ?? 0;
@@ -28,7 +28,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
           {total}
         </div>
         <div className='text-12px mt-4px' style={{ color: 'var(--text-secondary)' }}>
-          {t('filters.allSources', 'All skills')}
+          {t('stats.total', 'Total skills')}
         </div>
       </Card>
 
@@ -37,7 +37,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
           {pinned}
         </div>
         <div className='text-12px mt-4px' style={{ color: 'var(--text-secondary)' }}>
-          {t('actions.pin', 'Pinned')}
+          {t('stats.pinned', 'Pinned')}
         </div>
       </Card>
 
@@ -49,7 +49,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
           {flagged}
         </div>
         <div className='text-12px mt-4px' style={{ color: 'var(--text-secondary)' }}>
-          {t('status.review', 'Flagged')}
+          {t('stats.flagged', 'Flagged')}
         </div>
       </Card>
 
@@ -58,7 +58,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
           {sourceCount}
         </div>
         <div className='text-12px mt-4px' style={{ color: 'var(--text-secondary)' }}>
-          {t('filters.allSources', 'Sources')}
+          {t('stats.sources', 'Sources')}
         </div>
       </Card>
     </div>

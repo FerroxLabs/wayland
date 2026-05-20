@@ -51,7 +51,7 @@ const SOURCE_BADGE_CLASS: Record<string, string> = {
 };
 
 const SkillRow: React.FC<Props> = ({ entry, pinned, onTogglePin, onClick }) => {
-  const { t } = useTranslation('skills');
+  const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
   const verdict = entry.security?.verdict ?? 'unscanned';
   const sourceLabel =
     entry.sourceLabel ?? SOURCE_LABEL[entry.source] ?? entry.source;

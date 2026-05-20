@@ -32,7 +32,7 @@ const FilterRail: React.FC<Props> = ({
   onVerdictsChange,
   onCategoriesChange,
 }) => {
-  const { t } = useTranslation('skills');
+  const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
 
   const categories = useMemo(() => {
     const seen = new Set<string>();
@@ -60,7 +60,7 @@ const FilterRail: React.FC<Props> = ({
           className='block mb-8px text-11px uppercase font-semibold'
           style={{ color: 'var(--text-tertiary)', letterSpacing: '0.06em' }}
         >
-          {t('filters.allSources')}
+          {t('sections.sources', 'Sources')}
         </Typography.Text>
         <div className='flex flex-col gap-6px'>
           {ALL_SOURCES.map((src) => (
@@ -83,7 +83,7 @@ const FilterRail: React.FC<Props> = ({
           className='block mb-8px text-11px uppercase font-semibold'
           style={{ color: 'var(--text-tertiary)', letterSpacing: '0.06em' }}
         >
-          {t('filters.verdict.all')}
+          {t('sections.status', 'Status')}
         </Typography.Text>
         <div className='flex flex-col gap-6px'>
           {ALL_VERDICTS.map((v) => (
@@ -107,7 +107,7 @@ const FilterRail: React.FC<Props> = ({
             className='block mb-8px text-11px uppercase font-semibold'
             style={{ color: 'var(--text-tertiary)', letterSpacing: '0.06em' }}
           >
-            {t('filters.category.all')}
+            {t('sections.categories', 'Categories')}
           </Typography.Text>
           <div className='flex flex-col gap-6px'>
             {categories.map((cat) => (

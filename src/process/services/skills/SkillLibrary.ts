@@ -14,6 +14,7 @@
  */
 
 import path from 'path';
+import { existsSync } from 'fs';
 import { readFile as fsReadFile } from 'fs/promises';
 import { SKILL_SCANNER_VERSION, type SkillIndexEntry, type SkillSecurityReport, type SkillSource } from '@/common/types/skillTypes';
 import { SkillGuard } from './SkillGuard';
@@ -25,6 +26,52 @@ import { SkillGuard } from './SkillGuard';
 // plain `console.warn` here instead.
 
 const TAG = '[SkillLibrary]';
+
+/**
+ * Resolve the on-disk directory that holds `index.json` + `bodies/`.
+ *
+ * The vendored library lives at `src/process/resources/skills-library/` in
+ * the source tree. After packaging, `electron-builder.yml` asarUnpack's
+ * `resources/skills-library/**\/*` so it ends up at
+ * `app.asar.unpacked/resources/skills-library/`. The main process bundle
+ * itself lives in `out/main/` (or `out/main/chunks/` when code-split), and
+ * the same dir holds the stdio subprocess bundle for `wayland_search_skills`.
+ *
+ * We probe a small list of candidates with `existsSync(index.json)` and
+ * return the first hit. This handles three environments without an explicit
+ * `isPackaged` flag:
+ *
+ *   - Dev:     `<repo>/out/main/<bundle>.js`   → walk up to `<repo>/src/process/resources/skills-library`
+ *   - Packaged: `app.asar/out/main/<bundle>.js` → swap to `app.asar.unpacked/resources/skills-library`
+ *   - Stdio subprocess: same `out/main/` anchor as the main bundle
+ *
+ * If no candidate exists, the first candidate is returned so the eventual
+ * `readFile(index.json)` failure includes a real path the user can grep for.
+ */
+function resolveSkillsLibraryDir(): string {
+  // require.main is the entry; __filename only the current chunk. Either
+  // anchors us at a sibling of the skills-library tree once normalized.
+  const mainModuleDir = path.dirname((require.main?.filename ?? __filename) as string);
+  const baseDir = path.basename(mainModuleDir) === 'chunks' ? path.dirname(mainModuleDir) : mainModuleDir;
+  const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
+
+  const candidates = [
+    // Packaged build: asarUnpack target.
+    path.resolve(baseDirUnpacked, '../../resources/skills-library'),
+    // Dev build: out/main/ → repo root → src/process/resources/skills-library.
+    path.resolve(baseDir, '../../src/process/resources/skills-library'),
+    // Pre-fix legacy default — kept last so an existing prod layout still works.
+    path.resolve(baseDir, '../../resources/skills-library'),
+    path.resolve(baseDir, '../resources/skills-library'),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(path.join(candidate, 'index.json'))) return candidate;
+  }
+  // No candidate exists; return the first so the next readFile() surfaces a
+  // concrete path in the error rather than a misleading-but-resolvable one.
+  return candidates[0];
+}
 
 type ReadFileFn = (p: string) => Promise<string>;
 
@@ -63,8 +110,7 @@ export class SkillLibrary {
   private loadPromise: Promise<void> | null = null;
 
   private constructor(opts: SkillLibraryOptions = {}) {
-    this.resourceDir =
-      opts.resourceDir ?? path.resolve(__dirname, '../../resources/skills-library');
+    this.resourceDir = opts.resourceDir ?? resolveSkillsLibraryDir();
     this.readFileFn = opts.readFile ?? ((p) => fsReadFile(p, 'utf-8'));
   }
 

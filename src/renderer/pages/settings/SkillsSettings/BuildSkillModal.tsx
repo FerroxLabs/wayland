@@ -19,7 +19,7 @@ type VerdictAlertProps = {
 };
 
 const VerdictAlert: React.FC<VerdictAlertProps> = ({ verdict, name }) => {
-  const { t } = useTranslation('skills');
+  const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
   const colorMap: Record<string, string> = {
     clean: 'bg-[rgba(var(--success-6),0.10)] text-[rgb(var(--success-6))] border-[rgba(var(--success-6),0.2)]',
     review: 'bg-[rgba(var(--warning-6),0.10)] text-[rgb(var(--warning-6))] border-[rgba(var(--warning-6),0.2)]',
@@ -43,7 +43,7 @@ type BuildSkillModalProps = {
 const EMPTY_BODY = '# my-skill\n\n## Use when\n\n- \n\n## Do NOT use when\n\n- \n\n## Instructions\n\n';
 
 const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onSaved }) => {
-  const { t } = useTranslation('skills');
+  const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
 
   const [tab, setTab] = useState<BuildTab>('write');
   const [name, setName] = useState('');
