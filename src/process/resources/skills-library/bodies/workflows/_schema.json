@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://foundryskills.dev/schema/workflow-frontmatter.json",
+  "title": "FoundrySkills WORKFLOW.md Frontmatter Schema",
+  "description": "Validates YAML frontmatter in workflow SKILL.md files for the FoundrySkills library. Workflows chain multiple atomic skills into multi-step processes.",
+  "type": "object",
+  "required": ["name", "description"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Workflow identifier. Lowercase letters, numbers, and hyphens only. No leading, trailing, or consecutive hyphens. Must match the parent directory name exactly.",
+      "examples": ["launch-saas", "buy-a-home", "land-new-job"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 1024,
+      "description": "What this workflow does AND when to use it. Must include trigger phrases for discovery. Write in third person. Include 'Use when...' and 'Do NOT use when...' clauses for accurate matching.",
+      "examples": [
+        "Orchestrates the full process of launching a SaaS product from system architecture through production monitoring, chaining seven software-development skills into a cohesive build-and-deploy pipeline. Use when the user wants to build and launch a SaaS application from scratch. Do NOT use for single-page static sites or mobile-only apps."
+      ]
+    },
+    "license": {
+      "type": "string",
+      "const": "Apache-2.0",
+      "description": "License for the workflow. All FoundrySkills use Apache-2.0."
+    },
+    "type": {
+      "description": "Content type discriminator. Workflows use 'workflow' to distinguish from skills.",
+      "type": "string",
+      "const": "workflow"
+    },
+    "skills": {
+      "description": "Space-delimited list of skill names this workflow chains, or YAML list.",
+      "type": "string"
+    },
+    "trigger_phrases": {
+      "description": "Space-delimited natural language activation phrases, or YAML list.",
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["author", "version", "tags", "category"],
+      "description": "Workflow extension fields. All values MUST be strings (the Agent Skills spec defines metadata as a string-to-string map).",
+      "properties": {
+        "author": {
+          "type": "string",
+          "const": "foundry-skills",
+          "description": "Workflow author identifier. Always 'foundry-skills' for curated library workflows."
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version string (MAJOR.MINOR.PATCH).",
+          "examples": ["1.0.0", "1.2.3", "2.0.0"]
+        },
+        "tags": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Space-delimited discovery tags. Tags are the primary discovery mechanism. Use 3-8 tags per workflow. Must be a single string with spaces between tags.",
+          "examples": ["architecture api-design devops cloud security step-by-step planning"]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "software-development",
+            "writing",
+            "business",
+            "education",
+            "data-analysis",
+            "productivity",
+            "design-creative",
+            "personal-finance",
+            "health-wellness",
+            "home-household",
+            "family-relationships",
+            "travel-experiences",
+            "legal-civic",
+            "career-development",
+            "hobbies-crafts",
+            "sustainability",
+            "security",
+            "software-project",
+            "content-creation",
+            "business-operations",
+            "life-event",
+            "career",
+            "creative-project",
+            "cross-domain"
+          ],
+          "description": "Primary category. Includes both skill categories (for backwards compatibility with existing workflows) and workflow-specific categories from workflows/_categories.json.",
+          "examples": ["software-project", "content-creation", "software-development", "business"]
+        },
+        "depends": {
+          "type": "string",
+          "description": "Space-delimited skill names that this workflow chains. Documents the skills used in each step.",
+          "examples": ["system-design-process rest-api-design authentication-patterns"]
+        },
+        "disclaimer": {
+          "type": "string",
+          "enum": ["none", "educational-finance", "not-medical-advice", "not-legal-advice"],
+          "description": "Which disclaimer template to inject. Optional for workflows -- no category-based enforcement."
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["beginner", "intermediate", "advanced"],
+          "description": "Target difficulty level of the workflow."
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "allowed-tools": {
+      "type": "string",
+      "description": "Space-delimited list of agent tool names this workflow may invoke. From the Agent Skills spec.",
+      "examples": ["Read", "Read Write Bash", ""]
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "description": "Workflow category taxonomy. Workflows chain atomic skills into multi-step processes. Categories organize workflows by domain and intent. Existing workflows may also use skill categories (software-development, writing, business, etc.) for backwards compatibility -- see _schema.json for the full enum.",
+  "categories": {
+    "software-project": {
+      "label": "Software Project Workflows",
+      "description": "End-to-end software project workflows covering architecture, development, deployment, and operations.",
+      "includes": "SaaS launches, REST API builds, dev environment setup, production deployments, incident response pipelines",
+      "excludes": "Individual coding skills (-> software-development skills), DevOps tool configuration (-> skills), mobile-only apps without web backend",
+      "subcategories": []
+    },
+    "content-creation": {
+      "label": "Content Creation Workflows",
+      "description": "Multi-step content production workflows from ideation through publication and distribution.",
+      "includes": "Blog post publishing pipelines, book chapter writing, content calendar creation, newsletter launch sequences",
+      "excludes": "Single-skill writing tasks (-> writing skills), marketing strategy (-> business-operations), social media posting (-> skills)",
+      "subcategories": []
+    },
+    "business-operations": {
+      "label": "Business Operations Workflows",
+      "description": "Business process workflows for product launches, hiring, marketing campaigns, and fundraising.",
+      "includes": "Product launches, employee hiring pipelines, marketing campaign creation, fundraising preparation",
+      "excludes": "Individual business analysis skills (-> business skills), financial modeling (-> personal-finance skills), legal entity formation (-> legal-civic skills)",
+      "subcategories": []
+    },
+    "life-event": {
+      "label": "Life Event Workflows",
+      "description": "Comprehensive workflows for major life milestones requiring coordination across multiple domains.",
+      "includes": "Home buying, wedding planning, baby preparation, city relocation, retirement planning",
+      "excludes": "Individual financial planning skills (-> personal-finance skills), household maintenance (-> home-household skills), family relationship skills (-> family-relationships skills)",
+      "subcategories": []
+    },
+    "career": {
+      "label": "Career Workflows",
+      "description": "End-to-end career transition and advancement workflows from preparation through execution.",
+      "includes": "Job search pipelines, raise negotiation processes, career switching, freelancing launch, personal brand building",
+      "excludes": "Individual resume or interview skills (-> career-development skills), salary research (-> skills), networking events (-> skills)",
+      "subcategories": []
+    },
+    "creative-project": {
+      "label": "Creative Project Workflows",
+      "description": "Multi-phase creative production workflows from concept through delivery.",
+      "includes": "Podcast episode production, online course creation, art portfolio launches, screenplay writing pipelines",
+      "excludes": "Individual design skills (-> design-creative skills), single writing tasks (-> writing skills), hobby crafts (-> hobbies-crafts skills)",
+      "subcategories": []
+    },
+    "cross-domain": {
+      "label": "Cross-Domain Workflows",
+      "description": "Workflows that span multiple life domains requiring skills from 3+ categories.",
+      "includes": "Side business launches, gap year planning, house renovations, community event organization",
+      "excludes": "Single-domain projects (-> domain-specific workflow category), individual skills (-> skill categories)",
+      "subcategories": []
+    }
+  }
+}

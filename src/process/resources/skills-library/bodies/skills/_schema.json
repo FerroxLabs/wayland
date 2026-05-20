@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://foundryskills.dev/schema/skill-frontmatter.json",
+  "title": "FoundrySkills SKILL.md Frontmatter Schema",
+  "description": "Validates YAML frontmatter in SKILL.md files for the FoundrySkills library (27-category taxonomy). Based on the Agent Skills specification (agentskills.io) with Forge-specific extensions via the metadata field.",
+  "type": "object",
+  "required": ["name", "description"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Skill identifier. Lowercase letters, numbers, and hyphens only. No leading, trailing, or consecutive hyphens. Must match the parent directory name exactly. Becomes the /slash-command in Claude Code.",
+      "examples": ["budget-planning", "python-basics", "cover-letter-writing", "react-components"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 1024,
+      "description": "What the skill does AND when to use it. Must include trigger phrases for agent discovery. Write in third person. Include 'Use when...' and 'Do NOT use when...' clauses for accurate matching.",
+      "examples": [
+        "Creates personal or household budgets using zero-based, 50/30/20, or envelope methods. Use when the user asks about budgeting, managing money, tracking expenses, or creating a spending plan. Do NOT use for investment advice, tax planning, or business financial modeling."
+      ]
+    },
+    "license": {
+      "type": "string",
+      "const": "Apache-2.0",
+      "description": "License for the skill. All FoundrySkills use Apache-2.0."
+    },
+    "compatibility": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Environment requirements or compatibility notes. Only needed for skills with specific runtime or tool dependencies. Most skills should omit this field."
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["author", "version", "tags", "category"],
+      "description": "Forge-specific extension fields. This is the spec-compliant way to add custom fields without breaking cross-agent compatibility. All values MUST be strings (the Agent Skills spec defines metadata as a string-to-string map).",
+      "properties": {
+        "author": {
+          "type": "string",
+          "const": "foundry-skills",
+          "description": "Skill author identifier. Always 'foundry-skills' for curated library skills."
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version string (MAJOR.MINOR.PATCH). Increment MAJOR for breaking instruction changes, MINOR for added guidance, PATCH for typo/formatting fixes.",
+          "examples": ["1.0.0", "1.2.3", "2.0.0"]
+        },
+        "tags": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Space-delimited discovery tags from the controlled vocabulary (_tags.json). Tags are the primary discovery mechanism. Use 3-8 tags per skill. NOT a YAML list -- must be a single string with spaces between tags.",
+          "examples": ["budgeting personal-finance money-management expenses savings", "python flask authentication web backend"]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "software-engineering",
+            "web-development",
+            "backend-systems",
+            "devops-cloud",
+            "data-engineering",
+            "ai-machine-learning",
+            "testing-quality",
+            "writing",
+            "business-strategy",
+            "marketing-sales",
+            "education",
+            "data-analysis",
+            "productivity",
+            "design-creative",
+            "personal-finance",
+            "health-wellness",
+            "home-household",
+            "family-relationships",
+            "travel-experiences",
+            "legal-civic",
+            "career-development",
+            "hobbies-crafts",
+            "sustainability",
+            "security",
+            "creative-arts",
+            "game-development",
+            "emerging-tech"
+          ],
+          "description": "Primary category from the 27-category taxonomy defined in _categories.json. Determines the directory where the skill lives.",
+          "examples": ["software-engineering", "personal-finance", "writing", "career-development"]
+        },
+        "subcategory": {
+          "type": "string",
+          "description": "Secondary category for browsing refinement within the primary category. Must be a valid subcategory from _categories.json for the given category. Optional.",
+          "examples": ["budgeting", "web-development", "business-writing", "job-search"]
+        },
+        "depends": {
+          "type": "string",
+          "description": "Space-delimited skill names that this skill builds upon or requires. Empty string if no dependencies. Skills are loaded independently but this field documents conceptual prerequisites.",
+          "examples": ["", "python-basics", "python-basics flask-fundamentals"]
+        },
+        "disclaimer": {
+          "type": "string",
+          "enum": ["none", "educational-finance", "not-medical-advice", "not-legal-advice"],
+          "description": "Which disclaimer template to inject into the skill body. Skills in personal-finance, health-wellness, and legal-civic categories MUST have a disclaimer other than 'none'. Templates are stored in skills/_disclaimers/."
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["beginner", "intermediate", "advanced"],
+          "description": "Target difficulty level. Affects language complexity and assumed prior knowledge. beginner = no domain experience assumed, intermediate = basic familiarity assumed, advanced = significant experience assumed."
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "allowed-tools": {
+      "type": "string",
+      "description": "Space-delimited list of agent tool names this skill may invoke. Experimental field from the Agent Skills spec. FoundrySkills are pure instructions and should generally omit this field. Only use when a skill specifically requires file reading or other tool access.",
+      "examples": ["Read", "Read Write", ""]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "category": { "const": "personal-finance" }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "required": ["author", "version", "tags", "category", "disclaimer"],
+            "properties": {
+              "disclaimer": { "const": "educational-finance" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "category": { "const": "health-wellness" }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "required": ["author", "version", "tags", "category", "disclaimer"],
+            "properties": {
+              "disclaimer": { "const": "not-medical-advice" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "category": { "const": "legal-civic" }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "required": ["author", "version", "tags", "category", "disclaimer"],
+            "properties": {
+              "disclaimer": { "const": "not-legal-advice" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
