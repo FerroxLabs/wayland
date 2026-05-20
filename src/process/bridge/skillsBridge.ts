@@ -6,6 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
+import { ProcessConfig } from '@process/utils/initStorage';
 
 export function initSkillsBridge(): void {
   ipcBridge.skills.scan.provider(async ({ name }) => {
@@ -32,5 +33,24 @@ export function initSkillsBridge(): void {
       }
     }
     return { rescanned };
+  });
+
+  ipcBridge.skills.list.provider(async () => {
+    const lib = SkillLibrary.getInstance();
+    return lib.list();
+  });
+
+  ipcBridge.skills.stats.provider(async () => {
+    const lib = SkillLibrary.getInstance();
+    return lib.stats();
+  });
+
+  ipcBridge.skills.setPinned.provider(async ({ name, pinned }) => {
+    const prefs = (await ProcessConfig.get('skills.preferences')) ?? {};
+    const current: string[] = Array.isArray(prefs.pinned) ? prefs.pinned : [];
+    const next = pinned
+      ? [...new Set([...current, name])]
+      : current.filter((n) => n !== name);
+    await ProcessConfig.set('skills.preferences', { ...prefs, pinned: next });
   });
 }
