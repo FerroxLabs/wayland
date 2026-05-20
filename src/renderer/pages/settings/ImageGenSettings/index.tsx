@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 TradeCanyon (wayland.ai)
+ * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  */
 

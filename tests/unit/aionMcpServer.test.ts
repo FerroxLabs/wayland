@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
  * Tests for TeamGuideMcpServer tool handler logic (TCP architecture):

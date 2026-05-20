@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
  * audit-credentials — scans Wayland's persisted config for plaintext credentials.

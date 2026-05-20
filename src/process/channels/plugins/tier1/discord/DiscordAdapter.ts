@@ -4,7 +4,7 @@
  *   Copyright OpenClaw contributors, licensed under the MIT License.
  *
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  */
 

@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2025 AionUi (aionui.com)
+ * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
  * Task #4: TeamMcpServer tcp_ready / tcp_error IPC events.
