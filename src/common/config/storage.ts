@@ -6,6 +6,7 @@
 
 import type { AcpBackend, AcpBackendAll, AcpBackendConfig } from '@/common/types/acpTypes';
 import type { SpeechToTextConfig } from '@/common/types/speech';
+import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 // C1: route through wrapped buildStorage so every namespace's storage.{get,set,clear,remove}
 // wire key is recorded in the bridge allowlist. The raw `storage.buildStorage` from
 // @office-ai/platform bypasses the allowlist and causes "Bridge event not allowed"
@@ -105,6 +106,7 @@ export interface IConfigStorageRefer {
     switch?: boolean;
   };
   'tools.speechToText'?: SpeechToTextConfig;
+  'tools.textToSpeech'?: TextToSpeechConfig;
   // Per-category notification preferences (master switch lives in system.notificationEnabled via systemSettingsBridge)
   'notifications.agentFinished'?: boolean;
   'notifications.agentError'?: boolean;
