@@ -20,7 +20,12 @@ const SHARED_OPTIONS = {
   bundle: true,
   platform: 'node',
   format: 'cjs',
-  external: ['electron'],
+  // `bun:sqlite` is a Bun built-in that Node cannot resolve. The search-skills
+  // subprocess transitively imports the database driver registry, but never
+  // executes the bun-specific code path; marking it external leaves the
+  // require unresolved in the bundle (the registry picks a different driver
+  // at runtime under Node).
+  external: ['electron', 'bun:sqlite'],
   tsconfig: path.join(ROOT, 'tsconfig.json'),
   loader: { '.wasm': 'empty' },
   define: {
@@ -36,6 +41,11 @@ async function main() {
       ...SHARED_OPTIONS,
       entryPoints: [path.join(ROOT, 'src/process/resources/builtinMcp/imageGenServer.ts')],
       outfile: path.join(ROOT, 'out/main/builtin-mcp-image-gen.js'),
+    }),
+    esbuild.build({
+      ...SHARED_OPTIONS,
+      entryPoints: [path.join(ROOT, 'src/process/resources/builtinMcp/searchSkillsServerEntry.ts')],
+      outfile: path.join(ROOT, 'out/main/builtin-mcp-search-skills.js'),
     }),
     esbuild.build({
       ...SHARED_OPTIONS,

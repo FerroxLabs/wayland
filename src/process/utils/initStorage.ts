@@ -38,6 +38,8 @@ import {
   BUILTIN_IMAGE_GEN_ID,
   BUILTIN_IMAGE_GEN_LEGACY_NAMES,
   BUILTIN_IMAGE_GEN_NAME,
+  BUILTIN_SEARCH_SKILLS_ID,
+  BUILTIN_SEARCH_SKILLS_NAME,
 } from '../resources/builtinMcp/constants';
 // Platform and architecture types (moved from deleted updateConfig)
 type PlatformType = 'win32' | 'darwin' | 'linux';
@@ -756,6 +758,74 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
         createdAt: now,
         updatedAt: now,
         originalJson: buildOriginalJson(scriptPath, env),
+      };
+      mcpServers.push(newServer);
+      changed = true;
+    }
+
+    // ── Built-in search-skills MCP server ────────────────────────────────────
+    // Exposes the second channel of the two-channel skill architecture: native
+    // backends ship only `_builtin + pinned + enabledSkills` natively (~30
+    // skills); the full 2,105-entry library is reachable ONLY via the
+    // `wayland_search_skills` tool. Enabled by default — the tool is silent
+    // unless the agent calls it, and is what makes the library searchable at
+    // all on ACP/Gemini/wcore backends.
+    const searchSkillsScriptPath = getBuiltinMcpScriptPath('builtin-mcp-search-skills');
+    const searchSkillsExistingIdx = mcpServers.findIndex(
+      (s) => s.builtin === true && s.id === BUILTIN_SEARCH_SKILLS_ID
+    );
+
+    const buildSearchSkillsOriginalJson = (scriptPathValue: string) =>
+      JSON.stringify(
+        {
+          [BUILTIN_SEARCH_SKILLS_NAME]: {
+            command: 'node',
+            args: [scriptPathValue],
+            env: {},
+          },
+        },
+        null,
+        2
+      );
+
+    if (searchSkillsExistingIdx >= 0) {
+      // Update command path in case app location changed.
+      const existing = mcpServers[searchSkillsExistingIdx];
+      const needsPathUpdate =
+        existing.transport.type === 'stdio' &&
+        existing.transport.command === 'node' &&
+        (existing.transport.args || [])[0] !== searchSkillsScriptPath;
+
+      if (needsPathUpdate && existing.transport.type === 'stdio') {
+        const updatedTransport: IMcpServer['transport'] = {
+          ...existing.transport,
+          args: [searchSkillsScriptPath],
+        };
+        mcpServers[searchSkillsExistingIdx] = {
+          ...existing,
+          transport: updatedTransport,
+          originalJson: buildSearchSkillsOriginalJson(searchSkillsScriptPath),
+          updatedAt: now,
+        };
+        changed = true;
+      }
+    } else {
+      const newServer: IMcpServer = {
+        id: BUILTIN_SEARCH_SKILLS_ID,
+        name: BUILTIN_SEARCH_SKILLS_NAME,
+        description:
+          'Built-in tool that lets agents search the full Wayland skill library (~2,000+ entries) by natural language. Returns matching skill bodies inline.',
+        enabled: true,
+        builtin: true,
+        transport: {
+          type: 'stdio',
+          command: 'node',
+          args: [searchSkillsScriptPath],
+          env: {},
+        },
+        createdAt: now,
+        updatedAt: now,
+        originalJson: buildSearchSkillsOriginalJson(searchSkillsScriptPath),
       };
       mcpServers.push(newServer);
       changed = true;

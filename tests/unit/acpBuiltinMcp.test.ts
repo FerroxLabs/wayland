@@ -9,6 +9,68 @@ import type { IMcpServer } from '../../src/common/config/storage';
 import { buildBuiltinAcpSessionMcpServers } from '../../src/process/agent/acp/mcpSessionConfig';
 import { parseAgentCapabilities } from '../../src/common/types/acpTypes';
 
+describe('ACP built-in MCP session config — wayland_search_skills (C1)', () => {
+  it('injects the seeded builtin search-skills entry into session/new with the correct stdio transport', () => {
+    // This is the C1 audit-blocker proof: confirms that the wayland-search-skills
+    // entry seeded by initStorage.ensureBuiltinMcpServers flows through the
+    // session injection path and reaches every ACP-class backend. Without this
+    // wiring, the second channel of the two-channel skill architecture is dead.
+    const servers: IMcpServer[] = [
+      {
+        id: 'builtin-search-skills',
+        name: 'wayland-search-skills',
+        enabled: true,
+        builtin: true,
+        status: 'connected',
+        transport: {
+          type: 'stdio',
+          command: 'node',
+          args: ['/abs/builtin-mcp-search-skills.js'],
+          env: {},
+        },
+        createdAt: 1,
+        updatedAt: 1,
+        originalJson: '{}',
+      },
+    ];
+
+    const result = buildBuiltinAcpSessionMcpServers(servers, { stdio: true, http: false, sse: false });
+
+    expect(result).toEqual([
+      {
+        type: 'stdio',
+        name: 'wayland-search-skills',
+        command: 'node',
+        args: ['/abs/builtin-mcp-search-skills.js'],
+        env: [],
+      },
+    ]);
+  });
+
+  it('drops the search-skills entry when the backend lacks stdio capability (defensive)', () => {
+    const servers: IMcpServer[] = [
+      {
+        id: 'builtin-search-skills',
+        name: 'wayland-search-skills',
+        enabled: true,
+        builtin: true,
+        transport: {
+          type: 'stdio',
+          command: 'node',
+          args: ['/abs/builtin-mcp-search-skills.js'],
+          env: {},
+        },
+        createdAt: 1,
+        updatedAt: 1,
+        originalJson: '{}',
+      },
+    ];
+
+    const result = buildBuiltinAcpSessionMcpServers(servers, { stdio: false, http: false, sse: false });
+    expect(result).toEqual([]);
+  });
+});
+
 describe('ACP built-in MCP session config', () => {
   it('injects only enabled built-in MCP servers and converts transport shape for session/new', () => {
     const servers: IMcpServer[] = [

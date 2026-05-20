@@ -228,6 +228,7 @@ asarUnpack:
   # at startup, so all runtime reads go through the user directory, not asar.
   # Builtin MCP server scripts must be unpacked so external node processes can execute them
   - 'out/main/builtin-mcp-image-gen.js'
+  - 'out/main/builtin-mcp-search-skills.js'
   - 'out/main/team-mcp-stdio.js'
   - 'out/main/team-guide-mcp-stdio.js'
   # Skills library: read in-place at runtime — must not be packed into app.asar

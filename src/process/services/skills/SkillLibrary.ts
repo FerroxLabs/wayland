@@ -16,9 +16,13 @@
 import path from 'path';
 import { readFile as fsReadFile } from 'fs/promises';
 import { SKILL_SCANNER_VERSION, type SkillIndexEntry, type SkillSecurityReport, type SkillSource } from '@/common/types/skillTypes';
-import { mainWarn } from '@process/utils/mainLogger';
-import { ProcessConfig } from '@process/utils/initStorage';
 import { SkillGuard } from './SkillGuard';
+
+// ProcessConfig and mainLogger are intentionally NOT imported at the module
+// level: pulling them in drags `@/common` + initStorage (with the database
+// driver layer) into bundles that don't need them — notably the
+// `wayland_search_skills` MCP stdio subprocess. Use lazy dynamic imports or a
+// plain `console.warn` here instead.
 
 const TAG = '[SkillLibrary]';
 
@@ -119,10 +123,11 @@ export class SkillLibrary {
   registerSource(incoming: SkillIndexEntry[]): void {
     for (const entry of incoming) {
       if (this.byName.has(entry.name)) {
-        mainWarn(TAG, `Skill name collision on registerSource — '${entry.name}' overwritten`, {
-          prev: this.byName.get(entry.name)?.source,
-          next: entry.source,
-        });
+        const prev = this.byName.get(entry.name)?.source;
+        console.warn(
+          `${TAG} Skill name collision on registerSource — '${entry.name}' overwritten`,
+          { prev, next: entry.source }
+        );
         this.entries = this.entries.filter((e) => e.name !== entry.name);
       }
       this.entries.push(entry);
@@ -193,10 +198,12 @@ export class SkillLibrary {
 
     let pinned = 0;
     try {
+      const { ProcessConfig } = await import('@process/utils/initStorage');
       const prefs = await ProcessConfig.get('skills.preferences');
       pinned = prefs?.pinned?.length ?? 0;
     } catch {
-      // Storage unavailable — treat as 0
+      // Storage unavailable (e.g. running inside a subprocess MCP bundle) —
+      // treat as 0.
     }
 
     return { total: this.entries.length, bySource, pinned, flagged };
@@ -216,7 +223,7 @@ export class SkillLibrary {
     if (!entry) return null;
 
     if (entry.security?.verdict === 'blocked') {
-      mainWarn(TAG, `Refused to load body for blocked skill '${name}'`);
+      console.warn(`${TAG} Refused to load body for blocked skill '${name}'`);
       return null;
     }
 
