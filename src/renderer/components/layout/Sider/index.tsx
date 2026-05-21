@@ -223,15 +223,12 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
               onConversationSelect={handleConversationSelect}
               onSessionClick={onSessionClick}
             />
-            {/* Teams library nav entry */}
-            <SiderTeamsEntry
-              isMobile={isMobile}
-              isActive={pathname === '/teams' || pathname.startsWith('/teams/')}
-              collapsed={collapsed}
-              siderTooltipProps={siderTooltipProps}
-              onClick={handleTeamsClick}
-            />
-            {/* Assistants library nav entry */}
+            {/* Workspace nav order (Sean's directive, 2026-05-21):
+                Assistants → Scheduled → Workflows → Teams.
+                Reasoning: the single-shot person → the timed task →
+                the procedure → the full org sit in increasing scope,
+                so the user descends the list when they need more
+                machinery. */}
             <SiderAssistantsEntry
               isMobile={isMobile}
               isActive={pathname === '/assistants'}
@@ -239,10 +236,13 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
               siderTooltipProps={siderTooltipProps}
               onClick={handleAssistantsClick}
             />
-            {/* Workflows nav entry — procedure-shaped automation. Lives
-                between Assistants (people-shaped) and Scheduled (time-shaped)
-                so the three nav items mirror the three ways users invoke
-                the agent universe. */}
+            <SiderScheduledEntry
+              isMobile={isMobile}
+              isActive={pathname === '/scheduled'}
+              collapsed={collapsed}
+              siderTooltipProps={siderTooltipProps}
+              onClick={handleScheduledClick}
+            />
             <SiderWorkflowsEntry
               isMobile={isMobile}
               isActive={pathname === '/workflows'}
@@ -250,13 +250,12 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
               siderTooltipProps={siderTooltipProps}
               onClick={handleWorkflowsClick}
             />
-            {/* Scheduled tasks nav entry - fixed above scroll */}
-            <SiderScheduledEntry
+            <SiderTeamsEntry
               isMobile={isMobile}
-              isActive={pathname === '/scheduled'}
+              isActive={pathname === '/teams' || pathname.startsWith('/teams/')}
               collapsed={collapsed}
               siderTooltipProps={siderTooltipProps}
-              onClick={handleScheduledClick}
+              onClick={handleTeamsClick}
             />
             {/* Divider between fixed top nav and scrollable content area */}
             <div

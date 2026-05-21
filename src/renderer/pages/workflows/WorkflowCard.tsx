@@ -6,37 +6,40 @@
 
 /**
  * WorkflowCard — single grid tile on the Workflows page. Mirrors the
- * compact aesthetic of the Skills page row but laid out as a card so a
- * grid scans quickly. Title + source pill on top, description clamped to
- * three lines so cards stay even-height.
+ * AssistantCard hover affordance (border + shadow lift on Forge Orange)
+ * so the two Workspace pages feel like siblings. Source pill on top,
+ * description clamped so cards stay even-height in a responsive grid.
  */
 
 import { Workflow as WorkflowIcon } from 'lucide-react';
 import React, { useCallback } from 'react';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import { toDisplayName } from '@renderer/pages/settings/SkillsSettings/displayName';
+import styles from './WorkflowCard.module.css';
 
 interface WorkflowCardProps {
   entry: SkillIndexEntry;
   onClick: (entry: SkillIndexEntry) => void;
 }
 
-function sourceLabel(entry: SkillIndexEntry): { label: string; color: string } {
+function sourceLabel(entry: SkillIndexEntry): { label: string; bg: string } {
   // Hand-mapped to the same source palette used on the Skills page so the
   // two views stay visually consistent when a user moves between them.
+  // Forge Orange for `wayland-library` (the headline source) so the pill
+  // reads as on-brand rather than competing with Standing Companies.
   switch (entry.source) {
     case 'wayland-library':
-      return { label: 'Wayland Library', color: 'rgba(var(--primary-6),0.12)' };
+      return { label: 'Wayland Library', bg: 'rgb(var(--primary-6) / 0.16)' };
     case 'team':
-      return { label: entry.sourceLabel ?? 'Wayland Teams', color: 'rgba(33,150,243,0.14)' };
+      return { label: entry.sourceLabel ?? 'Wayland Teams', bg: 'rgba(33,150,243,0.14)' };
     case 'user':
-      return { label: 'My workflows', color: 'rgba(76,175,80,0.16)' };
+      return { label: 'My workflows', bg: 'rgba(76,175,80,0.16)' };
     case 'imported':
-      return { label: 'Imported', color: 'rgba(233,164,14,0.18)' };
+      return { label: 'Imported', bg: 'rgba(233,164,14,0.18)' };
     case 'cli-discovered':
-      return { label: entry.sourceLabel ?? 'CLI', color: 'rgba(0,188,212,0.18)' };
+      return { label: entry.sourceLabel ?? 'CLI', bg: 'rgba(0,188,212,0.18)' };
     default:
-      return { label: entry.source, color: 'var(--fill-2)' };
+      return { label: entry.source, bg: 'var(--color-fill-3)' };
   }
 }
 
@@ -45,46 +48,21 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({ entry, onClick }) => {
   const src = sourceLabel(entry);
 
   return (
-    <button
-      type='button'
-      onClick={handleClick}
-      className='text-left p-14px rd-10px cursor-pointer transition-colors'
-      style={{
-        background: 'var(--fill-1)',
-        border: '1px solid var(--border-1)',
-      }}
-    >
-      <div className='flex items-start gap-10px'>
-        <div
-          className='shrink-0 w-32px h-32px flex items-center justify-center rd-8px'
-          style={{ background: 'rgba(var(--primary-6),0.12)', color: 'var(--primary)' }}
-        >
+    <button type='button' onClick={handleClick} className={styles.card}>
+      <div className={styles.header}>
+        <div className={styles.iconWrap}>
           <WorkflowIcon size={18} />
         </div>
-        <div className='flex-1 min-w-0'>
-          <div className='flex items-center gap-6px flex-wrap'>
-            <span
-              className='text-14px font-semibold truncate'
-              style={{ color: 'var(--text-primary)' }}
-            >
+        <div className={styles.body}>
+          <div className={styles.titleRow}>
+            <span className={styles.title} title={toDisplayName(entry.name)}>
               {toDisplayName(entry.name)}
             </span>
-            <span
-              className='text-10px px-6px py-1px rd-4px uppercase tracking-wide'
-              style={{ background: src.color, color: 'var(--text-secondary)' }}
-            >
+            <span className={styles.pill} style={{ background: src.bg }}>
               {src.label}
             </span>
           </div>
-          <div
-            className='text-12px mt-6px overflow-hidden'
-            style={{
-              color: 'var(--text-secondary)',
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 3,
-            }}
-          >
+          <div className={styles.description}>
             {entry.description || 'No description provided.'}
           </div>
         </div>

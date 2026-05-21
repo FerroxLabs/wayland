@@ -6,7 +6,11 @@
  * propagate.
  */
 :root {
-  --color-standing-rgb: 192, 132, 252;
+  /* Forge Orange — Wayland brand. Was lavender (192,132,252) which read
+     as off-brand against the rest of the UI (CTAs, primary accents are
+     orange). Aligning Standing Companies with the brand orange so the
+     "this is the headline tier" emphasis lands without color drift. */
+  --color-standing-rgb: 255, 107, 53;
   --color-standing: rgb(var(--color-standing-rgb));
 }
 
@@ -64,7 +68,12 @@
 
 .sectionHeader + .sectionHeader,
 .sectionGroup + .sectionGroup {
-  margin-top: 28px;
+  /* Stronger break between Standing Companies and Teams so the two
+     sections feel like distinct tiers (Sean's "Needs a Teams Header
+     to Separate" feedback). Top divider + extra padding above. */
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--color-border-2);
 }
 
 .sectionTitle {

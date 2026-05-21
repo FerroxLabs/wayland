@@ -1,0 +1,88 @@
+/**
+ * WorkflowCard styles — mirrors AssistantCard hover semantics so a user
+ * moving between Workspace > Assistants and Workspace > Workflows gets
+ * the same affordance feedback. Border + box-shadow lift on hover, slight
+ * press on click. Forge Orange (--primary-6) accent on hover keeps the
+ * page on-brand.
+ */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--color-fill-1);
+  border: 1px solid var(--color-border-2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.card:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-2);
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.4);
+}
+
+.card:active {
+  transform: scale(0.99);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgb(var(--primary-6) / 0.12);
+  color: rgb(var(--primary-6));
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pill {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-2);
+}
+
+.description {
+  font-size: 12px;
+  margin-top: 6px;
+  color: var(--color-text-2);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
