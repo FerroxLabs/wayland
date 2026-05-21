@@ -22,12 +22,17 @@
  * plus a list of skill dependencies it activates.
  */
 
-import { Button, Input } from '@arco-design/web-react';
+import { Button } from '@arco-design/web-react';
 import { Download, Sparkles } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
-import { LibraryPageHeader, LibrarySectionHeader } from '@/renderer/components/layout/library';
+import {
+  LibraryFilterRail,
+  LibraryFilterRow,
+  LibraryPageHeader,
+  LibrarySectionHeader,
+} from '@/renderer/components/layout/library';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import WorkflowCard from './WorkflowCard';
 import WorkflowDetailModal from './WorkflowDetailModal';
@@ -186,61 +191,28 @@ const WorkflowsLibraryPage: React.FC = () => {
       <div className='flex-1 min-h-0 overflow-y-auto px-24px pb-20px'>
         <div className='flex flex-col gap-16px min-w-0'>
         <div className='flex gap-20px items-start'>
-          {/* Category rail — search lifts in here (mirrors Assistants
-              page pattern) so the user sees filter + categories as one
-              control surface instead of a search bar floating above.
-              Border-right divides the rail from the card grid, same
-              treatment as Assistants FilterRail for visual parity. */}
-          <aside
-            className='shrink-0 w-200px sticky top-0 flex flex-col gap-8px py-2px pr-16px'
-            style={{
-              color: 'var(--color-text-2)',
-              borderRight: '1px solid var(--color-border-2)',
-              alignSelf: 'stretch',
-            }}
+          <LibraryFilterRail
+            searchValue={query}
+            onSearchChange={setQuery}
+            searchPlaceholder={t('search.placeholder', 'Search workflows…')}
+            ariaLabel={t('filterRail.aria', 'Workflow filters')}
           >
-            <Input.Search
-              placeholder={t('search.placeholder', 'Search workflows…')}
-              value={query}
-              onChange={(v) => setQuery(v)}
-              allowClear
-            />
             {!searching ? (
               <div className='flex flex-col gap-2px'>
-                <button
-                  type='button'
+                <LibraryFilterRow
+                  label={t('allCategories', 'All workflows')}
+                  count={workflows.length}
+                  active={activeCategory === null}
                   onClick={() => setActiveCategory(null)}
-                  className='flex items-center justify-between gap-12px px-10px py-6px rd-6px text-13px cursor-pointer transition-colors'
-                  style={{
-                    background: activeCategory === null ? 'var(--color-fill-2)' : 'transparent',
-                    color: activeCategory === null ? 'var(--color-text-1)' : 'var(--color-text-2)',
-                    fontWeight: activeCategory === null ? 600 : 400,
-                    border: 'none',
-                  }}
-                >
-                  <span className='truncate'>{t('allCategories', 'All workflows')}</span>
-                  <span className='text-11px shrink-0' style={{ color: 'var(--color-text-3)' }}>
-                    {workflows.length}
-                  </span>
-                </button>
+                />
                 {sections.map((s) => (
-                  <button
+                  <LibraryFilterRow
                     key={s.slug}
-                    type='button'
+                    label={s.label}
+                    count={s.entries.length}
+                    active={activeCategory === s.slug}
                     onClick={() => setActiveCategory(s.slug)}
-                    className='flex items-center justify-between gap-12px px-10px py-6px rd-6px text-13px cursor-pointer transition-colors'
-                    style={{
-                      background: activeCategory === s.slug ? 'var(--color-fill-2)' : 'transparent',
-                      color: activeCategory === s.slug ? 'var(--color-text-1)' : 'var(--color-text-2)',
-                      fontWeight: activeCategory === s.slug ? 600 : 400,
-                      border: 'none',
-                    }}
-                  >
-                    <span className='truncate'>{s.label}</span>
-                    <span className='text-11px shrink-0' style={{ color: 'var(--color-text-3)' }}>
-                      {s.entries.length}
-                    </span>
-                  </button>
+                  />
                 ))}
               </div>
             ) : (
@@ -248,7 +220,7 @@ const WorkflowsLibraryPage: React.FC = () => {
                 {t('count', '{{count}} workflows', { count: searchFiltered.length })}
               </div>
             )}
-          </aside>
+          </LibraryFilterRail>
 
           <div className='flex-1 min-w-0 flex flex-col gap-20px'>
             {searching ? (
