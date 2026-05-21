@@ -267,21 +267,21 @@ const TeamsLibraryPage: React.FC = () => {
 
         {totalTeams > 0 && (
           <section className={styles.sectionGroup} data-testid='teams-group-teams'>
-            <header className={styles.sectionHeader}>
-              <span className={`${styles.sectionTitle} ${styles.sectionTitleTeams}`}>
-                {teams.length > 0
+            <LibrarySectionHeader
+              label={
+                teams.length > 0
                   ? t('teams.group.teams', { defaultValue: 'Teams' })
-                  : t('teams.group.startNew', { defaultValue: 'Start a new team' })}
-              </span>
-              {teams.length > 0 && (
-                <span className={styles.sectionHint}>
-                  {t('teams.group.teamsHint', {
-                    count: teams.length,
-                    defaultValue: '{{count}} — ad-hoc squads for a specific outcome. Spawn, ship, dissolve.',
-                  })}
-                </span>
-              )}
-            </header>
+                  : t('teams.group.startNew', { defaultValue: 'Start a new team' })
+              }
+              hint={
+                teams.length > 0
+                  ? t('teams.group.teamsHint', {
+                      count: teams.length,
+                      defaultValue: '{{count}} — ad-hoc squads for a specific outcome. Spawn, ship, dissolve.',
+                    })
+                  : undefined
+              }
+            />
             <div className={styles.gridTeams}>
               {teams.map((team) => (
                 <TeamCard key={team.id} team={team} localeKey={localeKey} onLaunch={handleLaunchTeam} />

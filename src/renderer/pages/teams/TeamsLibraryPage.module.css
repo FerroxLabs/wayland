@@ -30,37 +30,12 @@
   padding: 24px 28px 48px;
 }
 
-.sectionHeader {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin: 0 0 12px;
-}
-
-.sectionHeader + .sectionHeader,
+/* Stronger break between Standing Companies and Teams sections so the
+   two tiers read as distinct. */
 .sectionGroup + .sectionGroup {
-  /* Stronger break between Standing Companies and Teams so the two
-     sections feel like distinct tiers (Sean's "Needs a Teams Header
-     to Separate" feedback). Top divider + extra padding above. */
-  margin-top: 40px;
-  padding-top: 28px;
+  margin-top: var(--space-8);
+  padding-top: var(--space-7);
   border-top: 1px solid var(--color-border-2);
-}
-
-.sectionTitle {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.sectionTitleTeams {
-  color: var(--color-team);
-}
-
-.sectionHint {
-  font-size: 12px;
-  color: var(--color-text-3);
 }
 
 .gridStanding {

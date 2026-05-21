@@ -21,7 +21,7 @@
 
 import { ipcBridge } from '@/common';
 import coworkSvg from '@/renderer/assets/icons/cowork.svg';
-import { LibraryPageHeader } from '@/renderer/components/layout/library';
+import { LibraryPageHeader, LibrarySectionHeader } from '@/renderer/components/layout/library';
 import {
   useAssistantEditor,
   useAssistantList,
@@ -288,12 +288,10 @@ const AssistantsLibraryPage: React.FC = () => {
     if (entries.length === 0 && !includeBuildCard) return null;
     return (
       <section data-testid={testId}>
-        <header className={styles.sectionHeader}>
-          <span className={styles.sectionTitle}>{label}</span>
-          <span className={styles.sectionCount}>
-            {includeBuildCard ? entries.length + 1 : entries.length}
-          </span>
-        </header>
+        <LibrarySectionHeader
+          label={label}
+          count={includeBuildCard ? entries.length + 1 : entries.length}
+        />
         <div className={styles.grid}>
           {entries.map((entry) => (
             <AssistantCard
