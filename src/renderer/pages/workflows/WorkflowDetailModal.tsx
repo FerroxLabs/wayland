@@ -198,11 +198,21 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
             </div>
           ) : null}
 
-          <div className='flex items-center justify-end gap-8px pt-8px'>
-            <Button icon={<Calendar size={14} />} onClick={handleSchedule}>
+          <div className='flex items-center justify-end gap-12px pt-8px'>
+            <Button
+              icon={<Calendar size={14} />}
+              onClick={handleSchedule}
+              style={{ borderRadius: 8 }}
+              className='px-16px'
+            >
               {t('actions.schedule', 'Schedule')}
             </Button>
-            <Button type='primary' icon={<Rocket size={14} />} onClick={handleLaunch}>
+            <Button
+              type='primary'
+              icon={<Rocket size={14} />}
+              onClick={handleLaunch}
+              className='!rounded-[100px] !h-32px !px-16px'
+            >
               {t('actions.launch', 'Launch now')}
             </Button>
           </div>
