@@ -21,9 +21,10 @@
  */
 
 import { Button, Modal, Spin } from '@arco-design/web-react';
-import { Calendar, Rocket } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { Calendar, Rocket, Sparkles } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ipcBridge } from '@/common';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import { toDisplayName } from '@renderer/pages/settings/SkillsSettings/displayName';
@@ -33,10 +34,37 @@ interface WorkflowDetailModalProps {
   onClose: () => void;
 }
 
+/**
+ * Normalize `metadata.depends` into a string array. The vendored index
+ * ships it as a space-separated string (`"a b c"`), but the
+ * SkillMetadata type also allows the array shape that future user-built
+ * workflows would write directly. Handle both without trusting either.
+ */
+function parseDepends(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw.filter((d): d is string => typeof d === 'string' && d.length > 0);
+  }
+  if (typeof raw === 'string') {
+    return raw.split(/\s+/).filter((d) => d.length > 0);
+  }
+  return [];
+}
+
 const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClose }) => {
   const { t } = useTranslation(undefined, { keyPrefix: 'workflows' });
+  const navigate = useNavigate();
   const [body, setBody] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const depends = useMemo(
+    () => parseDepends(entry?.metadata?.depends),
+    [entry],
+  );
+
+  const handleSkillClick = (slug: string) => {
+    onClose();
+    void navigate(`/settings/skills?q=${encodeURIComponent(slug)}`);
+  };
 
   useEffect(() => {
     if (!entry) {
@@ -121,6 +149,43 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
               </>
             )}
           </div>
+
+          {/* Skill dependencies — every vendored workflow declares the
+              skills it activates via `metadata.depends`. Surfacing them
+              here turns workflows into discoverable entry points to the
+              broader skill library (Sean's "connect that shit up"). */}
+          {depends.length > 0 ? (
+            <div className='flex flex-col gap-6px'>
+              <div
+                className='text-12px font-semibold flex items-center gap-6px'
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <Sparkles size={12} />
+                <span>{t('depends.title', 'Uses these skills')}</span>
+                <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
+                  · {depends.length}
+                </span>
+              </div>
+              <div className='flex flex-wrap gap-6px'>
+                {depends.map((slug) => (
+                  <button
+                    key={slug}
+                    type='button'
+                    onClick={() => handleSkillClick(slug)}
+                    className='text-12px px-8px py-3px rd-6px cursor-pointer transition-colors'
+                    style={{
+                      background: 'var(--fill-2)',
+                      border: '1px solid var(--border-1)',
+                      color: 'var(--text-secondary)',
+                    }}
+                    title={t('depends.openSkill', 'Open in Skills page')}
+                  >
+                    {toDisplayName(slug)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className='flex items-center justify-end gap-8px pt-8px'>
             <Button icon={<Calendar size={14} />} onClick={handleSchedule}>

@@ -8,6 +8,7 @@ import { Button, Input, Switch } from '@arco-design/web-react';
 import { Download, Sparkles } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import { ipcBridge } from '@/common';
 import type { SkillStats } from '@/common/adapter/ipcBridge';
@@ -26,7 +27,10 @@ const SkillsSettings: React.FC = () => {
   const [entries, setEntries] = useState<SkillIndexEntry[]>([]);
   const [stats, setStats] = useState<SkillStats | null>(null);
   const [pinnedNames, setPinnedNames] = useState<Set<string>>(new Set());
-  const [query, setQuery] = useState('');
+  // Initial query honors `?q=...` so the Workflows page's "Uses these
+  // skills" chips can deep-link straight to a pre-filtered Skills view.
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const [buildModalVisible, setBuildModalVisible] = useState(false);
 
   // CLI discovery flag (default off). Reads/writes via the skills bridge.
