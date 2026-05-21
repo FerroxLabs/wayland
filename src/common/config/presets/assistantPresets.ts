@@ -39,7 +39,7 @@ export type AssistantPreset = {
 export const ASSISTANT_PRESETS: AssistantPreset[] = [
   {
     id: 'word-creator',
-    avatar: '📝',
+    avatar: 'lucide:FileText',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/word-creator',
@@ -89,7 +89,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'ppt-creator',
-    avatar: '📊',
+    avatar: 'lucide:Presentation',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/ppt-creator',
@@ -138,7 +138,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'excel-creator',
-    avatar: '📈',
+    avatar: 'lucide:Sheet',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/excel-creator',
@@ -187,7 +187,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'morph-ppt',
-    avatar: '✨',
+    avatar: 'lucide:Sparkles',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/morph-ppt',
@@ -236,7 +236,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'morph-ppt-3d',
-    avatar: '🎬',
+    avatar: 'lucide:Clapperboard',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/morph-ppt-3d',
@@ -270,7 +270,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'word-form-creator',
-    avatar: '📋',
+    avatar: 'lucide:ClipboardList',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/word-form-creator',
@@ -321,7 +321,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'pitch-deck-creator',
-    avatar: '🎯',
+    avatar: 'lucide:Target',
     presetAgentType: 'gemini',
     category: 'sell',
     resourceDir: 'src/process/resources/assistant/pitch-deck-creator',
@@ -371,7 +371,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'dashboard-creator',
-    avatar: '📊',
+    avatar: 'lucide:LayoutDashboard',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/dashboard-creator',
@@ -421,7 +421,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'academic-paper',
-    avatar: '📚',
+    avatar: 'lucide:GraduationCap',
     presetAgentType: 'gemini',
     category: 'research',
     resourceDir: 'src/process/resources/assistant/academic-paper',
@@ -471,7 +471,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'financial-model-creator',
-    avatar: '💰',
+    avatar: 'lucide:Calculator',
     presetAgentType: 'gemini',
     category: 'office',
     resourceDir: 'src/process/resources/assistant/financial-model-creator',
@@ -521,7 +521,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'star-office-helper',
-    avatar: '📺',
+    avatar: 'lucide:Star',
     presetAgentType: 'gemini',
     category: 'run',
     resourceDir: 'src/process/resources/assistant/star-office-helper',
@@ -565,7 +565,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'openclaw-setup',
-    avatar: '🦞',
+    avatar: 'lucide:Wrench',
     presetAgentType: 'gemini',
     category: 'run',
     resourceDir: 'src/process/resources/assistant/openclaw-setup',
@@ -717,7 +717,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   // },
   {
     id: 'game-3d',
-    avatar: '🎮',
+    avatar: 'lucide:Gamepad2',
     presetAgentType: 'gemini',
     category: 'build',
     resourceDir: 'src/process/resources/assistant/game-3d',
@@ -758,7 +758,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'ui-ux-pro-max',
-    avatar: '🎨',
+    avatar: 'lucide:Palette',
     presetAgentType: 'gemini',
     category: 'build',
     resourceDir: 'src/process/resources/assistant/ui-ux-pro-max',
@@ -802,7 +802,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'planning-with-files',
-    avatar: '📋',
+    avatar: 'lucide:ListChecks',
     presetAgentType: 'gemini',
     category: 'run',
     resourceDir: 'src/process/resources/assistant/planning-with-files',
@@ -846,7 +846,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'human-3-coach',
-    avatar: '🧭',
+    avatar: 'lucide:Compass',
     presetAgentType: 'gemini',
     category: 'run',
     resourceDir: 'src/process/resources/assistant/human-3-coach',
@@ -894,7 +894,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'social-job-publisher',
-    avatar: '📣',
+    avatar: 'lucide:Megaphone',
     presetAgentType: 'gemini',
     category: 'write',
     resourceDir: 'src/process/resources/assistant/social-job-publisher',
@@ -947,7 +947,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'moltbook',
-    avatar: '🦞',
+    avatar: 'lucide:Users',
     presetAgentType: 'gemini',
     category: 'general',
     resourceDir: 'src/process/resources/assistant/moltbook',
@@ -994,7 +994,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'beautiful-mermaid',
-    avatar: '📈',
+    avatar: 'lucide:GitBranch',
     presetAgentType: 'gemini',
     category: 'build',
     resourceDir: 'src/process/resources/assistant/beautiful-mermaid',
@@ -1038,7 +1038,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'story-roleplay',
-    avatar: '📖',
+    avatar: 'lucide:BookOpen',
     presetAgentType: 'gemini',
     category: 'write',
     resourceDir: 'src/process/resources/assistant/story-roleplay',

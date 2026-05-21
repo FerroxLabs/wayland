@@ -12,6 +12,7 @@ import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { isImageAvatar } from '@/renderer/utils/avatar';
+import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
 import styles from './AssistantCard.module.css';
 
 export type AssistantCardType = 'team' | 'specialist' | 'builtin';
@@ -30,8 +31,10 @@ const AssistantCard: React.FC<AssistantCardProps> = ({ assistant, type, localeKe
   const description =
     assistant.descriptionI18n?.[localeKey] || assistant.descriptionI18n?.['en-US'] || assistant.description || '';
   const avatarValue = assistant.avatar?.trim();
-  const mapped = avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
-  const resolved = avatarValue ? mapped || resolveExtensionAssetUrl(avatarValue) || avatarValue : undefined;
+  const LucideIconComponent = getLucideIcon(avatarValue);
+  const mapped = avatarValue && !LucideIconComponent ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
+  const resolved =
+    avatarValue && !LucideIconComponent ? mapped || resolveExtensionAssetUrl(avatarValue) || avatarValue : undefined;
   const showImage = resolved ? isImageAvatar(resolved) : false;
 
   const dotClass =
@@ -76,8 +79,10 @@ const AssistantCard: React.FC<AssistantCardProps> = ({ assistant, type, localeKe
     >
       <div className={styles.cardHeader}>
         <div className={styles.avatar}>
-          {showImage && resolved ? (
-            <img src={resolved} alt='' />
+          {LucideIconComponent ? (
+            <LucideIconComponent size={18} className='text-[var(--color-text-2)]' />
+          ) : showImage && resolved ? (
+            <img src={resolved} alt='' style={{ filter: 'var(--avatar-img-filter, none)' }} />
           ) : avatarValue ? (
             <span>{avatarValue}</span>
           ) : (

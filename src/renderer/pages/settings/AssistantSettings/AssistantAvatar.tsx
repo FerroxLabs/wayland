@@ -15,6 +15,7 @@ import { Bot } from 'lucide-react';
 import type { AssistantListItem } from './types';
 import React from 'react';
 import { isEmoji, resolveAvatarImageSrc } from './assistantUtils';
+import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
 
 type AssistantAvatarProps = {
   assistant: AssistantListItem;
@@ -24,8 +25,9 @@ type AssistantAvatarProps = {
 
 const AssistantAvatar: React.FC<AssistantAvatarProps> = ({ assistant, size = 32, avatarImageMap }) => {
   const resolvedAvatar = assistant.avatar?.trim();
-  const hasEmojiAvatar = Boolean(resolvedAvatar && isEmoji(resolvedAvatar));
-  const avatarImage = resolveAvatarImageSrc(resolvedAvatar, avatarImageMap);
+  const LucideIconComponent = getLucideIcon(resolvedAvatar);
+  const hasEmojiAvatar = Boolean(resolvedAvatar && !LucideIconComponent && isEmoji(resolvedAvatar));
+  const avatarImage = !LucideIconComponent ? resolveAvatarImageSrc(resolvedAvatar, avatarImageMap) : undefined;
   // Match emoji/image glyph size to ~60% of the slot. Lucide icons render
   // pixel-perfect with explicit `size={px}`, so we pass the same value.
   const glyphSize = Math.floor(size * 0.6);
@@ -35,7 +37,12 @@ const AssistantAvatar: React.FC<AssistantAvatarProps> = ({ assistant, size = 32,
       className='flex shrink-0 items-center justify-center'
       style={{ width: size, height: size }}
     >
-      {avatarImage ? (
+      {LucideIconComponent ? (
+        // Built-in assistants reference their glyph as 'lucide:IconName' —
+        // render the matching component with inherited theme color so it
+        // reads on both light and dark surfaces.
+        <LucideIconComponent size={glyphSize} className='text-[var(--color-text-2)]' />
+      ) : avatarImage ? (
         <img
           src={avatarImage}
           alt=''
