@@ -198,10 +198,16 @@ const WorkflowsLibraryPage: React.FC = () => {
         <div className='flex gap-20px items-start'>
           {/* Category rail — search lifts in here (mirrors Assistants
               page pattern) so the user sees filter + categories as one
-              control surface instead of a search bar floating above. */}
+              control surface instead of a search bar floating above.
+              Border-right divides the rail from the card grid, same
+              treatment as Assistants FilterRail for visual parity. */}
           <aside
-            className='shrink-0 w-200px sticky top-0 flex flex-col gap-8px py-2px'
-            style={{ color: 'var(--color-text-2)' }}
+            className='shrink-0 w-200px sticky top-0 flex flex-col gap-8px py-2px pr-16px'
+            style={{
+              color: 'var(--color-text-2)',
+              borderRight: '1px solid var(--color-border-2)',
+              alignSelf: 'stretch',
+            }}
           >
             <Input.Search
               placeholder={t('search.placeholder', 'Search workflows…')}
