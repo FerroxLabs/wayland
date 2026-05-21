@@ -248,6 +248,11 @@ body[arco-theme='light'] {
   --color-bg-3: var(--bg-2);               /* #f0f0f0 — second elevation */
   --color-bg-4: var(--bg-3);               /* #e5e5e5 — third elevation */
   --color-bg-5: var(--bg-elevated);        /* #ffffff — highest elevation (popup, tooltip) */
+
+  /* Theme-adaptive filter for monochrome SVG icon avatars (extension packs
+     ship them as black-on-transparent). Light mode → no filter, the
+     black-on-light reads fine. Dark mode override sits in the dark block. */
+  --avatar-img-filter: none;
 }
 
 /* ============================================================
@@ -420,4 +425,11 @@ body[arco-theme='dark'] {
   --color-bg-3: var(--bg-2);               /* #161616 — second elevation */
   --color-bg-4: var(--bg-3);               /* #1c1c1c — third elevation */
   --color-bg-5: var(--bg-elevated);        /* #222222 — highest elevation (popup, tooltip) */
+
+  /* Dark mode: monochrome black-on-transparent SVG icons need to flip to
+     near-white to read on dark surfaces. `brightness(0) invert(0.9)`
+     burns the source to pure black first (in case it was anti-aliased
+     to other grayscale values) then inverts to ~#e5e5e5 — same tone as
+     --color-text-2, matching emoji weight without going pure white. */
+  --avatar-img-filter: brightness(0) invert(0.9);
 }
