@@ -127,7 +127,6 @@ const ScheduledTasksPage: React.FC = () => {
             </h1>
             <Button
               type='primary'
-              shape='round'
               className='shrink-0'
               icon={<Plus size={14} />}
               onClick={() => setCreateDialogVisible(true)}
