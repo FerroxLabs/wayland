@@ -84,41 +84,24 @@
   align-self: flex-start;
 }
 
-/* Featured tier — solid Forge Orange line border + flat orange-tinted
-   dark background. No gradient (Sean: 'a single line ... slightly
-   orange-grey background, still dark'). Three signals: (1) solid
-   orange perimeter, (2) FEATURED pill top-right, (3) orange dot
+/* Featured tier — solid Forge Orange line border + tier surface from the
+   shared --tier-bg token (defined in default-color-scheme.css). Three
+   signals: solid orange perimeter, FEATURED pill top-right, orange dot
    before the title. */
 .cardFeatured {
   border-color: rgb(var(--primary-6));
-  /* Orange-tinted dark grey, then pulled halfway toward black so the
-     featured surface reads as 'lower than the regular card' — orange
-     border on a deeper-than-base background. Sean's '50% between that
-     and black' direction. */
-  background: color-mix(
-    in srgb,
-    color-mix(in srgb, var(--color-fill-1) 88%, rgb(var(--primary-6)) 12%) 50%,
-    black 50%
-  );
+  background: var(--tier-bg);
 }
 
-/* Reserve right padding ONLY on the title row of featured cards so the
-   FEATURED pill never crashes into the title text. Description and body
-   get the full card width back. */
+/* Reserve right padding ONLY on the title row so the FEATURED pill never
+   crashes into the title text. Description gets full card width back. */
 .cardFeatured .titleRow {
   padding-right: 90px;
 }
 
 .cardFeatured:hover {
   border-color: rgb(var(--primary-6));
-  /* Hover warms the mix slightly (16% orange vs 12%) while keeping
-     the 50% darkening, so the affordance reads without losing the
-     'deeper than base' feel. */
-  background: color-mix(
-    in srgb,
-    color-mix(in srgb, var(--color-fill-2) 84%, rgb(var(--primary-6)) 16%) 50%,
-    black 50%
-  );
+  background: var(--tier-bg-hover);
   box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.5);
 }
 

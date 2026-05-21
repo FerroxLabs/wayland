@@ -13,6 +13,75 @@
  */
 
 /* ============================================================
+   FOUNDATION TOKENS — mode-invariant (UI System v1, locked 2026-05-21)
+   Strict scales for spacing, radius, type, line-height, motion, shadow.
+   Tier-surface alias references --color-fill-1/2 (which DO vary per
+   mode) so it resolves correctly under both themes.
+   ============================================================ */
+:root {
+  /* Spacing — 9-step strict scale. No 7/13/18 — pick the nearest step. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 56px;
+
+  /* Radius — 6-step strict scale.
+     --radius-pill is reserved for compact toggle chips (agent/model
+     selectors). Never use it on primary CTAs. */
+  --radius-chip: 4px;
+  --radius-button: 8px;
+  --radius-card-inner: 10px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+  --radius-pill: 9999px;
+
+  /* Type — 8-step scale */
+  --type-11: 11px;
+  --type-12: 12px;
+  --type-13: 13px;
+  --type-14: 14px;
+  --type-16: 16px;
+  --type-20: 20px;
+  --type-24: 24px;
+  --type-32: 32px;
+
+  /* Line heights */
+  --lh-tight: 1.2;
+  --lh-snug: 1.35;
+  --lh-normal: 1.5;
+  --lh-loose: 1.65;
+
+  /* Elevation — 3 shadows. Most surfaces lift via border, not shadow. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.42);
+  --shadow-3: 0 12px 36px rgba(0, 0, 0, 0.55);
+
+  /* Motion */
+  --motion-fast: 120ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* Tier surface — Featured workflows + Standing teams share one
+     visual idiom. Recipe pulls a faint orange-tinted neutral fill
+     halfway toward black so the tier reads as 'deeper than base'
+     while keeping the Forge Orange border as the headline accent. */
+  --tier-bg: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--color-fill-1) 88%, rgb(var(--primary-6)) 12%) 50%,
+    black 50%
+  );
+  --tier-bg-hover: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--color-fill-2) 84%, rgb(var(--primary-6)) 16%) 50%,
+    black 50%
+  );
+}
+
+/* ============================================================
    LIGHT MODE (root / default)
    Selectors include `body[arco-theme='light']` so our orange-tinted
    overrides win against Arco's body-level rules (CSS variables
