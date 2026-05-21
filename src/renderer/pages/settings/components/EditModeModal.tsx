@@ -140,7 +140,7 @@ const EditModeModal = ModalHOC<{ data?: IProvider; onChange(data: IProvider): vo
         visible={modalProps.visible}
         onCancel={modalCtrl.close}
         header={{ title: t('settings.editModel'), showClose: true }}
-        style={{ minHeight: '400px', maxHeight: '90vh', borderRadius: 16 }}
+        style={{ width: 720, minHeight: '400px', maxHeight: '90vh', borderRadius: 16 }}
         contentStyle={{
           background: 'var(--dialog-fill-0)',
           borderRadius: 16,
