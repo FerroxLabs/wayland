@@ -245,7 +245,11 @@ const FeedbackReportModal: React.FC<FeedbackReportModalProps> = ({ visible, onCa
       confirmLoading={submitting}
       okText={t('settings.bugReportSubmit')}
       cancelText={t('settings.bugReportCancel')}
-      okButtonProps={{ disabled: !isFormValid }}
+      okButtonProps={{
+        disabled: !isFormValid,
+        className: '!rounded-[100px] !h-32px !px-16px',
+      }}
+      cancelButtonProps={{ style: { borderRadius: 8 }, className: 'px-16px' }}
       alignCenter
       className='w-[min(600px,calc(100vw-32px))] max-w-600px rd-16px'
       autoFocus={false}

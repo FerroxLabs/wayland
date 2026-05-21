@@ -47,10 +47,10 @@ const DeleteTeamConfirmModal: React.FC<Props> = ({
       size='small'
       header={t('team.sider.deleteConfirmTitle', { defaultValue: 'Delete team?' })}
       footer={
-        <div className='flex justify-end gap-10px mt-10px'>
+        <div className='flex justify-end gap-12px'>
           <Button
             onClick={onCancel}
-            className='px-20px min-w-80px'
+            className='px-16px min-w-80px'
             style={{ borderRadius: 8 }}
             data-testid='delete-team-confirm-cancel'
           >
@@ -62,8 +62,7 @@ const DeleteTeamConfirmModal: React.FC<Props> = ({
             onClick={onConfirm}
             disabled={!enabled || loading}
             loading={loading}
-            className='px-20px min-w-80px'
-            style={{ borderRadius: 8 }}
+            className='!rounded-[100px] !h-32px !px-16px min-w-80px'
             data-testid='delete-team-confirm-cta'
           >
             {t('team.sider.deleteConfirmCta', { defaultValue: 'Delete team' })}
