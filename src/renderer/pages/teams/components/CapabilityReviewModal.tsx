@@ -129,10 +129,10 @@ const CapabilityReviewModal: React.FC<Props> = ({
       size='medium'
       header={t('teams.import.title', { defaultValue: 'Review team capabilities' })}
       footer={
-        <div className='flex justify-end gap-10px mt-10px'>
+        <div className='flex justify-end gap-12px'>
           <Button
             onClick={onCancel}
-            className='px-20px min-w-80px'
+            className='px-16px min-w-80px'
             style={{ borderRadius: 8 }}
             data-testid='capability-review-cancel'
           >
@@ -141,7 +141,7 @@ const CapabilityReviewModal: React.FC<Props> = ({
           <Button
             onClick={() => onSandboxImport()}
             disabled={sandboxDisabled}
-            className='px-20px'
+            className='px-16px'
             style={{ borderRadius: 8 }}
             data-testid='capability-review-sandbox'
           >
@@ -152,8 +152,7 @@ const CapabilityReviewModal: React.FC<Props> = ({
             onClick={() => onTrustSelected(grants)}
             disabled={trustDisabled}
             loading={loading}
-            className='px-20px min-w-160px'
-            style={{ borderRadius: 8 }}
+            className='!rounded-[100px] !h-32px !px-16px min-w-160px'
             data-testid='capability-review-trust'
           >
             {trustLabel}
