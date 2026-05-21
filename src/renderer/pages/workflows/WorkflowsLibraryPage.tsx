@@ -52,20 +52,23 @@ const CATEGORY_ORDER: CategoryDef[] = [
   { slug: 'software-project', label: 'Software & Engineering' },
 ];
 
-// Eight workflows that read as broadly applicable AND high-leverage —
-// hand-curated so the page doesn't lead with "Build A Garden" or
-// "Adopt A Pet" (per Sean's feedback). When a slug here doesn't exist
-// in the loaded set (e.g. a future bundle reshuffle) we skip it silently
-// rather than showing a placeholder card.
+// Six workflows that map to what AI-agent users actually do 95% of the
+// time — writing, marketing, shipping, recurring automation — rather
+// than the prior list that over-indexed on once-in-a-lifetime events
+// (buy a home), narrow technical paths (mobile app, system design
+// interviews) and multi-year aspirations (speaking career, thought
+// leadership). Order is roughly: meta → content frequency → campaigns
+// → planning → shipping → creator-economy.
+//
+// When a slug doesn't exist in the loaded set we skip it silently
+// rather than showing a placeholder.
 const FEATURED_SLUGS = [
   'automate-business-workflows',
-  'build-personal-brand',
-  'ace-system-design-interviews',
-  'build-saas-landing-page',
-  'buy-a-home',
-  'build-mobile-app',
-  'build-speaking-career',
-  'build-thought-leadership',
+  'publish-blog-post',
+  'create-marketing-campaign',
+  'create-content-calendar',
+  'launch-product',
+  'launch-newsletter',
 ];
 
 const WorkflowsLibraryPage: React.FC = () => {
