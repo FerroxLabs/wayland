@@ -36,6 +36,7 @@ import {
 } from '@/renderer/hooks/mcp';
 import classNames from 'classnames';
 import { useSettingsViewMode } from '../settingsViewContext';
+import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneCheck';
 
 type MessageInstance = ReturnType<typeof Message.useMessage>[0];
 
@@ -387,6 +388,10 @@ export const SpeechToTextSettingsSection: React.FC<{
             <WaylandSelect.Option value='deepgram'>{t('settings.speechToTextProviderDeepgram')}</WaylandSelect.Option>
             <WaylandSelect.Option value='whisper-local'>{t('settings.speechToTextProviderWhisperLocal')}</WaylandSelect.Option>
           </WaylandSelect>
+        </Form.Item>
+
+        <Form.Item label={t('settings.voiceMicCheckLabel', 'Microphone')}>
+          <MicrophoneCheck />
         </Form.Item>
 
         {config.provider === 'openai' ? (
