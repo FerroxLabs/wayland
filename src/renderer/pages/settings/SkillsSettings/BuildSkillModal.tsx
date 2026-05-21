@@ -142,7 +142,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
       onCancel={handleClose}
       footer={null}
       title={t('builder.title')}
-      style={{ width: 680 }}
+      style={{ width: 720 }}
       focusLock
       autoFocus={false}
     >
@@ -269,12 +269,16 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
         )}
 
         {/* Footer actions */}
-        <div className='flex items-center justify-end gap-8px pt-4px'>
-          <Button onClick={handleClose}>
+        <div className='flex items-center justify-end gap-12px pt-4px'>
+          <Button onClick={handleClose} style={{ borderRadius: 8 }} className='px-16px'>
             {t('builder.actions.cancel')}
           </Button>
           {savedVerdict && savedVerdict.verdict !== 'blocked' ? (
-            <Button type='primary' onClick={handleDoneAfterSave}>
+            <Button
+              type='primary'
+              onClick={handleDoneAfterSave}
+              className='!rounded-[100px] !h-32px !px-16px'
+            >
               {t('builder.actions.done')}
             </Button>
           ) : (
@@ -283,6 +287,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
               loading={saving}
               disabled={!canSave}
               onClick={() => void handleSave()}
+              className='!rounded-[100px] !h-32px !px-16px'
             >
               {saving ? t('builder.actions.saving') : t('builder.actions.save')}
             </Button>
