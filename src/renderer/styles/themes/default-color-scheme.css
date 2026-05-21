@@ -329,11 +329,15 @@ body[arco-theme='dark'] {
   --input-border: #383838;
   --input-border-focus: var(--brand);
 
-  /* Borders — dark */
-  --border-base: #2a2a2a;
-  --border-light: #1f1f1f;
-  --border-bright: #353535;
-  --border-mid: #353535;
+  /* Borders — dark.
+     Earlier values (1f / 2a / 35) read as nearly invisible against the
+     card background #111 in dark mode — only a ~14-25 step luminance
+     delta. Bumped so canonical cards have a legible edge without going
+     so bright that the surface starts to feel "outlined". */
+  --border-base: #383838;
+  --border-light: #2a2a2a;
+  --border-bright: #454545;
+  --border-mid: #404040;
 
   /* Brand — dark (same orange across modes by design) */
   --brand: #ff6b35;
