@@ -2050,6 +2050,8 @@ export type I18nKey =
   | 'settings.modelsPage.connect.browse'
   | 'settings.modelsPage.connect.cloudHint'
   | 'settings.modelsPage.connect.connect'
+  | 'settings.modelsPage.connect.errorAmbiguous'
+  | 'settings.modelsPage.connect.errorCloud'
   | 'settings.modelsPage.connect.errorNoCredit'
   | 'settings.modelsPage.connect.errorNoModels'
   | 'settings.modelsPage.connect.errorOffline'

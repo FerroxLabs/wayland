@@ -1686,6 +1686,8 @@
       "errorNoCredit": "Connected, but that {{provider}} key has no usable credit. Add billing to run models.",
       "errorOffline": "Couldn't reach {{provider}} — you appear to be offline. Check your connection and retry.",
       "errorUnrecognized": "That key was not recognized. Open Browse and pick your provider.",
+      "errorCloud": "Recognized {{provider}} — this provider needs more than one field. Open Browse to enter the full credentials.",
+      "errorAmbiguous": "Couldn't tell which provider this key is for. Open Browse and pick the provider.",
       "errorNoModels": "{{provider}} connected but returned no models. Try refreshing it from Manage.",
       "errorUnknown": "Couldn't connect to {{provider}}. Please try again."
     },

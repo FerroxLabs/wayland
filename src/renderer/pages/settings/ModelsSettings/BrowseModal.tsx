@@ -20,6 +20,13 @@ type Props = {
   visible: boolean;
   /** Close the modal (cancel or after a successful connect). */
   onClose: () => void;
+  /**
+   * Optional provider to open the modal pre-targeted at — used when the
+   * connect-panel recognizes a cloud key (e.g. an AWS `AKIA…` paste) and
+   * routes the user straight to the matching cloud / key sub-view instead of
+   * the grid (spec §4.3).
+   */
+  initialProvider?: ProviderId;
 };
 
 /** Map a `ConnectError` code to its inline-error i18n key suffix. */
@@ -48,7 +55,7 @@ type View = { kind: 'grid' } | { kind: 'key'; provider: ProviderMeta } | { kind:
  * A successful connect closes the modal; `useModelRegistry.connect` reloads the
  * connected list on its own.
  */
-const BrowseModal: React.FC<Props> = ({ visible, onClose }) => {
+const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider }) => {
   const { t } = useTranslation();
   const { providers, connect } = useModelRegistry();
 
@@ -60,16 +67,26 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose }) => {
   const [connecting, setConnecting] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
-  // Each open of the modal starts on a fresh grid.
+  // Each open of the modal starts on a fresh view. If `initialProvider` is
+  // supplied (the connect-panel recognized a cloud / single-key key and routed
+  // here), open the matching sub-view directly instead of the grid.
   useEffect(() => {
     if (visible) {
-      setView({ kind: 'grid' });
+      if (initialProvider) {
+        if (isCloudFormProvider(initialProvider)) {
+          setView({ kind: 'cloud', provider: initialProvider });
+        } else {
+          setView({ kind: 'key', provider: providerMeta(initialProvider) });
+        }
+      } else {
+        setView({ kind: 'grid' });
+      }
       setQuery('');
       setKeyValue('');
       setConnecting(false);
       setErrorKey(null);
     }
-  }, [visible]);
+  }, [visible, initialProvider]);
 
   /** The set of already-connected provider ids — drives the connected tag. */
   const connectedIds = useMemo<Set<ProviderId>>(() => new Set(providers.map((p) => p.providerId)), [providers]);
@@ -151,9 +168,9 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose }) => {
     const connected = connectedIds.has(provider.id);
     const cloud = isCloudFormProvider(provider.id);
     return (
-      <button
-        type='button'
+      <Button
         key={provider.id}
+        type='text'
         className={styles.tile}
         data-provider={provider.id}
         onClick={() => handlePick(provider)}
@@ -176,7 +193,7 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose }) => {
             {t('settings.modelsPage.browse.connected')}
           </span>
         )}
-      </button>
+      </Button>
     );
   };
 

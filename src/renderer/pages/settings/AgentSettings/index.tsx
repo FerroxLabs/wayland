@@ -34,6 +34,20 @@ type DetectedAgent = NonNullable<AvailableAgentsResponse['data']>[number] & { av
 const FEATURED_BACKENDS = ['wcore', 'claude', 'codex'];
 
 /**
+ * The Wayland Core hero card always renders, even when the live agent
+ * detector returns no entry for it — the engine is always-available once a
+ * model is connected. We compose a static metadata-only record here so the
+ * page never goes wcore-less, and let the live detection result decide the
+ * "Active" vs "Detected" badge.
+ */
+const WCORE_STATIC: DetectedAgent = {
+  backend: 'wcore',
+  name: 'Wayland Core',
+  isExtension: false,
+  isPreset: false,
+};
+
+/**
  * Resolve the best logo for a detected agent, falling back to an extension
  * asset URL when the agent is contributed by an extension.
  */
@@ -134,9 +148,16 @@ const AgentsSettings: React.FC = () => {
   });
 
   const agents = detectedAgents ?? [];
-  const featured = FEATURED_BACKENDS.map((backend) => agents.find((a) => a.backend === backend)).filter(
-    (a): a is DetectedAgent => Boolean(a)
+  // Wayland Core is always-available — render its hero from static metadata
+  // when the live detector doesn't return it, otherwise prefer the live row
+  // (so any future detector-supplied fields like `cliPath` flow through).
+  const detectedWcore = agents.find((a) => a.backend === 'wcore');
+  const wcoreAgent = detectedWcore ?? WCORE_STATIC;
+  const wcoreIsActive = Boolean(detectedWcore);
+  const featuredRest = FEATURED_BACKENDS.filter((b) => b !== 'wcore').map((backend) =>
+    agents.find((a) => a.backend === backend)
   );
+  const featured: DetectedAgent[] = [wcoreAgent, ...featuredRest.filter((a): a is DetectedAgent => Boolean(a))];
   const featuredSet = new Set(featured.map((a) => a.backend));
   const moreDetected = agents.filter((a) => !featuredSet.has(a.backend));
 
@@ -172,14 +193,15 @@ const AgentsSettings: React.FC = () => {
         <div className='flex justify-center py-32px'>
           <Spin />
         </div>
-      ) : agents.length === 0 ? (
-        <div className={styles.emptyNote}>{t('settings.agentsPage.empty')}</div>
       ) : (
-        <div className={styles.agentList}>
-          {featured.map((agent) => (
-            <AgentCard key={agent.backend} agent={agent} hero={agent.backend === 'wcore'} />
-          ))}
-        </div>
+        <>
+          <div className={styles.agentList}>
+            {featured.map((agent) => (
+              <AgentCard key={agent.backend} agent={agent} hero={agent.backend === 'wcore' ? wcoreIsActive : true} />
+            ))}
+          </div>
+          {agents.length === 0 && <div className={styles.emptyNote}>{t('settings.agentsPage.empty')}</div>}
+        </>
       )}
 
       {/* ---- More detected ---- */}

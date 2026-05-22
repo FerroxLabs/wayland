@@ -83,8 +83,13 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     return t(`settings.agentsPage.scope.${scope.scopeKey}`);
   }, [agentKey, t]);
 
-  const scopeCaptionNode = (
-    <div className='px-12px pt-8px pb-6px text-11px text-t-tertiary leading-snug'>{scopeCaption}</div>
+  // Render the scope caption as a disabled `Menu.Item` so it lives inside
+  // the Arco `<Menu>` legally (raw `<div>` children break keyboard arrow-nav)
+  // while still reading as a non-selectable header.
+  const scopeCaptionItem = (
+    <Menu.Item key='scope-caption' disabled className='px-12px pt-8px pb-6px text-11px text-t-tertiary leading-snug'>
+      {scopeCaption}
+    </Menu.Item>
   );
 
   // ── Curated set, scoped to the selected agent ────────────────────────────
@@ -147,10 +152,15 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // chat-start flow keeps receiving a fully-formed `TProviderWithModel`.
   const handlePickCurated = React.useCallback(
     (model: CuratedModel) => {
-      // The legacy provider list keys models by name; a curated model's `id`
-      // matches that name. Find the provider that actually exposes it.
+      // The curated model's `providerId` is the canonical provider id (e.g.
+      // `'anthropic'`); the legacy `IProvider` stores that on `platform`,
+      // with `id` being a per-row UUID. Match on platform first so two
+      // configured providers exposing the same model id (e.g. `new-api` and
+      // `openai-compatible` gateways) resolve to the correct one. Fall back
+      // to a model-id-only match for legacy rows that pre-date the curated
+      // contract.
       const provider =
-        modelList.find((p) => p.id === model.providerId && p.model?.includes(model.id)) ||
+        modelList.find((p) => p.platform === model.providerId && p.model?.includes(model.id)) ||
         modelList.find((p) => p.model?.includes(model.id));
       if (!provider) {
         // The curated model isn't in a connected provider yet — route the
@@ -201,10 +211,10 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   if (isGeminiMode) {
     return (
       <Dropdown
-        trigger='hover'
+        trigger='click'
         droplist={
           <Menu selectedKeys={selectedCuratedKey ? [selectedCuratedKey] : []}>
-            {scopeCaptionNode}
+            {scopeCaptionItem}
             {curated === undefined
               ? [
                   <Menu.Item
@@ -293,7 +303,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
           trigger='click'
           droplist={
             <Menu selectedKeys={selectedAcpModel ? [selectedAcpModel] : []}>
-              {scopeCaptionNode}
+              {scopeCaptionItem}
               {currentAcpCachedModelInfo.availableModels.map((model) => {
                 const tier = tierFor(model.id);
                 return (

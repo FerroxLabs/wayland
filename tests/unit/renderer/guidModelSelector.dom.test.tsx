@@ -247,4 +247,49 @@ describe('GuidModelSelector home picker', () => {
 
     expect(await screen.findByText('settings.modelsPage.homePicker.empty')).toBeInTheDocument();
   });
+
+  it('resolves the right provider when two configured providers expose the same model id', async () => {
+    mockCuratedForAgent.mockResolvedValue([
+      curated({ id: 'gpt-5', providerId: 'openai', displayName: 'GPT-5.5', family: 'GPT-5' }),
+    ]);
+    // Two configured providers both list `gpt-5` (a `new-api` gateway and the
+    // real OpenAI provider). The curated row's `providerId` is `'openai'`,
+    // matching the second row's `platform` — the picker must pick that one,
+    // not the gateway whose `platform` is `'new-api'`.
+    const fireEventClick = (await import('@testing-library/react')).fireEvent.click;
+    const setCurrentModel = vi.fn().mockResolvedValue(undefined);
+    const modelList = [
+      // Wrong provider — shares the model id via a gateway.
+      {
+        id: 'uuid-gateway',
+        platform: 'new-api',
+        name: 'Gateway',
+        baseUrl: 'https://gateway.example',
+        apiKey: '',
+        model: ['gpt-5'],
+      },
+      // Correct provider — `platform === providerId`.
+      {
+        id: 'uuid-openai',
+        platform: 'openai',
+        name: 'OpenAI',
+        baseUrl: 'https://api.openai.com',
+        apiKey: '',
+        model: ['gpt-5'],
+      },
+    ] as unknown as typeof baseProps.modelList;
+
+    render(
+      <GuidModelSelector {...baseProps} agentKey='codex' modelList={modelList} setCurrentModel={setCurrentModel} />
+    );
+
+    const row = await screen.findByText('GPT-5.5');
+    fireEventClick(row);
+
+    await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
+    const arg = setCurrentModel.mock.calls[0][0];
+    expect(arg.platform).toBe('openai');
+    expect(arg.id).toBe('uuid-openai');
+    expect(arg.useModel).toBe('gpt-5');
+  });
 });

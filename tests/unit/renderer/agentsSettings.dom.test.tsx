@@ -229,29 +229,33 @@ describe('AgentsSettings (Packet 2D)', () => {
     expect(screen.getByText('Remote agent store unavailable')).toBeTruthy();
   });
 
-  it('shows an empty note when no agents are detected', async () => {
+  it('shows the empty note and the always-available Wayland Core hero when no agents are detected', async () => {
     mockGetAvailableAgents.mockResolvedValue(agentsOk([]));
     render(<AgentsSettings />);
 
-    await waitFor(() =>
-      expect(
-        screen.getByText('No agents detected yet. Wayland Core is always available once a model is connected.')
-      ).toBeTruthy()
-    );
-    expect(screen.queryByTestId('agent-card')).toBeNull();
+    // The wcore hero card must always render — the engine is always-available
+    // once a model is connected, so the page never goes wcore-less.
+    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    const cards = screen.getAllByTestId('agent-card');
+    expect(cards).toHaveLength(1);
+
+    // The empty note still renders alongside the always-available hero.
+    expect(
+      screen.getByText('No agents detected yet. Wayland Core is always available once a model is connected.')
+    ).toBeTruthy();
   });
 
-  it('degrades to the empty state when the agents IPC call fails', async () => {
-    // The SWR fetcher swallows `success: false` into an empty array — the page
-    // must show the empty-state note, not crash.
+  it('still renders the Wayland Core hero when the agents IPC call fails', async () => {
+    // The SWR fetcher swallows `success: false` into an empty array — the
+    // page must still render the wcore hero (always-available) plus the
+    // empty-state note.
     mockGetAvailableAgents.mockResolvedValue({ success: false });
     render(<AgentsSettings />);
 
-    await waitFor(() =>
-      expect(
-        screen.getByText('No agents detected yet. Wayland Core is always available once a model is connected.')
-      ).toBeTruthy()
-    );
-    expect(screen.queryByTestId('agent-card')).toBeNull();
+    await waitFor(() => expect(screen.getByText('Wayland Core')).toBeTruthy());
+    expect(screen.getAllByTestId('agent-card')).toHaveLength(1);
+    expect(
+      screen.getByText('No agents detected yet. Wayland Core is always available once a model is connected.')
+    ).toBeTruthy();
   });
 });

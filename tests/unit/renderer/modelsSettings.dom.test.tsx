@@ -229,6 +229,74 @@ describe('ModelsSettings page', () => {
     // An unrecognized key never reaches the backend.
     expect(mockConnect).not.toHaveBeenCalled();
   });
+
+  it('routes a recognized cloud key directly to the Browse credential form (no errorUnrecognized)', async () => {
+    mockList.mockResolvedValue([]);
+    mockDetectKeys.mockResolvedValue([]);
+
+    renderPage();
+
+    const input = await screen.findByPlaceholderText('settings.modelsPage.connect.keyPlaceholder');
+    // An AWS Access Key id — recognized as `cloud` for `aws-bedrock`.
+    fireEvent.change(input, { target: { value: 'AKIAIOSFODNN7EXAMPLE' } });
+    fireEvent.click(screen.getByText('settings.modelsPage.connect.connect'));
+
+    // The Browse modal opens — recognizable by its cloud credential form fields.
+    expect(await screen.findByLabelText('settings.modelsPage.cloud.fields.accessKeyId.label')).toBeInTheDocument();
+    // The recognized cloud key is NOT mislabelled as "unrecognized".
+    const alerts = screen.queryAllByRole('alert');
+    expect(alerts.some((el) => el.textContent?.includes('connect.errorUnrecognized'))).toBe(false);
+    // A cloud key is never sent to `connect` as a bare-key payload.
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('shows the ambiguous-key error (distinct from unrecognized) for a bare sk- paste', async () => {
+    mockList.mockResolvedValue([]);
+    mockDetectKeys.mockResolvedValue([]);
+
+    renderPage();
+
+    const input = await screen.findByPlaceholderText('settings.modelsPage.connect.keyPlaceholder');
+    fireEvent.change(input, { target: { value: 'sk-abcdef1234567890' } });
+    fireEvent.click(screen.getByText('settings.modelsPage.connect.connect'));
+
+    await waitFor(() => {
+      const alerts = screen.getAllByRole('alert');
+      expect(alerts.some((el) => el.textContent?.includes('connect.errorAmbiguous'))).toBe(true);
+    });
+    // The ambiguous variant must NOT reuse the unrecognized string.
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts.some((el) => el.textContent?.includes('connect.errorUnrecognized'))).toBe(false);
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it('shares one providers snapshot across the page and the Browse modal (shared registry state)', async () => {
+    // The page lists no providers; a successful connect from inside the
+    // Browse modal must add a row to the parent without remounting it.
+    mockList.mockResolvedValueOnce([]); // initial
+    mockList.mockResolvedValue([connectedProvider]); // after the connect's reload()
+    mockDetectKeys.mockResolvedValue([]);
+    mockConnect.mockResolvedValue({ ok: true });
+
+    renderPage();
+
+    await screen.findByText('settings.modelsPage.empty.note');
+
+    // Open Browse from the connect panel.
+    fireEvent.click(screen.getByText('settings.modelsPage.connect.browse'));
+
+    // Pick OpenAI in the modal grid (any single-key tile is fine).
+    const tile = await screen.findByText('Anthropic');
+    fireEvent.click(tile);
+
+    const keyInput = await screen.findByPlaceholderText('settings.modelsPage.browse.keyPlaceholder');
+    fireEvent.change(keyInput, { target: { value: 'sk-ant-test' } });
+    fireEvent.click(screen.getByText('settings.modelsPage.browse.connect'));
+
+    // The parent page's connected-row list — fed by the shared providers
+    // state — now shows the newly connected provider.
+    await waitFor(() => expect(screen.getByText('settings.modelsPage.row.connected')).toBeInTheDocument());
+  });
 });
 
 // ---------------------------------------------------------------------------

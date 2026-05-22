@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { IModelRegistryDetectedKey, IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
 import type { ProviderId } from '@process/providers/types';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
-import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
+import { ModelRegistryProvider, useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
@@ -28,7 +28,7 @@ function detectedKeyId(dk: IModelRegistryDetectedKey): string {
  *  3. First-run / empty state — when there are no providers and no detected
  *     keys, the connect panel is the whole page plus a one-line nudge.
  */
-const ModelsSettings: React.FC = () => {
+const ModelsSettingsInner: React.FC = () => {
   const { t } = useTranslation();
   const { providers, loading, error, connect, detectKeys } = useModelRegistry();
 
@@ -41,6 +41,9 @@ const ModelsSettings: React.FC = () => {
 
   // Whether the Browse-all-providers modal is open (prototype `#overlay-browse`).
   const [browseOpen, setBrowseOpen] = useState(false);
+  // Optional pre-targeted provider — set when the connect-panel recognizes a
+  // cloud key and routes the user straight to its credential form.
+  const [browseInitialProvider, setBrowseInitialProvider] = useState<ProviderId | undefined>(undefined);
 
   // Auto-discover keys already on the machine (spec §4.4). Surfaced as the
   // consent strip — never used silently.
@@ -83,12 +86,14 @@ const ModelsSettings: React.FC = () => {
     setIgnoredKeys((prev) => new Set(prev).add(detectedKeyId(dk)));
   }, []);
 
-  const handleBrowse = useCallback(() => {
+  const handleBrowse = useCallback((providerId?: ProviderId) => {
+    setBrowseInitialProvider(providerId);
     setBrowseOpen(true);
   }, []);
 
   const handleBrowseClose = useCallback(() => {
     setBrowseOpen(false);
+    setBrowseInitialProvider(undefined);
   }, []);
 
   const handleManage = useCallback((provider: IModelRegistryProviderView) => {
@@ -170,9 +175,21 @@ const ModelsSettings: React.FC = () => {
         </div>
       )}
 
-      <BrowseModal visible={browseOpen} onClose={handleBrowseClose} />
+      <BrowseModal visible={browseOpen} onClose={handleBrowseClose} initialProvider={browseInitialProvider} />
     </SettingsPageShell>
   );
 };
+
+/**
+ * Page root — wraps the Models tree in a `ModelRegistryProvider` so the
+ * page, the Manage view and the Browse modal share one `providers` snapshot.
+ * Any disconnect / rekey / Browse-modal connect performed by a child surface
+ * refreshes the parent's row list and header badges immediately.
+ */
+const ModelsSettings: React.FC = () => (
+  <ModelRegistryProvider>
+    <ModelsSettingsInner />
+  </ModelRegistryProvider>
+);
 
 export default ModelsSettings;

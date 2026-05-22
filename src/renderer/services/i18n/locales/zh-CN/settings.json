@@ -1021,6 +1021,8 @@
       "errorNoCredit": "已连接，但该 {{provider}} 密钥没有可用额度。请添加账单以运行模型。",
       "errorOffline": "无法连接到 {{provider}}——你似乎已离线。请检查网络后重试。",
       "errorUnrecognized": "无法识别该密钥。请打开“浏览”并选择你的提供商。",
+      "errorCloud": "已识别 {{provider}} — 该提供商需要多个字段。请打开“浏览”输入完整凭据。",
+      "errorAmbiguous": "无法判断此密钥属于哪个提供商。请打开“浏览”并选择你的提供商。",
       "errorNoModels": "{{provider}} 已连接但未返回任何模型。请在“管理”中尝试刷新。",
       "errorUnknown": "无法连接到 {{provider}}，请重试。"
     },

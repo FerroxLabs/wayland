@@ -1022,6 +1022,8 @@
       "errorNoCredit": "已連接，但該 {{provider}} 金鑰沒有可用額度。請新增帳單以執行模型。",
       "errorOffline": "無法連接到 {{provider}}——你似乎已離線。請檢查網路後重試。",
       "errorUnrecognized": "無法辨識該金鑰。請開啟「瀏覽」並選擇你的提供商。",
+      "errorCloud": "已辨識 {{provider}} — 該提供商需要多個欄位。請開啟「瀏覽」輸入完整憑證。",
+      "errorAmbiguous": "無法判斷此金鑰屬於哪個提供商。請開啟「瀏覽」並選擇你的提供商。",
       "errorNoModels": "{{provider}} 已連接但未回傳任何模型。請在「管理」中嘗試重新整理。",
       "errorUnknown": "無法連接到 {{provider}}，請重試。"
     },

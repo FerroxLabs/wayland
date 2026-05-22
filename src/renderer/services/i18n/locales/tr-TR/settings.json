@@ -1020,6 +1020,8 @@
       "errorNoCredit": "Bağlandı, ancak {{provider}} anahtarının kullanılabilir kredisi yok. Model çalıştırmak için faturalandırma ekleyin.",
       "errorOffline": "{{provider}} adresine ulaşılamadı — çevrimdışı görünüyorsunuz. Bağlantınızı kontrol edip tekrar deneyin.",
       "errorUnrecognized": "Anahtar tanınmadı. Gözat'ı açın ve sağlayıcınızı seçin.",
+      "errorCloud": "{{provider}} tanındı — bu sağlayıcı birden fazla alan gerektiriyor. Tam kimlik bilgilerini girmek için Gözat'ı açın.",
+      "errorAmbiguous": "Bu anahtarın hangi sağlayıcıya ait olduğu belirlenemedi. Gözat'ı açın ve sağlayıcınızı seçin.",
       "errorNoModels": "{{provider}} bağlandı ancak hiç model döndürmedi. Yönet'ten yenilemeyi deneyin.",
       "errorUnknown": "{{provider}} adresine bağlanılamadı. Lütfen tekrar deneyin."
     },

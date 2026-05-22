@@ -3,7 +3,7 @@ import { Button, Input, Message, Modal, Spin, Switch, Tooltip } from '@arco-desi
 import { Caution, Left, Refresh as RefreshIcon } from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
-import type { ConnectError, CuratedModel, ModelKind } from '@process/providers/types';
+import type { CatalogModel, ConnectError, CuratedModel, ModelKind } from '@process/providers/types';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import { providerMeta } from './providerCatalog';
 import styles from './ManageProvider.module.css';
@@ -60,8 +60,10 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   const meta = providerMeta(provider.providerId);
   const isError = provider.state === 'error';
 
-  // The curated set is the full catalog with the user's enabled/recommended
-  // flags — render directly from it (spec §3.6).
+  // The Manage page renders the FULL catalog (including image / audio /
+  // embedding rows that the text-only curated view excludes) joined with
+  // each row's curated `recommended` / `enabled` / `role` flags so the spec
+  // §3.6 "More in the catalog" section truly shows the whole catalog.
   const [models, setModels] = useState<CuratedModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -81,7 +83,46 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
     setLoadError(null);
     try {
       const view = await getCatalog(provider.providerId);
-      setModels(Array.isArray(view?.curated) ? view.curated : []);
+      const fullCatalog: CatalogModel[] = Array.isArray(view?.catalog) ? view.catalog : [];
+      const curatedList: CuratedModel[] = Array.isArray(view?.curated) ? view.curated : [];
+      // Index curated flags by model id so non-curated catalog rows (image /
+      // audio / embedding) inherit empty defaults while curated text rows
+      // keep their `recommended` / `enabled` / `role` decisions.
+      const curatedById = new Map(curatedList.map((m) => [m.id, m]));
+      // If the catalog is empty but curated isn't (older backend), fall back
+      // to curated so we don't blank the page.
+      let baseRows: CuratedModel[];
+      if (fullCatalog.length > 0) {
+        baseRows = [];
+        for (const c of fullCatalog) {
+          const flagged = curatedById.get(c.id);
+          if (flagged) {
+            baseRows.push(flagged);
+          } else {
+            // Build a CuratedModel by aliasing into a new object — avoids
+            // the spread-in-map oxc warning while keeping copy-on-write.
+            const row: CuratedModel = {
+              id: c.id,
+              providerId: c.providerId,
+              displayName: c.displayName,
+              family: c.family,
+              kind: c.kind,
+              releaseDate: c.releaseDate,
+              contextWindow: c.contextWindow,
+              costInPerM: c.costInPerM,
+              costOutPerM: c.costOutPerM,
+              status: c.status,
+              enriched: c.enriched,
+              recommended: false,
+              enabled: false,
+            };
+            baseRows.push(row);
+          }
+        }
+      } else {
+        baseRows = curatedList;
+      }
+      setModels(baseRows);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
       setModels([]);

@@ -18,16 +18,30 @@ type Props = {
   onUseDetected: (detectedKey: IModelRegistryDetectedKey) => Promise<IModelRegistryConnectResult>;
   /** Dismiss an auto-discovered key. */
   onIgnoreDetected: (detectedKey: IModelRegistryDetectedKey) => void;
-  /** Open the Browse-all-providers modal (Packet 2C). */
-  onBrowse: () => void;
+  /**
+   * Open the Browse-all-providers modal (Packet 2C). When `providerId` is
+   * supplied the modal opens pre-targeted at that provider's sub-view —
+   * used for the cloud-key recognition path (an AWS `AKIA…` paste routes
+   * directly to the Bedrock credential form, not the grid).
+   */
+  onBrowse: (providerId?: ProviderId) => void;
 };
 
-/** Map a `ConnectError` code to the inline-error i18n key suffix. */
-const ERROR_KEY: Record<ConnectError, string> = {
+/**
+ * Code keys for the inline-error panel — supersets `ConnectError` with two
+ * connect-panel-only variants (`cloud`, `ambiguous`) so a recognized cloud
+ * key or an ambiguous bare `sk-` doesn't get mislabelled as "unrecognized".
+ */
+type PanelErrorCode = ConnectError | 'cloud' | 'ambiguous';
+
+/** Map a panel error code to the inline-error i18n key suffix. */
+const ERROR_KEY: Record<PanelErrorCode, string> = {
   unauthorized: 'errorUnauthorized',
   'no-credit': 'errorNoCredit',
   offline: 'errorOffline',
   unrecognized: 'errorUnrecognized',
+  cloud: 'errorCloud',
+  ambiguous: 'errorAmbiguous',
   'no-models': 'errorNoModels',
   unknown: 'errorUnknown',
 };
@@ -89,7 +103,7 @@ const ConnectPanel: React.FC<Props> = ({ detectedKeys, onConnectKey, onUseDetect
     setErrorProvider(null);
   }, []);
 
-  const showError = useCallback((code: ConnectError, providerName?: string) => {
+  const showError = useCallback((code: PanelErrorCode, providerName?: string) => {
     setErrorKey(ERROR_KEY[code]);
     setErrorProvider(providerName ?? null);
   }, []);
@@ -99,17 +113,20 @@ const ConnectPanel: React.FC<Props> = ({ detectedKeys, onConnectKey, onUseDetect
     if (!key) return;
 
     // Unrecognized / cloud / ambiguous formats never connect as a bare key —
-    // the user is sent to Browse to pick the provider explicitly (spec §4.3).
+    // each surfaces its own honest message and (for cloud) hops straight to
+    // the matching credential form (spec §4.3).
     if (recognition.kind === 'unknown') {
       showError('unrecognized');
       return;
     }
     if (recognition.kind === 'cloud') {
-      showError('unrecognized', providerMeta(recognition.provider).displayName);
+      // Hop the user directly to the cloud credential form for the
+      // recognized provider — that's where the additional fields live.
+      onBrowse(recognition.provider);
       return;
     }
     if (recognition.kind === 'ambiguous') {
-      showError('unrecognized');
+      showError('ambiguous');
       return;
     }
 
@@ -201,7 +218,7 @@ const ConnectPanel: React.FC<Props> = ({ detectedKeys, onConnectKey, onUseDetect
       </div>
 
       <div className={styles.browseLink}>
-        <Button type='text' size='small' onClick={onBrowse}>
+        <Button type='text' size='small' onClick={() => onBrowse()}>
           {t('settings.modelsPage.connect.browse')}
         </Button>
       </div>

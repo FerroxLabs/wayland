@@ -89,6 +89,8 @@
   cursor: pointer;
   text-align: left;
   font-family: inherit;
+  height: auto;
+  width: 100%;
   transition:
     border-color 0.15s,
     background 0.15s;
@@ -102,6 +104,14 @@
 .tile:focus-visible {
   outline: 2px solid var(--brand, var(--color-primary-6));
   outline-offset: 1px;
+}
+
+/* Arco Button's inner span — the children flex naturally inside it. */
+.tile :global(.arco-btn-content) {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
 }
 
 .tileAvatar {

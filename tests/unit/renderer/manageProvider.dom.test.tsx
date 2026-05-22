@@ -26,7 +26,7 @@ import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { IModelRegistryProviderView } from '../../../src/common/adapter/ipcBridge';
-import type { CuratedModel } from '../../../src/process/providers/types';
+import type { CatalogModel, CuratedModel } from '../../../src/process/providers/types';
 
 // ---------------------------------------------------------------------------
 // Mocks — i18n echoes the key (+ interpolation) so assertions read clean.
@@ -233,6 +233,18 @@ const audioModel = model({
 });
 
 const curated: CuratedModel[] = [flagship, sonnet, olderText, imageModel, audioModel];
+
+/** A non-text catalog row — image / audio / embedding aren't in `curated`. */
+function catalogOnly(id: string, kind: 'image' | 'audio' | 'embedding'): CatalogModel {
+  return {
+    id,
+    providerId: 'anthropic',
+    displayName: id,
+    family: id,
+    kind,
+    enriched: true,
+  };
+}
 
 beforeEach(() => {
   mockList.mockReset().mockResolvedValue([provider]);
@@ -462,6 +474,42 @@ describe('ManageProvider page', () => {
     expect(alert).toBeInTheDocument();
     // The dialog stays open — its key input is still mounted.
     expect(screen.getByPlaceholderText('settings.modelsPage.manage.rekeyPlaceholder')).toBeInTheDocument();
+  });
+
+  it('renders image / audio / embedding rows from the full catalog (not just curated)', async () => {
+    // The Curator filters non-text models out of `curated`, so the Manage
+    // page must render from `catalog` and join curated flags on by id —
+    // otherwise image / audio rows never reach the "More in the catalog"
+    // section. Curated holds only the text models; catalog holds everything.
+    mockGetCatalog.mockResolvedValueOnce({
+      catalog: [
+        // The text rows present in `curated`.
+        { ...flagship, recommended: undefined, enabled: undefined } as unknown,
+        { ...sonnet, recommended: undefined, enabled: undefined } as unknown,
+        { ...olderText, recommended: undefined, enabled: undefined } as unknown,
+        // Non-text rows that the Curator excludes from `curated`.
+        catalogOnly('dalle-3', 'image'),
+        catalogOnly('whisper-1', 'audio'),
+        catalogOnly('ada-002', 'embedding'),
+      ],
+      // Text-only curated set (no image / audio / embedding).
+      curated: [flagship, sonnet, olderText],
+    });
+    renderPage();
+
+    // Wait for all 6 catalog rows.
+    await waitFor(() => expect(rows().length).toBe(6));
+    const ids = rows().map((el) => el.getAttribute('data-model'));
+    expect(ids).toContain('dalle-3');
+    expect(ids).toContain('whisper-1');
+    expect(ids).toContain('ada-002');
+
+    // Non-curated rows default off (the Manage page is the one place a user
+    // turns them on).
+    const dalle = document.querySelector('[data-model="dalle-3"]') as HTMLElement;
+    expect(dalle.getAttribute('data-enabled')).toBe('false');
+    // …and carry their capability tag.
+    expect(within(dalle).getByText('settings.modelsPage.manage.capImage')).toBeInTheDocument();
   });
 
   it('shows the no-match state when a search query matches no models', async () => {
