@@ -77,7 +77,8 @@ export const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): Speech
 });
 
 // Whisper model asset descriptor — model + binary are both required for local STT.
-// TODO(voice): destPath + sha256 fields are empty; VoiceAssetManager wiring needs follow-up.
+// destPath + sha256 are resolved server-side by voiceAssetRegistry.ts before
+// the download starts; the renderer just supplies the id + url.
 const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
   base: {
     id: 'whisper-ggml-base',
@@ -271,27 +272,22 @@ export const TextToSpeechSettingsSection: React.FC<{
         </Form.Item>
 
         <Form.Item label={t('settings.textToSpeechSpeed')}>
-          {/* Anchor the leftmost and rightmost mark labels inside the
-              slider's container by passing element nodes with explicit
-              horizontal offset. The first mark hugs the left edge (no
-              translateX), the last mark hugs the right edge
-              (translateX(-100%)), and the middle marks keep Arco's
-              centered-on-tick default. No scoped CSS needed — these
-              transforms ride directly on the rendered mark elements. */}
-          <Slider
-            min={0.5}
-            max={2.0}
-            step={0.1}
-            value={config.speed}
-            onChange={(value) => onChange((current) => ({ ...current, speed: value as number }))}
-            marks={{
-              0.5: <span style={{ transform: 'translateX(0)', display: 'inline-block' }}>0.5×</span>,
-              1: '1×',
-              1.5: '1.5×',
-              2: <span style={{ transform: 'translateX(-100%)', display: 'inline-block' }}>2×</span>,
-            }}
-            className='w-full'
-          />
+          {/* Reserve the same horizontal gutter on both sides as the
+              widest tick label, so Arco's translateX(-50%) centering on
+              the leftmost (0.5×) and rightmost (2×) marks doesn't push
+              the label past the form container. 20px is enough for "0.5×"
+              (~24px wide, half = 12px) with a small visual breather. */}
+          <div className='px-20px'>
+            <Slider
+              min={0.5}
+              max={2.0}
+              step={0.1}
+              value={config.speed}
+              onChange={(value) => onChange((current) => ({ ...current, speed: value as number }))}
+              marks={{ 0.5: '0.5×', 1: '1×', 1.5: '1.5×', 2: '2×' }}
+              className='w-full'
+            />
+          </div>
         </Form.Item>
 
         <Form.Item label={t('settings.textToSpeechAutoRead')}>

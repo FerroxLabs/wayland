@@ -155,6 +155,20 @@ const MicrophoneCheck: React.FC = () => {
       window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const ctx = new ContextClass();
     audioCtxRef.current = ctx;
+    // Electron + Chromium ship AudioContext in `suspended` state until the
+    // app explicitly resumes. The button click that calls handleStart counts
+    // as user activation, but the AudioContext was created AFTER the await
+    // for getUserMedia returned, which can push it out of the activation
+    // window. Resume defensively before wiring the analyser, or the analyser
+    // returns silence (timeDomain stays at 0x80 = midpoint = bar never moves).
+    if (ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+      } catch {
+        // Browser may refuse without user gesture — proceed; the test will
+        // report no-signal which is the honest result.
+      }
+    }
     const source = ctx.createMediaStreamSource(stream);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 1024;
@@ -162,6 +176,9 @@ const MicrophoneCheck: React.FC = () => {
     source.connect(analyser);
     analyserRef.current = analyser;
 
+    // refreshDevices() before flipping state to 'listening' so the device
+    // label population doesn't cause a re-render mid-test (which clobbers
+    // the DOM-mutated bar width back to the JSX initial value).
     void refreshDevices();
 
     setState('listening');
@@ -281,17 +298,18 @@ const MicrophoneCheck: React.FC = () => {
 
       <div className='flex flex-col gap-6px'>
         <div className='h-8px rd-full bg-[var(--color-fill-2)] overflow-hidden'>
-          <div
-            ref={barRef}
-            className={`h-full rd-full ${barColorClass} mic-meter-bar`}
-            style={{ width: '0%' }}
-          />
+          <div ref={barRef} className={`h-full rd-full ${barColorClass} mic-meter-bar`} />
         </div>
         <p className={`text-12px m-0 ${statusColorClass}`}>{statusText}</p>
       </div>
 
+      {/* Initial width 0 lives in CSS, NOT inline style — otherwise every
+          React render replays { width: '0%' } and clobbers the RAF-driven
+          width mutation. The DOM-mutated width persists across renders
+          because React doesn't touch a property it never set. */}
       <style>{`
         .mic-meter-bar {
+          width: 0%;
           transition: width 0.08s linear, background-color 0.2s ease;
         }
       `}</style>
