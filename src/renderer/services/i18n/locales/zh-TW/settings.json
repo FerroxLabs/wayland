@@ -1001,7 +1001,6 @@
     "crumbAiModels": "AI 模型",
     "connectedLabel": "已連接",
     "loadError": "無法載入已連接的提供商，請稍後重試。",
-    "fixFailed": "無法重設該提供商，請重試。",
     "connect": {
       "title": "連接提供商",
       "keyLabel": "貼上 API 金鑰",
@@ -1095,6 +1094,7 @@
       "rekeyPlaceholder": "貼上新的 API 金鑰…",
       "rekeyConfirm": "更新金鑰",
       "rekeyDone": "供應商憑證已更新。",
+      "rekeyCloudDisabled": "雲端憑證需在雲端連接表單中重新設定，而非此處。",
       "errorUnauthorized": "{{provider}} 金鑰被拒絕——未授權。請檢查金鑰後重試。",
       "errorNoCredit": "{{provider}} 金鑰沒有可用額度。請新增帳單以執行模型。",
       "errorOffline": "無法連線 {{provider}}——你似乎處於離線狀態。請檢查網路後重試。",

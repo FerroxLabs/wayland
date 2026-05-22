@@ -49,6 +49,13 @@ vi.mock('react-i18next', () => ({
   Trans: ({ i18nKey }: { i18nKey: string }) => React.createElement('span', null, i18nKey),
 }));
 
+// Hoisted spies for the imperative `Message` API — declared with `vi.hoisted`
+// so they exist when the (also-hoisted) `vi.mock` factory below closes over them.
+const { messageError, messageSuccess } = vi.hoisted(() => ({
+  messageError: vi.fn(),
+  messageSuccess: vi.fn(),
+}));
+
 // `@arco-design/web-react` — keep every real component; only the imperative
 // `Modal.confirm` and `Message` APIs use the legacy `ReactDOM.render` path,
 // which the React 19 jsdom shim does not provide. Replace `Message` with a
@@ -114,10 +121,16 @@ vi.mock('@arco-design/web-react', async () => {
     }
   );
 
+  // `Message` — record `.error` / `.success` calls so tests can assert on them
+  // (the real imperative API uses the legacy `ReactDOM.render` path).
   const Message = new Proxy(
     {},
     {
-      get: () => () => undefined,
+      get: (_t, prop) => {
+        if (prop === 'error') return messageError;
+        if (prop === 'success') return messageSuccess;
+        return () => undefined;
+      },
     }
   );
 
@@ -228,6 +241,8 @@ beforeEach(() => {
   mockRefresh.mockReset().mockResolvedValue({ ok: true });
   mockRekey.mockReset().mockResolvedValue({ ok: true });
   mockDisconnect.mockReset().mockResolvedValue({ ok: true });
+  messageError.mockReset();
+  messageSuccess.mockReset();
 });
 
 afterEach(() => {
@@ -391,5 +406,74 @@ describe('ManageProvider page', () => {
     renderPage();
 
     expect(await screen.findByText('settings.modelsPage.manage.empty')).toBeInTheDocument();
+  });
+
+  it('reverts the optimistic toggle and shows an error when toggleModel resolves not-ok', async () => {
+    mockToggleModel.mockResolvedValueOnce({ ok: false });
+    renderPage();
+
+    await waitFor(() => expect(rows().length).toBe(5));
+
+    // The older (off) model — turning it on.
+    const olderRow = document.querySelector('[data-model="opus-3"]') as HTMLElement;
+    expect(olderRow.getAttribute('data-enabled')).toBe('false');
+
+    fireEvent.click(within(olderRow).getByRole('switch'));
+
+    // Optimistic flip happens, then reverts once the IPC resolves not-ok.
+    await waitFor(() => expect(mockToggleModel).toHaveBeenCalled());
+    await waitFor(() => expect(olderRow.getAttribute('data-enabled')).toBe('false'));
+    expect(messageError).toHaveBeenCalledWith('settings.modelsPage.manage.toggleFailed');
+  });
+
+  it('reverts the optimistic toggle and shows an error when toggleModel rejects', async () => {
+    mockToggleModel.mockRejectedValueOnce(new Error('network down'));
+    renderPage();
+
+    await waitFor(() => expect(rows().length).toBe(5));
+
+    // The flagship (on) model — turning it off.
+    const flagshipRow = document.querySelector('[data-model="opus-4-7"]') as HTMLElement;
+    expect(flagshipRow.getAttribute('data-enabled')).toBe('true');
+
+    fireEvent.click(within(flagshipRow).getByRole('switch'));
+
+    // Optimistic flip to off, then reverts back to on once the IPC rejects.
+    await waitFor(() => expect(mockToggleModel).toHaveBeenCalled());
+    await waitFor(() => expect(flagshipRow.getAttribute('data-enabled')).toBe('true'));
+    expect(messageError).toHaveBeenCalledWith('settings.modelsPage.manage.toggleFailed');
+  });
+
+  it('keeps the Re-key dialog open and shows the error when rekey resolves not-ok', async () => {
+    mockRekey.mockResolvedValueOnce({ ok: false, error: 'unauthorized' });
+    renderPage();
+    await waitFor(() => expect(rows().length).toBe(5));
+
+    fireEvent.click(screen.getByText('settings.modelsPage.manage.rekey'));
+
+    const keyInput = await screen.findByPlaceholderText('settings.modelsPage.manage.rekeyPlaceholder');
+    fireEvent.change(keyInput, { target: { value: 'sk-ant-bad-key' } });
+    fireEvent.click(screen.getByText('settings.modelsPage.manage.rekeyConfirm'));
+
+    await waitFor(() => expect(mockRekey).toHaveBeenCalled());
+
+    // The localized `unauthorized` error renders in the dialog's alert element.
+    const alert = await screen.findByText(/manage\.errorUnauthorized/, { selector: '[role="alert"]' });
+    expect(alert).toBeInTheDocument();
+    // The dialog stays open — its key input is still mounted.
+    expect(screen.getByPlaceholderText('settings.modelsPage.manage.rekeyPlaceholder')).toBeInTheDocument();
+  });
+
+  it('shows the no-match state when a search query matches no models', async () => {
+    renderPage();
+    await waitFor(() => expect(rows().length).toBe(5));
+
+    const search = screen.getByPlaceholderText('settings.modelsPage.manage.searchPlaceholder');
+    fireEvent.change(search, { target: { value: 'zzz-no-such-model' } });
+
+    // The no-match state renders — distinct from the empty-catalog state.
+    await waitFor(() => expect(rows().length).toBe(0));
+    expect(screen.getByText('settings.modelsPage.manage.noMatch:query=zzz-no-such-model')).toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.manage.empty')).not.toBeInTheDocument();
   });
 });

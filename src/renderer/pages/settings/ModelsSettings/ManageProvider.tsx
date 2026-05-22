@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Input, Message, Modal, Spin, Switch } from '@arco-design/web-react';
+import { Button, Input, Message, Modal, Spin, Switch, Tooltip } from '@arco-design/web-react';
 import { Caution, Left, Refresh as RefreshIcon } from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
@@ -202,6 +202,12 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
     }
   }, [rekey, provider.providerId, rekeyValue, loadCatalog, t]);
 
+  // Cloud-credential providers need multi-field creds — the single-field
+  // Re-key dialog can't satisfy them, so it's disabled here.
+  // TODO(2C): route cloud re-key to Packet 2C's `CloudCredentialForm` once it
+  // exists, instead of disabling the button.
+  const isCloudProvider = provider.connectedVia === 'cloud-credentials';
+
   // ---- Header status -----------------------------------------------------
   const viaSuffix = VIA_KEY[provider.connectedVia];
   const viaLabel = viaSuffix ? t(`settings.modelsPage.row.via.${viaSuffix}`) : provider.connectedVia;
@@ -287,9 +293,17 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
           >
             {t('settings.modelsPage.manage.refresh')}
           </Button>
-          <Button size='small' onClick={openRekey}>
-            {t('settings.modelsPage.manage.rekey')}
-          </Button>
+          {isCloudProvider ? (
+            <Tooltip content={t('settings.modelsPage.manage.rekeyCloudDisabled')}>
+              <Button size='small' disabled>
+                {t('settings.modelsPage.manage.rekey')}
+              </Button>
+            </Tooltip>
+          ) : (
+            <Button size='small' onClick={openRekey}>
+              {t('settings.modelsPage.manage.rekey')}
+            </Button>
+          )}
           <Button size='small' status='danger' onClick={handleDisconnect}>
             {t('settings.modelsPage.manage.disconnect')}
           </Button>

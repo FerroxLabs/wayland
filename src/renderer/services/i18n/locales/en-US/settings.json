@@ -1665,7 +1665,6 @@
     "crumbAiModels": "AI Models",
     "connectedLabel": "Connected",
     "loadError": "Couldn't load your connected providers. Try again in a moment.",
-    "fixFailed": "Couldn't reset that provider. Please try again.",
     "connect": {
       "title": "Connect a provider",
       "keyLabel": "Paste an API key",
@@ -1759,6 +1758,7 @@
       "rekeyPlaceholder": "Paste a new API key…",
       "rekeyConfirm": "Update key",
       "rekeyDone": "Provider credentials updated.",
+      "rekeyCloudDisabled": "Cloud credentials are re-keyed from the cloud connection form, not here.",
       "errorUnauthorized": "That {{provider}} key was rejected — unauthorized. Check the key and try again.",
       "errorNoCredit": "That {{provider}} key has no usable credit. Add billing to run models.",
       "errorOffline": "Couldn't reach {{provider}} — you appear to be offline. Check your connection and retry.",

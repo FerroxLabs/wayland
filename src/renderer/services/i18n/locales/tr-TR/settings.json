@@ -999,7 +999,6 @@
     "crumbAiModels": "Yapay Zeka Modelleri",
     "connectedLabel": "Bağlı",
     "loadError": "Bağlı sağlayıcılar yüklenemedi. Birazdan tekrar deneyin.",
-    "fixFailed": "Sağlayıcı sıfırlanamadı. Lütfen tekrar deneyin.",
     "connect": {
       "title": "Sağlayıcı bağla",
       "keyLabel": "Bir API anahtarı yapıştır",
@@ -1093,6 +1092,7 @@
       "rekeyPlaceholder": "Yeni bir API anahtarı yapıştırın…",
       "rekeyConfirm": "Anahtarı güncelle",
       "rekeyDone": "Sağlayıcı kimlik bilgileri güncellendi.",
+      "rekeyCloudDisabled": "Bulut kimlik bilgileri buradan değil, bulut bağlantı formundan yeniden ayarlanır.",
       "errorUnauthorized": "Bu {{provider}} anahtarı reddedildi — yetkisiz. Anahtarı kontrol edip tekrar deneyin.",
       "errorNoCredit": "Bu {{provider}} anahtarının kullanılabilir kredisi yok. Model çalıştırmak için faturalandırma ekleyin.",
       "errorOffline": "{{provider}} sağlayıcısına ulaşılamadı — çevrimdışı görünüyorsunuz. Bağlantınızı kontrol edip tekrar deneyin.",

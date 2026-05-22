@@ -1001,7 +1001,6 @@
     "crumbAiModels": "AI 모델",
     "connectedLabel": "연결됨",
     "loadError": "연결된 제공자를 불러올 수 없습니다. 잠시 후 다시 시도하세요.",
-    "fixFailed": "제공자를 재설정할 수 없습니다. 다시 시도하세요.",
     "connect": {
       "title": "제공자 연결",
       "keyLabel": "API 키 붙여넣기",
@@ -1095,6 +1094,7 @@
       "rekeyPlaceholder": "새 API 키 붙여넣기…",
       "rekeyConfirm": "키 업데이트",
       "rekeyDone": "제공업체 자격 증명이 업데이트되었습니다.",
+      "rekeyCloudDisabled": "클라우드 자격 증명은 여기가 아니라 클라우드 연결 양식에서 다시 설정합니다.",
       "errorUnauthorized": "해당 {{provider}} 키가 거부되었습니다——권한 없음. 키를 확인하고 다시 시도하세요.",
       "errorNoCredit": "해당 {{provider}} 키에 사용 가능한 크레딧이 없습니다. 모델을 실행하려면 결제를 추가하세요.",
       "errorOffline": "{{provider}}에 연결할 수 없습니다——오프라인 상태인 것 같습니다. 연결을 확인하고 다시 시도하세요.",

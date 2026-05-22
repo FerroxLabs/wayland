@@ -1000,7 +1000,6 @@
     "crumbAiModels": "AI 模型",
     "connectedLabel": "已连接",
     "loadError": "无法加载已连接的提供商，请稍后重试。",
-    "fixFailed": "无法重置该提供商，请重试。",
     "connect": {
       "title": "连接提供商",
       "keyLabel": "粘贴 API 密钥",
@@ -1094,6 +1093,7 @@
       "rekeyPlaceholder": "粘贴新的 API 密钥…",
       "rekeyConfirm": "更新密钥",
       "rekeyDone": "提供商凭据已更新。",
+      "rekeyCloudDisabled": "云凭据需在云连接表单中重新设置，而非此处。",
       "errorUnauthorized": "{{provider}} 密钥被拒绝——未授权。请检查密钥后重试。",
       "errorNoCredit": "{{provider}} 密钥没有可用额度。请添加账单以运行模型。",
       "errorOffline": "无法连接 {{provider}}——你似乎处于离线状态。请检查网络后重试。",

@@ -1001,7 +1001,6 @@
     "crumbAiModels": "AI モデル",
     "connectedLabel": "接続済み",
     "loadError": "接続済みプロバイダーを読み込めませんでした。しばらくしてから再試行してください。",
-    "fixFailed": "プロバイダーをリセットできませんでした。もう一度お試しください。",
     "connect": {
       "title": "プロバイダーを接続",
       "keyLabel": "API キーを貼り付け",
@@ -1095,6 +1094,7 @@
       "rekeyPlaceholder": "新しい API キーを貼り付け…",
       "rekeyConfirm": "キーを更新",
       "rekeyDone": "プロバイダーの資格情報を更新しました。",
+      "rekeyCloudDisabled": "クラウド資格情報はここではなく、クラウド接続フォームで再設定します。",
       "errorUnauthorized": "その {{provider}} キーは拒否されました——認証されていません。キーを確認して再試行してください。",
       "errorNoCredit": "その {{provider}} キーには利用可能なクレジットがありません。モデルを実行するには課金を追加してください。",
       "errorOffline": "{{provider}} に到達できませんでした——オフラインのようです。接続を確認して再試行してください。",
