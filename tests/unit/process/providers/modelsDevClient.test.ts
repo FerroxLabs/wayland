@@ -61,13 +61,19 @@ function removeSandbox(dir: string): void {
 /**
  * Load ModelsDevClient with `electron.app.getPath` pointing at a sandbox
  * (cache dir) and `process.resourcesPath` pointing at a sandbox (snapshot dir).
+ *
+ * `isPackaged` defaults to `true` (the packaged snapshot path); pass `false`
+ * to exercise the dev snapshot path (`process.cwd()/resources/...`).
  */
-async function loadClient(userDataDir: string, resourcesDir: string) {
+async function loadClient(userDataDir: string, resourcesDir: string, isPackaged = true) {
   vi.resetModules();
   vi.doMock('electron', () => ({
     app: {
-      getPath: (name: string) => (name === 'userData' ? userDataDir : userDataDir),
-      isPackaged: true,
+      getPath: (name: string) => {
+        if (name === 'userData') return userDataDir;
+        throw new Error('unexpected getPath: ' + name);
+      },
+      isPackaged,
     },
   }));
   // The client resolves the bundled snapshot relative to process.resourcesPath
@@ -297,5 +303,85 @@ describe('ModelsDevClient.getRegistry', () => {
     // No stray temp files should be left behind in the cache directory.
     const leftovers = fs.readdirSync(cacheDir).filter((f) => f.includes('.tmp-'));
     expect(leftovers).toEqual([]);
+  });
+
+  it('aborts a hung fetch on timeout and falls through to the cache without throwing', async () => {
+    // Seed a valid last-good cache so there is a rung to fall through to.
+    fs.writeFileSync(path.join(cacheDir, 'modelsdev-cache.json'), JSON.stringify(validRegistry()));
+
+    // A fetch that never resolves on its own — it only rejects when the
+    // client's AbortController fires, mirroring the real abort behaviour.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        (_url: string, options: { signal?: AbortSignal }) =>
+          new Promise((_resolve, reject) => {
+            options.signal?.addEventListener('abort', () => {
+              reject(new DOMException('The operation was aborted.', 'AbortError'));
+            });
+          })
+      )
+    );
+
+    vi.useFakeTimers();
+    try {
+      const { ModelsDevClient } = await loadClient(cacheDir, resourcesDir);
+      const registryPromise = new ModelsDevClient().getRegistry();
+      // Advance past FETCH_TIMEOUT_MS (10_000) so the AbortController fires.
+      await vi.advanceTimersByTimeAsync(10_001);
+      const registry = await registryPromise;
+      // The fetch aborted; the client must have fallen through to the cache.
+      expect(registry.anthropic.id).toBe('anthropic');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('still returns the live registry when persisting the cache fails (unwritable dir)', async () => {
+    const payload = validRegistry();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers(),
+        text: async () => JSON.stringify(payload),
+      })
+    );
+
+    // Make the cache directory read-only so the atomic write fails.
+    fs.chmodSync(cacheDir, 0o500);
+    try {
+      const { ModelsDevClient } = await loadClient(cacheDir, resourcesDir);
+      const registry = await new ModelsDevClient().getRegistry();
+      // The cache write failed silently — the live result must still come back.
+      expect(Object.keys(registry).toSorted()).toEqual(['anthropic', 'groq', 'openai']);
+    } finally {
+      // Restore write permission so afterEach can remove the sandbox.
+      fs.chmodSync(cacheDir, 0o700);
+    }
+  });
+
+  it('rung 3: resolves the dev snapshot path (process.cwd()/resources) when not packaged', async () => {
+    // Dev mode resolves the snapshot at <cwd>/resources/modelsdev-snapshot.json.
+    const devResourcesDir = path.join(resourcesDir, 'resources');
+    fs.mkdirSync(devResourcesDir, { recursive: true });
+    const snapshot = validRegistry();
+    snapshot.openai = {
+      id: 'openai',
+      env: ['OPENAI_API_KEY'],
+      name: 'OpenAI from dev snapshot',
+      models: { 'gpt-5': (snapshot.openai as { models: Record<string, unknown> }).models['gpt-5'] },
+    };
+    fs.writeFileSync(path.join(devResourcesDir, 'modelsdev-snapshot.json'), JSON.stringify(snapshot));
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(resourcesDir);
+    try {
+      const { ModelsDevClient } = await loadClient(cacheDir, resourcesDir, false);
+      const registry = await new ModelsDevClient().getRegistry();
+      expect(registry.openai.name).toBe('OpenAI from dev snapshot');
+    } finally {
+      cwdSpy.mockRestore();
+    }
   });
 });

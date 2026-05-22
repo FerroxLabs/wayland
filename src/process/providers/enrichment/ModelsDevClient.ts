@@ -28,6 +28,8 @@ const MODELS_DEV_API_URL = 'https://models.dev/api.json';
 const CACHE_FILE_NAME = 'modelsdev-cache.json';
 const SNAPSHOT_FILE_NAME = 'modelsdev-snapshot.json';
 const FETCH_TIMEOUT_MS = 10_000;
+/** Reject a live response whose declared body exceeds this size — never buffer a huge payload. */
+const MAX_RESPONSE_BYTES = 32 * 1024 * 1024;
 
 export class ModelsDevClient {
   /**
@@ -60,8 +62,20 @@ export class ModelsDevClient {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-      const res = await fetch(MODELS_DEV_API_URL, { signal: controller.signal });
+      const res = await fetch(MODELS_DEV_API_URL, {
+        signal: controller.signal,
+        headers: { Accept: 'application/json' },
+      });
       if (!res.ok) return null;
+      // Guard against buffering a huge body — bail before reading if the
+      // declared content-length is implausible for the registry.
+      const contentLength = res.headers?.get('content-length');
+      if (contentLength != null) {
+        const declaredLength = Number(contentLength);
+        if (Number.isFinite(declaredLength) && declaredLength > MAX_RESPONSE_BYTES) {
+          return null;
+        }
+      }
       const body = await res.text();
       return this.parseAndValidate(body);
     } catch {
