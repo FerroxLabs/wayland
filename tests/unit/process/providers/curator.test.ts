@@ -173,4 +173,35 @@ describe('Curator', () => {
     ]);
     expect(curated).toEqual([]);
   });
+
+  it('breaks a tie between two same-date models in a family deterministically', () => {
+    // Two models in one family sharing an identical releaseDate — the sort is
+    // stable on input order, so the result must be deterministic and stable.
+    const input = [
+      model({ id: 'gpt-4-a', family: 'gpt-4', releaseDate: '2024-05-13' }),
+      model({ id: 'gpt-4-b', family: 'gpt-4', releaseDate: '2024-05-13' }),
+    ];
+    const first = curator.curate(input);
+    const second = curator.curate(input);
+    expect(second).toEqual(first);
+    // First-seen model keeps rank 0 (flagship); the tie does not reorder them.
+    expect(pick(first, 'gpt-4-a').role).toBe('flagship');
+    expect(pick(first, 'gpt-4-b').role).toBe('previous');
+  });
+
+  it('picks a deterministic flagship when every model in a family is undated', () => {
+    // No releaseDate anywhere — the sort preserves input order, so the
+    // first-seen model is the flagship and the result is deterministic.
+    const input = [
+      model({ id: 'gpt-4-x', family: 'gpt-4' }),
+      model({ id: 'gpt-4-y', family: 'gpt-4' }),
+      model({ id: 'gpt-4-z', family: 'gpt-4' }),
+    ];
+    const first = curator.curate(input);
+    const second = curator.curate(input);
+    expect(second).toEqual(first);
+    expect(pick(first, 'gpt-4-x').role).toBe('flagship');
+    expect(pick(first, 'gpt-4-y').role).toBe('previous');
+    expect(pick(first, 'gpt-4-z').role).toBeUndefined();
+  });
 });

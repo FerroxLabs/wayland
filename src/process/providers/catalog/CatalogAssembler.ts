@@ -36,6 +36,12 @@ import { ModelDisplayNames } from './ModelDisplayNames';
  * Verified against `resources/modelsdev-snapshot.json` (2026-05-22, 134
  * providers). A provider absent from this map falls back to a flat id scan
  * across every models.dev provider.
+ *
+ * Deliberately omitted: `baichuan`, `lingyiwanwu`, `stability`, `replicate`,
+ * `anyscale`, `deepgram`, `assemblyai`, `elevenlabs` — these have endpoints in
+ * `PROVIDER_ENDPOINTS` but genuinely do NOT exist as a models.dev provider key
+ * (checked against the snapshot's 134 keys), so they correctly hit the flat
+ * scan and their models stay unenriched.
  */
 const MODELS_DEV_PROVIDER_KEY: Partial<Record<ProviderId, string>> = {
   anthropic: 'anthropic',
@@ -135,13 +141,22 @@ function findModelsDevModel(raw: RawModel, registry: ModelsDevRegistry): ModelsD
     if (direct) return direct;
   }
 
-  // Fallback: an unmapped provider, or a model the mapped provider does not
-  // carry — scan every provider for a model with this exact id.
-  for (const provider of Object.values(registry)) {
-    const model = provider.models[raw.id];
-    if (model) return model;
-  }
-  return null;
+  // Fallback for an unmapped provider, or a model the mapped provider does not
+  // carry. Best-effort: scan every models.dev provider for this exact id. Two
+  // providers can share a model id, so the scan is made DETERMINISTIC — we
+  // prefer a registry key matching/sharing a prefix with the RawModel's
+  // providerId, else the alphabetically-first key — never raw object order.
+  const candidateKeys = Object.keys(registry)
+    .filter((key) => registry[key].models[raw.id])
+    .toSorted();
+  if (candidateKeys.length === 0) return null;
+
+  const providerId = raw.providerId;
+  const affine = candidateKeys.find(
+    (key) => key === providerId || key.startsWith(providerId) || providerId.startsWith(key)
+  );
+  const chosen = affine ?? candidateKeys[0];
+  return registry[chosen].models[raw.id];
 }
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
@@ -171,18 +186,25 @@ function looksLikeEmbedding(model: ModelsDevModel): boolean {
 /**
  * Derive a stable family from a model id when models.dev does not supply one.
  *
- * Strips trailing version and date tokens so different generations of the same
- * model collapse into one family (`claude-sonnet-4-20250101` → `claude-sonnet`).
- * If stripping removes everything, the full id is returned — a singleton family
- * the Curator still surfaces as its own flagship.
+ * Strips trailing **date/build stamps** (a pure-numeric token ≥ 4 digits, e.g.
+ * `0613`, `1106`, `20250514`) and trailing **variant words** (`preview`, `exp`,
+ * `latest`, `thinking`, …) — these never identify a family. It KEEPS every
+ * generation/version token: a 1–3 digit number (`4`, `3`), a dotted number
+ * (`4.1`, `3.5`), or a generation slug (`4o`, `o3`, `v2`) stops the strip loop.
  *
- * Tokens stripped from the END only (a leading numeric token is part of the
- * family name, e.g. `gpt-4`-style ids keep their version when it is not
- * trailing):
- *  - a date: `YYYYMMDD` or `YYYY-MM-DD`
- *  - a version: `vN`, `vN.N`, a 3-digit Vertex suffix (`001`), a bare number,
- *    or a dotted number (`4.1`)
- *  - common variant words at the tail (`latest`, `preview`, `exp`, etc.)
+ * Because version tokens are kept, distinct generations derive to DIFFERENT
+ * families: `claude-3-haiku` and `claude-3-5-haiku` are separate families, and
+ * `gpt-4o-mini` is its own family separate from `gpt-4`. This intentionally
+ * over-splits rather than collapses — over-splitting surfaces more models in
+ * the picker; collapsing would hide flagships behind one merged family.
+ *
+ * If stripping removes everything, the full original id is returned — a
+ * singleton family the Curator still surfaces as its own flagship.
+ *
+ * Examples: `gpt-4.1`→`gpt-4.1`; `gpt-4-0613`→`gpt-4`;
+ * `gpt-4-1106-preview`→`gpt-4`; `gpt-4o-mini`→`gpt-4o-mini`;
+ * `claude-3-5-haiku-20241022`→`claude-3-5-haiku`;
+ * `gemini-2.0-flash-thinking-exp`→`gemini-2.0-flash`; `o3`→`o3`.
  */
 function deriveFamily(modelId: string): string {
   // Drop a vendor path prefix so it never leaks into the family name.
@@ -194,7 +216,7 @@ function deriveFamily(modelId: string): string {
   if (slash !== -1) id = id.slice(slash + 1);
 
   const tokens = id.split('-');
-  while (tokens.length > 1 && isTrailingNoiseToken(tokens[tokens.length - 1])) {
+  while (tokens.length > 1 && isTrailingStripToken(tokens[tokens.length - 1])) {
     tokens.pop();
   }
 
@@ -202,13 +224,30 @@ function deriveFamily(modelId: string): string {
   return family.length > 0 ? family : id;
 }
 
-/** True when a trailing id token is a version, date, or variant word to strip. */
-function isTrailingNoiseToken(token: string): boolean {
+/** Trailing variant words to strip — none of these identify a model family. */
+const VARIANT_WORDS = new Set([
+  'preview',
+  'exp',
+  'experimental',
+  'latest',
+  // `thinking` is a reasoning mode, not a family — `gemini-2.0-flash-thinking`
+  // is the same family as `gemini-2.0-flash`.
+  'thinking',
+  'beta',
+  'alpha',
+  'rc',
+]);
+
+/**
+ * True when a trailing id token should be stripped: a date/build stamp (a
+ * pure-numeric token ≥ 4 digits) or a known variant word. A 1–3 digit number,
+ * a dotted number, or a generation slug (`4o`) is a version — NEVER stripped.
+ */
+function isTrailingStripToken(token: string): boolean {
   const t = token.toLowerCase();
-  // A date: 8 digits (YYYYMMDD) — single-token form of a date suffix.
-  if (/^\d{8}$/.test(t)) return true;
-  // A version: a bare number, a dotted number, or a v-prefixed number.
-  if (/^v?\d+(\.\d+)?$/.test(t)) return true;
-  // A common trailing variant word.
-  return ['latest', 'preview', 'exp', 'experimental', 'beta', 'stable', 'thinking'].includes(t);
+  // A date or build stamp: a pure-numeric token of length ≥ 4 (`0613`, `1106`,
+  // `20250514`). A shorter pure number is a generation/version and is kept.
+  if (/^\d{4,}$/.test(t)) return true;
+  // A known variant word.
+  return VARIANT_WORDS.has(t);
 }

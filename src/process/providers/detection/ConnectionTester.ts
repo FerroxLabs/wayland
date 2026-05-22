@@ -34,39 +34,17 @@
 
 import type { ConnectError, ProviderId } from '../types';
 import { PROVIDER_ENDPOINTS } from './providerEndpoints';
+import type { AuthStrategy } from './providerAuth';
+import { ANTHROPIC_VERSION, appendQuery, authStrategyFor } from './providerAuth';
 
 /** Per-request fetch timeout — a slow provider must not stall a connection test. */
 const FETCH_TIMEOUT_MS = 15_000;
-
-/** The `anthropic-version` string Anthropic requires — matches ApiProviderSource. */
-const ANTHROPIC_VERSION = '2023-06-01';
 
 /** Credentials for a connection test: a single API key, or multi-field creds. */
 type TestCreds = { key: string } | { fields: Record<string, string> };
 
 /** The result of a connection test. */
 type TestResult = { ok: boolean; error?: ConnectError };
-
-/**
- * How a provider authenticates a request. Mirrors `ApiProviderSource`'s
- * `PROVIDER_AUTH` strategy — kept consistent so a future change is made once.
- */
-type AuthScheme =
-  /** OpenAI and every OpenAI-compatible provider: `Authorization: Bearer`. */
-  | { kind: 'bearer' }
-  /** Anthropic: `x-api-key` + `anthropic-version`, no `Authorization`. */
-  | { kind: 'anthropic' }
-  /** Gemini: API key rides on a `key` query parameter, no auth header. */
-  | { kind: 'query'; param: string };
-
-/**
- * Per-provider auth scheme. A provider absent from this map uses `bearer`.
- * Conceptually parallel to `ApiProviderSource.PROVIDER_AUTH`.
- */
-const PROVIDER_AUTH: Partial<Record<ProviderId, AuthScheme>> = {
-  anthropic: { kind: 'anthropic' },
-  'google-gemini': { kind: 'query', param: 'key' },
-};
 
 /**
  * Per-provider known cheap test model. The tester sends a 1-token completion to
@@ -116,6 +94,14 @@ export class ConnectionTester {
       return this.probeModelsEndpoint(providerId, apiKey, modelsEndpoint);
     }
 
+    // The provider IS probeable (it has a test model or a models endpoint) but
+    // the supplied creds carried no usable key — an unrecognized creds shape,
+    // distinct from a cloud provider that is genuinely unprobeable.
+    const isProbeable = testModel !== undefined || modelsEndpoint !== undefined;
+    if (isProbeable && !apiKey && credsArePresent(creds)) {
+      return { ok: false, error: 'unrecognized' };
+    }
+
     // Neither an inference probe nor a models endpoint (e.g. cloud providers).
     return { ok: false, error: 'unknown' };
   }
@@ -124,7 +110,7 @@ export class ConnectionTester {
 
   /** Send a real 1-token completion and classify the outcome. */
   private async probeInference(providerId: ProviderId, apiKey: string, model: string): Promise<TestResult> {
-    const auth = PROVIDER_AUTH[providerId] ?? { kind: 'bearer' };
+    const auth = authStrategyFor(providerId);
     const request = buildInferenceRequest(providerId, apiKey, model, auth);
 
     let res: Response;
@@ -168,7 +154,7 @@ export class ConnectionTester {
    * list maps to `no-models`.
    */
   private async probeModelsEndpoint(providerId: ProviderId, apiKey: string, endpoint: string): Promise<TestResult> {
-    const auth = PROVIDER_AUTH[providerId] ?? { kind: 'bearer' };
+    const auth = authStrategyFor(providerId);
     const url = auth.kind === 'query' ? appendQuery(endpoint, auth.param, apiKey) : endpoint;
 
     let res: Response;
@@ -219,7 +205,7 @@ function buildInferenceRequest(
   providerId: ProviderId,
   apiKey: string,
   model: string,
-  auth: AuthScheme
+  auth: AuthStrategy
 ): InferenceRequest {
   if (auth.kind === 'anthropic') {
     return {
@@ -244,10 +230,17 @@ function buildInferenceRequest(
 
   // OpenAI-compatible: derive the chat endpoint from the provider's models
   // endpoint when known, else default to the canonical OpenAI host.
+  //
+  // OpenAI's own reasoning models (o1/o3/o4/gpt-5*) reject `max_tokens` with a
+  // 400 and require `max_completion_tokens` — so for `openai` we send the
+  // newer field, which works for both reasoning and chat models. Other
+  // OpenAI-compatible providers (groq, together, etc.) still expect the
+  // classic `max_tokens`, so they keep it.
+  const outputCap = providerId === 'openai' ? { max_completion_tokens: 1 } : { max_tokens: 1 };
   return {
     url: chatCompletionsUrl(providerId),
     headers: authHeaders(auth, apiKey),
-    body: { model, max_tokens: 1, messages: [{ role: 'user', content: 'Hi' }] },
+    body: { model, ...outputCap, messages: [{ role: 'user', content: 'Hi' }] },
   };
 }
 
@@ -269,7 +262,7 @@ function chatCompletionsUrl(providerId: ProviderId): string {
 }
 
 /** Auth + identification headers for a request, per the provider's scheme. */
-function authHeaders(auth: AuthScheme, apiKey: string): Record<string, string> {
+function authHeaders(auth: AuthStrategy, apiKey: string): Record<string, string> {
   const headers: Record<string, string> = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -303,6 +296,12 @@ function extractKey(creds: TestCreds): string {
   return '';
 }
 
+/** True when `creds` actually carry some value (a `key` string, or any field). */
+function credsArePresent(creds: TestCreds): boolean {
+  if ('key' in creds) return creds.key.length > 0;
+  return Object.keys(creds.fields).length > 0;
+}
+
 /** Read a response body as text; an unreadable body yields `''`. */
 async function readBody(res: Response): Promise<string> {
   try {
@@ -332,11 +331,20 @@ function mentionsBilling(body: string): boolean {
   );
 }
 
-/** True when a 200 body is actually an error-shaped object. */
+/**
+ * True when a 200 body is actually an error-shaped object.
+ *
+ * A NON-empty string `error`, or a record `error` carrying a `message`, counts.
+ * An empty-string `error: ""` (some APIs include the field unconditionally) is
+ * NOT a failure, nor is a record `error` with no `message`.
+ */
 function bodyIsError(body: string): boolean {
   const parsed = tryParse(body);
   if (!isRecord(parsed)) return false;
-  return isRecord(parsed.error) || typeof parsed.error === 'string';
+  const error = parsed.error;
+  if (typeof error === 'string') return error.length > 0;
+  if (isRecord(error)) return typeof error.message === 'string';
+  return false;
 }
 
 /** True when a `/v1/models` body carries no models at all. */
@@ -347,13 +355,6 @@ function modelsBodyIsEmpty(body: string): boolean {
   if (Array.isArray(parsed.models)) return parsed.models.length === 0;
   // An unrecognized 200 shape — not provably empty, so do not flag it.
   return false;
-}
-
-/** Append (or override) a single query parameter on a URL. */
-function appendQuery(url: string, param: string, value: string): string {
-  const parsed = new URL(url);
-  parsed.searchParams.set(param, value);
-  return parsed.toString();
 }
 
 /** `JSON.parse` that never throws — returns `null` on bad input. */

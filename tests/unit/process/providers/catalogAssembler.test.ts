@@ -137,8 +137,8 @@ describe('CatalogAssembler', () => {
     const catalog = await assembler.assemble([source], buildRegistry());
 
     expect(catalog[0].enriched).toBe(true);
-    // Trailing version + date tokens stripped → a stable family.
-    expect(catalog[0].family).toBe('claude-sonnet');
+    // The trailing date stamp is stripped but the `4` generation token is kept.
+    expect(catalog[0].family).toBe('claude-sonnet-4');
   });
 
   it('marks a model absent from models.dev as unenriched with a humanized name', async () => {
@@ -149,7 +149,8 @@ describe('CatalogAssembler', () => {
     const m = catalog[0];
     expect(m.enriched).toBe(false);
     expect(m.displayName).toBe('Claude Mystery 9');
-    expect(m.family).toBe('claude-mystery');
+    // `9` is a 1-digit generation token — kept, not stripped as a date stamp.
+    expect(m.family).toBe('claude-mystery-9');
     expect(m.kind).toBe('text'); // safe default for unknown modality
     expect(m.contextWindow).toBeUndefined();
     expect(m.costInPerM).toBeUndefined();
@@ -211,5 +212,32 @@ describe('CatalogAssembler', () => {
     const catalog = await assembler.assemble([source], {});
     expect(catalog[0].enriched).toBe(false);
     expect(catalog[0].displayName).toBe('Claude Opus 4');
+  });
+
+  it('keeps unenriched GPT generations in distinct families — they do NOT collapse to "gpt"', async () => {
+    // Distinct GPT model ids must derive distinct families, otherwise the
+    // Curator would surface a single flagship for all of OpenAI.
+    const source = fixedSource('api', 'openai', [
+      { id: 'gpt-4.1', providerId: 'openai' },
+      { id: 'gpt-4-0613', providerId: 'openai' },
+      { id: 'gpt-4o-mini', providerId: 'openai' },
+    ]);
+    const catalog = await assembler.assemble([source], {});
+
+    const families = new Map(catalog.map((m) => [m.id, m.family]));
+    expect(families.get('gpt-4.1')).toBe('gpt-4.1');
+    // The trailing build stamp `0613` is stripped; the `4` generation is kept.
+    expect(families.get('gpt-4-0613')).toBe('gpt-4');
+    expect(families.get('gpt-4o-mini')).toBe('gpt-4o-mini');
+    // No two of them share a family, and none collapses to a bare `gpt`.
+    expect(new Set(families.values()).size).toBe(3);
+    expect([...families.values()]).not.toContain('gpt');
+  });
+
+  it('strips a trailing variant word from an unenriched id without collapsing the generation', async () => {
+    const source = fixedSource('api', 'openai', [{ id: 'gpt-4-1106-preview', providerId: 'openai' }]);
+    const catalog = await assembler.assemble([source], {});
+    // `preview` (variant) and `1106` (build stamp) stripped; `gpt-4` survives.
+    expect(catalog[0].family).toBe('gpt-4');
   });
 });

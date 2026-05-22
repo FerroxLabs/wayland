@@ -19,6 +19,8 @@
 import type { CatalogSource } from './CatalogSource';
 import type { ConnectError, ProviderId, RawModel } from '../types';
 import { PROVIDER_ENDPOINTS } from '../detection/providerEndpoints';
+import type { AuthStrategy } from '../detection/providerAuth';
+import { ANTHROPIC_VERSION, appendQuery, authStrategyFor } from '../detection/providerAuth';
 
 /** Per-request fetch timeout — a slow provider must not stall the catalog. */
 const FETCH_TIMEOUT_MS = 15_000;
@@ -51,36 +53,6 @@ type ParsedPage = { models: RawModel[]; nextCursor: NextCursor | null };
 
 /** How to ask for the page after the current one. */
 type NextCursor = { param: 'after_id' | 'pageToken'; value: string };
-
-/**
- * How a provider authenticates a `/v1/models` request. Most providers are
- * OpenAI-compatible (`Authorization: Bearer`); Anthropic and Google Gemini are
- * not — they slipped past the original implementation, which always sent Bearer.
- */
-type AuthStrategy =
-  /** OpenAI and every OpenAI-compatible provider. */
-  | { kind: 'bearer' }
-  /** Anthropic: `x-api-key` + `anthropic-version` headers, no `Authorization`. */
-  | { kind: 'anthropic' }
-  /** Google Gemini: API key as a `key` query parameter, no auth header. */
-  | { kind: 'query'; param: string };
-
-/** The `anthropic-version` string Anthropic requires — matches modelBridge.ts. */
-const ANTHROPIC_VERSION = '2023-06-01';
-
-/**
- * Per-provider auth strategy, conceptually parallel to `PROVIDER_ENDPOINTS`.
- * Any provider absent from this map uses the `bearer` default.
- */
-const PROVIDER_AUTH: Partial<Record<ProviderId, AuthStrategy>> = {
-  anthropic: { kind: 'anthropic' },
-  'google-gemini': { kind: 'query', param: 'key' },
-};
-
-/** Resolve a provider's auth strategy, defaulting to OpenAI-style Bearer. */
-function authStrategyFor(providerId: ProviderId): AuthStrategy {
-  return PROVIDER_AUTH[providerId] ?? { kind: 'bearer' };
-}
 
 export class ApiProviderSource implements CatalogSource {
   readonly kind = 'api' as const;
@@ -295,13 +267,6 @@ function describeErrorBody(error: unknown): string {
     if (parts.length > 0) return parts.join(' ');
   }
   return 'provider error';
-}
-
-/** Append (or override) a single query parameter on a URL. */
-function appendQuery(url: string, param: string, value: string): string {
-  const parsed = new URL(url);
-  parsed.searchParams.set(param, value);
-  return parsed.toString();
 }
 
 /** A human-readable description for a thrown network error. */
