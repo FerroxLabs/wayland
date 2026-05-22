@@ -26,7 +26,9 @@
 .send-button-custom.arco-btn-primary:not(:disabled):hover {
   background-color: var(--brand-hover) !important;
   border-color: var(--brand-hover) !important;
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.28), 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+  box-shadow:
+    0 4px 16px rgba(255, 107, 53, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.25) !important;
   transform: translateY(-1px);
 }
 
@@ -123,9 +125,31 @@
 .speech-input-control {
   display: inline-flex;
   align-items: center;
+  align-self: center;
+  /* Kill the anonymous inline line-box so the 32px mic/stop button is the
+     control's only height contributor — keeps it vertically centered against
+     the send button in the action row instead of riding a few px high. */
+  line-height: 0;
   gap: 10px;
   min-width: 0;
   flex-shrink: 0;
+}
+
+/* New-chat Launch Pad: float the recording waveform/timer to the left of the
+   mic instead of expanding the footer, so clicking the mic never shifts the
+   send button or the rest of the action row. */
+.speech-input-control--prominent {
+  position: relative;
+}
+
+.speech-input-control--prominent .speech-input-feedback {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-2);
+  padding: 3px 10px;
+  border-radius: 9px;
 }
 
 .speech-input-feedback {
@@ -196,6 +220,14 @@
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+.speech-input-button--prominent,
+.speech-input-button--prominent:not(:disabled):hover,
+.speech-input-button--prominent:not(:disabled):focus,
+.speech-input-button--prominent:not(:disabled):focus-visible {
+  background: var(--bg-tint) !important;
+  color: var(--brand) !important;
 }
 
 .speech-input-button .arco-btn-icon,
@@ -465,4 +497,3 @@
   outline: none !important;
   box-shadow: none !important;
 }
-

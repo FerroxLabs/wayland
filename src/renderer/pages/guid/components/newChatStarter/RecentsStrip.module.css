@@ -2,45 +2,41 @@
   margin: 0;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
 .title {
-  font-size: 12px;
+  margin: 0 0 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .cardList {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
   margin: 0;
-  padding: 0 0 4px;
+  padding: 0;
   list-style: none;
-  scrollbar-width: thin;
+}
+
+.cardItem {
+  flex: 1 1 200px;
+  min-width: 0;
 }
 
 .card {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 200px;
-  max-width: 260px;
-  padding: 10px 12px;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
   border-radius: 12px;
   background-color: var(--bg-elevated);
   border: 1px solid var(--border-light);
   cursor: pointer;
   text-align: left;
-  transition: background-color 0.12s ease, border-color 0.12s ease;
+  transition:
+    background-color 0.14s ease,
+    border-color 0.14s ease;
 }
 
 .card:hover,
@@ -54,9 +50,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
   background-color: var(--bg-2);
   color: var(--text-secondary);
   font-size: 16px;
@@ -66,7 +62,9 @@
 .cardBody {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .cardName {
@@ -76,7 +74,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
 }
 
 .cardAssistant {
@@ -85,5 +82,20 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+}
+
+.cardArrow {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease;
+}
+
+.card:hover .cardArrow,
+.card:focus-visible .cardArrow {
+  opacity: 0.7;
+  transform: translateX(0);
 }

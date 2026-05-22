@@ -68,10 +68,9 @@ export const conversation = {
   warmup: buildProvider<void, { conversation_id: string }>('conversation.warmup'), // Warm up conversation (bootstrap)
   stop: buildProvider<IBridgeResponse<{}>, { conversation_id: string }>('chat.stop.stream'), // Stop conversation
   sendMessage: buildProvider<IBridgeResponse<{}>, ISendMessageParams>('chat.send.message'), // Send message (unified interface)
-  getSlashCommands: buildProvider<
-    IBridgeResponse<{ commands: SlashCommandItem[] }>,
-    { conversation_id: string }
-  >('conversation.get-slash-commands'),
+  getSlashCommands: buildProvider<IBridgeResponse<{ commands: SlashCommandItem[] }>, { conversation_id: string }>(
+    'conversation.get-slash-commands'
+  ),
   askSideQuestion: buildProvider<
     IBridgeResponse<ConversationSideQuestionResult>,
     { conversation_id: string; question: string }
@@ -98,19 +97,16 @@ export const conversation = {
   confirmation: {
     add: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.add'),
     update: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.update'),
-    confirm: buildProvider<
-      IBridgeResponse,
-      { conversation_id: string; msg_id: string; data: any; callId: string }
-    >('confirmation.confirm'),
+    confirm: buildProvider<IBridgeResponse, { conversation_id: string; msg_id: string; data: any; callId: string }>(
+      'confirmation.confirm'
+    ),
     list: buildProvider<IConfirmation<any>[], { conversation_id: string }>('confirmation.list'),
     remove: buildEmitter<{ conversation_id: string; id: string }>('confirmation.remove'),
   },
   // Session-level approval memory for "always allow" decisions
   approval: {
     // Check if action is approved (keys are parsed from action+commandType in backend)
-    check: buildProvider<boolean, { conversation_id: string; action: string; commandType?: string }>(
-      'approval.check'
-    ),
+    check: buildProvider<boolean, { conversation_id: string; action: string; commandType?: string }>('approval.check'),
   },
 };
 
@@ -167,7 +163,7 @@ export const application = {
   openDevTools: buildProvider<boolean, void>('open-dev-tools'), // Open/close DevTools, returns the resulting state
   isDevToolsOpened: buildProvider<boolean, void>('is-dev-tools-opened'), // Get current DevTools state
   systemInfo: buildProvider<
-    { cacheDir: string; workDir: string; logDir: string; platform: string; arch: string },
+    { cacheDir: string; workDir: string; logDir: string; platform: string; arch: string; userName: string },
     void
   >('system.info'), // Get system info
   getPath: buildProvider<string, { name: 'desktop' | 'home' | 'downloads' }>('app.get-path'), // Get system path
@@ -179,9 +175,7 @@ export const application = {
   updateCdpConfig: buildProvider<IBridgeResponse<ICdpConfig>, Partial<ICdpConfig>>('app.update-cdp-config'), // Update CDP config
   // Start on boot management
   getStartOnBootStatus: buildProvider<IBridgeResponse<IStartOnBootStatus>, void>('app.get-start-on-boot-status'), // Get start-on-boot status
-  setStartOnBoot: buildProvider<IBridgeResponse<IStartOnBootStatus>, { enabled: boolean }>(
-    'app.set-start-on-boot'
-  ), // Set start-on-boot
+  setStartOnBoot: buildProvider<IBridgeResponse<IStartOnBootStatus>, { enabled: boolean }>('app.set-start-on-boot'), // Set start-on-boot
   // Bridge Main Process logs to Renderer F12 Console
   logStream: buildEmitter<{ level: 'log' | 'warn' | 'error'; tag: string; message: string; data?: unknown }>(
     'app.log-stream'
@@ -270,9 +264,7 @@ export const fs = {
     { filePaths: string[]; workspace: string; sourceRoot?: string }
   >('copy-files-to-workspace'), // Copy files into workspace
   removeEntry: buildProvider<IBridgeResponse, { path: string }>('remove-entry'), // Delete file or folder
-  renameEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { path: string; newName: string }>(
-    'rename-entry'
-  ), // Rename file or folder
+  renameEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { path: string; newName: string }>('rename-entry'), // Rename file or folder
   readBuiltinRule: buildProvider<string, { fileName: string }>('read-builtin-rule'), // Read builtin rules file
   readBuiltinSkill: buildProvider<string, { fileName: string }>('read-builtin-skill'), // Read builtin skills file
   // Assistant rule file operations
@@ -299,9 +291,7 @@ export const fs = {
     void
   >('list-available-skills'),
   // List builtin auto-injected skills from _builtin directory
-  listBuiltinAutoSkills: buildProvider<Array<{ name: string; description: string }>, void>(
-    'list-builtin-auto-skills'
-  ),
+  listBuiltinAutoSkills: buildProvider<Array<{ name: string; description: string }>, void>('list-builtin-auto-skills'),
   // Read skill info without importing
   readSkillInfo: buildProvider<IBridgeResponse<{ name: string; description: string }>, { skillPath: string }>(
     'read-skill-info'
@@ -342,12 +332,8 @@ export const fs = {
     'export-skill-with-symlink'
   ),
   // Custom external skill paths management
-  getCustomExternalPaths: buildProvider<Array<{ name: string; path: string }>, void>(
-    'get-custom-external-paths'
-  ),
-  addCustomExternalPath: buildProvider<IBridgeResponse, { name: string; path: string }>(
-    'add-custom-external-path'
-  ),
+  getCustomExternalPaths: buildProvider<Array<{ name: string; path: string }>, void>('get-custom-external-paths'),
+  addCustomExternalPath: buildProvider<IBridgeResponse, { name: string; path: string }>('add-custom-external-path'),
   removeCustomExternalPath: buildProvider<IBridgeResponse, { path: string }>('remove-custom-external-path'),
 };
 
@@ -423,9 +409,7 @@ export const voiceAsset = {
   // Resolve the install state for a known asset. The renderer uses this to
   // suppress the Download button when the model is already on disk (no more
   // "Download Model" alongside an already-installed model).
-  exists: buildProvider<{ installed: boolean; destPath: string | null }, { id: string }>(
-    'voice-asset.exists'
-  ),
+  exists: buildProvider<{ installed: boolean; destPath: string | null }, { id: string }>('voice-asset.exists'),
   // wayland-asset:// URL base for the bundled voice-models directory. The
   // renderer's transformers.js STT worker uses this as env.localModelPath
   // so it can fetch the bundled Whisper-tiny ONNX files offline.
@@ -457,15 +441,11 @@ export const fileStream = {
 
 // File snapshot providers for tracking file changes
 export const fileSnapshot = {
-  init: buildProvider<import('@/common/types/fileSnapshot').SnapshotInfo, { workspace: string }>(
-    'file-snapshot-init'
-  ),
+  init: buildProvider<import('@/common/types/fileSnapshot').SnapshotInfo, { workspace: string }>('file-snapshot-init'),
   compare: buildProvider<import('@/common/types/fileSnapshot').CompareResult, { workspace: string }>(
     'file-snapshot-compare'
   ),
-  getBaselineContent: buildProvider<string | null, { workspace: string; filePath: string }>(
-    'file-snapshot-baseline'
-  ),
+  getBaselineContent: buildProvider<string | null, { workspace: string; filePath: string }>('file-snapshot-baseline'),
   getInfo: buildProvider<import('@/common/types/fileSnapshot').SnapshotInfo, { workspace: string }>(
     'file-snapshot-info'
   ),
@@ -577,9 +557,7 @@ export const acpConversation = {
     { backend: AgentBackend }
   >('acp.check-agent-health'),
   // Set session mode for ACP agents (claude, qwen, etc.)
-  setMode: buildProvider<IBridgeResponse<{ mode: string }>, { conversationId: string; mode: string }>(
-    'acp.set-mode'
-  ),
+  setMode: buildProvider<IBridgeResponse<{ mode: string }>, { conversationId: string; mode: string }>('acp.set-mode'),
   // Get current session mode for ACP agents
   getMode: buildProvider<IBridgeResponse<{ mode: string; initialized: boolean }>, { conversationId: string }>(
     'acp.get-mode'
@@ -723,9 +701,7 @@ export const database = {
 
 export const previewHistory = {
   list: buildProvider<PreviewSnapshotInfo[], { target: PreviewHistoryTarget }>('preview-history.list'),
-  save: buildProvider<PreviewSnapshotInfo, { target: PreviewHistoryTarget; content: string }>(
-    'preview-history.save'
-  ),
+  save: buildProvider<PreviewSnapshotInfo, { target: PreviewHistoryTarget; content: string }>('preview-history.save'),
   getContent: buildProvider<
     { snapshot: PreviewSnapshotInfo; content: string } | null,
     { target: PreviewHistoryTarget; snapshotId: string }
@@ -820,13 +796,9 @@ export const systemSettings = {
   // Broadcast language change to all renderers (desktop + WebUI) for real-time sync
   languageChanged: buildEmitter<{ language: string }>('system-settings:language-changed'),
   getSaveUploadToWorkspace: buildProvider<boolean, void>('system-settings:get-save-upload-to-workspace'),
-  setSaveUploadToWorkspace: buildProvider<void, { enabled: boolean }>(
-    'system-settings:set-save-upload-to-workspace'
-  ),
+  setSaveUploadToWorkspace: buildProvider<void, { enabled: boolean }>('system-settings:set-save-upload-to-workspace'),
   getAutoPreviewOfficeFiles: buildProvider<boolean, void>('system-settings:get-auto-preview-office-files'),
-  setAutoPreviewOfficeFiles: buildProvider<void, { enabled: boolean }>(
-    'system-settings:set-auto-preview-office-files'
-  ),
+  setAutoPreviewOfficeFiles: buildProvider<void, { enabled: boolean }>('system-settings:set-auto-preview-office-files'),
 };
 
 // Ambient Mode — M1 bubble window (AC-M1-5 / AC-M1-10 / AC-M1-11 / AC-M1-13)
@@ -936,9 +908,7 @@ export const webui = {
 export const cron = {
   // Query
   listJobs: buildProvider<ICronJob[], void>('cron.list-jobs'),
-  listJobsByConversation: buildProvider<ICronJob[], { conversationId: string }>(
-    'cron.list-jobs-by-conversation'
-  ),
+  listJobsByConversation: buildProvider<ICronJob[], { conversationId: string }>('cron.list-jobs-by-conversation'),
   getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
   // CRUD
   addJob: buildProvider<ICronJob, ICreateCronJobParams>('cron.add-job'),
@@ -1302,17 +1272,13 @@ export const extensions = {
   /** Get all extension-contributed settings tabs */
   getSettingsTabs: buildProvider<IExtensionSettingsTab[], void>('extensions.get-settings-tabs'),
   /** Get extension-contributed webui routes/assets metadata */
-  getWebuiContributions: buildProvider<IExtensionWebuiContribution[], void>(
-    'extensions.get-webui-contributions'
-  ),
+  getWebuiContributions: buildProvider<IExtensionWebuiContribution[], void>('extensions.get-webui-contributions'),
   /** Snapshot of all agent activities, for extension settings tabs */
   getAgentActivitySnapshot: buildProvider<IExtensionAgentActivitySnapshot, void>(
     'extensions.get-agent-activity-snapshot'
   ),
   /** Get merged extension i18n translations for a specific locale (falls back to en-US) */
-  getExtI18nForLocale: buildProvider<Record<string, unknown>, { locale: string }>(
-    'extensions.get-ext-i18n-for-locale'
-  ),
+  getExtI18nForLocale: buildProvider<Record<string, unknown>, { locale: string }>('extensions.get-ext-i18n-for-locale'),
 
   // --- Extension Management API (NocoBase-inspired) ---
   /** Enable a disabled extension */
@@ -1345,13 +1311,15 @@ export const channel = {
   disablePlugin: buildProvider<IBridgeResponse, { pluginId: string }>('channel.disable-plugin'),
   testPlugin: buildProvider<
     IBridgeResponse<{ success: boolean; botUsername?: string; error?: string }>,
-    { pluginId: string; token: string; extraConfig?: { appId?: string; appSecret?: string; domain?: 'feishu' | 'lark' } }
+    {
+      pluginId: string;
+      token: string;
+      extraConfig?: { appId?: string; appSecret?: string; domain?: 'feishu' | 'lark' };
+    }
   >('channel.test-plugin'),
 
   // Pairing Management
-  getPendingPairings: buildProvider<IBridgeResponse<IChannelPairingRequest[]>, void>(
-    'channel.get-pending-pairings'
-  ),
+  getPendingPairings: buildProvider<IBridgeResponse<IChannelPairingRequest[]>, void>('channel.get-pending-pairings'),
   approvePairing: buildProvider<IBridgeResponse, { code: string }>('channel.approve-pairing'),
   rejectPairing: buildProvider<IBridgeResponse, { code: string }>('channel.reject-pairing'),
 
@@ -1405,9 +1373,7 @@ export const hub = {
   // Update extension
   update: buildProvider<IBridgeResponse, { name: string }>('hub.update'),
   // State changed event for extension (install/uninstall status changes)
-  onStateChanged: buildEmitter<{ name: string; status: HubExtensionStatus; error?: string }>(
-    'hub.state-changed'
-  ),
+  onStateChanged: buildEmitter<{ name: string; status: HubExtensionStatus; error?: string }>('hub.state-changed'),
 };
 // Provider catalog API
 export type IProviderErrorKind = 'network' | 'unauthorized' | 'forbidden' | 'rate-limit' | 'unknown';
@@ -1503,10 +1469,9 @@ export const team = {
    * conversation history). The service rejects cross-type swaps with
    * a descriptive error the renderer surfaces via Message.error.
    */
-  changeAgentBackend: buildProvider<
-    void,
-    { teamId: string; slotId: string; newBackend: string; newModel?: string }
-  >('team.change-agent-backend'),
+  changeAgentBackend: buildProvider<void, { teamId: string; slotId: string; newBackend: string; newModel?: string }>(
+    'team.change-agent-backend'
+  ),
   renameTeam: buildProvider<void, { id: string; name: string }>('team.rename'),
   setSessionMode: buildProvider<void, { teamId: string; sessionMode: string }>('team.set-session-mode'),
   updateWorkspace: buildProvider<void, { teamId: string; workspace: string }>('team.update-workspace'),

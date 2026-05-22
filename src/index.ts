@@ -370,6 +370,18 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
     (params as { nodeintegration?: boolean }).nodeintegration = false;
   });
 
+  // 4) Permissions. The renderer's voice features call getUserMedia({ audio: true });
+  //    without an explicit handler Electron can leave the request unanswered, so the
+  //    mic silently never starts. The renderer is our own trusted code, origin-locked
+  //    by the will-navigate guard above, so granting its permission requests is safe.
+  {
+    const winSession = mainWindow.webContents.session;
+    winSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
+      callback(true);
+    });
+    winSession.setPermissionCheckHandler(() => true);
+  }
+
   // Show window after content is ready to prevent FOUC (Flash of Unstyled Content)
   // Use 'ready-to-show' which fires when renderer has painted first frame,
   // combined with 'did-finish-load' as belt-and-suspenders approach.

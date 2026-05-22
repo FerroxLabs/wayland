@@ -20,11 +20,14 @@
   },
   "newChat": {
     "greeting": {
-      "morning": "Morning",
-      "afternoon": "Afternoon",
-      "evening": "Evening",
-      "night": "Night",
-      "withName": "{{timeLabel}}, {{name}}"
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": ["Working late", "Burning the midnight oil", "Up late"],
+        "morning": ["Morning", "Good morning", "Rise and shine"],
+        "afternoon": ["Afternoon", "Good afternoon", "Welcome back"],
+        "evening": ["Evening", "Good evening", "Welcome back"],
+        "night": ["Evening", "Good evening", "Winding down"]
+      }
     },
     "intent": {
       "sell": "Sell",
@@ -44,7 +47,8 @@
     },
     "recents": {
       "label": "Recent conversations",
-      "heading": "Recent"
-    }
+      "heading": "Jump back in"
+    },
+    "voiceHint": "Click the mic to talk"
   }
 }

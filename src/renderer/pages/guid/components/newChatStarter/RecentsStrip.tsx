@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { MessageSquare } from 'lucide-react';
+import { ArrowRight, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useRecentConversations, type RecentConversation } from '../../hooks/useRecentConversations';
 import styles from './RecentsStrip.module.css';
@@ -33,14 +33,10 @@ const RecentsStrip: React.FC<RecentsStripProps> = ({ onSelect, recents: injected
       data-testid='recents-strip'
       aria-label={t('guid.newChat.recents.label', { defaultValue: 'Recent conversations' })}
     >
-      <header className={styles.header}>
-        <span className={styles.title}>
-          {t('guid.newChat.recents.heading', { defaultValue: 'Recent' })}
-        </span>
-      </header>
+      <h2 className={styles.title}>{t('guid.newChat.recents.heading', { defaultValue: 'Jump back in' })}</h2>
       <ul className={styles.cardList}>
         {recents.map((conv) => (
-          <li key={conv.id}>
+          <li key={conv.id} className={styles.cardItem}>
             <button
               type='button'
               className={styles.card}
@@ -53,10 +49,9 @@ const RecentsStrip: React.FC<RecentsStripProps> = ({ onSelect, recents: injected
               </span>
               <span className={styles.cardBody}>
                 <span className={styles.cardName}>{conv.name}</span>
-                {conv.assistantName ? (
-                  <span className={styles.cardAssistant}>{conv.assistantName}</span>
-                ) : null}
+                {conv.assistantName ? <span className={styles.cardAssistant}>{conv.assistantName}</span> : null}
               </span>
+              <ArrowRight size={15} className={styles.cardArrow} aria-hidden='true' />
             </button>
           </li>
         ))}

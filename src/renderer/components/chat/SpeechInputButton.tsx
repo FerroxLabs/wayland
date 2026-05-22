@@ -18,6 +18,11 @@ type SpeechInputButtonProps = {
   disabled?: boolean;
   locale?: string;
   onTranscript: (transcript: string) => void;
+  /**
+   * 'prominent' renders the mic as a tier-1 affordance (brand-tinted) and
+   * enables hold-⌥Space push-to-talk. Used on the new-chat Launch Pad surface.
+   */
+  variant?: 'default' | 'prominent';
 };
 
 const SpeechMicIcon = () => (
@@ -95,7 +100,12 @@ const getTooltipKey = (availability: SpeechInputAvailability, isListening: boole
   return getAvailabilityMessageKey(availability);
 };
 
-const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({ disabled, locale, onTranscript }) => {
+const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
+  disabled,
+  locale,
+  onTranscript,
+  variant = 'default',
+}) => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isSpeechToTextEnabled, setIsSpeechToTextEnabled] = useState(false);
@@ -227,7 +237,9 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({ disabled, locale,
         className='hidden'
         onChange={handleFileChange}
       />
-      <div className={`speech-input-control ${showSpeechFeedback ? 'speech-input-control--active' : ''}`}>
+      <div
+        className={`speech-input-control ${variant === 'prominent' ? 'speech-input-control--prominent' : ''} ${showSpeechFeedback ? 'speech-input-control--active' : ''}`}
+      >
         {showSpeechFeedback && (
           <div
             className={`speech-input-feedback ${isProcessing ? 'speech-input-feedback--processing' : ''}`}
@@ -258,7 +270,7 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({ disabled, locale,
             type='text'
             size='small'
             shape='circle'
-            className={`speech-input-button ${isRecording ? 'speech-input-button--listening' : ''} ${isProcessing ? 'speech-input-button--processing' : ''}`}
+            className={`speech-input-button ${variant === 'prominent' ? 'speech-input-button--prominent' : ''} ${isRecording ? 'speech-input-button--listening' : ''} ${isProcessing ? 'speech-input-button--processing' : ''}`}
             disabled={disabled || isProcessing}
             onClick={handleClick}
             aria-label={ariaLabel}

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ArrowUpRight, Bot, ChevronDown, ChevronLeft, PenSquare, Sparkles } from 'lucide-react';
+import { Bot, ChevronDown, ChevronLeft, PenSquare } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { resolveLocaleKey } from '@/common/utils';
 
@@ -14,15 +14,15 @@ import { isImageAvatar } from '@/renderer/utils/avatar';
 import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
 import { useConversationTabs } from '@/renderer/pages/conversation/hooks/ConversationTabsContext';
 import { CUSTOM_AVATAR_IMAGE_MAP } from './constants';
-import AgentPillBar from './components/AgentPillBar';
 import AssistantSelectionArea from './components/AssistantSelectionArea';
 import Greeting from './components/newChatStarter/Greeting';
 import IntentPillBar from './components/newChatStarter/IntentPillBar';
 import IntentSuggestionPanel from './components/newChatStarter/IntentSuggestionPanel';
 import RecentsStrip from './components/newChatStarter/RecentsStrip';
 import type { IntentKey, IntentPrompt } from './intents';
-import { useAuth } from '@/renderer/hooks/context/AuthContext';
+import { useUserDisplayName } from '@/renderer/hooks/system/useUserDisplayName';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import AgentPillBar from './components/AgentPillBar';
 import { AgentPillBarSkeleton } from './components/GuidSkeleton';
 import GuidActionRow from './components/GuidActionRow';
 import GuidInputCard from './components/GuidInputCard';
@@ -30,6 +30,8 @@ import GuidModelSelector from './components/GuidModelSelector';
 import MentionDropdown, { MentionSelectorBadge } from './components/MentionDropdown';
 import QuickActionButtons from './components/QuickActionButtons';
 import FeedbackReportModal from '@/renderer/components/settings/SettingsModal/contents/FeedbackReportModal';
+import SpeechInputButton from '@/renderer/components/chat/SpeechInputButton';
+import { appendSpeechTranscript } from '@/renderer/hooks/system/useSpeechInput';
 import { useGuidAgentSelection } from './hooks/useGuidAgentSelection';
 import { useGuidInput } from './hooks/useGuidInput';
 import { useGuidMention } from './hooks/useGuidMention';
@@ -71,9 +73,6 @@ const GuidPage: React.FC = () => {
   // --- Skills state ---
   const [builtinAutoSkills, setBuiltinAutoSkills] = useState<Array<{ name: string; description: string }>>([]);
   const [guidDisabledBuiltinSkills, setGuidDisabledBuiltinSkills] = useState<string[] | undefined>(undefined);
-  // H3: capability flex chip — aggregate skills count from the live
-  // SkillLibrary stats. Field is `total` per SkillStats in ipcBridge.ts.
-  const [skillsCount, setSkillsCount] = useState(0);
 
   useEffect(() => {
     ipcBridge.fs.listBuiltinAutoSkills
@@ -81,17 +80,6 @@ const GuidPage: React.FC = () => {
       .then(setBuiltinAutoSkills)
       .catch(() => setBuiltinAutoSkills([]));
   }, []);
-
-  useEffect(() => {
-    ipcBridge.skills.stats
-      .invoke()
-      .then((stats) => setSkillsCount(stats.total))
-      .catch(() => setSkillsCount(0));
-  }, []);
-
-  const openSkillsPage = useCallback(() => {
-    void navigate('/settings/skills');
-  }, [navigate]);
 
   const handleToggleBuiltinSkill = useCallback((skillName: string) => {
     setGuidDisabledBuiltinSkills((prev) => {
@@ -272,7 +260,7 @@ const GuidPage: React.FC = () => {
     [mention, guidInput.input, send.sendMessageHandler]
   );
 
-  const handleSelectAgentFromPillBar = useCallback(
+  const handleSelectAgent = useCallback(
     (key: string) => {
       agentSelection.setSelectedAgentKey(key);
       mention.setMentionOpen(false);
@@ -307,8 +295,7 @@ const GuidPage: React.FC = () => {
   );
 
   // --- Phase 2 chat-redesign: new-chat starter (greeting + intent pills + recents) ---
-  const auth = useAuth();
-  const greetingDisplayName = auth.user?.username ?? null;
+  const { resolvedName: greetingDisplayName } = useUserDisplayName();
   const [activeIntent, setActiveIntent] = useState<IntentKey | null>(null);
 
   const handleSelectIntent = useCallback((intent: IntentKey | null) => {
@@ -582,6 +569,13 @@ const GuidPage: React.FC = () => {
     />
   );
 
+  const handleSpeechTranscript = useCallback(
+    (transcript: string) => {
+      guidInput.setInput((prev) => appendSpeechTranscript(prev, transcript));
+    },
+    [guidInput.setInput]
+  );
+
   // Build the action row
   const actionRowNode = (
     <GuidActionRow
@@ -612,6 +606,9 @@ const GuidPage: React.FC = () => {
       hidePresetTag
       loading={guidInput.loading}
       isButtonDisabled={send.isButtonDisabled}
+      speechInputNode={
+        <SpeechInputButton variant='prominent' locale={i18n.language} onTranscript={handleSpeechTranscript} />
+      }
       onSend={() => {
         send.handleSend().catch((error) => {
           console.error('Failed to send message:', error);
@@ -624,8 +621,8 @@ const GuidPage: React.FC = () => {
     <ConfigProvider getPopupContainer={() => guidContainerRef.current || document.body}>
       <div ref={guidContainerRef} className={styles.guidContainer}>
         <div className={styles.guidLayout}>
-          <div className={styles.heroHeader}>
-            {agentSelection.isPresetAgent ? (
+          {agentSelection.isPresetAgent ? (
+            <div className={styles.heroHeader}>
               <div className={styles.heroHeaderControls}>
                 <div className={styles.heroHeaderLeft}>
                   <Button
@@ -736,32 +733,8 @@ const GuidPage: React.FC = () => {
                   </Dropdown>
                 </div>
               </div>
-            ) : (
-              <div className='flex flex-col items-center gap-8px'>
-                <p className='text-2xl font-semibold mb-0 text-0 text-center'>{heroTitle}</p>
-                {skillsCount > 0 ? (
-                  <button
-                    type='button'
-                    onClick={openSkillsPage}
-                    className='flex items-center gap-6px px-12px h-26px rounded-[100px] bg-[var(--color-fill-2)] hover:bg-[var(--color-fill-3)] text-12px font-medium text-t-secondary hover:text-t-primary transition-colors'
-                    aria-label={t('chat.skillsReady', {
-                      count: skillsCount,
-                      defaultValue: '{{count}} skills ready — manage in settings',
-                    })}
-                  >
-                    <Sparkles size={12} />
-                    <span>
-                      {t('chat.skillsReady', {
-                        count: skillsCount,
-                        defaultValue: '{{count}} skills ready',
-                      })}
-                    </span>
-                    <ArrowUpRight size={12} />
-                  </button>
-                ) : null}
-              </div>
-            )}
-          </div>
+            </div>
+          ) : null}
 
           {agentSelection.isPresetAgent && selectedAssistantDescription ? (
             <div
@@ -803,7 +776,7 @@ const GuidPage: React.FC = () => {
               availableAgents={agentSelection.availableAgents}
               selectedAgentKey={agentSelection.selectedAgentKey}
               getAgentKey={agentSelection.getAgentKey}
-              onSelectAgent={handleSelectAgentFromPillBar}
+              onSelectAgent={handleSelectAgent}
               suppressSelectionAnimation={resetAssistantRequested}
             />
           ) : null}

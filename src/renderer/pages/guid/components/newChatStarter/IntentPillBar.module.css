@@ -12,12 +12,11 @@
   letter-spacing: 0.01em;
 }
 
-/* Active pill picks up the team accent so it visually separates from the
-   brand-orange primary buttons elsewhere on the surface. */
+/* Active pill uses the brand orange — the selected state across the app. */
 .pillActive:global(.arco-btn-primary),
 .pillActive:global(.arco-btn-primary):hover,
 .pillActive:global(.arco-btn-primary):focus {
-  background-color: rgb(var(--color-team));
-  border-color: rgb(var(--color-team));
+  background-color: var(--brand);
+  border-color: var(--brand);
   color: #ffffff;
 }

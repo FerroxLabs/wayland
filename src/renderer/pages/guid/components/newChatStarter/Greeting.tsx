@@ -4,49 +4,59 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './Greeting.module.css';
 
 export type GreetingProps = {
-  /** Overrides the wall-clock hour used to pick the time-of-day phrase (testing). */
+  /** Overrides the wall-clock time used to pick the phrase (testing). */
   now?: Date;
   /**
    * Resolved display name to greet (e.g. the authenticated username). When
    * empty / nullish the greeting drops the name and renders the time-of-day
-   * label on its own.
+   * phrase on its own.
    */
   displayName?: string | null;
 };
 
-/** Pick a time-of-day greeting key from a 0–23 hour. */
-const resolveTimeOfDayKey = (hour: number): 'morning' | 'afternoon' | 'evening' | 'night' => {
+type TimeBucket = 'lateNight' | 'morning' | 'afternoon' | 'evening' | 'night';
+
+/** Map a 0–23 hour to a time-of-day bucket. */
+const resolveTimeBucket = (hour: number): TimeBucket => {
+  if (hour < 5) return 'lateNight';
   if (hour < 12) return 'morning';
   if (hour < 17) return 'afternoon';
   if (hour < 21) return 'evening';
   return 'night';
 };
 
+/** Phrasings per bucket — kept in sync with guid.newChat.greeting.labels. */
+const LABEL_POOL: Record<TimeBucket, string[]> = {
+  lateNight: ['Working late', 'Burning the midnight oil', 'Up late'],
+  morning: ['Morning', 'Good morning', 'Rise and shine'],
+  afternoon: ['Afternoon', 'Good afternoon', 'Welcome back'],
+  evening: ['Evening', 'Good evening', 'Welcome back'],
+  night: ['Evening', 'Good evening', 'Winding down'],
+};
+
 /**
  * Serif greeting for the new-chat starter surface.
  *
- * Renders "<TimeOfDay>, <name>" when `displayName` is provided, otherwise
- * just "<TimeOfDay>". Time-of-day windows: <12 morning, <17 afternoon,
- * <21 evening, otherwise night.
+ * Renders "<phrase>, <name>" when `displayName` is provided, otherwise just
+ * "<phrase>". The phrase varies by time of day (lateNight <5, morning <12,
+ * afternoon <17, evening <21, otherwise night) and a phrasing is picked once
+ * per mount so the greeting feels alive without re-rolling on every render.
  */
 const Greeting: React.FC<GreetingProps> = ({ now, displayName }) => {
   const { t } = useTranslation();
   const resolvedName = (displayName ?? '').trim();
   const date = now ?? new Date();
-  const timeKey = resolveTimeOfDayKey(date.getHours());
+  const bucket = resolveTimeBucket(date.getHours());
 
-  const timeLabel = t(`guid.newChat.greeting.${timeKey}`, {
-    defaultValue: {
-      morning: 'Morning',
-      afternoon: 'Afternoon',
-      evening: 'Evening',
-      night: 'Night',
-    }[timeKey],
+  const [variantIndex] = useState(() => Math.floor(Math.random() * LABEL_POOL[bucket].length));
+
+  const timeLabel = t(`guid.newChat.greeting.labels.${bucket}.${variantIndex}`, {
+    defaultValue: LABEL_POOL[bucket][variantIndex],
   });
 
   const heading = resolvedName

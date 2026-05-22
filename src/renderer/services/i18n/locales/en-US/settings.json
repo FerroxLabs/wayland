@@ -17,7 +17,9 @@
     "reduceMotion": "Reduce Motion",
     "densityComfortable": "Comfortable",
     "densityCompact": "Compact",
-    "sidebarWidth": "Sidebar Width"
+    "sidebarWidth": "Sidebar Width",
+    "yourName": "Your name",
+    "yourNamePlaceholder": "Enter your name"
   },
   "skillsHub": {
     "title": "Skills Hub",

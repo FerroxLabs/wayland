@@ -31,6 +31,7 @@ import {
   verifyDirectoryFiles,
 } from './utils';
 import { writeFileAtomic } from './atomicWrite';
+import { getOsUserName } from './osUserName';
 import { getDatabase } from '../services/database/export';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { migrateFromElectronConfig, importConfigFromFile } from './configMigration';
@@ -1171,6 +1172,7 @@ export const getSystemDir = () => {
     logDir,
     platform: process.platform as PlatformType,
     arch: process.arch as ArchitectureType,
+    userName: getOsUserName(),
   };
 };
 

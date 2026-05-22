@@ -6,10 +6,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Switch, Slider, Radio } from '@arco-design/web-react';
+import { Switch, Slider, Radio, Input } from '@arco-design/web-react';
 import FontSizeControl from '@/renderer/components/settings/FontSizeControl';
 import { ThemeSwitcher } from '@/renderer/components/settings/ThemeSwitcher';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
+import { useUserDisplayName } from '@/renderer/hooks/system/useUserDisplayName';
 import { useSettingsViewMode } from '../settingsViewContext';
 
 const STORAGE_KEYS = {
@@ -60,20 +61,30 @@ const DisplayModalContent: React.FC = () => {
   const viewMode = useSettingsViewMode();
   const isPageMode = viewMode === 'page';
 
-  const [reduceMotion, setReduceMotion] = useState(
-    () => localStorage.getItem(STORAGE_KEYS.reduceMotion) === 'true'
-  );
-  const [densityCompact, setDensityCompact] = useState(
-    () => localStorage.getItem(STORAGE_KEYS.density) === 'compact'
-  );
-  const [sidebarWidth, setSidebarWidth] = useState(
-    () => parseInt(localStorage.getItem(STORAGE_KEYS.sidebarWidth) ?? String(DEFAULT_SIDEBAR_WIDTH), 10)
+  const { osName, configuredName, save: saveDisplayName, loaded: nameLoaded } = useUserDisplayName();
+  const [nameDraft, setNameDraft] = useState('');
+
+  // Seed the input once the stored override resolves.
+  useEffect(() => {
+    setNameDraft(configuredName);
+  }, [configuredName]);
+
+  const commitName = () => {
+    if (nameDraft.trim() !== configuredName) {
+      void saveDisplayName(nameDraft);
+    }
+  };
+
+  const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem(STORAGE_KEYS.reduceMotion) === 'true');
+  const [densityCompact, setDensityCompact] = useState(() => localStorage.getItem(STORAGE_KEYS.density) === 'compact');
+  const [sidebarWidth, setSidebarWidth] = useState(() =>
+    parseInt(localStorage.getItem(STORAGE_KEYS.sidebarWidth) ?? String(DEFAULT_SIDEBAR_WIDTH), 10)
   );
 
   // Apply persisted values on mount
   useEffect(() => {
     applyReduceMotion(reduceMotion);
-  }, []);// eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleReduceMotion = (checked: boolean) => {
     setReduceMotion(checked);
@@ -108,6 +119,18 @@ const DisplayModalContent: React.FC = () => {
           {/* Display Settings */}
           <div className='px-16px md:px-24px lg:px-28px py-14px md:py-16px bg-[var(--color-bg-2)] border-2 border-solid border-[var(--color-border-2)] rd-12px space-y-10px md:space-y-12px'>
             <div className='w-full flex flex-col divide-y divide-border-2'>
+              <PreferenceRow label={t('settings.displayPage.yourName')}>
+                <Input
+                  className='w-full md:max-w-240px'
+                  value={nameDraft}
+                  placeholder={osName || t('settings.displayPage.yourNamePlaceholder')}
+                  disabled={!nameLoaded}
+                  allowClear
+                  onChange={setNameDraft}
+                  onBlur={commitName}
+                  onPressEnter={commitName}
+                />
+              </PreferenceRow>
               {displayItems.map((item) => (
                 <PreferenceRow key={item.key} label={item.label}>
                   {item.component}
