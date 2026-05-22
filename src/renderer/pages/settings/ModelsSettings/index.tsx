@@ -5,16 +5,32 @@ import type { IModelRegistryDetectedKey, IModelRegistryProviderView } from '@/co
 import type { ProviderId } from '@process/providers/types';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import { ModelRegistryProvider, useModelRegistry } from '@renderer/hooks/useModelRegistry';
+import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
 import EmptyState from './components/EmptyState';
 import ManageProvider from './ManageProvider';
+import { isCloudProvider } from './providerCatalog';
 import styles from './ModelsSettings.module.css';
 
 /** Stable identity for a detected key (provider + source). */
 function detectedKeyId(dk: IModelRegistryDetectedKey): string {
   return `${dk.providerId}:${dk.source}`;
+}
+
+/**
+ * Wave 3 Fix 12 — module-level seed for a deep-link-delivered api key.
+ * Set by `ModelsSettingsInner` on mount when `consumePendingDeepLink` returns
+ * non-cloud creds. Read by `ConnectPanel` via `getPendingDeepLinkSeed` and
+ * cleared after the panel pre-fills its input.
+ */
+let pendingDeepLinkSeed: { apiKey?: string; baseUrl?: string } | null = null;
+/** Public read-and-clear getter for the panel to consume. */
+export function getPendingDeepLinkSeed(): { apiKey?: string; baseUrl?: string } | null {
+  const seed = pendingDeepLinkSeed;
+  pendingDeepLinkSeed = null;
+  return seed;
 }
 
 /**
@@ -34,6 +50,9 @@ const ModelsSettingsInner: React.FC = () => {
 
   const [detectedKeys, setDetectedKeys] = useState<IModelRegistryDetectedKey[]>([]);
   const [ignoredKeys, setIgnoredKeys] = useState<Set<string>>(new Set());
+  // Wave 3 Fix 12 — bump to re-trigger ConnectPanel's seed-consume effect
+  // when a deep link delivers an api-key pre-fill after first mount.
+  const [, setPanelSeedNonce] = useState(0);
 
   // View-switch seam: when a provider is selected for Manage, this holds its id
   // and the page swaps to `ManageProvider` (prototype `#screen-manage`).
@@ -62,6 +81,54 @@ const ModelsSettingsInner: React.FC = () => {
       cancelled = true;
     };
   }, [detectKeys]);
+
+  // Wave 3 Fix 12 — consume any pending deep-link payload on mount. A
+  // `wayland://add-provider?platform=...&apiKey=...` URL fires from the OS
+  // shell, the main process navigates the renderer to `/settings/models`, and
+  // we read the pre-fill data here. Cloud providers route into the Browse
+  // modal's cloud form; non-cloud keys pre-fill the ConnectPanel via a
+  // module-level seed read by the panel.
+  useEffect(() => {
+    const pending = consumePendingDeepLink();
+    if (!pending) return;
+
+    // Translate a legacy `platform` string into the corresponding ProviderId.
+    // Mirrors `legacyModelConfigMigration`'s `DIRECT_PLATFORM_MAP` so a
+    // user-facing add-provider link works against the new registry.
+    const platformToId = (platform: string | undefined): ProviderId | undefined => {
+      if (!platform) return undefined;
+      switch (platform) {
+        case 'anthropic':
+          return 'anthropic';
+        case 'openai':
+          return 'openai';
+        case 'gemini':
+        case 'gemini-with-google-auth':
+          return 'google-gemini';
+        case 'bedrock':
+          return 'aws-bedrock';
+        case 'gemini-vertex-ai':
+          return 'vertex';
+        default:
+          return undefined;
+      }
+    };
+
+    const targetId = platformToId(pending.platform);
+    if (targetId && isCloudProvider(targetId)) {
+      // Cloud — open the Browse modal pre-targeted to that provider.
+      setBrowseInitialProvider(targetId);
+      setBrowseOpen(true);
+      return;
+    }
+    // Non-cloud — set the panel seed (an api-key pre-fill consumed by the
+    // ConnectPanel on its next render).
+    if (pending.apiKey) {
+      pendingDeepLinkSeed = { apiKey: pending.apiKey, baseUrl: pending.baseUrl };
+      // Force the panel to re-read the seed by toggling a state nonce.
+      setPanelSeedNonce((n) => n + 1);
+    }
+  }, []);
 
   const visibleDetected = useMemo(
     () => detectedKeys.filter((dk) => !ignoredKeys.has(detectedKeyId(dk))),

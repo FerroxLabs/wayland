@@ -1655,11 +1655,6 @@
     "channelsMovedHint": "Channels have been moved to Integrations →",
     "detailComingSoon": "Per-channel setup with credential fields and Connection Card UI lands in the next release."
   },
-  "providersPage": {
-    "title": "Providers",
-    "subtitle": "Connect AI model providers. Paste a key to auto-detect the provider and fetch its model catalog.",
-    "emptyHint": "No providers connected yet. Paste a key above to get started."
-  },
   "modelsPage": {
     "title": "Models",
     "subtitle": "Connect a provider with a key or a Google sign-in. Your models appear automatically.",
@@ -1690,7 +1685,8 @@
       "errorCloud": "Recognized {{provider}} — this provider needs more than one field. Open Browse to enter the full credentials.",
       "errorAmbiguous": "Couldn't tell which provider this key is for. Open Browse and pick the provider.",
       "errorNoModels": "{{provider}} connected but returned no models. Try refreshing it from Manage.",
-      "errorUnknown": "Couldn't connect to {{provider}}. Please try again."
+      "errorUnknown": "Couldn't connect to {{provider}}. Please try again.",
+      "undecryptableHint": "Your saved key for this provider is unreadable. Please re-enter it."
     },
     "detected": {
       "found": "Found a {{provider}} API key on this machine. Use it?",
@@ -2033,88 +2029,6 @@
       "title": "Flux Router",
       "soon": "Coming",
       "desc": "Lets any agent route across every model and provider you have connected — not just its own."
-    }
-  },
-  "providers": {
-    "heroTitle": "Connect a provider",
-    "heroPlaceholder": "Paste an API key...",
-    "detectButton": "Detect & connect",
-    "browseButton": "Browse 24+ providers",
-    "connected": "Connected",
-    "refreshed": "Refreshed {{n}}h ago",
-    "refreshNow": "Refresh now",
-    "disconnect": "Disconnect",
-    "configure": "Configure",
-    "deprecationBanner": "Some models in this provider’s catalog have been removed",
-    "defaultsTitle": "Default models",
-    "defaultChat": "Default chat model",
-    "defaultCoding": "Default coding model",
-    "defaultVision": "Default vision model",
-    "defaultImage": "Default image model",
-    "defaultAudio": "Default audio model",
-    "noDefault": "No default set",
-    "connect": {
-      "entryTitle": "Connect a provider",
-      "placeholder": "Paste your API key here...",
-      "detectButton": "Detect & connect",
-      "browseButton": "Browse 24+ providers",
-      "detectingProvider": "Detecting provider…",
-      "verifyingKey": "Verifying key…",
-      "fetchingCatalog": "Fetching model catalog…",
-      "moreInfoTitle": "Additional details required",
-      "pickerTitle": "Choose a provider",
-      "pickerSearch": "Search providers…",
-      "resultsTitle": "Select models to enable",
-      "resultsSelectAll": "Select all",
-      "resultsDeselectAll": "Deselect all",
-      "connectButton": "Connect",
-      "cancel": "Cancel",
-      "retry": "Try again",
-      "editKey": "Edit key",
-      "openConsole": "Open provider console",
-      "errorTitle": "Connection failed",
-      "errorNetwork": "Could not reach the provider. Check your network connection.",
-      "errorUnauthorized": "Invalid API key. Check your key and try again.",
-      "errorForbidden": "This key does not have the required permissions.",
-      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
-      "errorUnknown": "An unexpected error occurred.",
-      "fieldRegion": "AWS Region",
-      "fieldSecretKey": "Secret Access Key",
-      "fieldAccessKeyId": "Access Key ID",
-      "fieldEndpoint": "Endpoint URL",
-      "fieldDeployment": "Deployment Name",
-      "fieldApiVersion": "API Version",
-      "fieldProjectId": "Google Cloud Project ID",
-      "fieldServiceAccount": "Service Account JSON",
-      "browseServiceAccount": "Browse…"
-    },
-    "tiers": {
-      "flagship": "Flagship",
-      "everyday": "Everyday",
-      "fast": "Fast",
-      "reasoning": "Reasoning",
-      "legacy": "Legacy"
-    },
-    "capabilities": {
-      "chat": "Chat",
-      "vision": "Vision",
-      "image": "Image generation",
-      "audio": "Audio",
-      "embeddings": "Embeddings",
-      "reasoning": "Reasoning"
-    },
-    "search": {
-      "placeholder": "Search models…",
-      "noResults": "No models match your search"
-    },
-    "categories": {
-      "frontier": "Frontier",
-      "openInference": "Open inference",
-      "cloud": "Cloud",
-      "chineseFrontier": "Chinese frontier",
-      "specialised": "Specialised",
-      "voice": "Voice",
-      "custom": "Custom"
     }
   }
 }

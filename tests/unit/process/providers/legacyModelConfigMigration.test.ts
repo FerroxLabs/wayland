@@ -62,12 +62,15 @@ function makeStore(
 function makeRepo(): MigrationRepo & {
   providers: Map<ProviderId, Record<string, unknown>>;
   catalogs: Map<ProviderId, CatalogModel[]>;
+  overrides: Map<ProviderId, Array<{ modelId: string; enabled: boolean }>>;
 } {
   const providers = new Map<ProviderId, Record<string, unknown>>();
   const catalogs = new Map<ProviderId, CatalogModel[]>();
+  const overrides = new Map<ProviderId, Array<{ modelId: string; enabled: boolean }>>();
   return {
     providers,
     catalogs,
+    overrides,
     getRegistryProvider(providerId) {
       return providers.get(providerId) ?? null;
     },
@@ -82,6 +85,22 @@ function makeRepo(): MigrationRepo & {
     },
     replaceRegistryCatalog(providerId, models) {
       catalogs.set(providerId, models);
+    },
+    // Wave 3 — exposes the methods the cross-audit Fixes 3/4/14 need.
+    countRegistryCatalog(providerId) {
+      return catalogs.get(providerId)?.length ?? 0;
+    },
+    setRegistryOverride(providerId, modelId, enabled) {
+      const list = overrides.get(providerId) ?? [];
+      const idx = list.findIndex((o) => o.modelId === modelId);
+      if (idx >= 0) list[idx] = { modelId, enabled };
+      else list.push({ modelId, enabled });
+      overrides.set(providerId, list);
+    },
+    // No real DB to wrap — run the fn synchronously. In-memory writes are
+    // either both done or both not (no halfway state).
+    transaction(fn) {
+      fn();
     },
   };
 }
@@ -215,11 +234,13 @@ describe('runLegacyModelConfigMigration — standard providers', () => {
     });
   });
 
-  it('translates the legacy `gemini-with-google-auth` platform to google-gemini', async () => {
+  it('translates the legacy `gemini-with-google-auth` platform to google-gemini with useGoogleAuth creds', async () => {
+    // Wave 3 Fix 6 — google-auth Gemini lands as `{ useGoogleAuth: true }`,
+    // NOT as an api-key row. The token lives in the main-process auth store.
     const store = makeStore([
       legacyRow({
         platform: 'gemini-with-google-auth',
-        apiKey: 'oauth-stub',
+        apiKey: '',
         model: ['gemini-2.0-flash'],
       }),
     ]);
@@ -228,7 +249,21 @@ describe('runLegacyModelConfigMigration — standard providers', () => {
     const result = await runLegacyModelConfigMigration({ store, repo });
 
     expect(result.migrated).toBe(1);
-    expect(repo.providers.has('google-gemini')).toBe(true);
+    const row = repo.providers.get('google-gemini');
+    expect(row?.connectedVia).toBe('google-auth');
+    expect(row?.creds).toEqual({ useGoogleAuth: true });
+  });
+
+  it('treats a `gemini` row with no apiKey as google-auth', async () => {
+    // A subtle variant — legacy `platform: 'gemini'` rows with an empty key
+    // were created when a user signed in via OAuth on an older build.
+    const store = makeStore([legacyRow({ platform: 'gemini', apiKey: '', model: ['gemini-2.0-flash'] })]);
+    const repo = makeRepo();
+
+    const result = await runLegacyModelConfigMigration({ store, repo });
+
+    expect(result.migrated).toBe(1);
+    expect(repo.providers.get('google-gemini')?.creds).toEqual({ useGoogleAuth: true });
   });
 });
 
@@ -268,13 +303,17 @@ describe('runLegacyModelConfigMigration — existing registry rows', () => {
   it('skips a legacy row whose provider already exists in the registry', async () => {
     const store = makeStore([legacyRow({ platform: 'openai', apiKey: 'sk-legacy', model: ['gpt-4o'] })]);
     const repo = makeRepo();
-    // Simulate the user having already connected openai through the new flow.
+    // Simulate the user having already connected openai through the new flow,
+    // with a real catalog populated. The migration must not overwrite it.
     repo.upsertRegistryProvider({
       providerId: 'openai',
       connectedVia: 'api-key',
       state: 'connected',
       creds: { key: 'sk-new' },
     });
+    repo.replaceRegistryCatalog('openai', [
+      { id: 'gpt-4o', providerId: 'openai', displayName: 'GPT-4o', family: 'gpt-4o', kind: 'text', enriched: true },
+    ]);
 
     const result = await runLegacyModelConfigMigration({ store, repo });
 
@@ -353,16 +392,41 @@ describe('runLegacyModelConfigMigration — cloud providers', () => {
     const row = repo.providers.get('aws-bedrock');
     expect(row?.connectedVia).toBe('cloud-credentials');
     expect(row?.creds).toEqual({
+      // Wave 3 Fix 6: the migration now stamps a `bedrockAuth` discriminator
+      // so the chat-start dispatcher can pick the right env arm.
+      bedrockAuth: 'access-key',
       fields: { accessKeyId: 'AKIA', secretAccessKey: 'secret', region: 'us-east-1' },
     });
   });
 
-  it('skips a bedrock row using profile auth (no usable creds for the registry)', async () => {
+  // Wave 3 Fix 6 — profile-auth Bedrock is migrated (previously dropped).
+  it('migrates a bedrock row using profile auth into the registry', async () => {
     const store = makeStore([
       legacyRow({
         platform: 'bedrock',
         model: [],
         bedrockConfig: { authMethod: 'profile', region: 'us-east-1', profile: 'default' },
+      }),
+    ]);
+    const repo = makeRepo();
+
+    const result = await runLegacyModelConfigMigration({ store, repo });
+
+    expect(result.migrated).toBe(1);
+    expect(result.skippedIncompleteCloud).toBe(0);
+    const row = repo.providers.get('aws-bedrock');
+    expect(row?.creds).toEqual({
+      bedrockAuth: 'profile',
+      fields: { awsProfile: 'default', region: 'us-east-1' },
+    });
+  });
+
+  it('skips a profile-auth bedrock row missing the profile name', async () => {
+    const store = makeStore([
+      legacyRow({
+        platform: 'bedrock',
+        model: [],
+        bedrockConfig: { authMethod: 'profile', region: 'us-east-1' },
       }),
     ]);
     const repo = makeRepo();
@@ -432,5 +496,162 @@ describe('runLegacyModelConfigMigration — resilience', () => {
 
     expect(result.ran).toBe(true);
     expect(flagSet).toBe(true);
+  });
+});
+
+// ─── Cross-audit Wave 3 fixes ────────────────────────────────────────────────
+
+describe('runLegacyModelConfigMigration — grouping (Fix 1)', () => {
+  it('unions the model arrays of two rows that resolve to the same ProviderId', async () => {
+    const store = makeStore([
+      legacyRow({ platform: 'openai', apiKey: 'sk-team-a', model: ['gpt-4o', 'gpt-4o-mini'] }),
+      legacyRow({ platform: 'openai', apiKey: 'sk-team-b', model: ['gpt-4o', 'o1'] }),
+    ]);
+    const repo = makeRepo();
+
+    const result = await runLegacyModelConfigMigration({ store, repo });
+
+    // One provider migrated; the second row's apiKey is lost (last-write-wins).
+    expect(result.migrated).toBe(1);
+    expect(result.secondaryKeysLost).toBe(1);
+    // Both rows' models appear in the final catalog, no duplicates.
+    const catalog = repo.catalogs.get('openai');
+    expect(catalog?.map((m) => m.id).sort()).toEqual(['gpt-4o', 'gpt-4o-mini', 'o1']);
+  });
+
+  it('picks the most-recent-by-updatedAt row as the primary creds source', async () => {
+    const olderRow = {
+      ...legacyRow({ platform: 'openai', apiKey: 'sk-old', model: ['gpt-4o'] }),
+      updatedAt: 1000,
+    } as IProvider;
+    const newerRow = {
+      ...legacyRow({ platform: 'openai', apiKey: 'sk-new', model: ['gpt-4o'] }),
+      updatedAt: 2000,
+    } as IProvider;
+
+    // Order in the store is irrelevant — the timestamp picks the primary.
+    const store = makeStore([newerRow, olderRow]);
+    const repo = makeRepo();
+
+    const result = await runLegacyModelConfigMigration({ store, repo });
+
+    expect(result.migrated).toBe(1);
+    expect(repo.providers.get('openai')?.creds).toEqual({ key: 'sk-new' });
+  });
+});
+
+describe('runLegacyModelConfigMigration — flag policy (Fix 2)', () => {
+  it('does NOT set the completion flag when every group fails recoverably', async () => {
+    // `upsertRegistryProvider` throws on every call — every group fails.
+    const repo = makeRepo();
+    repo.upsertRegistryProvider = () => {
+      throw new Error('transient safeStorage failure');
+    };
+
+    let flagSet = false;
+    const store: LegacyConfigStore = {
+      async get(key) {
+        if (key === MIGRATION_FLAG_KEY) return undefined;
+        if (key === 'model.config') return [legacyRow({ platform: 'openai', apiKey: 'sk', model: ['gpt-4o'] })];
+        return undefined;
+      },
+      async set(key, value) {
+        if (key === MIGRATION_FLAG_KEY) flagSet = value === true;
+      },
+    };
+
+    const result = await runLegacyModelConfigMigration({ store, repo });
+
+    expect(result.failedRecoverable).toBe(1);
+    expect(result.migrated).toBe(0);
+    expect(flagSet).toBe(false);
+  });
+});
+
+describe('runLegacyModelConfigMigration — overrides (Fix 4 + Fix 14)', () => {
+  it('writes false overrides for `modelEnabled: false` entries', async () => {
+    const store = makeStore([
+      {
+        ...legacyRow({ platform: 'openai', apiKey: 'sk', model: ['gpt-4o', 'gpt-4o-mini', 'o1'] }),
+        modelEnabled: { 'gpt-4o-mini': false },
+      } as IProvider,
+    ]);
+    const repo = makeRepo();
+
+    await runLegacyModelConfigMigration({ store, repo });
+
+    const overrides = repo.overrides.get('openai') ?? [];
+    const disabledEntry = overrides.find((o) => o.modelId === 'gpt-4o-mini');
+    expect(disabledEntry?.enabled).toBe(false);
+    // Other models get visibility overrides set to true (Fix 14).
+    const visibilityEntry = overrides.find((o) => o.modelId === 'gpt-4o');
+    expect(visibilityEntry?.enabled).toBe(true);
+  });
+});
+
+describe('runLegacyModelConfigMigration — modelProtocols (Fix 5)', () => {
+  it('persists the modelProtocols map alongside creds for new-api gateways', async () => {
+    const store = makeStore([
+      {
+        ...legacyRow({
+          platform: 'new-api',
+          baseUrl: 'https://my-gateway.example.com',
+          apiKey: 'sk-x',
+          model: ['gpt-4o', 'claude-sonnet-4'],
+        }),
+        modelProtocols: { 'claude-sonnet-4': 'anthropic' },
+      } as IProvider,
+    ]);
+    const repo = makeRepo();
+
+    await runLegacyModelConfigMigration({ store, repo });
+
+    const row = repo.providers.get('openai-compatible');
+    expect(row?.creds).toMatchObject({
+      key: 'sk-x',
+      baseUrl: 'https://my-gateway.example.com',
+      protocols: { 'claude-sonnet-4': 'anthropic' },
+    });
+  });
+});
+
+describe('runLegacyModelConfigMigration — atomic write repair (Fix 3)', () => {
+  it('re-imports the legacy catalog when an existing provider has an empty catalog', async () => {
+    const repo = makeRepo();
+    // Pre-seed an EXISTING provider row with NO catalog (simulating a prior
+    // partial run that crashed between upsert and replaceCatalog).
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'sk-existing' },
+    });
+    expect(repo.catalogs.size).toBe(0);
+
+    const store = makeStore([legacyRow({ platform: 'openai', apiKey: 'sk-legacy', model: ['gpt-4o'] })]);
+
+    const result = await runLegacyModelConfigMigration({ store, repo });
+
+    expect(result.migrated).toBe(1);
+    // Existing creds preserved — the user's new flow wins.
+    expect(repo.providers.get('openai')?.creds).toEqual({ key: 'sk-existing' });
+    // But the catalog is now repaired from the legacy row's models.
+    expect(repo.catalogs.get('openai')?.map((m) => m.id)).toEqual(['gpt-4o']);
+  });
+});
+
+describe('runLegacyModelConfigMigration — bridge v2 tag', () => {
+  it('also skips a row tagged with the v2 bridge value', async () => {
+    const row = {
+      ...legacyRow({ platform: 'openai', apiKey: 'sk', model: ['gpt-4o'] }),
+      __waylandModelRegistryBridge: 'v2',
+    } as IProvider;
+    const store = makeStore([row]);
+    const repo = makeRepo();
+
+    const result = await runLegacyModelConfigMigration({ store, repo });
+
+    expect(result.skippedBridge).toBe(1);
+    expect(result.migrated).toBe(0);
   });
 });

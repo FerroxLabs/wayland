@@ -19,9 +19,10 @@ const GoogleMark: React.FC = () => (
 /**
  * "Continue with Google" — the §4.2 secondary connect action.
  *
- * Wired to the existing `ipcBridge.googleAuth.login` OAuth flow. The
- * full Google-source model wiring (surfacing Gemini models in the registry
- * after sign-in) is finished in Wave 3 — TODO(wave3).
+ * Wired to the existing `ipcBridge.googleAuth.login` OAuth flow. On a
+ * successful OAuth sign-in, also persists a `google-gemini` registry row
+ * with `{ useGoogleAuth: true }` so the home picker's chat-start resolver
+ * can route to the legacy `gemini-with-google-auth` dispatcher arm.
  */
 const GoogleButton: React.FC = () => {
   const { t } = useTranslation();
@@ -32,13 +33,26 @@ const GoogleButton: React.FC = () => {
     try {
       const res = await ipcBridge.googleAuth.login.invoke({});
       if (res.success) {
-        Message.success(
-          t('settings.modelsPage.connect.googleSuccess', {
-            account: res.data?.account ?? '',
+        // Wave 3 Fix 6 — persist the Google-auth Gemini provider row so the
+        // chat-start resolver returns it.
+        const connectResult = await ipcBridge.modelRegistry.connect
+          .invoke({
+            providerId: 'google-gemini',
+            creds: { useGoogleAuth: true },
           })
-        );
-        // TODO(wave3): refresh the registry so the Google source's Gemini
-        // models appear as a connected provider row.
+          .catch(() => ({ ok: false as const, error: 'unknown' as const }));
+
+        if (connectResult.ok) {
+          Message.success(
+            t('settings.modelsPage.connect.googleSuccess', {
+              account: res.data?.account ?? '',
+            })
+          );
+        } else {
+          // OAuth succeeded but the registry write failed — surface a
+          // softer message; the user can retry from the page.
+          Message.warning(t('settings.modelsPage.connect.googleSuccess', { account: res.data?.account ?? '' }));
+        }
       } else {
         Message.error(res.msg ?? t('settings.modelsPage.connect.googleFailed'));
       }

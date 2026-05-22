@@ -154,6 +154,17 @@ function decryptRegistryCreds(ciphertext: string): Record<string, unknown> | nul
 export class ProviderRepository {
   constructor(private readonly db: ISqliteDriver) {}
 
+  /**
+   * Run `fn` inside a SQLite transaction. Exposed so the legacy-config
+   * migration can write the provider row + its catalog atomically — without
+   * this a crash between the two writes leaves a `connected` provider with an
+   * empty catalog and the migration flag already set on next boot.
+   */
+  transaction(fn: () => void): void {
+    const tx = this.db.transaction(fn);
+    tx();
+  }
+
   // ── Catalog ──────────────────────────────────────────────────────────────
 
   listCatalogs(): ConnectedProvider[] {

@@ -991,9 +991,6 @@
     "browseExtensions": "Uzantılara göz at →",
     "channelsMovedHint": "Kanallar Entegrasyonlar bölümüne taşındı →"
   },
-  "providersPage": {
-    "title": "Sağlayıcılar"
-  },
   "modelsPage": {
     "title": "Modeller",
     "subtitle": "Bir anahtar veya Google girişiyle bir sağlayıcı bağlayın; modelleriniz otomatik olarak görünür.",
@@ -1024,7 +1021,8 @@
       "errorCloud": "{{provider}} tanındı — bu sağlayıcı birden fazla alan gerektiriyor. Tam kimlik bilgilerini girmek için Gözat'ı açın.",
       "errorAmbiguous": "Bu anahtarın hangi sağlayıcıya ait olduğu belirlenemedi. Gözat'ı açın ve sağlayıcınızı seçin.",
       "errorNoModels": "{{provider}} bağlandı ancak hiç model döndürmedi. Yönet'ten yenilemeyi deneyin.",
-      "errorUnknown": "{{provider}} adresine bağlanılamadı. Lütfen tekrar deneyin."
+      "errorUnknown": "{{provider}} adresine bağlanılamadı. Lütfen tekrar deneyin.",
+      "undecryptableHint": "Your saved key for this provider is unreadable. Please re-enter it."
     },
     "detected": {
       "found": "Bu makinede bir {{provider}} API anahtarı bulundu. Kullanılsın mı?",
@@ -1271,84 +1269,6 @@
       "title": "Flux Router",
       "soon": "Yakında",
       "desc": "Herhangi bir ajanın yalnızca kendi modelleri değil, bağladığınız tüm modeller ve sağlayıcılar arasında yönlendirme yapmasını sağlar."
-    }
-  },
-  "providers": {
-    "heroTitle": "Connect a provider",
-    "heroPlaceholder": "Paste an API key...",
-    "detectButton": "Detect & connect",
-    "browseButton": "Browse 24+ providers",
-    "connected": "Connected",
-    "refreshed": "Refreshed {{n}}h ago",
-    "refreshNow": "Refresh now",
-    "disconnect": "Disconnect",
-    "configure": "Configure",
-    "deprecationBanner": "Some models in this provider’s catalog have been removed",
-    "defaultsTitle": "Default models",
-    "defaultChat": "Default chat model",
-    "defaultCoding": "Default coding model",
-    "defaultVision": "Default vision model",
-    "defaultImage": "Default image model",
-    "defaultAudio": "Default audio model",
-    "noDefault": "No default set",
-    "connect": {
-      "entryTitle": "Connect a provider",
-      "placeholder": "Paste your API key here...",
-      "detectButton": "Detect & connect",
-      "browseButton": "Browse 24+ providers",
-      "detectingProvider": "Detecting provider…",
-      "verifyingKey": "Verifying key…",
-      "fetchingCatalog": "Fetching model catalog…",
-      "moreInfoTitle": "Additional details required",
-      "pickerTitle": "Choose a provider",
-      "pickerSearch": "Search providers…",
-      "resultsTitle": "Select models to enable",
-      "resultsSelectAll": "Select all",
-      "resultsDeselectAll": "Deselect all",
-      "connectButton": "Connect",
-      "cancel": "Cancel",
-      "retry": "Try again",
-      "editKey": "Edit key",
-      "openConsole": "Open provider console",
-      "errorTitle": "Connection failed",
-      "errorNetwork": "Could not reach the provider. Check your network connection.",
-      "errorUnauthorized": "Invalid API key. Check your key and try again.",
-      "errorForbidden": "This key does not have the required permissions.",
-      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
-      "errorUnknown": "An unexpected error occurred.",
-      "fieldRegion": "AWS Region",
-      "fieldSecretKey": "Secret Access Key",
-      "fieldAccessKeyId": "Access Key ID",
-      "fieldEndpoint": "Endpoint URL",
-      "fieldDeployment": "Deployment Name",
-      "fieldApiVersion": "API Version",
-      "fieldProjectId": "Google Cloud Project ID",
-      "fieldServiceAccount": "Service Account JSON",
-      "browseServiceAccount": "Browse…"
-    },
-    "tiers": {
-      "flagship": "Flagship",
-      "everyday": "Everyday",
-      "fast": "Fast",
-      "reasoning": "Reasoning",
-      "legacy": "Legacy"
-    },
-    "capabilities": {
-      "chat": "Chat",
-      "vision": "Vision",
-      "image": "Image generation",
-      "audio": "Audio",
-      "embeddings": "Embeddings",
-      "reasoning": "Reasoning"
-    },
-    "categories": {
-      "frontier": "Frontier",
-      "openInference": "Open inference",
-      "cloud": "Cloud",
-      "chineseFrontier": "Chinese frontier",
-      "specialised": "Specialised",
-      "voice": "Voice",
-      "custom": "Custom"
     }
   }
 }

@@ -62,6 +62,7 @@ import { ModelsDevClient } from '../enrichment/ModelsDevClient';
 import type { ModelsDevRegistry } from '../enrichment/modelsDevSchema';
 import { ProviderRepository } from '../storage/ProviderRepository';
 import { runLegacyModelConfigMigration } from '../migration/legacyModelConfigMigration';
+import { mirrorConnectOrRekey, mirrorDisconnect } from '../legacyModelConfigBridge';
 import { ProcessConfig } from '@process/utils/initStorage';
 
 // ─── Provider classification ──────────────────────────────────────────────────
@@ -161,7 +162,7 @@ export type ModelRegistryDeps = {
     ) => Promise<{ ok: boolean; error?: ConnectError }>;
   };
   modelsDevClient: { getRegistry: () => Promise<ModelsDevRegistry> };
-  makeApiSource: (providerId: ProviderId, apiKey: string) => CatalogSource;
+  makeApiSource: (providerId: ProviderId, apiKey: string, baseUrl?: string) => CatalogSource;
   makeCliSource: (agentKey: CliAgentKey) => CatalogSource & {
     enumerable: boolean;
     underlyingProviderId: ProviderId;
@@ -202,13 +203,22 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * `ConnectionTester` and persistence expect. A `useDiscovered` payload is
    * resolved against `KeyDiscovery` main-side — the renderer never sees the
    * value. Returns `null` when a discovered key cannot be located.
+   *
+   * Wave 3 Fix 6: `useGoogleAuth` resolves to a `{ useGoogleAuth: true }` creds
+   * shape — the dispatcher (`gemini-with-google-auth` arm) reads OAuth tokens
+   * from the main-process auth store, not from the registry creds row.
    */
   async function resolveCreds(
     providerId: ProviderId,
     creds: IModelRegistryCreds
-  ): Promise<{ key: string } | { fields: Record<string, string> } | null> {
+  ): Promise<{ key: string } | { fields: Record<string, string> } | { useGoogleAuth: true } | null> {
     if ('key' in creds) return { key: creds.key };
     if ('fields' in creds) return { fields: creds.fields };
+    if ('useGoogleAuth' in creds) {
+      // Only valid for the Gemini provider — every other provider rejects this.
+      if (providerId !== 'google-gemini') return null;
+      return { useGoogleAuth: true };
+    }
     // `useDiscovered` — find the discovered key for this provider, read it.
     try {
       const found = await keyDiscovery.scan();
@@ -247,7 +257,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    */
   async function buildAndPersistCatalog(
     providerId: ProviderId,
-    creds: { key: string } | { fields: Record<string, string> }
+    creds: { key: string } | { fields: Record<string, string> } | { useGoogleAuth: true }
   ): Promise<{ ok: boolean; models: number; sourceErrors: number }> {
     try {
       // FK precondition: catalog rows reference the provider row. Guard it
@@ -259,12 +269,26 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
       const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
 
+      const isGoogleAuth = 'useGoogleAuth' in creds && creds.useGoogleAuth === true;
+
       let sources: CatalogSource[];
-      if (CLOUD_PROVIDERS.has(providerId)) {
+      if (CLOUD_PROVIDERS.has(providerId) || isGoogleAuth) {
+        // Cloud + google-auth-Gemini — synthesize the catalog from the
+        // models.dev registry slice. The OAuth-authenticated SDK reads model
+        // ids the same way models.dev exposes them.
         sources = [new CloudRegistrySource(providerId, registry)];
+      } else if ('key' in creds && creds.key) {
+        // Fix 10 — preserve the user's saved custom baseUrl through refresh.
+        // Otherwise `openai-compatible` and other custom-endpoint providers
+        // silently re-target the canonical default on every refresh.
+        const stored = repo.getRegistryProviderCreds(providerId);
+        const customBaseUrl =
+          stored.status === 'ok' && typeof stored.creds.baseUrl === 'string'
+            ? (stored.creds.baseUrl as string)
+            : undefined;
+        sources = [deps.makeApiSource(providerId, creds.key, customBaseUrl)];
       } else {
-        const apiKey = 'key' in creds ? creds.key : '';
-        sources = apiKey ? [deps.makeApiSource(providerId, apiKey)] : [];
+        sources = [];
       }
 
       const { models, sourceErrors } = await assembler.assemble(sources, registry);
@@ -292,6 +316,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * specific signal regardless of provider kind, so it must win.
    */
   function connectedViaLabel(creds: IModelRegistryCreds, providerId: ProviderId): string {
+    if ('useGoogleAuth' in creds) return 'google-auth';
     if ('useDiscovered' in creds) return 'auto-discovered';
     if (CLOUD_PROVIDERS.has(providerId)) return 'cloud-credentials';
     if ('fields' in creds) return 'cloud-credentials';
@@ -317,11 +342,15 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     if (!resolved) return { ok: false, error: 'unrecognized' };
 
     const isCloud = CLOUD_PROVIDERS.has(providerId);
+    const isGoogleAuth = 'useGoogleAuth' in resolved;
 
-    if (isCloud) {
-      // Cloud providers cannot be HTTP-probed — but a connect must still carry
-      // the credential fields that provider needs. An empty / partial `fields`
-      // payload is rejected rather than persisted as a false green.
+    if (isGoogleAuth) {
+      // Google-auth Gemini — no HTTP probe (OAuth is verified by the auth
+      // module that produced the token), but we still want to build the
+      // catalog from models.dev so the picker has models to choose from.
+      // `buildAndPersistCatalog` reads cloud providers from the registry; for
+      // google-auth Gemini we likewise treat models.dev as the source.
+    } else if (isCloud) {
       if (!('fields' in resolved) || !hasRequiredCloudFields(providerId, resolved.fields)) {
         return { ok: false, error: 'unrecognized' };
       }
@@ -331,12 +360,15 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       // stay consistent (a `{ fields }` connect would otherwise pass the test
       // but build an empty catalog).
       if ('fields' in resolved) return { ok: false, error: 'unrecognized' };
-      const result = await connectionTester.test(providerId, resolved);
+      const result = await connectionTester.test(providerId, resolved as { key: string });
       if (!result.ok) return { ok: false, error: result.error ?? 'unknown' };
     }
 
-    const credsRecord: Record<string, unknown> =
-      'key' in resolved ? { key: resolved.key } : { fields: resolved.fields };
+    const credsRecord: Record<string, unknown> = isGoogleAuth
+      ? { useGoogleAuth: true }
+      : 'key' in resolved
+        ? { key: resolved.key }
+        : { fields: (resolved as { fields: Record<string, string> }).fields };
 
     if (isRekey) {
       // A rekey must not destroy a working key on a catalog-build failure.
@@ -416,15 +448,21 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // `not-found` — no row to test.
         if (stored.status !== 'ok') return { ok: false, error: 'unrecognized' };
 
-        if (CLOUD_PROVIDERS.has(providerId)) {
-          // Cloud providers cannot be HTTP-probed — a stored credential is the
-          // strongest available signal; treat it as connected.
+        if (CLOUD_PROVIDERS.has(providerId) || stored.creds.useGoogleAuth === true) {
+          // Cloud + google-auth — neither can be HTTP-probed via the standard
+          // `/v1/models` path. A stored credential is the strongest available
+          // signal; treat it as connected.
           repo.updateRegistryProviderState(providerId, 'connected');
           return { ok: true };
         }
 
         const creds = toTestCreds(stored.creds);
-        const result = await connectionTester.test(providerId, creds);
+        // `useGoogleAuth` already handled above; `ConnectionTester.test` accepts
+        // the two remaining variants.
+        const result = await connectionTester.test(
+          providerId,
+          creds as { key: string } | { fields: Record<string, string> }
+        );
         const state: ProviderConnState = result.ok ? 'connected' : 'error';
         repo.updateRegistryProviderState(providerId, state, result.ok ? undefined : result.error);
         return result.ok ? { ok: true } : { ok: false, error: result.error ?? 'unknown' };
@@ -517,11 +555,18 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // Build the chat-start payload. The main-process dispatch
         // (`wcore/envBuilder.ts`, `GeminiAgentManager`, ACP managers) reads
         // these fields verbatim — `platform` chooses the dispatcher arm,
-        // `apiKey` + `baseUrl` feed the spawn config, and (for Bedrock) the
-        // `bedrockConfig` block carries the cloud creds.
-        const payload = buildChatStartPayload(providerId, modelId, stored.creds);
-        if (!payload) return { ok: false, error: 'unsupported' };
-        return { ok: true, provider: payload };
+        // `apiKey` + `baseUrl` feed the spawn config, and (for cloud
+        // providers) the `bedrockConfig` / `cloudFields` blocks carry the
+        // typed creds.
+        //
+        // Fix 9 — discriminate `undecryptable` from `unsupported`: a
+        // connected api-key row that has no `key` is a corrupted creds row,
+        // not an unsupported provider. The renderer routes the two cases to
+        // different recovery prompts.
+        const result = buildChatStartPayload(providerId, modelId, stored.creds);
+        if (result.kind === 'unsupported') return { ok: false, error: 'unsupported' };
+        if (result.kind === 'undecryptable') return { ok: false, error: 'undecryptable' };
+        return { ok: true, provider: result.payload };
       } catch {
         return { ok: false, error: 'unknown' };
       }
@@ -592,8 +637,16 @@ function hasRequiredCloudFields(providerId: ProviderId, fields: Record<string, s
   return required.every((name) => typeof fields[name] === 'string' && fields[name].trim().length > 0);
 }
 
-/** Coerce a stored creds record into the `ConnectionTester` creds shape. */
-function toTestCreds(stored: Record<string, unknown>): { key: string } | { fields: Record<string, string> } {
+/**
+ * Coerce a stored creds record into the shape `buildAndPersistCatalog` /
+ * `ConnectionTester` expect. Recognizes the three persisted variants:
+ * api-key (`{ key }`), cloud (`{ fields }`), and google-auth Gemini
+ * (`{ useGoogleAuth: true }`).
+ */
+function toTestCreds(
+  stored: Record<string, unknown>
+): { key: string } | { fields: Record<string, string> } | { useGoogleAuth: true } {
+  if (stored.useGoogleAuth === true) return { useGoogleAuth: true };
   if (typeof stored.key === 'string') return { key: stored.key };
   if (stored.fields && typeof stored.fields === 'object' && !Array.isArray(stored.fields)) {
     return { fields: stored.fields as Record<string, string> };
@@ -715,17 +768,32 @@ const CHAT_START_NAME: Partial<Record<ProviderId, string>> = {
 };
 
 /**
- * Build the chat-start payload for a curated model resolution. Returns `null`
- * for unsupported providers (no dispatcher arm) — the caller surfaces that as
- * `'unsupported'`.
+ * Build the chat-start payload for a curated model resolution.
+ *
+ * Returns one of three outcomes (Fix 9):
+ *  - `{ kind: 'payload', payload }` — fully resolved.
+ *  - `{ kind: 'unsupported' }` — no dispatcher arm for this provider.
+ *  - `{ kind: 'undecryptable' }` — the provider row says it's connected, but
+ *    the stored creds carry no usable key (corrupted ciphertext or a
+ *    malformed record). The renderer routes this to a re-key prompt rather
+ *    than the generic Open-Models redirect.
  */
+type ChatStartBuildResult =
+  | { kind: 'payload'; payload: IModelRegistryChatStartPayload }
+  | { kind: 'unsupported' }
+  | { kind: 'undecryptable' };
+
 function buildChatStartPayload(
   providerId: ProviderId,
   modelId: string,
   creds: Record<string, unknown>
-): IModelRegistryChatStartPayload | null {
-  const platform = CHAT_START_PLATFORM[providerId];
-  if (!platform) return null;
+): ChatStartBuildResult {
+  // Google-auth Gemini: a `useGoogleAuth: true` cred resolves to the legacy
+  // `gemini-with-google-auth` platform string (Fix 6). No api-key check.
+  const isGoogleAuthGemini = providerId === 'google-gemini' && creds.useGoogleAuth === true;
+
+  const platform = isGoogleAuthGemini ? 'gemini-with-google-auth' : CHAT_START_PLATFORM[providerId];
+  if (!platform) return { kind: 'unsupported' };
 
   const payload: IModelRegistryChatStartPayload = {
     id: providerId,
@@ -737,38 +805,67 @@ function buildChatStartPayload(
     apiKey: '',
   };
 
-  // Cloud providers carry their creds in `fields`; api-key providers carry a
-  // `key` (and optionally a user-overridden `baseUrl`).
+  // Surface per-model protocol overrides (Fix 5).
+  if (creds.protocols && typeof creds.protocols === 'object' && !Array.isArray(creds.protocols)) {
+    payload.modelProtocols = creds.protocols as Record<string, string>;
+  }
+
+  // ── Google-auth Gemini ─────────────────────────────────────────────────
+  if (isGoogleAuthGemini) {
+    // No credential material in the payload — the dispatcher reads the OAuth
+    // tokens from the main-process auth store.
+    return { kind: 'payload', payload };
+  }
+
+  // ── AWS Bedrock ────────────────────────────────────────────────────────
   if (providerId === 'aws-bedrock') {
     const fields = creds.fields;
     if (typeof fields === 'object' && fields !== null && !Array.isArray(fields)) {
       const f = fields as Record<string, unknown>;
-      const accessKeyId = typeof f.accessKeyId === 'string' ? f.accessKeyId : '';
-      const secretAccessKey = typeof f.secretAccessKey === 'string' ? f.secretAccessKey : '';
       const region = typeof f.region === 'string' ? f.region : '';
-      if (accessKeyId && secretAccessKey && region) {
-        payload.bedrockConfig = { authMethod: 'accessKey', accessKeyId, secretAccessKey, region };
+      const bedrockAuth = creds.bedrockAuth === 'profile' ? 'profile' : 'access-key';
+
+      if (bedrockAuth === 'profile') {
+        const profile = typeof f.awsProfile === 'string' ? f.awsProfile : '';
+        if (profile && region) {
+          payload.bedrockConfig = { authMethod: 'profile', region, profile };
+        }
+      } else {
+        const accessKeyId = typeof f.accessKeyId === 'string' ? f.accessKeyId : '';
+        const secretAccessKey = typeof f.secretAccessKey === 'string' ? f.secretAccessKey : '';
+        if (accessKeyId && secretAccessKey && region) {
+          payload.bedrockConfig = { authMethod: 'accessKey', accessKeyId, secretAccessKey, region };
+        }
       }
     }
-    return payload;
+    return { kind: 'payload', payload };
   }
 
+  // ── Vertex / Azure — pass cloudFields through (Fix 8) ──────────────────
   if (providerId === 'vertex' || providerId === 'azure') {
-    // No legacy dispatcher arm for Azure; Vertex's legacy arm read credentials
-    // from outside the IProvider row (gcloud ADC). The chat-start payload is
-    // returned in case the caller has its own handling, but the credential
-    // fields are deliberately not exposed.
-    return payload;
+    const fields = creds.fields;
+    if (typeof fields === 'object' && fields !== null && !Array.isArray(fields)) {
+      const out: Record<string, string> = {};
+      for (const [k, v] of Object.entries(fields as Record<string, unknown>)) {
+        if (typeof v === 'string') out[k] = v;
+      }
+      if (Object.keys(out).length > 0) payload.cloudFields = out;
+    }
+    return { kind: 'payload', payload };
   }
 
-  // Standard API-key provider.
+  // ── Standard API-key provider ──────────────────────────────────────────
   const apiKey = typeof creds.key === 'string' ? (creds.key as string) : '';
-  if (!apiKey) return null;
+  if (!apiKey) {
+    // The provider row is `connected` but the creds carry no key — a
+    // corrupted record, not an unsupported provider (Fix 9).
+    return { kind: 'undecryptable' };
+  }
 
   const customBaseUrl = typeof creds.baseUrl === 'string' ? (creds.baseUrl as string) : '';
   payload.apiKey = apiKey;
   payload.baseUrl = customBaseUrl || CHAT_START_BASE_URL[providerId] || '';
-  return payload;
+  return { kind: 'payload', payload };
 }
 
 // ─── IPC registration ─────────────────────────────────────────────────────────
@@ -798,7 +895,7 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
     modelsDevClient: {
       getRegistry: () => modelsDevClient.getRegistry(),
     },
-    makeApiSource: (providerId, apiKey) => new ApiProviderSource(providerId, apiKey),
+    makeApiSource: (providerId, apiKey, baseUrl) => new ApiProviderSource(providerId, apiKey, baseUrl),
     makeCliSource: (agentKey) => new CliAgentSource(agentKey),
   };
 }
@@ -808,18 +905,31 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
  * guarded by a `ProcessConfig` flag. On any subsequent boot the migration
  * is a no-op. Failures are caught and logged inside the migration — they
  * never block IPC registration.
+ *
+ * Wave-3 cross-audit: the migration writes per-row provider + catalog inside
+ * a single SQLite transaction (Fix 3) and also writes per-model visibility
+ * overrides (Fix 4 / Fix 14). We wire the production repo's `transaction`,
+ * `countRegistryCatalog`, and `setRegistryOverride` methods through to the
+ * structural `MigrationRepo` slice.
  */
 async function runStartupMigration(repo: ProviderRepository): Promise<void> {
   await runLegacyModelConfigMigration({
     store: {
-      get: (key) => ProcessConfig.get(key) as Promise<unknown>,
+      get: (key) => ProcessConfig.get(key as never) as Promise<unknown>,
       set: async (key, value) => {
         // `ProcessConfig.set` is typed against the full `IConfigStorageRefer`
         // refer; the migration's narrow union of keys is a strict subset.
         await ProcessConfig.set(key as never, value as never);
       },
     },
-    repo,
+    repo: {
+      getRegistryProvider: (providerId) => repo.getRegistryProvider(providerId),
+      upsertRegistryProvider: (params) => repo.upsertRegistryProvider(params),
+      replaceRegistryCatalog: (providerId, models) => repo.replaceRegistryCatalog(providerId, models),
+      countRegistryCatalog: (providerId) => repo.countRegistryCatalog(providerId),
+      setRegistryOverride: (providerId, modelId, enabled) => repo.setRegistryOverride(providerId, modelId, enabled),
+      transaction: (fn) => repo.transaction(fn),
+    },
   });
 }
 
@@ -845,14 +955,35 @@ export async function initModelRegistryIpc(): Promise<void> {
   const h = createModelRegistryHandlers(deps);
 
   ipcBridge.modelRegistry.detectKeys.provider(() => h.detectKeys());
-  ipcBridge.modelRegistry.connect.provider((payload) => h.connect(payload));
+  // Wave 3 Fix 13 — wrap connect/rekey/disconnect with a v2 write-through
+  // bridge into `model.config` so legacy consumers
+  // (WCoreModelSelector / GeminiModelSelector / AcpModelSelector /
+  // EditModeModal / AddPlatformModal) still see new connections until they
+  // are refactored. The bridge is a no-op for cloud + CLI-only providers.
+  ipcBridge.modelRegistry.connect.provider(async (payload) => {
+    const result = await h.connect(payload);
+    if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);
+    return result;
+  });
   ipcBridge.modelRegistry.testConnection.provider((payload) => h.testConnection(payload));
   ipcBridge.modelRegistry.list.provider(() => h.list());
   ipcBridge.modelRegistry.getCatalog.provider((payload) => h.getCatalog(payload));
   ipcBridge.modelRegistry.toggleModel.provider((payload) => h.toggleModel(payload));
-  ipcBridge.modelRegistry.refresh.provider((payload) => h.refresh(payload));
-  ipcBridge.modelRegistry.disconnect.provider((payload) => h.disconnect(payload));
-  ipcBridge.modelRegistry.rekey.provider((payload) => h.rekey(payload));
+  ipcBridge.modelRegistry.refresh.provider(async (payload) => {
+    const result = await h.refresh(payload);
+    if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);
+    return result;
+  });
+  ipcBridge.modelRegistry.disconnect.provider(async (payload) => {
+    const result = await h.disconnect(payload);
+    if (result.ok) void mirrorDisconnect(payload.providerId);
+    return result;
+  });
+  ipcBridge.modelRegistry.rekey.provider(async (payload) => {
+    const result = await h.rekey(payload);
+    if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);
+    return result;
+  });
   ipcBridge.modelRegistry.curatedForAgent.provider((payload) => h.curatedForAgent(payload));
   ipcBridge.modelRegistry.resolveForChatStart.provider((payload) => h.resolveForChatStart(payload));
 }

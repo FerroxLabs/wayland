@@ -23,12 +23,22 @@ const buildModelKey = (providerId?: string, modelName?: string) => {
 
 /**
  * Check if a model key still exists in the provider list.
+ *
+ * Matches by `${id}:${model}` OR `${platform}:${model}` — the home picker
+ * writes a `ProviderId` (e.g. `'openai'`) into the saved `id`, while the
+ * legacy `model.config` row exposes the matching `platform` field. Without
+ * the platform match a registry-keyed pick looks "unavailable" on every
+ * reload and the hook resets to `modelList[0]` (Wave 3 Fix 11).
  */
 const isModelKeyAvailable = (key: string | null, providers?: IProvider[]) => {
   if (!key || !providers || providers.length === 0) return false;
   return providers.some((provider) => {
-    if (!provider.id || !provider.model?.length) return false;
-    return provider.model.some((modelName) => buildModelKey(provider.id, modelName) === key);
+    if (!provider.model?.length) return false;
+    return provider.model.some((modelName) => {
+      if (provider.id && buildModelKey(provider.id, modelName) === key) return true;
+      if (provider.platform && buildModelKey(provider.platform, modelName) === key) return true;
+      return false;
+    });
   });
 };
 
@@ -154,9 +164,21 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): Gu
 
       if (isNewFormat) {
         const { id, useModel } = savedModel;
+        // Wave 3 Fix 11 — the home picker now writes the `ProviderId` string
+        // (e.g. `'openai'`) into the saved `id`, NOT the legacy `IProvider.id`
+        // uuid. Match by uuid FIRST (legacy `gemini-with-google-auth` rows
+        // still use uuids), then fall back to matching by `platform === id`
+        // AND the model id appearing in that provider's `model[]` array.
+        // Without the fallback, a registry-keyed pick fails the uuid lookup
+        // and silently switches to `modelList[0]` on next reload.
         const exactMatch = modelList.find((m) => m.id === id);
-        if (exactMatch && exactMatch.model.includes(useModel)) {
-          defaultModel = exactMatch;
+        const platformMatch =
+          !exactMatch && useModel
+            ? modelList.find((m) => m.platform === id && m.model.includes(useModel))
+            : undefined;
+        const resolved = exactMatch ?? platformMatch;
+        if (resolved && resolved.model.includes(useModel)) {
+          defaultModel = resolved;
           resolvedUseModel = useModel;
         } else {
           defaultModel = modelList[0];

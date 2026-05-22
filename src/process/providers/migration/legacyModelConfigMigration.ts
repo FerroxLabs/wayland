@@ -17,30 +17,39 @@
  *
  * What it does, in one boot:
  *  1. Reads the legacy `model.config` from the injected `LegacyConfigStore`.
- *  2. For each row that the legacy `ModelModalContent` flow wrote (i.e. NOT
- *     tagged `__waylandModelRegistryBridge: 'v1'`), translates `IProvider` into
- *     `ProviderId` + creds + `CatalogModel[]` and writes a `model_registry_*`
- *     row through the injected `MigrationRepo` slice.
- *  3. Bridge-tagged rows are skipped — they already mirror a registry row.
- *  4. A row whose `platform` cannot be translated (unknown / unsupported) is
- *     skipped with a logged warning. The row's models never become a half-built
- *     catalog the user can't act on.
- *  5. A row whose provider id already exists in the registry is skipped — the
- *     user has already connected that provider through the new Models page and
- *     that connection wins over a legacy import.
- *  6. On any first successful run the idempotency flag
- *     `MIGRATION_FLAG_KEY` is set in the config store; subsequent boots skip
- *     the migration entirely.
+ *  2. GROUPS legacy rows by computed `ProviderId` — multiple legacy rows can
+ *     legitimately resolve to the same provider (e.g. two OpenAI rows for two
+ *     teams). UNIONing them avoids the cross-audit-1 defect where the second
+ *     row's models + creds were silently dropped.
+ *  3. For each group, picks a canonical "primary" (most-recent by `updatedAt`,
+ *     else last in the array) and writes one registry row. Union the model
+ *     arrays, `modelEnabled` maps, and `modelProtocols` maps across all rows
+ *     in the group. Disabled-in-any source → disabled override.
+ *  4. Provider row + catalog write happen inside one SQLite transaction so a
+ *     crash between them cannot strand a provider with an empty catalog.
+ *  5. If a provider row already exists but its catalog is empty, the catalog
+ *     is re-imported (a prior partial run is repaired on the next boot).
+ *  6. `modelEnabled:false` user preferences become explicit overrides in
+ *     `model_registry_overrides`.
+ *  7. `modelProtocols` is persisted alongside creds so multi-protocol gateways
+ *     keep their per-model protocol overrides.
+ *  8. Bedrock profile-auth is migrated (`creds.fields.awsProfile` +
+ *     `creds.fields.region`); Google-auth Gemini is migrated
+ *     (`creds.useGoogleAuth: true`). Both were previously dropped as
+ *     "incomplete" by the cross-audit-1 plan's narrow `CLOUD_REQUIRED_FIELDS`.
+ *  9. On any first run the completion flag is set ONLY when at least one row
+ *     succeeded AND no rows failed recoverably (or zero rows were attempted).
+ *     A total-failure outcome leaves the flag unset so the next boot retries.
+ * 10. If any cloud row was skipped as "incomplete," a one-shot notification
+ *     flag is written to the config store so the renderer can prompt the user
+ *     to re-enter their cloud creds in the new Models page.
  *
  * What it does NOT do:
  *  - It does NOT call `ConnectionTester` or fetch from models.dev. The legacy
  *    row already represents a connection the user established once; we trust
  *    it and let the next `refresh` action re-enrich the catalog naturally.
  *  - It does NOT delete the legacy `model.config`. Other UI surfaces (Gemini
- *    /WCore selectors, `AcpModelSelector`, edit modals) still read it, and
- *    sunsetting them is out of scope for Packet 3B.
- *  - It does NOT migrate `legacy-mirror-failed` state — that discriminator
- *    is removed from `ConnectError` alongside this migration.
+ *    /WCore selectors, `AcpModelSelector`, edit modals) still read it.
  */
 
 import type { IProvider } from '@/common/config/storage';
@@ -48,26 +57,33 @@ import type { CatalogModel, ConnectError, ProviderConnState, ProviderId } from '
 
 /** Tag stamped on a `model.config` row by the deleted 3A bridge mirror. */
 const BRIDGE_TAG_KEY = '__waylandModelRegistryBridge';
-const BRIDGE_TAG_VALUE = 'v1';
+/** v1 = original (deleted) bridge mirror. v2 = the slimmed-down resurrection. */
+const BRIDGE_TAG_VALUES = new Set(['v1', 'v2']);
 
 /** Idempotency marker stored in `ProcessConfig` after a successful run. */
 export const MIGRATION_FLAG_KEY = 'migration.legacyModelConfigToRegistry';
+
+/**
+ * One-shot notification flag — set when the migration skipped one or more cloud
+ * rows as "incomplete" so the renderer can prompt the user on first boot of
+ * the new Models page. Read + cleared by the renderer.
+ */
+export const MIGRATION_INCOMPLETE_CLOUD_FLAG_KEY = 'migration.legacyModelConfigIncompleteCloud';
 
 /**
  * The slice of `ProcessConfig` the migration needs. Declared structurally so
  * unit tests inject an in-memory fake — no `ProcessConfig`, no Electron runtime.
  */
 export type LegacyConfigStore = {
-  get<K extends 'model.config' | typeof MIGRATION_FLAG_KEY>(key: K): Promise<unknown>;
-  set<K extends 'model.config' | typeof MIGRATION_FLAG_KEY>(
-    key: K,
-    value: K extends 'model.config' ? IProvider[] : boolean
-  ): Promise<void>;
+  get(key: string): Promise<unknown>;
+  set(key: string, value: unknown): Promise<void>;
 };
 
 /**
  * The slice of `ProviderRepository` the migration writes through. Declared
- * structurally for the same reason.
+ * structurally for the same reason. Extended in Wave 3 to expose
+ * `countRegistryCatalog`, `setRegistryOverride`, and `transaction` so the
+ * migration can repair partial prior runs and write atomically.
  */
 export type MigrationRepo = {
   getRegistryProvider: (providerId: ProviderId) => unknown | null;
@@ -79,33 +95,42 @@ export type MigrationRepo = {
     creds: Record<string, unknown>;
   }) => void;
   replaceRegistryCatalog: (providerId: ProviderId, models: CatalogModel[]) => void;
+  /** Count catalog rows already persisted — used to detect partial prior runs. */
+  countRegistryCatalog?: (providerId: ProviderId) => number;
+  /** Write a per-model enable/disable override (Fix 4). */
+  setRegistryOverride?: (providerId: ProviderId, modelId: string, enabled: boolean) => void;
+  /**
+   * Run a function in a SQLite transaction. Optional so in-memory test repos
+   * can omit it; the migration treats `undefined` as "no transactional support,
+   * write sequentially" — production always wires the real DB transaction.
+   */
+  transaction?: (fn: () => void) => void;
 };
 
 export type MigrationResult = {
   /** True when the migration ran (first boot); false when the flag already set. */
   ran: boolean;
-  /** Count of legacy rows successfully translated into registry rows. */
+  /** Count of legacy provider groups successfully translated into registry rows. */
   migrated: number;
   /** Count of bridge-mirrored rows skipped (already in the registry). */
   skippedBridge: number;
-  /** Count of rows skipped because the registry already had that provider. */
+  /** Count of groups skipped because the registry already had that provider. */
   skippedExisting: number;
-  /** Count of rows skipped because the platform couldn't be translated. */
+  /** Count of groups skipped because the platform couldn't be translated. */
   skippedUnsupported: number;
-  /** Count of rows skipped because cloud creds were incomplete. */
+  /** Count of groups skipped because cloud creds were incomplete. */
   skippedIncompleteCloud: number;
+  /**
+   * Count of secondary rows whose api-key was discarded because the group's
+   * primary won. UI surfaces this so the user knows a non-primary key is lost.
+   */
+  secondaryKeysLost: number;
+  /** Count of groups that failed recoverably (e.g. transient safeStorage). */
+  failedRecoverable: number;
 };
 
 // ─── Legacy `platform` → new `ProviderId` translation ─────────────────────────
 
-/**
- * Maps a legacy `IProvider.platform` string to a new-registry `ProviderId`.
- *
- * The legacy bridge mapped the OTHER direction (`ProviderId` → `platform`); this
- * is its inverse. The `openai-compatible` platform covers a wide range of
- * long-tail providers — we cannot pick a `ProviderId` from `platform` alone for
- * those, so they need `baseUrl`-based fingerprinting (see `mapPlatformToProvider`).
- */
 const DIRECT_PLATFORM_MAP: Record<string, ProviderId> = {
   anthropic: 'anthropic',
   openai: 'openai',
@@ -113,20 +138,8 @@ const DIRECT_PLATFORM_MAP: Record<string, ProviderId> = {
   'gemini-with-google-auth': 'google-gemini',
   'gemini-vertex-ai': 'vertex',
   bedrock: 'aws-bedrock',
-  // The legacy 'custom' / 'new-api' platforms are both user-defined
-  // OpenAI-compatible endpoints — they need baseUrl fingerprinting too.
 };
 
-/**
- * BaseUrl-substring fingerprints for `openai-compatible` and `custom` /
- * `new-api` legacy rows. Order matters — `openrouter.ai` is more specific than
- * `openai.com`, so it comes first. Each entry is checked against the row's
- * `baseUrl` substring (case-insensitive); the first hit wins.
- *
- * A legacy row with a `baseUrl` that does NOT match any fingerprint is mapped
- * to `'openai-compatible'` — a real provider id in the new registry that
- * preserves the user's `baseUrl` end-to-end.
- */
 const BASEURL_FINGERPRINTS: Array<{ host: string; providerId: ProviderId }> = [
   { host: 'openrouter.ai', providerId: 'openrouter' },
   { host: 'api.groq.com', providerId: 'groq' },
@@ -157,16 +170,10 @@ const BASEURL_FINGERPRINTS: Array<{ host: string; providerId: ProviderId }> = [
   { host: 'generativelanguage.googleapis.com', providerId: 'google-gemini' },
 ];
 
-/**
- * Resolve a legacy `IProvider` to a registry `ProviderId`. Returns `null` for
- * a platform we cannot honestly translate — the caller skips the row rather
- * than fabricating a wrong association.
- */
 function mapPlatformToProvider(provider: IProvider): ProviderId | null {
   const direct = DIRECT_PLATFORM_MAP[provider.platform];
   if (direct) return direct;
 
-  // `openai-compatible` / `custom` / `new-api` — fingerprint by baseUrl.
   if (provider.platform === 'openai-compatible' || provider.platform === 'custom' || provider.platform === 'new-api') {
     const baseUrl = (provider.baseUrl ?? '').toLowerCase();
     if (baseUrl) {
@@ -174,8 +181,6 @@ function mapPlatformToProvider(provider: IProvider): ProviderId | null {
         if (baseUrl.includes(host)) return providerId;
       }
     }
-    // Fallback: a real user-defined OpenAI-compatible endpoint — preserved as
-    // such in the new registry so the user's custom baseUrl survives migration.
     return 'openai-compatible';
   }
 
@@ -184,24 +189,16 @@ function mapPlatformToProvider(provider: IProvider): ProviderId | null {
 
 // ─── Bridge tag detection ─────────────────────────────────────────────────────
 
-/**
- * True when a `model.config` row was written by the now-deleted Wave 3A bridge
- * (`legacyModelConfigBridge`). Tagged rows mirror a registry row that already
- * exists; migrating them would create a duplicate. Detected via the same tag
- * the bridge stamped.
- */
 function isBridgeTagged(provider: IProvider): boolean {
-  return (provider as unknown as Record<string, unknown>)[BRIDGE_TAG_KEY] === BRIDGE_TAG_VALUE;
+  const tag = (provider as unknown as Record<string, unknown>)[BRIDGE_TAG_KEY];
+  return typeof tag === 'string' && BRIDGE_TAG_VALUES.has(tag);
 }
 
 // ─── Cloud creds ──────────────────────────────────────────────────────────────
 
 /**
- * Required field names per cloud provider. A legacy row missing any of these
- * cannot be honestly translated into a `RegistryProvider` — chat-start would
- * crash on the half-built creds. Such rows are skipped with a warning.
- *
- * Mirrors `CLOUD_REQUIRED_FIELDS` in `modelRegistryIpc.ts`.
+ * Required field names per cloud provider, for the access-key shape.
+ * Profile-auth Bedrock uses a different shape (see {@link extractCloudFields}).
  */
 const CLOUD_REQUIRED_FIELDS: Record<string, readonly string[]> = {
   'aws-bedrock': ['accessKeyId', 'secretAccessKey', 'region'],
@@ -212,57 +209,59 @@ const CLOUD_REQUIRED_FIELDS: Record<string, readonly string[]> = {
 const CLOUD_PROVIDER_IDS: ReadonlySet<ProviderId> = new Set<ProviderId>(['aws-bedrock', 'vertex', 'azure']);
 
 /**
- * Translate a legacy `IProvider`'s cloud-specific block (`bedrockConfig`, no
- * legacy `vertexConfig` or `azureConfig` — Vertex and Azure had no first-class
- * legacy support) into the registry's `{ fields }` shape. Returns `null` when
- * required fields are missing.
+ * Translate a legacy `IProvider`'s cloud-specific block into the registry's
+ * `{ fields }` shape, returning `null` when required fields are missing.
+ *
+ * Bedrock now honors `authMethod: 'profile'` as a valid alternate shape
+ * (`{ awsProfile, region, bedrockAuth: 'profile' }`). The envBuilder reads
+ * `awsProfile` and sets `AWS_PROFILE` on the dispatched env.
  */
-function extractCloudFields(providerId: ProviderId, provider: IProvider): Record<string, string> | null {
-  const required = CLOUD_REQUIRED_FIELDS[providerId];
-  if (!required) return null;
-
-  const fields: Record<string, string> = {};
-
+function extractCloudFields(
+  providerId: ProviderId,
+  provider: IProvider
+): { fields: Record<string, string>; bedrockAuth?: 'access-key' | 'profile' } | null {
   if (providerId === 'aws-bedrock') {
     const bc = provider.bedrockConfig;
     if (!bc) return null;
-    // The legacy `bedrockConfig` discriminates 'accessKey' vs 'profile' auth.
-    // Only accessKey-auth carries usable creds for the registry — profile-auth
-    // relies on the host's AWS profile, which the registry's CLOUD_REQUIRED_FIELDS
-    // (accessKeyId/secretAccessKey/region) cannot represent. A profile-auth row
-    // is honestly incomplete from the registry's perspective; skip it.
-    if (bc.authMethod !== 'accessKey') return null;
-    if (!bc.accessKeyId || !bc.secretAccessKey || !bc.region) return null;
-    fields.accessKeyId = bc.accessKeyId;
-    fields.secretAccessKey = bc.secretAccessKey;
-    fields.region = bc.region;
-  } else if (providerId === 'vertex') {
-    // No legacy `vertexConfig` block existed; vertex rows that ever showed up
-    // historically did so without usable creds. Skip them.
-    return null;
-  } else if (providerId === 'azure') {
-    // Same — no legacy `azureConfig` block ever existed. The plan's reference
-    // to `azureConfig`/`vertexConfig` describes shapes the migration accepts
-    // IF an upstream patch ever added them; absent that, azure/vertex legacy
-    // rows are skipped.
+
+    if (bc.authMethod === 'profile') {
+      // Profile auth — only `awsProfile` + `region` are required.
+      if (!bc.profile || !bc.region) return null;
+      return {
+        fields: { awsProfile: bc.profile, region: bc.region },
+        bedrockAuth: 'profile',
+      };
+    }
+
+    if (bc.authMethod === 'accessKey') {
+      if (!bc.accessKeyId || !bc.secretAccessKey || !bc.region) return null;
+      return {
+        fields: { accessKeyId: bc.accessKeyId, secretAccessKey: bc.secretAccessKey, region: bc.region },
+        bedrockAuth: 'access-key',
+      };
+    }
+
     return null;
   }
 
-  // Validate every required field is now present + non-empty.
+  if (providerId === 'vertex' || providerId === 'azure') {
+    // Legacy rows historically carried no usable creds for these. Skip them so
+    // the user re-enters in the new Models page; surfaced via the notification.
+    return null;
+  }
+
+  const required = CLOUD_REQUIRED_FIELDS[providerId];
+  if (!required) return null;
+  const fields: Record<string, string> = {};
   for (const name of required) {
     const value = fields[name];
     if (typeof value !== 'string' || value.trim().length === 0) return null;
   }
-  return fields;
+  return { fields };
 }
 
 // ─── Catalog assembly (unenriched) ────────────────────────────────────────────
 
-/**
- * Derive a `family` from a model id when models.dev isn't consulted. Strips
- * trailing date/build stamps (a pure-numeric token ≥ 4 digits) and trailing
- * variant words. Mirrors the same strategy `CatalogAssembler.deriveFamily` uses.
- */
 function deriveFamily(modelId: string): string {
   let id = modelId.replace(/^(anthropic\.|meta\.|models\/)/, '');
   const slash = id.lastIndexOf('/');
@@ -282,21 +281,11 @@ function deriveFamily(modelId: string): string {
   return family.length > 0 ? family : id;
 }
 
-/**
- * Humanize an unenriched model id into a display name. Mirrors the same casing
- * rule `ModelDisplayNames.humanise` applies: dashes become spaces, words are
- * title-cased, single-letter or numeric tokens are left as-is.
- *
- * Deliberately a duplicate of the assembler's logic rather than a shared import
- * — the migration is a translation-only stage and intentionally has zero I/O
- * (no models.dev fetch), so it does not need the assembler's full apparatus.
- */
 function humanizeId(modelId: string): string {
   return modelId
     .split(/[-_]/)
     .map((token) => {
       if (token.length === 0) return token;
-      // Keep version tokens (4o, gpt, 4.1) as-is — uppercase known acronyms.
       if (/^[A-Z]{2,}$/.test(token)) return token;
       if (/\d/.test(token)) return token;
       return token.charAt(0).toUpperCase() + token.slice(1);
@@ -304,12 +293,6 @@ function humanizeId(modelId: string): string {
     .join(' ');
 }
 
-/**
- * Build an unenriched `CatalogModel` from a legacy model id. The migration
- * deliberately does NOT fetch models.dev — the user's next `refresh` from the
- * Manage page will enrich every model from the live registry. Until then the
- * model is honest about being unenriched (`enriched: false`).
- */
 function buildUnenrichedCatalogModel(modelId: string, providerId: ProviderId): CatalogModel {
   return {
     id: modelId,
@@ -321,15 +304,66 @@ function buildUnenrichedCatalogModel(modelId: string, providerId: ProviderId): C
   };
 }
 
+// ─── Grouping ────────────────────────────────────────────────────────────────
+
+/** A group of legacy rows that all resolve to the same `ProviderId`. */
+type ProviderGroup = {
+  providerId: ProviderId;
+  rows: IProvider[];
+  /** The "primary" row whose creds win — most-recent by `updatedAt`, else last. */
+  primary: IProvider;
+};
+
+/**
+ * Group untranslatable rows are reported as one bucket per resolution outcome:
+ *   - resolved → `ProviderGroup`
+ *   - unsupported (platform unknown, etc.) → `'unsupported'`
+ */
+type GroupOrSkip = ProviderGroup | { kind: 'unsupported'; row: IProvider };
+
+function groupRows(rows: IProvider[]): GroupOrSkip[] {
+  const buckets = new Map<ProviderId, IProvider[]>();
+  const out: GroupOrSkip[] = [];
+
+  for (const row of rows) {
+    const providerId = mapPlatformToProvider(row);
+    if (!providerId) {
+      out.push({ kind: 'unsupported', row });
+      continue;
+    }
+    const arr = buckets.get(providerId) ?? [];
+    arr.push(row);
+    buckets.set(providerId, arr);
+  }
+
+  for (const [providerId, rs] of buckets) {
+    // Primary: most-recent by `updatedAt` if any row has one, else last in array.
+    let primary = rs[rs.length - 1];
+    let primaryUpdatedAt: number | undefined;
+    for (const r of rs) {
+      const updatedAt = (r as unknown as Record<string, unknown>).updatedAt;
+      const num = typeof updatedAt === 'number' ? updatedAt : undefined;
+      if (num !== undefined && (primaryUpdatedAt === undefined || num > primaryUpdatedAt)) {
+        primaryUpdatedAt = num;
+        primary = r;
+      }
+    }
+    out.push({ providerId, rows: rs, primary });
+  }
+
+  return out;
+}
+
 // ─── Migration entry point ────────────────────────────────────────────────────
 
 /**
  * Run the one-time migration. Idempotent via `MIGRATION_FLAG_KEY` in the config
  * store: a successful run sets the flag; subsequent boots short-circuit.
  *
- * Never throws. Per-row failures are caught and logged so one bad row cannot
- * stop the rest. A catastrophic error reading the config or flag falls back to
- * "skip the migration" so the rest of the app keeps booting.
+ * Never throws. Per-group failures are caught and logged so one bad group
+ * cannot stop the rest. The completion flag is set ONLY when no recoverable
+ * failures occurred — a transient `safeStorage` failure leaves the flag unset
+ * so the next boot retries (Fix 2).
  */
 export async function runLegacyModelConfigMigration(args: {
   store: LegacyConfigStore;
@@ -346,9 +380,11 @@ export async function runLegacyModelConfigMigration(args: {
     skippedExisting: 0,
     skippedUnsupported: 0,
     skippedIncompleteCloud: 0,
+    secondaryKeysLost: 0,
+    failedRecoverable: 0,
   };
 
-  // ── Idempotency gate ────────────────────────────────────────────────────────
+  // ── Idempotency gate ───────────────────────────────────────────────────────
   let flagAlreadySet = false;
   try {
     flagAlreadySet = (await store.get(MIGRATION_FLAG_KEY)) === true;
@@ -360,97 +396,295 @@ export async function runLegacyModelConfigMigration(args: {
 
   // ── Read source ────────────────────────────────────────────────────────────
   let legacyRows: IProvider[] = [];
+  let readFailed = false;
   try {
     const raw = await store.get('model.config');
     legacyRows = Array.isArray(raw) ? (raw as IProvider[]) : [];
   } catch (error) {
     log('warn', `[legacyModelConfigMigration] Failed to read model.config: ${describe(error)}`);
-    // Mark the migration as run anyway — a missing/unreadable legacy store
-    // means there is nothing to migrate, and we want the next boot to skip.
+    readFailed = true;
+  }
+  if (readFailed) {
+    // Nothing to migrate; safe to mark done so the next boot skips.
     await safeSetFlag(store, log);
     return { ...empty, ran: true };
   }
 
-  // ── Per-row translation ────────────────────────────────────────────────────
+  // ── Separate bridge-tagged rows BEFORE grouping ────────────────────────────
   const result: MigrationResult = { ...empty, ran: true };
-
+  const userRows: IProvider[] = [];
   for (const row of legacyRows) {
+    if (isBridgeTagged(row)) {
+      result.skippedBridge++;
+      continue;
+    }
+    userRows.push(row);
+  }
+
+  // ── Group + per-group translation ──────────────────────────────────────────
+  const groups = groupRows(userRows);
+
+  let attemptedGroups = 0;
+  for (const groupOrSkip of groups) {
+    if ('kind' in groupOrSkip && groupOrSkip.kind === 'unsupported') {
+      log('warn', `[legacyModelConfigMigration] Skipping unsupported platform '${groupOrSkip.row.platform}'`);
+      result.skippedUnsupported++;
+      continue;
+    }
+    const group = groupOrSkip as ProviderGroup;
+    attemptedGroups++;
+
     try {
-      // 1) Bridge mirrors are already in the registry — skip them.
-      if (isBridgeTagged(row)) {
-        result.skippedBridge++;
-        continue;
-      }
-
-      // 2) Map platform → ProviderId. Unmappable → skip with a warning.
-      const providerId = mapPlatformToProvider(row);
-      if (!providerId) {
-        log('warn', `[legacyModelConfigMigration] Skipping unsupported platform '${row.platform}'`);
-        result.skippedUnsupported++;
-        continue;
-      }
-
-      // 3) Already in the registry — the user has connected this provider
-      //    through the new Models page. The new connection wins; skip the
-      //    legacy import to avoid clobbering it.
-      if (repo.getRegistryProvider(providerId)) {
-        result.skippedExisting++;
-        continue;
-      }
-
-      // 4) Build creds. Cloud → fields; everything else → key (+ optional baseUrl).
-      const isCloud = CLOUD_PROVIDER_IDS.has(providerId);
-      let creds: Record<string, unknown>;
-
-      if (isCloud) {
-        const fields = extractCloudFields(providerId, row);
-        if (!fields) {
-          log('warn', `[legacyModelConfigMigration] Skipping cloud provider '${providerId}' — required fields missing`);
+      const outcome = migrateGroup(group, repo, log);
+      switch (outcome.kind) {
+        case 'migrated':
+          result.migrated++;
+          result.secondaryKeysLost += outcome.secondaryKeysLost;
+          break;
+        case 'existing':
+          result.skippedExisting++;
+          break;
+        case 'incomplete-cloud':
           result.skippedIncompleteCloud++;
-          continue;
-        }
-        creds = { fields };
-      } else {
-        if (!row.apiKey || row.apiKey.trim().length === 0) {
-          log('warn', `[legacyModelConfigMigration] Skipping '${providerId}' — empty apiKey`);
+          break;
+        case 'unsupported':
           result.skippedUnsupported++;
-          continue;
-        }
-        creds = { key: row.apiKey };
-        // Preserve a user-set custom base URL so the next refresh's
-        // `ApiProviderSource` keeps targeting the user's endpoint.
-        if (row.baseUrl && row.baseUrl.trim().length > 0) {
-          creds.baseUrl = row.baseUrl;
-        }
+          break;
+        case 'failed':
+          result.failedRecoverable++;
+          break;
       }
-
-      // 5) Persist the provider row + an unenriched catalog of every model
-      //    the legacy row listed. The next manual or scheduled `refresh` will
-      //    enrich them from models.dev.
-      repo.upsertRegistryProvider({
-        providerId,
-        connectedVia: isCloud ? 'cloud-credentials' : 'api-key',
-        state: 'connected',
-        creds,
-      });
-
-      const modelIds = Array.isArray(row.model) ? row.model.filter((m) => typeof m === 'string' && m.length > 0) : [];
-      const catalog = modelIds.map((id) => buildUnenrichedCatalogModel(id, providerId));
-      repo.replaceRegistryCatalog(providerId, catalog);
-
-      result.migrated++;
     } catch (error) {
-      log('warn', `[legacyModelConfigMigration] Failed to migrate row '${row?.platform}': ${describe(error)}`);
+      log(
+        'warn',
+        `[legacyModelConfigMigration] Failed to migrate group '${group.providerId}': ${describe(error)}`
+      );
+      result.failedRecoverable++;
     }
   }
 
-  await safeSetFlag(store, log);
+  // ── Completion flag (Fix 2): only set when safe ────────────────────────────
+  const allFailed = attemptedGroups > 0 && result.failedRecoverable === attemptedGroups && result.migrated === 0;
+  if (!allFailed) {
+    await safeSetFlag(store, log);
+  } else {
+    log(
+      'warn',
+      `[legacyModelConfigMigration] All ${attemptedGroups} group(s) failed recoverably — leaving migration flag UNSET for retry on next boot.`
+    );
+  }
+
+  // ── Notification flag (Fix 7) ──────────────────────────────────────────────
+  if (result.skippedIncompleteCloud > 0) {
+    await safeSetIncompleteCloudFlag(store, log);
+  }
+
   log(
     'info',
-    `[legacyModelConfigMigration] Done — migrated:${result.migrated} bridge:${result.skippedBridge} existing:${result.skippedExisting} unsupported:${result.skippedUnsupported} incompleteCloud:${result.skippedIncompleteCloud}`
+    `[legacyModelConfigMigration] Done — migrated:${result.migrated} bridge:${result.skippedBridge} existing:${result.skippedExisting} unsupported:${result.skippedUnsupported} incompleteCloud:${result.skippedIncompleteCloud} secondaryKeysLost:${result.secondaryKeysLost} failedRecoverable:${result.failedRecoverable}`
   );
 
   return result;
+}
+
+// ─── Per-group migration ──────────────────────────────────────────────────────
+
+type GroupOutcome =
+  | { kind: 'migrated'; secondaryKeysLost: number }
+  | { kind: 'existing' }
+  | { kind: 'incomplete-cloud' }
+  | { kind: 'unsupported' }
+  | { kind: 'failed' };
+
+/**
+ * Migrate one provider group atomically. Provider + catalog writes happen
+ * inside one transaction so a crash between them cannot leave the row with
+ * an empty catalog (Fix 3). Override writes (Fix 4) are best-effort outside
+ * the transaction — they enhance behavior without being load-bearing for the
+ * primary connect path.
+ */
+function migrateGroup(
+  group: ProviderGroup,
+  repo: MigrationRepo,
+  log: (level: 'info' | 'warn', m: string) => void
+): GroupOutcome {
+  const { providerId, rows, primary } = group;
+  const isCloud = CLOUD_PROVIDER_IDS.has(providerId);
+
+  // ── Existing-row repair (Fix 3) ─────────────────────────────────────────
+  const existing = repo.getRegistryProvider(providerId);
+  if (existing) {
+    // Existing row from the user's new flow wins — but if a previous partial
+    // migration run wrote the provider with an EMPTY catalog (crash before
+    // replaceRegistryCatalog), repair it by re-importing the legacy models.
+    const catalogCount = repo.countRegistryCatalog?.(providerId) ?? -1;
+    if (catalogCount === 0) {
+      const modelIds = collectUnionedModelIds(rows);
+      const catalog = modelIds.map((id) => buildUnenrichedCatalogModel(id, providerId));
+      try {
+        repo.replaceRegistryCatalog(providerId, catalog);
+        // Migrated visibility overrides + disabled overrides on top of the
+        // existing provider + repaired catalog.
+        applyOverrides(providerId, rows, modelIds, repo);
+        return { kind: 'migrated', secondaryKeysLost: Math.max(0, rows.length - 1) };
+      } catch (error) {
+        log('warn', `[legacyModelConfigMigration] Failed to repair catalog for '${providerId}': ${describe(error)}`);
+        return { kind: 'failed' };
+      }
+    }
+    return { kind: 'existing' };
+  }
+
+  // ── Build creds from the primary row ───────────────────────────────────
+  let credsRecord: Record<string, unknown>;
+  let connectedVia: string;
+
+  // Google-auth Gemini (Fix 6)
+  const isGoogleAuthGemini =
+    providerId === 'google-gemini' &&
+    (primary.platform === 'gemini-with-google-auth' ||
+      (primary.platform === 'gemini' && (!primary.apiKey || primary.apiKey.trim().length === 0)));
+
+  if (isGoogleAuthGemini) {
+    credsRecord = { useGoogleAuth: true };
+    connectedVia = 'google-auth';
+  } else if (isCloud) {
+    const result = extractCloudFields(providerId, primary);
+    if (!result) {
+      log('warn', `[legacyModelConfigMigration] Skipping cloud provider '${providerId}' — required fields missing`);
+      return { kind: 'incomplete-cloud' };
+    }
+    credsRecord = { fields: result.fields };
+    if (result.bedrockAuth) credsRecord.bedrockAuth = result.bedrockAuth;
+    connectedVia = 'cloud-credentials';
+  } else {
+    if (!primary.apiKey || primary.apiKey.trim().length === 0) {
+      log('warn', `[legacyModelConfigMigration] Skipping '${providerId}' — empty apiKey`);
+      return { kind: 'unsupported' };
+    }
+    credsRecord = { key: primary.apiKey };
+    if (primary.baseUrl && primary.baseUrl.trim().length > 0) {
+      credsRecord.baseUrl = primary.baseUrl;
+    }
+    connectedVia = 'api-key';
+  }
+
+  // Union `modelProtocols` across all rows (Fix 5) — disabled-in-any wins for
+  // overrides (Fix 4), but for protocols a per-model mapping just needs to be
+  // present from any source row.
+  const unionedProtocols = unionModelProtocols(rows);
+  if (Object.keys(unionedProtocols).length > 0) {
+    credsRecord.protocols = unionedProtocols;
+  }
+
+  // Union the model id set across all rows in the group (Fix 1).
+  const unionedModelIds = collectUnionedModelIds(rows);
+  const catalog = unionedModelIds.map((id) => buildUnenrichedCatalogModel(id, providerId));
+
+  // ── Atomic write: provider row + catalog in one transaction (Fix 3) ────
+  const writeBoth = () => {
+    repo.upsertRegistryProvider({
+      providerId,
+      connectedVia,
+      state: 'connected',
+      creds: credsRecord,
+    });
+    repo.replaceRegistryCatalog(providerId, catalog);
+  };
+
+  try {
+    if (repo.transaction) {
+      repo.transaction(writeBoth);
+    } else {
+      writeBoth();
+    }
+  } catch (error) {
+    log(
+      'warn',
+      `[legacyModelConfigMigration] Failed to persist provider '${providerId}' (transactional write): ${describe(error)}`
+    );
+    return { kind: 'failed' };
+  }
+
+  // ── Overrides (Fix 4 + Fix 14) outside the transaction ────────────────
+  applyOverrides(providerId, rows, unionedModelIds, repo);
+
+  return { kind: 'migrated', secondaryKeysLost: Math.max(0, rows.length - 1) };
+}
+
+/**
+ * Walk every row's `modelEnabled` map: a `false` entry on any source row writes
+ * a `false` override (Fix 4). For migrated unenriched rows, also write `true`
+ * overrides for every model the user had (Fix 14) so the Curator's "latest +
+ * one-back per family" rule doesn't hide variants 3+ until enrichment lands.
+ */
+function applyOverrides(
+  providerId: ProviderId,
+  rows: IProvider[],
+  unionedModelIds: string[],
+  repo: MigrationRepo
+): void {
+  if (!repo.setRegistryOverride) return;
+
+  // Pass 1: collect every (modelId → enabled) from any source row.
+  const disabled = new Set<string>();
+  for (const row of rows) {
+    if (!row.modelEnabled) continue;
+    for (const [modelId, enabled] of Object.entries(row.modelEnabled)) {
+      if (enabled === false) disabled.add(modelId);
+    }
+  }
+
+  // Pass 2 (Fix 14): write enabled=true for every model so variants 3+ stay
+  // visible until enrichment finishes. EXCEPT for ids the user explicitly
+  // disabled — those keep their `false` override below.
+  for (const modelId of unionedModelIds) {
+    if (disabled.has(modelId)) continue;
+    try {
+      repo.setRegistryOverride(providerId, modelId, true);
+    } catch {
+      // Best-effort — failing to set a visibility override doesn't break the
+      // migration's primary outcome.
+    }
+  }
+
+  // Pass 3: write the explicit false overrides.
+  for (const modelId of disabled) {
+    try {
+      repo.setRegistryOverride(providerId, modelId, false);
+    } catch {
+      // Best-effort, same rationale.
+    }
+  }
+}
+
+function collectUnionedModelIds(rows: IProvider[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const row of rows) {
+    if (!Array.isArray(row.model)) continue;
+    for (const id of row.model) {
+      if (typeof id !== 'string' || id.length === 0) continue;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      out.push(id);
+    }
+  }
+  return out;
+}
+
+function unionModelProtocols(rows: IProvider[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (!row.modelProtocols) continue;
+    for (const [modelId, protocol] of Object.entries(row.modelProtocols)) {
+      // Last-writer-wins is fine here — there's no canonical "correct" choice
+      // between two non-equal protocol strings for the same model id; the user
+      // will adjust in the new Models page if needed.
+      if (typeof protocol === 'string' && protocol.length > 0) out[modelId] = protocol;
+    }
+  }
+  return out;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -460,6 +694,17 @@ async function safeSetFlag(store: LegacyConfigStore, log: (level: 'info' | 'warn
     await store.set(MIGRATION_FLAG_KEY, true);
   } catch (error) {
     log('warn', `[legacyModelConfigMigration] Failed to set migration flag: ${describe(error)}`);
+  }
+}
+
+async function safeSetIncompleteCloudFlag(
+  store: LegacyConfigStore,
+  log: (level: 'info' | 'warn', m: string) => void
+): Promise<void> {
+  try {
+    await store.set(MIGRATION_INCOMPLETE_CLOUD_FLAG_KEY, true);
+  } catch (error) {
+    log('warn', `[legacyModelConfigMigration] Failed to set incomplete-cloud flag: ${describe(error)}`);
   }
 }
 

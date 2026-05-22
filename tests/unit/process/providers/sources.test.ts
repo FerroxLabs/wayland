@@ -337,6 +337,28 @@ describe('ApiProviderSource', () => {
       code: 'unknown',
     });
   });
+  // Wave 3 Fix 10 — a refresh on a custom-base provider must NOT silently
+  // re-target the canonical default. The constructor's third arg overrides
+  // `PROVIDER_ENDPOINTS[providerId]` end-to-end.
+  it('targets the user-supplied custom base URL when one is provided', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ data: [{ id: 'llama3' }] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await new ApiProviderSource('openai-compatible', 'sk-self', 'https://my-host.example.com/v1').listModels();
+
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toBe('https://my-host.example.com/v1/models');
+  });
+
+  it('appends /v1/models to a custom base URL that lacks a /v1 segment', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ data: [] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await new ApiProviderSource('openai-compatible', 'sk', 'https://my-gateway.example.com').listModels();
+
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toBe('https://my-gateway.example.com/v1/models');
+  });
 });
 
 // ─── WaylandCoreSource ────────────────────────────────────────────────────────

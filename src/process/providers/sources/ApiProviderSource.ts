@@ -59,10 +59,19 @@ export class ApiProviderSource implements CatalogSource {
   readonly providerId: ProviderId;
 
   private readonly apiKey: string;
+  /**
+   * Optional user-set custom base URL. Honored for custom-endpoint providers
+   * (`openai-compatible`, etc.) where the user's saved `baseUrl` must survive
+   * through `refresh`. Wave 3 Fix 10 — without this, every refresh on a
+   * custom-base provider silently re-targets the canonical default.
+   */
+  private readonly customBaseUrl: string | undefined;
 
-  constructor(providerId: ProviderId, apiKey: string) {
+  constructor(providerId: ProviderId, apiKey: string, customBaseUrl?: string) {
     this.providerId = providerId;
     this.apiKey = apiKey;
+    this.customBaseUrl =
+      typeof customBaseUrl === 'string' && customBaseUrl.trim().length > 0 ? customBaseUrl.trim() : undefined;
   }
 
   /**
@@ -72,7 +81,7 @@ export class ApiProviderSource implements CatalogSource {
    * `ProviderSourceError`.
    */
   async listModels(): Promise<RawModel[]> {
-    const endpoint = PROVIDER_ENDPOINTS[this.providerId];
+    const endpoint = this.resolveEndpoint();
     if (!endpoint) {
       throw new ProviderSourceError('unknown', `No models endpoint registered for provider "${this.providerId}"`);
     }
@@ -103,6 +112,31 @@ export class ApiProviderSource implements CatalogSource {
       'unknown',
       `Provider "${this.providerId}" exceeded the ${MAX_PAGES}-page pagination limit`
     );
+  }
+
+  /**
+   * Resolve the models endpoint URL. When the user saved a custom `baseUrl`
+   * (Wave 3 Fix 10), build the endpoint relative to that — `<base>/models` or
+   * `<base>/v1/models` depending on whether the base already includes a `/v1`
+   * segment. Falls back to the canonical `PROVIDER_ENDPOINTS` entry otherwise.
+   */
+  private resolveEndpoint(): string | undefined {
+    if (!this.customBaseUrl) return PROVIDER_ENDPOINTS[this.providerId];
+
+    // Anthropic + Gemini have non-standard `/v1/models` paths but the auth
+    // module already encodes the per-provider differences; we just need to
+    // append `/models` on the user's base. The base usually ends in `/v1`,
+    // but some users save without it — handle both.
+    const base = this.customBaseUrl.replace(/\/+$/, '');
+    if (this.providerId === 'google-gemini') {
+      // Gemini uses `/v1beta/models?key=...`; if the user's base already
+      // includes /v1beta, append `/models`; else append `/v1beta/models`.
+      if (/\/v1beta$/i.test(base)) return `${base}/models`;
+      if (/\/v1$/i.test(base)) return `${base}/models`;
+      return `${base}/v1beta/models`;
+    }
+    if (/\/v1$|\/v2$|\/api\/[a-z0-9]+\/v\d+$/i.test(base)) return `${base}/models`;
+    return `${base}/v1/models`;
   }
 
   /** Fetch one page, mapping every failure mode onto a `ProviderSourceError`. */

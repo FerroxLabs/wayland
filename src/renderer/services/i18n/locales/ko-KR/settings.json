@@ -993,9 +993,6 @@
     "browseExtensions": "확장 프로그램 보기 →",
     "channelsMovedHint": "채널이 통합으로 이동되었습니다 →"
   },
-  "providersPage": {
-    "title": "제공업체"
-  },
   "modelsPage": {
     "title": "모델",
     "subtitle": "키 또는 Google 로그인으로 제공자를 연결하면 모델이 자동으로 나타납니다.",
@@ -1026,7 +1023,8 @@
       "errorCloud": "{{provider}}를 인식했습니다 — 이 제공자는 여러 필드가 필요합니다. '둘러보기'를 열어 전체 자격 증명을 입력하세요.",
       "errorAmbiguous": "이 키가 어느 제공자의 것인지 확인할 수 없습니다. '둘러보기'를 열고 제공자를 선택하세요.",
       "errorNoModels": "{{provider}}가 연결되었지만 모델을 반환하지 않았습니다. '관리'에서 새로 고침해 보세요.",
-      "errorUnknown": "{{provider}}에 연결할 수 없습니다. 다시 시도하세요."
+      "errorUnknown": "{{provider}}에 연결할 수 없습니다. 다시 시도하세요.",
+      "undecryptableHint": "Your saved key for this provider is unreadable. Please re-enter it."
     },
     "detected": {
       "found": "이 컴퓨터에서 {{provider}} API 키를 찾았습니다. 사용하시겠습니까?",
@@ -1273,84 +1271,6 @@
       "title": "Flux Router",
       "soon": "공개 예정",
       "desc": "어떤 에이전트든 자신의 것뿐만 아니라 연결한 모든 모델과 제공업체로 라우팅할 수 있게 합니다."
-    }
-  },
-  "providers": {
-    "heroTitle": "Connect a provider",
-    "heroPlaceholder": "Paste an API key...",
-    "detectButton": "Detect & connect",
-    "browseButton": "Browse 24+ providers",
-    "connected": "Connected",
-    "refreshed": "Refreshed {{n}}h ago",
-    "refreshNow": "Refresh now",
-    "disconnect": "Disconnect",
-    "configure": "Configure",
-    "deprecationBanner": "Some models in this provider’s catalog have been removed",
-    "defaultsTitle": "Default models",
-    "defaultChat": "Default chat model",
-    "defaultCoding": "Default coding model",
-    "defaultVision": "Default vision model",
-    "defaultImage": "Default image model",
-    "defaultAudio": "Default audio model",
-    "noDefault": "No default set",
-    "connect": {
-      "entryTitle": "Connect a provider",
-      "placeholder": "Paste your API key here...",
-      "detectButton": "Detect & connect",
-      "browseButton": "Browse 24+ providers",
-      "detectingProvider": "Detecting provider…",
-      "verifyingKey": "Verifying key…",
-      "fetchingCatalog": "Fetching model catalog…",
-      "moreInfoTitle": "Additional details required",
-      "pickerTitle": "Choose a provider",
-      "pickerSearch": "Search providers…",
-      "resultsTitle": "Select models to enable",
-      "resultsSelectAll": "Select all",
-      "resultsDeselectAll": "Deselect all",
-      "connectButton": "Connect",
-      "cancel": "Cancel",
-      "retry": "Try again",
-      "editKey": "Edit key",
-      "openConsole": "Open provider console",
-      "errorTitle": "Connection failed",
-      "errorNetwork": "Could not reach the provider. Check your network connection.",
-      "errorUnauthorized": "Invalid API key. Check your key and try again.",
-      "errorForbidden": "This key does not have the required permissions.",
-      "errorRateLimit": "Rate limit hit. Wait a moment and try again.",
-      "errorUnknown": "An unexpected error occurred.",
-      "fieldRegion": "AWS Region",
-      "fieldSecretKey": "Secret Access Key",
-      "fieldAccessKeyId": "Access Key ID",
-      "fieldEndpoint": "Endpoint URL",
-      "fieldDeployment": "Deployment Name",
-      "fieldApiVersion": "API Version",
-      "fieldProjectId": "Google Cloud Project ID",
-      "fieldServiceAccount": "Service Account JSON",
-      "browseServiceAccount": "Browse…"
-    },
-    "tiers": {
-      "flagship": "Flagship",
-      "everyday": "Everyday",
-      "fast": "Fast",
-      "reasoning": "Reasoning",
-      "legacy": "Legacy"
-    },
-    "capabilities": {
-      "chat": "Chat",
-      "vision": "Vision",
-      "image": "Image generation",
-      "audio": "Audio",
-      "embeddings": "Embeddings",
-      "reasoning": "Reasoning"
-    },
-    "categories": {
-      "frontier": "Frontier",
-      "openInference": "Open inference",
-      "cloud": "Cloud",
-      "chineseFrontier": "Chinese frontier",
-      "specialised": "Specialised",
-      "voice": "Voice",
-      "custom": "Custom"
     }
   }
 }

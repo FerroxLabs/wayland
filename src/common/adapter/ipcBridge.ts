@@ -1421,11 +1421,17 @@ export type IModelRegistryCatalogView = {
 };
 
 /**
- * Credentials for connect / re-key — a bare API key, per-field cloud creds, or
+ * Credentials for connect / re-key — a bare API key, per-field cloud creds,
  * `useDiscovered` to resolve an auto-discovered key from the main process
- * (the renderer never sees auto-discovered key values).
+ * (the renderer never sees auto-discovered key values), or `useGoogleAuth` for
+ * a Gemini provider whose credentials live in the main-process Google OAuth
+ * token store (Wave 3 Fix 6).
  */
-export type IModelRegistryCreds = { key: string } | { fields: Record<string, string> } | { useDiscovered: true };
+export type IModelRegistryCreds =
+  | { key: string }
+  | { fields: Record<string, string> }
+  | { useDiscovered: true }
+  | { useGoogleAuth: true };
 
 /**
  * The chat-start dispatch payload for a curated/catalog model. Built main-side
@@ -1447,24 +1453,45 @@ export type IModelRegistryChatStartPayload = {
   name: string;
   /**
    * Legacy `IProvider.platform` string the main-process dispatch expects (e.g.
-   * `'openai'`, `'anthropic'`, `'gemini'`, `'bedrock'`). Severs the chat-start
-   * dependency on the legacy `model.config` lookup without changing the wcore
-   * envBuilder / Gemini-manager signatures.
+   * `'openai'`, `'anthropic'`, `'gemini'`, `'bedrock'`, `'gemini-with-google-auth'`).
+   * Severs the chat-start dependency on the legacy `model.config` lookup without
+   * changing the wcore envBuilder / Gemini-manager signatures.
    */
   platform: string;
   /** The model id the user picked — written verbatim into `useModel`. */
   modelId: string;
   /** API base URL — empty string when the provider uses its canonical default. */
   baseUrl: string;
-  /** Decrypted API key (empty string for cloud providers). */
+  /** Decrypted API key (empty string for cloud / google-auth providers). */
   apiKey: string;
-  /** AWS Bedrock-specific block — present only when `providerId === 'aws-bedrock'`. */
-  bedrockConfig?: {
-    authMethod: 'accessKey';
-    region: string;
-    accessKeyId: string;
-    secretAccessKey: string;
-  };
+  /**
+   * AWS Bedrock-specific block — present only when `providerId === 'aws-bedrock'`.
+   * Covers both `accessKey` and `profile` auth shapes.
+   */
+  bedrockConfig?:
+    | {
+        authMethod: 'accessKey';
+        region: string;
+        accessKeyId: string;
+        secretAccessKey: string;
+      }
+    | {
+        authMethod: 'profile';
+        region: string;
+        profile: string;
+      };
+  /**
+   * Vertex / Azure cloud-credential fields (Wave 3 Fix 8). Carries the
+   * `{ projectId, region, serviceAccountJson }` (Vertex) or `{ endpoint, apiKey }`
+   * (Azure) creds the dispatcher arm needs verbatim. Empty / absent for
+   * non-cloud providers.
+   */
+  cloudFields?: Record<string, string>;
+  /**
+   * Per-model protocol overrides for multi-protocol gateways (OneAPI etc.).
+   * Mirrors the legacy `IProvider.modelProtocols` map verbatim.
+   */
+  modelProtocols?: Record<string, string>;
 };
 
 /** Result of resolving a curated/catalog model for chat-start. */

@@ -992,9 +992,6 @@
     "browseExtensions": "浏览扩展 →",
     "channelsMovedHint": "消息渠道已移至集成 →"
   },
-  "providersPage": {
-    "title": "模型提供商"
-  },
   "modelsPage": {
     "title": "模型",
     "subtitle": "用密钥或 Google 登录连接提供商，你的模型会自动出现。",
@@ -1025,7 +1022,8 @@
       "errorCloud": "已识别 {{provider}} — 该提供商需要多个字段。请打开“浏览”输入完整凭据。",
       "errorAmbiguous": "无法判断此密钥属于哪个提供商。请打开“浏览”并选择你的提供商。",
       "errorNoModels": "{{provider}} 已连接但未返回任何模型。请在“管理”中尝试刷新。",
-      "errorUnknown": "无法连接到 {{provider}}，请重试。"
+      "errorUnknown": "无法连接到 {{provider}}，请重试。",
+      "undecryptableHint": "Your saved key for this provider is unreadable. Please re-enter it."
     },
     "detected": {
       "found": "在本机上发现一个 {{provider}} API 密钥。使用它吗？",
@@ -1272,84 +1270,6 @@
       "title": "Flux Router",
       "soon": "即将推出",
       "desc": "让任何智能体都能跨你已连接的所有模型和提供商进行路由，而不只是它自己的。"
-    }
-  },
-  "providers": {
-    "heroTitle": "连接服务商",
-    "heroPlaceholder": "粘贴 API 密钥…",
-    "detectButton": "检测并连接",
-    "browseButton": "浏览 24+ 服务商",
-    "connected": "已连接",
-    "refreshed": "{{n}} 小时前刷新",
-    "refreshNow": "立即刷新",
-    "disconnect": "断开连接",
-    "configure": "配置",
-    "deprecationBanner": "该服务商目录中的部分模型已停用",
-    "defaultsTitle": "默认模型",
-    "defaultChat": "默认对话模型",
-    "defaultCoding": "默认编程模型",
-    "defaultVision": "默认视觉模型",
-    "defaultImage": "默认图像模型",
-    "defaultAudio": "默认语音模型",
-    "noDefault": "未设置默认",
-    "connect": {
-      "entryTitle": "连接服务商",
-      "placeholder": "在此粘贴您的 API 密钥…",
-      "detectButton": "检测并连接",
-      "browseButton": "浏览 24+ 服务商",
-      "detectingProvider": "正在识别服务商…",
-      "verifyingKey": "正在验证密钥…",
-      "fetchingCatalog": "正在获取模型目录…",
-      "moreInfoTitle": "需要补充信息",
-      "pickerTitle": "选择服务商",
-      "pickerSearch": "搜索服务商…",
-      "resultsTitle": "选择要启用的模型",
-      "resultsSelectAll": "全选",
-      "resultsDeselectAll": "取消全选",
-      "connectButton": "连接",
-      "cancel": "取消",
-      "retry": "重试",
-      "editKey": "编辑密钥",
-      "openConsole": "打开服务商控制台",
-      "errorTitle": "连接失败",
-      "errorNetwork": "无法连接到服务商，请检查网络连接。",
-      "errorUnauthorized": "API 密钥无效，请检查后重试。",
-      "errorForbidden": "此密钥缺少必要权限。",
-      "errorRateLimit": "已触发速率限制，请稍后重试。",
-      "errorUnknown": "发生未知错误。",
-      "fieldRegion": "AWS 区域",
-      "fieldSecretKey": "访问密钥 ID",
-      "fieldAccessKeyId": "访问密钥 ID",
-      "fieldEndpoint": "端点 URL",
-      "fieldDeployment": "部署名称",
-      "fieldApiVersion": "API 版本",
-      "fieldProjectId": "Google Cloud 项目 ID",
-      "fieldServiceAccount": "服务账号 JSON",
-      "browseServiceAccount": "浏览…"
-    },
-    "tiers": {
-      "flagship": "旗舰",
-      "everyday": "日常",
-      "fast": "快速",
-      "reasoning": "推理",
-      "legacy": "旧版"
-    },
-    "capabilities": {
-      "chat": "对话",
-      "vision": "视觉",
-      "image": "图像生成",
-      "audio": "语音",
-      "embeddings": "嵌入",
-      "reasoning": "推理"
-    },
-    "categories": {
-      "frontier": "前沿",
-      "openInference": "开放推理",
-      "cloud": "云服务",
-      "chineseFrontier": "国产前沿",
-      "specialised": "专业",
-      "voice": "语音",
-      "custom": "自定义"
     }
   }
 }

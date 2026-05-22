@@ -5,6 +5,7 @@
  */
 
 import { Brain, ChevronDown, Plus } from 'lucide-react';
+import { Message } from '@arco-design/web-react';
 import { ipcBridge } from '@/common';
 import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 import type { CuratedModel } from '@process/providers/types';
@@ -133,14 +134,25 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
 
   // Resolve the currently-selected curated model so its row is highlighted
   // and its label shown on the button.
+  //
+  // Wave 3 Fix 15: the menu now keys items by `${providerId}:${id}`. To match,
+  // build the selection key from `currentModel.platform` (which `setCurrentModel`
+  // wrote from `provider.providerId`) + the saved `useModel`. Fall back to a
+  // bare-id match for resilience with legacy persisted state.
   const selectedCuratedKey = React.useMemo(() => {
     if (!currentModel?.useModel) return null;
+    if (currentModel.platform) return `${currentModel.platform}:${currentModel.useModel}`;
     return currentModel.useModel;
-  }, [currentModel?.useModel]);
+  }, [currentModel?.platform, currentModel?.useModel]);
 
   const curatedButtonLabel = React.useMemo(() => {
     if (!curated || curated.length === 0) return defaultModelLabel;
-    const match = curated.find((m) => m.id === selectedCuratedKey);
+    const match = curated.find(
+      (m) =>
+        `${m.providerId}:${m.id}` === selectedCuratedKey ||
+        // Fallback for older state — a bare model id without a provider scope.
+        m.id === selectedCuratedKey
+    );
     return getModelDisplayLabel({
       selectedValue: match?.id,
       selectedLabel: match?.displayName,
@@ -166,9 +178,14 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
         });
 
       if (!result.ok) {
-        // The curated model isn't actually connected — route the user to
-        // the Models page to connect it. This covers `not-connected`,
-        // `undecryptable`, `unsupported`, `unknown` alike.
+        // Wave 3 Fix 9 — differentiate `undecryptable` from `not-connected`.
+        // `undecryptable` means the provider row exists but its ciphertext is
+        // unreadable; the user needs to re-enter the key, not "connect a new
+        // provider". Surface that distinction in the toast before navigating.
+        const failureError = 'error' in result ? result.error : 'unknown';
+        if (failureError === 'undecryptable') {
+          Message.error(t('settings.modelsPage.connect.undecryptableHint'));
+        }
         navigate('/settings/models');
         return;
       }
@@ -217,7 +234,9 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     if (!isGeminiMode) return;
     if (!curated || curated.length === 0) return;
     if (!selectedCuratedKey) return;
-    const stillAvailable = curated.some((m) => m.id === selectedCuratedKey);
+    const stillAvailable = curated.some(
+      (m) => `${m.providerId}:${m.id}` === selectedCuratedKey || m.id === selectedCuratedKey
+    );
     if (stillAvailable) return;
     // Guard against re-firing on every render. Keyed by the pair so a
     // new agent or new pinned-model retries the fallback decision once.
@@ -265,7 +284,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
       <Dropdown
         trigger='click'
         droplist={
-          <Menu selectedKeys={selectedCuratedKey ? [selectedCuratedKey] : []}>
+          <Menu selectedKeys={selectedCuratedKey ? [selectedCuratedKey] : []} key='curated-menu'>
             {scopeCaptionItem}
             {curated === undefined
               ? [
@@ -300,8 +319,15 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
                       <Menu.ItemGroup title={group.family} key={group.family}>
                         {group.models.map((model) => {
                           const tier = costToPriceTier(model.costInPerM, model.costOutPerM);
+                          // Wave 3 Fix 15 — wcore unions models across providers,
+                          // so `model.id` alone isn't unique. Key by
+                          // `${providerId}:${id}` everywhere we group across
+                          // providers to prevent React key collisions.
                           return (
-                            <Menu.Item key={model.id} onClick={() => void handlePickCurated(model)}>
+                            <Menu.Item
+                              key={`${model.providerId}:${model.id}`}
+                              onClick={() => void handlePickCurated(model)}
+                            >
                               <div className='flex items-center gap-8px w-full'>
                                 <span className='flex-1 min-w-0 truncate'>{model.displayName}</span>
                                 {tier && (

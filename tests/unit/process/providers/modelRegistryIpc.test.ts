@@ -776,6 +776,116 @@ describe('modelRegistry IPC — resolveForChatStart', () => {
 
     expect(result).toEqual({ ok: false, error: 'undecryptable' });
   });
+
+  // Wave 3 Fix 8 — Vertex `resolveForChatStart` returns its cloudFields.
+  it('returns cloudFields for a vertex provider', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'vertex',
+      connectedVia: 'cloud-credentials',
+      state: 'connected',
+      creds: { fields: { projectId: 'p', region: 'us-central1', serviceAccountJson: '{}' } },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'vertex', modelId: 'gemini-2.0-pro' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.provider.platform).toBe('gemini-vertex-ai');
+      expect(result.provider.cloudFields).toEqual({
+        projectId: 'p',
+        region: 'us-central1',
+        serviceAccountJson: '{}',
+      });
+    }
+  });
+
+  // Wave 3 Fix 6 — profile-auth Bedrock returns the right bedrockConfig shape.
+  it('returns profile-auth bedrockConfig for an aws-bedrock provider with profile creds', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'aws-bedrock',
+      connectedVia: 'cloud-credentials',
+      state: 'connected',
+      creds: { fields: { awsProfile: 'default', region: 'us-east-1' }, bedrockAuth: 'profile' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({
+      providerId: 'aws-bedrock',
+      modelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.provider.bedrockConfig).toEqual({
+        authMethod: 'profile',
+        region: 'us-east-1',
+        profile: 'default',
+      });
+    }
+  });
+
+  // Wave 3 Fix 9 — a connected api-key row with an empty key is undecryptable,
+  // NOT unsupported.
+  it('returns `undecryptable` for an api-key provider with a missing key', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: '' }, // an empty-key creds row is corrupted, not unsupported.
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'openai', modelId: 'gpt-4o' });
+
+    expect(result).toEqual({ ok: false, error: 'undecryptable' });
+  });
+
+  // Wave 3 Fix 5 — modelProtocols round-trips from stored creds to payload.
+  it('surfaces modelProtocols in the chat-start payload when present', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai-compatible',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: {
+        key: 'sk',
+        baseUrl: 'https://gateway.example.com',
+        protocols: { 'claude-sonnet-4': 'anthropic' },
+      },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'openai-compatible', modelId: 'claude-sonnet-4' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.provider.modelProtocols).toEqual({ 'claude-sonnet-4': 'anthropic' });
+    }
+  });
+
+  // Wave 3 Fix 6 — google-auth Gemini returns the legacy platform string.
+  it('returns the gemini-with-google-auth platform for a useGoogleAuth row', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'google-gemini',
+      connectedVia: 'google-auth',
+      state: 'connected',
+      creds: { useGoogleAuth: true },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'google-gemini', modelId: 'gemini-2.0-flash' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.provider.platform).toBe('gemini-with-google-auth');
+      expect(result.provider.apiKey).toBe(''); // No key — OAuth tokens live elsewhere.
+    }
+  });
 });
 
 describe('modelRegistry IPC — curatedForAgent', () => {
