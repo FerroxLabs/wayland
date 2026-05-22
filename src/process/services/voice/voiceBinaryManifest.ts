@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { getPlatformServices } from '@/common/platform';
 import { VoiceAssetManager } from '@process/services/voice/VoiceAssetManager';
 import { execFile } from 'node:child_process';
 import { chmod } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
@@ -38,44 +38,44 @@ const MANIFEST: Record<BinaryKind, KindManifest> = {
   'whisper-cpp': {
     'darwin-arm64': {
       url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-darwin-arm64',
-      sha256: 'TBD-darwin-arm64-whisper',
+      sha256: '',
       filename: 'whisper-cli',
     },
     'darwin-x64': {
       url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-darwin-x64',
-      sha256: 'TBD-darwin-x64-whisper',
+      sha256: '',
       filename: 'whisper-cli',
     },
     'win32-x64': {
       url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-win32-x64.exe',
-      sha256: 'TBD-win32-x64-whisper',
+      sha256: '',
       filename: 'whisper-cli.exe',
     },
     'linux-x64': {
       url: 'https://github.com/ggerganov/whisper.cpp/releases/download/v1.7.1/whisper-cli-linux-x64',
-      sha256: 'TBD-linux-x64-whisper',
+      sha256: '',
       filename: 'whisper-cli',
     },
   },
   'onnx-runtime': {
     'darwin-arm64': {
       url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-darwin-arm64',
-      sha256: 'TBD-darwin-arm64-onnx',
+      sha256: '',
       filename: 'onnxruntime',
     },
     'darwin-x64': {
       url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-darwin-x64',
-      sha256: 'TBD-darwin-x64-onnx',
+      sha256: '',
       filename: 'onnxruntime',
     },
     'win32-x64': {
       url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-win32-x64.exe',
-      sha256: 'TBD-win32-x64-onnx',
+      sha256: '',
       filename: 'onnxruntime.exe',
     },
     'linux-x64': {
       url: 'https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-linux-x64',
-      sha256: 'TBD-linux-x64-onnx',
+      sha256: '',
       filename: 'onnxruntime',
     },
   },
@@ -154,7 +154,9 @@ export const defaultBinaryPostInstallIo: BinaryPostInstallIo = {
  * Resolves, downloads (if needed), and post-installs a voice native binary.
  *
  * - Looks up the manifest entry for the current platform/arch.
- * - Computes the cache path under `~/.wayland/voice/bin/<platform>-<arch>/`.
+ * - Computes the cache path under `<userData>/voice/bin/<platform>-<arch>/`
+ *   so the runtime + the Settings "Download Model" UI agree on a single
+ *   tree (previous versions split between userData/voice/ and ~/.wayland/).
  * - Delegates the atomic download (with SHA-256 verification) to VoiceAssetManager.
  * - After a fresh download: sets the executable bit and removes the macOS quarantine xattr.
  * - Returns the absolute path to the ready binary.
@@ -175,8 +177,7 @@ export const acquireBinary = async (
   }
 
   const binDir = path.join(
-    homedir(),
-    '.wayland',
+    getPlatformServices().paths.getDataDir(),
     'voice',
     'bin',
     `${process.platform}-${process.arch}`,

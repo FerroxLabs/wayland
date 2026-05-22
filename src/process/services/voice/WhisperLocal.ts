@@ -10,11 +10,13 @@ import type {
   SpeechToTextResult,
   WhisperLocalSpeechToTextConfig,
 } from '@/common/types/speech';
+import { getPlatformServices } from '@/common/platform';
 import { acquireBinary } from '@process/services/voice/voiceBinaryManifest';
+import { resolveVoiceAsset } from '@process/services/voice/voiceAssetRegistry';
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { homedir, tmpdir } from 'node:os';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
@@ -34,13 +36,22 @@ export class WhisperLocalUnavailableError extends Error {
 }
 
 /**
- * On-disk locations for the local whisper runtime. Task D2 (runtime binary
- * acquisition) downloads the binary and models into these exact paths.
+ * On-disk locations for the local whisper runtime.
+ *
+ * Both the binary and the model live under the Electron userData voice
+ * subtree, matching where voiceAssetRegistry downloads its assets to.
+ * (Prior versions used ~/.wayland/voice/{bin,models}/ which was a separate
+ * tree that the Settings "Download Model" buttons never touched — a user
+ * who downloaded the model via the UI would still hit "model not installed"
+ * when actually dictating, because dictation looked in the wrong place.)
  */
-export const WHISPER_BIN_DIR = path.join(homedir(), '.wayland', 'voice', 'bin', `${process.platform}-${process.arch}`);
-export const WHISPER_MODEL_DIR = path.join(homedir(), '.wayland', 'voice', 'models');
+const getWhisperBinDir = (): string =>
+  path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', `${process.platform}-${process.arch}`);
 
 const WHISPER_BINARY_NAME = process.platform === 'win32' ? 'whisper-cli.exe' : 'whisper-cli';
+
+// Re-export for tests / external callers that referenced the old constants.
+export const WHISPER_BIN_DIR_PROVIDER = getWhisperBinDir;
 
 /**
  * Injectable runtime seam. Production wires it to the filesystem and a real
@@ -82,13 +93,22 @@ const toBuffer = (audioBuffer: SpeechToTextAudioBuffer): Buffer => {
 
 export const defaultWhisperLocalRuntime: WhisperLocalRuntime = {
   resolveBinary: () => {
-    const binaryPath = path.join(WHISPER_BIN_DIR, WHISPER_BINARY_NAME);
+    const binaryPath = path.join(getWhisperBinDir(), WHISPER_BINARY_NAME);
     return existsSync(binaryPath) ? binaryPath : null;
   },
   acquireBinary: () => acquireBinary('whisper-cpp'),
   resolveModel: (model) => {
-    const modelPath = path.join(WHISPER_MODEL_DIR, `ggml-${model}.bin`);
-    return existsSync(modelPath) ? modelPath : null;
+    // Route through voiceAssetRegistry so the model path matches what
+    // Settings "Download Model" wrote. Both systems now agree on
+    // <userData>/voice/whisper/ggml-<model>.bin.
+    const resolved = resolveVoiceAsset({
+      id: `whisper-ggml-${model}`,
+      url: '',
+      destPath: '',
+      sha256: '',
+    });
+    if (!resolved.destPath) return null;
+    return existsSync(resolved.destPath) ? resolved.destPath : null;
   },
   run: async (binary, args) => {
     const { stdout } = await execFileAsync(binary, args, { maxBuffer: 32 * 1024 * 1024 });

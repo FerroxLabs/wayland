@@ -259,12 +259,18 @@ const MicrophoneCheck: React.FC = () => {
             : 'text-t-secondary';
 
   // While listening the bar runs orange — Sean's note: a grey bar reads
-  // as "not working." Brand primary signals the mic is actively
-  // sampling. The bar only flips to a status color once the grade
-  // settles (good=success, quiet/hot=warning, no-signal=danger).
+  // as "not working." Brand orange signals the mic is actively sampling.
+  // The bar only flips to a status color once the grade settles
+  // (good=success, quiet/hot=warning, no-signal=danger).
+  //
+  // Use --brand directly (a hex value) instead of rgb(var(--primary-6)).
+  // The latter syntax only renders when UnoCSS parses it as part of an
+  // opacity-modifier expression (e.g. `bg-[rgb(var(--primary-6))]/12`);
+  // the bare form silently fails to generate the rule and the bar shows
+  // as a faint gray fallback. Confirmed live via Playwright probe.
   const barColorClass: string =
     state === 'listening'
-      ? 'bg-[rgb(var(--primary-6))]'
+      ? 'bg-[var(--brand)]'
       : state === 'graded' && grade === 'good'
         ? 'bg-[var(--success)]'
         : state === 'graded' && (grade === 'too-quiet' || grade === 'too-hot')
