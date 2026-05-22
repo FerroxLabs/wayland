@@ -1997,7 +1997,36 @@
   },
   "agentsPage": {
     "title": "Agents",
-    "subtitle": "Auto-detected local agents and remote agent connections. Built-in agents are always available."
+    "subtitle": "The assistants you chat with. Each one runs on a set of models.",
+    "yourAgents": "Your agents",
+    "moreDetected": "More detected · {{count}}",
+    "remoteAgents": "Remote agents",
+    "roadmap": "On the roadmap",
+    "empty": "No agents detected yet. Wayland Core is always available once a model is connected.",
+    "loadErrorsTitle": "Some agents failed to load",
+    "badge": {
+      "active": "Active",
+      "detected": "Detected"
+    },
+    "scope": {
+      "any": "Runs any model you connect",
+      "claude": "Runs Claude models",
+      "gpt": "Runs GPT models",
+      "gemini": "Runs Gemini models",
+      "qwen": "Runs Qwen models",
+      "kimi": "Runs Kimi models",
+      "mistral": "Runs Mistral models"
+    },
+    "about": {
+      "wcore": "Wayland’s own engine. Draws on every provider on your Models page.",
+      "claude": "Anthropic’s coding agent. Signs in with its own account — it cannot run GPT or Gemini.",
+      "codex": "OpenAI’s coding agent. Signs in with its own account — it cannot run Claude or Gemini."
+    },
+    "flux": {
+      "title": "Flux Router",
+      "soon": "Coming",
+      "desc": "Lets any agent route across every model and provider you have connected — not just its own."
+    }
   },
   "providers": {
     "heroTitle": "Connect a provider",

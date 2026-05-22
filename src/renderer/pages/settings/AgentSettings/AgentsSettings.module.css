@@ -1,0 +1,243 @@
+/* Agents settings page — mirrors prototype #screen-agents.
+   A clean sibling of the Models page: same semantic-token ladder, same
+   card language. All colors use semantic tokens; the brand color is
+   `var(--brand)`. Agent brand colors are intentional literals passed inline. */
+
+/* ---- Section label (shared with the Models page) ---- */
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 6px 2px 0;
+}
+
+/* ---- Agent card ---- */
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+}
+
+/* Wayland Core — the hero card carries a soft brand wash. */
+.cardHero {
+  border-color: var(--brand-soft-border, var(--color-primary-3));
+  background-image: linear-gradient(150deg, var(--brand-soft-bg, var(--color-primary-1)) 0%, transparent 44%);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 15px 18px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cardMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-1);
+}
+
+/* The plain-language model-scope sentence (spec §4.7). */
+.runs {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--brand);
+  margin-top: 3px;
+}
+
+.runsMuted {
+  color: var(--color-text-2);
+}
+
+.desc {
+  font-size: 12px;
+  color: var(--color-text-2);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+/* ---- Status badge ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badgeActive {
+  background: var(--color-success-1);
+  color: var(--color-success-6);
+}
+
+.badgeDetected {
+  background: var(--color-fill-2);
+  color: var(--color-text-2);
+}
+
+.badgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---- "More detected" tile grid ---- */
+.tileGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 9px;
+}
+
+@media (max-width: 900px) {
+  .tileGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .tileGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tile {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 10px;
+  padding: 11px 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.tileAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tileAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tileText {
+  min-width: 0;
+}
+
+.tileName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.tileScope {
+  font-size: 10px;
+  color: var(--color-text-2);
+  margin-top: 1px;
+}
+
+/* ---- Empty note ---- */
+.emptyNote {
+  font-size: 12.5px;
+  color: var(--color-text-2);
+  text-align: center;
+  padding: 20px 16px;
+}
+
+/* ---- Flux Router roadmap teaser ---- */
+.flux {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1px dashed var(--brand-soft-border, var(--color-primary-3));
+  border-radius: 14px;
+  padding: 15px 17px;
+  background: var(--brand-soft-bg, var(--color-primary-1));
+}
+
+.fluxIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: #fff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fluxSoon {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brand);
+  border: 1px solid var(--brand-soft-border, var(--color-primary-3));
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+.fluxDesc {
+  font-size: 12px;
+  color: var(--color-text-2);
+  margin-top: 3px;
+  line-height: 1.45;
+}

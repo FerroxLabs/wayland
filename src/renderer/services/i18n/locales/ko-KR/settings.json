@@ -1236,7 +1236,37 @@
     "tokenCount": "{{value}} 토큰"
   },
   "agentsPage": {
-    "title": "에이전트"
+    "title": "에이전트",
+    "subtitle": "대화하는 어시스턴트입니다. 각 에이전트는 특정 모델 세트에서 실행됩니다.",
+    "yourAgents": "내 에이전트",
+    "moreDetected": "추가 감지됨 · {{count}}",
+    "remoteAgents": "원격 에이전트",
+    "roadmap": "로드맵",
+    "empty": "아직 감지된 에이전트가 없습니다. 모델을 연결하면 Wayland Core는 항상 사용할 수 있습니다.",
+    "loadErrorsTitle": "일부 에이전트를 불러오지 못했습니다",
+    "badge": {
+      "active": "활성",
+      "detected": "감지됨"
+    },
+    "scope": {
+      "any": "연결한 모든 모델을 실행",
+      "claude": "Claude 모델을 실행",
+      "gpt": "GPT 모델을 실행",
+      "gemini": "Gemini 모델을 실행",
+      "qwen": "Qwen 모델을 실행",
+      "kimi": "Kimi 모델을 실행",
+      "mistral": "Mistral 모델을 실행"
+    },
+    "about": {
+      "wcore": "Wayland 자체 엔진입니다. 「모델」 페이지의 모든 제공업체를 활용합니다.",
+      "claude": "Anthropic의 코딩 에이전트입니다. 자체 계정으로 로그인합니다 — GPT나 Gemini는 실행할 수 없습니다.",
+      "codex": "OpenAI의 코딩 에이전트입니다. 자체 계정으로 로그인합니다 — Claude나 Gemini는 실행할 수 없습니다."
+    },
+    "flux": {
+      "title": "Flux Router",
+      "soon": "공개 예정",
+      "desc": "어떤 에이전트든 자신의 것뿐만 아니라 연결한 모든 모델과 제공업체로 라우팅할 수 있게 합니다."
+    }
   },
   "providers": {
     "heroTitle": "Connect a provider",

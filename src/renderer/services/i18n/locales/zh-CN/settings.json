@@ -1235,7 +1235,37 @@
     "tokenCount": "{{value}} 个令牌"
   },
   "agentsPage": {
-    "title": "智能体"
+    "title": "智能体",
+    "subtitle": "你对话的助手。每个智能体都运行在一组模型上。",
+    "yourAgents": "你的智能体",
+    "moreDetected": "更多已检测 · {{count}}",
+    "remoteAgents": "远程智能体",
+    "roadmap": "路线图",
+    "empty": "尚未检测到智能体。连接模型后，Wayland Core 始终可用。",
+    "loadErrorsTitle": "部分智能体加载失败",
+    "badge": {
+      "active": "运行中",
+      "detected": "已检测"
+    },
+    "scope": {
+      "any": "运行你连接的任意模型",
+      "claude": "运行 Claude 模型",
+      "gpt": "运行 GPT 模型",
+      "gemini": "运行 Gemini 模型",
+      "qwen": "运行通义千问模型",
+      "kimi": "运行 Kimi 模型",
+      "mistral": "运行 Mistral 模型"
+    },
+    "about": {
+      "wcore": "Wayland 自研引擎。调用你「模型」页面上的每个提供商。",
+      "claude": "Anthropic 的编程智能体。使用自己的账号登录，无法运行 GPT 或 Gemini。",
+      "codex": "OpenAI 的编程智能体。使用自己的账号登录，无法运行 Claude 或 Gemini。"
+    },
+    "flux": {
+      "title": "Flux Router",
+      "soon": "即将推出",
+      "desc": "让任何智能体都能跨你已连接的所有模型和提供商进行路由，而不只是它自己的。"
+    }
   },
   "providers": {
     "heroTitle": "连接服务商",

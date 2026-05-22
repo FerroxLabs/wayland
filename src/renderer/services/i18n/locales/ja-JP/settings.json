@@ -1236,7 +1236,37 @@
     "tokenCount": "{{value}} トークン"
   },
   "agentsPage": {
-    "title": "エージェント"
+    "title": "エージェント",
+    "subtitle": "チャットするアシスタントです。それぞれが一組のモデルで動作します。",
+    "yourAgents": "あなたのエージェント",
+    "moreDetected": "その他の検出 · {{count}}",
+    "remoteAgents": "リモートエージェント",
+    "roadmap": "ロードマップ",
+    "empty": "エージェントはまだ検出されていません。モデルを接続すれば Wayland Core は常に利用できます。",
+    "loadErrorsTitle": "一部のエージェントの読み込みに失敗しました",
+    "badge": {
+      "active": "アクティブ",
+      "detected": "検出済み"
+    },
+    "scope": {
+      "any": "接続したあらゆるモデルを実行",
+      "claude": "Claude モデルを実行",
+      "gpt": "GPT モデルを実行",
+      "gemini": "Gemini モデルを実行",
+      "qwen": "Qwen モデルを実行",
+      "kimi": "Kimi モデルを実行",
+      "mistral": "Mistral モデルを実行"
+    },
+    "about": {
+      "wcore": "Wayland 独自のエンジン。「モデル」ページのすべてのプロバイダーを活用します。",
+      "claude": "Anthropic のコーディングエージェント。独自のアカウントでサインインします — GPT や Gemini は実行できません。",
+      "codex": "OpenAI のコーディングエージェント。独自のアカウントでサインインします — Claude や Gemini は実行できません。"
+    },
+    "flux": {
+      "title": "Flux Router",
+      "soon": "近日公開",
+      "desc": "どのエージェントも、自身のものだけでなく接続したすべてのモデルとプロバイダーにルーティングできます。"
+    }
   },
   "providers": {
     "heroTitle": "Connect a provider",

@@ -1234,7 +1234,37 @@
     "tokenCount": "{{value}} token"
   },
   "agentsPage": {
-    "title": "Ajanlar"
+    "title": "Ajanlar",
+    "subtitle": "Sohbet ettiğiniz asistanlar. Her biri bir model kümesi üzerinde çalışır.",
+    "yourAgents": "Ajanlarınız",
+    "moreDetected": "Daha fazla algılanan · {{count}}",
+    "remoteAgents": "Uzak ajanlar",
+    "roadmap": "Yol haritasında",
+    "empty": "Henüz ajan algılanmadı. Bir model bağlandığında Wayland Core her zaman kullanılabilir.",
+    "loadErrorsTitle": "Bazı ajanlar yüklenemedi",
+    "badge": {
+      "active": "Etkin",
+      "detected": "Algılandı"
+    },
+    "scope": {
+      "any": "Bağladığınız her modeli çalıştırır",
+      "claude": "Claude modellerini çalıştırır",
+      "gpt": "GPT modellerini çalıştırır",
+      "gemini": "Gemini modellerini çalıştırır",
+      "qwen": "Qwen modellerini çalıştırır",
+      "kimi": "Kimi modellerini çalıştırır",
+      "mistral": "Mistral modellerini çalıştırır"
+    },
+    "about": {
+      "wcore": "Waylandın kendi motoru. Modeller sayfanızdaki her sağlayıcıyı kullanır.",
+      "claude": "Anthropicin kodlama ajanı. Kendi hesabıyla oturum açar — GPT veya Gemini çalıştıramaz.",
+      "codex": "OpenAInin kodlama ajanı. Kendi hesabıyla oturum açar — Claude veya Gemini çalıştıramaz."
+    },
+    "flux": {
+      "title": "Flux Router",
+      "soon": "Yakında",
+      "desc": "Herhangi bir ajanın yalnızca kendi modelleri değil, bağladığınız tüm modeller ve sağlayıcılar arasında yönlendirme yapmasını sağlar."
+    }
   },
   "providers": {
     "heroTitle": "Connect a provider",
