@@ -159,7 +159,15 @@ export class VoiceAssetManager {
 
       const computed = hash.digest('hex');
       const expected = asset.sha256.toLowerCase();
-      if (computed !== expected) {
+      if (expected.length === 0) {
+        // No pinned hash for this asset. Surface a one-line warning so the
+        // operator knows an unverified download landed, but don't block —
+        // the registry intentionally leaves some assets unpinned until the
+        // canonical SHA is locked in. Re-tighten this by pinning sha256.
+        console.warn(
+          `[VoiceAssetManager] ${asset.id} downloaded without integrity check; sha256 not pinned (computed=${computed}).`
+        );
+      } else if (computed !== expected) {
         await io.unlink(tmpPath);
         throw new VoiceAssetDownloadError('VOICE_ASSET_HASH_MISMATCH', `expected ${expected}, got ${computed}`);
       }
