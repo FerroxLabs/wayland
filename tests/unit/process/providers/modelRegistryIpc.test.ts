@@ -113,7 +113,21 @@ class FakeRepo {
     if (row) row.creds = creds;
   }
 
+  updateRegistryProviderConnectedVia(id: ProviderId, connectedVia: string): void {
+    const row = this.providers.get(id);
+    if (row) row.connectedVia = connectedVia;
+  }
+
+  /**
+   * Provider ids in `undecryptableProviders` resolve to `'undecryptable'` —
+   * letting a test exercise the corrupt-ciphertext path against the fake.
+   */
+  undecryptableProviders = new Set<ProviderId>();
+
   getRegistryProviderCreds(id: ProviderId): RegistryCredsResult {
+    if (this.undecryptableProviders.has(id) && this.providers.has(id)) {
+      return { status: 'undecryptable' };
+    }
     const creds = this.providers.get(id)?.creds;
     return creds ? { status: 'ok', creds } : { status: 'not-found' };
   }
@@ -297,6 +311,71 @@ describe('modelRegistry IPC — connect', () => {
     expect(repo.getRegistryProvider('openai')?.state).toBe('error');
     expect(repo.getRegistryProvider('openai')?.error).toBe('unknown');
   });
+
+  it('rejects a cloud connect with an empty fields object', async () => {
+    // Fix 3: a cloud connect skips the HTTP probe but must still validate that
+    // the required credential fields are present — empty fields is rejected.
+    const { deps, repo } = makeFakes();
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({ providerId: 'aws-bedrock', creds: { fields: {} } });
+
+    expect(result).toEqual({ ok: false, error: 'unrecognized' });
+    expect(repo.getRegistryProvider('aws-bedrock')).toBeNull();
+  });
+
+  it('rejects a cloud connect missing a required field', async () => {
+    // Fix 3: Bedrock needs accessKeyId + secretAccessKey + region — a payload
+    // missing `region` must not persist a connected provider.
+    const { deps, repo } = makeFakes();
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({
+      providerId: 'aws-bedrock',
+      creds: { fields: { accessKeyId: 'AK', secretAccessKey: 'SK' } },
+    });
+
+    expect(result).toEqual({ ok: false, error: 'unrecognized' });
+    expect(repo.getRegistryProvider('aws-bedrock')).toBeNull();
+  });
+
+  it('rejects a non-cloud connect that supplies fields instead of a key', async () => {
+    // Fix 5: a non-cloud provider connected with `{ fields }` carries no usable
+    // key for the catalog build — reject it up front rather than building empty.
+    const { deps, repo } = makeFakes();
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({ providerId: 'openai', creds: { fields: { token: 'x' } } });
+
+    expect(result).toEqual({ ok: false, error: 'unrecognized' });
+    expect(repo.getRegistryProvider('openai')).toBeNull();
+  });
+
+  it('treats an empty catalog with a failed source as a degraded connect', async () => {
+    // Fix 4: every source failing yields [] — that is NOT a successful empty
+    // catalog. The provider must land in `'error'`, not a false `connected`.
+    const { deps, repo, apiListModels } = makeFakes();
+    apiListModels.mockRejectedValue(new Error('provider /v1/models down'));
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({ providerId: 'openai', creds: { key: 'sk-test' } });
+
+    expect(result).toEqual({ ok: false, error: 'unknown' });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('error');
+  });
+
+  it('keeps an empty catalog with NO source errors a legitimate connect', async () => {
+    // Fix 4: a provider genuinely exposing zero models (no source errored) is
+    // still a valid `connected` — only a degraded empty result fails.
+    const { deps, repo, apiListModels } = makeFakes();
+    apiListModels.mockResolvedValue([]);
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({ providerId: 'openai', creds: { key: 'sk-test' } });
+
+    expect(result).toEqual({ ok: true });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
+  });
 });
 
 describe('modelRegistry IPC — testConnection', () => {
@@ -338,6 +417,26 @@ describe('modelRegistry IPC — testConnection', () => {
     const h = createModelRegistryHandlers(deps);
 
     expect(await h.testConnection({ providerId: 'openai' })).toEqual({ ok: false, error: 'unrecognized' });
+  });
+
+  it('sets the provider to error state when its stored creds are undecryptable', async () => {
+    // Fix 8: `undecryptable` is distinct from `not-found` — the row exists but
+    // its ciphertext is unreadable. The provider must be persisted as `'error'`
+    // so `list()` surfaces it and the UI can prompt a re-key.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'sk-stored' },
+    });
+    repo.undecryptableProviders.add('openai');
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.testConnection({ providerId: 'openai' });
+
+    expect(result).toEqual({ ok: false, error: 'unrecognized' });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('error');
   });
 });
 
@@ -438,6 +537,24 @@ describe('modelRegistry IPC — refresh', () => {
     const h = createModelRegistryHandlers(deps);
     expect(await h.refresh({ providerId: 'openai' })).toEqual({ ok: false });
   });
+
+  it('sets error and fails the refresh when stored creds are undecryptable', async () => {
+    // Fix 8: a refresh against an undecryptable provider persists `'error'`.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.undecryptableProviders.add('openai');
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.refresh({ providerId: 'openai' });
+
+    expect(result).toEqual({ ok: false });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('error');
+  });
 });
 
 describe('modelRegistry IPC — disconnect', () => {
@@ -496,6 +613,68 @@ describe('modelRegistry IPC — rekey', () => {
     expect(result).toEqual({ ok: false, error: 'unauthorized' });
     expect(repo.getRegistryProviderCreds('openai')).toEqual({ status: 'ok', creds: { key: 'sk-old' } });
   });
+
+  it('restores the previous working key when the rekey catalog build fails', async () => {
+    // Fix 1: a rekey must not destroy a working key on a catalog-build failure.
+    // The test passes (the new key is "valid") but the catalog persist throws —
+    // the provider must be left with its PREVIOUS creds, not the unproven key.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'sk-old-working' },
+    });
+    repo.replaceRegistryCatalog = () => {
+      throw new Error('disk full');
+    };
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.rekey({ providerId: 'openai', creds: { key: 'sk-new-unproven' } });
+
+    expect(result).toEqual({ ok: false, error: 'unknown' });
+    // The previous working key survives — the provider is not stranded.
+    expect(repo.getRegistryProviderCreds('openai')).toEqual({ status: 'ok', creds: { key: 'sk-old-working' } });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('error');
+  });
+
+  it('refreshes connected_via on a successful rekey', async () => {
+    // Fix 10: a provider first connected via auto-discovery then rekeyed with an
+    // explicit key must not keep the stale `auto-discovered` label.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'auto-discovered',
+      state: 'connected',
+      creds: { key: 'sk-old' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    await h.rekey({ providerId: 'openai', creds: { key: 'sk-new' } });
+
+    expect(repo.getRegistryProvider('openai')?.connectedVia).toBe('api-key');
+  });
+
+  it('sets error and fails the rekey when stored creds are undecryptable on re-key', async () => {
+    // Fix 8: an `undecryptable` prior-creds read during rekey still completes
+    // the rekey if the new key works (the old creds cannot be restored, but the
+    // new proven key replaces them).
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'sk-old' },
+    });
+    repo.undecryptableProviders.add('openai');
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.rekey({ providerId: 'openai', creds: { key: 'sk-new' } });
+
+    // The new key proved out — the rekey succeeds and the new key is stored.
+    expect(result).toEqual({ ok: true });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
+  });
 });
 
 describe('modelRegistry IPC — curatedForAgent', () => {
@@ -520,6 +699,41 @@ describe('modelRegistry IPC — curatedForAgent', () => {
     const curated = await h.curatedForAgent({ agentKey: 'wcore' });
 
     expect(curated.map((m) => m.id).toSorted()).toEqual(['claude-3-5', 'gpt-4o']);
+  });
+
+  it('dedups a (providerId, id) pair the wcore union would otherwise repeat', async () => {
+    // Fix 7: the wcore union must not emit a duplicate `(providerId, id)`.
+    // The same model id appearing under two DIFFERENT providers is kept (the
+    // consumer distinguishes by providerId), but a repeat within one provider
+    // collapses to one entry.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.upsertRegistryProvider({
+      providerId: 'openrouter',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    // `openai` carries `gpt-4o` twice (a malformed catalog), `openrouter` once.
+    repo.replaceRegistryCatalog('openai', [
+      catalogModel({ id: 'gpt-4o', providerId: 'openai' }),
+      catalogModel({ id: 'gpt-4o', providerId: 'openai' }),
+    ]);
+    repo.replaceRegistryCatalog('openrouter', [catalogModel({ id: 'gpt-4o', providerId: 'openrouter' })]);
+    const h = createModelRegistryHandlers(deps);
+
+    const curated = await h.curatedForAgent({ agentKey: 'wcore' });
+
+    // The openai duplicate collapses; the openrouter copy is a distinct
+    // (providerId, id) and survives — two entries total.
+    expect(curated).toHaveLength(2);
+    expect(curated.filter((m) => m.providerId === 'openai')).toHaveLength(1);
+    expect(curated.filter((m) => m.providerId === 'openrouter')).toHaveLength(1);
   });
 
   it('builds an enumerable CLI agent (codex) from its CLI source', async () => {

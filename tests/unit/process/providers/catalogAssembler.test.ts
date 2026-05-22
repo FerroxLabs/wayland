@@ -109,7 +109,7 @@ describe('CatalogAssembler', () => {
 
   it('enriches a model that matches a models.dev entry', async () => {
     const source = fixedSource('api', 'anthropic', [{ id: 'claude-opus-4', providerId: 'anthropic' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
 
     expect(catalog).toHaveLength(1);
     const m = catalog[0];
@@ -125,7 +125,7 @@ describe('CatalogAssembler', () => {
 
   it('joins google-gemini RawModels against the models.dev `google` provider key', async () => {
     const source = fixedSource('api', 'google-gemini', [{ id: 'gemini-3-pro', providerId: 'google-gemini' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
 
     expect(catalog[0].enriched).toBe(true);
     expect(catalog[0].displayName).toBe('Gemini 3 Pro');
@@ -134,7 +134,7 @@ describe('CatalogAssembler', () => {
 
   it('derives a family from the id when models.dev omits the family field', async () => {
     const source = fixedSource('api', 'anthropic', [{ id: 'claude-sonnet-4-20250101', providerId: 'anthropic' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
 
     expect(catalog[0].enriched).toBe(true);
     // The trailing date stamp is stripped but the `4` generation token is kept.
@@ -143,7 +143,7 @@ describe('CatalogAssembler', () => {
 
   it('marks a model absent from models.dev as unenriched with a humanized name', async () => {
     const source = fixedSource('api', 'anthropic', [{ id: 'claude-mystery-9', providerId: 'anthropic' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
 
     expect(catalog).toHaveLength(1);
     const m = catalog[0];
@@ -159,26 +159,26 @@ describe('CatalogAssembler', () => {
 
   it('derives kind=image from modalities.output', async () => {
     const source = fixedSource('api', 'openai', [{ id: 'gpt-image-1', providerId: 'openai' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
     expect(catalog[0].kind).toBe('image');
   });
 
   it('derives kind=audio from modalities.output', async () => {
     const source = fixedSource('api', 'openai', [{ id: 'whisper-1', providerId: 'openai' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
     expect(catalog[0].kind).toBe('audio');
   });
 
   it('derives kind=embedding for an embedding model despite a text output modality', async () => {
     const source = fixedSource('api', 'openai', [{ id: 'text-embedding-3-large', providerId: 'openai' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
     expect(catalog[0].kind).toBe('embedding');
   });
 
   it('skips a source that throws without aborting the rest of the assemble', async () => {
     const ok = fixedSource('api', 'anthropic', [{ id: 'claude-opus-4', providerId: 'anthropic' }]);
     const bad = throwingSource('api', 'openai');
-    const catalog = await assembler.assemble([bad, ok], buildRegistry());
+    const { models: catalog } = await assembler.assemble([bad, ok], buildRegistry());
 
     // The throwing source contributes nothing; the healthy one still does.
     expect(catalog).toHaveLength(1);
@@ -188,28 +188,66 @@ describe('CatalogAssembler', () => {
   it('collects models from every healthy source', async () => {
     const a = fixedSource('api', 'anthropic', [{ id: 'claude-opus-4', providerId: 'anthropic' }]);
     const b = fixedSource('api', 'openai', [{ id: 'gpt-image-1', providerId: 'openai' }]);
-    const catalog = await assembler.assemble([a, b], buildRegistry());
+    const { models: catalog } = await assembler.assemble([a, b], buildRegistry());
 
     expect(catalog.map((m) => m.id).toSorted()).toEqual(['claude-opus-4', 'gpt-image-1']);
   });
 
-  it('falls back to a flat scan when the provider has no models.dev key mapping', async () => {
-    // `openrouter` IS mapped, but a provider with no mapping must still resolve
-    // a model by a flat id scan across all models.dev providers.
+  it('leaves a model from an unmapped provider unenriched — no cross-provider flat scan', async () => {
+    // `openai-compatible` has no `MODELS_DEV_PROVIDER_KEY` entry. Its model id
+    // `claude-opus-4` DOES exist under the `anthropic` provider, but enrichment
+    // must NOT be borrowed across providers — ids collide and a flat scan would
+    // attach the wrong provider's pricing/context. The model stays unenriched.
     const source = fixedSource('api', 'openai-compatible', [{ id: 'claude-opus-4', providerId: 'openai-compatible' }]);
-    const catalog = await assembler.assemble([source], buildRegistry());
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
 
-    expect(catalog[0].enriched).toBe(true);
-    expect(catalog[0].displayName).toBe('Claude Opus 4');
+    expect(catalog[0].enriched).toBe(false);
+    expect(catalog[0].displayName).toBe('Claude Opus 4'); // humanized, not borrowed
+    expect(catalog[0].contextWindow).toBeUndefined();
+    expect(catalog[0].costInPerM).toBeUndefined();
+  });
+
+  it('does not borrow a colliding model id from another provider', async () => {
+    // Both `openai` and `anthropic` could carry an id; enrichment is scoped to
+    // the model's OWN provider entry only. `gpt-image-1` lives under `openai`
+    // but a RawModel claiming it under `anthropic` must NOT pick up openai's
+    // image-kind enrichment — it stays unenriched with the safe text default.
+    const source = fixedSource('api', 'anthropic', [{ id: 'gpt-image-1', providerId: 'anthropic' }]);
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
+
+    expect(catalog[0].enriched).toBe(false);
+    expect(catalog[0].kind).toBe('text'); // NOT 'image' borrowed from openai
   });
 
   it('returns an empty catalog when given no sources', async () => {
-    expect(await assembler.assemble([], buildRegistry())).toEqual([]);
+    const { models, sourceErrors } = await assembler.assemble([], buildRegistry());
+    expect(models).toEqual([]);
+    expect(sourceErrors).toBe(0);
+  });
+
+  it('reports sourceErrors when a source rejects', async () => {
+    const bad = throwingSource('api', 'openai');
+    const ok = fixedSource('api', 'anthropic', [{ id: 'claude-opus-4', providerId: 'anthropic' }]);
+    const { models, sourceErrors } = await assembler.assemble([bad, ok], buildRegistry());
+
+    // One source failed — the count surfaces it so a caller can tell a degraded
+    // result apart from a genuinely empty one.
+    expect(sourceErrors).toBe(1);
+    expect(models).toHaveLength(1);
+  });
+
+  it('reports every source failing as sourceErrors > 0 with an empty model list', async () => {
+    const { models, sourceErrors } = await assembler.assemble(
+      [throwingSource('api', 'openai'), throwingSource('api', 'anthropic')],
+      buildRegistry()
+    );
+    expect(models).toEqual([]);
+    expect(sourceErrors).toBe(2);
   });
 
   it('returns unenriched models when the registry is empty', async () => {
     const source = fixedSource('api', 'anthropic', [{ id: 'claude-opus-4', providerId: 'anthropic' }]);
-    const catalog = await assembler.assemble([source], {});
+    const { models: catalog } = await assembler.assemble([source], {});
     expect(catalog[0].enriched).toBe(false);
     expect(catalog[0].displayName).toBe('Claude Opus 4');
   });
@@ -222,7 +260,7 @@ describe('CatalogAssembler', () => {
       { id: 'gpt-4-0613', providerId: 'openai' },
       { id: 'gpt-4o-mini', providerId: 'openai' },
     ]);
-    const catalog = await assembler.assemble([source], {});
+    const { models: catalog } = await assembler.assemble([source], {});
 
     const families = new Map(catalog.map((m) => [m.id, m.family]));
     expect(families.get('gpt-4.1')).toBe('gpt-4.1');
@@ -236,7 +274,7 @@ describe('CatalogAssembler', () => {
 
   it('strips a trailing variant word from an unenriched id without collapsing the generation', async () => {
     const source = fixedSource('api', 'openai', [{ id: 'gpt-4-1106-preview', providerId: 'openai' }]);
-    const catalog = await assembler.assemble([source], {});
+    const { models: catalog } = await assembler.assemble([source], {});
     // `preview` (variant) and `1106` (build stamp) stripped; `gpt-4` survives.
     expect(catalog[0].family).toBe('gpt-4');
   });

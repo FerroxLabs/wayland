@@ -79,6 +79,18 @@ const CLOUD_MODELS_DEV_KEY: Partial<Record<ProviderId, string>> = Object.fromEnt
   [...CLOUD_PROVIDERS].map((id) => [id, MODELS_DEV_PROVIDER_KEY[id]])
 ) as Partial<Record<ProviderId, string>>;
 
+/**
+ * The credential fields each cloud provider must carry for a connect to be
+ * accepted. A cloud connect cannot be HTTP-probed, so this is the only gate
+ * against persisting a `connected` provider with empty / missing creds. The
+ * check is a non-empty-string presence check — NOT a real cloud-SDK validation.
+ */
+const CLOUD_REQUIRED_FIELDS: Record<string, readonly string[]> = {
+  'aws-bedrock': ['accessKeyId', 'secretAccessKey', 'region'],
+  vertex: ['projectId', 'region', 'serviceAccountJson'],
+  azure: ['endpoint', 'apiKey'],
+};
+
 /** The CLI agent keys, mirrored from `CliAgentSource`. */
 const CLI_AGENT_KEYS: ReadonlySet<string> = new Set<CliAgentKey>(['claude', 'codex', 'gemini']);
 
@@ -121,6 +133,7 @@ export type ModelRegistryRepo = Pick<
   | 'upsertRegistryProvider'
   | 'updateRegistryProviderState'
   | 'updateRegistryProviderCreds'
+  | 'updateRegistryProviderConnectedVia'
   | 'getRegistryProviderCreds'
   | 'deleteRegistryProvider'
   | 'replaceRegistryCatalog'
@@ -209,17 +222,33 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    *    `CloudRegistrySource` synthesizes its `RawModel[]`.
    *  - Standard API-key provider → an `ApiProviderSource` over the live key.
    *
-   * Returns `{ ok }` — `ok:false` when ANY step failed, including the
-   * `replaceRegistryCatalog` DB write. Never throws: the whole body is wrapped
-   * so callers can branch on the result instead of guessing. `connectOrRekey`
-   * relies on this to keep the provider's persisted state honest — a failed
-   * catalog build flips the provider to `'error'` rather than a false green.
+   * **Precondition:** a `model_registry_providers` row for `providerId` MUST
+   * already exist — `model_registry_catalog` rows FK-reference it. This function
+   * guards that precondition explicitly and returns `{ ok:false }` (rather than
+   * letting an opaque `SQLITE_CONSTRAINT_FOREIGNKEY` surface) when the row is
+   * missing. An external caller (e.g. Wave 3 Google-OAuth) must `upsert` the
+   * provider row before invoking this.
+   *
+   * Returns `{ ok, models, sourceErrors }` — `ok:false` when ANY step failed,
+   * including the missing-row guard and the `replaceRegistryCatalog` DB write.
+   * `models` is the count of catalog models persisted; `sourceErrors` counts
+   * catalog sources whose `listModels()` rejected, so the caller can tell a
+   * degraded empty catalog (`models:0` with `sourceErrors>0`) apart from a
+   * provider that genuinely exposes zero models. Never throws: the whole body
+   * is wrapped so callers can branch on the result instead of guessing.
    */
   async function buildAndPersistCatalog(
     providerId: ProviderId,
     creds: { key: string } | { fields: Record<string, string> }
-  ): Promise<{ ok: boolean }> {
+  ): Promise<{ ok: boolean; models: number; sourceErrors: number }> {
     try {
+      // FK precondition: catalog rows reference the provider row. Guard it
+      // explicitly so a missing row is a clear failure, not a swallowed
+      // SQLITE_CONSTRAINT_FOREIGNKEY with no diagnostic.
+      if (!repo.getRegistryProvider(providerId)) {
+        return { ok: false, models: 0, sourceErrors: 0 };
+      }
+
       const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
 
       let sources: CatalogSource[];
@@ -230,11 +259,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         sources = apiKey ? [deps.makeApiSource(providerId, apiKey)] : [];
       }
 
-      const catalog = await assembler.assemble(sources, registry);
-      repo.replaceRegistryCatalog(providerId, catalog);
-      return { ok: true };
+      const { models, sourceErrors } = await assembler.assemble(sources, registry);
+      repo.replaceRegistryCatalog(providerId, models);
+      return { ok: true, models: models.length, sourceErrors };
     } catch {
-      return { ok: false };
+      return { ok: false, models: 0, sourceErrors: 0 };
     }
   }
 
@@ -265,6 +294,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * Connect (or re-key) a provider: resolve creds, test (skipped for cloud),
    * persist creds + provider state, build + persist the catalog. Shared by
    * `connect` and `rekey` — `isRekey` controls the persistence path.
+   *
+   * Rekey safety: a rekey does NOT overwrite the stored creds until the new
+   * key's catalog build has succeeded. If the build fails the provider is left
+   * with its PREVIOUS working credentials — a failed rekey never strands a
+   * provider on an unproven key.
    */
   async function connectOrRekey(
     providerId: ProviderId,
@@ -276,9 +310,19 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
     const isCloud = CLOUD_PROVIDERS.has(providerId);
 
-    // Cloud providers cannot be HTTP-probed — do not gate the connect on a
-    // test. Every other provider must prove it can run inference.
-    if (!isCloud) {
+    if (isCloud) {
+      // Cloud providers cannot be HTTP-probed — but a connect must still carry
+      // the credential fields that provider needs. An empty / partial `fields`
+      // payload is rejected rather than persisted as a false green.
+      if (!('fields' in resolved) || !hasRequiredCloudFields(providerId, resolved.fields)) {
+        return { ok: false, error: 'unrecognized' };
+      }
+    } else {
+      // A non-cloud provider connected with `{ fields }` carries no usable API
+      // key for the catalog build — reject it up front so connect and rekey
+      // stay consistent (a `{ fields }` connect would otherwise pass the test
+      // but build an empty catalog).
+      if ('fields' in resolved) return { ok: false, error: 'unrecognized' };
       const result = await connectionTester.test(providerId, resolved);
       if (!result.ok) return { ok: false, error: result.error ?? 'unknown' };
     }
@@ -287,22 +331,45 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       'key' in resolved ? { key: resolved.key } : { fields: resolved.fields };
 
     if (isRekey) {
+      // A rekey must not destroy a working key on a catalog-build failure.
+      // Capture the prior creds + state, write the new creds, build — and
+      // restore the prior creds if the build fails.
+      const priorCreds = repo.getRegistryProviderCreds(providerId);
+
       repo.updateRegistryProviderCreds(providerId, credsRecord);
       repo.updateRegistryProviderState(providerId, 'connected');
-    } else {
-      repo.upsertRegistryProvider({
-        providerId,
-        connectedVia: connectedViaLabel(creds, providerId),
-        state: 'connected',
-        creds: credsRecord,
-      });
+
+      const built = await buildAndPersistCatalog(providerId, resolved);
+      if (!built.ok || (built.models === 0 && built.sourceErrors > 0)) {
+        // The new key did not produce a usable catalog. Restore the previous
+        // working credentials so the provider is not stranded on the unproven
+        // key, and leave it in `'error'` so `list()` surfaces it.
+        if (priorCreds.status === 'ok') {
+          repo.updateRegistryProviderCreds(providerId, priorCreds.creds);
+        }
+        repo.updateRegistryProviderState(providerId, 'error', 'unknown');
+        return { ok: false, error: 'unknown' };
+      }
+      // The rekey succeeded — refresh `connected_via` so a provider first
+      // connected via auto-discovery then rekeyed with an explicit key (or
+      // vice versa) does not keep a stale label.
+      repo.updateRegistryProviderConnectedVia(providerId, connectedViaLabel(creds, providerId));
+      return { ok: true };
     }
+
+    repo.upsertRegistryProvider({
+      providerId,
+      connectedVia: connectedViaLabel(creds, providerId),
+      state: 'connected',
+      creds: credsRecord,
+    });
 
     // The provider row is now `connected`. If the catalog build/persist fails
     // the row would be a false green — flip it to `'error'` so `list()` shows
-    // it honestly (the UI renders that as "Action needed — Fix").
+    // it honestly (the UI renders that as "Action needed — Fix"). An empty
+    // catalog where at least one source errored is also a degraded connect.
     const built = await buildAndPersistCatalog(providerId, resolved);
-    if (!built.ok) {
+    if (!built.ok || (built.models === 0 && built.sourceErrors > 0)) {
       repo.updateRegistryProviderState(providerId, 'error', 'unknown');
       return { ok: false, error: 'unknown' };
     }
@@ -330,9 +397,15 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     async testConnection({ providerId }): Promise<IModelRegistryTestResult> {
       try {
         const stored = repo.getRegistryProviderCreds(providerId);
-        // `not-found` (no row) and `undecryptable` (corrupt / unreadable
-        // ciphertext) both mean "cannot proceed" — a follow-up wave will give
-        // `undecryptable` its own "re-key" UI state.
+        // `undecryptable` (a provider row exists but its ciphertext is
+        // unreadable) is distinct from `not-found` (no row at all): persist the
+        // provider's state as `'error'` so `list()` surfaces it and the UI can
+        // prompt a re-key, then report the failure.
+        if (stored.status === 'undecryptable') {
+          repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
+          return { ok: false, error: 'unrecognized' };
+        }
+        // `not-found` — no row to test.
         if (stored.status !== 'ok') return { ok: false, error: 'unrecognized' };
 
         if (CLOUD_PROVIDERS.has(providerId)) {
@@ -391,10 +464,16 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     async refresh({ providerId }): Promise<{ ok: boolean }> {
       try {
         const stored = repo.getRegistryProviderCreds(providerId);
-        // `not-found` and `undecryptable` both block a refresh — see the note
-        // in `testConnection` above.
+        // `undecryptable` — the row exists but its creds cannot be read.
+        // Persist `'error'` so the UI can prompt a re-key, then fail.
+        if (stored.status === 'undecryptable') {
+          repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
+          return { ok: false };
+        }
+        // `not-found` — nothing to refresh.
         if (stored.status !== 'ok') return { ok: false };
-        return await buildAndPersistCatalog(providerId, toTestCreds(stored.creds));
+        const built = await buildAndPersistCatalog(providerId, toTestCreds(stored.creds));
+        return { ok: built.ok };
       } catch {
         return { ok: false };
       }
@@ -422,14 +501,25 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       try {
         if (agentKey === 'wcore') {
           // wcore proxies every connected provider — union their curated text
-          // models. The Curator already drops non-text kinds.
+          // models. The Curator already drops non-text kinds. Dedup by
+          // `(providerId, id)`: a model id can legitimately appear under
+          // multiple providers, but the SAME provider must not contribute a
+          // duplicate id. The first connected provider that supplies a given
+          // `(providerId, id)` wins — `listRegistryProviders` is ordered by
+          // `created_at`, so the result is deterministic.
           const all: CuratedModel[] = [];
+          const seen = new Set<string>();
           for (const provider of repo.listRegistryProviders()) {
             const curated = applyOverrides(
               provider.providerId,
               curator.curate(repo.getRegistryCatalog(provider.providerId))
             );
-            all.push(...curated);
+            for (const model of curated) {
+              const dedupKey = `${model.providerId} ${model.id}`;
+              if (seen.has(dedupKey)) continue;
+              seen.add(dedupKey);
+              all.push(model);
+            }
           }
           return all;
         }
@@ -440,8 +530,8 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             // Enumerable CLI (Codex) — build straight from its CLI source.
             const source = deps.makeCliSource(cliKey);
             const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
-            const catalog = await assembler.assemble([source], registry);
-            return curator.curate(catalog);
+            const { models } = await assembler.assemble([source], registry);
+            return curator.curate(models);
           }
           // Non-enumerable CLI — fall back to the underlying provider's curated
           // set when that provider is connected, else nothing.
@@ -459,6 +549,18 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * True when a cloud provider's `fields` payload carries every credential field
+ * that provider needs, each a non-empty string. A non-empty-presence check —
+ * NOT a real cloud-SDK credential validation. A provider with no entry in
+ * `CLOUD_REQUIRED_FIELDS` only needs a non-empty `fields` object.
+ */
+function hasRequiredCloudFields(providerId: ProviderId, fields: Record<string, string>): boolean {
+  const required = CLOUD_REQUIRED_FIELDS[providerId];
+  if (!required) return Object.keys(fields).length > 0;
+  return required.every((name) => typeof fields[name] === 'string' && fields[name].trim().length > 0);
+}
 
 /** Coerce a stored creds record into the `ConnectionTester` creds shape. */
 function toTestCreds(stored: Record<string, unknown>): { key: string } | { fields: Record<string, string> } {

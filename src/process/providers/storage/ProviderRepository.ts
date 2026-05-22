@@ -416,6 +416,17 @@ export class ProviderRepository {
   }
 
   /**
+   * Update only a provider's `connected_via` label — used after a rekey so the
+   * label reflects how the provider is NOW connected (e.g. a provider first
+   * connected via auto-discovery then rekeyed with an explicit key).
+   */
+  updateRegistryProviderConnectedVia(providerId: ProviderId, connectedVia: string): void {
+    this.db
+      .prepare(`UPDATE model_registry_providers SET connected_via = ?, updated_at = ? WHERE provider_id = ?`)
+      .run(connectedVia, Date.now(), providerId);
+  }
+
+  /**
    * Decrypt and return a provider's stored credentials.
    *
    * The result discriminates "not connected" (`'not-found'`) from "connected

@@ -107,7 +107,12 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initHubBridge();
   initTeamBridge(deps.teamSessionService);
   void initProvidersIpc();
-  void initModelRegistryIpc();
+  // A DB / migration failure during registration would otherwise become an
+  // unhandled rejection and the `modelRegistry` namespace would silently never
+  // register — log it so the failure is at least visible.
+  void initModelRegistryIpc().catch((error) => {
+    console.error('[modelRegistry] Failed to initialize IPC:', error);
+  });
   initStorageBridge();
   initNicknamesBridge();
   initSyncIpc();
