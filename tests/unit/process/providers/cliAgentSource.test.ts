@@ -128,6 +128,18 @@ describe('CliAgentSource — enumerable CLI (Codex)', () => {
     await expect(new CliAgentSource('codex').listModels()).resolves.toEqual([]);
   });
 
+  it('returns [] without throwing when `models` is valid JSON but not an array', async () => {
+    execFileMock.mockResolvedValue({ stdout: JSON.stringify({ models: 'wat' }), stderr: '' });
+
+    await expect(new CliAgentSource('codex').listModels()).resolves.toEqual([]);
+  });
+
+  it('returns [] without throwing when the payload is a top-level JSON array', async () => {
+    execFileMock.mockResolvedValue({ stdout: JSON.stringify([1, 2, 3]), stderr: '' });
+
+    await expect(new CliAgentSource('codex').listModels()).resolves.toEqual([]);
+  });
+
   it('drops malformed model entries (missing slug) instead of throwing', async () => {
     execFileMock.mockResolvedValue({
       stdout: JSON.stringify({

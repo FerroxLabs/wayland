@@ -129,6 +129,12 @@ export class CliAgentSource implements CatalogSource {
    * - Enumerable → runs the CLI's enumeration command and parses the result.
    *   A missing CLI, a non-zero exit, or unparseable output is treated as "no
    *   models right now" → `[]`. This method never throws.
+   *
+   * The `CLI_TIMEOUT_MS` timeout bounds the *promise*: this call always
+   * resolves (or rejects internally, then degrades to `[]`) within ~10s. It is
+   * not a guarantee that a wedged CLI process is reaped — OS-level termination
+   * is best-effort `SIGTERM` via the shared `safeExecFile` helper, and a
+   * non-cooperative process may outlive the resolved promise.
    */
   async listModels(): Promise<RawModel[]> {
     if (!this.spec) return [];
