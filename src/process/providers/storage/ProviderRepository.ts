@@ -1,6 +1,14 @@
 import crypto from 'node:crypto';
 import type { ISqliteDriver } from '@process/services/database/drivers/ISqliteDriver';
-import type { ProviderId, ProviderModel, Capability, ModelTier } from '../types';
+import type {
+  ProviderId,
+  ProviderModel,
+  Capability,
+  ModelTier,
+  CatalogModel,
+  ProviderConnState,
+  ConnectError,
+} from '../types';
 
 // ─── Encryption helpers ───────────────────────────────────────────────────────
 
@@ -49,6 +57,26 @@ export type DefaultModel = {
   catalogId: string;
   modelId: string;
 };
+
+// ─── Model registry (Models & Providers redesign — Wave 1) ─────────────────────
+
+/**
+ * A connected provider in the new model registry. Distinct from the legacy
+ * `ConnectedProvider` — keyed by `ProviderId` (one row per provider) and holds
+ * the encrypted credentials plus live connection state.
+ */
+export type RegistryProvider = {
+  providerId: ProviderId;
+  /** Short human label for how the provider was connected, e.g. `'api-key'`. */
+  connectedVia: string;
+  state: ProviderConnState;
+  error?: ConnectError;
+  /** Encrypted JSON of the credentials — never returned to the renderer. */
+  credsEncrypted: string;
+};
+
+/** A per-provider per-model enable/disable override the user set explicitly. */
+export type RegistryOverride = { modelId: string; enabled: boolean };
 
 // ─── Repository ───────────────────────────────────────────────────────────────
 
@@ -221,9 +249,9 @@ export class ProviderRepository {
   // ── Defaults ─────────────────────────────────────────────────────────────
 
   listDefaults(): DefaultModel[] {
-    const rows = this.db
-      .prepare(`SELECT scope, catalog_id, model_id FROM default_models`)
-      .all() as Array<Record<string, unknown>>;
+    const rows = this.db.prepare(`SELECT scope, catalog_id, model_id FROM default_models`).all() as Array<
+      Record<string, unknown>
+    >;
     return rows.map((r) => ({
       scope: r.scope as DefaultModel['scope'],
       catalogId: r.catalog_id as string,
@@ -244,4 +272,170 @@ export class ProviderRepository {
   clearDefault(scope: DefaultModel['scope']): void {
     this.db.prepare(`DELETE FROM default_models WHERE scope = ?`).run(scope);
   }
+
+  // ── Model registry: providers ────────────────────────────────────────────
+
+  /** Every connected provider in the model registry. */
+  listRegistryProviders(): RegistryProvider[] {
+    const rows = this.db
+      .prepare(
+        `SELECT provider_id, connected_via, state, error, creds_encrypted
+         FROM model_registry_providers ORDER BY created_at ASC`
+      )
+      .all() as Array<Record<string, unknown>>;
+    return rows.map((r) => toRegistryProvider(r));
+  }
+
+  /** A single connected provider, or `null` when not connected. */
+  getRegistryProvider(providerId: ProviderId): RegistryProvider | null {
+    const r = this.db
+      .prepare(
+        `SELECT provider_id, connected_via, state, error, creds_encrypted
+         FROM model_registry_providers WHERE provider_id = ?`
+      )
+      .get(providerId) as Record<string, unknown> | undefined;
+    return r ? toRegistryProvider(r) : null;
+  }
+
+  /**
+   * Insert or replace a connected provider. `creds` is a plain object — it is
+   * serialized and encrypted here so callers never handle ciphertext.
+   */
+  upsertRegistryProvider(params: {
+    providerId: ProviderId;
+    connectedVia: string;
+    state: ProviderConnState;
+    error?: ConnectError;
+    creds: Record<string, unknown>;
+  }): void {
+    const now = Date.now();
+    this.db
+      .prepare(
+        `INSERT INTO model_registry_providers
+         (provider_id, connected_via, state, error, creds_encrypted, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(provider_id) DO UPDATE SET
+           connected_via = excluded.connected_via,
+           state = excluded.state,
+           error = excluded.error,
+           creds_encrypted = excluded.creds_encrypted,
+           updated_at = excluded.updated_at`
+      )
+      .run(
+        params.providerId,
+        params.connectedVia,
+        params.state,
+        params.error ?? null,
+        encryptKey(JSON.stringify(params.creds)),
+        now,
+        now
+      );
+  }
+
+  /** Update only a provider's live connection state + error. */
+  updateRegistryProviderState(providerId: ProviderId, state: ProviderConnState, error?: ConnectError): void {
+    this.db
+      .prepare(`UPDATE model_registry_providers SET state = ?, error = ?, updated_at = ? WHERE provider_id = ?`)
+      .run(state, error ?? null, Date.now(), providerId);
+  }
+
+  /** Replace a connected provider's encrypted credentials. */
+  updateRegistryProviderCreds(providerId: ProviderId, creds: Record<string, unknown>): void {
+    this.db
+      .prepare(`UPDATE model_registry_providers SET creds_encrypted = ?, updated_at = ? WHERE provider_id = ?`)
+      .run(encryptKey(JSON.stringify(creds)), Date.now(), providerId);
+  }
+
+  /**
+   * Decrypt and return a provider's stored credentials, or `null` when the
+   * provider is not connected or the stored payload is unreadable.
+   */
+  getRegistryProviderCreds(providerId: ProviderId): Record<string, unknown> | null {
+    const provider = this.getRegistryProvider(providerId);
+    if (!provider) return null;
+    try {
+      const parsed: unknown = JSON.parse(decryptKey(provider.credsEncrypted));
+      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Remove a provider plus its catalog and overrides (FK `ON DELETE CASCADE`). */
+  deleteRegistryProvider(providerId: ProviderId): void {
+    this.db.prepare(`DELETE FROM model_registry_overrides WHERE provider_id = ?`).run(providerId);
+    this.db.prepare(`DELETE FROM model_registry_catalog WHERE provider_id = ?`).run(providerId);
+    this.db.prepare(`DELETE FROM model_registry_providers WHERE provider_id = ?`).run(providerId);
+  }
+
+  // ── Model registry: catalog ──────────────────────────────────────────────
+
+  /** Replace a provider's persisted catalog with `models` (full overwrite). */
+  replaceRegistryCatalog(providerId: ProviderId, models: CatalogModel[]): void {
+    const now = Date.now();
+    const tx = this.db.transaction(() => {
+      this.db.prepare(`DELETE FROM model_registry_catalog WHERE provider_id = ?`).run(providerId);
+      const stmt = this.db.prepare(
+        `INSERT INTO model_registry_catalog (provider_id, model_id, model_json, updated_at)
+         VALUES (?, ?, ?, ?)`
+      );
+      for (const model of models) {
+        stmt.run(providerId, model.id, JSON.stringify(model), now);
+      }
+    });
+    tx();
+  }
+
+  /** The persisted `CatalogModel[]` for a provider — empty when none stored. */
+  getRegistryCatalog(providerId: ProviderId): CatalogModel[] {
+    const rows = this.db
+      .prepare(`SELECT model_json FROM model_registry_catalog WHERE provider_id = ? ORDER BY model_id ASC`)
+      .all(providerId) as Array<Record<string, unknown>>;
+    const models: CatalogModel[] = [];
+    for (const r of rows) {
+      try {
+        models.push(JSON.parse(r.model_json as string) as CatalogModel);
+      } catch {
+        // A corrupt row is skipped rather than failing the whole read.
+      }
+    }
+    return models;
+  }
+
+  // ── Model registry: overrides ────────────────────────────────────────────
+
+  /** Persist (insert or update) a single per-model enable/disable override. */
+  setRegistryOverride(providerId: ProviderId, modelId: string, enabled: boolean): void {
+    this.db
+      .prepare(
+        `INSERT INTO model_registry_overrides (provider_id, model_id, enabled, updated_at)
+         VALUES (?, ?, ?, ?)
+         ON CONFLICT(provider_id, model_id) DO UPDATE SET enabled = excluded.enabled, updated_at = excluded.updated_at`
+      )
+      .run(providerId, modelId, enabled ? 1 : 0, Date.now());
+  }
+
+  /** Every explicit override for a provider. */
+  listRegistryOverrides(providerId: ProviderId): RegistryOverride[] {
+    const rows = this.db
+      .prepare(`SELECT model_id, enabled FROM model_registry_overrides WHERE provider_id = ?`)
+      .all(providerId) as Array<Record<string, unknown>>;
+    return rows.map((r) => ({ modelId: r.model_id as string, enabled: (r.enabled as number) === 1 }));
+  }
+}
+
+/** Map a `model_registry_providers` row onto a `RegistryProvider`. */
+function toRegistryProvider(r: Record<string, unknown>): RegistryProvider {
+  const provider: RegistryProvider = {
+    providerId: r.provider_id as ProviderId,
+    connectedVia: r.connected_via as string,
+    state: r.state as ProviderConnState,
+    credsEncrypted: r.creds_encrypted as string,
+  };
+  const error = r.error as string | null;
+  if (error) provider.error = error as ConnectError;
+  return provider;
 }

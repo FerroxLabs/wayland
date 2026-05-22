@@ -367,7 +367,9 @@ const migration_v11: IMigration = {
     // so DROP TABLE will NOT trigger ON DELETE CASCADE on the messages table.
 
     // Clean up any invalid source values before copying
-    db.exec(`UPDATE conversations SET source = NULL WHERE source IS NOT NULL AND source NOT IN ('wayland', 'telegram')`);
+    db.exec(
+      `UPDATE conversations SET source = NULL WHERE source IS NOT NULL AND source NOT IN ('wayland', 'telegram')`
+    );
 
     db.exec(`CREATE TABLE IF NOT EXISTS conversations_new (
         id TEXT PRIMARY KEY,
@@ -1440,15 +1442,13 @@ const migration_v32: IMigration = {
   up: (db) => {
     const r = db
       .prepare(
-        "DELETE FROM messages " +
+        'DELETE FROM messages ' +
           "WHERE type = 'tips' " +
           "AND (content LIKE '%Invalid response stream detected%' " +
           "OR content LIKE '%Request is being retried after a temporary failure%')"
       )
       .run();
-    console.log(
-      `[Migration v32] Purged Gemini retry-noise tips: ${r.changes} rows removed`
-    );
+    console.log(`[Migration v32] Purged Gemini retry-noise tips: ${r.changes} rows removed`);
   },
   down: (_db) => {
     console.log('[Migration v32] No rollback — deleted rows were never useful information');
@@ -1496,7 +1496,9 @@ const migration_v33: IMigration = {
       FOREIGN KEY (catalog_id) REFERENCES provider_catalogs(id) ON DELETE CASCADE
     )`);
     db.exec('CREATE INDEX IF NOT EXISTS idx_provider_models_catalog_id ON provider_models(catalog_id)');
-    db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_provider_models_catalog_model ON provider_models(catalog_id, model_id)');
+    db.exec(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_provider_models_catalog_model ON provider_models(catalog_id, model_id)'
+    );
 
     db.exec(`CREATE TABLE IF NOT EXISTS default_models (
       scope TEXT PRIMARY KEY,
@@ -1662,6 +1664,64 @@ const migration_v38: IMigration = {
 };
 
 /**
+ * Migration v38 -> v39: Add the model-registry tables for the two-tier model store.
+ *
+ * The Models & Providers redesign (Wave 1) stores connected providers, their
+ * enriched catalogs, and per-model enable/disable overrides separately from the
+ * legacy `provider_catalogs` / `provider_models` tables (those are removed in a
+ * later wave). Distinct table names avoid any collision while both schemas
+ * coexist.
+ *
+ * model_registry_providers — one row per connected provider, keyed by the
+ *   `ProviderId`. Holds the encrypted credentials, connect method, live state.
+ * model_registry_catalog   — one row per (provider, model). Stores the full
+ *   enriched `CatalogModel` as JSON; the curated view is derived on read.
+ * model_registry_overrides — one row per (provider, model) the user has
+ *   explicitly toggled; absence means "use the curated default".
+ */
+const migration_v39: IMigration = {
+  version: 39,
+  name: 'Add model_registry tables for the two-tier model store',
+  up: (db) => {
+    db.exec(`CREATE TABLE IF NOT EXISTS model_registry_providers (
+      provider_id TEXT PRIMARY KEY,
+      connected_via TEXT NOT NULL,
+      state TEXT NOT NULL DEFAULT 'connected',
+      error TEXT,
+      creds_encrypted TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )`);
+
+    db.exec(`CREATE TABLE IF NOT EXISTS model_registry_catalog (
+      provider_id TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      model_json TEXT NOT NULL,
+      updated_at INTEGER NOT NULL,
+      PRIMARY KEY (provider_id, model_id),
+      FOREIGN KEY (provider_id) REFERENCES model_registry_providers(provider_id) ON DELETE CASCADE
+    )`);
+
+    db.exec(`CREATE TABLE IF NOT EXISTS model_registry_overrides (
+      provider_id TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      enabled INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      PRIMARY KEY (provider_id, model_id),
+      FOREIGN KEY (provider_id) REFERENCES model_registry_providers(provider_id) ON DELETE CASCADE
+    )`);
+
+    console.log('[Migration v39] Added model_registry_providers, model_registry_catalog, model_registry_overrides');
+  },
+  down: (db) => {
+    db.exec('DROP TABLE IF EXISTS model_registry_overrides');
+    db.exec('DROP TABLE IF EXISTS model_registry_catalog');
+    db.exec('DROP TABLE IF EXISTS model_registry_providers');
+    console.log('[Migration v39] Rolled back: Removed model_registry tables');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -1672,7 +1732,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v19, migration_v20, migration_v21, migration_v22, migration_v23, migration_v24,
   migration_v25, migration_v26, migration_v27, migration_v28, migration_v29, migration_v30,
   migration_v31, migration_v32, migration_v33, migration_v34, migration_v35, migration_v36,
-  migration_v37, migration_v38,
+  migration_v37, migration_v38, migration_v39,
 ];
 
 /**
