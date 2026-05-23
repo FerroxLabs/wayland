@@ -113,4 +113,79 @@ describe('applyVendoredOverlay', () => {
     expect(kickoffs).toHaveLength(1);
     expect(kickoffs[0].id).toBe('live-override');
   });
+
+  // -- E-M-4 — all-or-nothing validator behavior for malformed entries.
+  //
+  // The overlay parses its OWN vendored manifest before applying it. The
+  // validator's `every` predicate gates the WHOLE kickoffs array — if any
+  // entry is malformed, the entire array is rejected (skipped) and the
+  // overlay sets nothing for that assistant. We can't easily inject a
+  // tampered vendored JSON, but we CAN assert the apply step's behavior
+  // around what the overlay holds vs what the assistant carries.
+  //
+  // (a) live record with [valid, malformed] in `kickoffs` → overlay does
+  //     not touch the field (it's "present").
+  // (b) live record with `kickoffs: []` → overlay treats as missing and
+  //     injects from the bundle (G-M-4 fix).
+  // (c) live record with `kickoffs: null` → overlay does NOT inject
+  //     (null is "present" — distinguishes "explicitly cleared" from
+  //     "never set" by the live record author).
+  it('does NOT overwrite a live kickoffs array containing a mix of valid+malformed entries (overlay is non-destructive)', async () => {
+    // The bundle's all-or-nothing validator runs on the BUNDLE side, not
+    // the live side. Live-side data is treated as authoritative regardless
+    // of shape. This test pins that contract.
+    const assistants: Record<string, unknown>[] = [
+      {
+        id: 'ext-helm',
+        kickoffs: [
+          { id: 'live-good', text: 't', prefill: 'p', scenario: 'cold-start' },
+          // Malformed — no id. Overlay should still leave the array alone.
+          { text: 'orphan' },
+        ],
+      },
+    ];
+    await applyVendoredOverlay(assistants);
+    const kickoffs = assistants[0].kickoffs as Array<{ id?: string }>;
+    expect(kickoffs).toHaveLength(2);
+    expect(kickoffs[0].id).toBe('live-good');
+  });
+
+  it('treats kickoffs:[] as missing → overlay injects the vendored array (G-M-4 fix)', async () => {
+    const assistants: Record<string, unknown>[] = [{ id: 'ext-helm', kickoffs: [] }];
+    await applyVendoredOverlay(assistants);
+    const kickoffs = assistants[0].kickoffs as Array<unknown>;
+    expect(kickoffs.length).toBeGreaterThan(0);
+  });
+
+  it('treats kickoffs:null as present → overlay does NOT inject', async () => {
+    // `null` is a deliberate value (distinct from `undefined`). The overlay's
+    // "missing" check is `undefined || empty-array`, so null falls through
+    // the gate and the live record stays untouched.
+    const assistants: Record<string, unknown>[] = [{ id: 'ext-helm', kickoffs: null }];
+    await applyVendoredOverlay(assistants);
+    expect(assistants[0].kickoffs).toBeNull();
+  });
+
+  // -- TEST-5 — Mock-vs-production drift guard: the engine reads bare
+  // `kickoffs` from the registry record. This test pins that the overlay
+  // carries the bare field with the expected shape across the dual-write
+  // boundary. A future refactor that renames or projects this field on the
+  // way out (e.g. to `_kickoffs` for renderer consumption) would silently
+  // disable the SuggestionEngine; this test catches that regression.
+  it('engine-shape contract: real assistants.json puts a bare `kickoffs` field with id/text/prefill/scenario on helm', async () => {
+    const assistants: Record<string, unknown>[] = [{ id: 'ext-helm', name: 'Coach' }];
+    await applyVendoredOverlay(assistants);
+    const kickoffs = (assistants[0] as { kickoffs?: unknown }).kickoffs;
+    expect(Array.isArray(kickoffs)).toBe(true);
+    const arr = kickoffs as Array<Record<string, unknown>>;
+    expect(arr.length).toBeGreaterThan(0);
+    for (const k of arr) {
+      expect(typeof k.id).toBe('string');
+      expect(typeof k.text).toBe('string');
+      expect(typeof k.prefill).toBe('string');
+      expect(typeof k.scenario).toBe('string');
+    }
+    // No `_kickoffs` renaming — the field must be bare.
+    expect((assistants[0] as { _kickoffs?: unknown })._kickoffs).toBeUndefined();
+  });
 });

@@ -7,6 +7,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { SuggestionEngine } from '@process/services/kickoff/SuggestionEngine';
 import type { KickoffSignals } from '@process/services/kickoff/types';
+import { dateKey, hashSeed, seededShuffle } from '@process/services/kickoff/seededShuffle';
 
 // ----------------------------------------------------------------------------
 // Fixtures: a representative assistant record matching the bundle shape
@@ -230,7 +231,33 @@ describe('SuggestionEngine — cascade', () => {
 });
 
 describe('SuggestionEngine — deterministic shuffle', () => {
-  it('same installUuid + same dateKey + same assistantId → same primary', async () => {
+  // v0.4.7.1 (TEST-4) — explicit seed assertion. Computes the expected
+  // seeded-shuffle primary and verifies the engine's chosen primary matches.
+  // Proves the seed expression `hash(installUuid:assistantId:dateKey)` is
+  // actually being used, not just that two in-process calls return the
+  // same value (the previous shape would pass even if hashSeed returned
+  // Math.random() cached in a closure).
+  it('engine primary matches the explicit seeded-shuffle of the morning cold-start pool', async () => {
+    const now = new Date('2026-05-23T09:00:00').getTime();
+    const signals = signalsBase(now);
+    const engine = makeEngine(signals);
+    const result = await engine.suggest('helm');
+    if ('notRendered' in result) throw new Error('expected suggestion');
+    const morningColdStarts = FIXTURE_ASSISTANT.kickoffs.filter(
+      (k) =>
+        k.scenario === 'cold-start' &&
+        k.beginnerSafe !== true &&
+        (!k.timeBucket || k.timeBucket === 'morning')
+    );
+    const expectedSeed = hashSeed(`${signals.installUuid}:helm:${dateKey(now)}`);
+    const expectedPrimary = seededShuffle(morningColdStarts, expectedSeed)[0]!;
+    expect(result.kickoffId).toBe(expectedPrimary.id);
+  });
+
+  it('storage round-trip: two engines on the same installUuid + dateKey pick the same primary', async () => {
+    // Proves the seed is reconstructed from the same inputs across engine
+    // instantiations (i.e. the seed expression is actually re-evaluated, not
+    // memoized in a way that hides a regression).
     const sigA = signalsBase();
     const sigB = signalsBase();
     const engineA = makeEngine(sigA);
@@ -268,5 +295,128 @@ describe('SuggestionEngine — deterministic shuffle', () => {
     if ('notRendered' in c) throw new Error('expected suggestion');
     const ids = new Set([a.kickoffId, b.kickoffId, c.kickoffId]);
     expect(ids.size).toBeGreaterThanOrEqual(2);
+  });
+});
+
+// ============================================================================
+// E-M-6 — readKickoffArray malformed-entry filtering
+// ============================================================================
+
+describe('SuggestionEngine — readKickoffArray malformed-entry filter', () => {
+  it('drops entries with empty id, invalid scenario, and missing fields; keeps the valid ones', async () => {
+    const valid = {
+      id: 'good-1',
+      text: 'good text',
+      prefill: 'good prefill',
+      scenario: 'cold-start' as const,
+      timeBucket: 'morning' as const,
+    };
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const record = {
+      id: 'helm',
+      kickoffs: [
+        valid,
+        // empty id → dropped
+        { id: '', text: 't', prefill: 'p', scenario: 'cold-start' },
+        // invalid scenario → dropped (with warn)
+        { id: 'bad-scenario', text: 't', prefill: 'p', scenario: 'oops' },
+        // missing prefill → dropped
+        { id: 'no-prefill', text: 't', scenario: 'cold-start' },
+        // null entry → dropped
+        null,
+        // non-object → dropped
+        42,
+      ],
+    };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggest('helm');
+    if ('notRendered' in result) throw new Error('expected suggestion');
+    // Only the valid one survives → it must be the chosen primary.
+    expect(result.kickoffId).toBe('good-1');
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('invalid scenario "oops"')
+    );
+    warnSpy.mockRestore();
+  });
+
+  it('drops entries with invalid timeBucket but keeps the entry (warns)', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const record = {
+      id: 'helm',
+      kickoffs: [
+        {
+          id: 'good-1',
+          text: 'good text',
+          prefill: 'good prefill',
+          scenario: 'cold-start',
+          timeBucket: 'gibberish',
+        },
+      ],
+    };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggest('helm');
+    // Bad timeBucket is dropped (treated as no bucket) so the entry stays
+    // eligible for any bucket → present at Level 3.
+    if ('notRendered' in result) throw new Error('expected suggestion');
+    expect(result.kickoffId).toBe('good-1');
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('invalid timeBucket "gibberish"')
+    );
+    warnSpy.mockRestore();
+  });
+});
+
+// ============================================================================
+// E-L-2 — thread-quality boundary cases (exact-3 messages, exact-2-min duration)
+// ============================================================================
+
+describe('SuggestionEngine — thread quality boundaries', () => {
+  it('exact boundary: messageCount=3 + durationMs=2*60*1000 → level 2 (inclusive)', async () => {
+    const signals = signalsBase();
+    signals.assistantRecentConversations = [
+      {
+        id: 'c1',
+        modifyTime: signals.now,
+        messageCount: 3,
+        durationMs: 2 * 60 * 1000,
+        subject: 'Decision: extend pilot?',
+        isAutoTitled: false,
+      },
+    ];
+    const engine = makeEngine(signals);
+    const result = await engine.suggest('helm');
+    if ('notRendered' in result) throw new Error('expected suggestion');
+    expect(result.cascadeLevel).toBe(2);
+  });
+
+  it('just-below boundary: messageCount=2 + durationMs=2*60*1000 → falls through to level 3', async () => {
+    const signals = signalsBase();
+    signals.assistantRecentConversations = [
+      {
+        id: 'c1',
+        modifyTime: signals.now,
+        messageCount: 2,
+        durationMs: 2 * 60 * 1000,
+        subject: 'Decision: extend pilot?',
+        isAutoTitled: false,
+      },
+    ];
+    const engine = makeEngine(signals);
+    const result = await engine.suggest('helm');
+    if ('notRendered' in result) throw new Error('expected suggestion');
+    expect(result.cascadeLevel).toBe(3);
+  });
+});
+
+// ============================================================================
+// kickoffs-excluded sentinel
+// ============================================================================
+
+describe('SuggestionEngine — kickoffs-excluded opt-out sentinel', () => {
+  it('returns notRendered=kickoffs-excluded when the assistant carries _kickoffsExcluded=true', async () => {
+    const record = { id: 'helm', _kickoffsExcluded: true, kickoffs: FIXTURE_ASSISTANT.kickoffs };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggest('helm');
+    expect(result).toEqual({ notRendered: 'kickoffs-excluded' });
   });
 });

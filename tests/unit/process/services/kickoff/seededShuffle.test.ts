@@ -37,6 +37,15 @@ describe('seededShuffle', () => {
     seededShuffle(items, 7);
     expect(items).toEqual(snapshot);
   });
+
+  // v0.4.7.1 (E-L-6) — trivial edge cases.
+  it('returns [] for an empty input without throwing', () => {
+    expect(seededShuffle([], 42)).toEqual([]);
+  });
+
+  it('returns the single element unchanged for a length-1 input', () => {
+    expect(seededShuffle(['only'], 42)).toEqual(['only']);
+  });
 });
 
 describe('dateKey', () => {
@@ -50,10 +59,31 @@ describe('dateKey', () => {
 });
 
 describe('timeBucketFor', () => {
-  it('classifies morning / afternoon / evening by local hour', () => {
-    const at = (h: number) => new Date(2026, 4, 23, h, 0, 0).getTime();
+  const at = (h: number) => new Date(2026, 4, 23, h, 0, 0).getTime();
+
+  it('classifies late-night / morning / afternoon / evening by local hour', () => {
+    expect(timeBucketFor(at(2))).toBe('late-night');
     expect(timeBucketFor(at(8))).toBe('morning');
     expect(timeBucketFor(at(13))).toBe('afternoon');
     expect(timeBucketFor(at(20))).toBe('evening');
+  });
+
+  // v0.4.7.1 (E-L-3) — boundary samples at the four transitions.
+  // late-night → morning at hour 6
+  it('hour 5 → late-night, hour 6 → morning (late-night boundary)', () => {
+    expect(timeBucketFor(at(5))).toBe('late-night');
+    expect(timeBucketFor(at(6))).toBe('morning');
+  });
+
+  // morning → afternoon at hour 12
+  it('hour 11 → morning, hour 12 → afternoon (noon boundary)', () => {
+    expect(timeBucketFor(at(11))).toBe('morning');
+    expect(timeBucketFor(at(12))).toBe('afternoon');
+  });
+
+  // afternoon → evening at hour 18
+  it('hour 17 → afternoon, hour 18 → evening (6pm boundary)', () => {
+    expect(timeBucketFor(at(17))).toBe('afternoon');
+    expect(timeBucketFor(at(18))).toBe('evening');
   });
 });
