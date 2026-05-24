@@ -1722,6 +1722,41 @@ const migration_v39: IMigration = {
 };
 
 /**
+ * Migration v39 -> v40: Add usage_events table for telemetry-driven predictive widget
+ *
+ * Logs anchor-card clicks, GUID interactions, and dashboard activity so the
+ * Launchpad predictive widget can rank recently-used assistants by frecency.
+ * Append-only event log; analytics services read via timestamp range queries.
+ */
+const migration_v40: IMigration = {
+  version: 40,
+  name: 'Add usage_events table for telemetry-driven predictive widget',
+  up: (db) => {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS usage_events (
+        id            TEXT PRIMARY KEY,
+        timestamp_ms  INTEGER NOT NULL,
+        event_type    TEXT NOT NULL,
+        anchor_id     TEXT,
+        assistant_id  TEXT,
+        cli_backend   TEXT,
+        metadata_json TEXT
+      )
+    `);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_usage_events_timestamp ON usage_events (timestamp_ms DESC)');
+    db.exec(
+      'CREATE INDEX IF NOT EXISTS idx_usage_events_type_timestamp ON usage_events (event_type, timestamp_ms DESC)'
+    );
+    console.log('[Migration v40] Added usage_events table');
+  },
+  down: (_db) => {
+    // Leave the telemetry table in place on rollback — historical event data
+    // shouldn't be destroyed by a schema downgrade.
+    console.log('[Migration v40] No-op rollback (telemetry table left in place)');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -1732,7 +1767,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v19, migration_v20, migration_v21, migration_v22, migration_v23, migration_v24,
   migration_v25, migration_v26, migration_v27, migration_v28, migration_v29, migration_v30,
   migration_v31, migration_v32, migration_v33, migration_v34, migration_v35, migration_v36,
-  migration_v37, migration_v38, migration_v39,
+  migration_v37, migration_v38, migration_v39, migration_v40,
 ];
 
 /**
