@@ -4,7 +4,11 @@
 
 .bar {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  /* 5 cards + the add chip = 6 columns. When the bar holds more than 5 cards,
+     the extra items wrap to a second row so picker-added assistants stay
+     visible without horizontal scroll. */
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-flow: row;
   gap: 8px;
   margin-bottom: 6px;
 }

@@ -199,7 +199,17 @@ const LaunchpadPicker: React.FC<LaunchpadPickerProps> = ({
                 }
               >
                 <AssistantIconTile paletteKey={entry.palette} size='sm'>
-                  <Icon size={14} />
+                  {entry.avatarUrl ? (
+                    <img
+                      src={entry.avatarUrl}
+                      alt=''
+                      style={{ width: '60%', height: '60%', objectFit: 'contain' }}
+                    />
+                  ) : entry.avatarEmoji ? (
+                    <span style={{ fontSize: 14, lineHeight: '16px' }}>{entry.avatarEmoji}</span>
+                  ) : (
+                    <Icon size={14} />
+                  )}
                 </AssistantIconTile>
                 <span className={styles.pickLabel}>{entry.label}</span>
                 {pinned ? (

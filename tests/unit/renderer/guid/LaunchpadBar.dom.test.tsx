@@ -32,7 +32,12 @@ vi.mock('@/renderer/hooks/assistant', () => ({
       { id: 'ext-product-launch', name: 'Launch', nameI18n: { 'en-US': 'Launch' } },
       { id: 'ext-coin', name: 'Coin', nameI18n: { 'en-US': 'Coin' } },
       { id: 'ext-quiet-money', name: 'Quiet Money', nameI18n: { 'en-US': 'Quiet Money' } },
-      { id: 'ext-forge', name: 'Forge', nameI18n: { 'en-US': 'Forge' } },
+      {
+        id: 'ext-forge',
+        name: 'Forge',
+        nameI18n: { 'en-US': 'Forge' },
+        avatar: 'lucide:Sparkles',
+      },
     ],
     localeKey: 'en-US',
   }),
@@ -168,5 +173,55 @@ describe('LaunchpadBar', () => {
     render(<LaunchpadBar onAnchorClick={vi.fn()} onViewAll={vi.fn()} />);
     await flushLoad();
     expect(screen.getByTestId('launchpad-bar-empty')).toBeInTheDocument();
+  });
+
+  // Bug 1 — card body uses semantic text token, not `inherit` (which gives
+  // black-on-black when a parent sets color: rgb(0,0,0)).
+  it('card body text color uses --color-text-1, not inherit', async () => {
+    getMock.mockResolvedValueOnce(undefined);
+    render(<LaunchpadBar onAnchorClick={vi.fn()} onViewAll={vi.fn()} />);
+    await flushLoad();
+    const card = document.querySelector('[data-quicklaunch-id="builtin-cowork"]') as HTMLButtonElement;
+    expect(card).toBeTruthy();
+    expect(card.style.color).toBe('var(--color-text-1)');
+  });
+
+  // Bug 2 — only Cowork carries the orange halo treatment; other anchors are neutral.
+  it('only Cowork gets the orange halo background; other anchors stay neutral', async () => {
+    getMock.mockResolvedValueOnce(undefined);
+    render(<LaunchpadBar onAnchorClick={vi.fn()} onViewAll={vi.fn()} />);
+    await flushLoad();
+
+    const cowork = document.querySelector('[data-quicklaunch-id="builtin-cowork"]') as HTMLButtonElement;
+    const writeCopy = document.querySelector('[data-quicklaunch-id="ext-copy"]') as HTMLButtonElement;
+    const numbers = document.querySelector('[data-quicklaunch-id="ext-coin"]') as HTMLButtonElement;
+    expect(cowork).toBeTruthy();
+    expect(writeCopy).toBeTruthy();
+    expect(numbers).toBeTruthy();
+
+    // Cowork: orange linear-gradient + orange border.
+    expect(cowork.style.background).toContain('linear-gradient');
+    expect(cowork.style.background).toContain('249, 115, 22');
+    expect(cowork.style.borderColor).toContain('249, 115, 22');
+    expect(cowork.classList.contains('launchpad-body-anchor')).toBe(true);
+
+    // Other anchors: neutral fill + neutral border, no orange anywhere.
+    expect(writeCopy.style.background).toBe('var(--color-fill-2)');
+    expect(writeCopy.style.borderColor).toBe('var(--color-border-2)');
+    expect(writeCopy.classList.contains('launchpad-body-anchor')).toBe(false);
+    expect(numbers.style.background).toBe('var(--color-fill-2)');
+    expect(numbers.classList.contains('launchpad-body-anchor')).toBe(false);
+  });
+
+  // Bug 6 — view-all uses an i18n interpolation placeholder, not a hardcoded 54.
+  // The stub `t()` in this jsdom test returns the defaultValue string verbatim;
+  // we assert the count placeholder reached the template (no longer the literal 54).
+  it('view-all label no longer hardcodes "54"', async () => {
+    getMock.mockResolvedValueOnce(undefined);
+    render(<LaunchpadBar onAnchorClick={vi.fn()} onViewAll={vi.fn()} mode='compact' />);
+    await flushLoad();
+    const viewAll = screen.getByTestId('launchpad-view-all');
+    expect(viewAll.textContent).not.toContain('54');
+    expect(viewAll.textContent).toContain('{{count}}');
   });
 });

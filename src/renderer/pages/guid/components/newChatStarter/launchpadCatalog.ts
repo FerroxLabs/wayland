@@ -19,6 +19,10 @@ import { categoryToPaletteKey } from '@/renderer/pages/guid/components/Assistant
 import { QUICK_LAUNCH_ANCHORS } from '@/renderer/pages/guid/quickLaunchAnchors';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
+import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
+import { isImageAvatar } from '@/renderer/utils/avatar';
+import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 
 /**
  * Visual + click payload for one launchpad bar entry. The bar holds an
@@ -41,8 +45,20 @@ export type LaunchpadBarEntry = {
   palette: PaletteKey | undefined;
   /** Avatar string from the source (lucide:Foo / emoji / image path). Optional. */
   avatar?: string;
-  /** Source flag — bars rendered from the default-shipped anchors render the cowork halo. */
-  isAnchor: boolean;
+  /**
+   * When set, render this image inside the tile instead of `Icon`. Resolved
+   * here (not in the renderer) so the bar/picker stay dumb. Covers
+   * mapped icons (cowork.svg), extension-bundled SVGs (`wayland-asset://…`)
+   * and absolute file paths — the same resolution chain AssistantCard uses.
+   */
+  avatarUrl?: string;
+  /**
+   * Emoji glyph (when `avatar` is a plain emoji like `📊`). Mutually exclusive
+   * with `avatarUrl`. Renderer shows this in the tile instead of an icon.
+   */
+  avatarEmoji?: string;
+  /** True only for the universal Cowork autonomous-execution card. Drives the orange halo treatment. */
+  isCowork: boolean;
   /** Prefill text appended to the input when card is clicked. Defaults to empty for non-anchor picks. */
   prefill?: string;
 };
@@ -81,7 +97,9 @@ export function resolveBarEntry(
   assistants: AssistantListItem[],
   localeKey: string
 ): LaunchpadBarEntry | null {
-  // 1. Default anchors — preserve their hand-tuned copy.
+  // 1. Default anchors — preserve their hand-tuned copy. Only Cowork carries
+  //    the orange-halo treatment; the other five anchors get the same neutral
+  //    chrome as picker-added cards (palette still tints the tile).
   const anchor = QUICK_LAUNCH_ANCHORS.find((a) => a.assistantId === rawId);
   if (anchor) {
     return {
@@ -91,7 +109,7 @@ export function resolveBarEntry(
       sub: anchor.sub,
       Icon: LUCIDE_ICON_MAP[anchor.lucideIcon] ?? Zap,
       palette: anchorPalette(anchor.id),
-      isAnchor: true,
+      isCowork: rawId === 'builtin-cowork',
       prefill: anchor.prefill,
     };
   }
@@ -113,10 +131,10 @@ export function resolveBarEntry(
       assistantId: rawId,
       label,
       sub: truncate(description, 28),
-      Icon: Bot,
+      ...iconFromAvatar(preset.avatar),
       palette: categoryToPaletteKey(preset.category),
       avatar: preset.avatar,
-      isAnchor: false,
+      isCowork: false,
     };
   }
 
@@ -134,11 +152,41 @@ function entryFromAssistant(rawId: string, a: AssistantListItem, localeKey: stri
     assistantId: rawId,
     label,
     sub: truncate(description, 28),
-    Icon: Bot,
+    ...iconFromAvatar(a.avatar),
     palette,
     avatar: a.avatar,
-    isAnchor: false,
+    isCowork: false,
   };
+}
+
+/**
+ * Map an `avatar` string to the renderer-ready `{ Icon, avatarUrl?, avatarEmoji? }`.
+ * Mirrors the resolution chain used by AssistantCard so the bar/picker glyphs
+ * match what the assistants library shows. Resolution priority:
+ *   1. `lucide:Foo` → Lucide component (no avatarUrl).
+ *   2. Known CUSTOM_AVATAR_IMAGE_MAP entry (e.g. 'cowork.svg' → bundled SVG).
+ *   3. `wayland-asset://…` or file:// path → resolveExtensionAssetUrl().
+ *   4. Plain image filename (svg/png/etc.) recognised by isImageAvatar.
+ *   5. Single-char/emoji → render as a glyph.
+ *   6. Anything else → fall back to the Bot icon.
+ */
+function iconFromAvatar(
+  avatar: string | undefined
+): { Icon: LucideIcon; avatarUrl?: string; avatarEmoji?: string } {
+  const value = avatar?.trim();
+  if (!value) return { Icon: Bot };
+
+  const LucideIconComponent = getLucideIcon(value);
+  if (LucideIconComponent) return { Icon: LucideIconComponent };
+
+  const mapped = CUSTOM_AVATAR_IMAGE_MAP[value];
+  const resolved = mapped || resolveExtensionAssetUrl(value) || value;
+  if (resolved && isImageAvatar(resolved)) {
+    return { Icon: Bot, avatarUrl: resolved };
+  }
+
+  // Anything left (e.g. a single emoji glyph like `📊`) renders as text in the tile.
+  return { Icon: Bot, avatarEmoji: value };
 }
 
 function anchorPalette(anchorId: string): PaletteKey {

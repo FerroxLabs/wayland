@@ -201,7 +201,10 @@ const LaunchpadBar: React.FC<LaunchpadBarProps> = ({ onAnchorClick, onViewAll, m
             onClick={onViewAll}
             data-testid='launchpad-view-all'
           >
-            {t('guid.launchpad.viewAll', { defaultValue: 'View all 54 →' })}
+            {t('guid.launchpad.viewAll', {
+              defaultValue: 'View all {{count}} →',
+              count: assistants.length,
+            })}
           </button>
         ) : null}
       </div>
@@ -282,18 +285,24 @@ const SortableCard: React.FC<SortableCardProps> = ({ entry, onClick, onRemove, r
 // palette — which is a superset of QuickLaunchAnchorId. Splitting later if
 // QuickLaunchCard ever needs the same flexibility.
 const LaunchpadCardBody: React.FC<{ entry: LaunchpadBarEntry; onClick: () => void }> = ({ entry, onClick }) => {
-  const { Icon, palette, label, sub, id, isAnchor } = entry;
+  const { Icon, palette, label, sub, id, isCowork, avatarUrl, avatarEmoji } = entry;
   return (
     <button
       type='button'
       data-quicklaunch-id={id}
-      className={`launchpad-body ${isAnchor ? 'launchpad-body-anchor' : ''}`}
+      className={`launchpad-body ${isCowork ? 'launchpad-body-anchor' : ''}`}
       onClick={onClick}
       aria-label={`${label} — ${sub}`}
-      style={launchpadBodyStyle(isAnchor)}
+      style={launchpadBodyStyle(isCowork)}
     >
       <AssistantIconTile paletteKey={palette} size='sm'>
-        <Icon size={16} />
+        {avatarUrl ? (
+          <img src={avatarUrl} alt='' style={{ width: '60%', height: '60%', objectFit: 'contain' }} />
+        ) : avatarEmoji ? (
+          <span style={{ fontSize: 16, lineHeight: '18px' }}>{avatarEmoji}</span>
+        ) : (
+          <Icon size={16} />
+        )}
       </AssistantIconTile>
       <div style={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.25 }}>{label}</div>
       <div style={{ fontSize: 10.5, color: 'var(--color-text-3)', lineHeight: 1.3 }}>{sub}</div>
@@ -301,23 +310,23 @@ const LaunchpadCardBody: React.FC<{ entry: LaunchpadBarEntry; onClick: () => voi
   );
 };
 
-const launchpadBodyStyle = (isAnchor: boolean): React.CSSProperties => ({
+const launchpadBodyStyle = (isCowork: boolean): React.CSSProperties => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   gap: 6,
   padding: '12px 10px 10px',
-  background: isAnchor
+  background: isCowork
     ? 'linear-gradient(180deg, rgba(249, 115, 22, 0.08), var(--color-fill-2))'
     : 'var(--color-fill-2)',
   border: '1px solid',
-  borderColor: isAnchor ? 'rgba(249, 115, 22, 0.22)' : 'var(--color-border-2)',
+  borderColor: isCowork ? 'rgba(249, 115, 22, 0.22)' : 'var(--color-border-2)',
   borderRadius: 10,
   cursor: 'pointer',
   minHeight: 86,
   textAlign: 'center',
   fontFamily: 'inherit',
-  color: 'inherit',
+  color: 'var(--color-text-1)',
   width: '100%',
   height: '100%',
   transition: 'background 120ms ease, border-color 120ms ease, transform 120ms ease',
