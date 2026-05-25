@@ -51,6 +51,13 @@ vi.mock('@renderer/utils/ui/focus', () => ({
   blurActiveElement: vi.fn(),
 }));
 
+// SiderActiveTeams reads the assistant list to colorize each row's tile via
+// the launcher record. Tests don't exercise palette resolution, so a stub
+// list keeps the hook quiet without setting up the full i18n + IPC layer.
+vi.mock('@renderer/hooks/assistant', () => ({
+  useAssistantList: () => ({ assistants: [], localeKey: 'en-US' }),
+}));
+
 import SiderActiveTeams from '@/renderer/components/layout/Sider/SiderNav/SiderActiveTeams';
 
 const makeTeam = (over: Partial<TTeam> & { id: string; activeAgentCount?: number; agentTypes?: string[] }): TTeam => {

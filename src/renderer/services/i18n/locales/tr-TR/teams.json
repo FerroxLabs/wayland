@@ -4,6 +4,7 @@
   "siderEntry": "[TODO:translate] Teams",
   "emptyState": "[TODO:translate] No teams available yet.",
   "standingBadge": "[TODO:translate] Standing",
+  "teamLeader": "[TODO:translate] Team Leader",
   "standing": {
     "promoteCta": "[TODO:translate] Promote to Standing",
     "promoteCtaTooltip": "[TODO:translate] Eligible: {{sessionsRemaining}} sessions or {{daysRemaining}} days remaining",

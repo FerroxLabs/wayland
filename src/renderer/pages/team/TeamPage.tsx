@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Crown, Maximize2, Minimize2, X } from 'lucide-react';
 import { Message, Modal, Spin } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,9 @@ import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { ipcBridge } from '@/common';
 import type { TeamAgent, TTeam } from '@/common/types/teamTypes';
 import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/config/storage';
+import { useAssistantList } from '@/renderer/hooks/assistant';
+import { resolveSpecialistPalette } from '@/renderer/pages/teams/components/teamPalette';
+import type { PaletteKey } from '@/renderer/pages/guid/components/AssistantIconTile';
 import ChatLayout from '@/renderer/pages/conversation/components/ChatLayout';
 import ChatSider from '@/renderer/pages/conversation/components/ChatSider';
 import { useTeamPendingPermissions } from './hooks/useTeamPendingPermissions';
@@ -66,7 +69,10 @@ const AgentChatSlot: React.FC<{
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
   onRemove?: () => void;
-}> = ({ agent, teamId, isLeader, isFullscreen = false, onToggleFullscreen, onRemove }) => {
+  /** Pre-resolved palette for the agent's tile (computed by parent so we don't re-walk the assistant list per slot). */
+  palette?: PaletteKey;
+}> = ({ agent, teamId, isLeader, isFullscreen = false, onToggleFullscreen, onRemove, palette }) => {
+  const { t } = useTranslation();
   const { data: conversation } = useSWR(agent.conversationId ? ['team-conversation', agent.conversationId] : null, () =>
     ipcBridge.conversation.get.invoke({ id: agent.conversationId })
   );
@@ -111,14 +117,31 @@ const AgentChatSlot: React.FC<{
             : { background: 'var(--color-bg-2)' }
         }
       >
-        <TeamAgentIdentity
-          agentName={agent.agentName}
-          agentType={agent.agentType}
-          conversationId={agent.conversationId}
-          isLeader={isLeader}
-          className='min-w-0'
-          nameClassName='text-13px text-[color:var(--color-text-2)] font-medium'
-        />
+        <div className='flex items-center gap-8px min-w-0'>
+          {isLeader && (
+            <span
+              data-testid='team-leader-pill'
+              className='inline-flex items-center gap-3px shrink-0 px-6px py-1px rd-4px text-9.5px font-semibold uppercase tracking-wider'
+              style={{
+                background: 'rgba(245,158,11,0.14)',
+                color: 'rgb(245,158,11)',
+                letterSpacing: '0.06em',
+              }}
+            >
+              <Crown size={10} aria-hidden='true' />
+              {t('teams.teamLeader', { defaultValue: 'Team Leader' })}
+            </span>
+          )}
+          <TeamAgentIdentity
+            agentName={agent.agentName}
+            agentType={agent.agentType}
+            conversationId={agent.conversationId}
+            isLeader={isLeader}
+            className='min-w-0'
+            nameClassName='text-13px text-[color:var(--color-text-2)] font-medium'
+            paletteKey={palette}
+          />
+        </div>
         <div className='flex items-center gap-8px shrink-0'>
           {/* Live-smoke fix #4b (2026-05-19) — per-agent backend swap.
               Hides itself when fewer than 2 backends are installed and
@@ -187,6 +210,19 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
   const { t } = useTranslation();
   const { agents, activeSlotId, statusMap, switchTab } = useTeamTabs();
   const [, messageContext] = Message.useMessage({ maxCount: 1 });
+  // Resolve specialist palettes for each slot so AgentChatSlot can color its
+  // identity tile from the same source the launcher uses (keeps a specialist's
+  // tile hue stable from launchpad → roster → pane header).
+  const { assistants } = useAssistantList();
+  const paletteBySlotId = useMemo(() => {
+    const map = new Map<string, PaletteKey>();
+    for (const agent of agents) {
+      const spec = agent.customAgentId ? assistants.find((a) => a.id === agent.customAgentId) : undefined;
+      const palette = resolveSpecialistPalette(spec, agent.customAgentId ?? agent.agentName);
+      if (palette) map.set(agent.slotId, palette);
+    }
+    return map;
+  }, [agents, assistants]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const agentRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -531,6 +567,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
                       isFullscreen
                       onToggleFullscreen={() => setFullscreenSlotId(null)}
                       onRemove={() => handleRemoveAgent(agent.slotId)}
+                      palette={paletteBySlotId.get(agent.slotId)}
                     />
                   </div>
                 );
@@ -583,6 +620,7 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
                         isLeader={isLeaderSlot}
                         onToggleFullscreen={() => setFullscreenSlotId(agent.slotId)}
                         onRemove={() => handleRemoveAgent(agent.slotId)}
+                        palette={paletteBySlotId.get(agent.slotId)}
                       />
                     </div>
                   );

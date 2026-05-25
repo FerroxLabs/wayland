@@ -42,9 +42,11 @@ import type {
 } from '@process/team/suggestRoster';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { isImageAvatar } from '@/renderer/utils/avatar';
+import AssistantIconTile from '@/renderer/pages/guid/components/AssistantIconTile';
 import { resolveConversationType } from '../team/components/agentSelectUtils';
 import AddTeammatePicker from './components/AddTeammatePicker';
 import LauncherRosterTable, { type RosterEntry } from './components/LauncherRosterTable';
+import { resolveTeamPalette } from './components/teamPalette';
 import styles from './TeamLauncherPage.module.css';
 
 type LauncherState = {
@@ -405,6 +407,7 @@ const TeamLauncherPage: React.FC = () => {
     ? headerMapped || resolveExtensionAssetUrl(headerAvatarValue) || headerAvatarValue
     : undefined;
   const showHeaderImage = headerResolved ? isImageAvatar(headerResolved) : false;
+  const headerPalette = resolveTeamPalette(launcher, teamId);
 
   if (!isBuildMyOwn && !launcher && specialists.length === 0) {
     // Bundles haven't loaded yet — render a neutral skeleton.
@@ -458,7 +461,7 @@ const TeamLauncherPage: React.FC = () => {
           </Button>
 
           <div className={styles.header} data-testid='launcher-header'>
-            <div className={styles.headerAvatar} aria-hidden='true'>
+            <AssistantIconTile paletteKey={headerPalette} size='lg' className={styles.headerAvatar}>
               {showHeaderImage && headerResolved ? (
                 <img src={headerResolved} alt='' />
               ) : headerAvatarValue ? (
@@ -466,7 +469,7 @@ const TeamLauncherPage: React.FC = () => {
               ) : (
                 <Users size={26} />
               )}
-            </div>
+            </AssistantIconTile>
             <div className={styles.headerBody}>
               <div className={styles.titleRow}>
                 <h1 className={styles.title} data-testid='launcher-title'>

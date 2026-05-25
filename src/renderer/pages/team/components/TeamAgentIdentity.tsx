@@ -4,6 +4,7 @@ import { ipcBridge } from '@/common';
 import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import { usePresetAssistantInfo } from '@renderer/hooks/agent/usePresetAssistantInfo';
 import { getLucideIcon } from '@renderer/utils/lucideAvatar';
+import AssistantIconTile, { type PaletteKey } from '@/renderer/pages/guid/components/AssistantIconTile';
 
 type Props = {
   agentName: string;
@@ -17,6 +18,10 @@ type Props = {
   avatarClassName?: string;
   nameClassName?: string;
   crownClassName?: string;
+  /** When set, wraps the avatar glyph/emoji in an AssistantIconTile so flat-fill icons stay legible on dark. */
+  paletteKey?: PaletteKey;
+  /** Tile size override (defaults to 'sm' = 28px when paletteKey is set). */
+  tileSize?: 'sm' | 'md';
 };
 
 const TeamAgentIdentity: React.FC<Props> = ({
@@ -29,6 +34,8 @@ const TeamAgentIdentity: React.FC<Props> = ({
   avatarClassName,
   nameClassName,
   crownClassName,
+  paletteKey,
+  tileSize = 'sm',
 }) => {
   // Share the SWR key with AgentChatSlot / TeamChatEmptyState so this hits cache instead of firing a fetch
   const { data: conversation } = useSWR(conversationId ? ['team-conversation', conversationId] : null, () =>
@@ -84,9 +91,18 @@ const TeamAgentIdentity: React.FC<Props> = ({
     </svg>
   );
 
+  const avatarNode = renderAvatar();
+  const wrappedAvatar = paletteKey ? (
+    <AssistantIconTile paletteKey={paletteKey} size={tileSize}>
+      {avatarNode}
+    </AssistantIconTile>
+  ) : (
+    avatarNode
+  );
+
   return (
     <div className={['flex items-center gap-8px', className].filter(Boolean).join(' ')}>
-      {renderAvatar()}
+      {wrappedAvatar}
       <span className={['min-w-0 flex-1 truncate', nameClassName].filter(Boolean).join(' ')}>{agentName}</span>
       {isLeader && (
         <span

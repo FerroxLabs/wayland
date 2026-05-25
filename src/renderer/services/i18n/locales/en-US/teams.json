@@ -4,6 +4,7 @@
   "siderEntry": "Teams",
   "emptyState": "No teams available yet.",
   "standingBadge": "Standing",
+  "teamLeader": "Team Leader",
   "standing": {
     "promoteCta": "Promote to Standing",
     "promoteCtaTooltip": "Eligible: {{sessionsRemaining}} sessions or {{daysRemaining}} days remaining",

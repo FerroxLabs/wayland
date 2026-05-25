@@ -17,10 +17,12 @@
 
 import React from 'react';
 import { Button, Input } from '@arco-design/web-react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Crown, Plus, Trash2 } from 'lucide-react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import Avatar from '@/renderer/components/base/Avatar';
+import AssistantIconTile from '@/renderer/pages/guid/components/AssistantIconTile';
+import { resolveSpecialistPalette } from './teamPalette';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import BackendPill from './BackendPill';
 import styles from './LauncherRosterTable.module.css';
@@ -101,23 +103,30 @@ const RosterRow: React.FC<RowProps> = ({
   const desc = resolveSpecialistDesc(specialist, localeKey);
   const testIdSuffix = isLeader ? 'leader' : `teammate-${index}`;
 
+  const palette = resolveSpecialistPalette(specialist, entry.specialistId);
   return (
     <div
       className={classNames(styles.row, isLeader && styles.rowLeader)}
       data-testid={`launcher-row-${testIdSuffix}`}
       data-specialist-id={entry.specialistId}
+      data-is-leader={isLeader ? 'true' : undefined}
     >
-      <div className={styles.avatar} aria-hidden='true'>
+      <AssistantIconTile paletteKey={palette} size='md' className={styles.avatarTile}>
         <Avatar avatar={specialist?.avatar} name={name} />
-      </div>
+      </AssistantIconTile>
       <div className={styles.identity}>
         <div className={styles.nameLine}>
           <span>{name}</span>
-          <span className={styles.roleTag}>
-            {isLeader
-              ? t('teams.launcher.leaderRoleLabel', { defaultValue: 'Leader' })
-              : t('teams.launcher.teammateRoleLabel', { defaultValue: 'Teammate' })}
-          </span>
+          {isLeader ? (
+            <span className={styles.leaderTag} data-testid='launcher-leader-tag'>
+              <Crown size={10} aria-hidden='true' />
+              <span>{t('teams.launcher.leaderRoleLabel', { defaultValue: 'Leader' })}</span>
+            </span>
+          ) : (
+            <span className={styles.roleTag}>
+              {t('teams.launcher.teammateRoleLabel', { defaultValue: 'Teammate' })}
+            </span>
+          )}
           {!specialist && (
             <span className={styles.roleTag}>
               {t('teams.launcher.specialistNotFound', { defaultValue: '(missing specialist)' })}

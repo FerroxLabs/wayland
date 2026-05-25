@@ -16,7 +16,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Button, Message } from '@arco-design/web-react';
-import { Plus, RotateCw } from 'lucide-react';
+import { Crown, Plus, RotateCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
@@ -25,6 +25,8 @@ import { useAssistantList } from '@/renderer/hooks/assistant';
 import { getAgentLogo } from '@renderer/utils/model/agentLogo';
 import { getBackendLabel } from '@renderer/utils/model/backendLabel';
 import AddTeammatePicker from '@/renderer/pages/teams/components/AddTeammatePicker';
+import AssistantIconTile from '@/renderer/pages/guid/components/AssistantIconTile';
+import { resolveSpecialistPalette } from '@/renderer/pages/teams/components/teamPalette';
 
 type Props = {
   agents: TeamAgent[];
@@ -60,19 +62,21 @@ const TeammateRow: React.FC<{
   agent: TeamAgent;
   status: TeammateStatus;
   teamId: string;
-}> = ({ agent, status, teamId }) => {
+  specialist?: AssistantListItem;
+}> = ({ agent, status, teamId, specialist }) => {
   const { t } = useTranslation();
   // Rail rows use the backend logo when available; otherwise fall back to
   // initials. No per-agent avatar field is read here — the consolidated avatar
   // helper landed for chat surfaces; the rail keeps its own compact look.
   const backendLogo = getAgentLogo(agent.agentType);
   const showLogo = Boolean(backendLogo);
-  const roleLabel =
-    agent.role === 'leader'
-      ? t('teams.rightRail.roleLeader', { defaultValue: 'leader' })
-      : t('teams.rightRail.roleSpecialist', { defaultValue: 'specialist' });
+  const isLeader = agent.role === 'leader';
+  const roleLabel = isLeader
+    ? t('teams.rightRail.roleLeader', { defaultValue: 'leader' })
+    : t('teams.rightRail.roleSpecialist', { defaultValue: 'specialist' });
   const backend = getBackendLabel(agent.agentType);
   const dotClass = STATUS_DOT_COLOR[status] ?? STATUS_DOT_COLOR.idle;
+  const palette = resolveSpecialistPalette(specialist, agent.customAgentId ?? agent.agentName);
 
   const handleRestart = async () => {
     try {
@@ -95,25 +99,42 @@ const TeammateRow: React.FC<{
   return (
     <div
       data-testid='team-right-rail-teammate'
-      className='flex items-center justify-between py-6px px-8px rd-6px hover:bg-[color:var(--color-fill-2)] cursor-default'
+      data-is-leader={isLeader ? 'true' : undefined}
+      className={`flex items-center justify-between py-6px pr-8px rd-6px hover:bg-[color:var(--color-fill-2)] cursor-default ${
+        isLeader ? 'pl-7px' : 'pl-8px'
+      }`}
+      style={
+        isLeader
+          ? {
+              background: 'rgba(245,158,11,0.05)',
+              borderLeft: '2px solid rgba(245,158,11,0.45)',
+            }
+          : undefined
+      }
     >
       <div className='flex items-center gap-8px min-w-0'>
-        {showLogo ? (
-          <img
-            src={backendLogo!}
-            alt={agent.agentType}
-            className='w-24px h-24px rd-full object-contain bg-[color:var(--color-fill-2)] p-2px shrink-0'
-          />
-        ) : (
-          <span
-            className='w-24px h-24px rd-full flex items-center justify-center text-10px font-semibold bg-[color:var(--color-fill-2)] shrink-0'
-            aria-hidden='true'
-          >
-            {initialsFromName(agent.agentName)}
-          </span>
-        )}
+        <AssistantIconTile paletteKey={palette} size='sm' className='!w-24px !h-24px shrink-0'>
+          {showLogo ? (
+            <img
+              src={backendLogo!}
+              alt={agent.agentType}
+              style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+            />
+          ) : (
+            <span style={{ fontSize: 10, fontWeight: 600 }}>{initialsFromName(agent.agentName)}</span>
+          )}
+        </AssistantIconTile>
         <div className='min-w-0'>
-          <div className='text-12.5px font-medium text-[color:var(--color-text-1)] truncate'>{agent.agentName}</div>
+          <div className='flex items-center gap-4px min-w-0'>
+            <div className='text-12.5px font-medium text-[color:var(--color-text-1)] truncate'>{agent.agentName}</div>
+            {isLeader && (
+              <Crown
+                size={11}
+                aria-hidden='true'
+                className='shrink-0 text-[rgb(245,158,11)] drop-shadow-sm'
+              />
+            )}
+          </div>
           <div className='text-10px text-[color:var(--color-text-4)] truncate'>
             {roleLabel} · {backend}
           </div>
@@ -193,6 +214,7 @@ const TeamRightRail: React.FC<Props> = ({
               agent={agent}
               status={statusMap.get(agent.slotId)?.status ?? agent.status}
               teamId={teamId}
+              specialist={agent.customAgentId ? specialistsById.get(agent.customAgentId) : undefined}
             />
           ))}
         </div>

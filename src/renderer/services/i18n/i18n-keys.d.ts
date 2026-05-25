@@ -2965,6 +2965,7 @@ export type I18nKey =
   | 'teams.standing.promoteError'
   | 'teams.standing.promoteSuccess'
   | 'teams.standingBadge'
+  | 'teams.teamLeader'
   | 'teams.title'
   | 'teams.totalCount'
   | 'tools.actions.create'
