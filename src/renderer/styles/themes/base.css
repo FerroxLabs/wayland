@@ -17,6 +17,16 @@ body,
   min-width: var(--app-min-width); /* prevent layout collapse on very small screens */
 }
 
+/* Bind the root color to the active theme token so every container
+   that inherits `color: inherit` gets a theme-correct foreground.
+   Without this, html defaults to `color: black` and any raw <div>
+   without an explicit color sits invisible on a dark background.
+   Arco components set their own color, so they're unaffected. */
+html,
+body {
+  color: var(--color-text-1);
+}
+
 .loading {
   animation: loading 1s linear infinite;
 }
