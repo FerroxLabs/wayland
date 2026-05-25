@@ -20,7 +20,7 @@ import Greeting from './components/newChatStarter/Greeting';
 import KickoffCard from './components/newChatStarter/KickoffCard';
 import IntentPillBar from './components/newChatStarter/IntentPillBar';
 import IntentSuggestionPanel from './components/newChatStarter/IntentSuggestionPanel';
-import QuickLaunchRow from './components/newChatStarter/QuickLaunchRow';
+import LaunchpadBar from './components/newChatStarter/LaunchpadBar';
 import RecentsStrip from './components/newChatStarter/RecentsStrip';
 import type { IntentKey, IntentPrompt } from './intents';
 import type { QuickLaunchAnchor } from './quickLaunchAnchors';
@@ -994,7 +994,11 @@ const GuidPage: React.FC = () => {
 
           {!showPresetHero ? (
             <div className={styles.newChatStarter} data-testid='new-chat-starter'>
-              <QuickLaunchRow onAnchorClick={handleQuickLaunchAnchor} onViewAll={handleQuickLaunchViewAll} />
+              <LaunchpadBar
+                onAnchorClick={handleQuickLaunchAnchor}
+                onViewAll={handleQuickLaunchViewAll}
+                mode='compact'
+              />
               <IntentPillBar activeIntent={activeIntent} onSelect={handleSelectIntent} />
               {activeIntent ? (
                 <IntentSuggestionPanel
