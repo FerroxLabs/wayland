@@ -30,17 +30,15 @@ describe('TeamAgentIdentity', () => {
     mockPresetInfo.value = null;
   });
 
-  it('shows a crown next to the leader name', () => {
+  it('does not render an inline leader crown — the TEAM LEADER pill in TeamPage is the signal', () => {
     render(<TeamAgentIdentity agentName='alice' agentType='gemini' isLeader />);
 
     expect(screen.getByText('alice')).toBeTruthy();
-    expect(screen.getByTestId('team-leader-crown')).toBeTruthy();
-    expect(screen.getByTestId('team-leader-crown-icon')).toBeTruthy();
-    expect(screen.getByTestId('team-leader-crown-icon').getAttribute('width')).toBe('15');
-    expect(screen.getByTestId('team-leader-crown-icon').getAttribute('height')).toBe('15');
+    expect(screen.queryByTestId('team-leader-crown')).toBeNull();
+    expect(screen.queryByTestId('team-leader-crown-icon')).toBeNull();
   });
 
-  it('does not render the crown for teammates', () => {
+  it('does not render the crown for teammates either', () => {
     render(<TeamAgentIdentity agentName='bob' agentType='gemini' />);
 
     expect(screen.getByText('bob')).toBeTruthy();

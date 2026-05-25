@@ -11,13 +11,17 @@ type Props = {
   agentType: string;
   /** When provided, enables preset-aware avatar (emoji / custom svg) via the agent's conversation extras. */
   conversationId?: string;
+  /**
+   * Retained for API stability; no longer drives an inline glyph in this component.
+   * The TEAM LEADER pill in `TeamPage` (and the amber accent in the right-rail roster)
+   * is now the at-a-glance leader signal.
+   */
   isLeader?: boolean;
   className?: string;
   logoClassName?: string;
   /** Used for emoji presets (text-based avatar) and the first-letter fallback circle. */
   avatarClassName?: string;
   nameClassName?: string;
-  crownClassName?: string;
   /** When set, wraps the avatar glyph/emoji in an AssistantIconTile so flat-fill icons stay legible on dark. */
   paletteKey?: PaletteKey;
   /** Tile size override (defaults to 'sm' = 28px when paletteKey is set). */
@@ -28,12 +32,11 @@ const TeamAgentIdentity: React.FC<Props> = ({
   agentName,
   agentType,
   conversationId,
-  isLeader = false,
+  isLeader: _isLeader = false,
   className,
   logoClassName,
   avatarClassName,
   nameClassName,
-  crownClassName,
   paletteKey,
   tileSize = 'sm',
 }) => {
@@ -71,26 +74,6 @@ const TeamAgentIdentity: React.FC<Props> = ({
     return <span className={resolvedAvatarClassName}>{agentName.charAt(0).toUpperCase() || '🤖'}</span>;
   };
 
-  const crownIcon = (
-    <svg
-      data-testid='team-leader-crown-icon'
-      width='15'
-      height='15'
-      viewBox='0 0 16 16'
-      fill='none'
-      aria-hidden='true'
-      className='block'
-    >
-      <path
-        d='M2.3 13L1.2 4.7L4.8 6.5L8 2.1L11.2 6.5L14.8 4.7L13.7 13H2.3Z'
-        strokeWidth='1.25'
-        strokeLinejoin='round'
-        style={{ fill: 'var(--warning)', stroke: 'var(--text-primary)' }}
-      />
-      <path d='M5 10.1H11' strokeWidth='1.1' strokeLinecap='round' style={{ stroke: 'var(--text-primary)' }} />
-    </svg>
-  );
-
   const avatarNode = renderAvatar();
   const wrappedAvatar = paletteKey ? (
     <AssistantIconTile paletteKey={paletteKey} size={tileSize}>
@@ -104,14 +87,6 @@ const TeamAgentIdentity: React.FC<Props> = ({
     <div className={['flex items-center gap-8px', className].filter(Boolean).join(' ')}>
       {wrappedAvatar}
       <span className={['min-w-0 flex-1 truncate', nameClassName].filter(Boolean).join(' ')}>{agentName}</span>
-      {isLeader && (
-        <span
-          data-testid='team-leader-crown'
-          className={['shrink-0 leading-none drop-shadow-sm', crownClassName].filter(Boolean).join(' ')}
-        >
-          {crownIcon}
-        </span>
-      )}
     </div>
   );
 };

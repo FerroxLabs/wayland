@@ -96,7 +96,7 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
       className={`relative group flex items-center gap-8px px-12px h-full max-w-240px cursor-pointer transition-all duration-200 shrink-0 border-r border-[color:var(--border-base)] ${
         isActive
           ? 'bg-[color:var(--color-primary-1)] text-[color:var(--color-text-1)] border-t-2 border-t-solid border-t-[color:var(--color-primary-6)]'
-          : 'bg-2 text-[color:var(--color-text-3)] hover:text-[color:var(--color-text-2)] hover:bg-[color:var(--color-fill-2)] border-b border-[color:var(--border-base)]'
+          : 'bg-2 text-[color:var(--color-text-2)] hover:text-[color:var(--color-text-1)] hover:bg-[color:var(--color-fill-2)] border-b border-[color:var(--border-base)]'
       } ${isDragOver ? DRAG_OVER_CLASS : ''}`}
       style={isRunning ? { animation: 'team-tab-breathe 2s ease-in-out infinite' } : undefined}
       onClick={() => !editing && onSwitch(slotId)}
@@ -141,8 +141,8 @@ const TeamTabView: React.FC<TeamTabViewProps> = ({
             conversationId={conversationId}
             isLeader={isLeader}
             className='min-w-0 flex-1'
-            logoClassName={`w-14px h-14px object-contain rounded-2px ${isActive ? 'opacity-100' : 'opacity-70'}`}
-            avatarClassName={`w-14px h-14px rounded-2px flex items-center justify-center text-11px leading-none bg-fill-2 shrink-0 ${isActive ? 'opacity-100' : 'opacity-80'}`}
+            logoClassName={`w-14px h-14px object-contain rounded-2px ${isActive ? 'opacity-100' : 'opacity-90'}`}
+            avatarClassName={`w-14px h-14px rounded-2px flex items-center justify-center text-11px leading-none bg-fill-2 shrink-0 ${isActive ? 'opacity-100' : 'opacity-95'}`}
             nameClassName='text-15px whitespace-nowrap overflow-hidden text-ellipsis select-none'
           />
         </div>
