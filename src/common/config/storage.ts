@@ -278,6 +278,13 @@ export interface IConfigStorageRefer {
   'skills.cliDiscovery.enabled'?: boolean;
   // Ambient Mode (M1 skeleton): enable bubble + agent-driven UI flow
   'ambient.enabled'?: boolean;
+  /**
+   * Ordered list of assistant IDs that compose the user's editable launchpad
+   * bar (LaunchpadBar). Absent = first launch, render the QUICK_LAUNCH_ANCHORS
+   * defaults. Once the user mutates the bar via drag/add/remove the array is
+   * persisted; unknown IDs (e.g. uninstalled extension) are skipped at render.
+   */
+  'launchpad.barOrder'?: import('@/common/types/launchpad').LaunchpadBarOrder;
   // Ambient Mode: persisted bubble window position (displayId used for multi-monitor recovery)
   'ambient.bubblePosition'?: { x: number; y: number; displayId: number };
 }
