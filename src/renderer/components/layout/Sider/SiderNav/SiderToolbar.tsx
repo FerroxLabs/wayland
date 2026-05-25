@@ -78,7 +78,8 @@ const SiderToolbar: React.FC<SiderToolbarProps> = ({
             'h-40px w-40px rd-0.5rem flex items-center justify-center cursor-pointer shrink-0 transition-all border border-solid border-transparent',
             isMobile && 'sider-action-icon-btn-mobile',
             {
-              'hover:bg-fill-2 hover:border-[var(--color-border-2)]': !isBatchMode,
+              'text-[color:var(--color-text-2)] hover:text-[color:var(--color-text-1)] hover:bg-fill-2 hover:border-[var(--color-border-2)]':
+                !isBatchMode,
               'bg-[rgba(var(--primary-6),0.12)] border-[rgba(var(--primary-6),0.24)] text-primary': isBatchMode,
             }
           )}

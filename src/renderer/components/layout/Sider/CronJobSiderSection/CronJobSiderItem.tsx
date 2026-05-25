@@ -303,12 +303,12 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
         )}
       >
         {/* Expand/collapse arrow — fixed 28px column to align with sibling rows' icons */}
-        <span className='w-28px h-28px flex items-center justify-center shrink-0'>
+        <span className='w-28px h-28px flex items-center justify-center shrink-0 text-[color:var(--color-text-2)]'>
           {hasChildren && (
             <ChevronDown
               size={16}
               className={classNames(
-                'line-height-0 transition-transform duration-200 cursor-pointer',
+                'line-height-0 transition-transform duration-200 cursor-pointer hover:text-[color:var(--color-text-1)]',
                 expanded ? 'rotate-0' : '-rotate-90'
               )}
               onClick={(e) => {
