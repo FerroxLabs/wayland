@@ -23,6 +23,7 @@
  * real "has memories?" check.
  */
 
+import { Spin } from '@arco-design/web-react';
 import React, { useEffect, useState } from 'react';
 import { ipcBridge } from '@/common';
 import type { IjfwStatusPayload } from '@/common/adapter/ipcBridge';
@@ -31,7 +32,47 @@ import InstallingCard from './state-branches/InstallingCard';
 import InstallFailedCard from './state-branches/InstallFailedCard';
 import OnboardingEmptyState from './state-branches/OnboardingEmptyState';
 import FullPanelShell from './state-branches/FullPanelShell';
+import { useIjfwBrain } from './hooks/useIjfwBrain';
 import styles from './MemoryPage.module.css';
+
+type MemoryFactsData = {
+  facts?: unknown[];
+};
+
+/**
+ * Routes the `installed_current` state by checking whether the active brain
+ * has any memories via the `memory_facts` MCP verb. Lifted into its own
+ * component so the `useIjfwBrain` hook only fires when status reaches
+ * `installed_current` — keeping it inside MemoryPage would force every
+ * lifecycle state to pay the IPC roundtrip.
+ *
+ * Routing decisions:
+ *   - loading -> spinner
+ *   - ok, zero facts -> OnboardingEmptyState
+ *   - ok, has facts -> FullPanelShell
+ *   - !ok (degraded) -> FullPanelShell so the user can still reach the tabs
+ */
+const InstalledCurrentBranch: React.FC = () => {
+  const state = useIjfwBrain<MemoryFactsData>('memory_facts', { any: true });
+  if (state.loading) {
+    return (
+      <div className={styles.center} data-testid='memory-installed-loading'>
+        <Spin />
+      </div>
+    );
+  }
+  if (state.ok) {
+    const factsLength = state.data.facts?.length ?? 0;
+    if (factsLength === 0) {
+      return <OnboardingEmptyState />;
+    }
+    return <FullPanelShell />;
+  }
+  // Degraded: brain invoke failed but the user has activated. Show the full
+  // shell so they can still navigate; individual tabs surface their own
+  // per-verb error states.
+  return <FullPanelShell />;
+};
 
 const renderStateBranch = (status: IjfwStatusPayload | null): React.ReactElement => {
   if (!status) {
@@ -53,10 +94,7 @@ const renderStateBranch = (status: IjfwStatusPayload | null): React.ReactElement
     case 'install_failed':
       return <InstallFailedCard errorReason={status.errorReason} stderr={status.stderr} />;
     case 'installed_current':
-      // Wave 4 production routing: always treat as "no memories yet" for now.
-      // Wave 5 Task 5.0 will check the active brain via useActiveBrainScope +
-      // brainInvoke and route between OnboardingEmptyState and FullPanelShell.
-      return <OnboardingEmptyState />;
+      return <InstalledCurrentBranch />;
     default:
       // Exhaustiveness guard — keeps FullPanelShell reachable for the
       // typechecker and gives Wave 5 a fallback for unknown states.

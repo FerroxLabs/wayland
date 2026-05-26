@@ -17,16 +17,21 @@
  */
 
 import React from 'react';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 
 type Listener = (payload: IjfwStatusPayload) => void;
 
-const { listeners, unsubscribeSpy, getStatusInvoke } = vi.hoisted(() => ({
+const { listeners, unsubscribeSpy, getStatusInvoke, brainInvokeMock } = vi.hoisted(() => ({
   listeners: new Set<Listener>(),
   unsubscribeSpy: vi.fn(),
   getStatusInvoke: vi.fn<() => Promise<IjfwStatusPayload | undefined>>(),
+  brainInvokeMock: vi.fn<
+    (args: { verb: string; args?: Record<string, unknown> }) => Promise<
+      { ok: true; data: unknown } | { ok: false; errorReason?: string }
+    >
+  >(),
 }));
 
 vi.mock('@/common', () => ({
@@ -42,6 +47,7 @@ vi.mock('@/common', () => ({
         },
       },
       getStatus: { invoke: getStatusInvoke },
+      brainInvoke: { invoke: brainInvokeMock },
     },
   },
 }));
@@ -83,6 +89,8 @@ beforeEach(() => {
   unsubscribeSpy.mockReset();
   getStatusInvoke.mockReset();
   getStatusInvoke.mockResolvedValue(undefined);
+  brainInvokeMock.mockReset();
+  brainInvokeMock.mockResolvedValue({ ok: true, data: { facts: [] } });
 });
 
 afterEach(() => {
@@ -133,13 +141,38 @@ describe('MemoryPage', () => {
     expect(card.getAttribute('data-stderr')).toBe('ENOENT npm');
   });
 
-  it('renders OnboardingEmptyState when status is installed_current', () => {
-    // Wave 4 production routing: always render OnboardingEmptyState for
-    // installed_current. Wave 5 Task 5.0 will replace this with a real
-    // "has memories?" branching that may route to FullPanelShell instead.
+  it('renders OnboardingEmptyState when status is installed_current and memory_facts is empty', async () => {
+    brainInvokeMock.mockResolvedValueOnce({ ok: true, data: { facts: [] } });
     render(<MemoryPage />);
     emit({ status: 'installed_current', version: '1.0.0' });
-    expect(screen.getByTestId('branch-onboarding-empty')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId('branch-onboarding-empty')).toBeTruthy();
+    });
+    expect(brainInvokeMock).toHaveBeenCalledWith({
+      verb: 'memory_facts',
+      args: { any: true },
+    });
+  });
+
+  it('renders FullPanelShell when status is installed_current and memory_facts has results', async () => {
+    brainInvokeMock.mockResolvedValueOnce({
+      ok: true,
+      data: { facts: [{ id: 'f1' }] },
+    });
+    render(<MemoryPage />);
+    emit({ status: 'installed_current', version: '1.0.0' });
+    await waitFor(() => {
+      expect(screen.getByTestId('branch-full-panel-shell')).toBeTruthy();
+    });
+  });
+
+  it('renders FullPanelShell (degraded) when status is installed_current and memory_facts errors', async () => {
+    brainInvokeMock.mockResolvedValueOnce({ ok: false, errorReason: 'mcp_error' });
+    render(<MemoryPage />);
+    emit({ status: 'installed_current', version: '1.0.0' });
+    await waitFor(() => {
+      expect(screen.getByTestId('branch-full-panel-shell')).toBeTruthy();
+    });
   });
 
   it('does not duplicate subscriptions under React strict-mode double-mount', () => {
