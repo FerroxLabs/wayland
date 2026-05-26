@@ -1464,7 +1464,26 @@ export const ijfw = {
   skipSetup: buildProvider<{ ok: true }, { enabled: boolean }>('ijfw.skip-setup'),
   /** Returns whether the MCP client is reachable (`full`) or short-circuiting (`degraded`). */
   getRuntimeMode: buildProvider<IjfwRuntimeModePublic, void>('ijfw.get-runtime-mode'),
+
+  /** Drop-tab: list files currently queued in the ingest dump dir. */
+  dropList: buildProvider<{ files: IjfwDropEntry[] }, void>('ijfw.drop-list'),
+  /** Drop-tab: ingest a user-supplied file path into the dump dir (main-side safety checks). */
+  dropIngest: buildProvider<
+    IjfwDropIngestResult,
+    { path: string }
+  >('ijfw.drop-ingest'),
+  /** Drop-tab: quarantine the named file out of the active queue. */
+  dropQuarantine: buildProvider<
+    { ok: true } | { ok: false; error: string },
+    { name: string }
+  >('ijfw.drop-quarantine'),
 };
+
+export type IjfwDropEntry = { name: string; size: number; mtimeMs: number };
+
+export type IjfwDropIngestResult =
+  | { ok: true; name: string }
+  | { ok: false; error: string; errorReason: IjfwErrorReason };
 
 // --- Models & Providers redesign (Wave 0 contract) ------------------------
 // New two-tier model registry. Distinct from the legacy `providers` namespace
