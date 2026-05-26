@@ -151,6 +151,15 @@ describe('ijfw/ipcSchemas', () => {
     });
   });
 
+  describe('Wave 7 B4: links accepts recent-mode invocation', () => {
+    it('accepts {} (HomeTab recent-mode)', () => {
+      expect(validateInvocation('links', {}).ok).toBe(true);
+    });
+    it('still accepts {of} for entity-link mode', () => {
+      expect(validateInvocation('links', { of: 'memory' }).ok).toBe(true);
+    });
+  });
+
   describe('Wave 7 B3: wiki.export accepts slug-only invocation', () => {
     it('accepts {slug} without outFile (server picks destination)', () => {
       expect(validateInvocation('wiki.export', { slug: 'memory' }).ok).toBe(true);

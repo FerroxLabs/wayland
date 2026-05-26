@@ -80,7 +80,9 @@ const memoryStoreContentSchema = z
 
 export const verbSchemas: Record<IjfwVerb, z.ZodTypeAny> = {
   think: z.object({ query: queryStringSchema, k: z.number().int().min(1).max(50).optional() }).passthrough(),
-  links: z.object({ of: slugSchema }),
+  // Wave 7 B4: HomeTab calls `links` with `{}` to get the recent-links view;
+  // entity-link mode (with `of`) still works for memory cross-references.
+  links: z.object({ of: slugSchema.optional() }).passthrough(),
   // Wave 7 B2: slug is optional — HomeTab + WikiTab call wiki.get with `{}`
   // to fetch the entry list. Detail-mode (with slug) still works for
   // single-entry compile reads.
