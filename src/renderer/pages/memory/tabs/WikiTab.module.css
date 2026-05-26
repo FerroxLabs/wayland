@@ -1,0 +1,138 @@
+.wiki {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 16px;
+  height: 100%;
+  min-height: 320px;
+  padding: 16px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 1px solid var(--color-border-2);
+  padding-right: 12px;
+  overflow-y: auto;
+}
+
+.listRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+}
+
+.listRow:hover {
+  background-color: var(--color-fill-2);
+}
+
+.listRowActive {
+  background-color: var(--color-primary-light-1);
+  border-color: var(--color-primary-light-3);
+}
+
+.listRowTitle {
+  font-size: 13px;
+  color: var(--color-text-1);
+  font-weight: 500;
+}
+
+.listRowMeta {
+  font-size: 11px;
+  color: var(--color-text-3);
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-1);
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: var(--color-text-1);
+}
+
+.content p {
+  margin: 8px 0;
+}
+
+.content code {
+  font-family: var(--font-family-mono, monospace);
+  background-color: var(--color-fill-2);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.content pre {
+  background-color: var(--color-fill-2);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.content pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.content ul,
+.content ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.content a {
+  color: var(--color-primary-6);
+  text-decoration: none;
+}
+
+.content a:hover {
+  text-decoration: underline;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 13px;
+  color: var(--color-text-3);
+}
