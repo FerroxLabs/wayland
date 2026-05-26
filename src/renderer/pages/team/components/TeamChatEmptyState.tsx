@@ -25,6 +25,16 @@ const useWCoreDraft = getSendBoxDraftHook('wcore', { _type: 'wcore', atPath: [],
 
 type Props = {
   conversationId: string;
+  /**
+   * Differentiates the team-orchestration entry point (leader) from passive
+   * specialist columns. Leaders show the "describe your goal" prompt + suggestion
+   * cards; specialists show a passive "standing by" state so they don't read as
+   * additional entry points and confuse the user about which column to type in.
+   *
+   * Default true preserves the legacy behaviour for any caller that hasn't
+   * threaded the flag yet (TeamChatView always passes it).
+   */
+  isLeader?: boolean;
 };
 
 const SUGGESTIONS = [
@@ -67,7 +77,7 @@ const resolveAgentName = (conversation: TChatConversation, presetName: string | 
   return 'Leader';
 };
 
-const TeamChatEmptyState: React.FC<Props> = ({ conversationId }) => {
+const TeamChatEmptyState: React.FC<Props> = ({ conversationId, isLeader = true }) => {
   const { t } = useTranslation();
 
   // Reuse the same SWR key as AgentChatSlot so this hits cache instead of a new fetch.
@@ -205,9 +215,36 @@ const TeamChatEmptyState: React.FC<Props> = ({ conversationId }) => {
     );
   };
 
+  // Specialist columns get a passive "standing by" state so the user reads them
+  // as observable side-channels, not entry points. The leader column is the team
+  // orchestration entry point — that's where the user should type.
+  if (!isLeader) {
+    return (
+      <div
+        data-testid='team-chat-empty-state'
+        data-variant='specialist'
+        className='flex flex-col items-center gap-16px px-24px text-center max-w-360px opacity-90'
+      >
+        {renderAvatar()}
+        <div className='flex flex-col gap-6px'>
+          <span className='text-15px font-medium text-t-primary'>{agentName}</span>
+          <span
+            data-testid='team-chat-empty-state-subtitle'
+            className='text-12px text-t-tertiary italic'
+          >
+            {t('team.emptyState.specialistStandby', {
+              defaultValue: 'Standing by — the team leader handles incoming work.',
+            })}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       data-testid='team-chat-empty-state'
+      data-variant='leader'
       className='flex flex-col items-center gap-20px px-24px text-center max-w-360px'
     >
       {renderAvatar()}

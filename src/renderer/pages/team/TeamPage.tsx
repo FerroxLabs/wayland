@@ -118,20 +118,12 @@ const AgentChatSlot: React.FC<{
         }
       >
         <div className='flex items-center gap-8px min-w-0'>
-          {isLeader && (
-            <span
-              data-testid='team-leader-pill'
-              className='inline-flex items-center gap-3px shrink-0 px-6px py-1px rd-4px text-9.5px font-semibold uppercase tracking-wider'
-              style={{
-                background: 'rgba(245,158,11,0.14)',
-                color: 'rgb(245,158,11)',
-                letterSpacing: '0.06em',
-              }}
-            >
-              <Crown size={10} aria-hidden='true' />
-              {t('teams.teamLeader', { defaultValue: 'Team Leader' })}
-            </span>
-          )}
+          {/* v0.6.2.2 Fix E2 — TEAM LEADER pill relocated out of this header.
+              The header was overcrowded with the orange pill + identity +
+              backend swap + model selector + maximize icon all fighting for
+              ~400px of column width. The pill now renders as a slim banner
+              inside the chat area (below this header) for leader columns
+              only — see "team-leader-banner" mount further down. */}
           <TeamAgentIdentity
             agentName={agent.agentName}
             agentType={agent.agentType}
@@ -188,6 +180,21 @@ const AgentChatSlot: React.FC<{
         </div>
       </div>
       <div className='relative flex flex-col flex-1 min-h-0'>
+        {isLeader && (
+          <div
+            data-testid='team-leader-banner'
+            className='flex items-center justify-center gap-6px shrink-0 px-12px py-4px text-9.5px font-semibold uppercase tracking-wider border-b border-solid border-[color:var(--border-base)]'
+            style={{
+              background: 'color-mix(in srgb, var(--color-primary-6) 8%, var(--color-bg-1))',
+              color: 'rgb(245,158,11)',
+              letterSpacing: '0.06em',
+            }}
+            aria-label={t('teams.teamLeader', { defaultValue: 'Team Leader' })}
+          >
+            <Crown size={10} aria-hidden='true' />
+            <span>{t('teams.teamLeader', { defaultValue: 'Team Leader' })}</span>
+          </div>
+        )}
         {conversation ? (
           <TeamChatView
             conversation={conversation as TChatConversation}

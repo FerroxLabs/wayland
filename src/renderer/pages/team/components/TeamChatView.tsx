@@ -99,7 +99,14 @@ const TeamChatView: React.FC<TeamChatViewProps> = ({ conversation, hideSendBox, 
   // Single source of truth for the team greeting. Each *Chat simply forwards `emptySlot`
   // to MessageList; the empty state itself reads teamId / backend / preset info from the
   // shared SWR-cached conversation record, so none of that needs to flow through props.
-  const emptySlot = teamId ? <TeamChatEmptyState conversationId={conversation.id} /> : undefined;
+  //
+  // Leader vs specialist signal — TeamPage passes `agentSlotId={undefined}` for the
+  // leader slot (line 195 of TeamPage.tsx) and the actual slot id for every specialist.
+  // We reuse that signal so callers don't have to thread an extra prop.
+  const isLeader = agentSlotId === undefined;
+  const emptySlot = teamId
+    ? <TeamChatEmptyState conversationId={conversation.id} isLeader={isLeader} />
+    : undefined;
   const content = (() => {
     switch (conversation.type) {
       case 'acp':
