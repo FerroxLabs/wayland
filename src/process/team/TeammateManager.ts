@@ -3,6 +3,8 @@ import { EventEmitter } from 'events';
 import { ipcBridge } from '@/common';
 import { teamEventBus } from './teamEventBus';
 import { addMessage } from '@process/utils/message';
+import { getDatabase } from '@process/services/database';
+import { extractTextFromMessage } from '@process/task/MessageMiddleware';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TeamAgent, TeammateStatus } from './types';
@@ -629,20 +631,79 @@ export class TeammateManager extends EventEmitter {
 
     // Auto-send idle notification to leader.
     // Must run AFTER setStatus(idle) so maybeWakeLeaderWhenAllIdle sees the updated state.
+    //
+    // 2026-05-26 (v0.6.2.4): include the specialist's most-recent assistant text
+    // in the notification. Without this the leader only saw "Turn completed" and
+    // had no idea what the specialist actually produced — the architecture
+    // *expected* specialists to call `team_send_message` explicitly to report
+    // results, but LLM tool-call compliance is unreliable (Gemini in particular
+    // often answered in its own chat without ever calling the report tool, leaving
+    // the leader blind despite a full visible response in the specialist column).
+    // Auto-forwarding the content as a fallback closes that gap deterministically;
+    // specialists that DO call `team_send_message` simply produce a duplicate
+    // mailbox entry, which is acceptable for robustness.
     if (agent.role !== 'leader') {
       const leadAgent = this.agents.find((a) => a.role === 'leader');
       if (leadAgent && leadAgent.slotId !== agent.slotId) {
+        const excerpt = await this.readLastAssistantExcerpt(agent.conversationId);
+        const content = excerpt ? `Turn completed\n\n${excerpt}` : 'Turn completed';
         await this.mailbox.write({
           teamId: this.teamId,
           toAgentId: leadAgent.slotId,
           fromAgentId: agent.slotId,
-          content: 'Turn completed',
+          content,
           type: 'idle_notification',
         });
         // Only wake leader when ALL non-leader teammates are idle/completed/failed/pending.
         // This prevents death loops where each idle notification triggers a new leader turn.
         this.maybeWakeLeaderWhenAllIdle(leadAgent.slotId);
       }
+    }
+  }
+
+  /**
+   * Read the most recent assistant text from a specialist's conversation, capped
+   * for safe inclusion in the leader's mailbox. Used by `finalizeTurn` to make
+   * sure the leader sees what the specialist actually produced even when the
+   * specialist forgets (or refuses) to call `team_send_message` explicitly.
+   *
+   * Returns null when no assistant text is available (DB error, no messages,
+   * empty content, or unknown conversationId).
+   *
+   * The cap is intentionally generous: a chunk of conversation is more useful
+   * to the leader than a terse summary, and the leader's downstream prompt
+   * has its own context budget that already handles long mailbox content.
+   * 3000 chars is roughly 750 tokens — about one model-response worth — and
+   * still small relative to the leader's typical ~28KB role prompt.
+   */
+  private async readLastAssistantExcerpt(conversationId: string | undefined): Promise<string | null> {
+    if (!conversationId) return null;
+    const MAX_CHARS = 3000;
+    try {
+      const db = await getDatabase();
+      // DESC so the latest assistant message is at index 0. Limit 10 to skip
+      // over interleaved tool-call / thinking messages and find the most recent
+      // text content.
+      const result = db.getConversationMessages(conversationId, 0, 10, 'DESC');
+      const messages = result.data ?? [];
+      for (const msg of messages) {
+        if (msg.position !== 'left') continue; // skip user-side messages
+        if (msg.type !== 'text') continue; // skip tool calls, thinking, etc.
+        const text = extractTextFromMessage(msg).trim();
+        if (!text) continue;
+        if (text.length <= MAX_CHARS) return text;
+        return `${text.slice(0, MAX_CHARS)}\n…[truncated, ${text.length - MAX_CHARS} more chars]`;
+      }
+      return null;
+    } catch (error) {
+      // Swallow — the lifecycle notification must still fire even if the DB
+      // read fails. The leader will get the bare "Turn completed" notification
+      // and can ask the specialist to repeat its response.
+      console.warn(
+        `[TeammateManager] readLastAssistantExcerpt(${conversationId}) failed:`,
+        error instanceof Error ? error.message : String(error)
+      );
+      return null;
     }
   }
 
