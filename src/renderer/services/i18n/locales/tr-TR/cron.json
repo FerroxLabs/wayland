@@ -14,8 +14,7 @@
     "unread": "New execution",
     "unconfigured": "No scheduled task",
     "unconfiguredHint": "No scheduled task yet. Create one with your Agent!",
-    "createNow": "Create Now",
-    "defaultPrompt": "Every day at 10am, search for the latest AI news, summarize and output an insight report."
+    "createNow": "Create Now"
   },
   "actions": {
     "goTo": "View Chat",

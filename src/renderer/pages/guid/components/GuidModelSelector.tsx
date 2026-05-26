@@ -229,15 +229,24 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // Resolve the currently-selected curated model so its row is highlighted
   // and its label shown on the button.
   //
-  // Wave 3 Fix 15: the menu now keys items by `${providerId}:${id}`. To match,
-  // build the selection key from `currentModel.platform` (which `setCurrentModel`
-  // wrote from `provider.providerId`) + the saved `useModel`. Fall back to a
-  // bare-id match for resilience with legacy persisted state.
+  // Wave 3 Fix 15: the menu keys items by `${providerId}:${id}`. To match, build
+  // the selection key from `currentModel.id` (which `setCurrentModel` wrote from
+  // `provider.providerId` per Wave 3 Fix 11 in useGuidModelSelection.ts:167) +
+  // the saved `useModel`. Fall back to `platform` (legacy persisted rows that
+  // wrote the platform string here pre-Wave-3-Fix-11) and then bare `useModel`.
+  //
+  // v0.6.2.5 fix: previously this used `currentModel.platform` exclusively,
+  // which holds the LLM platform string (`'gemini'`) NOT the providerId
+  // (`'google-gemini'`). For every provider where the two differ, the
+  // stale-pin auto-fallback below saw the just-picked model as "not in
+  // curated" and silently reverted to curated[0]. OpenAI accidentally worked
+  // because `'openai' === 'openai'`.
   const selectedCuratedKey = React.useMemo(() => {
     if (!currentModel?.useModel) return null;
+    if (currentModel.id) return `${currentModel.id}:${currentModel.useModel}`;
     if (currentModel.platform) return `${currentModel.platform}:${currentModel.useModel}`;
     return currentModel.useModel;
-  }, [currentModel?.platform, currentModel?.useModel]);
+  }, [currentModel?.id, currentModel?.platform, currentModel?.useModel]);
 
   const selectedCuratedModel = React.useMemo(() => {
     if (!curated || !selectedCuratedKey) return null;

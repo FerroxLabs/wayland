@@ -140,7 +140,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   visible,
   onClose,
   editJob,
-  conversationId: _conversationId,
+  conversationId,
   conversationTitle,
   agentType,
   initialWorkflowSlug,
@@ -547,7 +547,11 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           description: values.description,
           schedule: { kind: 'cron', expr: scheduleExpr, description: scheduleDesc },
           prompt: values.prompt,
-          conversationId: '',
+          // v0.6.2.5: pass through the conversationId prop so the per-chat
+          // cron pill flow can bind the job to its source chat. The dialog
+          // launched from /scheduled "+ New Task" passes undefined here, which
+          // falls back to empty string — preserves prior behavior for that path.
+          conversationId: conversationId ?? '',
           conversationTitle,
           agentType: resolvedAgentType,
           createdBy: 'user',

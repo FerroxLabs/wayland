@@ -655,7 +655,6 @@ export type I18nKey =
   | 'cron.skill.turnIntoSkill'
   | 'cron.status.active'
   | 'cron.status.createNow'
-  | 'cron.status.defaultPrompt'
   | 'cron.status.error'
   | 'cron.status.paused'
   | 'cron.status.unconfigured'

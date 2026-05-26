@@ -442,6 +442,55 @@ describe('CronService', () => {
     expect(repo.listEnabled).not.toHaveBeenCalled();
   });
 
+  // --- cold-start catch-up (v0.6.2.5 §3.4 fix) ---
+
+  it('init inserts missed-job messages for jobs whose nextRunAtMs passed while app was offline', async () => {
+    // App was closed across a scheduled fire — DB has a job with nextRunAtMs in the past.
+    const pastTime = Date.now() - 5 * 60 * 1000; // 5 minutes ago
+    const job = makeJob({
+      id: 'cold-start-missed',
+      state: { runCount: 0, retryCount: 0, maxRetries: 3, nextRunAtMs: pastTime },
+    });
+    vi.mocked(repo.listEnabled).mockReturnValue([job]);
+    vi.mocked(repo.getById).mockReturnValue(job);
+
+    await service.init();
+
+    // Notify-only catch-up: missed-tip inserted and state marked, BUT the
+    // job is not auto-fired (executor.executeJob should never be called by init).
+    expect(repo.update).toHaveBeenCalledWith(
+      'cold-start-missed',
+      expect.objectContaining({
+        state: expect.objectContaining({ lastStatus: 'missed' }),
+      })
+    );
+    expect(emitter.emitJobUpdated).toHaveBeenCalledWith(job);
+    const { addMessage } = await import('@process/utils/message');
+    expect(addMessage).toHaveBeenCalledWith('conv-1', expect.objectContaining({ type: 'tips' }));
+    expect(executor.executeJob).not.toHaveBeenCalled();
+  });
+
+  it('init does not insert missed-job messages when nextRunAtMs is in the future', async () => {
+    const futureTime = Date.now() + 60 * 1000; // 1 minute from now
+    const job = makeJob({
+      id: 'fresh',
+      state: { runCount: 0, retryCount: 0, maxRetries: 3, nextRunAtMs: futureTime },
+    });
+    vi.mocked(repo.listEnabled).mockReturnValue([job]);
+
+    await service.init();
+
+    const { addMessage } = await import('@process/utils/message');
+    expect(addMessage).not.toHaveBeenCalled();
+    // emitJobUpdated may still be called by startTimer; only assert NO missed-status update.
+    const updateCalls = vi.mocked(repo.update).mock.calls;
+    const missedUpdate = updateCalls.find(
+      ([, updates]) =>
+        updates?.state && (updates.state as { lastStatus?: string }).lastStatus === 'missed'
+    );
+    expect(missedUpdate).toBeUndefined();
+  });
+
   // --- startTimer invalid cron expression ---
 
   it('startTimer disables job and records error when cron expression is invalid', async () => {

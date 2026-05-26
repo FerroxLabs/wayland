@@ -191,7 +191,8 @@ const GeminiConversationPanel: React.FC<{
         <CronJobManager
           conversationId={conversation.id}
           cronJobId={conversation.extra?.cronJobId as string | undefined}
-          hasCronSkill={hasLoadedSkill(conversation, 'cron')}
+          conversationTitle={conversation.name}
+          agentType='gemini'
         />
       </div>
     ),
@@ -250,7 +251,8 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
         <CronJobManager
           conversationId={conversation.id}
           cronJobId={conversation.extra?.cronJobId as string | undefined}
-          hasCronSkill={hasLoadedSkill(conversation, 'cron')}
+          conversationTitle={conversation.name}
+          agentType='wcore'
         />
       </div>
     ),
@@ -577,7 +579,8 @@ const ChatConversation: React.FC<{
           <CronJobManager
             conversationId={conversation.id}
             cronJobId={conversation.extra?.cronJobId as string | undefined}
-            hasCronSkill={hasLoadedSkill(conversation, 'cron')}
+            conversationTitle={conversation.name}
+            agentType={(conversation.extra as { backend?: string } | undefined)?.backend || 'claude'}
           />
         </div>
       )}

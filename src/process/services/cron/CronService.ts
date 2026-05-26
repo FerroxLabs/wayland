@@ -81,6 +81,14 @@ export class CronService {
 
       const jobs = await this.repo.listEnabled();
 
+      // Detect jobs whose nextRunAtMs is in the past — i.e. the app was
+      // closed across one or more scheduled fires. Notify-only: insert a
+      // one-time "missed" tip into each affected conversation and roll
+      // nextRunAtMs forward. We do this BEFORE startTimer because
+      // startTimer overwrites nextRunAtMs to the next future fire,
+      // erasing the cold-start signal.
+      await this.detectAndAnnounceMissedJobs(jobs);
+
       for (const job of jobs) {
         await this.startTimer(job);
       }
@@ -738,37 +746,52 @@ export class CronService {
     if (!this.initialized) return;
 
     console.log('[CronService] System resumed, checking for missed jobs...');
-    const now = Date.now();
     const jobs = await this.repo.listEnabled();
 
+    // Stop stale timers first (they were paused during sleep and may be in
+    // invalid state). The shared missed-job detector then notifies + rolls
+    // nextRunAtMs forward; we restart timers after with the fresh schedule.
     for (const job of jobs) {
-      // Stop stale timer (it was paused during sleep and may be in invalid state)
       this.stopTimer(job.id);
+    }
 
-      // Check if job was missed during sleep
-      const nextRunAt = job.state.nextRunAtMs;
-      if (nextRunAt && nextRunAt <= now) {
-        console.log(`[CronService] Missed job "${job.name}" (was due at ${new Date(nextRunAt).toISOString()})`);
+    await this.detectAndAnnounceMissedJobs(jobs);
 
-        // Update job state to reflect missed execution
-        job.state.lastStatus = 'missed';
-        job.state.lastError = i18n.t('cron:error.missedJob', {
-          name: job.name,
-          time: new Date(nextRunAt).toLocaleString(),
-        });
-        this.updateNextRunTime(job);
-        await this.repo.update(job.id, { state: job.state });
-        this.emitter.emitJobUpdated(job);
-
-        // Insert a notification message into the conversation
-        this.insertMissedJobMessage(job, nextRunAt);
-      }
-
-      // Restart timer with fresh schedule
+    for (const job of jobs) {
       const latestJob = await this.repo.getById(job.id);
       if (latestJob && latestJob.enabled) {
         await this.startTimer(latestJob);
       }
+    }
+  }
+
+  /**
+   * For each job whose `nextRunAtMs` has already passed, insert a one-time
+   * "missed" tip into the conversation and roll the schedule forward. Used
+   * by both `init()` (cold-start catch-up) and `handleSystemResume()`
+   * (post-sleep catch-up). Notify-only — does NOT auto-fire the job, so
+   * a week-long absence of a daily cron produces one tip, not seven, and
+   * the agent never responds out-of-context to a slot the user wasn't
+   * present for.
+   */
+  private async detectAndAnnounceMissedJobs(jobs: CronJob[]): Promise<void> {
+    const now = Date.now();
+    for (const job of jobs) {
+      const nextRunAt = job.state.nextRunAtMs;
+      if (!nextRunAt || nextRunAt > now) continue;
+
+      console.log(`[CronService] Missed job "${job.name}" (was due at ${new Date(nextRunAt).toISOString()})`);
+
+      job.state.lastStatus = 'missed';
+      job.state.lastError = i18n.t('cron:error.missedJob', {
+        name: job.name,
+        time: new Date(nextRunAt).toLocaleString(),
+      });
+      this.updateNextRunTime(job);
+      await this.repo.update(job.id, { state: job.state });
+      this.emitter.emitJobUpdated(job);
+
+      this.insertMissedJobMessage(job, nextRunAt);
     }
   }
 
