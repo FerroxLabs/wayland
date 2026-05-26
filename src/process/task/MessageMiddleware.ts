@@ -7,8 +7,10 @@
 import type { TMessage } from '@/common/chat/chatLib';
 import { ipcBridge } from '@/common';
 import type { AgentBackend } from '@/common/types/acpTypes';
+import { uuid } from '@/common/utils';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { detectCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
+import { addMessage } from '@process/utils/message';
 import { hasThinkTags, stripThinkTags } from './ThinkTagDetector';
 
 /**
@@ -210,6 +212,53 @@ async function handleCronCommands(
           // Emit event to renderer process for real-time UI update
           ipcBridge.cron.onJobCreated.emit(job);
           responses.push(`✅ Scheduled task created: "${job.name}" (ID: ${job.id})`);
+          break;
+        }
+
+        case 'propose': {
+          // v0.6.2.6 — agent proposes a cron via [CRON_PROPOSE]; we render
+          // an inline confirmation card in the chat. The user must click
+          // Yes/Edit/Cancel before any cron row is created. No DB write
+          // to cron_jobs here — that only happens in cronBridge.confirmProposal
+          // when the user accepts.
+          let parseError = false;
+          try {
+            // Use existing croner instance from cron service deps to validate
+            // syntax. Paused-import keeps validation cheap.
+            const { Cron } = await import('croner');
+            new Cron(cmd.schedule, { paused: true });
+          } catch {
+            parseError = true;
+          }
+          const proposalMsgId = uuid();
+          const proposalContent = {
+            name: cmd.name,
+            schedule: cmd.schedule,
+            scheduleDescription: cmd.scheduleDescription,
+            prompt: cmd.prompt,
+            parseError,
+            status: 'pending' as const,
+            agentType,
+          };
+          const proposalMessage: TMessage = {
+            id: proposalMsgId,
+            msg_id: proposalMsgId,
+            conversation_id: conversationId,
+            type: 'cron_propose',
+            position: 'left',
+            content: proposalContent,
+            createdAt: Date.now(),
+            status: 'finish',
+          };
+          await addMessage(conversationId, proposalMessage);
+          ipcBridge.conversation.responseStream.emit({
+            type: 'cron_propose',
+            conversation_id: conversationId,
+            msg_id: proposalMsgId,
+            data: proposalContent,
+          });
+          // Don't push a user-visible "responses" line — the card itself
+          // is the response surface and clutter-free is the goal.
           break;
         }
 

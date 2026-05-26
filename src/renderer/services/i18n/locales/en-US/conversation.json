@@ -65,7 +65,9 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "recent7Days": "Last 7 Days",
-    "earlier": "Earlier"
+    "earlier": "Earlier",
+    "schedule": "Schedule this chat",
+    "editSchedule": "Edit scheduled task"
   },
   "historySearch": {
     "tooltip": "Search messages",

@@ -65,7 +65,9 @@
     "pinFailed": "Pin operation failed",
     "pinnedSection": "Pinned",
     "deleteSuccess": "Başarıyla silindi",
-    "deleteFailed": "Silme başarısız oldu"
+    "deleteFailed": "Silme başarısız oldu",
+    "schedule": "Schedule this chat",
+    "editSchedule": "Edit scheduled task"
   },
   "historySearch": {
     "tooltip": "Mesajları ara",

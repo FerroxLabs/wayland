@@ -932,6 +932,14 @@ export const cron = {
   runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
   saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
   hasSkill: buildProvider<boolean, { jobId: string }>('cron.has-skill'),
+  // v0.6.2.6 — confirm or dismiss an inline CronProposeCard (rendered when
+  // the agent emits [CRON_PROPOSE] in a chat). Status transitions are
+  // guarded server-side to prevent double-fire from rapid clicks.
+  confirmProposal: buildProvider<
+    | { ok: true; jobId?: string; editPayload?: ICronProposeEditPayload }
+    | { ok: false; reason: string },
+    { conversationId: string; msgId: string; action: 'accept' | 'edit' | 'cancel' }
+  >('cron.confirm-proposal'),
   // Events
   onJobCreated: buildEmitter<ICronJob>('cron.job-created'),
   onJobUpdated: buildEmitter<ICronJob>('cron.job-updated'),
@@ -940,6 +948,21 @@ export const cron = {
     'cron.job-executed'
   ),
 };
+
+/**
+ * v0.6.2.6 — payload returned by cron.confirmProposal when action='edit'.
+ * The renderer uses this to open CreateTaskDialog pre-filled so the user
+ * can tweak the proposed cron before saving.
+ */
+export interface ICronProposeEditPayload {
+  conversationId: string;
+  conversationTitle?: string;
+  agentType?: string;
+  initialName: string;
+  initialPrompt: string;
+  initialSchedule: string;
+  initialScheduleDescription: string;
+}
 
 // Cron job types for IPC
 export type ICronSchedule =

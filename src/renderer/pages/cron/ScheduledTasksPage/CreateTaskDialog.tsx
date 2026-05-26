@@ -34,6 +34,12 @@ const OptGroup = Select.OptGroup;
 interface CreateTaskDialogProps {
   visible: boolean;
   onClose: () => void;
+  /**
+   * v0.6.2.6 — pre-fill the Prompt field on create when the dialog opens
+   * from a chat. Typically the filtered concat of the chat's user
+   * messages from extractCronPromptFromUserMessages. Editable by user.
+   */
+  initialPrompt?: string;
   /** When provided, the dialog operates in edit mode */
   editJob?: ICronJob;
   conversationId?: string;
@@ -144,6 +150,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   conversationTitle,
   agentType,
   initialWorkflowSlug,
+  initialPrompt,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -156,11 +163,19 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [customCronExpr, setCustomCronExpr] = useState<string>('');
 
   const isEditMode = !!editJob;
-  // Default to 'existing' (ongoing conversation) — scheduled tasks built
-  // on previous runs are the dominant use case, so leading with that
-  // reduces clicks for the common path. New conversation stays one
-  // toggle away.
-  const [executionMode, setExecutionMode] = useState<ExecutionMode>('existing');
+  // v0.6.2.6 — ExecutionMode default depends on context:
+  //   - From a chat (conversationId set): NO preselect. Force the user to
+  //     pick because "existing" appends to this chat (long-running thread)
+  //     vs "new_conversation" creates a fresh chat per fire — meaningfully
+  //     different UX, deserves an explicit choice.
+  //   - From /scheduled + New Task (no conversationId): default
+  //     'new_conversation' since 'existing' makes no sense without a source.
+  // Save button gates on executionMode !== null in chat-source mode.
+  const initialExecutionMode = useMemo<ExecutionMode | null>(
+    () => (conversationId ? null : 'new_conversation'),
+    [conversationId]
+  );
+  const [executionMode, setExecutionMode] = useState<ExecutionMode | null>(initialExecutionMode);
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   // Workflow-source state (step #6 of the Skills/Workflows split): when
@@ -261,14 +276,38 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       setTime('09:00');
       setWeekday('MON');
       setCustomCronExpr('');
-      setExecutionMode('existing');
+      setExecutionMode(initialExecutionMode);
       setAdvancedOpen(false);
       setModelId(undefined);
       setConfigOptions(undefined);
       setWorkspace(undefined);
       setSelectedAgent(undefined);
+
+      // v0.6.2.6 smart prefill — when launched from a chat, seed Name from
+      // the chat title (truncated for the cron list/sidebar display — full
+      // title still goes into prompt context if needed), Description with
+      // a scaffold the user can replace, and Prompt with the filtered concat
+      // of the chat's user messages (passed by the caller via `initialPrompt`).
+      // Each field stays editable; this just removes the typing tax for the
+      // common case of "turn this chat I just finished into a daily task."
+      if (conversationId) {
+        const seed: Record<string, string> = {};
+        if (conversationTitle) {
+          const NAME_CAP = 80;
+          const cleanTitle = conversationTitle.replace(/\s+/g, ' ').trim();
+          seed.name =
+            cleanTitle.length > NAME_CAP ? `${cleanTitle.slice(0, NAME_CAP - 1).trimEnd()}…` : cleanTitle;
+          seed.description = t('cron.smartPrefill.descriptionScaffold', { chatTitle: seed.name });
+        }
+        if (initialPrompt) {
+          seed.prompt = initialPrompt;
+        }
+        if (Object.keys(seed).length > 0) {
+          form.setFieldsValue(seed);
+        }
+      }
     }
-  }, [visible, editJob, form]);
+  }, [visible, editJob, form, initialExecutionMode, conversationId, conversationTitle, initialPrompt, t]);
 
   // Resolve backend from selectedAgent (handles both CLI and preset agents)
   const resolvedBackend = useMemo(() => {
@@ -424,8 +463,12 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     [t]
   );
 
-  const selectedExecutionModeOption =
-    executionModeOptions.find((option) => option.value === executionMode) ?? executionModeOptions[0];
+  // v0.6.2.6 — executionMode can be null when launched from a chat (user
+  // must pick before Save is enabled). When null we suppress the option
+  // description block and show a "pick first" hint instead.
+  const selectedExecutionModeOption = executionMode
+    ? (executionModeOptions.find((option) => option.value === executionMode) ?? null)
+    : null;
   const showModelSelector = Boolean(resolvedBackend && (isGeminiMode || acpCachedModelInfo));
   const showConfigSelector = resolvedBackend === 'codex';
   const advancedFieldCount = Number(showModelSelector) + Number(showConfigSelector) + 1;
@@ -510,6 +553,13 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   const handleSubmit = async () => {
     try {
+      // Defense-in-depth — Save button is gated on executionMode !== null
+      // for chat-source mode, but bail early if somehow reached without
+      // a mode pick (e.g. programmatic onOk call).
+      if (executionMode === null) {
+        Message.error(t('cron.detail.executionModePickFirst'));
+        return;
+      }
       const values = await form.validate();
       setSubmitting(true);
 
@@ -579,6 +629,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       onCancel={onClose}
       onOk={handleSubmit}
       confirmLoading={submitting}
+      okButtonProps={{ disabled: executionMode === null }}
       okText={t('cron.page.save')}
       cancelText={t('cron.page.cancel')}
       className='w-[min(560px,calc(100vw-32px))] max-w-560px rd-16px'
@@ -769,7 +820,11 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               })}
             </Radio.Group>
             <div className='mt-10px rounded-12px border border-solid border-[var(--color-border-2)] bg-fill-2 px-14px py-12px'>
-              <p className='m-0 text-12px leading-18px text-t-primary'>{selectedExecutionModeOption.description}</p>
+              <p className='m-0 text-12px leading-18px text-t-primary'>
+                {selectedExecutionModeOption
+                  ? selectedExecutionModeOption.description
+                  : t('cron.detail.executionModePickFirst')}
+              </p>
             </div>
           </FormItem>
 

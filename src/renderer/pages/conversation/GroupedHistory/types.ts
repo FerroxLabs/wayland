@@ -58,6 +58,12 @@ export type ConversationRowProps = {
   onDelete: (conversationId: string) => void;
   onExport?: (conversation: TChatConversation) => void;
   onTogglePin: (conversation: TChatConversation) => void;
+  /**
+   * v0.6.2.6 — invoked when user picks "Schedule this chat" (or "Edit
+   * scheduled task" if the conversation already has a cron). Parent
+   * handles navigation + modal open via emitter event.
+   */
+  onScheduleChat?: (conversation: TChatConversation) => void;
   getJobStatus: (conversationId: string) => 'none' | 'active' | 'paused' | 'error' | 'unread';
 };
 

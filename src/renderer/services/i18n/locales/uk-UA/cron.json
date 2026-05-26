@@ -41,7 +41,8 @@
     "noHistory": "Запусків ще не було",
     "notFound": "Завдання не знайдено",
     "executionModeDescriptionNew": "Кожен запуск починає новий діалог, тому попередній контекст не зберігається. Найкраще підходить для регулярних звітів або перевірок, які мають залишатися незалежними.",
-    "executionModeDescriptionExisting": "Кожен запуск продовжується в тому самому діалозі, тому попередній контекст і результати залишаються доступними. Найкраще підходить для завдань, що доповнюють попередні результати."
+    "executionModeDescriptionExisting": "Кожен запуск продовжується в тому самому діалозі, тому попередній контекст і результати залишаються доступними. Найкраще підходить для завдань, що доповнюють попередні результати.",
+    "executionModePickFirst": "Pick how this scheduled task runs"
   },
   "notification": {
     "taskComplete": "Завдання завершено",
@@ -138,5 +139,23 @@
     "conversationNotFound": "Діалог не знайдено",
     "scheduledTimePassed": "Запланований час минув",
     "conversationBusy": "Діалог зайнятий після {{count}} спроб"
+  },
+  "propose": {
+    "title": "Schedule confirmation",
+    "subtitle": "Review then confirm",
+    "name": "Name",
+    "schedule": "Schedule",
+    "prompt": "Prompt",
+    "yes": "Yes, schedule",
+    "edit": "Edit details",
+    "cancel": "Cancel",
+    "accepted": "Scheduled — {{name}}",
+    "cancelled": "Proposal dismissed",
+    "viewTask": "View task",
+    "parseError": "Schedule parse error",
+    "deletedChatError": "Source chat was deleted"
+  },
+  "smartPrefill": {
+    "descriptionScaffold": "Recurring run from chat: {{chatTitle}}"
   }
 }

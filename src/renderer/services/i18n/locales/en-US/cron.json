@@ -41,7 +41,8 @@
     "noHistory": "No runs yet",
     "notFound": "Task not found",
     "executionModeDescriptionNew": "Each run starts a fresh conversation, so previous context does not carry over. Best for recurring reports or checks that should stay independent.",
-    "executionModeDescriptionExisting": "Each run continues in the same conversation, so earlier context and results stay available. Best for follow-up tasks that build on previous runs."
+    "executionModeDescriptionExisting": "Each run continues in the same conversation, so earlier context and results stay available. Best for follow-up tasks that build on previous runs.",
+    "executionModePickFirst": "Pick how this scheduled task runs"
   },
   "notification": {
     "taskComplete": "Task Complete",
@@ -139,5 +140,23 @@
     "conversationNotFound": "Conversation not found",
     "scheduledTimePassed": "Scheduled time has passed",
     "conversationBusy": "Conversation busy after {{count}} retries"
+  },
+  "propose": {
+    "title": "Schedule confirmation",
+    "subtitle": "Review then confirm",
+    "name": "Name",
+    "schedule": "Schedule",
+    "prompt": "Prompt",
+    "yes": "Yes, schedule",
+    "edit": "Edit details",
+    "cancel": "Cancel",
+    "accepted": "Scheduled — {{name}}",
+    "cancelled": "Proposal dismissed",
+    "viewTask": "View task",
+    "parseError": "Schedule parse error",
+    "deletedChatError": "Source chat was deleted"
+  },
+  "smartPrefill": {
+    "descriptionScaffold": "Recurring run from chat: {{chatTitle}}"
   }
 }

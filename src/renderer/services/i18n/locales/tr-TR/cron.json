@@ -54,7 +54,8 @@
     "noHistory": "Henüz çalıştırılmadı",
     "notFound": "Görev bulunamadı",
     "executionModeDescriptionNew": "Her çalıştırma yeni bir konuşma başlatır; önceki bağlam sonraki çalıştırmaya taşınmaz. Bağımsız kalması gereken düzenli raporlar ve kontrol görevleri için uygundur.",
-    "executionModeDescriptionExisting": "Her çalıştırma aynı konuşmada devam eder; önceki bağlam ve sonuçlar korunur. Önceki çalıştırmaların üzerine eklenen takip işleri için uygundur."
+    "executionModeDescriptionExisting": "Her çalıştırma aynı konuşmada devam eder; önceki bağlam ve sonuçlar korunur. Önceki çalıştırmaların üzerine eklenen takip işleri için uygundur.",
+    "executionModePickFirst": "Pick how this scheduled task runs"
   },
   "notification": {
     "taskComplete": "Görev Tamamlandı",
@@ -152,5 +153,23 @@
     "conversationNotFound": "Konuşma bulunamadı",
     "scheduledTimePassed": "Zamanlanmış saat geçti",
     "conversationBusy": "Konuşma meşgul, {{count}} denemeden sonra atlandı"
+  },
+  "propose": {
+    "title": "Schedule confirmation",
+    "subtitle": "Review then confirm",
+    "name": "Name",
+    "schedule": "Schedule",
+    "prompt": "Prompt",
+    "yes": "Yes, schedule",
+    "edit": "Edit details",
+    "cancel": "Cancel",
+    "accepted": "Scheduled — {{name}}",
+    "cancelled": "Proposal dismissed",
+    "viewTask": "View task",
+    "parseError": "Schedule parse error",
+    "deletedChatError": "Source chat was deleted"
+  },
+  "smartPrefill": {
+    "descriptionScaffold": "Recurring run from chat: {{chatTitle}}"
   }
 }

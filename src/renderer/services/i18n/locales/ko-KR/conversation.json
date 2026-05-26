@@ -65,7 +65,9 @@
     "pinFailed": "Pin operation failed",
     "pinnedSection": "Pinned",
     "deleteSuccess": "삭제되었습니다",
-    "deleteFailed": "삭제에 실패했습니다"
+    "deleteFailed": "삭제에 실패했습니다",
+    "schedule": "Schedule this chat",
+    "editSchedule": "Edit scheduled task"
   },
   "historySearch": {
     "tooltip": "메시지 검색",

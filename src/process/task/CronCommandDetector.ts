@@ -9,6 +9,7 @@
  */
 export type CronCommand =
   | { kind: 'create'; name: string; schedule: string; scheduleDescription: string; message: string }
+  | { kind: 'propose'; name: string; schedule: string; scheduleDescription: string; prompt: string }
   | { kind: 'update'; jobId: string; name: string; schedule: string; scheduleDescription: string; message: string }
   | { kind: 'list' };
 
@@ -67,6 +68,49 @@ export function detectCronCommands(content: string): CronCommand[] {
         const parsed = parseCronCreateBody(body);
         if (parsed) {
           commands.push({ kind: 'create', ...parsed });
+        }
+      }
+    }
+  }
+
+  // v0.6.2.6 — Detect [CRON_PROPOSE]...[/CRON_PROPOSE]
+  // Same body shape as CREATE but renders a user-confirmation card instead
+  // of firing the cron immediately. The agent uses PROPOSE for any
+  // user-driven scheduling request; CREATE is reserved for the rare
+  // explicit "create now without asking" override case (per the rewritten
+  // cron skill SKILL.md in v0.6.2.6 W5).
+  const proposeMatches = cleanContent.matchAll(/\[CRON_PROPOSE\]\s*\n?([\s\S]*?)\[\/CRON_PROPOSE\]/gi);
+  for (const match of proposeMatches) {
+    const parsed = parseCronCreateBody(match[1]);
+    if (parsed) {
+      // Re-shape: PROPOSE uses `prompt` instead of `message` for clarity at
+      // the UI surface; same content semantics underneath.
+      commands.push({
+        kind: 'propose',
+        name: parsed.name,
+        schedule: parsed.schedule,
+        scheduleDescription: parsed.scheduleDescription,
+        prompt: parsed.message,
+      });
+    }
+  }
+
+  // Fallback: Try to parse unclosed CRON_PROPOSE block (agent forgot closing tag)
+  if (commands.filter((c) => c.kind === 'propose').length === 0) {
+    const hasOpen = /\[CRON_PROPOSE\]/i.test(cleanContent);
+    const hasClose = /\[\/CRON_PROPOSE\]/i.test(cleanContent);
+    if (hasOpen && !hasClose) {
+      const fallback = cleanContent.match(/\[CRON_PROPOSE\]\s*\n?([\s\S]*?)(?=\[CRON_(?:CREATE|LIST|DELETE|UPDATE)|$)/i);
+      if (fallback) {
+        const parsed = parseCronCreateBody(fallback[1]);
+        if (parsed) {
+          commands.push({
+            kind: 'propose',
+            name: parsed.name,
+            schedule: parsed.schedule,
+            scheduleDescription: parsed.scheduleDescription,
+            prompt: parsed.message,
+          });
         }
       }
     }
@@ -145,7 +189,7 @@ export function hasCronCommands(content: string): boolean {
   if (!content || typeof content !== 'string') {
     return false;
   }
-  return /\[CRON_(?:CREATE|UPDATE|LIST)/i.test(content);
+  return /\[CRON_(?:CREATE|PROPOSE|UPDATE|LIST)/i.test(content);
 }
 
 /**
@@ -159,6 +203,7 @@ export function stripCronCommands(content: string): string {
 
   return content
     .replace(/\[CRON_CREATE\][\s\S]*?\[\/CRON_CREATE\]/gi, '')
+    .replace(/\[CRON_PROPOSE\][\s\S]*?\[\/CRON_PROPOSE\]/gi, '')
     .replace(/\[CRON_UPDATE:[^\]]*\][\s\S]*?\[\/CRON_UPDATE\]/gi, '')
     .replace(/\[CRON_LIST\]/gi, '')
     .replace(/\n{3,}/g, '\n\n') // Collapse multiple newlines

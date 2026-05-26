@@ -14,7 +14,8 @@ import { Button, Empty, Input, Modal } from '@arco-design/web-react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { emitter } from '@/renderer/utils/emitter';
 
 import WorkspaceCollapse from '../components/WorkspaceCollapse';
 import ConversationRow from './ConversationRow';
@@ -35,6 +36,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
   onBatchModeChange,
 }) => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { getJobStatus, markAsRead, setActiveConversation } = useCronJobsMap();
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(() => new Set());
@@ -126,6 +128,27 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
       collapsed,
     });
 
+  // v0.6.2.6 — "Schedule this chat" / "Edit scheduled task" sidebar menu
+  // action. If the user is on a different conversation, navigate to the
+  // target first so the matching CronJobManager (in ChatLayout's header)
+  // is mounted before we fire the open event. If the chat already has a
+  // cron, route to its detail page instead of opening the create dialog.
+  const handleScheduleChat = useCallback(
+    (conversation: TChatConversation) => {
+      const existingCronJobId = (conversation.extra as { cronJobId?: string } | undefined)?.cronJobId;
+      if (existingCronJobId) {
+        navigate(`/scheduled/${existingCronJobId}`);
+        return;
+      }
+      if (id !== conversation.id) {
+        navigate(`/conversation/${conversation.id}?schedule=1`);
+        return;
+      }
+      emitter.emit('cron.modal.openForChat', { conversationId: conversation.id });
+    },
+    [id, navigate]
+  );
+
   const getConversationRowProps = useCallback(
     (conversation: TChatConversation): ConversationRowProps => ({
       conversation,
@@ -145,6 +168,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
       onDelete: handleDeleteClick,
       onExport: handleExportConversation,
       onTogglePin: handleTogglePin,
+      onScheduleChat: handleScheduleChat,
       getJobStatus,
     }),
     [
@@ -164,6 +188,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
       handleDeleteClick,
       handleExportConversation,
       handleTogglePin,
+      handleScheduleChat,
       getJobStatus,
     ]
   );

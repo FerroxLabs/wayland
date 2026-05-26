@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { MessageSquare, Pencil, Pin, Trash2, Upload } from 'lucide-react';
+import { Clock, MessageSquare, Pencil, Pin, Trash2, Upload } from 'lucide-react';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
 import siderStyles from '@/renderer/components/layout/Sider/Sider.module.css';
@@ -45,6 +45,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
     onDelete,
     onExport,
     onTogglePin,
+    onScheduleChat,
     getJobStatus,
   } = props;
   const { t } = useTranslation();
@@ -212,6 +213,10 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
                       onEditStart(conversation);
                       return;
                     }
+                    if (key === 'schedule') {
+                      onScheduleChat?.(conversation);
+                      return;
+                    }
                     if (key === 'export') {
                       onExport?.(conversation);
                       return;
@@ -233,6 +238,18 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
                       <span>{t('conversation.history.rename')}</span>
                     </div>
                   </Menu.Item>
+                  {onScheduleChat && (
+                    <Menu.Item key='schedule'>
+                      <div className='flex items-center gap-8px'>
+                        <Clock size={14} />
+                        <span>
+                          {(conversation.extra as { cronJobId?: string } | undefined)?.cronJobId
+                            ? t('conversation.history.editSchedule')
+                            : t('conversation.history.schedule')}
+                        </span>
+                      </div>
+                    </Menu.Item>
+                  )}
                   {onExport && (
                     <Menu.Item key='export'>
                       <div className='flex items-center gap-8px'>

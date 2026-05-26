@@ -42,7 +42,8 @@
     "noHistory": "暫無執行記錄",
     "notFound": "未找到任務",
     "executionModeDescriptionNew": "每次觸發都會建立新的對話，之前的上下文不會帶到下一次執行。適合日報、巡檢、定時彙總這類彼此獨立的任務。",
-    "executionModeDescriptionExisting": "每次觸發都會回到同一個對話繼續執行，之前的上下文和結果會持續保留。適合長期跟進同一件事的連續任務。"
+    "executionModeDescriptionExisting": "每次觸發都會回到同一個對話繼續執行，之前的上下文和結果會持續保留。適合長期跟進同一件事的連續任務。",
+    "executionModePickFirst": "Pick how this scheduled task runs"
   },
   "notification": {
     "taskComplete": "任務完成",
@@ -140,5 +141,23 @@
     "conversationNotFound": "未找到對話",
     "scheduledTimePassed": "定時時間已過",
     "conversationBusy": "對話繁忙，在 {{count}} 次嘗試後跳過"
+  },
+  "propose": {
+    "title": "Schedule confirmation",
+    "subtitle": "Review then confirm",
+    "name": "Name",
+    "schedule": "Schedule",
+    "prompt": "Prompt",
+    "yes": "Yes, schedule",
+    "edit": "Edit details",
+    "cancel": "Cancel",
+    "accepted": "Scheduled — {{name}}",
+    "cancelled": "Proposal dismissed",
+    "viewTask": "View task",
+    "parseError": "Schedule parse error",
+    "deletedChatError": "Source chat was deleted"
+  },
+  "smartPrefill": {
+    "descriptionScaffold": "Recurring run from chat: {{chatTitle}}"
   }
 }

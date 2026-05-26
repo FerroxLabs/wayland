@@ -85,7 +85,8 @@ type TMessageType =
   | 'thinking'
   | 'available_commands'
   | 'skill_suggest'
-  | 'cron_trigger';
+  | 'cron_trigger'
+  | 'cron_propose';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
   /**
@@ -367,6 +368,32 @@ export type IMessageCronTrigger = IMessage<
   }
 >;
 
+/**
+ * v0.6.2.6 — inline confirmation card rendered when the agent emits a
+ * [CRON_PROPOSE] block in chat. User picks Yes/Edit/Cancel; the action
+ * routes through ipcBridge.cron.confirmProposal which either creates the
+ * job (Yes), opens CreateTaskDialog pre-filled (Edit), or marks the
+ * proposal dismissed (Cancel). Status transitions are guarded
+ * server-side to prevent double-fire from rapid clicks.
+ */
+export type IMessageCronPropose = IMessage<
+  'cron_propose',
+  {
+    name: string;
+    schedule: string;
+    scheduleDescription: string;
+    prompt: string;
+    /** True if the cron expression failed croner validation; Yes button disabled in this state. */
+    parseError: boolean;
+    /** Lifecycle of the proposal — drives which card variant renders. */
+    status: 'pending' | 'accepted' | 'cancelled';
+    /** Set after accept — created cron job id so the card can link to its detail page. */
+    cronJobId?: string;
+    /** Conversation type as known when the proposal was created (for the post-accept addJob payload). */
+    agentType?: string;
+  }
+>;
+
 // eslint-disable-next-line max-len
 export type TMessage =
   | IMessageText
@@ -382,7 +409,8 @@ export type TMessage =
   | IMessageThinking
   | IMessageAvailableCommands
   | IMessageSkillSuggest
-  | IMessageCronTrigger;
+  | IMessageCronTrigger
+  | IMessageCronPropose;
 
 // 统一所有需要用户交互的用户类型
 export interface IConfirmation<Option extends any = any> {
@@ -575,6 +603,21 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         conversation_id: message.conversation_id,
         position: 'center',
         content: triggerData,
+      };
+    }
+    case 'cron_propose': {
+      // v0.6.2.6 — inline confirmation card for natural-language scheduling.
+      // Data is broadcast from MessageMiddleware after the agent emits a
+      // [CRON_PROPOSE] block; renderer maps to IMessageCronPropose for
+      // CronProposeCard to render Yes/Edit/Cancel UI.
+      const proposeData = message.data as IMessageCronPropose['content'];
+      return {
+        id: uuid(),
+        type: 'cron_propose',
+        msg_id: message.msg_id,
+        conversation_id: message.conversation_id,
+        position: 'left',
+        content: proposeData,
       };
     }
     case 'start':

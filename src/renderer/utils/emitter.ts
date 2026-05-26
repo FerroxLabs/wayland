@@ -58,6 +58,15 @@ interface EventTypes {
   'sendbox.reply.clear': void; // clear reply quote
   'staroffice.install.request': [{ conversationId: string; text: string; detectedUrl?: string | null }];
   'staroffice.install.finished': [{ conversationId: string }];
+  /**
+   * v0.6.2.6 — fired by the sidebar Recent Chats 3-dot menu when the user
+   * picks "Schedule this chat". The matching CronJobManager (mounted in
+   * ChatLayout for the active conversation) listens and opens the
+   * CreateTaskDialog modal with smart-prefill. If the user is on a
+   * different chat, GroupedHistory navigates first via /conversation/:id
+   * and ChatConversation reads ?schedule=1 to open on mount.
+   */
+  'cron.modal.openForChat': [{ conversationId: string }];
 }
 
 export const emitter = new EventEmitter<EventTypes>();

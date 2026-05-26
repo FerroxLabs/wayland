@@ -65,7 +65,9 @@
     "today": "今天",
     "yesterday": "昨天",
     "recent7Days": "最近7天",
-    "earlier": "更早"
+    "earlier": "更早",
+    "schedule": "Schedule this chat",
+    "editSchedule": "Edit scheduled task"
   },
   "historySearch": {
     "tooltip": "检索会话",
