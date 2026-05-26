@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "記憶",
+    "subtitle": "貫穿每一次工作階段的 AI 持續知識"
+  },
+  "pitch": {
+    "headline": "跟著你走的記憶",
+    "lede": "Wayland 記得你做過什麼、決定過什麼、發佈過什麼。每位助手都能拿到這些脈絡 -- 不必再說明一次。",
+    "bullet1": "在聊天、專案和命令列工具間持續保留",
+    "bullet2": "可搜尋、可匯出，完全屬於你",
+    "bullet3": "安裝後無需任何設定",
+    "install_cta": "安裝記憶",
+    "settings_link": "不想要？可以在設定中關閉"
+  },
+  "installing": {
+    "title": "正在安裝記憶",
+    "subtitle": "大約需要一分鐘",
+    "version_label": "正在安裝版本 {{version}}",
+    "step_download": "正在從 npm 下載",
+    "step_extract": "正在解壓檔案",
+    "step_verify": "正在驗證安裝",
+    "step_activate": "正在啟用"
+  },
+  "upgrading": {
+    "title": "正在升級記憶",
+    "subtitle": "已為下次啟動準備 {{version}}",
+    "pending_message": "升級已就緒。Wayland 重新啟動後將生效。",
+    "restart_now": "立即重新啟動"
+  },
+  "failed": {
+    "title": "安裝未能完成",
+    "retry": "重試",
+    "details_toggle": "顯示詳情",
+    "details_hide": "隱藏詳情"
+  },
+  "error": {
+    "spawn_error": "無法啟動安裝程式。請確認 npm 在你的 PATH 中。",
+    "install_exit_nonzero": "安裝以錯誤結束。下方詳情可能有幫助。",
+    "invalid_target_version": "登錄回傳了無效的版本號。請稍後再試。",
+    "unsafe_ownership": "待安裝資料夾的擁有權不安全，已被拒絕。請重新安裝以還原。",
+    "upgrade_failed_no_rollback": "升級失敗，且無法還原至上一版本。請重新安裝以還原。",
+    "rollback_also_failed": "新版本和還原皆失敗。請重新安裝以還原。",
+    "mcp_crashed": "記憶當機了。請重新啟動 Wayland 以還原。",
+    "mcp_error": "記憶回傳了錯誤。請重試。",
+    "timeout": "記憶未能及時回應。請重試。",
+    "validation_failed": "該請求不符合記憶期望的格式。",
+    "unavailable": "記憶尚未執行。請安裝或重新啟動以啟用。",
+    "opt_out": "記憶已在設定中關閉。",
+    "unknown": "發生錯誤。請重試。"
+  },
+  "empty": {
+    "title": "記憶已就緒",
+    "subtitle": "把你希望它下次還記得的事情告訴它",
+    "placeholder": "記憶應該知道關於你的什麼？",
+    "chip1": "記住我們發佈所用的技術堆疊",
+    "chip2": "回想我們關於驗證的決定",
+    "chip3": "上次部署中哪裡出問題了"
+  },
+  "panel": {
+    "header_breadcrumb": "記憶",
+    "button_drop": "丟棄",
+    "button_history": "紀錄",
+    "button_add": "新增記憶",
+    "tab_home": "首頁",
+    "tab_search": "搜尋",
+    "tab_wiki": "百科",
+    "tab_promotions": "推廣",
+    "tab_drop": "丟棄",
+    "tab_conflicts": "衝突",
+    "tab_cross_project": "跨專案"
+  },
+  "degraded": {
+    "toast": "記憶將在首次設定完成後啟用",
+    "banner": "記憶目前處於降級模式 -- 聊天仍可使用，但增強功能已關閉"
+  },
+  "settings": {
+    "panel_title": "IJFW 記憶",
+    "skip_label": "略過 IJFW 自動設定",
+    "skip_description": "啟用後，Wayland 將不會安裝或升級 IJFW。你之後可以透過記憶頁面手動安裝。",
+    "manual_install_hint": "手動安裝：在終端機中執行 `npx -y @ijfw/install@latest`"
+  },
+  "prelude": {
+    "installing_notice": "IJFW 正在安裝。外部命令列工具（Claude Code、Codex、Gemini CLI）會在安裝完成後識別它。",
+    "disabled_notice": "IJFW 已在 Wayland 設定中關閉。請重新啟用以與外部命令列共享記憶。",
+    "failed_notice": "IJFW 安裝失敗。請在 Wayland 的記憶頁面重試。"
+  }
+}

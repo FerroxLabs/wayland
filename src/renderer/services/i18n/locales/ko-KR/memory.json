@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "메모리",
+    "subtitle": "모든 세션을 가로질러 유지되는 AI의 지식"
+  },
+  "pitch": {
+    "headline": "당신을 따라다니는 메모리",
+    "lede": "Wayland는 당신이 작업한 것, 결정한 것, 출시한 것을 기억합니다. 모든 어시스턴트가 컨텍스트를 공유하므로 다시 설명할 필요가 없습니다.",
+    "bullet1": "채팅, 프로젝트, CLI 전반에 걸쳐 유지됩니다",
+    "bullet2": "검색 가능하고, 내보내기 가능하며, 당신의 것입니다",
+    "bullet3": "설치 후 별도의 설정이 필요하지 않습니다",
+    "install_cta": "메모리 설치",
+    "settings_link": "원하지 않으신가요? 설정에서 비활성화할 수 있습니다"
+  },
+  "installing": {
+    "title": "메모리 설치 중",
+    "subtitle": "약 1분 정도 걸립니다",
+    "version_label": "버전 {{version}} 설치 중",
+    "step_download": "npm에서 다운로드 중",
+    "step_extract": "파일 압축 해제 중",
+    "step_verify": "설치 검증 중",
+    "step_activate": "활성화 중"
+  },
+  "upgrading": {
+    "title": "메모리 업그레이드 중",
+    "subtitle": "다음 부팅을 위해 {{version}}을(를) 준비하고 있습니다",
+    "pending_message": "업그레이드가 준비되었습니다. Wayland를 재시작하면 활성화됩니다.",
+    "restart_now": "지금 재시작"
+  },
+  "failed": {
+    "title": "설치를 완료하지 못했습니다",
+    "retry": "재시도",
+    "details_toggle": "세부 정보 표시",
+    "details_hide": "세부 정보 숨기기"
+  },
+  "error": {
+    "spawn_error": "설치 프로그램을 시작할 수 없습니다. npm이 PATH에 있는지 확인하세요.",
+    "install_exit_nonzero": "설치가 오류로 종료되었습니다. 아래 세부 정보가 도움이 될 수 있습니다.",
+    "invalid_target_version": "레지스트리에서 가져온 버전 번호가 잘못되었습니다. 나중에 다시 시도하세요.",
+    "unsafe_ownership": "보류 중인 설치 폴더의 소유권이 안전하지 않아 거부되었습니다. 재설치하여 복구하세요.",
+    "upgrade_failed_no_rollback": "업그레이드에 실패했고 이전 버전을 복원할 수 없습니다. 재설치하여 복구하세요.",
+    "rollback_also_failed": "새 버전과 롤백 모두 실패했습니다. 재설치하여 복구하세요.",
+    "mcp_crashed": "메모리가 충돌했습니다. Wayland를 재시작하여 복구하세요.",
+    "mcp_error": "메모리가 오류를 반환했습니다. 다시 시도하세요.",
+    "timeout": "메모리가 제 시간에 응답하지 않았습니다. 다시 시도하세요.",
+    "validation_failed": "해당 요청이 메모리가 기대하는 형식과 일치하지 않습니다.",
+    "unavailable": "메모리가 아직 실행되지 않습니다. 활성화하려면 설치하거나 재시작하세요.",
+    "opt_out": "메모리가 설정에서 비활성화되어 있습니다.",
+    "unknown": "문제가 발생했습니다. 다시 시도하세요."
+  },
+  "empty": {
+    "title": "메모리가 준비되었습니다",
+    "subtitle": "다음에 기억했으면 하는 것을 무엇이든 물어보세요",
+    "placeholder": "메모리가 당신에 대해 무엇을 알아야 할까요?",
+    "chip1": "우리가 출시하는 스택을 기억해 두세요",
+    "chip2": "인증에 대해 우리가 결정한 내용을 떠올려 보세요",
+    "chip3": "지난 배포에서 무엇이 망가졌나요"
+  },
+  "panel": {
+    "header_breadcrumb": "메모리",
+    "button_drop": "드롭",
+    "button_history": "기록",
+    "button_add": "메모리 추가",
+    "tab_home": "홈",
+    "tab_search": "검색",
+    "tab_wiki": "위키",
+    "tab_promotions": "프로모션",
+    "tab_drop": "드롭",
+    "tab_conflicts": "충돌",
+    "tab_cross_project": "프로젝트 간"
+  },
+  "degraded": {
+    "toast": "초기 설정 후 메모리가 활성화됩니다",
+    "banner": "메모리가 현재 저하 모드로 동작 중입니다. 채팅은 계속 작동하지만 보강 기능은 꺼져 있습니다"
+  },
+  "settings": {
+    "panel_title": "IJFW 메모리",
+    "skip_label": "IJFW 자동 설정 건너뛰기",
+    "skip_description": "활성화하면 Wayland가 IJFW를 설치하거나 업그레이드하지 않습니다. 나중에 메모리 페이지를 통해 수동으로 설치할 수 있습니다.",
+    "manual_install_hint": "수동으로 설치하려면 터미널에서 `npx -y @ijfw/install@latest`를 실행하세요"
+  },
+  "prelude": {
+    "installing_notice": "IJFW를 설치하고 있습니다. 외부 CLI (Claude Code, Codex, Gemini CLI)는 설치 완료 후 인식됩니다.",
+    "disabled_notice": "IJFW가 Wayland 설정에서 비활성화되어 있습니다. 외부 CLI와 메모리를 공유하려면 다시 활성화하세요.",
+    "failed_notice": "IJFW 설치에 실패했습니다. Wayland의 메모리 페이지에서 다시 시도하세요."
+  }
+}

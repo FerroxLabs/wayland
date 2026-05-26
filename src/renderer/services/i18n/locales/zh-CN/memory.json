@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "记忆",
+    "subtitle": "贯穿每一次会话的 AI 持续知识"
+  },
+  "pitch": {
+    "headline": "跟着你走的记忆",
+    "lede": "Wayland 记得你做过什么、决定过什么、发布过什么。每个助手都能拿到这些上下文 -- 不用再解释一遍。",
+    "bullet1": "在聊天、项目和命令行之间持续保留",
+    "bullet2": "可搜索、可导出，完全属于你",
+    "bullet3": "安装后无需任何设置",
+    "install_cta": "安装记忆",
+    "settings_link": "不想要？可以在设置中关闭"
+  },
+  "installing": {
+    "title": "正在安装记忆",
+    "subtitle": "大约需要一分钟",
+    "version_label": "正在安装版本 {{version}}",
+    "step_download": "正在从 npm 下载",
+    "step_extract": "正在解压文件",
+    "step_verify": "正在验证安装",
+    "step_activate": "正在激活"
+  },
+  "upgrading": {
+    "title": "正在升级记忆",
+    "subtitle": "已为下次启动准备 {{version}}",
+    "pending_message": "升级已就绪。Wayland 重启后将生效。",
+    "restart_now": "立即重启"
+  },
+  "failed": {
+    "title": "安装未能完成",
+    "retry": "重试",
+    "details_toggle": "显示详情",
+    "details_hide": "隐藏详情"
+  },
+  "error": {
+    "spawn_error": "无法启动安装程序。请确认 npm 在你的 PATH 中。",
+    "install_exit_nonzero": "安装以错误结束。下方详情可能有帮助。",
+    "invalid_target_version": "注册表返回了无效的版本号。请稍后再试。",
+    "unsafe_ownership": "待安装文件夹的所有权不安全已被拒绝。请重新安装以恢复。",
+    "upgrade_failed_no_rollback": "升级失败且无法恢复到上一版本。请重新安装以恢复。",
+    "rollback_also_failed": "新版本和回滚均失败。请重新安装以恢复。",
+    "mcp_crashed": "记忆崩溃了。请重启 Wayland 以恢复。",
+    "mcp_error": "记忆返回了错误。请重试。",
+    "timeout": "记忆未能及时响应。请重试。",
+    "validation_failed": "该请求不符合记忆期望的格式。",
+    "unavailable": "记忆尚未运行。请安装或重启以启用。",
+    "opt_out": "记忆已在设置中关闭。",
+    "unknown": "出错了。请重试。"
+  },
+  "empty": {
+    "title": "记忆已就绪",
+    "subtitle": "把你希望它下次还记得的事情告诉它",
+    "placeholder": "记忆应该知道关于你的什么？",
+    "chip1": "记住我们发布所用的技术栈",
+    "chip2": "回忆我们关于认证的决定",
+    "chip3": "上次部署中哪里出问题了"
+  },
+  "panel": {
+    "header_breadcrumb": "记忆",
+    "button_drop": "丢弃",
+    "button_history": "历史",
+    "button_add": "添加记忆",
+    "tab_home": "主页",
+    "tab_search": "搜索",
+    "tab_wiki": "百科",
+    "tab_promotions": "推广",
+    "tab_drop": "丢弃",
+    "tab_conflicts": "冲突",
+    "tab_cross_project": "跨项目"
+  },
+  "degraded": {
+    "toast": "记忆将在首次设置完成后启用",
+    "banner": "记忆当前处于降级模式 -- 聊天仍可用，但增强功能已关闭"
+  },
+  "settings": {
+    "panel_title": "IJFW 记忆",
+    "skip_label": "跳过 IJFW 自动设置",
+    "skip_description": "启用后，Wayland 将不会安装或升级 IJFW。你之后可以通过记忆页面手动安装。",
+    "manual_install_hint": "手动安装：在终端中运行 `npx -y @ijfw/install@latest`"
+  },
+  "prelude": {
+    "installing_notice": "IJFW 正在安装。外部命令行工具（Claude Code、Codex、Gemini CLI）会在安装完成后识别它。",
+    "disabled_notice": "IJFW 已在 Wayland 设置中关闭。重新启用以与外部命令行共享记忆。",
+    "failed_notice": "IJFW 安装失败。请在 Wayland 的记忆页面重试。"
+  }
+}

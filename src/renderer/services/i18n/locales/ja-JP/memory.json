@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "メモリ",
+    "subtitle": "セッションをまたいで持続する AI のナレッジ"
+  },
+  "pitch": {
+    "headline": "あなたについてくるメモリ",
+    "lede": "Wayland は、これまで取り組んだこと、決定したこと、リリースしたことを記憶しています。すべてのアシスタントが文脈を共有するため、説明し直す必要はありません。",
+    "bullet1": "チャット、プロジェクト、CLI をまたいで持続します",
+    "bullet2": "検索可能、エクスポート可能、あなたのものです",
+    "bullet3": "インストール後の設定は不要です",
+    "install_cta": "メモリをインストール",
+    "settings_link": "不要な場合は設定から無効化できます"
+  },
+  "installing": {
+    "title": "メモリをインストール中",
+    "subtitle": "1 分ほどで完了します",
+    "version_label": "バージョン {{version}} をインストール中",
+    "step_download": "npm からダウンロード中",
+    "step_extract": "ファイルを展開中",
+    "step_verify": "インストールを検証中",
+    "step_activate": "アクティブ化中"
+  },
+  "upgrading": {
+    "title": "メモリをアップグレード中",
+    "subtitle": "{{version}} を次回起動時のためにステージングしています",
+    "pending_message": "アップグレードの準備が完了しました。Wayland を再起動するとアクティブになります。",
+    "restart_now": "今すぐ再起動"
+  },
+  "failed": {
+    "title": "インストールを完了できませんでした",
+    "retry": "再試行",
+    "details_toggle": "詳細を表示",
+    "details_hide": "詳細を隠す"
+  },
+  "error": {
+    "spawn_error": "インストーラーを起動できませんでした。npm が PATH に含まれているか確認してください。",
+    "install_exit_nonzero": "インストールがエラーで終了しました。下記の詳細が参考になります。",
+    "invalid_target_version": "レジストリから取得したバージョン番号が無効です。しばらくしてから再試行してください。",
+    "unsafe_ownership": "保留中のインストールフォルダの所有権が安全でないため、拒否されました。再インストールして復旧してください。",
+    "upgrade_failed_no_rollback": "アップグレードに失敗し、以前のバージョンを復元できませんでした。再インストールして復旧してください。",
+    "rollback_also_failed": "新しいバージョンとロールバックの両方が失敗しました。再インストールして復旧してください。",
+    "mcp_crashed": "メモリがクラッシュしました。Wayland を再起動して復旧してください。",
+    "mcp_error": "メモリがエラーを返しました。再試行してください。",
+    "timeout": "メモリが時間内に応答しませんでした。再試行してください。",
+    "validation_failed": "そのリクエストはメモリが想定する形式と一致しませんでした。",
+    "unavailable": "メモリはまだ実行されていません。インストールまたは再起動して有効化してください。",
+    "opt_out": "メモリは設定で無効化されています。",
+    "unknown": "問題が発生しました。再試行してください。"
+  },
+  "empty": {
+    "title": "メモリの準備ができました",
+    "subtitle": "次回も覚えておいてほしいことを何でも聞いてください",
+    "placeholder": "メモリに覚えさせたいことは何ですか？",
+    "chip1": "私たちが採用しているスタックを覚えておいて",
+    "chip2": "認証について決めたことを思い出して",
+    "chip3": "前回のデプロイで何が壊れたか"
+  },
+  "panel": {
+    "header_breadcrumb": "メモリ",
+    "button_drop": "ドロップ",
+    "button_history": "履歴",
+    "button_add": "メモリを追加",
+    "tab_home": "ホーム",
+    "tab_search": "検索",
+    "tab_wiki": "Wiki",
+    "tab_promotions": "プロモーション",
+    "tab_drop": "ドロップ",
+    "tab_conflicts": "競合",
+    "tab_cross_project": "プロジェクト横断"
+  },
+  "degraded": {
+    "toast": "初回セットアップ後にメモリがアクティブになります",
+    "banner": "メモリは現在縮退モードで動作しています。チャットは引き続き利用できますが、補強機能はオフです"
+  },
+  "settings": {
+    "panel_title": "IJFW メモリ",
+    "skip_label": "IJFW の自動セットアップをスキップ",
+    "skip_description": "有効にすると、Wayland は IJFW をインストールまたはアップグレードしません。後でメモリページから手動でインストールできます。",
+    "manual_install_hint": "手動でインストールするには、ターミナルで `npx -y @ijfw/install@latest` を実行してください"
+  },
+  "prelude": {
+    "installing_notice": "IJFW のインストールが進行中です。外部 CLI（Claude Code、Codex、Gemini CLI）はインストール完了後に連携します。",
+    "disabled_notice": "IJFW は Wayland の設定で無効化されています。外部 CLI とメモリを共有するには再度有効にしてください。",
+    "failed_notice": "IJFW のインストールに失敗しました。Wayland のメモリページから再試行してください。"
+  }
+}

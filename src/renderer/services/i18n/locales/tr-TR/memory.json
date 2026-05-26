@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Bellek",
+    "subtitle": "Yapay zekanızın her oturum boyunca süregelen bilgisi"
+  },
+  "pitch": {
+    "headline": "Sizi takip eden bellek",
+    "lede": "Wayland; üzerinde çalıştığınız, karar verdiğiniz ve yayınladığınız şeyleri hatırlar. Her asistan bağlamı alır -- yeniden açıklamanıza gerek kalmaz.",
+    "bullet1": "Sohbetler, projeler ve CLI'lar arasında kalıcı",
+    "bullet2": "Aranabilir, dışa aktarılabilir, size ait",
+    "bullet3": "Kurulumdan sonra sıfır ayar",
+    "install_cta": "Belleği yükle",
+    "settings_link": "İstemiyor musunuz? Ayarlar'dan devre dışı bırakabilirsiniz"
+  },
+  "installing": {
+    "title": "Bellek yükleniyor",
+    "subtitle": "Bu yaklaşık bir dakika sürer",
+    "version_label": "{{version}} sürümü yükleniyor",
+    "step_download": "npm'den indiriliyor",
+    "step_extract": "Dosyalar çıkarılıyor",
+    "step_verify": "Kurulum doğrulanıyor",
+    "step_activate": "Etkinleştiriliyor"
+  },
+  "upgrading": {
+    "title": "Bellek yükseltiliyor",
+    "subtitle": "{{version}} sonraki başlatma için hazırlanıyor",
+    "pending_message": "Yükseltme hazır. Wayland yeniden başlatıldığında etkinleşecek.",
+    "restart_now": "Şimdi yeniden başlat"
+  },
+  "failed": {
+    "title": "Kurulum tamamlanamadı",
+    "retry": "Yeniden dene",
+    "details_toggle": "Ayrıntıları göster",
+    "details_hide": "Ayrıntıları gizle"
+  },
+  "error": {
+    "spawn_error": "Yükleyici başlatılamadı. npm'in PATH'inizde olduğundan emin olun.",
+    "install_exit_nonzero": "Kurulum bir hatayla sonlandı. Aşağıdaki ayrıntılar yardımcı olabilir.",
+    "invalid_target_version": "Kayıt defterinden geçersiz bir sürüm numarası geldi. Daha sonra yeniden deneyin.",
+    "unsafe_ownership": "Bekleyen kurulum klasörünün sahipliği güvenli olmadığı için reddedildi. Kurtarmak için yeniden yükleyin.",
+    "upgrade_failed_no_rollback": "Yükseltme başarısız oldu ve önceki sürüm geri yüklenemedi. Kurtarmak için yeniden yükleyin.",
+    "rollback_also_failed": "Hem yeni sürüm hem de geri alma başarısız oldu. Kurtarmak için yeniden yükleyin.",
+    "mcp_crashed": "Bellek çöktü. Kurtarmak için Wayland'i yeniden başlatın.",
+    "mcp_error": "Bellek bir hata döndürdü. Yeniden deneyin.",
+    "timeout": "Bellek zamanında yanıt vermedi. Yeniden deneyin.",
+    "validation_failed": "Bu istek, Belleğin beklediği biçime uymadı.",
+    "unavailable": "Bellek henüz çalışmıyor. Etkinleştirmek için kurun veya yeniden başlatın.",
+    "opt_out": "Bellek Ayarlar'da devre dışı.",
+    "unknown": "Bir şeyler ters gitti. Yeniden deneyin."
+  },
+  "empty": {
+    "title": "Bellek hazır",
+    "subtitle": "Bir sonraki seferde hatırlanmasını istediğiniz her şeyi sorun",
+    "placeholder": "Bellek sizin hakkınızda ne bilmeli?",
+    "chip1": "Yayınladığımız teknoloji yığınını hatırla",
+    "chip2": "Kimlik doğrulama konusunda neye karar verdiğimizi hatırlat",
+    "chip3": "Son dağıtımda ne bozuldu"
+  },
+  "panel": {
+    "header_breadcrumb": "Bellek",
+    "button_drop": "Bırak",
+    "button_history": "Geçmiş",
+    "button_add": "Bellek ekle",
+    "tab_home": "Ana sayfa",
+    "tab_search": "Ara",
+    "tab_wiki": "Wiki",
+    "tab_promotions": "Tanıtımlar",
+    "tab_drop": "Bırak",
+    "tab_conflicts": "Çakışmalar",
+    "tab_cross_project": "Projeler arası"
+  },
+  "degraded": {
+    "toast": "Bellek, ilk kurulumdan sonra etkinleşecek",
+    "banner": "Bellek şu anda düşük performans modunda -- sohbet çalışmaya devam ediyor ancak zenginleştirme kapalı"
+  },
+  "settings": {
+    "panel_title": "IJFW Bellek",
+    "skip_label": "IJFW otomatik kurulumu atla",
+    "skip_description": "Etkin olduğunda Wayland, IJFW'yi yüklemez veya yükseltmez. Daha sonra Bellek sayfası üzerinden elle yükleyebilirsiniz.",
+    "manual_install_hint": "Elle yüklemek için bir terminalde `npx -y @ijfw/install@latest` komutunu çalıştırın"
+  },
+  "prelude": {
+    "installing_notice": "IJFW yükleniyor. Harici CLI'lar (Claude Code, Codex, Gemini CLI) kurulum tamamlandıktan sonra bunu algılayacak.",
+    "disabled_notice": "IJFW, Wayland Ayarları'nda devre dışı. Harici CLI'larla bellek paylaşmak için yeniden etkinleştirin.",
+    "failed_notice": "IJFW kurulumu başarısız oldu. Yeniden denemek için Wayland'deki Bellek sayfasını ziyaret edin."
+  }
+}
