@@ -27,9 +27,23 @@ import * as path from 'node:path';
 import semver from 'semver';
 import log from 'electron-log';
 import { app } from 'electron';
+import { ipcBridge } from '@/common';
+import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 import { buildChildEnv } from '@process/services/ijfw/envAllowlist';
 import { safeSpawn } from '@process/services/ijfw/safeSpawn';
-import { writeAtomic, ijfwCacheKey } from '@process/services/ijfw/atomicFile';
+import { writeAtomic, moveWithExdevFallback, ijfwCacheKey } from '@process/services/ijfw/atomicFile';
+import {
+  acquireLock,
+  releaseLock,
+  type LockMetadata,
+} from '@process/services/ijfw/installLock';
+import {
+  applyPreludeForStatus,
+  discoverTargets,
+  type IjfwStatus as PreludeStatus,
+} from '@process/services/ijfw/preludeManager';
+import { agentRegistry } from '@process/agent/AgentRegistry';
+import { ProcessConfig } from '@process/utils/initStorage';
 
 export type IjfwRuntimeMode = 'disabled' | 'enabled' | 'pending_activation';
 
@@ -221,6 +235,194 @@ export function __resetCacheForTests(): void {
   inMemoryCache = null;
 }
 
+/** Map our bootstrap lifecycle status onto the prelude-manager union. */
+function mapToPreludeStatus(status: IjfwLifecycleStatus): PreludeStatus {
+  switch (status) {
+    case 'installed_current':
+      return 'installed_current';
+    case 'installing':
+    case 'upgrading':
+      return 'installing';
+    case 'install_failed':
+      return 'install_failed';
+    case 'installed_pending_activation':
+      // Still actively transitioning — treat as installing for prelude purposes.
+      return 'installing';
+    case 'not_installed':
+    default:
+      return 'uninstalled';
+  }
+}
+
+function getActiveProjectDirs(): string[] {
+  // Wave 1 baseline: only the current working directory. Wave 6 will hook
+  // into the recent-workspaces store. We never inject markers into foreign
+  // files, so this is safe even if the cwd is unrelated (preludeManager
+  // returns early for files without the IJFW-PRELUDE-START sentinel).
+  return [process.cwd()];
+}
+
+async function syncPrelude(status: IjfwLifecycleStatus): Promise<void> {
+  try {
+    const targets = await discoverTargets(getActiveProjectDirs());
+    await applyPreludeForStatus(mapToPreludeStatus(status), targets);
+  } catch (err) {
+    log.warn('[ijfw] prelude sync failed', { status, err });
+  }
+}
+
+function emitStatus(payload: IjfwStatusPayload): void {
+  try {
+    ipcBridge.ijfw.onStatusChanged.emit(payload);
+  } catch (err) {
+    log.warn('[ijfw] status emit failed', { payload, err });
+  }
+}
+
+async function readSkipSetupSetting(): Promise<boolean> {
+  try {
+    const v = (await ProcessConfig.get('ijfw.skipSetup')) as unknown;
+    return v === true || v === 'true' || v === 1 || v === '1';
+  } catch {
+    return false;
+  }
+}
+
+async function bootstrapImpl(): Promise<void> {
+  if (process.env.IJFW_AUTO_INSTALL === 'never' || (await readSkipSetupSetting())) {
+    emitStatus({ status: 'not_installed', reason: 'opt_out' });
+    await syncPrelude('not_installed');
+    return;
+  }
+
+  const local = await detectLocalInstallImpl();
+  const latest = await getLatestPublishedImpl();
+
+  // Already current.
+  if (
+    local.installed &&
+    latest &&
+    local.version &&
+    semver.valid(local.version) &&
+    semver.gte(local.version, latest)
+  ) {
+    emitStatus({ status: 'installed_current', version: local.version });
+    await syncPrelude('installed_current');
+    runtimeMode = 'enabled';
+    return;
+  }
+
+  // Offline but already installed — accept what we have.
+  if (local.installed && !latest) {
+    const payload: IjfwStatusPayload = { status: 'installed_current', offline: true };
+    if (local.version) payload.version = local.version;
+    emitStatus(payload);
+    await syncPrelude('installed_current');
+    runtimeMode = 'enabled';
+    return;
+  }
+
+  const lock = await acquireLock();
+  if (!lock.acquired) {
+    log.info('[ijfw] install already running by pid', lock.holderPid);
+    return;
+  }
+  const lockHandle: LockMetadata = lock.handle!;
+
+  try {
+    const targetVersion = latest ?? '1.5.4';
+    if (!semver.valid(targetVersion)) {
+      emitStatus({ status: 'install_failed', errorReason: 'invalid_target_version' });
+      await releaseLock(lockHandle);
+      return;
+    }
+
+    const action: IjfwLifecycleStatus = local.installed ? 'upgrading' : 'installing';
+    emitStatus({ status: action, version: targetVersion });
+    await syncPrelude(action);
+
+    let child: ChildProcess;
+    try {
+      child = await safeSpawn({
+        cmd: 'npx',
+        args: ['-y', `@ijfw/install@${targetVersion}`],
+      });
+    } catch (err) {
+      log.error('[ijfw] safeSpawn(npx install) failed', { err });
+      emitStatus({
+        status: 'install_failed',
+        errorReason: 'spawn_error',
+        stderr: err instanceof Error ? err.message : String(err),
+      });
+      await syncPrelude('install_failed');
+      await releaseLock(lockHandle);
+      return;
+    }
+
+    let stderr = '';
+    child.stderr?.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+    child.on('error', (err) => {
+      log.error('[ijfw] install child error', { err });
+      emitStatus({
+        status: 'install_failed',
+        errorReason: 'spawn_error',
+        stderr: err.message,
+      });
+      void syncPrelude('install_failed');
+      void releaseLock(lockHandle);
+    });
+    child.on('exit', (code) => {
+      void (async () => {
+        try {
+          if (code !== 0) {
+            emitStatus({ status: 'install_failed', errorReason: 'install_exit_nonzero', stderr });
+            await syncPrelude('install_failed');
+            return;
+          }
+          if (local.installed) {
+            // Decision 1a: stage upgrade into .pending — activate next boot.
+            try {
+              const homeDir = os.homedir();
+              await moveWithExdevFallback(
+                path.join(homeDir, '.ijfw', 'mcp-server'),
+                path.join(homeDir, '.ijfw', 'mcp-server.pending'),
+              );
+            } catch (err) {
+              log.error('[ijfw] failed to stage upgrade to .pending', { err });
+              emitStatus({
+                status: 'install_failed',
+                errorReason: 'stage_pending_failed',
+                stderr: err instanceof Error ? err.message : String(err),
+              });
+              await syncPrelude('install_failed');
+              return;
+            }
+            emitStatus({ status: 'installed_pending_activation', version: targetVersion });
+            runtimeMode = 'pending_activation';
+            // Keep the prelude in 'installing' state until activation.
+          } else {
+            try {
+              await agentRegistry.refreshAll();
+            } catch (err) {
+              log.warn('[ijfw] agentRegistry.refreshAll failed post-install', { err });
+            }
+            emitStatus({ status: 'installed_current', version: targetVersion });
+            await syncPrelude('installed_current');
+            runtimeMode = 'enabled';
+          }
+        } finally {
+          await releaseLock(lockHandle);
+        }
+      })();
+    });
+  } catch (err) {
+    await releaseLock(lockHandle);
+    throw err;
+  }
+}
+
 export const ijfwSystemService = {
   async detectLocalInstall(): Promise<IjfwDetectionResult> {
     return detectLocalInstallImpl();
@@ -231,7 +433,7 @@ export const ijfwSystemService = {
   },
 
   async bootstrap(): Promise<void> {
-    throw NOT_IMPLEMENTED;
+    return bootstrapImpl();
   },
 
   async applyPendingUpgrade(): Promise<void> {

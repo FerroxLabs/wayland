@@ -92,6 +92,11 @@ export interface IConfigStorageRefer {
    * installs don't all collapse to the same suggestion on day 1.
    */
   'app.installUuid'?: string;
+  /**
+   * v0.6.3 — When true, ijfwSystemService.bootstrap() short-circuits and
+   * never spawns `npx @ijfw/install`. Wave 6 wires the Settings toggle.
+   */
+  'ijfw.skipSetup'?: boolean;
   /** Persisted app-wide UI zoom factor for Display settings */
   'ui.zoomFactor'?: number;
   /** 桌面模式下是否自动启用 WebUI / Auto-enable WebUI in desktop mode */

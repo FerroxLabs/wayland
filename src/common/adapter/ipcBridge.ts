@@ -1413,6 +1413,37 @@ export const hub = {
   // State changed event for extension (install/uninstall status changes)
   onStateChanged: buildEmitter<{ name: string; status: HubExtensionStatus; error?: string }>('hub.state-changed'),
 };
+
+// ==================== IJFW Install Lifecycle (v0.6.3 Wave 1) ====================
+
+/**
+ * Status union surfaced by `ijfwSystemService` as the local IJFW install
+ * progresses through detection → install/upgrade → activation. Wave 6 will
+ * add a Settings toggle that listens to this emitter; Wave 1 wires the
+ * emit-side only.
+ */
+export type IjfwLifecycleStatus =
+  | 'not_installed'
+  | 'installing'
+  | 'upgrading'
+  | 'installed_current'
+  | 'installed_pending_activation'
+  | 'install_failed';
+
+export type IjfwStatusPayload = {
+  status: IjfwLifecycleStatus;
+  version?: string;
+  reason?: string;
+  errorReason?: string;
+  stderr?: string;
+  offline?: boolean;
+};
+
+export const ijfw = {
+  /** Lifecycle event for the local IJFW install (detection → install → activation). */
+  onStatusChanged: buildEmitter<IjfwStatusPayload>('ijfw.status-changed'),
+};
+
 // --- Models & Providers redesign (Wave 0 contract) ------------------------
 // New two-tier model registry. Distinct from the legacy `providers` namespace
 // above (which is removed in a later wave) — uses `modelRegistry.*` channel
