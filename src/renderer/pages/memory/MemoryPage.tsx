@@ -56,7 +56,13 @@ const InstalledCurrentBranch: React.FC = () => {
   const state = useIjfwBrain<MemoryFactsData>('memory_facts', { any: true });
   if (state.loading === true) {
     return (
-      <div className={styles.center} data-testid='memory-installed-loading'>
+      <div
+        className={styles.center}
+        data-testid='memory-installed-loading'
+        role='status'
+        aria-busy='true'
+        aria-live='polite'
+      >
         <Spin />
       </div>
     );
@@ -77,7 +83,13 @@ const InstalledCurrentBranch: React.FC = () => {
 const renderStateBranch = (status: IjfwStatusPayload | null): React.ReactElement => {
   if (!status) {
     return (
-      <div className={styles.center} data-testid='memory-loading'>
+      <div
+        className={styles.center}
+        data-testid='memory-loading'
+        role='status'
+        aria-busy='true'
+        aria-live='polite'
+      >
         <p className='text-14px text-t-secondary m-0'>Checking IJFW status…</p>
       </div>
     );
@@ -136,7 +148,7 @@ const MemoryPage: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.page} data-testid='memory-page'>
+    <div className={styles.page} data-testid='memory-page' role='region' aria-label='IJFW Memory'>
       {renderStateBranch(status)}
     </div>
   );

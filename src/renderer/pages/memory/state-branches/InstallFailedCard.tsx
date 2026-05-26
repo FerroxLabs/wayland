@@ -67,7 +67,7 @@ const InstallFailedCard: React.FC<InstallFailedCardProps> = ({ errorReason, stde
   const hasStderr = typeof stderr === 'string' && stderr.length > 0;
 
   return (
-    <div className={styles.center} data-testid='memory-install-failed'>
+    <div className={styles.center} data-testid='memory-install-failed' role='alert' aria-live='assertive'>
       <div className={styles.card}>
         <div className={styles.headerRow}>
           <AlertCircle size={20} className={styles.errorIcon} aria-hidden />

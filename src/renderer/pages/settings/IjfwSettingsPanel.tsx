@@ -78,7 +78,12 @@ const IjfwSettingsPanel: React.FC = () => {
 
   return (
     <SettingsPageWrapper>
-      <div className='flex flex-col gap-16px' data-testid='ijfw-settings-panel'>
+      <div
+        className='flex flex-col gap-16px'
+        data-testid='ijfw-settings-panel'
+        role='region'
+        aria-label={t('memory.settings.panel_title', { defaultValue: 'IJFW Memory' })}
+      >
         <Typography.Title heading={5} className='!mb-0'>
           {t('memory.settings.panel_title', { defaultValue: 'IJFW Memory' })}
         </Typography.Title>

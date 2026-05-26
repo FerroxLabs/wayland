@@ -59,8 +59,9 @@ const SearchResultPanel: React.FC<SearchResultPanelProps> = ({ query, onCitation
                   className={styles.citationBadge}
                   onClick={onCitationClick}
                   title={citation.snippet}
+                  aria-label={citation.source}
                 >
-                  <LinkIcon size={12} />
+                  <LinkIcon size={12} aria-hidden />
                   <span className={styles.citationText}>{citation.source}</span>
                 </button>
               ))}

@@ -122,12 +122,12 @@ const PromotionsTab: React.FC = () => {
     <div className={styles.container} data-testid='memory-tab-promotions'>
       <div className={styles.header}>
         <div className={styles.title}>
-          <Sparkle size={16} />
+          <Sparkle size={16} aria-hidden />
           <span>{t('memory.promotions.title')}</span>
         </div>
         <Button
           size='small'
-          icon={<RefreshCw size={14} />}
+          icon={<RefreshCw size={14} aria-hidden />}
           onClick={handleRefresh}
           data-testid='memory-promotions-refresh'
         >
@@ -165,7 +165,7 @@ const PromotionsTab: React.FC = () => {
                         <Button
                           size='mini'
                           type='primary'
-                          icon={<ArrowRight size={12} />}
+                          icon={<ArrowRight size={12} aria-hidden />}
                           onClick={() => handlePromote(item.id)}
                           data-testid={`memory-promotions-promote-${item.id}`}
                         >

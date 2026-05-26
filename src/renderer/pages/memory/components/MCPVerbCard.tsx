@@ -46,7 +46,13 @@ export function MCPVerbCard<T>({ state, empty, render }: MCPVerbCardProps<T>): R
 
   if (state.loading === true) {
     return (
-      <div className={styles.loading} data-testid='mcp-verb-card-loading'>
+      <div
+        className={styles.loading}
+        data-testid='mcp-verb-card-loading'
+        role='status'
+        aria-busy='true'
+        aria-live='polite'
+      >
         <Spin />
       </div>
     );
@@ -55,7 +61,12 @@ export function MCPVerbCard<T>({ state, empty, render }: MCPVerbCardProps<T>): R
   if (state.ok === false) {
     const fallback = t('memory.error.unknown');
     return (
-      <div className={styles.error} data-testid='mcp-verb-card-error'>
+      <div
+        className={styles.error}
+        data-testid='mcp-verb-card-error'
+        role='alert'
+        aria-live='assertive'
+      >
         {t(`memory.error.${state.errorReason}`, { defaultValue: fallback })}
       </div>
     );

@@ -223,6 +223,9 @@ const DropTab: React.FC = () => {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         data-testid='memory-drop-zone'
+        role='region'
+        aria-label={t('memory.drop.zone_title')}
+        aria-busy={busy ? 'true' : 'false'}
       >
         <Upload size={28} className={styles.dropIcon} aria-hidden />
         <div className={styles.dropZoneTitle}>{t('memory.drop.zone_title')}</div>

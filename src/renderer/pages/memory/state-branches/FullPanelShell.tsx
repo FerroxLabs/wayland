@@ -97,7 +97,7 @@ const FullPanelShell: React.FC = () => {
   }, [t]);
 
   return (
-    <div className={styles.shell} data-testid='memory-full-panel'>
+    <div className={styles.shell} data-testid='memory-full-panel' role='region' aria-label={t('memory.panel.header_breadcrumb')}>
       <header className={styles.header}>
         <h2 className={styles.breadcrumb} data-testid='memory-full-panel-breadcrumb'>
           {t('memory.panel.header_breadcrumb')}

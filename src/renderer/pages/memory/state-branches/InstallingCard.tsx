@@ -95,11 +95,21 @@ const InstallingCard: React.FC<InstallingCardProps> = ({ version }) => {
   return (
     <div data-testid='memory-installing-card'>
       {degraded ? (
-        <div className={styles.banner} data-testid='memory-installing-degraded-banner'>
+        <div
+          className={styles.banner}
+          data-testid='memory-installing-degraded-banner'
+          role='status'
+          aria-live='polite'
+        >
           {t('degraded.banner')}
         </div>
       ) : null}
-      <div className={styles.card}>
+      <div
+        className={styles.card}
+        role='status'
+        aria-live='polite'
+        aria-busy={pendingActivation ? 'false' : 'true'}
+      >
         <Spin size={32} />
         <h2 className={styles.title}>{pendingActivation ? t('upgrading.title') : t('installing.title')}</h2>
         <p className={styles.subtitle}>{t('installing.subtitle')}</p>
