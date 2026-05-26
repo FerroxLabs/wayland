@@ -38,6 +38,7 @@ const TaskDetailPage = React.lazy(() => import('@renderer/pages/cron/ScheduledTa
 const TeamIndex = React.lazy(() => import('@renderer/pages/team'));
 const TeamsLibraryPage = React.lazy(() => import('@renderer/pages/teams/TeamsLibraryPage'));
 const TeamLauncherPage = React.lazy(() => import('@renderer/pages/teams/TeamLauncherPage'));
+const MemoryPage = React.lazy(() => import('@renderer/pages/memory/MemoryPage'));
 
 const withRouteFallback = (Component: React.LazyExoticComponent<React.ComponentType>) => (
   <Suspense fallback={<AppLoader />}>
@@ -135,6 +136,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/teams' element={withRouteFallback(TeamsLibraryPage)} />
             <Route path='/teams/new' element={withRouteFallback(TeamLauncherPage)} />
             <Route path='/teams/:teamId/launch' element={withRouteFallback(TeamLauncherPage)} />
+            <Route path='/memory' element={withRouteFallback(MemoryPage)} />
           </Route>
           <Route path='*' element={<Navigate to={status === 'authenticated' ? '/guid' : '/login'} replace />} />
         </Routes>
