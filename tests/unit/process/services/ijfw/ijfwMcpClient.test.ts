@@ -286,6 +286,23 @@ describe('ijfwMcpClient', () => {
     expect(await ijfwMcpClient.waitForExit(50)).toBe(true);
   });
 
+  it('Checkpoint B H3: returns validation_failed for oversize payload, does not throw', async () => {
+    // Build args that JSON-stringify well past MAX_LINE_BYTES (10 MiB). A
+    // 12 MiB string is unambiguous.
+    const big = 'a'.repeat(12 * 1024 * 1024);
+    const { ijfwMcpClient } = await loadClient();
+    const result = await ijfwMcpClient.invoke('memory_recall', { blob: big });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errorReason).toBe('validation_failed');
+      expect(result.error).toMatch(/MAX_LINE_BYTES/);
+    }
+    // No child should have been written to.
+    if (currentChild) {
+      expect(currentChild.writes.length).toBe(0);
+    }
+  });
+
   it('returns mcp_error when JSON-RPC envelope contains error', async () => {
     const { ijfwMcpClient } = await loadClient();
     const promise = ijfwMcpClient.invoke('memory_recall', {});

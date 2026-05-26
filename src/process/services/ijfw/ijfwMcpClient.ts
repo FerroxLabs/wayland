@@ -18,7 +18,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import log from 'electron-log';
 
-import { encode, decode, DecodeError } from './mcpWireProtocol';
+import { encode, decode, DecodeError, MAX_LINE_BYTES } from './mcpWireProtocol';
 import { buildChildEnv } from './envAllowlist';
 import { resolveEntry } from './entryResolver';
 import { jsonRpcResponseSchema } from './ipcSchemas';
@@ -83,12 +83,26 @@ class IjfwMcpClient {
     }
 
     const id = this.nextId++;
-    const payload = encode({
+    const envelope = {
       jsonrpc: '2.0',
       id,
       method: 'tools/call',
       params: { name: verb, arguments: args },
-    });
+    };
+    // Checkpoint B H3: direct callers of invoke() (memory enrichment hooks
+    // and future internal callers) skip the bridge-layer zod validation. An
+    // oversized payload would throw out of `encode()` and surface as an
+    // uncaught rejection. Pre-check here and return a structured rejection
+    // instead.
+    const envelopeBytes = Buffer.byteLength(JSON.stringify(envelope), 'utf-8') + 1;
+    if (envelopeBytes >= MAX_LINE_BYTES) {
+      return {
+        ok: false,
+        error: `encoded message exceeds MAX_LINE_BYTES (${envelopeBytes} >= ${MAX_LINE_BYTES})`,
+        errorReason: 'validation_failed',
+      };
+    }
+    const payload = encode(envelope);
 
     return new Promise<IjfwInvokeResult>((resolve) => {
       const timer = setTimeout(() => {
