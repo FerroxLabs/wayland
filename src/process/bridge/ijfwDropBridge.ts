@@ -28,8 +28,11 @@ const MAX_FILE_BYTES = 50 * 1024 * 1024;
 const MAX_QUEUE_COUNT = 20;
 const ALLOWED_EXTENSIONS = new Set(['.md', '.txt', '.json', '.yaml', '.yml', '.csv']);
 
+// Checkpoint B B3: the dot-prefix is load-bearing — IJFW MCP server reads
+// files from `~/.ijfw/dump`, not `~/ijfw/dump`. The previous spelling landed
+// drops in the wrong location and IJFW never saw them.
 function dumpDir(): string {
-  return path.join(os.homedir(), 'ijfw', 'dump');
+  return path.join(os.homedir(), '.ijfw', 'dump');
 }
 
 function quarantineDir(): string {

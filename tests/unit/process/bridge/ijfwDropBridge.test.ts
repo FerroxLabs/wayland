@@ -55,7 +55,8 @@ import { initIjfwDropBridge } from '@process/bridge/ijfwDropBridge';
 
 beforeEach(() => {
   tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-drop-test-'));
-  tmpDump = path.join(tmpHome, 'ijfw', 'dump');
+  // Checkpoint B B3: dump lives under `.ijfw/dump` (dot-prefix), not `ijfw/dump`.
+  tmpDump = path.join(tmpHome, '.ijfw', 'dump');
   fs.mkdirSync(tmpDump, { recursive: true });
   providers.clear();
   initIjfwDropBridge();
@@ -76,6 +77,18 @@ describe('ijfwDropBridge', () => {
     expect(providers.has('dropList')).toBe(true);
     expect(providers.has('dropIngest')).toBe(true);
     expect(providers.has('dropQuarantine')).toBe(true);
+  });
+
+  it('Checkpoint B B3: dump dir lands under ~/.ijfw/dump (dot-prefix), not ~/ijfw/dump', async () => {
+    // Regression for the B3 BLOCKER: a missing dot meant ingested files
+    // landed in `~/ijfw/dump` and the real IJFW MCP server never saw them.
+    const src = writeSource('regression.md', '# B3');
+    const handler = providers.get('dropIngest')!;
+    const result = (await handler({ path: src })) as { ok: boolean; name?: string };
+    expect(result.ok).toBe(true);
+    expect(fs.existsSync(path.join(tmpHome, '.ijfw', 'dump', 'regression.md'))).toBe(true);
+    // And explicitly NOT under the wrong location.
+    expect(fs.existsSync(path.join(tmpHome, 'ijfw', 'dump', 'regression.md'))).toBe(false);
   });
 
   describe('dropList', () => {
