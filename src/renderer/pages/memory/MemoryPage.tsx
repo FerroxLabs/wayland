@@ -119,30 +119,55 @@ const MemoryPage: React.FC = () => {
 
   useEffect(() => {
     let cancelled = false;
+    let snapshotArrived = false;
+    const fallbackToNotInstalled = (): void => {
+      if (cancelled || snapshotArrived) return;
+      snapshotArrived = true;
+      setStatus({ status: 'not_installed' });
+    };
 
-    // Initial snapshot. Wave 2 owns the provider implementation; if it has
-    // not landed in this branch yet, fall through to the emitter path.
+    // Initial snapshot. The bridge's `getStatus` provider falls back to
+    // `{status:'not_installed'}` when `__lastStatus` is null — but if the
+    // invoke fails for any reason (IPC race, channel rejection, serialization
+    // error), we MUST NOT silently wedge the page on the loading state. In
+    // `not_installed` steady state, `bootstrap()` does not spontaneously emit,
+    // so the emitter path alone cannot rescue a stuck render.
     const getStatusProvider = ipcBridge.ijfw.getStatus;
     if (getStatusProvider && typeof getStatusProvider.invoke === 'function') {
       Promise.resolve(getStatusProvider.invoke())
         .then((payload) => {
           if (cancelled) return;
           if (payload && typeof payload === 'object') {
+            snapshotArrived = true;
             setStatus(payload as IjfwStatusPayload);
+          } else {
+            fallbackToNotInstalled();
           }
         })
         .catch(() => {
-          // Provider may not be wired yet — wait for the next emit.
+          // Invoke rejected (no handler, IPC race, serialization). Fall back
+          // so the user sees the install pitch instead of an infinite spinner.
+          fallbackToNotInstalled();
         });
+    } else {
+      // Provider not even exposed on this build — fall back immediately.
+      fallbackToNotInstalled();
     }
+
+    // Safety net: if neither invoke nor an early emit settles within 1.5s,
+    // assume not_installed. Real status changes still update the UI via the
+    // emitter subscription below.
+    const safetyTimer = setTimeout(fallbackToNotInstalled, 1500);
 
     const unsubscribe = ipcBridge.ijfw.onStatusChanged.on((payload) => {
       if (cancelled) return;
+      snapshotArrived = true;
       setStatus(payload);
     });
 
     return () => {
       cancelled = true;
+      clearTimeout(safetyTimer);
       unsubscribe();
     };
   }, []);
