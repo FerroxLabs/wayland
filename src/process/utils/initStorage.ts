@@ -42,6 +42,7 @@ import {
   BUILTIN_SEARCH_SKILLS_ID,
   BUILTIN_SEARCH_SKILLS_NAME,
 } from '../resources/builtinMcp/constants';
+import { getMcpScriptPath, inspectMcpScripts } from './mcpScriptDir';
 // Platform and architecture types (moved from deleted updateConfig)
 type PlatformType = 'win32' | 'darwin' | 'linux';
 type ArchitectureType = 'x64' | 'arm64' | 'ia32' | 'arm';
@@ -627,28 +628,22 @@ const getDefaultMcpServers = (): IMcpServer[] => {
   }));
 };
 
-const getBuiltinMcpBaseDir = (): string => {
-  const mainModuleDir =
-    typeof require !== 'undefined' && require.main?.filename ? path.dirname(require.main.filename) : __dirname;
-  const baseDir = path.basename(mainModuleDir) === 'chunks' ? path.dirname(mainModuleDir) : mainModuleDir;
-  // In packaged mode the main bundle lives inside app.asar, but external node
-  // processes cannot read files from ASAR archives. Redirect to the unpacked copy.
-  if (getPlatformServices().paths.isPackaged()) {
-    return baseDir.replace('app.asar', 'app.asar.unpacked');
-  }
-  return baseDir;
-};
-
 /**
  * Resolve the path to a built-in MCP server entry script.
- * In development the file lives next to the main process bundle (out/main/);
- * in production it's inside the packaged app.
+ *
+ * Delegates to the shared `mcpScriptDir` resolver — both this module and
+ * `team/mcp/tcpHelpers.ts` previously had ad-hoc resolution logic that
+ * produced wrong paths under electron-vite dev (in different ways), causing
+ * MCP children to crash with MODULE_NOT_FOUND and zero tools to register.
+ * One shared resolver eliminates the drift.
+ *
+ * In development the file lives next to the main process bundle
+ * (`out/main/`); in packaged builds it's at `app.asar.unpacked/out/main/`.
  */
 const getBuiltinMcpScriptPath = (scriptName: string): string => {
-  // initStorage may itself be code-split into out/main/chunks/.
-  // Built-in MCP entry files are emitted next to the main entry in out/main/.
-  return path.resolve(getBuiltinMcpBaseDir(), `${scriptName}.js`);
+  return getMcpScriptPath(`${scriptName}.js`);
 };
+
 
 /**
  * Ensure built-in MCP servers exist in mcp.config.
@@ -938,6 +933,35 @@ const initStorage = async () => {
     console.error('[Wayland] Failed to initialize default MCP servers:', error);
   }
   mark('4.1 MCP defaults');
+
+  // 4.1.5 Startup canary — verify every bundled MCP stdio script actually
+  // exists at the resolved dir before we write paths into mcp.config /
+  // teamMcpStdioConfig. A missing script means external `node` children
+  // crash silently with MODULE_NOT_FOUND, the leader's role prompt advertises
+  // `team_*` tools that never register, and the team appears to "not
+  // coordinate" with no visible error. Failing loud here beats failing mute
+  // at first send.
+  //
+  // Soft fail in dev (electron-vite's `dev-build-mcp-servers` plugin may not
+  // have run yet on the very first boot) — log loudly and continue so the
+  // user can see the actionable repro command. Hard fail in packaged mode.
+  try {
+    const mcpScripts = inspectMcpScripts();
+    if (!mcpScripts.ok) {
+      console.error('[Wayland] MCP script canary FAILED:\n' + mcpScripts.message);
+      if (getPlatformServices().paths.isPackaged()) {
+        throw new Error(mcpScripts.message);
+      }
+    } else {
+      console.log(
+        `[Wayland] MCP scripts present (${mcpScripts.presentScripts.length}/${mcpScripts.presentScripts.length}) at ${mcpScripts.dir}`
+      );
+    }
+  } catch (error) {
+    if (getPlatformServices().paths.isPackaged()) throw error;
+    console.error('[Wayland] MCP script canary error:', error);
+  }
+  mark('4.1.5 mcpScriptCanary');
 
   // 4.2 Ensure built-in MCP servers exist and are up-to-date
   await ensureBuiltinMcpServers();

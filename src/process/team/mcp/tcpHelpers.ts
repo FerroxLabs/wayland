@@ -5,7 +5,7 @@
 // Provides length-prefixed JSON message framing over TCP sockets.
 
 import * as net from 'node:net';
-import * as path from 'node:path';
+import { resolveMcpScriptDir as resolveMcpScriptDirShared } from '@process/utils/mcpScriptDir';
 
 /**
  * Hard cap on a single framed TCP message body.
@@ -182,39 +182,18 @@ export function sendTcpRequest<T = { result?: string; error?: string }>(
 }
 
 /**
- * Resolve the directory containing MCP stdio scripts (team-mcp-stdio.js / team-guide-mcp-stdio.js).
- * Mirrors the getBuiltinMcpBaseDir() logic in initStorage.ts so both MCP
- * scripts use the same path strategy across dev and packaged modes.
+ * Resolve the directory containing MCP stdio scripts.
  *
- * In dev:       out/main/  (next to the main bundle)
- * In packaged:  app.asar.unpacked/out/main/  (asarUnpack makes it a real file)
+ * Delegates to the shared `mcpScriptDir` resolver so this module and
+ * `initStorage`'s `getBuiltinMcpBaseDir` cannot drift apart again — both
+ * previously had ad-hoc logic that produced wrong paths in different ways
+ * (this one doubled `out/main/` because `app.getAppPath()` already returned
+ * `.../out/main` under electron-vite dev).
+ *
+ * Re-exported under the original name so existing call sites
+ * (`TeamMcpServer.getStdioConfig`, `TeamGuideMcpServer.start`) work without
+ * change.
  */
 export function resolveMcpScriptDir(): string {
-  // Strategy: try Electron's app.getAppPath() first — it's reliable in both
-  // dev and packaged modes and always returns an absolute path. The bundled
-  // MCP stdio scripts live at <appPath>/out/main/. Without an absolute path,
-  // Claude Code (which spawns these as MCP children with cwd = team workspace)
-  // gets `node team-mcp-stdio.js` from a directory that doesn't have the
-  // script, MODULE_NOT_FOUND is thrown, and `team_*` tools silently never
-  // register on the role's session.
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { app } = require('electron');
-    const appPath = app.getAppPath();
-    if (app.isPackaged) {
-      // Packaged: appPath is .../app.asar; scripts are at app.asar.unpacked/out/main/.
-      return path.join(appPath.replace('app.asar', 'app.asar.unpacked'), 'out', 'main');
-    }
-    // Dev: appPath is the project root containing package.json; scripts are at out/main/.
-    return path.join(appPath, 'out', 'main');
-  } catch {
-    // Not in Electron (unit tests / CLI mode) — fall back to require.main / __dirname.
-  }
-
-  const mainModuleDir =
-    typeof require !== 'undefined' && require.main?.filename ? path.dirname(require.main.filename) : __dirname;
-  const baseDir = path.basename(mainModuleDir) === 'chunks' ? path.dirname(mainModuleDir) : mainModuleDir;
-  // Ensure absolute — if baseDir is still relative (e.g. bundler set __dirname='.'),
-  // resolve against process.cwd() so we never hand Claude a relative path.
-  return path.isAbsolute(baseDir) ? baseDir : path.resolve(process.cwd(), baseDir);
+  return resolveMcpScriptDirShared();
 }
