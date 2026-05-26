@@ -37,6 +37,7 @@ import { initTaskBridge } from './taskBridge';
 import { initUpdateBridge } from './updateBridge';
 import { initWebuiBridge } from './webuiBridge';
 import { initConstitutionBridge } from './constitutionBridge';
+import { initIjfwBridge } from './ijfwBridge';
 import { initSystemSettingsBridge } from './systemSettingsBridge';
 import { initAmbientBridge } from './ambientBridge';
 import { initWindowControlsBridge } from './windowControlsBridge';
@@ -94,6 +95,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initCronBridge();
   initKickoffBridge();
   initSystemSettingsBridge();
+  initIjfwBridge();
   initAmbientBridge();
   initNotificationBridge();
   initTaskBridge(deps.workerTaskManager);
@@ -172,6 +174,7 @@ export {
   initWindowControlsBridge,
   initWeixinLoginBridge,
   initWorkspaceSnapshotBridge,
+  initIjfwBridge,
 };
 export { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
 export { disposeAllSnapshots } from './workspaceSnapshotBridge';

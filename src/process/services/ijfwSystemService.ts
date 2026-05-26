@@ -276,12 +276,20 @@ async function syncPrelude(status: IjfwLifecycleStatus): Promise<void> {
   }
 }
 
+let __lastStatus: IjfwStatusPayload | null = null;
+
 function emitStatus(payload: IjfwStatusPayload): void {
+  __lastStatus = payload;
   try {
     ipcBridge.ijfw.onStatusChanged.emit(payload);
   } catch (err) {
     log.warn('[ijfw] status emit failed', { payload, err });
   }
+}
+
+/** Latest emitted status — used by `ijfwBridge.getStatus`. */
+export function getLastStatus(): IjfwStatusPayload | null {
+  return __lastStatus;
 }
 
 async function readSkipSetupSetting(): Promise<boolean> {
