@@ -20,7 +20,7 @@
  * (fake) on-the-wire fingerprint. The trust boundary lives at publish time.
  */
 
-import { spawnSync, type ChildProcess } from 'node:child_process';
+import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -42,6 +42,10 @@ import {
   discoverTargets,
   type IjfwStatus as PreludeStatus,
 } from '@process/services/ijfw/preludeManager';
+import { resolveEntry } from '@process/services/ijfw/entryResolver';
+import { encode, decode } from '@process/services/ijfw/mcpWireProtocol';
+import { jsonRpcResponseSchema } from '@process/services/ijfw/ipcSchemas';
+import { ijfwMcpClient } from '@process/services/ijfw/ijfwMcpClientStub';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { ProcessConfig } from '@process/utils/initStorage';
 
@@ -423,6 +427,209 @@ async function bootstrapImpl(): Promise<void> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// applyPendingUpgrade — boot-time activation of a .pending tree
+// ---------------------------------------------------------------------------
+
+async function isSafelyOwned(p: string): Promise<boolean> {
+  if (process.platform === 'win32') return true; // not enforced on Windows
+  let stat: fs.Stats;
+  try {
+    stat = await fs.promises.lstat(p);
+  } catch {
+    return false;
+  }
+  if (stat.isSymbolicLink()) return false;
+  const uid = process.getuid?.() ?? -1;
+  if (uid >= 0 && stat.uid !== uid) return false;
+  return (stat.mode & 0o002) === 0;
+}
+
+async function retryOnEbusy<T>(op: () => Promise<T>, attempts = 5): Promise<T> {
+  let lastErr: unknown = null;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await op();
+    } catch (err) {
+      lastErr = err;
+      const code = (err as NodeJS.ErrnoException).code;
+      if (code !== 'EBUSY' && code !== 'EPERM') throw err;
+      await new Promise((r) => setTimeout(r, 100 * (i + 1)));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('EBUSY retry exhausted');
+}
+
+/** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
+async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
+  let entry: string;
+  try {
+    entry = await resolveEntry(mcpServerDir);
+  } catch (err) {
+    log.warn('[ijfw] spawnTestVerify — resolveEntry failed', { err });
+    return false;
+  }
+
+  return new Promise<boolean>((resolve) => {
+    let child: ChildProcess;
+    try {
+      child = spawn(process.execPath, [entry], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: buildChildEnv({ ELECTRON_RUN_AS_NODE: '1' }),
+      });
+    } catch (err) {
+      log.warn('[ijfw] spawnTestVerify — spawn threw', { err });
+      resolve(false);
+      return;
+    }
+
+    let settled = false;
+    const settle = (value: boolean) => {
+      if (settled) return;
+      settled = true;
+      try { child.kill(); } catch { /* ignore */ }
+      clearTimeout(timeout);
+      resolve(value);
+    };
+
+    const timeout = setTimeout(() => settle(false), 5000);
+    let buf: Buffer = Buffer.alloc(0);
+
+    child.stdout?.on('data', (chunk: Buffer) => {
+      buf = Buffer.concat([buf, chunk]);
+      try {
+        const { messages, remainder } = decode(buf);
+        buf = remainder as Buffer;
+        for (const msg of messages) {
+          const parsed = jsonRpcResponseSchema.safeParse(msg);
+          if (!parsed.success) continue;
+          if (parsed.data.id !== 1) continue;
+          if (parsed.data.error) {
+            settle(false);
+            return;
+          }
+          const result = parsed.data.result as { tools?: Array<{ name?: string }> } | undefined;
+          if (result && Array.isArray(result.tools) && result.tools.some((t) => t.name === 'ijfw_brain')) {
+            settle(true);
+            return;
+          }
+        }
+      } catch (err) {
+        log.warn('[ijfw] spawnTestVerify decode error', { err });
+        settle(false);
+      }
+    });
+    child.on('error', () => settle(false));
+    // SEC-003: exit before success = failure.
+    child.on('exit', () => settle(false));
+
+    try {
+      child.stdin?.write(
+        encode({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
+      );
+    } catch (err) {
+      log.warn('[ijfw] spawnTestVerify stdin.write failed', { err });
+      settle(false);
+    }
+  });
+}
+
+async function applyPendingUpgradeImpl(): Promise<void> {
+  const home = os.homedir();
+  const current = path.join(home, '.ijfw', 'mcp-server');
+  const pending = path.join(home, '.ijfw', 'mcp-server.pending');
+  const previous = path.join(home, '.ijfw', 'mcp-server.prev');
+
+  try {
+    await fs.promises.stat(pending);
+  } catch {
+    return;
+  }
+
+  // SEC-010: ownership check before activation.
+  if (!(await isSafelyOwned(pending)) || !(await isSafelyOwned(path.dirname(pending)))) {
+    log.error('[ijfw] pending tree not safely owned — refusing to activate');
+    emitStatus({ status: 'install_failed', errorReason: 'unsafe_ownership' });
+    return;
+  }
+
+  try {
+    await ijfwMcpClient.shutdown();
+  } catch (err) {
+    log.warn('[ijfw] mcp shutdown threw', { err });
+  }
+  const drained = await ijfwMcpClient.waitForExit(10_000);
+  if (!drained) {
+    log.warn('[ijfw] MCP client did not exit cleanly — deferring upgrade');
+    return;
+  }
+
+  // Stage swap with Windows EBUSY retry (F-B03).
+  try {
+    await retryOnEbusy(async () => {
+      try {
+        await fs.promises.rm(previous, { recursive: true, force: true });
+      } catch {
+        /* ignore — previous may not exist */
+      }
+      try {
+        await moveWithExdevFallback(current, previous);
+      } catch (err) {
+        log.warn('[ijfw] preserve-previous failed', { err });
+      }
+      await moveWithExdevFallback(pending, current);
+    });
+  } catch (err) {
+    log.error('[ijfw] staged swap failed', { err });
+    emitStatus({
+      status: 'install_failed',
+      errorReason: 'stage_swap_failed',
+      stderr: err instanceof Error ? err.message : String(err),
+    });
+    return;
+  }
+
+  const newOk = await spawnTestVerify(current);
+  if (newOk) {
+    emitStatus({ status: 'installed_current' });
+    runtimeMode = 'enabled';
+    await syncPrelude('installed_current');
+    try {
+      await agentRegistry.refreshAll();
+    } catch (err) {
+      log.warn('[ijfw] agentRegistry.refreshAll failed post-activation', { err });
+    }
+    return;
+  }
+
+  log.warn('[ijfw] new version failed spawn-test — rolling back');
+  try {
+    await retryOnEbusy(async () => {
+      await fs.promises.rm(current, { recursive: true, force: true });
+      try {
+        await moveWithExdevFallback(previous, current);
+      } catch (err) {
+        log.error('[ijfw] rollback move failed', { err });
+        throw err;
+      }
+    });
+  } catch (err) {
+    emitStatus({
+      status: 'install_failed',
+      errorReason: 'upgrade_failed_no_rollback',
+      stderr: err instanceof Error ? err.message : String(err),
+    });
+    return;
+  }
+
+  const rollbackOk = await spawnTestVerify(current);
+  if (!rollbackOk) {
+    emitStatus({ status: 'install_failed', errorReason: 'rollback_also_failed' });
+  } else {
+    emitStatus({ status: 'install_failed', errorReason: 'upgrade_failed_rolled_back' });
+  }
+}
+
 export const ijfwSystemService = {
   async detectLocalInstall(): Promise<IjfwDetectionResult> {
     return detectLocalInstallImpl();
@@ -437,7 +644,7 @@ export const ijfwSystemService = {
   },
 
   async applyPendingUpgrade(): Promise<void> {
-    throw NOT_IMPLEMENTED;
+    return applyPendingUpgradeImpl();
   },
 
   getRuntimeMode(): IjfwRuntimeMode {

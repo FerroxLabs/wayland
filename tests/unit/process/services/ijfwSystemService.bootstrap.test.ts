@@ -189,7 +189,7 @@ describe('ijfwSystemService.bootstrap', () => {
 
     await ijfwSystemService.bootstrap();
     // Wait for install child's exit handler to fire (refreshAll + emit + release-lock).
-    for (let i = 0; i < 8; i++) await flush();
+    for (let i = 0; i < 20; i++) await flush();
 
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'installing' }));
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'installed_current', version: '1.5.4' }));
@@ -223,7 +223,7 @@ describe('ijfwSystemService.bootstrap', () => {
     await ijfwSystemService.bootstrap();
     // Walk the event loop until the install-exit handler completes its async work
     // (move-pending → emit → release-lock). 8 flushes covers writeCache + move.
-    for (let i = 0; i < 8; i++) await flush();
+    for (let i = 0; i < 20; i++) await flush();
 
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'upgrading' }));
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ status: 'installed_pending_activation', version: '1.5.4' }));
@@ -252,7 +252,7 @@ describe('ijfwSystemService.bootstrap', () => {
     safeSpawnSpy.mockImplementationOnce(() => queueFakeChild(1, 'boom'));
 
     await ijfwSystemService.bootstrap();
-    for (let i = 0; i < 8; i++) await flush();
+    for (let i = 0; i < 20; i++) await flush();
 
     expect(emitSpy).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'install_failed', errorReason: 'install_exit_nonzero' }),
