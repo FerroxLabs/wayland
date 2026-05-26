@@ -54,14 +54,14 @@ type MemoryFactsData = {
  */
 const InstalledCurrentBranch: React.FC = () => {
   const state = useIjfwBrain<MemoryFactsData>('memory_facts', { any: true });
-  if (state.loading) {
+  if (state.loading === true) {
     return (
       <div className={styles.center} data-testid='memory-installed-loading'>
         <Spin />
       </div>
     );
   }
-  if (state.ok) {
+  if (state.ok === true) {
     const factsLength = state.data.facts?.length ?? 0;
     if (factsLength === 0) {
       return <OnboardingEmptyState />;
