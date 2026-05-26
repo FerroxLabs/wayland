@@ -14,9 +14,9 @@
 //     specialist is handed up to TeamPage, which owns the IPC call so it
 //     can build the agent payload with the leader's backend as fallback.
 
-import React, { useMemo, useState } from 'react';
-import { Button, Message } from '@arco-design/web-react';
-import { Crown, Plus, RotateCw } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Button, Message, Tooltip } from '@arco-design/web-react';
+import { ChevronLeft, ChevronRight, Crown, Plus, RotateCw, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
@@ -42,6 +42,66 @@ type Props = {
    */
   onTeammateAdded?: (specialist: AssistantListItem) => void | Promise<void>;
 };
+
+const COLLAPSED_STORAGE_KEY = 'wayland.teamRightRail.collapsed';
+const COLLAPSED_CHANGE_EVENT = 'wayland:team-right-rail-collapsed-changed';
+
+/**
+ * Persisted collapse state for the team page right-rail. Mirrors the pattern
+ * used by `ChatLayout`'s workspace right-sider (`rightSiderCollapsed`) — a
+ * single global preference, not per-team, so the user only flips it once.
+ *
+ * Cross-window via the native `storage` event; same-renderer via a custom
+ * event so multiple instances of the hook (e.g. nested team views) stay in
+ * sync without a roundtrip through localStorage.
+ */
+function useRightRailCollapsed(): [boolean, () => void] {
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.localStorage.getItem(COLLAPSED_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sync = () => {
+      try {
+        setCollapsed(window.localStorage.getItem(COLLAPSED_STORAGE_KEY) === 'true');
+      } catch {
+        /* tolerate unavailable storage (private mode, etc.) */
+      }
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === COLLAPSED_STORAGE_KEY || e.key === null) sync();
+    };
+    window.addEventListener('storage', onStorage);
+    window.addEventListener(COLLAPSED_CHANGE_EVENT, sync);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener(COLLAPSED_CHANGE_EVENT, sync);
+    };
+  }, []);
+
+  const toggle = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(COLLAPSED_STORAGE_KEY, String(next));
+          window.dispatchEvent(new Event(COLLAPSED_CHANGE_EVENT));
+        }
+      } catch {
+        /* persistence is best-effort */
+      }
+      return next;
+    });
+  }, []);
+
+  return [collapsed, toggle];
+}
 
 const STATUS_DOT_COLOR: Record<TeammateStatus, string> = {
   pending: 'bg-gray-400',
@@ -176,6 +236,7 @@ const TeamRightRail: React.FC<Props> = ({
   const rituals = launcher?._rituals ?? [];
   const hasWorkspace = Boolean(workspacePath && workspacePath.length > 0);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [collapsed, toggleCollapsed] = useRightRailCollapsed();
   const { assistants, localeKey } = useAssistantList();
   const specialists = useMemo(() => assistants.filter((a) => a._kind === 'specialist'), [assistants]);
   const specialistsById = useMemo(() => {
@@ -188,6 +249,11 @@ const TeamRightRail: React.FC<Props> = ({
     [agents]
   );
 
+  const activeCount = useMemo(
+    () => agents.filter((a) => (statusMap.get(a.slotId)?.status ?? a.status) === 'active').length,
+    [agents, statusMap]
+  );
+
   const handlePick = async (specialistId: string) => {
     const specialist = specialistsById.get(specialistId);
     if (!specialist || !onTeammateAdded) {
@@ -198,14 +264,82 @@ const TeamRightRail: React.FC<Props> = ({
     await onTeammateAdded(specialist);
   };
 
+  if (collapsed) {
+    // Collapsed icon strip — ~36px wide. Click anywhere on the bar to expand;
+    // gives the chat columns back ~224px of horizontal real estate. The expand
+    // affordance is a chevron at the top so the click target reads as
+    // controllable rather than purely decorative.
+    const expandLabel = t('teams.rightRail.expand', { defaultValue: 'Expand teammates panel' });
+    return (
+      <aside
+        data-testid='team-right-rail'
+        data-collapsed='true'
+        className='w-36px shrink-0 h-full flex flex-col items-center justify-start gap-12px py-12px border-l border-solid border-[color:var(--border-base)] bg-[color:var(--color-bg-2)] cursor-pointer hover:bg-[color:var(--color-fill-2)] transition-colors'
+        onClick={toggleCollapsed}
+        aria-label={expandLabel}
+        title={expandLabel}
+      >
+        <Tooltip content={expandLabel} position='left' mini>
+          <button
+            type='button'
+            data-testid='team-right-rail-toggle'
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleCollapsed();
+            }}
+            aria-label={expandLabel}
+            className='flex items-center justify-center w-24px h-24px rd-4px text-[color:var(--color-text-3)] hover:text-[color:var(--color-text-1)] hover:bg-[color:var(--color-fill-3)] border-0 bg-transparent cursor-pointer p-0'
+          >
+            <ChevronLeft size={14} />
+          </button>
+        </Tooltip>
+        <div className='relative flex items-center justify-center w-24px h-24px text-[color:var(--color-text-3)]'>
+          <Users size={16} aria-hidden='true' />
+          {agents.length > 0 && (
+            <span
+              data-testid='team-right-rail-collapsed-badge'
+              className='absolute -top-2px -right-4px min-w-14px h-14px px-3px rd-full flex items-center justify-center text-9px font-semibold leading-none'
+              style={{
+                background: activeCount > 0 ? 'rgb(var(--primary-6))' : 'var(--color-fill-3)',
+                color: activeCount > 0 ? '#fff' : 'var(--color-text-2)',
+              }}
+              aria-label={t('teams.rightRail.teammateCount', {
+                count: agents.length,
+                defaultValue: `${agents.length} teammates`,
+              })}
+            >
+              {agents.length}
+            </span>
+          )}
+        </div>
+      </aside>
+    );
+  }
+
+  const collapseLabel = t('teams.rightRail.collapse', { defaultValue: 'Collapse teammates panel' });
+
   return (
     <aside
       data-testid='team-right-rail'
+      data-collapsed='false'
       className='w-260px shrink-0 h-full flex flex-col overflow-y-auto border-l border-solid border-[color:var(--border-base)] bg-[color:var(--color-bg-2)] p-16px gap-16px'
     >
       <section data-testid='team-right-rail-teammates'>
-        <div className='font-semibold text-11px text-[color:var(--color-text-3)] uppercase tracking-wider mb-8px'>
-          {t('teams.rightRail.teammates', { defaultValue: 'Teammates' })}
+        <div className='flex items-center justify-between mb-8px'>
+          <div className='font-semibold text-11px text-[color:var(--color-text-3)] uppercase tracking-wider'>
+            {t('teams.rightRail.teammates', { defaultValue: 'Teammates' })}
+          </div>
+          <Tooltip content={collapseLabel} position='left' mini>
+            <button
+              type='button'
+              data-testid='team-right-rail-toggle'
+              onClick={toggleCollapsed}
+              aria-label={collapseLabel}
+              className='flex items-center justify-center w-20px h-20px rd-4px text-[color:var(--color-text-3)] hover:text-[color:var(--color-text-1)] hover:bg-[color:var(--color-fill-3)] border-0 bg-transparent cursor-pointer p-0'
+            >
+              <ChevronRight size={14} />
+            </button>
+          </Tooltip>
         </div>
         <div className='flex flex-col gap-2px'>
           {agents.map((agent) => (

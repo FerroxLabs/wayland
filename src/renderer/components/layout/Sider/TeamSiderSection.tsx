@@ -197,16 +197,13 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
           </div>
         )
       ) : (
-        <div className='shrink-0 flex flex-col gap-2px mb-8px'>
-          <div className='flex items-center justify-between px-12px py-8px'>
-            <span className='text-13px text-t-secondary font-bold leading-20px'>{t('team.sider.title')}</span>
-            <div
-              className='h-20px w-20px rd-4px flex items-center justify-center cursor-pointer hover:bg-fill-3 transition-all shrink-0'
-              onClick={() => setCreateTeamVisible(true)}
-            >
-              <Plus size={14} color='var(--color-text-2)' style={{ lineHeight: 0 }} />
-            </div>
-          </div>
+        <div className='shrink-0 flex flex-col gap-2px'>
+          {/* v0.6.2.1 Fix D1 — removed the redundant "Teams" title row. The
+              outer SiderTeamsSection accordion already labels this group
+              (eliminates triple-labelling: TopZone Teams + accordion Teams
+              + inner Teams). Create-team affordance moved to the bottom of
+              the list as an inline "+ Create team" button — mirrors the
+              TeamRightRail "Add teammate" pattern. */}
           {sortedTeams.length > 0 &&
             sortedTeams.map((team) => {
               const isPinned = pinnedIds.includes(team.id);
@@ -272,6 +269,15 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
                 />
               );
             })}
+          <button
+            type='button'
+            data-testid='sider-team-create-inline'
+            onClick={() => setCreateTeamVisible(true)}
+            className='flex items-center gap-6px px-12px py-6px text-11px text-text-3 hover:text-text-1 border-0 bg-transparent cursor-pointer transition-colors'
+          >
+            <Plus size={12} aria-hidden='true' style={{ lineHeight: 0 }} />
+            <span>{t('team.sider.createTeam', { defaultValue: 'Create team' })}</span>
+          </button>
         </div>
       )}
       <TeamCreateModal

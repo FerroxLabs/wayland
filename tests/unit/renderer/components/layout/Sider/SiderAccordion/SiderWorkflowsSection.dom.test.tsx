@@ -105,15 +105,29 @@ describe('SiderWorkflowsSection', () => {
     ipcMock.findAllActive.mockResolvedValue({ sessions: [] });
   });
 
-  it('renders accordion label and hides badge when count is 0', async () => {
+  it('hide-when-empty: renders nothing when count is 0 (expanded mode)', async () => {
     vi.useFakeTimers();
     ipcMock.countActive.mockResolvedValue(0);
-    renderSection();
-    expect(screen.getByText('sider.accordion.workflows')).toBeInTheDocument();
+    const { container } = renderSection();
     await act(async () => {
       await vi.advanceTimersByTimeAsync(350);
     });
+    // Entire section absent — TopZone "Workflows" entry covers discover/create.
+    expect(container.firstChild).toBeNull();
+    expect(screen.queryByText('sider.accordion.workflows')).not.toBeInTheDocument();
     expect(screen.queryByTestId('sider-accordion-badge')).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('hide-when-empty: renders nothing when count is 0 (collapsed mode)', async () => {
+    vi.useFakeTimers();
+    ipcMock.countActive.mockResolvedValue(0);
+    const { container } = renderSection(true);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(350);
+    });
+    // No redundant icon — TopZone "Workflows" icon serves nav at all times.
+    expect(container.firstChild).toBeNull();
     vi.useRealTimers();
   });
 
@@ -241,8 +255,16 @@ describe('SiderWorkflowsSection', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  it('returns null in collapsed mode', () => {
+  it('collapsed mode with count > 0 renders an icon-only button (not the accordion shell)', async () => {
+    vi.useFakeTimers();
+    ipcMock.countActive.mockResolvedValue(2);
     renderSection(true);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(350);
+    });
+    // The collapsed branch renders a plain <button>, not the accordion shell.
     expect(screen.queryByTestId('sider-workflows-section')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Workflows \(2 in-flight\)/ })).toBeInTheDocument();
+    vi.useRealTimers();
   });
 });

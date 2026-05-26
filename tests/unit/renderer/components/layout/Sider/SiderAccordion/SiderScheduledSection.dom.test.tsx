@@ -60,10 +60,20 @@ describe('SiderScheduledSection', () => {
     expect(screen.getByTestId('sider-accordion-badge')).toHaveTextContent('2');
   });
 
-  it('hides badge when activeCount is 0', () => {
+  it('hide-when-empty: renders nothing when activeCount is 0 (expanded mode)', () => {
     mockUseAllCronJobs.mockReturnValue({ jobs: [], activeCount: 0, loading: false });
-    renderSection();
+    const { container } = renderSection();
+    // Entire section absent — TopZone "Scheduled" entry covers discover/create.
+    expect(container.firstChild).toBeNull();
+    expect(screen.queryByText('sider.accordion.scheduled')).not.toBeInTheDocument();
     expect(screen.queryByTestId('sider-accordion-badge')).not.toBeInTheDocument();
+  });
+
+  it('hide-when-empty: renders nothing when activeCount is 0 (collapsed mode)', () => {
+    mockUseAllCronJobs.mockReturnValue({ jobs: [], activeCount: 0, loading: false });
+    const { container } = renderSection({ collapsed: true });
+    // No redundant icon — TopZone "Scheduled" icon serves nav at all times.
+    expect(container.firstChild).toBeNull();
   });
 
   it('auto-expands when pathname matches /scheduled', () => {

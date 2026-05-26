@@ -38,7 +38,12 @@ export const SiderScheduledSection: React.FC<SiderScheduledSectionProps> = ({ co
   const visibleJobs = useMemo(() => jobs.slice(0, ROW_CAP), [jobs]);
   const overflow = Math.max(0, jobs.length - ROW_CAP);
 
-  // Collapsed-mode fallback — icon-only nav with dot when there are jobs.
+  // v0.6.2.1 hide-when-empty: TopZone "Scheduled" entry handles discover/create
+  // when no enabled tasks exist, so the runtime accordion only earns its row
+  // when activeCount > 0. Applies to both collapsed and expanded modes.
+  if (activeCount === 0) return null;
+
+  // Collapsed-mode fallback — icon-only nav with dot.
   if (collapsed) {
     return (
       <button
@@ -49,9 +54,7 @@ export const SiderScheduledSection: React.FC<SiderScheduledSectionProps> = ({ co
         title={t('sider.accordion.scheduled')}
       >
         <Clock size={18} />
-        {activeCount > 0 && (
-          <span className='absolute top-6px right-6px w-6px h-6px rounded-full bg-fill-3' aria-hidden />
-        )}
+        <span className='absolute top-6px right-6px w-6px h-6px rounded-full bg-fill-3' aria-hidden />
       </button>
     );
   }

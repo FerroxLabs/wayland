@@ -7,7 +7,14 @@ import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { useLayoutContext } from '@renderer/hooks/context/LayoutContext';
 import { blurActiveElement } from '@renderer/utils/ui/focus';
 import { useThemeContext } from '@renderer/hooks/context/ThemeContext';
-import { SiderToolbar, SiderSearchEntry, SiderAssistantsEntry } from './SiderNav';
+import {
+  SiderAssistantsEntry,
+  SiderScheduledEntry,
+  SiderSearchEntry,
+  SiderTeamsEntry,
+  SiderToolbar,
+  SiderWorkflowsEntry,
+} from './SiderNav';
 import SiderFooter from './SiderFooter';
 import { SiderScheduledSection } from './SiderAccordion/SiderScheduledSection';
 import { SiderWorkflowsSection } from './SiderAccordion/SiderWorkflowsSection';
@@ -94,6 +101,22 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
       onSessionClick();
     }
   };
+
+  const handleTopZoneNav = useCallback(
+    (target: string) => {
+      cleanupSiderTooltips();
+      blurActiveElement();
+      closePreview();
+      setIsBatchMode(false);
+      Promise.resolve(navigate(target)).catch((error) => {
+        console.error('Navigation failed:', error);
+      });
+      if (onSessionClick) {
+        onSessionClick();
+      }
+    },
+    [closePreview, navigate, onSessionClick]
+  );
 
   const handleQuickThemeToggle = () => {
     void setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -200,6 +223,27 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
           collapsed={collapsed}
           siderTooltipProps={siderTooltipProps}
           onClick={handleAssistantsClick}
+        />
+        <SiderWorkflowsEntry
+          isMobile={isMobile}
+          isActive={pathname.startsWith('/workflows')}
+          collapsed={collapsed}
+          siderTooltipProps={siderTooltipProps}
+          onClick={() => handleTopZoneNav('/workflows')}
+        />
+        <SiderScheduledEntry
+          isMobile={isMobile}
+          isActive={pathname.startsWith('/scheduled')}
+          collapsed={collapsed}
+          siderTooltipProps={siderTooltipProps}
+          onClick={() => handleTopZoneNav('/scheduled')}
+        />
+        <SiderTeamsEntry
+          isMobile={isMobile}
+          isActive={pathname.startsWith('/teams')}
+          collapsed={collapsed}
+          siderTooltipProps={siderTooltipProps}
+          onClick={() => handleTopZoneNav('/teams')}
         />
       </div>
 

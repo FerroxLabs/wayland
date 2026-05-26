@@ -113,23 +113,26 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
     [navigate]
   );
 
+  // v0.6.2.1 hide-when-empty: TopZone "Workflows" entry handles discover/create
+  // when nothing is in flight, so the runtime accordion only earns its row when
+  // count > 0. Applies to both collapsed and expanded modes — one icon per
+  // concept (don't make me think).
+  if (count === 0) return null;
+
   if (collapsed) {
-    const liveDot = count > 0;
     return (
       <button
         type='button'
         className='w-full h-40px flex items-center justify-center rd-7px hover:bg-fill-2 text-text-2 hover:text-text-1 relative'
         onClick={() => navigate('/workflows')}
-        aria-label={`Workflows${liveDot ? ` (${count} in-flight)` : ''}`}
-        title={`Workflows${liveDot ? ` · ${count} in-flight` : ''}`}
+        aria-label={`Workflows (${count} in-flight)`}
+        title={`Workflows · ${count} in-flight`}
       >
         <Workflow size={18} />
-        {liveDot && (
-          <span
-            className='absolute top-6px right-6px w-6px h-6px rounded-full bg-[rgb(var(--primary-6))] shadow-[0_0_0_2px_rgba(254,153,0,0.25)]'
-            aria-hidden
-          />
-        )}
+        <span
+          className='absolute top-6px right-6px w-6px h-6px rounded-full bg-[rgb(var(--primary-6))] shadow-[0_0_0_2px_rgba(254,153,0,0.25)]'
+          aria-hidden
+        />
       </button>
     );
   }

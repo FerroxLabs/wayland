@@ -64,6 +64,13 @@ export const SiderTeamsSection: React.FC<SiderTeamsSectionProps> = ({
   const liveCount = useMemo(() => countRunningAgents(teams), [teams]);
   const hasRunning = liveCount > 0;
 
+  // v0.6.2.1 hide-when-empty: gate on whether the user has *any* teams, not on
+  // whether agents are mid-call. Newly-created teams start idle (status: 'idle')
+  // and would otherwise disappear from the sidebar until the first message —
+  // breaks the create→see-it-in-sidebar mental model. TopZone "Teams" entry
+  // still covers nav when no teams exist at all.
+  if (teams.length === 0) return null;
+
   if (collapsed) {
     // Collapsed-mode fallback — icon-only nav. Click navigates to /teams.
     return (
