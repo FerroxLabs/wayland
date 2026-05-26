@@ -102,3 +102,54 @@
   margin: 0;
   text-align: center;
 }
+
+@media (max-width: 1024px) {
+  .card,
+  .banner {
+    max-width: 100%;
+  }
+  .card {
+    padding: 28px 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 24px 20px;
+    gap: 14px;
+  }
+  .title {
+    font-size: 16px;
+  }
+  .subtitle {
+    font-size: 13px;
+  }
+  .step {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 20px 16px;
+    gap: 12px;
+    border-radius: 10px;
+  }
+  .banner {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .title {
+    font-size: 15px;
+  }
+  .subtitle {
+    font-size: 12px;
+  }
+  .step {
+    font-size: 12px;
+    gap: 10px;
+  }
+  .pendingActions {
+    width: 100%;
+  }
+}

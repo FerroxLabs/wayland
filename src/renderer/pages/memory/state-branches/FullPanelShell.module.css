@@ -50,3 +50,37 @@
   flex: 1;
   min-height: 0;
 }
+
+@media (max-width: 1024px) {
+  .header {
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 10px 12px;
+  }
+  .breadcrumb {
+    font-size: 13px;
+  }
+  .tabsHost :global(.arco-tabs-header-nav) {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 8px 10px;
+  }
+  .breadcrumb {
+    font-size: 13px;
+  }
+  .headerActions :global(.arco-btn) span:not([class*='icon']):not([class*='Icon']) {
+    display: none;
+  }
+  .tabsHost :global(.arco-tabs-header-nav) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

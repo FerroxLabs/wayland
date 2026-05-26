@@ -70,3 +70,36 @@
   align-items: center;
   gap: 8px;
 }
+
+@media (max-width: 1024px) {
+  .center {
+    padding: 24px 16px;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    padding: 20px 16px;
+  }
+  .card {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding: 16px 12px;
+  }
+  .card {
+    gap: 14px;
+  }
+  .bullets {
+    gap: 10px;
+  }
+  .actions {
+    width: 100%;
+  }
+}

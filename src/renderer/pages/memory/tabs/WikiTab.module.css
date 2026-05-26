@@ -136,3 +136,48 @@
   font-size: 13px;
   color: var(--color-text-3);
 }
+
+@media (max-width: 1024px) {
+  .wiki {
+    grid-template-columns: 200px 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wiki {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 12px;
+    padding: 12px;
+    min-height: 0;
+  }
+  .list {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-2);
+    padding-right: 0;
+    padding-bottom: 12px;
+    max-height: 200px;
+  }
+  .content {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wiki {
+    padding: 10px;
+    gap: 10px;
+  }
+  .list {
+    max-height: 160px;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  .content {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}

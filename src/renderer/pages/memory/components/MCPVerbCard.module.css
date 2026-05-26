@@ -16,3 +16,28 @@
   font-size: 13px;
   line-height: 1.5;
 }
+
+@media (max-width: 1024px) {
+  .error {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .error {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading {
+    padding: 16px;
+    min-height: 60px;
+  }
+  .error {
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}

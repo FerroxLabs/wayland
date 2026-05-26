@@ -21,3 +21,21 @@
   align-items: center;
   justify-content: center;
 }
+
+@media (max-width: 1024px) {
+  .page {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 12px;
+  }
+}

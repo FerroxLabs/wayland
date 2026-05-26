@@ -106,3 +106,40 @@
   color: var(--color-text-2);
   word-break: break-word;
 }
+
+@media (max-width: 1024px) {
+  .root {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding: 14px;
+    gap: 14px;
+  }
+  .scopeBar {
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .toggleRow {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .root {
+    padding: 12px;
+    gap: 12px;
+  }
+  .scopeBar {
+    padding: 8px 10px;
+  }
+  .matchHeader {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .matchPreview {
+    font-size: 12px;
+  }
+}

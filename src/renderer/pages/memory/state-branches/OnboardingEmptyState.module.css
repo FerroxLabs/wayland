@@ -51,3 +51,36 @@
   justify-content: flex-end;
   margin-top: 4px;
 }
+
+@media (max-width: 1024px) {
+  .center {
+    padding: 24px 16px;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    padding: 20px 16px;
+  }
+  .card {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding: 16px 12px;
+  }
+  .card {
+    gap: 12px;
+  }
+  .chips {
+    gap: 6px;
+  }
+  .actions {
+    justify-content: stretch;
+  }
+}

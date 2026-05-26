@@ -113,3 +113,43 @@
   line-height: 1.4;
   word-break: break-word;
 }
+
+@media (max-width: 1024px) {
+  .root {
+    padding: 16px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding: 14px;
+    gap: 18px;
+  }
+  .sectionHeader {
+    font-size: 12px;
+  }
+  .wikiRow {
+    font-size: 12px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .root {
+    padding: 12px;
+    gap: 16px;
+  }
+  .wikiRow {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .linkBadges {
+    flex-basis: 100%;
+  }
+  .candidateRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}

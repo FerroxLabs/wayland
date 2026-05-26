@@ -128,3 +128,63 @@
   justify-content: center;
   padding: 24px;
 }
+
+@media (max-width: 1024px) {
+  .root {
+    padding: 16px;
+    gap: 20px;
+  }
+  .dropZone {
+    padding: 28px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding: 14px;
+    gap: 18px;
+  }
+  .dropZone {
+    padding: 24px 16px;
+    gap: 10px;
+  }
+  .dropZoneTitle {
+    font-size: 14px;
+  }
+  .dropZoneHint {
+    font-size: 12px;
+  }
+  .sectionHeader {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .root {
+    padding: 12px;
+    gap: 16px;
+  }
+  .dropZone {
+    padding: 20px 12px;
+    gap: 8px;
+  }
+  .dropZoneTitle {
+    font-size: 13px;
+  }
+  .dropZoneHint {
+    font-size: 11px;
+    max-width: 100%;
+  }
+  .dropZoneActions {
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+  }
+  .row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .rowMeta {
+    flex-basis: 100%;
+  }
+}

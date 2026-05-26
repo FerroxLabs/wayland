@@ -91,3 +91,39 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 14px;
+    gap: 14px;
+  }
+  .examples {
+    padding: 14px;
+  }
+  .answer {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+    gap: 12px;
+  }
+  .searchRow {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .examples {
+    padding: 12px;
+  }
+  .citationBadge {
+    max-width: 100%;
+  }
+}
