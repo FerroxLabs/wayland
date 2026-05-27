@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.notion/notion-mcp",
+  "title": "Notion",
+  "description": "Read and write pages, databases, and comments. Notion's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.notion.so/help/mcp",
+  "repository": { "url": "https://github.com/makenotion/notion-mcp-server", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.notion.com/mcp" }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["productivity", "files-and-docs", "knowledge"],
+    "tags": ["notion", "docs", "wiki", "database"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 5,
+    "installRate": 0.49,
+    "iconUrl": "icons/notion.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#000000" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Notion",
+      "providerSignupUrl": "https://www.notion.so",
+      "scopes": [
+        { "name": "read_content", "plainLanguage": "Read pages and databases you select." },
+        { "name": "update_content", "plainLanguage": "Edit pages and databases you select." },
+        { "name": "insert_content", "plainLanguage": "Create new pages and entries." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Pages", "count": 5 },
+      { "label": "Databases", "count": 6 },
+      { "label": "Search", "count": 2 },
+      { "label": "Comments", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.notion-notion-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

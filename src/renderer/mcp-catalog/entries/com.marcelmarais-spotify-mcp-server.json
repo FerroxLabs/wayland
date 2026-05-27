@@ -1,0 +1,55 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.marcelmarais/spotify-mcp-server",
+  "title": "Spotify",
+  "description": "Search tracks, control playback across devices, and manage your playlists — Spotify Web API via OAuth.",
+  "version": "0.3.0",
+  "websiteUrl": "https://github.com/marcelmarais/spotify-mcp-server",
+  "repository": { "url": "https://github.com/marcelmarais/spotify-mcp-server", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "spotify-mcp-server",
+      "version": "0.3.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "SPOTIFY_CLIENT_ID", "description": "Client ID from your Spotify Developer dashboard app.", "isRequired": true, "isSecret": false },
+        { "name": "SPOTIFY_CLIENT_SECRET", "description": "Client secret from the same Spotify Developer app.", "isRequired": true, "isSecret": true },
+        { "name": "SPOTIFY_REDIRECT_URI", "description": "Local redirect URI Wayland listens on.", "isRequired": false, "default": "http://localhost:8765/callback" }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["personal", "media"],
+    "tags": ["spotify", "music", "playback", "playlists"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 14,
+    "installRate": 0.30,
+    "iconUrl": "icons/spotify.svg",
+    "brand": { "logoBackground": "#1ed760", "logoForeground": "#000000" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Spotify Developer",
+      "providerSignupUrl": "https://developer.spotify.com/dashboard",
+      "scopes": [
+        { "name": "user-read-playback-state", "plainLanguage": "See and control playback." },
+        { "name": "user-modify-playback-state", "plainLanguage": "Change tracks, volume, and devices." },
+        { "name": "playlist-read-private", "plainLanguage": "See your playlists." },
+        { "name": "playlist-modify-private", "plainLanguage": "Edit your playlists." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Playback", "count": 5 },
+      { "label": "Search", "count": 3 },
+      { "label": "Playlists", "count": 5 },
+      { "label": "Library", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.marcelmarais-spotify-mcp-server.md", "estimatedMinutes": 5, "stepCount": 4 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

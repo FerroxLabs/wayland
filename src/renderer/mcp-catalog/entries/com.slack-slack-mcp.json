@@ -1,0 +1,45 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.slack/slack-mcp",
+  "title": "Slack",
+  "description": "Search messages and threads, post replies, manage canvases, look up users — Slack's official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://slack.com/marketplace/mcp",
+  "repository": { "url": "https://github.com/slackapi/slack-mcp-server", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.slack.com" }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["communication", "productivity"],
+    "tags": ["slack", "chat", "team"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 3,
+    "installRate": 0.62,
+    "iconUrl": "icons/slack.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#4a154b" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Slack",
+      "providerSignupUrl": "https://slack.com",
+      "scopes": [
+        { "name": "search:read", "plainLanguage": "Search messages and files." },
+        { "name": "chat:write", "plainLanguage": "Post messages on your behalf." },
+        { "name": "users:read", "plainLanguage": "Look up workspace users." },
+        { "name": "channels:history", "plainLanguage": "Read channel message history." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Messages", "count": 8 },
+      { "label": "Channels", "count": 5 },
+      { "label": "Canvases", "count": 4 },
+      { "label": "Users", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.slack-slack-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

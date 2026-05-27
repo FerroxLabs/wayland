@@ -1,0 +1,42 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.modelcontextprotocol/server-filesystem",
+  "title": "Filesystem",
+  "description": "Sandboxed local-file read/write/edit/search across user-allowed directories.",
+  "version": "0.6.2",
+  "websiteUrl": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
+  "repository": { "url": "https://github.com/modelcontextprotocol/servers", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@modelcontextprotocol/server-filesystem",
+      "version": "0.6.2",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "ALLOWED_DIRS", "description": "Comma-separated list of directories the server may read/write.", "isRequired": true, "isSecret": false }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["files-and-docs", "developer"],
+    "tags": ["filesystem", "local", "files"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 9,
+    "installRate": 0.58,
+    "iconUrl": "icons/filesystem.svg",
+    "brand": { "logoBackground": "#1a1a1a", "logoForeground": "#ff6b35" },
+    "auth": { "method": "none" },
+    "toolGroups": [
+      { "label": "Read", "count": 4 },
+      { "label": "Write", "count": 3 },
+      { "label": "Search", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/io.modelcontextprotocol-server-filesystem.md", "estimatedMinutes": 1, "stepCount": 1 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

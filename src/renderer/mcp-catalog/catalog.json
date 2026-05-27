@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/catalog.schema.json",
   "version": "1.0.0",
-  "publishedAt": "2026-05-27T08:32:58.345Z",
+  "publishedAt": "2026-05-27T08:45:02.717Z",
   "entries": [
     {
       "id": "io.github.taylorwilsdon/google-workspace-mcp",
@@ -41,6 +41,41 @@
       "guideUrl": "guides/com.wayland-apple-mcp.md"
     },
     {
+      "id": "com.slack/slack-mcp",
+      "name": "Slack",
+      "shortDescription": "Search messages and threads, post replies, manage canvases, look up users — Slack's official MCP.",
+      "iconUrl": "icons/slack.svg",
+      "tier": "core",
+      "categories": [
+        "communication",
+        "productivity"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-05-12",
+      "popularityRank": 3,
+      "installRate": 0.62,
+      "entryUrl": "entries/com.slack-slack-mcp.json",
+      "guideUrl": "guides/com.slack-slack-mcp.md"
+    },
+    {
+      "id": "com.notion/notion-mcp",
+      "name": "Notion",
+      "shortDescription": "Read and write pages, databases, and comments. Notion's official hosted MCP with OAuth.",
+      "iconUrl": "icons/notion.svg",
+      "tier": "core",
+      "categories": [
+        "productivity",
+        "files-and-docs",
+        "knowledge"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-05-12",
+      "popularityRank": 5,
+      "installRate": 0.49,
+      "entryUrl": "entries/com.notion-notion-mcp.json",
+      "guideUrl": "guides/com.notion-notion-mcp.md"
+    },
+    {
       "id": "com.softeria/ms-365-mcp-server",
       "name": "Microsoft 365",
       "shortDescription": "Outlook, Teams, OneDrive, Excel, To Do, OneNote, Calendar — all of Microsoft Graph in one MCP.",
@@ -57,6 +92,125 @@
       "installRate": 0.41,
       "entryUrl": "entries/com.softeria-ms-365-mcp-server.json",
       "guideUrl": "guides/com.softeria-ms-365-mcp-server.md"
+    },
+    {
+      "id": "com.wayland/imap-mcp",
+      "name": "Generic IMAP / SMTP",
+      "shortDescription": "Personal email via IMAP/SMTP — works with iCloud, Proton Bridge, Fastmail, and any standards-compliant mail host.",
+      "iconUrl": "icons/email.svg",
+      "tier": "core",
+      "categories": [
+        "communication"
+      ],
+      "maintainerType": "wayland",
+      "verifiedByWayland": "2026-05-27",
+      "popularityRank": 8,
+      "installRate": 0.34,
+      "entryUrl": "entries/com.wayland-imap-mcp.json",
+      "guideUrl": "guides/com.wayland-imap-mcp.md"
+    },
+    {
+      "id": "io.modelcontextprotocol/server-filesystem",
+      "name": "Filesystem",
+      "shortDescription": "Sandboxed local-file read/write/edit/search across user-allowed directories.",
+      "iconUrl": "icons/filesystem.svg",
+      "tier": "core",
+      "categories": [
+        "files-and-docs",
+        "developer"
+      ],
+      "maintainerType": "community",
+      "verifiedByWayland": "2026-05-12",
+      "popularityRank": 9,
+      "installRate": 0.58,
+      "entryUrl": "entries/io.modelcontextprotocol-server-filesystem.json",
+      "guideUrl": "guides/io.modelcontextprotocol-server-filesystem.md"
+    },
+    {
+      "id": "com.brave/brave-search-mcp",
+      "name": "Brave Search",
+      "shortDescription": "Independent web search index — fast, private, and ad-free, powered by Brave's own crawler.",
+      "iconUrl": "icons/brave.svg",
+      "tier": "core",
+      "categories": [
+        "search",
+        "research"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-05-12",
+      "popularityRank": 10,
+      "installRate": 0.52,
+      "entryUrl": "entries/com.brave-brave-search-mcp.json",
+      "guideUrl": "guides/com.brave-brave-search-mcp.md"
+    },
+    {
+      "id": "com.todoist/todoist-mcp",
+      "name": "Todoist",
+      "shortDescription": "Tasks, projects, labels, filters, and reminders — Doist's official Todoist MCP.",
+      "iconUrl": "icons/todoist.svg",
+      "tier": "core",
+      "categories": [
+        "productivity",
+        "tasks"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-05-12",
+      "popularityRank": 11,
+      "installRate": 0.46,
+      "entryUrl": "entries/com.todoist-todoist-mcp.json",
+      "guideUrl": "guides/com.todoist-todoist-mcp.md"
+    },
+    {
+      "id": "com.wayland/news-mcp",
+      "name": "News & RSS",
+      "shortDescription": "Unified search across NewsAPI, Hacker News, and any RSS or Atom feed — one MCP for staying current.",
+      "iconUrl": "icons/news.svg",
+      "tier": "core",
+      "categories": [
+        "search",
+        "news",
+        "research"
+      ],
+      "maintainerType": "wayland",
+      "verifiedByWayland": "2026-05-27",
+      "popularityRank": 12,
+      "installRate": 0.28,
+      "entryUrl": "entries/com.wayland-news-mcp.json",
+      "guideUrl": "guides/com.wayland-news-mcp.md"
+    },
+    {
+      "id": "io.home-assistant/mcp-server",
+      "name": "Home Assistant",
+      "shortDescription": "Smart-home control — lights, climate, locks, scenes, automations — via your Home Assistant instance.",
+      "iconUrl": "icons/home-assistant.svg",
+      "tier": "core",
+      "categories": [
+        "home-automation",
+        "iot"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-05-12",
+      "popularityRank": 13,
+      "installRate": 0.22,
+      "entryUrl": "entries/io.home-assistant-mcp-server.json",
+      "guideUrl": "guides/io.home-assistant-mcp-server.md"
+    },
+    {
+      "id": "com.marcelmarais/spotify-mcp-server",
+      "name": "Spotify",
+      "shortDescription": "Search tracks, control playback across devices, and manage your playlists — Spotify Web API via OAuth.",
+      "iconUrl": "icons/spotify.svg",
+      "tier": "core",
+      "categories": [
+        "personal",
+        "media"
+      ],
+      "maintainerType": "community",
+      "verifiedByWayland": "2026-05-12",
+      "popularityRank": 14,
+      "installRate": 0.3,
+      "entryUrl": "entries/com.marcelmarais-spotify-mcp-server.json",
+      "guideUrl": "guides/com.marcelmarais-spotify-mcp-server.md"
     }
   ]
 }
