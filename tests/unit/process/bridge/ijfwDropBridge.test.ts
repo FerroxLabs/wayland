@@ -217,6 +217,47 @@ describe('ijfwDropBridge', () => {
       };
       expect(result.ok).toBe(false);
     });
+
+    it('Gemini B3: refuses ingest with errorReason=unavailable when cwd is "/"', async () => {
+      // Regression for the B3 BLOCKER. On macOS GUI Dock launch, cwd is `/`,
+      // which made path.relative('/', '/Users/x/.aws/credentials') return
+      // 'Users/x/.aws/credentials' (no `..`), passing the containment check
+      // and letting ANY file on disk be ingested. The new policy must refuse
+      // the entire ingest call when no safe project root is available.
+      try {
+        process.chdir('/');
+      } catch {
+        // chdir('/') may be denied in some test sandboxes; fall back to mocking.
+        vi.spyOn(process, 'cwd').mockReturnValue('/');
+      }
+      const handler = providers.get('dropIngest')!;
+      const result = (await handler({ path: '/Users/x/.aws/credentials' })) as {
+        ok: boolean;
+        errorReason?: string;
+        error?: string;
+      };
+      expect(result.ok).toBe(false);
+      expect(result.errorReason).toBe('unavailable');
+      // Restore cwd for subsequent tests in this file (afterEach also restores).
+      try {
+        process.chdir(tmpCwd);
+      } catch {
+        /* ignore */
+      }
+      vi.restoreAllMocks();
+    });
+
+    it('Gemini B3: refuses ingest with errorReason=unavailable when cwd is a system path', async () => {
+      vi.spyOn(process, 'cwd').mockReturnValue('/etc');
+      const handler = providers.get('dropIngest')!;
+      const result = (await handler({ path: '/etc/hosts' })) as {
+        ok: boolean;
+        errorReason?: string;
+      };
+      expect(result.ok).toBe(false);
+      expect(result.errorReason).toBe('unavailable');
+      vi.restoreAllMocks();
+    });
   });
 
   describe('dropQuarantine', () => {

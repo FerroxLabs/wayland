@@ -55,13 +55,62 @@ function fail(reason: string, errorReason: IjfwErrorReason = 'validation_failed'
  * only for v0.6.3. The previous policy accepted any file under `$HOME` which
  * exposed SSH keys, ~/.aws/credentials, browser cookie stores, etc.
  *
+ * Gemini B3: when cwd is `/` (macOS GUI Dock launch), `path.relative('/', X)`
+ * returns a non-`..` non-absolute path for ANY file on disk (e.g. for
+ * `/etc/passwd` it returns `etc/passwd`). Treating cwd-`/` as the trusted
+ * root let the renderer drop SSH keys / ~/.aws/credentials / browser cookies
+ * into the IJFW dump pipeline. Refuse the call entirely when cwd is unsafe.
+ *
  * TODO v0.6.4: extend to the recent-workspaces store so users can drop files
  * from any of their tracked projects, not just the current one.
  */
+const UNSAFE_ROOT_PREFIXES: readonly string[] = [
+  '/',
+  '/etc',
+  '/var',
+  '/usr',
+  '/bin',
+  '/sbin',
+  '/opt',
+  '/private',
+  '/System',
+  '/Library',
+  '/Applications',
+  '/tmp',
+  '/dev',
+  '/proc',
+  '/sys',
+];
+
+function trustedRootCandidates(): string[] {
+  const cwd = process.cwd();
+  const home = process.env.HOME ?? process.env.USERPROFILE ?? '';
+  const roots: string[] = [];
+  // cwd is only a candidate when it's NOT one of the unsafe roots and NOT the
+  // bare HOME directory (which is too broad — would whitelist ~/.aws etc.).
+  if (cwd && cwd !== home) {
+    const norm = process.platform === 'win32' ? cwd.toLowerCase() : cwd;
+    const isUnsafe = UNSAFE_ROOT_PREFIXES.some((u) => {
+      const target = process.platform === 'win32' ? u.toLowerCase() : u;
+      return norm === target;
+    });
+    if (!isUnsafe && cwd !== path.parse(cwd).root) {
+      roots.push(cwd);
+    }
+  }
+  return roots;
+}
+
 function isUnderTrustedRoot(absPath: string): boolean {
-  const projectRoot = process.cwd();
-  const rel = path.relative(projectRoot, absPath);
-  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+  const roots = trustedRootCandidates();
+  if (roots.length === 0) return false;
+  for (const root of roots) {
+    const rel = path.relative(root, absPath);
+    if (rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 async function listImpl(): Promise<{ files: Array<{ name: string; size: number; mtimeMs: number }> }> {
@@ -88,6 +137,15 @@ async function listImpl(): Promise<{ files: Array<{ name: string; size: number; 
 async function ingestImpl(srcPath: string): Promise<IngestSuccess | IngestFailure> {
   if (typeof srcPath !== 'string' || srcPath.length === 0) {
     return fail('empty path');
+  }
+  // Gemini B3: refuse drops entirely when no safe trusted root exists. This
+  // happens when the app is GUI-launched and cwd is `/` (or another system
+  // path). Returning `unavailable` lets the renderer surface "Drop unavailable
+  // — open Wayland from a project directory" instead of accidentally
+  // accepting `/etc/passwd` because `path.relative('/', X)` doesn't start
+  // with `..`.
+  if (trustedRootCandidates().length === 0) {
+    return fail('no trusted project root available', 'unavailable');
   }
   const resolved = path.resolve(srcPath);
   if (!isUnderTrustedRoot(resolved)) {
