@@ -284,9 +284,13 @@ export function DetailPage() {
             </div>
             <dl>
               <dt>Transport</dt>
-              <dd>{entry.packages[0].transport.type}</dd>
+              <dd>
+                {entry.packages[0]?.transport.type ??
+                  entry.remotes?.[0]?.type ??
+                  '—'}
+              </dd>
               <dt>Runtime</dt>
-              <dd>{entry.packages[0].runtimeHint}</dd>
+              <dd>{entry.packages[0]?.runtimeHint ?? 'hosted'}</dd>
               <dt>Platforms</dt>
               <dd>{(w.platforms ?? ['all']).join(', ')}</dd>
             </dl>
