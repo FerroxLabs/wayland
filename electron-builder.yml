@@ -240,6 +240,13 @@ asarUnpack:
   - 'out/main/builtin-mcp-search-skills.js'
   - 'out/main/team-mcp-stdio.js'
   - 'out/main/team-guide-mcp-stdio.js'
+  # Bundled @wayland MCP servers (ship with installer, no npm publish)
+  - 'out/main/builtin-mcp-apple.mjs'
+  - 'out/main/builtin-mcp-imap.mjs'
+  - 'out/main/builtin-mcp-news.mjs'
+  - 'out/main/builtin-mcp-cal-com.mjs'
+  # Apple MCP native EventKit bridge (macOS only — built by `swiftc`)
+  - 'out/main/eventkit-bridge'
   # Skills library: read in-place at runtime — must not be packed into app.asar
   - 'resources/skills-library/**/*'
   # officecli (Office document generator used by Word/PPT/Excel/Morph/Academic

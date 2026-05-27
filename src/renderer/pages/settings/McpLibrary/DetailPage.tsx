@@ -61,12 +61,23 @@ function entryToServerData(
           ? { headers: Object.fromEntries(remote.headers.map((h) => [h.name, h.value])) }
           : {}),
       }
-    : {
-        type: 'stdio',
-        command: pkg!.runtimeHint,
-        args: pkg!.identifier ? [pkg!.identifier] : [],
-        env: envValues,
-      };
+    : pkg!.runtimeHint === 'native'
+      ? {
+          // Bundled @wayland MCP: spawn via the local Node runtime against the
+          // bare bundle filename. The main-process spawn layer
+          // (McpProtocol.testStdioConnection) rewrites args[0] to an absolute
+          // path under out/main (dev) or app.asar.unpacked/out/main (prod).
+          type: 'stdio',
+          command: 'node',
+          args: [pkg!.identifier],
+          env: envValues,
+        }
+      : {
+          type: 'stdio',
+          command: pkg!.runtimeHint,
+          args: pkg!.identifier ? [pkg!.identifier] : [],
+          env: envValues,
+        };
 
   return {
     name: entry.name,
