@@ -73,6 +73,7 @@ const SetupStepSchema = z.object({
     )
     .optional(),
   warning: z.string().optional(),
+  body: z.string().optional(),
 });
 
 const GuideFrontmatterSchema = z.object({

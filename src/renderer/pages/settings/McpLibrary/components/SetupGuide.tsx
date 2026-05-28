@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check, ExternalLink } from 'lucide-react';
+import MarkdownView from '@renderer/components/Markdown';
 import { openExternalUrl } from '@renderer/utils/platform';
 import type { SetupGuide as GuideT, SetupStep } from '../types';
 
@@ -31,6 +32,11 @@ function StepCard({
             </span>
           ) : null}
         </div>
+        {step.body && (
+          <div className="mcp-step-body-md">
+            <MarkdownView>{step.body}</MarkdownView>
+          </div>
+        )}
         {step.externalAction && (
           <button
             className="mcp-open-link"

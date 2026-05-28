@@ -574,6 +574,27 @@
   font-size: 12.5px;
   color: var(--mcp-badge-official);
 }
+.mcp-step-body-md {
+  margin: 6px 0 10px;
+  font-size: 13px;
+  color: var(--mcp-text-secondary);
+  line-height: 1.55;
+}
+.mcp-step-body-md p { margin: 6px 0; }
+.mcp-step-body-md ol,
+.mcp-step-body-md ul { margin: 6px 0 6px 18px; padding: 0; }
+.mcp-step-body-md li { margin: 3px 0; }
+.mcp-step-body-md strong { color: var(--mcp-text-primary); font-weight: 600; }
+.mcp-step-body-md code {
+  background: var(--mcp-bg-2);
+  border: 1px solid var(--mcp-border-bright);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+.mcp-step-body-md a { color: var(--mcp-brand); text-decoration: none; }
+.mcp-step-body-md a:hover { text-decoration: underline; }
 .mcp-step-primary {
   margin-top: 12px;
   background: var(--mcp-brand);

@@ -90,6 +90,8 @@ export interface SetupStep {
   primaryAction?: { label: string; action: string };
   inputs?: { name: string; label: string; placeholder?: string; secret?: boolean }[];
   warning?: string;
+  /** Markdown instructions rendered under the step title. Used for vendor UI navigation paths, console screenshots, and prerequisites. */
+  body?: string;
 }
 
 export interface SetupGuide {
