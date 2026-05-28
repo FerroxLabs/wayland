@@ -43,6 +43,11 @@
       "method": "oauth2-byo",
       "providerName": "Box",
       "providerSignupUrl": "https://account.box.com/signup",
+      "byoClient": {
+        "registrationUrl": "https://app.box.com/developers/console",
+        "requiresSecret": true,
+        "guide": "Box does not allow automatic OAuth client registration on api.box.com. You create a Custom App once in the Box Developer Console and Wayland uses your credentials.\n\n**1.** Open **app.box.com/developers/console** and sign in. (Personal Box accounts work for testing; Enterprise plans may require admin approval.)\n\n**2.** Click **Create New App** → **Custom App** → **User Authentication (OAuth 2.0)**. Give it a name (e.g. *Wayland MCP*) and submit.\n\n**3.** In the **Configuration** tab:\n  - Under **OAuth 2.0 Redirect URIs**, add the URL Wayland shows below.\n  - Under **Application Scopes**, enable: **Read all files and folders stored in Box**, **Write all files and folders stored in Box**, **Manage AI**, and **Manage Doc Gen templates**.\n  - Click **Save Changes**.\n\n**4.** Copy **Client ID** and **Client Secret** from the **OAuth 2.0 Credentials** section and paste them below.\n\n**Note for Enterprise accounts:** if your admin has app authorization enabled, the app must be approved in **Admin Console → Apps → Custom Apps Manager** before the OAuth flow will succeed."
+      },
       "scopes": [
         {
           "name": "root_readwrite",

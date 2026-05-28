@@ -41,6 +41,15 @@ const originalBuildResourceParameter = OAuthUtils.buildResourceParameter.bind(OA
 // Mirror the canonicalization on the inbound side. discoverOAuthConfig compares
 // `resourceMetadata.resource !== expectedResource` with strict equality — both
 // sides must be canonicalized for the slash variants to match.
+//
+// Second canonicalization: when the server advertises a SHORTER resource than
+// what we requested (e.g. Linear's mcp.linear.app/sse endpoint advertises
+// `resource: https://mcp.linear.app`), accept that as a legitimate
+// "OAuth resource is the API boundary, not the specific HTTP endpoint"
+// deployment pattern. We mutate metadata.resource to the longer expected form
+// so RFC 9728 §7.3's strict-equality compare passes. This is broader than
+// RFC 9728 strictly allows, but Linear, GitHub Copilot, and a few others
+// deploy this way — without it those vendors break entirely.
 const originalFetchProtectedResourceMetadata =
   OAuthUtils.fetchProtectedResourceMetadata.bind(OAuthUtils);
 (
@@ -49,8 +58,33 @@ const originalFetchProtectedResourceMetadata =
   }
 ).fetchProtectedResourceMetadata = async (url: string) => {
   const metadata = await originalFetchProtectedResourceMetadata(url);
-  if (metadata && typeof metadata.resource === 'string') {
-    metadata.resource = canonicalizeRootResource(metadata.resource);
+  if (!metadata || typeof metadata.resource !== 'string') return metadata;
+  metadata.resource = canonicalizeRootResource(metadata.resource);
+
+  // If our request URL is a path-extension of the advertised resource (same
+  // origin, requested path starts with metadata path), rewrite metadata.resource
+  // to the requested form so the upstream === comparison passes.
+  try {
+    const reqU = new URL(url);
+    const advU = new URL(metadata.resource);
+    const sameOrigin = reqU.protocol === advU.protocol && reqU.host === advU.host;
+    const advPath = advU.pathname === '/' ? '' : advU.pathname.replace(/\/$/, '');
+    const reqPath = reqU.pathname === '/' ? '' : reqU.pathname.replace(/\/$/, '');
+    if (
+      sameOrigin &&
+      reqPath !== advPath &&
+      (advPath === '' || reqPath.startsWith(`${advPath}/`) || reqPath === advPath)
+    ) {
+      // The request hits a deeper endpoint than the advertised resource —
+      // safe to widen the metadata resource to match what we asked for.
+      // Strip the well-known suffix that fetchProtectedResourceMetadata's
+      // discovery URL applied — it'll be redundant here.
+      metadata.resource = canonicalizeRootResource(
+        `${reqU.protocol}//${reqU.host}${reqU.pathname}`,
+      );
+    }
+  } catch {
+    /* fall through */
   }
   return metadata;
 };

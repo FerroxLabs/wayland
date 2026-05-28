@@ -39,6 +39,11 @@
       "method": "oauth2-byo",
       "providerName": "Figma",
       "providerSignupUrl": "https://www.figma.com/login",
+      "byoClient": {
+        "registrationUrl": "https://www.figma.com/developers/apps",
+        "requiresSecret": true,
+        "guide": "Figma's MCP server requires you to register your own OAuth integration in the Figma developer portal — their public DCR endpoint returns 403 (entitlement-gated). You must hold a **paid Dev seat or Full seat** on at least one Figma team for OAuth to succeed.\n\n**1.** Open **figma.com/developers/apps** and sign in. Click **Create new app**.\n\n**2.** Fill in:\n  - **App name**: any (e.g. *Wayland MCP*)\n  - **Website**: any (e.g. `https://localhost`)\n  - **Callback URL**: paste the URL Wayland shows below.\n\n**3.** Click **Save**. Figma displays your **Client ID** and **Client Secret** — copy both.\n\n**4.** Paste the Client ID and Secret below.\n\n**Heads up:** if your Figma account is on the free Starter plan, the OAuth handshake will fail at Figma's end with `Insufficient plan`. Upgrade to a paid Dev or Full seat first."
+      },
       "scopes": [
         {
           "name": "mcp:connect",

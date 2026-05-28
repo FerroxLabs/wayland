@@ -25,6 +25,11 @@
       "method": "oauth2-byo",
       "providerName": "Zoom",
       "providerSignupUrl": "https://zoom.us",
+      "byoClient": {
+        "registrationUrl": "https://marketplace.zoom.us/develop/create",
+        "requiresSecret": true,
+        "guide": "Zoom requires every OAuth integration to be registered as a Zoom App in their Marketplace.\n\n**1.** Open **marketplace.zoom.us/develop/create** and sign in. Click **Build App** → choose **OAuth** (or **User-managed OAuth App** if prompted).\n\n**2.** Pick **User-managed app** (so each Wayland user authorizes their own account). Click **Create**.\n\n**3.** On the **App credentials** tab:\n  - Add the URL Wayland shows below to **Redirect URL for OAuth** AND to **OAuth allow list**.\n  - Copy **Client ID** and **Client Secret**.\n\n**4.** On the **Scopes** tab, click **Add Scopes** and add: `meeting:read`, `meeting:write`, `recording:read`, `chat_message:write`.\n\n**5.** Paste the Client ID and Secret below. The app does not need to be published to the marketplace — local testing is enough."
+      },
       "scopes": [
         { "name": "meeting:read", "plainLanguage": "See your meetings." },
         { "name": "meeting:write", "plainLanguage": "Schedule and update meetings." },

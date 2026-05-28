@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/catalog.schema.json",
   "version": "1.0.0",
-  "publishedAt": "2026-05-28T00:32:41.957Z",
+  "publishedAt": "2026-05-28T02:13:29.870Z",
   "entries": [
     {
       "id": "io.github.taylorwilsdon/google-workspace-mcp",
@@ -417,23 +417,6 @@
       "guideUrl": "guides/com.hubspot-hubspot-mcp.md"
     },
     {
-      "id": "com.salesforce/salesforce-mcp",
-      "name": "Salesforce",
-      "shortDescription": "Accounts, opportunities, leads, and SOQL queries — Salesforce's official hosted MCP with OAuth.",
-      "iconUrl": "icons/salesforce.svg",
-      "tier": "worker",
-      "categories": [
-        "sales",
-        "crm"
-      ],
-      "maintainerType": "official",
-      "verifiedByWayland": "2026-05-12",
-      "popularityRank": 27,
-      "installRate": 0.16,
-      "entryUrl": "entries/com.salesforce-salesforce-mcp.json",
-      "guideUrl": "guides/com.salesforce-salesforce-mcp.md"
-    },
-    {
       "id": "com.kesslerio/attio-mcp",
       "name": "Attio",
       "shortDescription": "People, companies, deals, and lists in the Attio CRM via API token.",
@@ -674,24 +657,6 @@
       "installRate": 0.28,
       "entryUrl": "entries/com.upstash-context7-mcp.json",
       "guideUrl": "guides/com.upstash-context7-mcp.md"
-    },
-    {
-      "id": "com.sourcegraph/sourcegraph-mcp",
-      "name": "Sourcegraph",
-      "shortDescription": "Cross-repo code search, references, and definitions across your entire codebase — Sourcegraph's hosted MCP.",
-      "iconUrl": "icons/sourcegraph.svg",
-      "tier": "builder",
-      "categories": [
-        "developer",
-        "code",
-        "search"
-      ],
-      "maintainerType": "official",
-      "verifiedByWayland": "2026-05-12",
-      "popularityRank": 42,
-      "installRate": 0.15,
-      "entryUrl": "entries/com.sourcegraph-sourcegraph-mcp.json",
-      "guideUrl": "guides/com.sourcegraph-sourcegraph-mcp.md"
     },
     {
       "id": "com.crystaldba/postgres-mcp",
@@ -1082,24 +1047,6 @@
       "installRate": 0.12,
       "entryUrl": "entries/com.postman-postman-mcp.json",
       "guideUrl": "guides/com.postman-postman-mcp.md"
-    },
-    {
-      "id": "com.stackoverflow/stackoverflow-mcp",
-      "name": "Stack Overflow",
-      "shortDescription": "Search Stack Overflow's trusted technical questions and answers with OAuth — no API key setup required.",
-      "iconUrl": "icons/stackoverflow.svg",
-      "tier": "builder",
-      "categories": [
-        "knowledge",
-        "developer",
-        "research"
-      ],
-      "maintainerType": "official",
-      "verifiedByWayland": "2026-05-27",
-      "popularityRank": 65,
-      "installRate": 0.16,
-      "entryUrl": "entries/com.stackoverflow-stackoverflow-mcp.json",
-      "guideUrl": "guides/com.stackoverflow-stackoverflow-mcp.md"
     }
   ]
 }

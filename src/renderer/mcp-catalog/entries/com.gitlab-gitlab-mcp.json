@@ -8,7 +8,7 @@
   "repository": { "url": "https://gitlab.com/gitlab-org/gitlab-mcp", "source": "gitlab" },
   "packages": [],
   "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.gitlab.com" }
+    { "type": "streamable-http", "url": "https://gitlab.com/api/v4/mcp" }
   ],
   "x-wayland": {
     "tier": "builder",

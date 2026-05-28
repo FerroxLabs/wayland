@@ -25,6 +25,11 @@
       "method": "oauth2-byo",
       "providerName": "HubSpot",
       "providerSignupUrl": "https://www.hubspot.com",
+      "byoClient": {
+        "registrationUrl": "https://developers.hubspot.com/get-started",
+        "requiresSecret": true,
+        "guide": "HubSpot requires you to create a Public App in their developer portal first, then Wayland connects with the credentials it issues.\n\n**1.** Sign in to **developers.hubspot.com** with your HubSpot account. If you've never created a developer account before, click **Create app developer account** (free).\n\n**2.** From the developer dashboard, click **Apps → Create app** (top right).\n\n**3.** On the **Auth** tab:\n  - Set the **Redirect URL** to the URL Wayland shows below.\n  - Under **Scopes**, search for and add: `crm.objects.contacts.read`, `crm.objects.contacts.write`, `crm.objects.deals.read`, `crm.objects.deals.write`.\n  - Click **Save changes**.\n\n**4.** Copy the **Client ID** and **Client secret** from the **Auth** tab and paste them below."
+      },
       "scopes": [
         { "name": "crm.objects.contacts.read", "plainLanguage": "Read contacts." },
         { "name": "crm.objects.contacts.write", "plainLanguage": "Create and update contacts." },
