@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/catalog.schema.json",
   "version": "1.0.0",
-  "publishedAt": "2026-05-27T16:49:54.657Z",
+  "publishedAt": "2026-05-28T00:30:49.220Z",
   "entries": [
     {
       "id": "io.github.taylorwilsdon/google-workspace-mcp",
