@@ -5,6 +5,8 @@
  */
 
 import { ipcBridge } from '@/common';
+import { ConfigStorage } from '@/common/config/storage';
+import type { IMcpServer } from '@/common/config/storage';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { mcpOAuthService } from '@process/services/mcpServices/McpOAuthService';
 
@@ -103,6 +105,31 @@ export function initMcpBridge(): void {
       return {
         success: false,
         msg: error instanceof Error ? error.message : 'Unknown error getting authenticated servers',
+      };
+    }
+  });
+
+  ipcBridge.mcpService.setMcpByoOAuthCredentials.provider(async ({ serverId, clientId, clientSecret }) => {
+    try {
+      if (!clientId || typeof clientId !== 'string' || !clientId.trim()) {
+        return { success: false, msg: 'clientId is required' };
+      }
+      // ConfigStorage exposes the same backing file as the renderer's
+      // useMcpServers hook (mcp.config key on agent.config storage).
+      const servers: IMcpServer[] = (await ConfigStorage.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
+      const idx = servers.findIndex((s) => s.id === serverId);
+      if (idx < 0) {
+        return { success: false, msg: `MCP server not found: ${serverId}` };
+      }
+      const updated = mcpOAuthService.setByoCredentials(servers[idx], clientId, clientSecret);
+      const nextServers = [...servers];
+      nextServers[idx] = { ...updated, updatedAt: Date.now() };
+      await ConfigStorage.set('mcp.config', nextServers);
+      return { success: true, data: { server: nextServers[idx] } };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error saving BYO OAuth credentials',
       };
     }
   });

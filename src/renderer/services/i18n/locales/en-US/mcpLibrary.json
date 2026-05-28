@@ -40,5 +40,18 @@
     "statusRunningCount": "{{count}} running",
     "statusRunningCountLabel": "running",
     "logsToast": "Log viewer coming soon."
+  },
+  "byo": {
+    "title": "Connect {{vendor}} — paste OAuth credentials",
+    "submit": "Save & sign in",
+    "cancel": "Cancel",
+    "universalIntro": "{{vendor}} does not allow Wayland to auto-register an OAuth client. Register an OAuth app on the vendor's developer console and paste the credentials below.",
+    "openConsole": "Open {{vendor}} developer console",
+    "redirectLabel": "Redirect URI to paste in the vendor console:",
+    "clientIdLabel": "Client ID",
+    "clientIdPlaceholder": "Paste the client_id from the vendor console",
+    "clientSecretLabel": "Client secret",
+    "clientSecretPlaceholder": "Paste the client_secret",
+    "saveFailed": "Failed to save credentials: {{error}}"
   }
 }

@@ -10,6 +10,21 @@ export interface McpOAuthStatus {
 }
 
 /**
+ * Result of an OAuth login attempt. Mirrors the service-layer
+ * OAuthLoginResult so callers can discriminate on `code` to route
+ * DCR-unavailable vendors into the BYO credentials modal.
+ */
+export type McpOAuthLoginResult =
+  | { success: true }
+  | {
+      success: false;
+      code: 'needs_byo' | 'transport_unsupported' | 'no_url' | 'cancelled' | 'unknown';
+      error?: string;
+      redirectUri?: string;
+      authorizationUrl?: string;
+    };
+
+/**
  * MCP OAuth management hook.
  * Handles OAuth status checks and login flow for MCP servers.
  */
@@ -71,8 +86,7 @@ export const useMcpOAuth = () => {
     }
   }, []);
 
-  // Perform OAuth login
-  const login = useCallback(async (server: IMcpServer): Promise<{ success: boolean; error?: string }> => {
+  const login = useCallback(async (server: IMcpServer): Promise<McpOAuthLoginResult> => {
     setLoggingIn((prev) => ({ ...prev, [server.id]: true }));
 
     try {
@@ -81,32 +95,77 @@ export const useMcpOAuth = () => {
         config: undefined, // Use auto discovery
       });
 
-      if (response.success && response.data?.success) {
-        // Login succeeded; update status
-        setOAuthStatus((prev) => ({
-          ...prev,
-          [server.id]: {
-            isAuthenticated: true,
-            needsLogin: false,
-            isChecking: false,
-          },
-        }));
-        return { success: true };
-      } else {
+      if (response.success && response.data) {
+        const inner = response.data;
+        if (inner.success === true) {
+          setOAuthStatus((prev) => ({
+            ...prev,
+            [server.id]: {
+              isAuthenticated: true,
+              needsLogin: false,
+              isChecking: false,
+            },
+          }));
+          return { success: true };
+        }
+        // inner.success === false: discriminator narrows to the BYO/error shape.
         return {
           success: false,
-          error: response.data?.error || response.msg || 'Login failed',
+          code: inner.code,
+          error: inner.error,
+          redirectUri: inner.redirectUri,
+          authorizationUrl: inner.authorizationUrl,
         };
       }
+
+      return {
+        success: false,
+        code: 'unknown',
+        error: response.msg || 'Login failed',
+      };
     } catch (error) {
       return {
         success: false,
+        code: 'unknown',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     } finally {
       setLoggingIn((prev) => ({ ...prev, [server.id]: false }));
     }
   }, []);
+
+  /**
+   * Persist user-supplied OAuth client credentials for vendors that don't
+   * support Dynamic Client Registration (Slack, GitHub, HubSpot, Zoom, Box,
+   * Figma...). Returns the updated server record on success — caller is
+   * responsible for refreshing useMcpServers so the next login() call sees
+   * server.byoOAuth.
+   */
+  const setByoCredentials = useCallback(
+    async (
+      serverId: string,
+      clientId: string,
+      clientSecret?: string,
+    ): Promise<{ success: boolean; server?: IMcpServer; error?: string }> => {
+      try {
+        const response = await mcpService.setMcpByoOAuthCredentials.invoke({
+          serverId,
+          clientId,
+          clientSecret,
+        });
+        if (response.success && response.data?.server) {
+          return { success: true, server: response.data.server };
+        }
+        return { success: false, error: response.msg || 'Failed to save credentials' };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        };
+      }
+    },
+    [],
+  );
 
   // Logout
   const logout = useCallback(
@@ -158,5 +217,6 @@ export const useMcpOAuth = () => {
     checkMultipleServers,
     login,
     logout,
+    setByoCredentials,
   };
 };

@@ -41,5 +41,18 @@
     "statusRunningCount": "{{count}} çalışıyor",
     "statusRunningCountLabel": "çalışıyor",
     "logsToast": "Günlük görüntüleyici yakında geliyor."
+  },
+  "byo": {
+    "title": "{{vendor}} bağlan — OAuth kimlik bilgilerini yapıştır",
+    "submit": "Kaydet ve giriş yap",
+    "cancel": "İptal",
+    "universalIntro": "{{vendor}}, Wayland'in bir OAuth istemcisini otomatik kaydetmesine izin vermiyor. Sağlayıcının geliştirici konsolunda bir OAuth uygulaması kaydedin ve kimlik bilgilerini aşağıya yapıştırın.",
+    "openConsole": "{{vendor}} geliştirici konsolunu aç",
+    "redirectLabel": "Sağlayıcı konsoluna yapıştırılacak yönlendirme URL'si:",
+    "clientIdLabel": "İstemci ID",
+    "clientIdPlaceholder": "Konsoldan alınan client_id'yi yapıştırın",
+    "clientSecretLabel": "İstemci gizli anahtarı",
+    "clientSecretPlaceholder": "client_secret'i yapıştırın",
+    "saveFailed": "Kimlik bilgileri kaydedilemedi: {{error}}"
   }
 }

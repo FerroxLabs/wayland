@@ -41,5 +41,18 @@
     "statusRunningCount": "{{count}} 个运行中",
     "statusRunningCountLabel": "正在运行",
     "logsToast": "日志查看器即将推出。"
+  },
+  "byo": {
+    "title": "连接 {{vendor}} — 粘贴 OAuth 凭据",
+    "submit": "保存并登录",
+    "cancel": "取消",
+    "universalIntro": "{{vendor}} 不允许 Wayland 自动注册 OAuth 客户端。请在该供应商的开发者控制台中注册一个 OAuth 应用，并将凭据粘贴到下方。",
+    "openConsole": "打开 {{vendor}} 开发者控制台",
+    "redirectLabel": "需要粘贴到供应商控制台的回调 URL：",
+    "clientIdLabel": "客户端 ID",
+    "clientIdPlaceholder": "粘贴控制台中的 client_id",
+    "clientSecretLabel": "客户端密钥",
+    "clientSecretPlaceholder": "粘贴 client_secret",
+    "saveFailed": "保存凭据失败：{{error}}"
   }
 }

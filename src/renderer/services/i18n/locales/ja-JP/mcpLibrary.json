@@ -41,5 +41,18 @@
     "statusRunningCount": "{{count}} 個が実行中",
     "statusRunningCountLabel": "実行中",
     "logsToast": "ログビューアーは近日公開予定です。"
+  },
+  "byo": {
+    "title": "{{vendor}} と接続 — OAuth 認証情報を貼り付け",
+    "submit": "保存してサインイン",
+    "cancel": "キャンセル",
+    "universalIntro": "{{vendor}} は Wayland による OAuth クライアントの自動登録を許可していません。ベンダーの開発者コンソールで OAuth アプリを登録し、認証情報を以下に貼り付けてください。",
+    "openConsole": "{{vendor}} 開発者コンソールを開く",
+    "redirectLabel": "ベンダーコンソールに貼り付けるリダイレクト URL：",
+    "clientIdLabel": "クライアント ID",
+    "clientIdPlaceholder": "コンソールから取得した client_id を貼り付け",
+    "clientSecretLabel": "クライアントシークレット",
+    "clientSecretPlaceholder": "client_secret を貼り付け",
+    "saveFailed": "認証情報の保存に失敗しました：{{error}}"
   }
 }

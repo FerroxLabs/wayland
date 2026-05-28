@@ -41,5 +41,18 @@
     "statusRunningCount": "{{count}} 個執行中",
     "statusRunningCountLabel": "正在執行",
     "logsToast": "日誌檢視器即將推出。"
+  },
+  "byo": {
+    "title": "連線 {{vendor}} — 貼上 OAuth 憑證",
+    "submit": "儲存並登入",
+    "cancel": "取消",
+    "universalIntro": "{{vendor}} 不允許 Wayland 自動註冊 OAuth 用戶端。請在該廠商的開發者主控台註冊一個 OAuth 應用程式，並將憑證貼上下方。",
+    "openConsole": "開啟 {{vendor}} 開發者主控台",
+    "redirectLabel": "需貼到廠商主控台的重新導向 URL：",
+    "clientIdLabel": "用戶端 ID",
+    "clientIdPlaceholder": "貼上廠商主控台的 client_id",
+    "clientSecretLabel": "用戶端密鑰",
+    "clientSecretPlaceholder": "貼上 client_secret",
+    "saveFailed": "儲存憑證失敗：{{error}}"
   }
 }

@@ -76,19 +76,27 @@ export function InstalledPage() {
   const handleReauth = useCallback(
     async (s: IMcpServer) => {
       const result = await login(s);
-      if (result.success) {
+      if (result.success === true) {
         message.success(
           t('mcpLibrary.install.oauthSuccess', 'Authorized.'),
         );
-      } else {
-        message.error(
-          t('mcpLibrary.install.oauthFailed', 'Authorization failed: {{error}}', {
-            error: result.error ?? 'Unknown error',
-          }),
-        );
+        return;
       }
+      if (result.success === false && result.code === 'needs_byo') {
+        // Drop the user onto the detail page where the BYO modal lives — the
+        // installed-page row UI doesn't have room for the credential inputs.
+        if (s.libraryEntryId) {
+          navigate(`/settings/mcp-library/${encodeURIComponent(s.libraryEntryId)}`);
+          return;
+        }
+      }
+      message.error(
+        t('mcpLibrary.install.oauthFailed', 'Authorization failed: {{error}}', {
+          error: (result.success === false && result.error) || 'Unknown error',
+        }),
+      );
     },
-    [login, message, t],
+    [login, message, t, navigate],
   );
 
   const handleSettings = useCallback(

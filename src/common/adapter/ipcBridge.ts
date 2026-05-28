@@ -637,11 +637,28 @@ export const mcpService = {
     IMcpServer
   >('mcp.check-oauth-status'),
   loginMcpOAuth: buildProvider<
-    IBridgeResponse<{ success: boolean; error?: string }>,
+    IBridgeResponse<
+      | { success: true }
+      | {
+          success: false;
+          code: 'needs_byo' | 'transport_unsupported' | 'no_url' | 'cancelled' | 'unknown';
+          error?: string;
+          redirectUri?: string;
+          authorizationUrl?: string;
+        }
+    >,
     { server: IMcpServer; config?: any }
   >('mcp.login-oauth'),
   logoutMcpOAuth: buildProvider<IBridgeResponse, string>('mcp.logout-oauth'),
   getAuthenticatedServers: buildProvider<IBridgeResponse<string[]>, void>('mcp.get-authenticated-servers'),
+  /**
+   * Persist user-supplied OAuth client credentials onto an existing server.
+   * Caller is responsible for re-issuing loginMcpOAuth after this resolves.
+   */
+  setMcpByoOAuthCredentials: buildProvider<
+    IBridgeResponse<{ server: IMcpServer }>,
+    { serverId: string; clientId: string; clientSecret?: string }
+  >('mcp.set-byo-oauth-credentials'),
 };
 
 // Codex conversation related interface — reuses the unified conversation interface

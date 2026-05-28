@@ -41,5 +41,18 @@
     "statusRunningCount": "Работает: {{count}}",
     "statusRunningCountLabel": "работает",
     "logsToast": "Просмотр журналов скоро будет доступен."
+  },
+  "byo": {
+    "title": "Подключить {{vendor}} — вставьте учётные данные OAuth",
+    "submit": "Сохранить и войти",
+    "cancel": "Отмена",
+    "universalIntro": "{{vendor}} не разрешает Wayland автоматически регистрировать OAuth-клиент. Зарегистрируйте OAuth-приложение в консоли разработчика поставщика и вставьте учётные данные ниже.",
+    "openConsole": "Открыть консоль разработчика {{vendor}}",
+    "redirectLabel": "Redirect URI для вставки в консоль поставщика:",
+    "clientIdLabel": "Client ID",
+    "clientIdPlaceholder": "Вставьте client_id из консоли поставщика",
+    "clientSecretLabel": "Client Secret",
+    "clientSecretPlaceholder": "Вставьте client_secret",
+    "saveFailed": "Не удалось сохранить учётные данные: {{error}}"
   }
 }

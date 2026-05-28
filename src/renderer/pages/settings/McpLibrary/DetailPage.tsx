@@ -16,6 +16,7 @@ import { useMcpLibrary } from './hooks/useMcpLibrary';
 import { SetupGuide } from './components/SetupGuide';
 import { TierBadge } from './components/TierBadge';
 import { MaintainerBadge } from './components/MaintainerBadge';
+import { ByoCredentialsModal, type ByoVendorHint } from './components/ByoCredentialsModal';
 import type { CatalogEntry } from './types';
 
 type Tab = 'overview' | 'setup-guide' | 'tools' | 'permissions' | 'changelog';
@@ -102,7 +103,7 @@ export function DetailPage() {
   const { mcpServers, saveMcpServers } = useMcpServers();
   const { setAgentInstallStatus, checkSingleServerInstallStatus } = useMcpAgentStatus();
   const { syncMcpToAgents, removeMcpFromAgents } = useMcpOperations(mcpServers, message);
-  const { login, loggingIn, oauthStatus } = useMcpOAuth();
+  const { login, loggingIn, oauthStatus, setByoCredentials } = useMcpOAuth();
   const crud = useMcpServerCRUD(
     mcpServers,
     saveMcpServers,
@@ -126,6 +127,11 @@ export function DetailPage() {
   const [tab, setTab] = useState<Tab>('setup-guide');
   const [env, setEnv] = useState<Record<string, string>>({});
   const [installing, setInstalling] = useState(false);
+  const [byoModal, setByoModal] = useState<{
+    visible: boolean;
+    server: IMcpServer | null;
+    redirectUri: string;
+  }>({ visible: false, server: null, redirectUri: 'http://localhost:57000/oauth/callback' });
 
   if (!entry) return <div className="mcp-detail-page">Unknown entry: {id}</div>;
 
@@ -161,6 +167,23 @@ export function DetailPage() {
     }
   };
 
+  /**
+   * Finish the OAuth flow once login() returns success:
+   *  - flip the server.enabled bit (the consent IS the affirmative action,
+   *    no second click required)
+   *  - toast a "Connected to <vendor>" success message
+   */
+  const finishOAuthSuccess = async (server: IMcpServer) => {
+    if (!server.enabled) {
+      try {
+        await crud.handleToggleMcpServer(server.id, true);
+      } catch (err) {
+        console.error('[mcp-library] auto-enable after OAuth failed:', err);
+      }
+    }
+    message.success(t('mcpLibrary.install.oauthSuccess', 'Connected to {{name}}.', { name: entry.title }));
+  };
+
   const onPrimary = async (action: string) => {
     // Install first (or reuse the existing server if already installed), then
     // trigger OAuth for entries whose setup guide emits an 'oauth-flow' action.
@@ -173,24 +196,64 @@ export function DetailPage() {
     }
 
     const result = await login(server);
-    if (!result.success) {
+    if (result.success === true) {
+      await finishOAuthSuccess(server);
+      return;
+    }
+
+    // BYO short-circuit. The service-layer detected (or upstream errored
+    // back) that this vendor can't auto-register a client — open the
+    // credentials modal instead of surfacing a raw error.
+    if (result.success === false && result.code === 'needs_byo') {
+      setByoModal({
+        visible: true,
+        server,
+        redirectUri: result.redirectUri ?? 'http://localhost:57000/oauth/callback',
+      });
+      return;
+    }
+
+    message.error(
+      t('mcpLibrary.install.oauthFailed', 'Authorization failed: {{error}}', {
+        error: (result.success === false && result.error) || 'unknown',
+      }),
+    );
+  };
+
+  /**
+   * Persist user-supplied OAuth client_id/secret onto the installed server,
+   * then immediately retry login() using the freshly returned server (so we
+   * don't race the useMcpServers refresh).
+   */
+  const handleByoSubmit = async (clientId: string, clientSecret: string | undefined) => {
+    if (!byoModal.server) return;
+    const saveResult = await setByoCredentials(byoModal.server.id, clientId, clientSecret);
+    if (!saveResult.success || !saveResult.server) {
       message.error(
-        t('mcpLibrary.install.oauthFailed', 'Authorization failed: {{error}}', {
-          error: result.error ?? 'unknown',
+        t('mcpLibrary.byo.saveFailed', 'Failed to save credentials: {{error}}', {
+          error: saveResult.error ?? 'unknown',
         }),
       );
       return;
     }
-    // Auto-enable the server once OAuth succeeded — there's no second click;
-    // the user finished consent in the browser, that's the affirmative action.
-    if (!server.enabled) {
-      try {
-        await crud.handleToggleMcpServer(server.id, true);
-      } catch (err) {
-        console.error('[mcp-library] auto-enable after OAuth failed:', err);
-      }
+    setByoModal({ visible: false, server: null, redirectUri: byoModal.redirectUri });
+
+    // Persist via the renderer cache too so the next pageload sees byoOAuth
+    // without waiting for a useMcpServers re-mount.
+    await saveMcpServers((prev) =>
+      prev.map((s) => (s.id === saveResult.server!.id ? saveResult.server! : s)),
+    );
+
+    const retryResult = await login(saveResult.server);
+    if (retryResult.success === true) {
+      await finishOAuthSuccess(saveResult.server);
+      return;
     }
-    message.success(t('mcpLibrary.install.oauthSuccess', 'Connected to {{name}}.', { name: entry.title }));
+    message.error(
+      t('mcpLibrary.install.oauthFailed', 'Authorization failed: {{error}}', {
+        error: (retryResult.success === false && retryResult.error) || 'unknown',
+      }),
+    );
   };
 
   const installLabel = installed
@@ -363,6 +426,23 @@ export function DetailPage() {
           </div>
         )}
       </div>
+
+      <ByoCredentialsModal
+        visible={byoModal.visible}
+        vendorName={entry.title}
+        redirectUri={byoModal.redirectUri}
+        vendorHint={
+          (w.auth.byoClient
+            ? {
+                registrationUrl: w.auth.byoClient.registrationUrl,
+                guide: w.auth.byoClient.guide,
+                requiresSecret: w.auth.byoClient.requiresSecret,
+              }
+            : undefined) as ByoVendorHint | undefined
+        }
+        onCancel={() => setByoModal({ ...byoModal, visible: false, server: null })}
+        onSubmit={handleByoSubmit}
+      />
     </div>
   );
 }

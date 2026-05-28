@@ -725,6 +725,21 @@ export interface IMcpServer {
   source?: McpServerSource;
   /** Catalog entry id if this server was installed from the MCP Library. */
   libraryEntryId?: string;
+  /**
+   * User-supplied OAuth client credentials for vendors that don't support
+   * Dynamic Client Registration (Slack, GitHub, HubSpot, Zoom, Box, Figma…).
+   * When present, the OAuth flow skips DCR and uses these credentials
+   * directly. The user must have registered an OAuth app on the vendor's
+   * developer console with the redirect URI set to
+   * http://localhost:57000/oauth/callback.
+   */
+  byoOAuth?: IByoOAuthCredentials;
+}
+
+export interface IByoOAuthCredentials {
+  clientId: string;
+  /** Optional — public clients with PKCE don't need a secret. */
+  clientSecret?: string;
 }
 
 /** Stable ID for the built-in image generation MCP server */
