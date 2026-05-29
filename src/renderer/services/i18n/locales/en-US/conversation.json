@@ -295,6 +295,11 @@
     "complete": "Thought complete",
     "label": "Thinking..."
   },
+  "subAgent": {
+    "statusRunning": "Running",
+    "statusDone": "Done",
+    "statusFailed": "Failed"
+  },
   "skills": {
     "loaded": "Loaded Skills"
   }

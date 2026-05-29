@@ -86,7 +86,8 @@ type TMessageType =
   | 'available_commands'
   | 'skill_suggest'
   | 'cron_trigger'
-  | 'cron_propose';
+  | 'cron_propose'
+  | 'sub_agent';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
   /**
@@ -400,6 +401,27 @@ export type IMessageCronPropose = IMessage<
   }
 >;
 
+/**
+ * v0.9.4 — inline activity card for a spawned sub-agent.
+ * Keyed by parentCallId (e.g. "spawn:{idx}:{name}"). Multiple sub-agents
+ * produce distinct cards, one per unique parentCallId. Status tracks the
+ * lifecycle: running → done | failed. The body accumulates streamed text_delta
+ * output from the inner WCoreEvent stream.
+ */
+export type IMessageSubAgent = IMessage<
+  'sub_agent',
+  {
+    /** Opaque call-id used as the stable key to merge streaming updates. */
+    parentCallId: string;
+    /** Display name for the sub-agent (e.g. "compute-2plus2"). */
+    agentName: string;
+    /** Lifecycle status. */
+    status: 'running' | 'done' | 'failed';
+    /** Accumulated streamed output text from the sub-agent. */
+    body: string;
+  }
+>;
+
 // eslint-disable-next-line max-len
 export type TMessage =
   | IMessageText
@@ -416,7 +438,8 @@ export type TMessage =
   | IMessageAvailableCommands
   | IMessageSkillSuggest
   | IMessageCronTrigger
-  | IMessageCronPropose;
+  | IMessageCronPropose
+  | IMessageSubAgent;
 
 // 统一所有需要用户交互的用户类型
 export interface IConfirmation<Option extends any = any> {
@@ -626,6 +649,44 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         content: proposeData,
       };
     }
+    case 'sub_agent_event': {
+      // v0.9.4 sub-agent activity card. The `data` field carries:
+      //   { parentCallId: string; agentName: string; inner: unknown }
+      // `inner` is the raw WCoreEvent from the child agent — we only read its
+      // `type` field to advance the lifecycle and `text` for text_delta chunks.
+      const saData = message.data as {
+        parentCallId: string;
+        agentName: string;
+        inner: unknown;
+      };
+      const inner = saData.inner as { type?: string; text?: string } | null | undefined;
+      const innerType = inner?.type ?? '';
+
+      let status: IMessageSubAgent['content']['status'] = 'running';
+      if (innerType === 'info') {
+        status = 'done';
+      } else if (innerType === 'error') {
+        status = 'failed';
+      }
+
+      const body = innerType === 'text_delta' ? (inner?.text ?? '') : '';
+
+      return {
+        id: uuid(),
+        type: 'sub_agent',
+        // Use parentCallId as msg_id so composeMessage can merge streaming
+        // updates for the same sub-agent into one card (same key lookup).
+        msg_id: saData.parentCallId,
+        conversation_id: message.conversation_id,
+        position: 'left',
+        content: {
+          parentCallId: saData.parentCallId,
+          agentName: saData.agentName,
+          status,
+          body,
+        },
+      };
+    }
     case 'start':
     case 'finish':
     case 'thought':
@@ -790,6 +851,26 @@ export const composeMessage = (
           content: msg.content.content + message.content.content,
           subject: message.content.subject || msg.content.subject,
         };
+        return updateMessage(i, { ...msg, content: merged });
+      }
+    }
+    return pushMessage(message);
+  }
+
+  // sub_agent message: merge by parentCallId (stored as msg_id).
+  // Append body text and advance status toward terminal (done/failed wins over running).
+  if (message.type === 'sub_agent' && message.msg_id) {
+    for (let i = list.length - 1; i >= 0; i--) {
+      const msg = list[i];
+      if (msg.type === 'sub_agent' && msg.msg_id === message.msg_id) {
+        const prevContent = msg.content;
+        const nextContent = message.content;
+        const mergedStatus =
+          nextContent.status === 'done' || nextContent.status === 'failed'
+            ? nextContent.status
+            : prevContent.status;
+        const mergedBody = prevContent.body + nextContent.body;
+        const merged = { ...prevContent, status: mergedStatus, body: mergedBody } as typeof prevContent;
         return updateMessage(i, { ...msg, content: merged });
       }
     }
