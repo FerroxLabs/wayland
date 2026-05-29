@@ -53,6 +53,15 @@ const isModelKeyAvailable = (key: string | null, providers?: IProvider[]) => {
 const EXPERIMENTAL_MODEL_PATTERN = /\b(preview|experimental|exp|nightly|alpha|beta|antigravity)\b/i;
 const isLikelyExperimentalModel = (modelName: string): boolean => EXPERIMENTAL_MODEL_PATTERN.test(modelName);
 
+/**
+ * A whole provider the user almost certainly did not mean as their standing
+ * default — e.g. the legacy `antigravity` preview provider whose own model
+ * names don't always carry "preview", so a per-model check alone misses it.
+ * Guards the provider's `platform` and display `name`.
+ */
+export const isExperimentalProvider = (provider: { platform?: string; name?: string }): boolean =>
+  EXPERIMENTAL_MODEL_PATTERN.test(provider.platform ?? '') || EXPERIMENTAL_MODEL_PATTERN.test(provider.name ?? '');
+
 type UsageModel = { modelId: string; useCount: number; lastUsedMs: number };
 type ModelChoice = { provider: IProvider; useModel: string };
 
@@ -72,12 +81,21 @@ const resolveUsageMatch = (modelList: IProvider[], usage: UsageModel[]): ModelCh
   return null;
 };
 
-/** First non-experimental model in the provider list, else `modelList[0]`. */
-const resolveSafeDefault = (modelList: IProvider[]): ModelChoice | null => {
-  for (const provider of modelList) {
+/**
+ * First non-experimental model from a non-experimental provider. Skips whole
+ * experimental providers (e.g. legacy `antigravity`) so a dead preview provider
+ * can never win the cold-start default. Falls back to any non-experimental
+ * provider's first model, then finally `modelList[0]` so we always return
+ * something when only experimental providers exist.
+ */
+export const resolveSafeDefault = (modelList: IProvider[]): ModelChoice | null => {
+  const realProviders = modelList.filter((p) => !isExperimentalProvider(p));
+  for (const provider of realProviders) {
     const safeModel = provider.model?.find((m) => !isLikelyExperimentalModel(m));
     if (safeModel) return { provider, useModel: safeModel };
   }
+  const firstReal = realProviders.find((p) => p.model?.[0]);
+  if (firstReal?.model?.[0]) return { provider: firstReal, useModel: firstReal.model[0] };
   const first = modelList[0];
   return first?.model?.[0] ? { provider: first, useModel: first.model[0] } : null;
 };
@@ -250,7 +268,10 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): Gu
       // below real usage and the safe default, and only used when there is no
       // usage history at all. This is what stops the boot default from sticking
       // on a preview model like Antigravity.
-      const savedNonExperimental = savedPin && !isLikelyExperimentalModel(savedPin.useModel) ? savedPin : null;
+      const savedNonExperimental =
+        savedPin && !isLikelyExperimentalModel(savedPin.useModel) && !isExperimentalProvider(savedPin.provider)
+          ? savedPin
+          : null;
       const chosen = recentMatch ?? savedNonExperimental ?? frequentMatch ?? resolveSafeDefault(modelList) ?? savedPin;
       if (!chosen) return;
 
