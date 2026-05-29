@@ -111,6 +111,12 @@ export function ensureUsageProviderRegistered(): void {
       return liveAggregator.queryFrequentlyUsedModels(input ?? {});
     }
   );
+  ipcBridge.usage.queryRecentlyUsedModels.provider(
+    async (input: { windowMs?: number; limit?: number }): Promise<FrequentlyUsedModel[]> => {
+      if (!liveAggregator) return [];
+      return liveAggregator.queryRecentlyUsedModels(input ?? {});
+    }
+  );
 }
 
 /**

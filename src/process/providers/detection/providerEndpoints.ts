@@ -32,4 +32,5 @@ export const PROVIDER_ENDPOINTS: Partial<Record<ProviderId, string>> = {
   deepgram: 'https://api.deepgram.com/v1/models',
   assemblyai: 'https://api.assemblyai.com/v1/models',
   elevenlabs: 'https://api.elevenlabs.io/v1/models',
+  'flux-router': 'https://api.fluxrouter.ai/v1/models',
 };

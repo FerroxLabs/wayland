@@ -3,6 +3,7 @@ import { Button, Spin } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
 import type { ConnectError } from '@process/providers/types';
+import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import { providerMeta } from '../providerCatalog';
 import styles from '../ModelsSettings.module.css';
 
@@ -65,13 +66,19 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
 
   return (
     <div className={rowClass} data-provider={provider.providerId} data-state={provider.state}>
-      <div
-        className={styles.avatar}
-        style={{ background: meta.bg, color: meta.darkText ? '#1a1a1a' : '#fff' }}
-        aria-hidden
-      >
-        {meta.mono}
-      </div>
+      {meta.id === 'flux-router' ? (
+        <div className={styles.avatar} style={{ background: '#141414' }} aria-hidden>
+          <FluxRouterMark size={20} />
+        </div>
+      ) : (
+        <div
+          className={styles.avatar}
+          style={{ background: meta.bg, color: meta.darkText ? '#1a1a1a' : '#fff' }}
+          aria-hidden
+        >
+          {meta.mono}
+        </div>
+      )}
 
       <div className='min-w-0'>
         <div className={styles.rowName}>{meta.displayName}</div>

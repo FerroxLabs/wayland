@@ -141,7 +141,14 @@ const GuidPage: React.FC = () => {
   // Resets on every navigation via `location.key`.
   const [hasInteractedWithAgentSelection, setHasInteractedWithAgentSelection] = useState(false);
   useEffect(() => {
-    setHasInteractedWithAgentSelection(false);
+    // An explicit cross-page launch (clicking an assistant on /assistants or
+    // in Settings) navigates here with `launchAssistant: true`. Treat that as
+    // an interaction so the preset hero opens *into* the picked assistant
+    // instead of dropping the user on the launchpad with only a prefilled
+    // placeholder. A plain cold boot has no such flag and still shows the
+    // launchpad.
+    const launched = (location.state as { launchAssistant?: boolean } | null)?.launchAssistant === true;
+    setHasInteractedWithAgentSelection(launched);
   }, [location.key]);
   const showPresetHero = agentSelection.isPresetAgent && hasInteractedWithAgentSelection;
 

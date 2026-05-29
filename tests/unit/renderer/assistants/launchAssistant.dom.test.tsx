@@ -32,14 +32,11 @@ describe('launchAssistant', () => {
     const navigate = vi.fn();
     setMock.mockClear();
 
-    const key = await launchAssistant(
-      { id: 'word-creator', presetAgentType: 'gemini' },
-      navigate
-    );
+    const key = await launchAssistant({ id: 'word-creator', presetAgentType: 'gemini' }, navigate);
 
     expect(key).toBe('custom:word-creator');
     expect(setMock).toHaveBeenCalledWith('guid.lastSelectedAgent', 'custom:word-creator');
-    expect(navigate).toHaveBeenCalledWith('/guid');
+    expect(navigate).toHaveBeenCalledWith('/guid', { state: { launchAssistant: true } });
   });
 
   it('defaults backend to gemini when presetAgentType is missing', async () => {

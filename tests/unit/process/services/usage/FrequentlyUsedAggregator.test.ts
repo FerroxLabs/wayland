@@ -106,4 +106,35 @@ describe('FrequentlyUsedAggregator', () => {
     await agg.queryFrequentlyUsedModels({ nowMs });
     expect(repo.findByType).toHaveBeenCalledWith('guid.model_selected', nowMs - 7 * 24 * 60 * 60 * 1000);
   });
+
+  describe('queryRecentlyUsedModels', () => {
+    it('orders by most-recent use first, regardless of count', async () => {
+      const repo = makeRepo([
+        // `frequent` was used 3× but its most recent use is older than the
+        // single, more-recent use of `justUsed`.
+        ev('1', 'frequent', 1_000),
+        ev('2', 'frequent', 2_000),
+        ev('3', 'frequent', 3_000),
+        ev('4', 'justUsed', 9_000),
+      ]);
+      const agg = new FrequentlyUsedAggregator(repo);
+      const recent = await agg.queryRecentlyUsedModels({ nowMs: 10_000, windowMs: 100_000 });
+      expect(recent.map((m) => m.modelId)).toEqual(['justUsed', 'frequent']);
+    });
+
+    it('breaks lastUsedMs ties by use count', async () => {
+      const repo = makeRepo([ev('1', 'twice', 4_000), ev('2', 'twice', 5_000), ev('3', 'once', 5_000)]);
+      const agg = new FrequentlyUsedAggregator(repo);
+      const recent = await agg.queryRecentlyUsedModels({ nowMs: 6_000, windowMs: 100_000 });
+      expect(recent[0].modelId).toBe('twice');
+      expect(recent[1].modelId).toBe('once');
+    });
+
+    it('applies the limit', async () => {
+      const repo = makeRepo([ev('1', 'a', 1_000), ev('2', 'b', 2_000), ev('3', 'c', 3_000), ev('4', 'd', 4_000)]);
+      const agg = new FrequentlyUsedAggregator(repo);
+      const recent = await agg.queryRecentlyUsedModels({ nowMs: 10_000, windowMs: 100_000, limit: 2 });
+      expect(recent.map((m) => m.modelId)).toEqual(['d', 'c']);
+    });
+  });
 });

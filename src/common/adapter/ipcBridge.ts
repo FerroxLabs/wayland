@@ -15,11 +15,7 @@ import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
-import type {
-  IjfwErrorReason,
-  IjfwInvokeResult,
-  IjfwRuntimeModePublic,
-} from '../types/ijfw';
+import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
 import type {
   UpdateCheckRequest,
   UpdateCheckResult,
@@ -961,8 +957,7 @@ export const cron = {
   // the agent emits [CRON_PROPOSE] in a chat). Status transitions are
   // guarded server-side to prevent double-fire from rapid clicks.
   confirmProposal: buildProvider<
-    | { ok: true; jobId?: string; editPayload?: ICronProposeEditPayload }
-    | { ok: false; reason: string },
+    { ok: true; jobId?: string; editPayload?: ICronProposeEditPayload } | { ok: false; reason: string },
     { conversationId: string; msgId: string; action: 'accept' | 'edit' | 'cancel' }
   >('cron.confirm-proposal'),
   // Events
@@ -1470,16 +1465,11 @@ export const ijfw = {
   /** Lifecycle event for the local IJFW install (detection → install → activation). */
   onStatusChanged: buildEmitter<IjfwStatusPayload>('ijfw.status-changed'),
   /** Invoke a memory verb on the local IJFW MCP server (Wave 2). */
-  brainInvoke: buildProvider<
-    IjfwInvokeResult,
-    { verb: string; args?: Record<string, unknown> }
-  >('ijfw.brain-invoke'),
+  brainInvoke: buildProvider<IjfwInvokeResult, { verb: string; args?: Record<string, unknown> }>('ijfw.brain-invoke'),
   /** Snapshot of the current lifecycle status. */
   getStatus: buildProvider<IjfwStatusPayload, void>('ijfw.get-status'),
   /** Refresh the version cache without installing. */
-  checkNow: buildProvider<{ ok: true; version: string | null } | { ok: false; error: string }, void>(
-    'ijfw.check-now'
-  ),
+  checkNow: buildProvider<{ ok: true; version: string | null } | { ok: false; error: string }, void>('ijfw.check-now'),
   /** Fire bootstrap immediately — wired to the renderer "Install" button. */
   triggerInstall: buildProvider<{ ok: true } | { ok: false; error: string }, void>('ijfw.trigger-install'),
   /** Persist the Settings opt-out flag. */
@@ -1490,15 +1480,9 @@ export const ijfw = {
   /** Drop-tab: list files currently queued in the ingest dump dir. */
   dropList: buildProvider<{ files: IjfwDropEntry[] }, void>('ijfw.drop-list'),
   /** Drop-tab: ingest a user-supplied file path into the dump dir (main-side safety checks). */
-  dropIngest: buildProvider<
-    IjfwDropIngestResult,
-    { path: string }
-  >('ijfw.drop-ingest'),
+  dropIngest: buildProvider<IjfwDropIngestResult, { path: string }>('ijfw.drop-ingest'),
   /** Drop-tab: quarantine the named file out of the active queue. */
-  dropQuarantine: buildProvider<
-    { ok: true } | { ok: false; error: string },
-    { name: string }
-  >('ijfw.drop-quarantine'),
+  dropQuarantine: buildProvider<{ ok: true } | { ok: false; error: string }, { name: string }>('ijfw.drop-quarantine'),
 };
 
 export type IjfwDropEntry = { name: string; size: number; mtimeMs: number };
@@ -1959,6 +1943,13 @@ export const usage = {
     Array<{ modelId: string; useCount: number; lastUsedMs: number }>,
     { windowMs?: number; limit?: number }
   >('usage.queryFrequentlyUsedModels'),
+  // Same data as queryFrequentlyUsedModels but ordered most-recent-first.
+  // Backs the "Recently used" zone of the GUID model selector and the smart
+  // boot-default resolver (recent → frequent → safe).
+  queryRecentlyUsedModels: buildProvider<
+    Array<{ modelId: string; useCount: number; lastUsedMs: number }>,
+    { windowMs?: number; limit?: number }
+  >('usage.queryRecentlyUsedModels'),
 };
 
 // ==================== Memory Archive (v0.6.4) ====================
@@ -1992,9 +1983,14 @@ export const memory = {
   /** Top-20 tags, optionally scoped to a project. */
   getTags: buildProvider<TagCount[], { project?: string } | void>('memory.get-tags'),
   /** Promote a memory entry to the project's .ijfw/wiki/ directory. */
-  promote: buildProvider<{ ok: boolean; wikiPath?: string } | { ok: false; error: string }, { id: string }>('memory.promote'),
+  promote: buildProvider<{ ok: boolean; wikiPath?: string } | { ok: false; error: string }, { id: string }>(
+    'memory.promote'
+  ),
   /** Quick-add a new memory from the renderer input. */
-  setQuickAdd: buildProvider<{ ok: boolean; error?: string }, { content: string; scope: 'project' | 'global'; type?: string }>('memory.set-quick-add'),
+  setQuickAdd: buildProvider<
+    { ok: boolean; error?: string },
+    { content: string; scope: 'project' | 'global'; type?: string }
+  >('memory.set-quick-add'),
   /** Entries whose promotionScore meets the threshold. */
   getPromotionCandidates: buildProvider<PromotionCandidates, void>('memory.get-promotion-candidates'),
   /** Persist the promotion threshold (0–100). */
@@ -2007,8 +2003,7 @@ export const memory = {
   forceSweep: buildProvider<void, void>('memory.force-sweep'),
   /** Read a windowed slice of a source file centred on `line` for inline display. */
   readSourceContext: buildProvider<
-    | { ok: true; before: string; anchor: string; after: string; totalLines: number }
-    | { ok: false; error: string },
+    { ok: true; before: string; anchor: string; after: string; totalLines: number } | { ok: false; error: string },
     { path: string; line: number; contextLines?: number }
   >('memory.read-source-context'),
   /** Fired when the file watcher triggers a re-index. */
@@ -2016,11 +2011,17 @@ export const memory = {
   /** Import verbs — stubs until W1a wires the actual importers. */
   import: {
     claudeMem: buildProvider<{ count: number; errors: string[] }, void>('memory.import.claude-mem'),
-    obsidianVault: buildProvider<{ count: number; errors: string[] }, { vaultPath: string }>('memory.import.obsidian-vault'),
-    scanDevDir: buildProvider<{ count: number; projectsFound: number; errors: string[] }, void>('memory.import.scan-dev-dir'),
+    obsidianVault: buildProvider<{ count: number; errors: string[] }, { vaultPath: string }>(
+      'memory.import.obsidian-vault'
+    ),
+    scanDevDir: buildProvider<{ count: number; projectsFound: number; errors: string[] }, void>(
+      'memory.import.scan-dev-dir'
+    ),
     processDropFolder: buildProvider<{ count: number; errors: string[] }, void>('memory.import.process-drop-folder'),
     /** Return live status of the drop folder watcher for the status bar chip. */
-    getDropFolderStatus: buildProvider<{ path: string; watching: boolean; ingestedToday: number }, void>('memory.import.get-drop-folder-status'),
+    getDropFolderStatus: buildProvider<{ path: string; watching: boolean; ingestedToday: number }, void>(
+      'memory.import.get-drop-folder-status'
+    ),
   },
   /** Ingest raw file contents (from drag-drop) directly into the memory dir. */
   ingestFiles: buildProvider<
@@ -2038,22 +2039,27 @@ export const wiki = {
   /** List concepts with optional topic/search/freshness/sort filter. */
   listConcepts: buildProvider<
     { concepts: WikiConcept[]; total: number },
-    { topicTag?: WikiTopicTag; search?: string; freshness?: WikiFreshness; sort?: 'recent' | 'most-referenced' | 'alphabetical' } | void
+    {
+      topicTag?: WikiTopicTag;
+      search?: string;
+      freshness?: WikiFreshness;
+      sort?: 'recent' | 'most-referenced' | 'alphabetical';
+    } | void
   >('wiki.list-concepts'),
   /** Get a single concept by slug. */
   getConcept: buildProvider<WikiConcept | null, { slug: string }>('wiki.get-concept'),
   /** Synthesize a new concept page from orphan memory IDs. */
-  synthesizeOrphan: buildProvider<
-    { ok: boolean; slug?: string; error?: string },
-    { memoryIds: string[] }
-  >('wiki.synthesize-orphan'),
+  synthesizeOrphan: buildProvider<{ ok: boolean; slug?: string; error?: string }, { memoryIds: string[] }>(
+    'wiki.synthesize-orphan'
+  ),
   /** Re-synthesize an existing concept from its source memories. */
-  reSynthesize: buildProvider<
-    { ok: boolean; lastSynthesizedAt?: number; error?: string },
-    { slug: string }
-  >('wiki.re-synthesize'),
+  reSynthesize: buildProvider<{ ok: boolean; lastSynthesizedAt?: number; error?: string }, { slug: string }>(
+    'wiki.re-synthesize'
+  ),
   /** Resolve a raw wikilink text to a concept slug. */
-  resolveBacklink: buildProvider<{ slug: string | null; name: string | null }, { wikilinkText: string }>('wiki.resolve-backlink'),
+  resolveBacklink: buildProvider<{ slug: string | null; name: string | null }, { wikilinkText: string }>(
+    'wiki.resolve-backlink'
+  ),
   /** Full backlink graph: slug → list of slugs that link to it. */
   getBacklinkGraph: buildProvider<Record<string, string[]>, void>('wiki.get-backlink-graph'),
   /** Full wiki state (concepts + backlinkGraph + orphanCandidates) — used on cold load. */

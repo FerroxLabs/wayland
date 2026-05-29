@@ -84,6 +84,8 @@ export interface IConfigStorageRefer {
   language: string;
   theme: string;
   colorScheme: string;
+  /** First-run onboarding overlay completion flag. Once true, the overlay never shows again. */
+  onboardingCompleted?: boolean;
   /** User's preferred display name for the new-chat greeting. Empty = use the OS account name. */
   'user.displayName'?: string;
   /**

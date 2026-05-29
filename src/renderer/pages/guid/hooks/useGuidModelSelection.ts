@@ -42,6 +42,74 @@ const isModelKeyAvailable = (key: string | null, providers?: IProvider[]) => {
   });
 };
 
+/**
+ * Models the user almost certainly did not mean to make their standing
+ * default on a cold start (preview / experimental / dated betas). `antigravity`
+ * is listed explicitly: it's a preview product whose model id does not always
+ * carry the word "preview", and the user flagged it as not a sensible default.
+ * A model the user actively picked is always honored via telemetry, even if it
+ * matches this pattern — this only demotes a pin nobody chose.
+ */
+const EXPERIMENTAL_MODEL_PATTERN = /\b(preview|experimental|exp|nightly|alpha|beta|antigravity)\b/i;
+const isLikelyExperimentalModel = (modelName: string): boolean => EXPERIMENTAL_MODEL_PATTERN.test(modelName);
+
+type UsageModel = { modelId: string; useCount: number; lastUsedMs: number };
+type ModelChoice = { provider: IProvider; useModel: string };
+
+const providerForModelId = (modelList: IProvider[], modelId: string): IProvider | undefined =>
+  modelList.find((p) => p.model?.includes(modelId));
+
+/**
+ * First usage entry (in the order given) whose model still exists in the
+ * provider list. Telemetry `modelId` is the model name as it appears in a
+ * provider's `model[]` array — the same string `guid.model_selected` records.
+ */
+const resolveUsageMatch = (modelList: IProvider[], usage: UsageModel[]): ModelChoice | null => {
+  for (const u of usage) {
+    const provider = providerForModelId(modelList, u.modelId);
+    if (provider) return { provider, useModel: u.modelId };
+  }
+  return null;
+};
+
+/** First non-experimental model in the provider list, else `modelList[0]`. */
+const resolveSafeDefault = (modelList: IProvider[]): ModelChoice | null => {
+  for (const provider of modelList) {
+    const safeModel = provider.model?.find((m) => !isLikelyExperimentalModel(m));
+    if (safeModel) return { provider, useModel: safeModel };
+  }
+  const first = modelList[0];
+  return first?.model?.[0] ? { provider: first, useModel: first.model[0] } : null;
+};
+
+/**
+ * Resolve the persisted default-model pin to a concrete provider+model, or
+ * null if it no longer exists. New format is `{ id: ProviderId, useModel }`;
+ * the legacy format is a bare model-name string.
+ *
+ * Wave 3 Fix 11 — the home picker writes the `ProviderId` string (e.g.
+ * `'openai'`) into `id`, NOT the legacy `IProvider.id` uuid. Match by uuid
+ * first (legacy `gemini-with-google-auth` rows still use uuids), then by
+ * `platform === id` with the model present in that provider's `model[]`.
+ */
+const resolveSavedPin = (savedModel: unknown, modelList: IProvider[]): ModelChoice | null => {
+  if (savedModel && typeof savedModel === 'object' && 'id' in savedModel) {
+    const { id, useModel } = savedModel as { id?: string; useModel?: string };
+    if (!useModel) return null;
+    const exactMatch = modelList.find((m) => m.id === id);
+    const platformMatch = !exactMatch
+      ? modelList.find((m) => m.platform === id && m.model?.includes(useModel))
+      : undefined;
+    const resolved = exactMatch ?? platformMatch;
+    return resolved?.model?.includes(useModel) ? { provider: resolved, useModel } : null;
+  }
+  if (typeof savedModel === 'string') {
+    const provider = modelList.find((m) => m.model?.includes(savedModel));
+    return provider ? { provider, useModel: savedModel } : null;
+  }
+  return null;
+};
+
 /** Provider-based agent keys that share the model list UI */
 type ProviderAgentKey = 'gemini' | 'wcore';
 
@@ -156,41 +224,38 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): Gu
         return;
       }
       const savedModel = await ConfigStorage.get(storageKey);
+      const savedPin = resolveSavedPin(savedModel, modelList);
 
-      const isNewFormat = savedModel && typeof savedModel === 'object' && 'id' in savedModel;
-
-      let defaultModel: IProvider | undefined;
-      let resolvedUseModel: string;
-
-      if (isNewFormat) {
-        const { id, useModel } = savedModel;
-        // Wave 3 Fix 11 — the home picker now writes the `ProviderId` string
-        // (e.g. `'openai'`) into the saved `id`, NOT the legacy `IProvider.id`
-        // uuid. Match by uuid FIRST (legacy `gemini-with-google-auth` rows
-        // still use uuids), then fall back to matching by `platform === id`
-        // AND the model id appearing in that provider's `model[]` array.
-        // Without the fallback, a registry-keyed pick fails the uuid lookup
-        // and silently switches to `modelList[0]` on next reload.
-        const exactMatch = modelList.find((m) => m.id === id);
-        const platformMatch =
-          !exactMatch && useModel
-            ? modelList.find((m) => m.platform === id && m.model.includes(useModel))
-            : undefined;
-        const resolved = exactMatch ?? platformMatch;
-        if (resolved && resolved.model.includes(useModel)) {
-          defaultModel = resolved;
-          resolvedUseModel = useModel;
-        } else {
-          defaultModel = modelList[0];
-          resolvedUseModel = defaultModel?.model[0] ?? '';
-        }
-      } else if (typeof savedModel === 'string') {
-        defaultModel = modelList.find((m) => m.model.includes(savedModel)) || modelList[0];
-        resolvedUseModel = defaultModel?.model.includes(savedModel) ? savedModel : (defaultModel?.model[0] ?? '');
-      } else {
-        defaultModel = modelList[0];
-        resolvedUseModel = defaultModel?.model[0] ?? '';
+      // Telemetry of models the user actually picked (recency-sorted). One IPC
+      // per cold resolution; failures resolve to an empty list — telemetry must
+      // never break model selection.
+      let recentlyUsed: UsageModel[] = [];
+      try {
+        const result = await ipcBridge.usage.queryRecentlyUsedModels.invoke({ limit: 25 });
+        if (Array.isArray(result)) recentlyUsed = result;
+      } catch {
+        /* telemetry must never break model selection */
       }
+
+      const recentMatch = resolveUsageMatch(modelList, recentlyUsed);
+      const byFrequency = [...recentlyUsed].toSorted((a, b) =>
+        b.useCount !== a.useCount ? b.useCount - a.useCount : b.lastUsedMs - a.lastUsedMs
+      );
+      const frequentMatch = resolveUsageMatch(modelList, byFrequency);
+
+      // Resolution order — "remember the last/best model used":
+      //   recent → saved pin (if not an unchosen preview) → frequent → safe → saved pin.
+      // The user's actual last pick (telemetry) wins. A saved pin nobody chose
+      // (e.g. a preview model an earlier cold start auto-persisted) is demoted
+      // below real usage and the safe default, and only used when there is no
+      // usage history at all. This is what stops the boot default from sticking
+      // on a preview model like Antigravity.
+      const savedNonExperimental = savedPin && !isLikelyExperimentalModel(savedPin.useModel) ? savedPin : null;
+      const chosen = recentMatch ?? savedNonExperimental ?? frequentMatch ?? resolveSafeDefault(modelList) ?? savedPin;
+      if (!chosen) return;
+
+      const defaultModel: IProvider | undefined = chosen.provider;
+      const resolvedUseModel: string = chosen.useModel;
 
       if (!defaultModel || !resolvedUseModel) return;
 

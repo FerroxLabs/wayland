@@ -29,6 +29,7 @@ export type ProviderId =
   | 'assemblyai'
   | 'elevenlabs'
   | 'azure'
+  | 'flux-router'
   | 'openai-compatible';
 
 export type ModelTier = 'flagship' | 'everyday' | 'fast' | 'reasoning' | 'legacy';

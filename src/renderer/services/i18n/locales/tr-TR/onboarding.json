@@ -1,0 +1,76 @@
+{
+  "brand": "Wayland",
+  "welcome": "Wayland'e hoş geldiniz",
+  "footer": {
+    "manage": "Algılama bir kez çalıştı. Her şeyi Ayarlar → Sağlayıcılar bölümünden değiştirebilirsiniz.",
+    "noLockIn": "Bu seçeneklerin hiçbiri sizi bağlamaz.",
+    "keysKeepWorking": "Her durumda anahtarlarınız çalışmaya devam eder. Flux Router üstte durur, asla önünüze geçmez.",
+    "skip": "Şimdilik atla"
+  },
+  "connect": {
+    "title": "Flux Router'a bağlan",
+    "subtitle": "Flux Router anahtarınızı yapıştırın. Tek anahtar, tüm modeller, istek başına yönlendirme.",
+    "keyLabel": "Flux Router anahtarı",
+    "keyPlaceholder": "sk-...",
+    "getKey": "fluxrouter.ai'den bir anahtar alın",
+    "submit": "Bağlan",
+    "connecting": "Bağlanıyor...",
+    "back": "Geri",
+    "errorUnauthorized": "Anahtar reddedildi. Kontrol edip tekrar deneyin.",
+    "errorNoCredit": "Bu hesapta henüz kredi yok. fluxrouter.ai'de kredi ekleyin, sonra tekrar deneyin.",
+    "errorOffline": "Flux Router'a ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+    "errorUnrecognized": "Bu bir Flux Router anahtarına benzemiyor. sk-flux- ile başlamalı.",
+    "errorNoModels": "Bağlandı ama hiç model gelmedi. Birazdan tekrar deneyin.",
+    "errorUnknown": "Bağlanırken bir sorun oluştu. Tekrar deneyin.",
+    "trust": "Wayland'in arkasındaki ekip Ferrox Labs'ten."
+  },
+  "scenarioA": {
+    "greeting": "{{name}}, zaten hazırsınız",
+    "subGeneric": "Araçlarınız algılandı ve etkin.",
+    "sutherlandLede": "Bir amiral gemisi modeli sabitleyin, her şeye o yanıt verir. Ona ihtiyaç duymayan basit işlere bile.",
+    "sutherlandBody": "Flux Router'ı öneriyoruz. Zaten sahip olduklarınızın arasında her istek için doğru modeli seçer: abonelikleriniz, yerel Ollama'nız, Anthropic anahtarınız. Önemli yerlerde aynı kalite, gerekmeyen yerlerde daha hafif modeller. Siz seçmeyi bırakırsınız. O seçer. Siz yazarsınız.",
+    "microTrust": "Zor sorunlar yukarı yönlendirilir, asla aşağı değil. Alt sınırı Ayarlar'da siz belirlersiniz.",
+    "primary": "Flux Router'ı kur",
+    "ghost": "Sonraki 10 turda deneyin"
+  },
+  "scenarioB": {
+    "greeting": "Wayland'e hoş geldiniz",
+    "sub": "Bir giriş yolu seçin. Gerisini istediğiniz zaman ekleyin.",
+    "heroTag": "Önerilen",
+    "heroTitle": "Flux Router",
+    "heroBody": "Tek anahtar. Tüm modeller. Her istek için doğru olanı seçer, böylece tahmin etmeyi bırakırsınız. Daha az maliyet, daha çok iş.",
+    "heroFoot": "Kullandıkça öde · abonelik yok · alt limit yok",
+    "heroCta": "Flux Router'a bağlan",
+    "pasteKeyTitle": "Bir sağlayıcı anahtarı yapıştırın",
+    "pasteKeyBody": "Anthropic, OpenAI, Google, DeepSeek, Moonshot ve daha fazlası. Akıllı Anahtar Seçici hangisi olduğunu otomatik olarak anlar.",
+    "pasteKeyFoot": "Kaydedilmeden önce test edilir",
+    "ollamaTitle": "Ollama'yı kur",
+    "ollamaBody": "Yerel modeller kendi makinenizde. GPU'nuz varsa ve hiçbir verinin kutudan çıkmasını istemiyorsanız en iyisi.",
+    "ollamaFoot": "En az 16 GB video RAM · ollama.com'u açar"
+  },
+  "scenarioC": {
+    "greeting": "{{name}}, anahtarlarınız çalışıyor",
+    "subGeneric": "Algılandı ve etkin. Şu anda her şey çalışıyor. Flux Router anahtarlarınız arasında istek başına yönlendirir. Anahtarlarınız, faturanız.",
+    "sutherlandLede": "Her anahtar çalışıyor. Yine de Flux Router'ı üste koymanızı öneririz, işte nedeni.",
+    "sutherlandBody": "Şu anda her sorgu amiral gemisi ücretini ödüyor, buna ihtiyaç duymayanlar bile. Flux Router, Haiku doğru olduğunda anahtarınızla Haiku'yu, GPT-5 doğru olduğunda GPT-5'i kullanır. Amiral gemisi gerektirmeyen sorularda yaklaşık 1/20 maliyet, gerektirenlerde aynı kalite.",
+    "microTrust": "İstemler doğrudan sağlayıcıya gider. Flux Router yalnızca yönlendirme kararını görür, mesaj içeriğini değil.",
+    "primary": "Üste Flux Router ekle",
+    "ghost": "Elle seçmeye devam et"
+  },
+  "scenarioD": {
+    "greeting": "{{name}}, bu iş tıkır tıkır işliyor",
+    "sub": "Flux Desktop etkin. Yönlendirmeniz Flux Router üzerinden geçiyor.",
+    "body": "Her turda doğru model. Zor sorunlar yukarı, basit işler daha hafif modellere.",
+    "primary": "Sohbete başla",
+    "dismiss": "Kapat"
+  },
+  "chips": {
+    "cli": "{{name}} · CLI",
+    "claudePro": "Claude Code · Pro",
+    "ollama": "Ollama · {{count}} yerel model",
+    "ollama_one": "Ollama · {{count}} yerel model",
+    "envKey": "{{name}} anahtarı · ortamda",
+    "fluxRouter": "Flux Router · etkin",
+    "fluxDesktop": "Flux Desktop · arka plan hizmeti :7878"
+  }
+}

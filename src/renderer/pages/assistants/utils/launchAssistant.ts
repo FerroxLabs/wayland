@@ -28,7 +28,7 @@ export type LaunchAssistantPreset = {
  */
 export const launchAssistant = async (
   preset: LaunchAssistantPreset,
-  navigate: (path: string) => void | Promise<unknown>
+  navigate: (path: string, options?: { state?: unknown }) => void | Promise<unknown>
 ): Promise<string> => {
   const backend = (preset.presetAgentType ?? 'gemini') as AcpBackend;
   const key = getAgentKey({ backend, customAgentId: preset.id });
@@ -38,7 +38,12 @@ export const launchAssistant = async (
     console.error('Failed to persist selected assistant before navigation:', error);
   }
   try {
-    await Promise.resolve(navigate('/guid'));
+    // `launchAssistant: true` tells /guid this is an explicit cross-page
+    // launch, not a cold boot. The cold-boot launchpad gate in GuidPage
+    // ignores a persisted preset key on navigation (so the launchpad stays
+    // the default surface); this flag opts the preset hero in so the page
+    // actually opens *into* the assistant the user just clicked.
+    await Promise.resolve(navigate('/guid', { state: { launchAssistant: true } }));
   } catch (error) {
     console.error('Navigation to /guid failed:', error);
   }

@@ -37,6 +37,7 @@ import { initTaskBridge } from './taskBridge';
 import { initUpdateBridge } from './updateBridge';
 import { initWebuiBridge } from './webuiBridge';
 import { initConstitutionBridge } from './constitutionBridge';
+import { initOnboardingBridge } from './onboardingBridge';
 import { initIjfwBridge } from './ijfwBridge';
 import { initIjfwDropBridge } from './ijfwDropBridge';
 import { initMemoryArchiveBridge, initPromotionSweep } from './memoryArchiveBridge';
@@ -130,6 +131,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initNicknamesBridge();
   initSyncIpc();
   initConstitutionBridge();
+  initOnboardingBridge();
 }
 
 /**
@@ -181,6 +183,7 @@ export {
   initUpdateBridge,
   initWebuiBridge,
   initConstitutionBridge,
+  initOnboardingBridge,
   initRemoteAgentBridge,
   initHubBridge,
   initTeamBridge,

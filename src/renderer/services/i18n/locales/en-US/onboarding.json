@@ -1,0 +1,76 @@
+{
+  "brand": "Wayland",
+  "welcome": "Welcome to Wayland",
+  "footer": {
+    "manage": "Detection ran once. Change anything in Settings → Providers.",
+    "noLockIn": "None of these lock you in.",
+    "keysKeepWorking": "Your keys keep working either way. Flux Router sits on top, never in front.",
+    "skip": "Skip for now"
+  },
+  "connect": {
+    "title": "Connect Flux Router",
+    "subtitle": "Paste your Flux Router key. One key, every model, routed per request.",
+    "keyLabel": "Flux Router key",
+    "keyPlaceholder": "sk-...",
+    "getKey": "Get a key at fluxrouter.ai",
+    "submit": "Connect",
+    "connecting": "Connecting...",
+    "back": "Back",
+    "errorUnauthorized": "That key was rejected. Check it and try again.",
+    "errorNoCredit": "This account has no credit yet. Add credit at fluxrouter.ai, then retry.",
+    "errorOffline": "Could not reach Flux Router. Check your connection and retry.",
+    "errorUnrecognized": "That key was not accepted as a Flux Router key. Double-check it and try again.",
+    "errorNoModels": "Connected, but no models came back. Try again in a moment.",
+    "errorUnknown": "Something went wrong connecting. Try again.",
+    "trust": "From Ferrox Labs, the team behind Wayland."
+  },
+  "scenarioA": {
+    "greeting": "{{name}}, you're already wired",
+    "subGeneric": "Your tools are detected and live.",
+    "sutherlandLede": "Pin one flagship and it answers everything. Even the quick stuff that doesn't need it.",
+    "sutherlandBody": "We recommend Flux Router. It picks the right model for every request across what you already have: your subs, your local Ollama, your Anthropic key. Same quality where it matters, lighter models where it doesn't. You stop picking. It picks. You write.",
+    "microTrust": "Hard problems route up, never down. You set the floor in Settings.",
+    "primary": "Set up Flux Router",
+    "ghost": "Try it on the next 10 turns"
+  },
+  "scenarioB": {
+    "greeting": "Welcome to Wayland",
+    "sub": "Pick one way in. Add the rest whenever.",
+    "heroTag": "Recommended",
+    "heroTitle": "Flux Router",
+    "heroBody": "One key. Every model. It picks the right one for each request, so you stop guessing. Costs less, does more.",
+    "heroFoot": "Pay-as-you-go · no subscription · no minimum",
+    "heroCta": "Connect Flux Router",
+    "pasteKeyTitle": "Paste a provider key",
+    "pasteKeyBody": "Anthropic, OpenAI, Google, DeepSeek, Moonshot, and more. Our Smart Key Picker spots which one it is automatically.",
+    "pasteKeyFoot": "Tested before it's saved",
+    "ollamaTitle": "Install Ollama",
+    "ollamaBody": "Local models on your machine. Best if you have the GPU and want nothing leaving the box.",
+    "ollamaFoot": "16 GB video RAM minimum · opens ollama.com"
+  },
+  "scenarioC": {
+    "greeting": "{{name}}, your keys are working",
+    "subGeneric": "Detected and live. Everything works right now. Flux Router routes between your keys, per request. Your keys, your billing.",
+    "sutherlandLede": "Every key works. We'd still put Flux Router on top, and here's why.",
+    "sutherlandBody": "Right now every query pays flagship rates, even the ones that don't need them. Flux Router puts Haiku on your key when Haiku is right, GPT-5 on your key when GPT-5 is right. Roughly 1/20th the cost on the questions that don't need flagship, same quality on the ones that do.",
+    "microTrust": "Prompts go provider-direct. Flux Router sees the route decision, not the message body.",
+    "primary": "Add Flux Router on top",
+    "ghost": "Keep picking manually"
+  },
+  "scenarioD": {
+    "greeting": "{{name}}, this thing is humming",
+    "sub": "Flux Desktop is live. Your routing runs through Flux Router.",
+    "body": "Right model, every turn. Hard problems route up, the quick stuff routes light.",
+    "primary": "Start chatting",
+    "dismiss": "Dismiss"
+  },
+  "chips": {
+    "cli": "{{name}} · CLI",
+    "claudePro": "Claude Code · Pro",
+    "ollama": "Ollama · {{count}} local models",
+    "ollama_one": "Ollama · {{count}} local model",
+    "envKey": "{{name}} key · in env",
+    "fluxRouter": "Flux Router · active",
+    "fluxDesktop": "Flux Desktop · daemon :7878"
+  }
+}

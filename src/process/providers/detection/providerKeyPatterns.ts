@@ -22,6 +22,12 @@ export const PROVIDER_KEY_PATTERNS: PatternRule[] = [
     priority: 100,
   },
   {
+    provider: 'flux-router',
+    test: (k) => k.startsWith('sk-flux-'),
+    match: 'unique',
+    priority: 100,
+  },
+  {
     provider: 'openrouter',
     test: (k) => k.startsWith('sk-or-'),
     match: 'unique',
