@@ -1,0 +1,32 @@
+{
+  "name": "business-sales",
+  "displayName": "Business Sales",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Net-new sales prospecting and qualification skills: 5-dimension prospect analysis, BANT/MEDDIC lead scoring, buying-committee mapping, and full Ideal Customer Profile construction. OSINT-only, ToS-respecting, with compliance-gated outreach drafts. Enriches the existing Sales operator role (no net-new persona).",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "sales-prospect",
+        "description": "Run a 5-dimension prospect analysis on any company URL using OSINT only: company research, BANT/MEDDIC opportunity qualification, decision-maker mapping, competitive positioning, and ICP-fit + outreach strategy fanned in parallel via delegate_task, aggregated into a weighted Prospect Score and a compliance-gated first email.",
+        "file": "skills/sales-prospect/SKILL.md"
+      },
+      {
+        "name": "sales-qualify",
+        "description": "Qualify a sales lead with BANT (Budget/Authority/Need/Timeline) and MEDDIC against public signals using OSINT only, producing an Opportunity Quality Score (0-100) and a Lead Grade (A/B/C/D) with named evidence and gaps.",
+        "file": "skills/sales-qualify/SKILL.md"
+      },
+      {
+        "name": "sales-contacts",
+        "description": "Map the buying committee for a target company using OSINT only: classify contacts by buying role (Economic Buyer, Champion, Technical Evaluator, End User, Blocker, Coach), surface public personalization anchors per contact, and lay out a multi-threading sequence (no impersonation, no fabricated connections).",
+        "file": "skills/sales-contacts/SKILL.md"
+      },
+      {
+        "name": "sales-icp",
+        "description": "Build a comprehensive B2B Ideal Customer Profile across firmographic, technographic, behavioral, pain-point, budget, and channel dimensions, plus a negative ICP, a 100-point scoring rubric, buyer personas, a prospecting playbook, and a jurisdiction-gated first-outreach draft. Runs standalone or as the ICP-fit subagent under sales-prospect.",
+        "file": "skills/sales-icp/SKILL.md"
+      }
+    ]
+  }
+}

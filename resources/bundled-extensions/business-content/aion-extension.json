@@ -1,0 +1,22 @@
+{
+  "name": "business-content",
+  "displayName": "Business Content",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Net-new content-authoring skills for the Wayland business packs: a long-form direct-response About page and a HARO/Qwoted expert-source reply. Enriches the existing editorial/content-director role; ships no duplicate persona.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "content-about-page",
+        "description": "Build a long-form direct-response About page that converts visitors into subscribers and buyers: hook with the reader's problem, tell a story-of-discovery, prove the path with results, and close with an explicit next step. Outputs a structured content brief plus paste-ready section copy. The awareness-layer trust asset, distinct from a short bio or a full sales page.",
+        "file": "skills/content-about-page/SKILL.md"
+      },
+      {
+        "name": "content-haro-reply",
+        "description": "Write a HARO / Qwoted / SourceBottle expert-source reply that gets quoted rather than buried: a credentialed one-liner that answers why this source for this query, the answer in 3-5 tight specific bullets with a contrarian take, and a pull quote written to be lifted verbatim. The earned-media expert-quote deliverable.",
+        "file": "skills/content-haro-reply/SKILL.md"
+      }
+    ]
+  }
+}

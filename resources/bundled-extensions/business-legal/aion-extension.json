@@ -1,0 +1,42 @@
+{
+  "name": "business-legal",
+  "displayName": "Business Legal",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Legal-document generators for SMB owners and operators: an orchestrator/router plus document generators for DMCA notices, EULAs, cease-and-desist letters, GDPR data-processing agreements, and independent-contractor agreements. Templates only, not legal advice; outputs must be reviewed by a qualified attorney. Enriches the existing Counsel role; ships skills only.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "legal",
+        "description": "AI legal-document orchestrator for SMB owners and operators. Routes requests to legal sub-skills - NDA, Terms of Service, Privacy Policy, generic service contract, GDPR / data-processing, employment agreement, refund policy, independent contractor, EULA, DMCA, cease-and-desist, equity grant. Templates only, not legal advice; outputs must be reviewed by a qualified attorney.",
+        "file": "skills/legal/SKILL.md"
+      },
+      {
+        "name": "legal-dmca",
+        "description": "Generate DMCA takedown notice, counter-notice, and designated-agent registration walkthrough - 17 USC section 512(c)(3) elements, dmca.copyright.gov registration, repeat-infringer policy template. Templates only, not legal advice. Have an attorney review high-stakes notices.",
+        "file": "skills/legal-dmca/SKILL.md"
+      },
+      {
+        "name": "legal-eula",
+        "description": "Generate an End-User License Agreement (EULA) - license grant, restrictions, ownership, warranty disclaimer, app-store-specific addenda (Apple App Store / Google Play). Distinct from Terms of Service. Templates only, not legal advice. Have an attorney review before publication.",
+        "file": "skills/legal-eula/SKILL.md"
+      },
+      {
+        "name": "legal-cease-and-desist",
+        "description": "Generate a cease-and-desist letter - trademark, copyright, IP misuse, defamation, breach of contract, or debt - with appropriate tone (professional / firm / litigation-threat), supporting evidence section, demand, and deadline. Templates only, not legal advice. High-stakes versions warrant attorney review before sending.",
+        "file": "skills/legal-cease-and-desist/SKILL.md"
+      },
+      {
+        "name": "legal-gdpr",
+        "description": "Generate a GDPR / data-processing assessment, DPA template (controller-to-processor), or sub-processor disclosure. Covers Article 28 obligations, SCCs for international transfers, DPIA triggers, and data-subject-rights workflow. Templates only, not legal advice. Have a privacy attorney review before signing.",
+        "file": "skills/legal-gdpr/SKILL.md"
+      },
+      {
+        "name": "legal-contractor",
+        "description": "Generate an independent contractor / consulting agreement template - with worker-classification gate (IRS 20-factor + ABC + IR35), 1099 vs W-2 framing, IP assignment, payment terms, and exclusivity. Templates only, not legal advice. Misclassification carries six-figure exposure; have an attorney review before signing.",
+        "file": "skills/legal-contractor/SKILL.md"
+      }
+    ]
+  }
+}
