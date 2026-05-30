@@ -3,14 +3,14 @@
   "name": "com.firecrawl/firecrawl-mcp",
   "title": "Firecrawl",
   "description": "Crawl, scrape, and extract structured data from any website — turn URLs into clean Markdown.",
-  "version": "1.0.0",
+  "version": "3.17.0",
   "websiteUrl": "https://docs.firecrawl.dev/mcp",
   "repository": { "url": "https://github.com/mendableai/firecrawl-mcp-server", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "firecrawl-mcp",
-      "version": "1.0.0",
+      "version": "3.17.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [

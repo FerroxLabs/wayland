@@ -641,7 +641,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
     async curatedForAgent({ agentKey }): Promise<CuratedModel[]> {
       try {
-        if (agentKey === 'wcore') {
+        // `gemini` is included here because its backend is AionCLI, a
+        // multi-provider fork that can run any connected provider (not just
+        // Google) — so it unions every provider exactly like wcore. Vendor
+        // locked CLIs (claude, codex) stay scoped in the branch below.
+        if (agentKey === 'wcore' || agentKey === 'gemini') {
           // wcore proxies every connected provider — union their curated text
           // models. The Curator already drops non-text kinds. Dedup by
           // `(providerId, id)`: a model id can legitimately appear under
@@ -764,6 +768,7 @@ const CHAT_START_PLATFORM: Partial<Record<ProviderId, string>> = {
   deepgram: 'openai-compatible',
   assemblyai: 'openai-compatible',
   elevenlabs: 'openai-compatible',
+  'flux-router': 'openai-compatible',
   'openai-compatible': 'openai-compatible',
   // Azure intentionally absent — the legacy dispatch has no Azure arm; a
   // future Azure chat-start will need its own dispatcher work.
@@ -798,6 +803,7 @@ const CHAT_START_BASE_URL: Partial<Record<ProviderId, string>> = {
   deepgram: 'https://api.deepgram.com/v1',
   assemblyai: 'https://api.assemblyai.com/v2',
   elevenlabs: 'https://api.elevenlabs.io/v1',
+  'flux-router': 'https://api.fluxrouter.ai/v1',
 };
 
 /** Short human label per provider — shown in the home-picker button text. */
@@ -831,6 +837,7 @@ const CHAT_START_NAME: Partial<Record<ProviderId, string>> = {
   deepgram: 'Deepgram',
   assemblyai: 'AssemblyAI',
   elevenlabs: 'ElevenLabs',
+  'flux-router': 'Flux Router',
   'openai-compatible': 'OpenAI Compatible',
 };
 

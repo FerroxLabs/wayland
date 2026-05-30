@@ -125,16 +125,15 @@ describe('ijfw/ipcSchemas', () => {
       const result = validateInvocation('cross_audit_converge', { findings: [] });
       expect(result.ok).toBe(true);
     });
-    it('cross_project_search {query, scope, path} (CrossProjectTab full payload)', () => {
+    it('cross_project_search {pattern, limit} matches the real MCP server schema', () => {
       const result = validateInvocation('cross_project_search', {
-        query: 'memory leak',
-        scope: 'app',
-        path: '/Users/foo/dev/bar',
+        pattern: 'memory leak',
+        limit: 20,
       });
       expect(result.ok).toBe(true);
     });
-    it('cross_project_search rejects unknown scope value', () => {
-      const result = validateInvocation('cross_project_search', { query: 'x', scope: 'global' });
+    it('cross_project_search rejects empty pattern', () => {
+      const result = validateInvocation('cross_project_search', { pattern: '' });
       expect(result.ok).toBe(false);
     });
   });

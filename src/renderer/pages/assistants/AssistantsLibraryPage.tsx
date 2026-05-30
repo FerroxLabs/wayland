@@ -178,8 +178,7 @@ const AssistantsLibraryPage: React.FC = () => {
   const rawType = searchParams.get('type');
   // T2a.4 — 'team' is no longer a valid type on /assistants. A stale
   // ?type=team URL silently falls back to 'all' rather than 404ing.
-  const selectedType: AssistantCardType | 'all' =
-    rawType === 'specialist' || rawType === 'builtin' ? rawType : 'all';
+  const selectedType: AssistantCardType | 'all' = rawType === 'specialist' || rawType === 'builtin' ? rawType : 'all';
   const rawDomain = searchParams.get('domain');
   const selectedDomain: AssistantCategory | 'all' =
     rawDomain && (ASSISTANT_CATEGORY_VALUES as readonly string[]).includes(rawDomain)
@@ -262,9 +261,8 @@ const AssistantsLibraryPage: React.FC = () => {
   // --- Card handlers ---
   const handleLaunch = useCallback(
     (assistant: AssistantListItem) => {
-      void launchAssistant(
-        { id: assistant.id, presetAgentType: assistant.presetAgentType },
-        (path) => navigate(path)
+      void launchAssistant({ id: assistant.id, presetAgentType: assistant.presetAgentType }, (path, options) =>
+        navigate(path, options)
       );
     },
     [navigate]
@@ -300,25 +298,17 @@ const AssistantsLibraryPage: React.FC = () => {
           id: bareId,
           presetAgentType: found?.presetAgentType ?? preset?.presetAgentType,
         },
-        (path) => navigate(path)
+        (path, options) => navigate(path, options)
       );
     },
     [assistants, navigate]
   );
 
-  const renderGroup = (
-    label: string,
-    entries: CardEntry[],
-    testId: string,
-    includeBuildCard = false
-  ) => {
+  const renderGroup = (label: string, entries: CardEntry[], testId: string, includeBuildCard = false) => {
     if (entries.length === 0 && !includeBuildCard) return null;
     return (
       <section data-testid={testId}>
-        <LibrarySectionHeader
-          label={label}
-          count={includeBuildCard ? entries.length + 1 : entries.length}
-        />
+        <LibrarySectionHeader label={label} count={includeBuildCard ? entries.length + 1 : entries.length} />
         <div className={styles.grid}>
           {entries.map((entry) => (
             <AssistantCard

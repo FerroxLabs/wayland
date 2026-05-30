@@ -51,6 +51,7 @@ export type SkillSecurityReport = {
 
 export type SkillIndexEntry = {
   name: string;
+  title?: string;
   description: string;
   type: SkillType;
   source: SkillSource;

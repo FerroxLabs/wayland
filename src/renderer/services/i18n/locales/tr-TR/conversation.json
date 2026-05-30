@@ -297,6 +297,11 @@
     "complete": "Düşünme tamamlandı",
     "label": "Düşünüyor..."
   },
+  "subAgent": {
+    "statusRunning": "Çalışıyor",
+    "statusDone": "Tamamlandı",
+    "statusFailed": "Başarısız"
+  },
   "skills": {
     "loaded": "Yüklenen Beceriler"
   }

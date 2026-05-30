@@ -6,6 +6,7 @@
 
 import type { ConversationContextValue } from '@/renderer/hooks/context/ConversationContext';
 import { ConversationProvider } from '@/renderer/hooks/context/ConversationContext';
+import type { StepStatus, StepTransitionSource } from '@/common/types/workflowTypes';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
 import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
@@ -26,6 +27,9 @@ const WCoreChat: React.FC<{
   emptySlot?: React.ReactNode;
   workflowSessionId?: string;
   workflowTotalSteps?: number | null;
+  workflowApplyStepMarker?:
+    | ((stepN: number, status: StepStatus, source?: StepTransitionSource) => Promise<void>)
+    | null;
 }> = ({
   conversation_id,
   workspace,
@@ -36,6 +40,7 @@ const WCoreChat: React.FC<{
   emptySlot,
   workflowSessionId,
   workflowTotalSteps,
+  workflowApplyStepMarker,
 }) => {
   useMessageLstCache(conversation_id);
   const updateLocalImage = LocalImageView.useUpdateLocalImage();
@@ -43,8 +48,15 @@ const WCoreChat: React.FC<{
     updateLocalImage({ root: workspace });
   }, [workspace]);
   const conversationValue = useMemo<ConversationContextValue>(() => {
-    return { conversationId: conversation_id, workspace, type: 'wcore', workflowSessionId, workflowTotalSteps };
-  }, [conversation_id, workspace, workflowSessionId, workflowTotalSteps]);
+    return {
+      conversationId: conversation_id,
+      workspace,
+      type: 'wcore',
+      workflowSessionId,
+      workflowTotalSteps,
+      workflowApplyStepMarker,
+    };
+  }, [conversation_id, workspace, workflowSessionId, workflowTotalSteps, workflowApplyStepMarker]);
 
   return (
     <ConversationProvider value={conversationValue}>

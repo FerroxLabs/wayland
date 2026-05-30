@@ -655,6 +655,21 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         mainLog('[WCoreManager]', `info: ${data.data}${elapsed}`);
       }
 
+      // v0.9.4 — sub-agent activity events are system-level (empty msg_id) but
+      // MUST reach the renderer so SubAgentActivityCard can render one card per
+      // sub-agent. Forward before the msg_id guard drops them (mirrors the
+      // config_changed pass-through above). The renderer's transformMessage
+      // reads `data.{parentCallId,agentName,inner}` + `conversation_id`.
+      if (data.type === 'sub_agent_event') {
+        ipcBridge.conversation.responseStream.emit({
+          type: 'sub_agent_event',
+          conversation_id: this.conversation_id,
+          msg_id: '',
+          data: data.data,
+        });
+        return;
+      }
+
       // System-level events (empty msg_id) are not part of a conversation turn.
       // Skip stream processing to avoid false-positive running state and fallback timer.
       if (!data.msg_id) return;

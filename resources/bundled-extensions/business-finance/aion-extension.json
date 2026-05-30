@@ -1,0 +1,52 @@
+{
+  "name": "business-finance",
+  "displayName": "Business Finance",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "SMB finance and tax skills for the Numbers / CFO role: 1099 and payroll prep, R&D credit, receivables, sales-tax nexus, and basis-aware financial-statement generation (P&L, balance sheet, cash flow). Templates and analytical tools only, not personalized advice.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "finance-1099-prep",
+        "description": "Vendor W-9 collection workflow, 1099-NEC vs 1099-MISC vs 1099-K decision tree, contractor classification check (IRS 20-factor plus ABC test embedded), TIN matching, backup-withholding triggers. Templates only, not personalized tax advice.",
+        "file": "skills/finance-1099-prep/SKILL.md"
+      },
+      {
+        "name": "finance-payroll-prep",
+        "description": "Quarterly Form 941 and annual Form 940 prep checklist, state UI / WC matrix, new-hire reporting, S-corp reasonable-salary documentation (Watson, Glass Blocks, Fleischer factors), and fringe-benefit valuation. Templates only, not personalized payroll, tax, or legal advice.",
+        "file": "skills/finance-payroll-prep/SKILL.md"
+      },
+      {
+        "name": "finance-r-and-d-credit",
+        "description": "Form 6765 R&D Tax Credit walkthrough plus Section 174 capitalization rules (post-TCJA mandate, software-SMB hot topic). Inputs qualified research activities and expenses, runs four-part-test screening, outputs a 6765 prep package and Section 174 capitalization schedule. Templates only, not personalized tax advice.",
+        "file": "skills/finance-r-and-d-credit/SKILL.md"
+      },
+      {
+        "name": "finance-receivables",
+        "description": "Analyze accounts-receivable aging, calculate DSO, and generate compliant collection email sequences for overdue invoices. FDCPA / state-UDAP-aware language, intent-gated escalation, SOL-aware bad-debt write-off guidance.",
+        "file": "skills/finance-receivables/SKILL.md"
+      },
+      {
+        "name": "finance-sales-tax",
+        "description": "Wayfair economic-nexus tracker, marketplace-facilitator law handling, multi-state filing checklist, exemption-certificate management, and tax-on-shipping rules. Outputs a state-by-state nexus exposure report. Templates only, not personalized sales-tax advice.",
+        "file": "skills/finance-sales-tax/SKILL.md"
+      },
+      {
+        "name": "finance-pl",
+        "description": "Generate a Profit and Loss statement from revenue and expense inputs, with period-over-period comparison and margin analysis. Basis-of-accounting-aware (cash / accrual / modified cash); ASC 606 deferred-revenue guidance for SaaS.",
+        "file": "skills/finance-pl/SKILL.md"
+      },
+      {
+        "name": "finance-balance-sheet",
+        "description": "Generate a Balance Sheet (Statement of Financial Position) showing assets, liabilities, and owner equity at a point in time. Entity-aware equity treatment (sole-prop / partnership / LLC / S-corp / C-corp); GAAP vs tax-basis distinction. Templates only, not financial or tax advice.",
+        "file": "skills/finance-balance-sheet/SKILL.md"
+      },
+      {
+        "name": "finance-cashflow",
+        "description": "Generate a cash-flow statement from net income and balance-sheet changes. Routes accrual filers to the indirect method and cash-basis filers to the direct method. Covers operating, investing, and financing activities with period-end reconciliation.",
+        "file": "skills/finance-cashflow/SKILL.md"
+      }
+    ]
+  }
+}

@@ -60,6 +60,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('constitution:writeSpecialist', id, content),
   deleteConstitutionSpecialist: (id: string): Promise<boolean> =>
     ipcRenderer.invoke('constitution:deleteSpecialist', id),
+  // First-run onboarding: environment detection + Flux Desktop routing metrics
+  onboardingDetect: () => ipcRenderer.invoke('onboarding:detect'),
+  onboardingFluxMetrics: () => ipcRenderer.invoke('onboarding:fluxMetrics'),
   // 生��二维码 token / Generate QR token
   webuiGenerateQRToken: () => ipcRenderer.invoke('webui-direct-generate-qr-token'),
   // WeChat login IPC

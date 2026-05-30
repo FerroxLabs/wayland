@@ -220,6 +220,12 @@ export const useWCoreMessage = (
         case 'config_changed':
           onConfigChangedRef.current?.(message.data as Record<string, unknown>);
           break;
+        case 'sub_agent_event':
+          // v0.9.4 sub-agent activity card — create or update keyed by parentCallId.
+          // transformMessage handles the status+body merge; composeMessage/hooks.ts
+          // merges updates into the same card via msg_id = parentCallId.
+          addOrUpdateMessage(transformMessage(message));
+          break;
         default: {
           if (message.type === 'error') {
             setWaitingResponse(false);

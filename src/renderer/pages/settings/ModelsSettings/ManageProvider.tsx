@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
 import type { CatalogModel, ConnectError, CuratedModel, UsageTag } from '@process/providers/types';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
+import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import { providerMeta } from './providerCatalog';
 import styles from './ManageProvider.module.css';
 
@@ -334,13 +335,19 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
       </div>
 
       <div className={styles.header}>
-        <div
-          className={styles.avatar}
-          style={{ background: meta.bg, color: meta.darkText ? '#1a1a1a' : '#fff' }}
-          aria-hidden
-        >
-          {meta.mono}
-        </div>
+        {meta.id === 'flux-router' ? (
+          <div className={styles.avatar} style={{ background: '#141414' }} aria-hidden>
+            <FluxRouterMark size={28} />
+          </div>
+        ) : (
+          <div
+            className={styles.avatar}
+            style={{ background: meta.bg, color: meta.darkText ? '#1a1a1a' : '#fff' }}
+            aria-hidden
+          >
+            {meta.mono}
+          </div>
+        )}
         <div className={styles.name}>{meta.displayName}</div>
         <span className={badgeClass} role={isError ? 'alert' : undefined}>
           <span className={styles.badgeDot} />

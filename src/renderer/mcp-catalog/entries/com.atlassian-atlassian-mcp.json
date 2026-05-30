@@ -8,7 +8,7 @@
   "repository": { "url": "https://github.com/atlassian/atlassian-mcp", "source": "github" },
   "packages": [],
   "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.atlassian.com" }
+    { "type": "streamable-http", "url": "https://mcp.atlassian.com/v1/mcp/authv2" }
   ],
   "x-wayland": {
     "tier": "worker",

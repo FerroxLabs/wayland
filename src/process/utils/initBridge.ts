@@ -71,6 +71,14 @@ initAllBridges({
 const cronReadyPromise = cronService
   .init()
   .then(async () => {
+    // Seed the 12 Wayland built-in routines as DISABLED (opt-in) scheduled jobs
+    // bound to their bundled workflow. Idempotent; never throws.
+    try {
+      const { seedBuiltinRoutines } = await import('@process/services/cron/BuiltinRoutinesSeeder');
+      await seedBuiltinRoutines(cronService);
+    } catch (error) {
+      console.warn('[initBridge] Built-in routine seeding skipped:', error);
+    }
     try {
       const jobs = await cronService.listJobs();
       const backends = jobs

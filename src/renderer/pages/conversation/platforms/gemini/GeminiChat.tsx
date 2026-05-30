@@ -6,6 +6,7 @@
 
 import type { ConversationContextValue } from '@/renderer/hooks/context/ConversationContext';
 import { ConversationProvider } from '@/renderer/hooks/context/ConversationContext';
+import type { StepStatus, StepTransitionSource } from '@/common/types/workflowTypes';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
 import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
@@ -29,6 +30,9 @@ const GeminiChat: React.FC<{
   emptySlot?: React.ReactNode;
   workflowSessionId?: string;
   workflowTotalSteps?: number | null;
+  workflowApplyStepMarker?:
+    | ((stepN: number, status: StepStatus, source?: StepTransitionSource) => Promise<void>)
+    | null;
 }> = ({
   conversation_id,
   workspace,
@@ -41,6 +45,7 @@ const GeminiChat: React.FC<{
   emptySlot,
   workflowSessionId,
   workflowTotalSteps,
+  workflowApplyStepMarker,
 }) => {
   useMessageLstCache(conversation_id);
   const updateLocalImage = LocalImageView.useUpdateLocalImage();
@@ -56,8 +61,17 @@ const GeminiChat: React.FC<{
       hideSendBox,
       workflowSessionId,
       workflowTotalSteps,
+      workflowApplyStepMarker,
     };
-  }, [conversation_id, workspace, cronJobId, hideSendBox, workflowSessionId, workflowTotalSteps]);
+  }, [
+    conversation_id,
+    workspace,
+    cronJobId,
+    hideSendBox,
+    workflowSessionId,
+    workflowTotalSteps,
+    workflowApplyStepMarker,
+  ]);
 
   return (
     <ConversationProvider value={conversationValue}>

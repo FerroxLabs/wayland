@@ -1,0 +1,81 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "co.huggingface/huggingface-mcp",
+  "title": "Hugging Face",
+  "description": "Search models, datasets, Spaces, and papers on the Hugging Face Hub, and run community tools via Gradio Spaces.",
+  "version": "1.0.0",
+  "websiteUrl": "https://huggingface.co/docs/hub/en/hf-mcp-server",
+  "repository": {
+    "url": "https://github.com/huggingface/hf-mcp-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://huggingface.co/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "ml",
+      "developer",
+      "research"
+    ],
+    "tags": [
+      "huggingface",
+      "ml",
+      "models",
+      "datasets"
+    ],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 61,
+    "installRate": 0.18,
+    "iconUrl": "icons/huggingface.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#ff9c00"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Hugging Face",
+      "providerSignupUrl": "https://huggingface.co/settings/tokens"
+    },
+    "toolGroups": [
+      {
+        "label": "Model Search",
+        "count": 2
+      },
+      {
+        "label": "Dataset Search",
+        "count": 2
+      },
+      {
+        "label": "Spaces",
+        "count": 2
+      },
+      {
+        "label": "Papers",
+        "count": 1
+      },
+      {
+        "label": "Docs Search",
+        "count": 1
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/co.huggingface-huggingface-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

@@ -555,6 +555,8 @@ const SkillsHubSettings: React.FC<SkillsHubSettingsProps> = ({ withWrapper = tru
                               name: skill.name,
                               defaultValue: `Are you sure you want to delete "${skill.name}"?`,
                             }),
+                            okText: t('common.delete', { defaultValue: 'Delete' }),
+                            cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
                             okButtonProps: { status: 'danger' },
                             onOk: () => void handleDelete(skill.name),
                           });

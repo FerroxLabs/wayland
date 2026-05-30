@@ -270,6 +270,8 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
         Modal.confirm({
           title: t('team.removeAgent.confirmTitle'),
           content: t('team.removeAgent.confirmContent'),
+          okText: t('common.remove', { defaultValue: 'Remove' }),
+          cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
           onOk: () => doRemoveAgent(slotId),
         });
       } else {
@@ -695,6 +697,8 @@ const TeamPage: React.FC<Props> = ({ team }) => {
         Modal.confirm({
           title: t('team.removeAgent.confirmTitle'),
           content: t('team.removeAgent.confirmContent'),
+          okText: t('common.remove', { defaultValue: 'Remove' }),
+          cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
           onOk: doRemove,
         });
       } else {

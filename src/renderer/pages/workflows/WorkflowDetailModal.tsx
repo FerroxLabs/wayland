@@ -428,7 +428,7 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
       footer={null}
       autoFocus={false}
       style={{ width: 640 }}
-      title={entry ? toDisplayName(entry.name) : ''}
+      title={entry ? (entry.title ?? toDisplayName(entry.name)) : ''}
     >
       {entry ? (
         <div className='flex flex-col gap-16px'>

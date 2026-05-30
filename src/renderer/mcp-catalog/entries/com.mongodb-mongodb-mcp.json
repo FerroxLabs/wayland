@@ -1,0 +1,97 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.mongodb/mongodb-mcp",
+  "title": "MongoDB",
+  "description": "Query, aggregate, and manage MongoDB clusters and Atlas projects through MongoDB's official MCP server.",
+  "version": "1.11.0",
+  "websiteUrl": "https://www.mongodb.com/docs/mcp-server/",
+  "repository": {
+    "url": "https://github.com/mongodb-js/mongodb-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "mongodb-mcp-server",
+      "version": "1.11.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "MDB_MCP_CONNECTION_STRING",
+          "description": "MongoDB cluster connection string (mongodb+srv://...). Optional if you authenticate via Atlas API credentials.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "MDB_MCP_API_CLIENT_ID",
+          "description": "Atlas API public key for cluster and project management tools.",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "MDB_MCP_API_CLIENT_SECRET",
+          "description": "Atlas API private key paired with the client ID above.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "database",
+      "developer",
+      "data"
+    ],
+    "tags": [
+      "mongodb",
+      "database",
+      "atlas",
+      "nosql"
+    ],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 57,
+    "installRate": 0.14,
+    "iconUrl": "icons/mongodb.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#13aa52"
+    },
+    "auth": {
+      "method": "local-credentials",
+      "providerName": "MongoDB / Atlas",
+      "providerSignupUrl": "https://www.mongodb.com/cloud/atlas/register"
+    },
+    "toolGroups": [
+      {
+        "label": "Database",
+        "count": 25
+      },
+      {
+        "label": "Atlas",
+        "count": 20
+      },
+      {
+        "label": "Assistant",
+        "count": 2
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.mongodb-mongodb-mcp.md",
+      "estimatedMinutes": 3,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

@@ -3,14 +3,14 @@
   "name": "com.softeria/ms-365-mcp-server",
   "title": "Microsoft 365",
   "description": "Outlook, Teams, OneDrive, Excel, To Do, OneNote, Calendar — all of Microsoft Graph in one MCP.",
-  "version": "1.0.0",
+  "version": "0.113.0",
   "websiteUrl": "https://github.com/Softeria/ms-365-mcp-server",
   "repository": { "url": "https://github.com/Softeria/ms-365-mcp-server", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@softeria/ms-365-mcp-server",
-      "version": "1.0.0",
+      "version": "0.113.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [

@@ -71,12 +71,12 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({ entry, onClick, featured = 
           <div className={styles.titleRow}>
             <span
               className={styles.title}
-              title={toDisplayName(entry.name)}
+              title={entry.title ?? toDisplayName(entry.name)}
               style={{ display: 'flex', alignItems: 'center' }}
             >
               {featured && <span className={styles.titleDot} aria-hidden='true' />}
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {toDisplayName(entry.name)}
+                {entry.title ?? toDisplayName(entry.name)}
               </span>
             </span>
             <span className={styles.pill} style={{ background: src.bg }}>

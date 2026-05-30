@@ -1,0 +1,47 @@
+{
+  "name": "business-hr",
+  "displayName": "Business HR",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "US-employment-compliance HR instruments for SMBs: the gap layer the bundled HR templates lack. Accommodation interactive process, FMLA/state-PFML leave eligibility, offboarding with final-pay/COBRA routing, WARN-Act reduction-in-force, termination letters, handbook sections, and an HR orchestrator that routes people-ops verbs to the right sub-skill. Templates only, not employment-law advice.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "hr",
+        "description": "HR orchestrator for SMBs. Routes job descriptions, interview questions, onboarding, performance reviews, 1-on-1s, handbook sections, offer letters, offboarding, comp banding, PIPs, terminations, accommodations, leave, RIF, and pipeline reports to the right sub-skill. Templates only, not employment-law advice.",
+        "file": "skills/hr/SKILL.md"
+      },
+      {
+        "name": "hr-accommodation-request",
+        "description": "Document the ADA / PWFA / religious accommodation interactive process: request intake, undue-hardship analysis framework, response letter (grant / alternative / deny), and appeal. Templates only, not employment-law advice.",
+        "file": "skills/hr-accommodation-request/SKILL.md"
+      },
+      {
+        "name": "hr-handbook",
+        "description": "Generate employee handbook sections covering required-by-law policies (EEO, anti-harassment, ADA accommodation, FMLA, lactation, voting/jury/military, pay transparency, whistleblower, at-will with handbook-not-a-contract and NLRA section 7 carve-outs) plus standard optional perks. Templates only, not employment-law advice.",
+        "file": "skills/hr-handbook/SKILL.md"
+      },
+      {
+        "name": "hr-leave-of-absence",
+        "description": "Eligibility analysis and documentation for FMLA / state PFML / personal / medical leave: federal FMLA gating, state PFML (CA CFRA, NY PFL, NJ FLI, MA, WA, CT, CO, OR, RI, DC and 2026 states), request-response letter, return-to-work plan, and intermittent-leave tracking. Templates only, not employment-law advice.",
+        "file": "skills/hr-leave-of-absence/SKILL.md"
+      },
+      {
+        "name": "hr-offboard",
+        "description": "Offboarding checklist with state-by-state final-pay timing matrix, federal-vs-state-mini-COBRA routing, OWBPA/ADEA separation-agreement scaffolding for age 40+, McLaren Macomb non-disparagement, and a data-preservation step before access revocation. Templates only, not employment-law advice.",
+        "file": "skills/hr-offboard/SKILL.md"
+      },
+      {
+        "name": "hr-rif",
+        "description": "Reduction-in-Force planning: federal WARN Act analysis, mini-WARN states, disparate-impact (4/5ths rule) pre-check on the selection list, notification timeline, and OWBPA/ADEA severance/release framework. Templates only, not employment-law advice.",
+        "file": "skills/hr-rif/SKILL.md"
+      },
+      {
+        "name": "hr-termination-letter",
+        "description": "Draft an involuntary termination letter (performance / RIF / policy / at-will) with state-specific final-pay timing, COBRA / mini-COBRA notice, and OWBPA/ADEA separation-agreement variant for age 40+. Templates only, not employment-law advice.",
+        "file": "skills/hr-termination-letter/SKILL.md"
+      }
+    ]
+  }
+}

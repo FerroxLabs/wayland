@@ -60,6 +60,29 @@ export const MCP_STDIO_SCRIPT_NAMES = [
   'builtin-mcp-search-skills.js',
 ] as const;
 
+/**
+ * Bundled @wayland MCP servers — ship with the installer, no npm publish.
+ *
+ * Listed separately from MCP_STDIO_SCRIPT_NAMES because they may be absent on
+ * machines that don't have the sibling waylandmcp repo (CI, contributor forks
+ * without it). `assertMcpScriptsExist` must NOT fail when these are missing —
+ * the corresponding catalog entries simply won't be installable.
+ */
+export const BUILTIN_WAYLAND_MCP_FILENAMES = [
+  'builtin-mcp-apple.mjs',
+  'builtin-mcp-imap.mjs',
+  'builtin-mcp-news.mjs',
+  'builtin-mcp-cal-com.mjs',
+] as const;
+
+export type BuiltinWaylandMcpFilename = (typeof BUILTIN_WAYLAND_MCP_FILENAMES)[number];
+
+/** True if `arg` is a bare filename matching a bundled @wayland MCP. */
+export function isBuiltinWaylandMcpFilename(arg: string | undefined | null): arg is BuiltinWaylandMcpFilename {
+  if (!arg) return false;
+  return (BUILTIN_WAYLAND_MCP_FILENAMES as readonly string[]).includes(arg);
+}
+
 export type McpStdioScriptName = (typeof MCP_STDIO_SCRIPT_NAMES)[number];
 
 /**

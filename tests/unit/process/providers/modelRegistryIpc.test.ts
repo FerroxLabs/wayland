@@ -527,6 +527,66 @@ describe('modelRegistry IPC — getCatalog', () => {
   });
 });
 
+describe('modelRegistry IPC — curatedForAgent', () => {
+  // Connect two providers (openai + flux-router) each with one enriched model
+  // so the Curator recommends them.
+  function twoProviderRepo(): Fakes {
+    const fakes = makeFakes();
+    const { repo } = fakes;
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.upsertRegistryProvider({
+      providerId: 'flux-router',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.replaceRegistryCatalog('openai', [
+      catalogModel({ id: 'gpt-4o', providerId: 'openai', family: 'gpt-4o', releaseDate: '2024-05-01', enriched: true }),
+    ]);
+    repo.replaceRegistryCatalog('flux-router', [
+      catalogModel({
+        id: 'flux-auto',
+        providerId: 'flux-router',
+        family: 'flux-auto',
+        releaseDate: '2024-05-01',
+        enriched: true,
+      }),
+    ]);
+    return fakes;
+  }
+
+  it('wcore unions every connected provider', async () => {
+    const { deps } = twoProviderRepo();
+    const h = createModelRegistryHandlers(deps);
+    const ids = (await h.curatedForAgent({ agentKey: 'wcore' })).map((m) => m.id);
+    expect(ids).toContain('gpt-4o');
+    expect(ids).toContain('flux-auto');
+  });
+
+  it('gemini unions every connected provider (AionCLI is multi-provider)', async () => {
+    const { deps } = twoProviderRepo();
+    const h = createModelRegistryHandlers(deps);
+    const ids = (await h.curatedForAgent({ agentKey: 'gemini' })).map((m) => m.id);
+    // The fix: a connected non-Google provider (Flux Router) must surface under
+    // the gemini agent, not be filtered to google-gemini only.
+    expect(ids).toContain('flux-auto');
+    expect(ids).toContain('gpt-4o');
+  });
+
+  it('claude stays vendor-locked: only its underlying provider, else empty', async () => {
+    const { deps } = twoProviderRepo();
+    const h = createModelRegistryHandlers(deps);
+    // anthropic is not connected in this repo, so claude returns nothing
+    // (it must NOT union openai/flux-router).
+    expect(await h.curatedForAgent({ agentKey: 'claude' })).toEqual([]);
+  });
+});
+
 describe('modelRegistry IPC — toggleModel', () => {
   it('persists the override', async () => {
     const { deps, repo } = makeFakes();

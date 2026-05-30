@@ -25,6 +25,11 @@
       "method": "oauth2-byo",
       "providerName": "GitHub",
       "providerSignupUrl": "https://github.com",
+      "byoClient": {
+        "registrationUrl": "https://github.com/settings/developers",
+        "requiresSecret": true,
+        "guide": "GitHub's MCP server (api.githubcopilot.com/mcp) reuses standard GitHub OAuth — you create an OAuth App on github.com and Wayland uses your credentials.\n\n**1.** Open **github.com/settings/developers** → **OAuth Apps** → **New OAuth App**.\n\n**2.** Fill in:\n  - **Application name**: any (e.g. *Wayland MCP*)\n  - **Homepage URL**: any (e.g. `https://localhost`)\n  - **Authorization callback URL**: paste the URL Wayland shows below.\n\n**3.** Click **Register application**, then **Generate a new client secret**.\n\n**4.** Copy **Client ID** and **Client secret** and paste them below.\n\nWayland will request the `repo`, `read:org`, and `workflow` scopes on your behalf."
+      },
       "scopes": [
         { "name": "repo", "plainLanguage": "Read and write your repositories." },
         { "name": "read:org", "plainLanguage": "List the organizations you belong to." },

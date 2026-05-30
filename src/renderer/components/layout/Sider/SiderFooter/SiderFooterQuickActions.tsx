@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bug, Globe, Star } from 'lucide-react';
 import { Tooltip } from '@arco-design/web-react';
 import { webui } from '@/common/adapter/ipcBridge';
+import { openExternalUrl } from '@/renderer/utils/platform';
 import classNames from 'classnames';
 import styles from './SiderFooterQuickActions.module.css';
 
@@ -78,9 +79,9 @@ export const SiderFooterQuickActions: React.FC<SiderFooterQuickActionsProps> = (
   const handleOpenRepo = useCallback(() => {
     if (onOpenLink) {
       onOpenLink(GITHUB_REPO_URL);
-    } else if (typeof window !== 'undefined') {
-      window.open(GITHUB_REPO_URL, '_blank', 'noopener,noreferrer');
+      return;
     }
+    void openExternalUrl(GITHUB_REPO_URL);
   }, [onOpenLink]);
 
   const handleOpenBug = useCallback(() => {

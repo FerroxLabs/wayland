@@ -3,18 +3,18 @@
   "name": "com.crystaldba/postgres-mcp",
   "title": "Postgres",
   "description": "Run read-only SQL, inspect schemas, and explain query plans against any Postgres database.",
-  "version": "0.5.0",
+  "version": "0.3.0",
   "websiteUrl": "https://github.com/crystaldba/postgres-mcp",
   "repository": { "url": "https://github.com/crystaldba/postgres-mcp", "source": "github" },
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "postgres-mcp",
-      "version": "0.5.0",
+      "version": "0.3.0",
       "runtimeHint": "uvx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "DATABASE_URL", "description": "Postgres connection string (postgres://user:pass@host:port/db).", "isRequired": true, "isSecret": true }
+        { "name": "DATABASE_URI", "description": "Postgres connection string (postgres://user:pass@host:port/db).", "isRequired": true, "isSecret": true }
       ]
     }
   ],

@@ -73,6 +73,7 @@ const TEST_MODEL: Partial<Record<ProviderId, string>> = {
   cerebras: 'llama3.1-8b',
   perplexity: 'sonar',
   moonshot: 'moonshot-v1-8k',
+  'flux-router': 'flux-fast',
 };
 
 export class ConnectionTester {

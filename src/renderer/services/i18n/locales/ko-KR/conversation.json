@@ -295,6 +295,11 @@
     "complete": "사고 완료",
     "label": "생각 중..."
   },
+  "subAgent": {
+    "statusRunning": "실행 중",
+    "statusDone": "완료",
+    "statusFailed": "실패"
+  },
   "skills": {
     "loaded": "로드된 스킬"
   }

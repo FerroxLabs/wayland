@@ -62,6 +62,29 @@ export interface WaylandExtension {
     providerName?: string;
     providerSignupUrl?: string;
     scopes?: { name: string; plainLanguage: string }[];
+    /**
+     * Vendor hint for the BYO-credentials flow. When the OAuth server does
+     * not support Dynamic Client Registration (Slack, GitHub, HubSpot,
+     * Zoom, Box, Figma...), the user must register an OAuth app on the
+     * vendor's developer console and paste the client_id/secret here.
+     * Absent on vendors that support DCR (Notion, Linear, Stripe, ...) —
+     * for those, the universal BYO modal handles unexpected DCR failures.
+     */
+    byoClient?: {
+      /** URL of the vendor's "create an OAuth app" page. */
+      registrationUrl: string;
+      /** Vendor-specific markdown shown above the credential inputs. */
+      guide?: string;
+      /**
+       * Redirect URI the user must paste into the vendor console.
+       * Defaults to http://localhost:57000/oauth/callback (Wayland's pinned
+       * OAUTH_CALLBACK_PORT). Override if the vendor enforces something
+       * specific (e.g. https-only).
+       */
+      redirectUriHint?: string;
+      /** Whether this vendor requires both client_id AND client_secret. */
+      requiresSecret?: boolean;
+    };
   };
   toolGroups?: { label: string; count: number }[];
   setupGuide?: { path: string; estimatedMinutes: number; stepCount: number };
@@ -90,6 +113,8 @@ export interface SetupStep {
   primaryAction?: { label: string; action: string };
   inputs?: { name: string; label: string; placeholder?: string; secret?: boolean }[];
   warning?: string;
+  /** Markdown instructions rendered under the step title. Used for vendor UI navigation paths, console screenshots, and prerequisites. */
+  body?: string;
 }
 
 export interface SetupGuide {

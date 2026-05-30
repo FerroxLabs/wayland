@@ -8,7 +8,7 @@
   "repository": { "url": "https://github.com/raindropio/raindrop-mcp", "source": "github" },
   "packages": [],
   "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.raindrop.io" }
+    { "type": "streamable-http", "url": "https://api.raindrop.io/rest/v2/ai/mcp" }
   ],
   "x-wayland": {
     "tier": "worker",

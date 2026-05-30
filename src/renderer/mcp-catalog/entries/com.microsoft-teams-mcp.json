@@ -2,15 +2,15 @@
   "$schema": "../schema/entry.schema.json",
   "name": "com.microsoft/teams-mcp",
   "title": "Microsoft Teams",
-  "description": "Channel messages, chats, meetings, and presence — Microsoft Teams via Graph.",
-  "version": "1.0.0",
-  "websiteUrl": "https://github.com/microsoft/teams-mcp-server",
-  "repository": { "url": "https://github.com/microsoft/teams-mcp-server", "source": "github" },
+  "description": "Channel messages, chats, meetings, and presence via Microsoft Graph — community-maintained MCP server.",
+  "version": "0.9.0",
+  "websiteUrl": "https://github.com/floriscornel/teams-mcp",
+  "repository": { "url": "https://github.com/floriscornel/teams-mcp", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "@microsoft/teams-mcp-server",
-      "version": "1.0.0",
+      "identifier": "@floriscornel/teams-mcp",
+      "version": "0.9.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
@@ -22,8 +22,8 @@
   "x-wayland": {
     "tier": "worker",
     "categories": ["communication", "productivity"],
-    "tags": ["microsoft", "teams", "chat"],
-    "maintainerType": "official",
+    "tags": ["microsoft", "teams", "chat", "graph"],
+    "maintainerType": "community",
     "license": "MIT",
     "verifiedAt": "2026-05-12",
     "popularityRank": 19,

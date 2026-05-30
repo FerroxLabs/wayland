@@ -3,14 +3,14 @@
   "name": "com.exa/exa-mcp",
   "title": "Exa",
   "description": "Neural web search optimized for AI agents — semantic search, similar-page discovery, and content retrieval.",
-  "version": "1.0.0",
+  "version": "3.2.1",
   "websiteUrl": "https://docs.exa.ai/reference/mcp",
   "repository": { "url": "https://github.com/exa-labs/exa-mcp-server", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "exa-mcp-server",
-      "version": "1.0.0",
+      "version": "3.2.1",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [

@@ -1,0 +1,17 @@
+{
+  "name": "business-support",
+  "displayName": "Business Support",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Customer-support operator skills built for live situations: a verb-router orchestrator that dispatches to reply, KB-article, FAQ, escalation, refund-script, SLA-review, NPS-analysis, churn-investigation, and report sub-skills. Enriches the bundled Support persona (mend); ships no net-new persona.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "support",
+        "description": "Customer support orchestrator. Routes to the right sub-skill based on your verb - reply, kb-article, faq, escalation, refund-script, sla-review, nps-analysis, churn-investigate, or report.",
+        "file": "skills/support/SKILL.md"
+      }
+    ]
+  }
+}

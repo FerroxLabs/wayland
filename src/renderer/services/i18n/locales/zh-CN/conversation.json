@@ -295,6 +295,11 @@
     "complete": "思考完成",
     "label": "思考中..."
   },
+  "subAgent": {
+    "statusRunning": "运行中",
+    "statusDone": "完成",
+    "statusFailed": "失败"
+  },
   "skills": {
     "loaded": "已加载技能"
   }

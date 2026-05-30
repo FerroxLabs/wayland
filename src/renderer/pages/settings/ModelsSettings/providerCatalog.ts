@@ -160,6 +160,14 @@ export const PROVIDER_META: Record<ProviderId, ProviderMeta> = {
     group: 'voice',
   },
   azure: { id: 'azure', displayName: 'Azure OpenAI', mono: 'Az', bg: '#0078d4', darkText: false, group: 'cloud' },
+  'flux-router': {
+    id: 'flux-router',
+    displayName: 'Flux Router',
+    mono: 'Fx',
+    bg: '#5a3df0',
+    darkText: false,
+    group: 'open',
+  },
   'openai-compatible': {
     id: 'openai-compatible',
     displayName: 'OpenAI-compatible',
@@ -237,6 +245,7 @@ export function recognizeKey(raw: string): KeyRecognition {
 
   // Unique high-confidence prefixes (priority 100).
   if (key.startsWith('sk-ant-')) return { kind: 'recognized', provider: 'anthropic' };
+  if (key.startsWith('sk-flux-')) return { kind: 'recognized', provider: 'flux-router' };
   if (key.startsWith('sk-or-')) return { kind: 'recognized', provider: 'openrouter' };
   if (key.startsWith('sk-proj-')) return { kind: 'recognized', provider: 'openai' };
   if (key.startsWith('AIza')) return { kind: 'recognized', provider: 'google-gemini' };

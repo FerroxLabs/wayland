@@ -6,6 +6,7 @@
 
 import { ConversationProvider } from '@/renderer/hooks/context/ConversationContext';
 import type { AcpBackend } from '@/common/types/acpTypes';
+import type { StepStatus, StepTransitionSource } from '@/common/types/workflowTypes';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
 import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
@@ -28,6 +29,9 @@ const AcpChat: React.FC<{
   emptySlot?: React.ReactNode;
   workflowSessionId?: string;
   workflowTotalSteps?: number | null;
+  workflowApplyStepMarker?:
+    | ((stepN: number, status: StepStatus, source?: StepTransitionSource) => Promise<void>)
+    | null;
 }> = ({
   conversation_id,
   workspace,
@@ -42,6 +46,7 @@ const AcpChat: React.FC<{
   emptySlot,
   workflowSessionId,
   workflowTotalSteps,
+  workflowApplyStepMarker,
 }) => {
   useMessageLstCache(conversation_id);
 
@@ -55,6 +60,7 @@ const AcpChat: React.FC<{
         hideSendBox,
         workflowSessionId,
         workflowTotalSteps,
+        workflowApplyStepMarker,
       }}
     >
       <div className='flex-1 flex flex-col px-20px min-h-0'>

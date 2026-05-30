@@ -8,7 +8,7 @@
   "repository": { "url": "https://github.com/linear/linear-mcp", "source": "github" },
   "packages": [],
   "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.linear.app/sse" }
+    { "type": "streamable-http", "url": "https://mcp.linear.app/mcp" }
   ],
   "x-wayland": {
     "tier": "worker",

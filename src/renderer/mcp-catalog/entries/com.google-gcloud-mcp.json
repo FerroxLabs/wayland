@@ -3,14 +3,14 @@
   "name": "com.google/gcloud-mcp",
   "title": "Google Cloud",
   "description": "Projects, compute, Cloud Storage, BigQuery, and Cloud Run via Application Default Credentials.",
-  "version": "1.0.0",
+  "version": "0.5.3",
   "websiteUrl": "https://cloud.google.com/sdk/docs/mcp",
   "repository": { "url": "https://github.com/GoogleCloudPlatform/gcloud-mcp", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "@google/gcloud-mcp",
-      "version": "1.0.0",
+      "identifier": "@google-cloud/gcloud-mcp",
+      "version": "0.5.3",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [

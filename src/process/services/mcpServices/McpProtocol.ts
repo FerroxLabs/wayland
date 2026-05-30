@@ -13,6 +13,8 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { getEnhancedEnv, normalizeNpxArgsForBundledBun, resolveNpxPath } from '@/process/utils/shellEnv';
+import { getMcpScriptPath } from '@/process/utils/mcpScriptDir';
+import { isBuiltinWaylandMcpArg } from '@/process/resources/builtinMcp/constants';
 
 /**
  * MCP source type - includes all ACP backends and Wayland built-ins
@@ -210,10 +212,18 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
         NO_COLOR: '1',
       };
       const command = transport.command === 'npx' ? resolveNpxPath(enhancedEnv) : transport.command;
+      // Bundled @wayland MCPs are stored as { command: 'node', args: ['builtin-mcp-<name>.mjs'] }.
+      // Rewrite the bare filename to an absolute path under out/main (dev) or
+      // app.asar.unpacked/out/main (packaged) so `node` can execute it.
+      const rawArgs = transport.args ?? [];
+      const resolvedBuiltinArgs =
+        transport.command === 'node' && isBuiltinWaylandMcpArg(rawArgs[0])
+          ? [getMcpScriptPath(rawArgs[0]), ...rawArgs.slice(1)]
+          : null;
       const args =
         transport.command === 'npx'
-          ? ['x', '--bun', ...normalizeNpxArgsForBundledBun(transport.args || [])]
-          : (transport.args ?? []);
+          ? ['x', '--bun', ...normalizeNpxArgsForBundledBun(rawArgs)]
+          : (resolvedBuiltinArgs ?? rawArgs);
 
       const stdioTransport = new StdioClientTransport({
         command,

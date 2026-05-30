@@ -8,10 +8,10 @@
   "repository": { "url": "https://github.com/TradeCanyon/waylandmcp", "source": "github" },
   "packages": [
     {
-      "registryType": "npm",
-      "identifier": "@wayland/cal-com-mcp",
+      "registryType": "binary",
+      "identifier": "builtin-mcp-cal-com.mjs",
       "version": "0.1.0",
-      "runtimeHint": "npx",
+      "runtimeHint": "native",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "CALCOM_API_KEY", "description": "API key from your Cal.com settings.", "isRequired": true, "isSecret": true },

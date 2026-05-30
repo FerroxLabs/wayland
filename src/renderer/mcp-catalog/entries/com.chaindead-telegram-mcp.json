@@ -9,14 +9,13 @@
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "telegram-mcp",
+      "identifier": "@chaindead/telegram-mcp",
       "version": "0.2.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "TELEGRAM_API_ID", "description": "App api_id from my.telegram.org.", "isRequired": true, "isSecret": false },
-        { "name": "TELEGRAM_API_HASH", "description": "App api_hash from my.telegram.org.", "isRequired": true, "isSecret": true },
-        { "name": "TELEGRAM_PHONE", "description": "Your Telegram account phone number (E.164).", "isRequired": true, "isSecret": false }
+        { "name": "TG_APP_ID", "description": "App api_id from my.telegram.org.", "isRequired": true, "isSecret": false },
+        { "name": "TG_API_HASH", "description": "App api_hash from my.telegram.org.", "isRequired": true, "isSecret": true }
       ]
     }
   ],

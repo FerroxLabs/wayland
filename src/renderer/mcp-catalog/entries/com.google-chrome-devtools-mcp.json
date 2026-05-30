@@ -3,14 +3,14 @@
   "name": "com.google/chrome-devtools-mcp",
   "title": "Chrome DevTools",
   "description": "Live page inspection, console, network, performance, and Lighthouse audits via Chrome DevTools Protocol.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "websiteUrl": "https://developer.chrome.com/docs/devtools/mcp",
   "repository": { "url": "https://github.com/GoogleChromeLabs/chrome-devtools-mcp", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "chrome-devtools-mcp",
-      "version": "1.0.0",
+      "version": "1.1.1",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": []

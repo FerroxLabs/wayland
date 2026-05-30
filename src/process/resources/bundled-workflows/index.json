@@ -1,0 +1,2173 @@
+[
+  {
+    "name": "business-ops-monthly-review",
+    "title": "Monthly Review",
+    "description": "Pull the month's metrics from the provided data sources and draft a monthly business review, with trend continuity from the prior monthly review when available.\nUse when the user wants an automated monthly business review assembled from the month's data sources.\nDo NOT use for weekly or quarterly reviews, or when there is no underlying data to pull metrics from.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/business-ops-monthly-review/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-ops monthly-review metrics reporting deterministic",
+      "category": "business-operations",
+      "depends": "ops-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-ops",
+      "monthly-review",
+      "metrics",
+      "reporting",
+      "deterministic"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "business-ops-operations-handbook",
+    "title": "Operations Handbook",
+    "description": "Build the operations handbook that documents how the company actually runs: operating cadences, decision rights, escalation paths, and the remaining operational sections. This is the operations handbook, distinct from an HR handbook.\nUse when the user wants a structured, multi-step build of a company operations handbook covering cadences, decision rights, and escalation.\nDo NOT use for an HR or employee policy handbook, or for a single section that one atomic skill can draft on its own.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/business-ops-operations-handbook/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-ops handbook operations decision-rights step-by-step",
+      "category": "business-operations",
+      "depends": "ops-handbook"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-ops",
+      "handbook",
+      "operations",
+      "decision-rights",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "business-ops-runbook-generator",
+    "title": "Runbook Generator",
+    "description": "Build an operational runbook with rollback paths for a recurring task or incident: capture the brief, infer failure modes, draft the runbook steps and checks, then define a rollback path for each failure mode.\nUse when the user wants a step-by-step runbook that an operator can follow under pressure, including what to do when a step fails.\nDo NOT use for documenting a stable, low-risk process with no failure or rollback concerns; use the SOP workflow for that.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/business-ops-runbook-generator/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-ops runbook incident rollback step-by-step",
+      "category": "business-operations",
+      "depends": "ops-process-doc"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-ops",
+      "runbook",
+      "incident",
+      "rollback",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "business-ops-sop-generator",
+    "title": "SOP Generator",
+    "description": "Build a standard operating procedure end to end: capture the process brief, infer its shape, draft the SOP, derive a run checklist, and define the metrics that prove it is working.\nUse when the user wants to turn a fuzzy, in-someone's-head process into a documented, repeatable SOP with a checklist and success metrics.\nDo NOT use for a single quick edit to an existing SOP, or when the user only needs a one-line answer rather than a structured multi-step build.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/business-ops-sop-generator/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-ops sop process documentation step-by-step",
+      "category": "business-operations",
+      "depends": "ops-process-doc ops-sop ops-checklist"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-ops",
+      "sop",
+      "process",
+      "documentation",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "business-ops-weekly-review",
+    "title": "Weekly Review",
+    "description": "Pull the week's metrics from the provided data sources and draft a weekly business review covering wins, blockers, and next-week priorities, with continuity from the prior week's review when available.\nUse when the user wants an automated weekly review assembled from finance, sales, and support data sources.\nDo NOT use for monthly or quarterly reviews, or when there is no underlying data to pull metrics from.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/business-ops-weekly-review/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-ops weekly-review metrics reporting deterministic",
+      "category": "business-operations",
+      "depends": "ops-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-ops",
+      "weekly-review",
+      "metrics",
+      "reporting",
+      "deterministic"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-abandoned-cart-recovery",
+    "title": "Abandoned Cart Recovery",
+    "description": "Build an abandoned-cart recovery sequence end to end: gather the store context, recommend a cadence, draft the multi-touch sequence with timing and incentives, then layer in incentive-escalation logic before shipping.\nUse when the user wants a structured process to recover abandoned carts with a timed multi-touch email/SMS sequence and discount-escalation rules.\nDo NOT use for a single one-off cart-recovery email or a question one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-abandoned-cart-recovery/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "commerce ecommerce email retention cart-recovery step-by-step",
+      "category": "content-creation",
+      "depends": "commerce-abandoned-cart"
+    },
+    "category": "content-creation",
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "email",
+      "retention",
+      "cart-recovery",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-batch-investor-update",
+    "title": "Batch Investor Update",
+    "description": "Fast, deterministic prep for a monthly investor update: pull last month's metrics from a data directory and draft an investor-update template ready for review. No back-and-forth; the agent runs the two steps and hands back metrics plus a draft to edit.\nUse when the user wants a quick, hands-off pass that pulls the month's metrics and produces a draft investor-update template to review.\nDo NOT use when the user wants an interactive, narrative-shaped update (use the full investor-update workflow), and do NOT treat this as a scheduled routine.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-batch-investor-update/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "pitch investor-update reporting metrics batch deterministic",
+      "category": "content-creation",
+      "depends": "finance-report pitch-investor-email"
+    },
+    "category": "content-creation",
+    "tags": [
+      "pitch",
+      "investor-update",
+      "reporting",
+      "metrics",
+      "batch",
+      "deterministic"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-blog-publish",
+    "title": "Blog Publish",
+    "description": "Voice-locked blog publishing workflow: outline, full draft, humanize pass, then repurpose the anchor into an email, a LinkedIn post, and an X-thread.\nUse when the user wants a structured multi-step process to publish a long-form blog post with platform derivatives in a consistent voice.\nDo NOT use for a single short post, a one-off edit, or a request a single content skill can answer without the full publish-and-repurpose chain.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-blog-publish/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing content blogging repurpose step-by-step publishing",
+      "category": "content-creation",
+      "depends": "sales-icp content-blog content-humanize content-repurpose"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "content",
+      "blogging",
+      "repurpose",
+      "step-by-step",
+      "publishing"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-brand-audit",
+    "title": "Brand Audit",
+    "description": "Visual, voice, and positioning brand audit that ends in a prioritized fix list ordered by impact. Infers the current brand archetype from real assets, audits each dimension separately, then merges findings into a ranked action plan the user can ship.\nUse when the user wants a structured, multi-step process to audit a brand across visual, voice, and positioning and walk away with prioritized fixes.\nDo NOT use for a one-off copy tweak or a single asset review that one atomic brand skill can answer without the full three-dimension audit.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-brand-audit/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing brand audit positioning voice step-by-step",
+      "category": "content-creation",
+      "depends": "market-brand market-audit"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "brand",
+      "audit",
+      "positioning",
+      "voice",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-budget-build",
+    "title": "Budget Build",
+    "description": "Build an annual budget by category with variance flags and quarterly checkpoints. Walks from target setting and category structure through a full annual budget, variance thresholds, and a tracking dashboard.\nUse when the user wants a structured multi-step process to build an annual operating budget with variance tracking.\nDo NOT use for a single budget question or a quick number an atomic finance skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-budget-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-finance budget planning step-by-step cfo",
+      "category": "business-operations",
+      "depends": "finance-budget finance-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-finance",
+      "budget",
+      "planning",
+      "step-by-step",
+      "cfo"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-budget-variance-check",
+    "title": "Budget Variance Check",
+    "description": "Monthly budget variance check. Compares current-month actuals to the active budget and flags overruns in a single deterministic pass.\nUse when the user wants a structured pass that loads actuals, computes variance against a budget, and surfaces overrun flags.\nDo NOT use when there are no actuals to load; halt rather than emit an empty variance report.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-budget-variance-check/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-finance budget variance deterministic cfo",
+      "category": "business-operations",
+      "depends": "finance-cashflow finance-budget finance-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-finance",
+      "budget",
+      "variance",
+      "deterministic",
+      "cfo"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-build-financial-model",
+    "title": "Build Financial Model",
+    "description": "Build a 3-statement financial model (P&L, Cash Flow, Balance Sheet) with explicit assumption blocks and sensitivity analysis. The agent infers the core assumptions that drive the model, builds a forward P&L month by month, ties in cash flow and balance sheet, then runs bear/base/bull sensitivity on the key variables.\nUse when the user wants a structured multi-step process to produce a complete, assumption-driven 3-statement model with sensitivity analysis.\nDo NOT use for a single number lookup, a one-line projection, or a question one atomic finance skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-build-financial-model/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "finance modeling fundraising projections sensitivity step-by-step planning",
+      "category": "business-operations",
+      "depends": "pitch-fin-model finance-pl finance-cashflow finance-balance-sheet"
+    },
+    "category": "business-operations",
+    "tags": [
+      "finance",
+      "modeling",
+      "fundraising",
+      "projections",
+      "sensitivity",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-build-investor-deck",
+    "title": "Build Investor Deck",
+    "description": "Build an investor pitch deck end to end: from the narrative story arc through slide-level briefs, full slide content, narrative tightening, and speaker notes. The agent infers the story arc that makes the round credible to the investor archetype, drafts each slide's argument and proof, then tightens the narrative and produces what to say beyond the slide.\nUse when the user wants a structured multi-step process to produce a complete investor deck (story arc through speaker notes) for a fundraising round.\nDo NOT use for a single-slide tweak, a one-off copy edit, or a question one atomic pitch skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-build-investor-deck/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "pitch fundraising deck investor narrative step-by-step planning",
+      "category": "content-creation",
+      "depends": "pitch-deck"
+    },
+    "category": "content-creation",
+    "tags": [
+      "pitch",
+      "fundraising",
+      "deck",
+      "investor",
+      "narrative",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-bullshit-clean",
+    "title": "Bullshit Clean",
+    "description": "Run the Bullshit Filter on a single draft, automatically fix the three weakest lines, and return a cleaned copy.\nUse when the user has one draft of marketing or sales copy and wants it filtered for weak, vague, or hype-laden lines and rewritten in voice.\nDo NOT use when the user wants a full audit and score (use wayland-conversion-audit) or a whole directory of drafts cleaned at once (use wayland-bullshit-clean-batch).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-bullshit-clean/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing conversion copywriting bullshit-filter voice cleanup",
+      "category": "content-creation",
+      "depends": "convert-bullshit-filter convert-voice"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "bullshit-filter",
+      "voice",
+      "cleanup"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-bullshit-clean-batch",
+    "title": "Bullshit Clean Batch",
+    "description": "Batch Bullshit Filter: scan a directory of markdown drafts, run the Filter on each, and save a cleaned version of every draft.\nUse when the user has a folder of markdown copy drafts and wants the whole set filtered and cleaned in one pass.\nDo NOT use for a single draft (use wayland-bullshit-clean) or when the user wants a scored audit rather than an automated cleanup.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-bullshit-clean-batch/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing conversion copywriting bullshit-filter voice cleanup batch",
+      "category": "content-creation",
+      "depends": "content-audit convert-bullshit-filter convert-voice"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "bullshit-filter",
+      "voice",
+      "cleanup",
+      "batch"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-campaign-brief",
+    "title": "Campaign Brief",
+    "description": "Build a campaign brief detailed enough that creative can execute without re-asking. Captures goal, KPI, offer, audience, and timeline, infers the one specific angle that makes the campaign distinct, then produces the brief, an asset list with specs, and a per-asset creative spec.\nUse when the user wants a structured, multi-step process to turn a campaign goal into an executable brief plus an asset list and creative spec.\nDo NOT use for a single piece of copy or a one-line angle question that one atomic copy skill can answer without building the full brief.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-campaign-brief/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing campaign brief creative launch step-by-step",
+      "category": "content-creation",
+      "depends": "market-copy market-launch"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "campaign",
+      "brief",
+      "creative",
+      "launch",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-case-study-build",
+    "title": "Case Study Build",
+    "description": "Build a customer case study end to end: capture the brief, infer the narrative arc, draft the story, humanize it to the author's voice, then repurpose it into email, LinkedIn, and X-thread derivatives.\nUse when the user wants a structured multi-step process to turn a customer story or call transcript into a polished case study with derivatives.\nDo NOT use for a quick testimonial blurb or a single edit that one content skill can produce without the full build-and-repurpose chain.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-case-study-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing content case-study repurpose step-by-step proof",
+      "category": "content-creation",
+      "depends": "content-case-study content-humanize content-repurpose"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "content",
+      "case-study",
+      "repurpose",
+      "step-by-step",
+      "proof"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-cashflow-batch-review",
+    "title": "Cashflow Batch Review",
+    "description": "Deterministic cashflow review over bank CSVs in an inbox. Parses actuals, optionally checks variance against a forecast, and produces a red/yellow/green status report.\nUse when the user wants a structured pass that turns a directory of bank CSV exports into a cashflow status report.\nDo NOT use when the directory is empty; halt rather than emit an empty report.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-cashflow-batch-review/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-finance cashflow status deterministic cfo",
+      "category": "business-operations",
+      "depends": "finance-cashflow finance-forecast finance-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-finance",
+      "cashflow",
+      "status",
+      "deterministic",
+      "cfo"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-cashflow-review",
+    "title": "Cashflow Review",
+    "description": "Interactive cashflow review. Parses bank actuals, computes forecast variance and a 30-day projection with red/yellow/green status, then turns it into action recommendations.\nUse when the user wants a structured multi-step cashflow review from raw bank data to a shipped review document.\nDo NOT use for a single cashflow lookup an atomic finance skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-cashflow-review/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-finance cashflow forecast step-by-step cfo",
+      "category": "business-operations",
+      "depends": "finance-cashflow finance-forecast finance-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-finance",
+      "cashflow",
+      "forecast",
+      "step-by-step",
+      "cfo"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-channel-mix",
+    "title": "Channel Mix",
+    "description": "Recommend a channel mix sized to goals and budget, with CAC math per channel and a throughput plan. Infers audience starting temperature (which dictates which channels work), surfaces viable options with CAC ranges, then a budget-optimized mix with break-even math and the creative capacity needed.\nUse when the user wants a structured, multi-step process to decide where to spend a marketing budget across channels with per-channel CAC economics.\nDo NOT use for a single-channel tactical question that one atomic funnel or channel skill can answer without sizing the whole mix.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-channel-mix/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing channels cac budget funnel step-by-step",
+      "category": "content-creation",
+      "depends": "convert-temperature market-funnel market-launch"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "channels",
+      "cac",
+      "budget",
+      "funnel",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-close-rebuild",
+    "title": "Close Rebuild",
+    "description": "Diagnose a weak sales close and rebuild it as a full Cascade Close (Stack to Vision to Math to Safety Net to Door, plus P.S. and P.P.S.).\nUse when the user has an existing close that under-converts and wants it diagnosed and rebuilt against the Three Locks and every buyer type.\nDo NOT use when the user needs a whole sales letter (use wayland-full-sales-asset) or only a headline (use wayland-headline-lab).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-close-rebuild/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing conversion copywriting close cascade-close step-by-step",
+      "category": "content-creation",
+      "depends": "convert-temperature convert-audit convert-close"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "close",
+      "cascade-close",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-competitor-deep-research",
+    "title": "Competitor Deep Research",
+    "description": "Deep competitor research that goes beyond a comp set into positioning gaps and opportunity spaces. Infers the full competitive set (direct, adjacent, status-quo, and nascent threats), profiles each, builds a 2x2 positioning map, identifies gaps, and recommends a counter-position.\nUse when the user wants a structured, multi-step process for thorough competitor research that ends in a positioning map and counter-positioning recommendation.\nDo NOT use for a quick lookup of one competitor or a single fact that one atomic competitor skill can answer without the full research arc.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-competitor-deep-research/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing competitors research positioning step-by-step",
+      "category": "content-creation",
+      "depends": "market-competitors market-audit"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "competitors",
+      "research",
+      "positioning",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-competitor-watch",
+    "title": "Competitor Watch",
+    "description": "Scan a set of competitors, flag what changed since the last scan, and draft a brief on what is new. A fast, deterministic monitoring pass that resolves its competitor source from an attached list or a wired research source, detects deltas against a prior scan, and writes a weekly brief.\nUse when the user wants to run a competitor monitoring scan and get a short brief on changes since the last run.\nDo NOT use for first-time deep competitor research or positioning work; use the competitor deep research workflow for that.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-competitor-watch/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing competitors monitoring scan brief deterministic",
+      "category": "content-creation",
+      "depends": "market-competitors market-report"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "competitors",
+      "monitoring",
+      "scan",
+      "brief",
+      "deterministic"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-content-batch-process",
+    "title": "Content Batch Process",
+    "description": "Batch-process a directory of content briefs: scan the briefs, produce a blog draft for each, run a humanize pass over the batch, then build repurpose chains for email, LinkedIn, and X-thread.\nUse when the user has many content briefs in a folder and wants every one turned into a humanized draft with platform derivatives in a single run.\nDo NOT use for a single brief or when no corpus of briefs can be resolved; use the single-post blog workflow instead.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-content-batch-process/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing content batch repurpose deterministic automation",
+      "category": "content-creation",
+      "depends": "content-audit content-blog content-humanize content-repurpose"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "content",
+      "batch",
+      "repurpose",
+      "deterministic",
+      "automation"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-content-calendar-build",
+    "title": "Content Calendar Build",
+    "description": "Build a 30/60/90-day content calendar mapped to funnel stages, with inferred pillar topics, a per-channel cadence, and repurpose chains for each anchor.\nUse when the user wants a structured multi-step process to plan a quarter of content tied to funnel stages and topic clusters.\nDo NOT use for a single post or a one-off idea; use this only when the user wants a full multi-week publishing plan.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-content-calendar-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing content calendar planning funnel step-by-step",
+      "category": "content-creation",
+      "depends": "content-audit content-calendar content-repurpose"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "content",
+      "calendar",
+      "planning",
+      "funnel",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-contract-review",
+    "title": "Contract Review",
+    "description": "Triage a contract end-to-end: identify the contract type, run a clause-by-clause risk review with severity flags, propose red-lines, and produce a counsel-routing list of clauses that require attorney sign-off before execution.\nUse when the user wants a structured, multi-step legal triage of a contract before signing, including red-line suggestions and an escalation list for counsel.\nDo NOT use for a single quick question about one clause, or as a substitute for licensed legal advice. This produces drafts and triage only; counsel review is required.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-contract-review/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "legal contract review red-line counsel step-by-step business-legal",
+      "category": "business-operations",
+      "depends": ""
+    },
+    "category": "business-operations",
+    "tags": [
+      "legal",
+      "contract",
+      "review",
+      "red-line",
+      "counsel",
+      "step-by-step",
+      "business-legal"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-conversion-audit",
+    "title": "Conversion Audit",
+    "description": "Score existing copy 0-100 against The Donahoe Method, prioritize the rewrites, and present a revised draft.\nUse when the user has a piece of sales or marketing copy and wants a scored diagnosis plus a Method-aligned, Filter-cleaned revision.\nDo NOT use when the user wants to write copy from scratch (use wayland-full-sales-asset) or only a quick weak-line cleanup (use wayland-bullshit-clean).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-conversion-audit/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing conversion copywriting audit donahoe-method step-by-step",
+      "category": "content-creation",
+      "depends": "convert-four-questions convert-temperature convert-audit convert-bullshit-filter convert-voice"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "audit",
+      "donahoe-method",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-course-build",
+    "title": "Course Build",
+    "description": "Build a complete course from scratch: outline, per-module slide decks, and a workbook, with the student profile and price tier inferred up front.\nUse when the user wants a structured multi-step process to produce a full course package (curriculum, decks, workbook) from a single transformation statement.\nDo NOT use for a single lesson, a one-off slide, or a quick outline that one content skill can produce without the full course build.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-course-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "education content course curriculum step-by-step planning",
+      "category": "content-creation",
+      "depends": "sales-icp funnels-offer-pricing content-course-outline content-slide-deck content-leadmagnet-ebook"
+    },
+    "category": "content-creation",
+    "tags": [
+      "education",
+      "content",
+      "course",
+      "curriculum",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-deal-forensic",
+    "title": "Deal Forensic",
+    "description": "Diagnose a stuck deal end-to-end: surface the real objection behind the stated one, identify the lock that is actually blocking the deal, and prescribe the specific next move with exact wording and timing.\nUse when the user has a single deal that has stalled and wants a structured diagnosis plus a concrete next-move prescription.\nDo NOT use for reviewing a whole pipeline at once (use wayland-pipeline-batch-review) or for building reusable objection responses (use wayland-objection-library-build).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-deal-forensic/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "sales deal-diagnosis objections forensics step-by-step",
+      "category": "business-operations",
+      "depends": "sales-coach sales-qualify sales-objections sales-followup"
+    },
+    "category": "business-operations",
+    "tags": [
+      "sales",
+      "deal-diagnosis",
+      "objections",
+      "forensics",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-discovery-prep",
+    "title": "Discovery Prep",
+    "description": "Prep a tailored discovery call end-to-end: research the prospect, assess ICP fit, build a tailored call script, and surface the red flags to listen for.\nUse when the user has an upcoming discovery call with a specific prospect and wants a tailored script plus a disqualification checklist before the call.\nDo NOT use for building a cold outreach sequence (use wayland-outreach-build) or for diagnosing a deal that has already stalled (use wayland-deal-forensic).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-discovery-prep/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "sales discovery call-prep research qualification step-by-step",
+      "category": "business-operations",
+      "depends": "sales-coach sales-research sales-icp sales-prep sales-qualify"
+    },
+    "category": "business-operations",
+    "tags": [
+      "sales",
+      "discovery",
+      "call-prep",
+      "research",
+      "qualification",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-draft-investor-update",
+    "title": "Draft Investor Update",
+    "description": "Draft a monthly investor update: wins, metrics, lowlights, and asks. The agent gathers the period and data sources, infers the month's narrative shape (build month, breakthrough, slog, or pivot), pulls the metrics, builds the update, and iterates with the user until it ships.\nUse when the user wants a structured multi-step process to write a single month's investor update from their data.\nDo NOT use for a batch of historical updates, a one-line status note, or a question one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-draft-investor-update/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "pitch investor-update reporting metrics fundraising step-by-step",
+      "category": "content-creation",
+      "depends": "pitch-investor-email finance-report"
+    },
+    "category": "content-creation",
+    "tags": [
+      "pitch",
+      "investor-update",
+      "reporting",
+      "metrics",
+      "fundraising",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-employment-package",
+    "title": "Employment Package",
+    "description": "Build an employment agreement bundle: offer letter with at-will language, IP assignment, and restrictive covenants (non-compete / non-solicit) checked against the jurisdiction's enforceability rules, ready for counsel review.\nUse when the user wants a structured, multi-step process to assemble a full employment-agreement package and needs jurisdictional non-compete flags surfaced.\nDo NOT use for a single quick offer letter with no IP or restrictive terms, or as a substitute for licensed legal advice. Outputs are drafts; counsel review is required.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-employment-package/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "legal employment offer ip-assignment non-compete step-by-step business-legal",
+      "category": "business-operations",
+      "depends": ""
+    },
+    "category": "business-operations",
+    "tags": [
+      "legal",
+      "employment",
+      "offer",
+      "ip-assignment",
+      "non-compete",
+      "step-by-step",
+      "business-legal"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-evergreen-conversion",
+    "title": "Evergreen Conversion",
+    "description": "Convert a one-time launch into an evergreen funnel that runs on autopilot. Reshapes existing launch assets into an evergreen presentation, ethical scarcity mechanic, automated lead flow, and an evergreen email drip.\nUse when the user has a finished live launch (webinar replay, email sequence, sales page, cart dates) and wants a structured process to make it run continuously for every new lead.\nDo NOT use for designing a launch from scratch or for a single asset edit one atomic skill can handle.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-evergreen-conversion/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing funnels evergreen automation step-by-step scarcity",
+      "category": "content-creation",
+      "depends": "funnels-evergreen funnels-cart-cycle-launch funnels-daily-pivot funnels-story-drip"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "funnels",
+      "evergreen",
+      "automation",
+      "step-by-step",
+      "scarcity"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-forecast-build",
+    "title": "Forecast Build",
+    "description": "Build a bottom-up 12-month forecast with explicit assumption checkpoints. Builds a revenue model and an expense model, consolidates them, and produces bear/base/bull scenarios.\nUse when the user wants a structured multi-step process to build a 12-month financial forecast from the ground up.\nDo NOT use for a quick projection an atomic finance skill can answer in one step.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-forecast-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-finance forecast planning step-by-step cfo",
+      "category": "business-operations",
+      "depends": "finance-forecast finance-budget"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-finance",
+      "forecast",
+      "planning",
+      "step-by-step",
+      "cfo"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-full-funnel-design",
+    "title": "Full Funnel Design",
+    "description": "Full-stack direct-response funnel design. Maps entry through backend (lead-magnet, tripwire, core offer, backend continuity) with copy specs and a complete ascension ladder, validated against unit economics at every stage.\nUse when the user wants a structured, multi-step process to design a complete funnel architecture around an offer, from first-touch to lifetime value.\nDo NOT use for a single funnel stage in isolation or a question one atomic funnel skill can answer; use the dedicated single-stage skill instead.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-full-funnel-design/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing funnels architecture ascension-ladder step-by-step direct-response",
+      "category": "content-creation",
+      "depends": "sales-icp market-funnel funnels-offer-pricing funnels-lead-magnet funnels-tripwire funnels-offer funnels-continuity funnels-ascension-ladder"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "funnels",
+      "architecture",
+      "ascension-ladder",
+      "step-by-step",
+      "direct-response"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-full-launch",
+    "title": "Full Launch",
+    "description": "Full cross-pack product launch workflow. Directs a coordinated launch across positioning, offer architecture, funnel, copy assets, content cadence, sales follow-up, ads creative, and a calendar with dependencies, ending in a post-launch debrief plan.\nUse when the user wants a structured, multi-step process to plan and assemble a complete launch from brief to ready-to-ship package.\nDo NOT use for a single asset (one email, one sales page) or a quick question that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-full-launch/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing launch step-by-step planning campaign funnel",
+      "category": "content-creation",
+      "depends": "launch market-audit funnels-offer funnels-cart-cycle-launch convert-package content-calendar sales-followup market-ads market-launch"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "launch",
+      "step-by-step",
+      "planning",
+      "campaign",
+      "funnel"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-full-sales-asset",
+    "title": "Full Sales Asset",
+    "description": "Write a complete long-form direct-response sales letter end-to-end: temperature, four-layer open, three locks, body and bullets, proof, and a Cascade Close.\nUse when the user wants a full sales letter built from scratch using The Donahoe Method, reviewing at each major beat.\nDo NOT use when the user only needs an audit of existing copy (use wayland-conversion-audit), a close rebuild (use wayland-close-rebuild), or a VSL (use wayland-vsl-build).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-full-sales-asset/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing conversion copywriting sales-letter donahoe-method step-by-step",
+      "category": "content-creation",
+      "depends": "convert-temperature convert-four-questions convert-three-locks convert-open convert-package convert-close convert-bullshit-filter"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "sales-letter",
+      "donahoe-method",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-funnel-audit",
+    "title": "Funnel Audit",
+    "description": "Diagnose an existing funnel. Classifies stages, identifies likely dropoff points against the math, runs a stage-by-stage audit, and produces a prioritized fix list ranked by impact over effort.\nUse when the user has a live funnel and wants a structured, multi-step diagnosis that finds the leaks and recommends prioritized fixes.\nDo NOT use to design a new funnel from scratch or for a question one atomic audit skill can answer without the full stage-by-stage diagnosis.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-funnel-audit/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing funnels audit diagnostics step-by-step optimization",
+      "category": "content-creation",
+      "depends": "funnels-architecture-audit funnels-offer-audit"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "funnels",
+      "audit",
+      "diagnostics",
+      "step-by-step",
+      "optimization"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-headline-lab",
+    "title": "Headline Lab",
+    "description": "Generate 5-10 ranked headline angles for an offer or page, each with Method reasoning, then refine the winner.\nUse when the user wants headline options for a page or asset, with the Method logic behind each angle and an interactive refine loop.\nDo NOT use when the user wants a full sales letter (use wayland-full-sales-asset) or a copy audit (use wayland-conversion-audit).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-headline-lab/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing conversion copywriting headlines above-fold step-by-step",
+      "category": "content-creation",
+      "depends": "convert-temperature convert-above-fold"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "headlines",
+      "above-fold",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-hr-comp-band",
+    "title": "HR Comp Band",
+    "description": "Build a compensation band for a role end to end: gather the role brief, research market data, recommend a min/mid/max range with rationale, then add a comp philosophy and base/equity/bonus structure recommendation.\nUse when the user wants a structured, multi-step process to produce a defensible comp band and memo for a specific role.\nDo NOT use for a single quick salary lookup or a one-line range that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-hr-comp-band/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "hr compensation comp-band hiring step-by-step planning",
+      "category": "business-operations",
+      "depends": "hr-comp-band"
+    },
+    "category": "business-operations",
+    "tags": [
+      "hr",
+      "compensation",
+      "comp-band",
+      "hiring",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-hr-handbook",
+    "title": "HR Handbook",
+    "description": "Build an employee handbook from scratch, section by section: determine required sections from jurisdiction and stage, then draft foundational, policy, and operational sections plus an attestation, with a review checkpoint after each block.\nUse when the user wants a structured, long-form, multi-step process to produce a complete draft employee handbook they review as it is built.\nDo NOT use for a single policy paragraph or a one-section edit that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-hr-handbook/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "hr handbook policy compliance step-by-step planning",
+      "category": "business-operations",
+      "depends": "hr-handbook"
+    },
+    "category": "business-operations",
+    "tags": [
+      "hr",
+      "handbook",
+      "policy",
+      "compliance",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-hr-hire-loop",
+    "title": "HR Hire Loop",
+    "description": "Build a complete hiring loop for an open role: job description, screening rubric, full interview kit, and offer-letter template, anchored to an inferred comp band, with review checkpoints between each artifact.\nUse when the user wants a structured, multi-step process to produce every artifact needed to run a hiring loop for one role.\nDo NOT use for a single job-description draft or one interview question that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-hr-hire-loop/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "hr hiring recruiting interview job-description step-by-step planning",
+      "category": "business-operations",
+      "depends": "hr-comp-band hr-job-description hr-interview-questions hr-offer-letter"
+    },
+    "category": "business-operations",
+    "tags": [
+      "hr",
+      "hiring",
+      "recruiting",
+      "interview",
+      "job-description",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-hr-onboard-package",
+    "title": "HR Onboarding Package",
+    "description": "Build a complete onboarding package for a new hire: a first-week plan, a 30/60/90-day milestone plan, and a paperwork checklist, shaped to the role and level, with review checkpoints before shipping.\nUse when the user wants a structured, multi-step process to produce a full onboarding package for a specific new hire.\nDo NOT use for a single onboarding checklist item or a one-line first-day note that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-hr-onboard-package/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "hr onboarding new-hire 30-60-90 step-by-step planning",
+      "category": "business-operations",
+      "depends": "hr-onboard"
+    },
+    "category": "business-operations",
+    "tags": [
+      "hr",
+      "onboarding",
+      "new-hire",
+      "30-60-90",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-hr-performance-review",
+    "title": "HR Performance Review",
+    "description": "Run a performance review end to end: gather inputs, set a rating baseline, draft the review with specific examples per dimension, then build a development plan with goals and timelines, with review checkpoints before shipping the packet.\nUse when the user wants a structured, multi-step process to prep a complete performance-review packet for one employee.\nDo NOT use for a single piece of review feedback or one goal that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-hr-performance-review/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "hr performance-review development-plan feedback step-by-step planning",
+      "category": "business-operations",
+      "depends": "hr-review hr-1on1"
+    },
+    "category": "business-operations",
+    "tags": [
+      "hr",
+      "performance-review",
+      "development-plan",
+      "feedback",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-icp-build",
+    "title": "ICP Build",
+    "description": "Build an Ideal Customer Profile from existing customer data and market signals: infer segments, pick the best-fit segment, write the full profile, and define the disqualifiers.\nUse when the user wants to define who their best customers are and produce a reusable ICP document with explicit disqualifiers.\nDo NOT use for prepping a single discovery call (use wayland-discovery-prep) or building a cold outreach sequence (use wayland-outreach-build).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-icp-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "sales icp customer-profile segmentation qualification step-by-step",
+      "category": "business-operations",
+      "depends": "sales-coach sales-icp sales-qualify"
+    },
+    "category": "business-operations",
+    "tags": [
+      "sales",
+      "icp",
+      "customer-profile",
+      "segmentation",
+      "qualification",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-launch-readiness-audit",
+    "title": "Launch Readiness Audit",
+    "description": "Pre-launch readiness audit workflow. Builds a required-asset checklist for the launch type, runs a gap analysis with severity flags against what is already built, and produces a go/no-go recommendation with rationale.\nUse when the user wants a structured pre-launch audit to decide whether the launch is ready to go.\nDo NOT use when the user wants to build launch assets from scratch (use the full launch workflow) or has a single quick question.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-launch-readiness-audit/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing launch audit readiness step-by-step go-no-go",
+      "category": "content-creation",
+      "depends": "launch"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "launch",
+      "audit",
+      "readiness",
+      "step-by-step",
+      "go-no-go"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-launch-status-batch",
+    "title": "Launch Status Batch",
+    "description": "During-launch daily status workflow. Pulls live launch metrics from the available data sources, flags issues against those metrics, and drafts a daily standup. Runs fast and deterministically with no required user interaction.\nUse during an active launch when the user wants a quick daily pull of metrics, issues, and a standup draft.\nDo NOT use for pre-launch planning or building assets, and never fabricate metrics when a data source is missing.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-launch-status-batch/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing launch metrics standup deterministic reporting",
+      "category": "content-creation",
+      "depends": "launch"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "launch",
+      "metrics",
+      "standup",
+      "deterministic",
+      "reporting"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-listing-audit-pick",
+    "title": "Listing Audit Pick",
+    "description": "Pick one product listing from an inventory source, run a quick audit on it, and produce targeted improvement recommendations. A fast, deterministic triage pass over a catalog.\nUse when the user wants to surface a single weak listing from their inventory and get an immediate audit plus recommendations.\nDo NOT use when the user already has the specific listing in hand and just wants a deep rewrite (use the full listing-optimize workflow instead).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-listing-audit-pick/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "commerce ecommerce listing audit triage deterministic",
+      "category": "content-creation",
+      "depends": "commerce-listing commerce-description"
+    },
+    "category": "content-creation",
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "listing",
+      "audit",
+      "triage",
+      "deterministic"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-listing-optimize",
+    "title": "Listing Optimize",
+    "description": "Audit and optimize a single product listing end to end: diagnose the conversion bottleneck, run a full audit, rewrite the listing, and produce an A/B test plan to validate the change.\nUse when the user wants a structured multi-step process to improve one listing's copy, structure, and conversion levers.\nDo NOT use for a quick catalog triage pass (use listing-audit-pick) or a single-line copy tweak.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-listing-optimize/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "commerce ecommerce listing optimization conversion ab-test step-by-step",
+      "category": "content-creation",
+      "depends": "commerce-listing commerce-description"
+    },
+    "category": "content-creation",
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "listing",
+      "optimization",
+      "conversion",
+      "ab-test",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-nda-pack",
+    "title": "NDA Pack",
+    "description": "Draft a mutual or unilateral NDA that is jurisdiction-aware and tailored to the parties and purpose: infer the right form, recommend key terms, draft the agreement, and iterate to a counsel-ready draft.\nUse when the user wants a structured process to produce an NDA draft tailored to a specific counterparty, purpose, and governing law.\nDo NOT use for a one-line question about NDAs, or as a substitute for licensed legal advice. The output is a draft; counsel review is required before execution.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-nda-pack/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "legal nda confidentiality mutual unilateral step-by-step business-legal",
+      "category": "business-operations",
+      "depends": ""
+    },
+    "category": "business-operations",
+    "tags": [
+      "legal",
+      "nda",
+      "confidentiality",
+      "mutual",
+      "unilateral",
+      "step-by-step",
+      "business-legal"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-objection-library-build",
+    "title": "Objection Library Build",
+    "description": "Build a reusable objection-handling library: gather and infer the objections for a niche, categorize them by the Three Locks, write a response template per objection, then produce per-buyer-type variants.\nUse when the user wants a durable, categorized objection library with response templates and buyer-type variants they can reuse across deals.\nDo NOT use for diagnosing one specific stuck deal (use wayland-deal-forensic) or building a cold outreach sequence (use wayland-outreach-build).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-objection-library-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "sales objections three-locks templates buyer-types step-by-step",
+      "category": "business-operations",
+      "depends": "sales-coach sales-objections convert-three-locks"
+    },
+    "category": "business-operations",
+    "tags": [
+      "sales",
+      "objections",
+      "three-locks",
+      "templates",
+      "buyer-types",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-offer-build",
+    "title": "Offer Build",
+    "description": "Guided offer build using The Donahoe Method. Works through four locks in sequence: positioning, stack, pricing, and guarantee, with expert-level reasoning the user confirms or overrides at each lock.\nUse when the user wants a structured, multi-step process to build or sharpen a sales offer from a single product one-liner into a complete offer document.\nDo NOT use for single-step copy edits or questions a single atomic skill can answer without building the full four-lock offer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-offer-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing funnels offer pricing step-by-step donahoe-method",
+      "category": "content-creation",
+      "depends": "sales-icp market-funnel convert-temperature funnels-offer convert-three-locks funnels-offer-stack funnels-offer-pricing funnels-offer-guarantee"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "funnels",
+      "offer",
+      "pricing",
+      "step-by-step",
+      "donahoe-method"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-outreach-build",
+    "title": "Outreach Build",
+    "description": "Build a cold outreach sequence: ICP-targeted, multi-touch cadence with per-touch copy and response branches for when prospects engage, ignore, or object.\nUse when the user wants a complete cold outreach kit: a recommended cadence, a full multi-touch sequence, and follow-up branches.\nDo NOT use for prepping a single discovery call (use wayland-discovery-prep) or building an ICP from scratch (use wayland-icp-build).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-outreach-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "sales outreach cold-email cadence follow-up step-by-step",
+      "category": "business-operations",
+      "depends": "sales-coach sales-outreach sales-followup"
+    },
+    "category": "business-operations",
+    "tags": [
+      "sales",
+      "outreach",
+      "cold-email",
+      "cadence",
+      "follow-up",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-pipeline-batch-review",
+    "title": "Pipeline Batch Review",
+    "description": "Friday pipeline review: resolve a pipeline data source, scan deal records to identify stuck deals past a staleness threshold, and draft quick forensics on the top three.\nUse when the user wants a fast batch sweep of their open pipeline to find stuck deals and get a first-pass diagnosis on the worst three.\nDo NOT use for a deep diagnosis of one specific deal (use wayland-deal-forensic) or for building an objection library (use wayland-objection-library-build).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-pipeline-batch-review/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "sales pipeline-review batch stuck-deals forensics reporting",
+      "category": "business-operations",
+      "depends": "sales-report sales-objections"
+    },
+    "category": "business-operations",
+    "tags": [
+      "sales",
+      "pipeline-review",
+      "batch",
+      "stuck-deals",
+      "forensics",
+      "reporting"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-policy-stack",
+    "title": "Policy Stack",
+    "description": "Build a complete legal policy stack for a product: Terms of Service, Privacy Policy, Refund Policy + EULA, and Cookie / Acceptable Use, all aligned to the product type, jurisdictions, and compliance requirements (GDPR, CCPA, HIPAA).\nUse when the user wants a structured, multi-step process to produce the full set of user-facing legal policies for a product before launch.\nDo NOT use for a single policy in isolation, or as a substitute for licensed legal advice. Outputs are drafts; counsel review is required before publication.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-policy-stack/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "legal tos privacy refund eula cookie compliance step-by-step business-legal",
+      "category": "business-operations",
+      "depends": ""
+    },
+    "category": "business-operations",
+    "tags": [
+      "legal",
+      "tos",
+      "privacy",
+      "refund",
+      "eula",
+      "cookie",
+      "compliance",
+      "step-by-step",
+      "business-legal"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-positioning-sprint",
+    "title": "Positioning Sprint",
+    "description": "Positioning sprint that ends in a defensible position statement and a per-audience messaging matrix. Infers the competitive set, maps competitors, audits the brand against that map, recommends a position (what you stand for, against, and who it is not for), then translates it into messaging per audience.\nUse when the user wants a structured, multi-step process to define or sharpen market positioning and produce messaging tailored to each audience segment.\nDo NOT use for a single tagline tweak or one-line positioning question that an atomic skill can answer without running the full sprint.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-positioning-sprint/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing positioning messaging competitors brand step-by-step",
+      "category": "content-creation",
+      "depends": "market-competitors market-brand market-audit market-copy"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "positioning",
+      "messaging",
+      "competitors",
+      "brand",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-prep-due-diligence",
+    "title": "Due Diligence Prep",
+    "description": "Build a due-diligence readiness pack for a fundraising round: anticipated DD question set, a recommended data-room folder structure, per-question response drafts, and a readiness checklist showing what is done versus what still needs gathering. The agent infers the question set for the stage and investor archetype, then structures, drafts, and checklists the responses.\nUse when the user wants a structured multi-step process to prepare for investor due diligence and assemble a data-room-ready pack.\nDo NOT use for a single DD question, a one-off document request, or a question one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-prep-due-diligence/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "pitch fundraising due-diligence data-room investor step-by-step planning",
+      "category": "content-creation",
+      "depends": "pitch-dd-prep"
+    },
+    "category": "content-creation",
+    "tags": [
+      "pitch",
+      "fundraising",
+      "due-diligence",
+      "data-room",
+      "investor",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-pricing-stress-test",
+    "title": "Pricing Stress Test",
+    "description": "Stress-test pricing across bear/base/bull scenarios. Covers elasticity, contribution margin, and LTV/CAC implications, ending in a recommendation memo.\nUse when the user wants a structured multi-step process to test a price change across scenarios before committing.\nDo NOT use for a single pricing question an atomic finance skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-pricing-stress-test/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-finance pricing scenarios step-by-step cfo",
+      "category": "business-operations",
+      "depends": "finance-pricing-review finance-forecast"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-finance",
+      "pricing",
+      "scenarios",
+      "step-by-step",
+      "cfo"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-re-launch",
+    "title": "Re-Launch",
+    "description": "Re-launch planning workflow. Takes a prior launch's results, infers the priority fix list, builds a structured debrief of what worked versus what did not, and produces a relaunch plan with the specific changes to make next time.\nUse when the user has already run a launch and wants a structured process to debrief it and plan the relaunch.\nDo NOT use for a first-time launch with no prior results (use the full launch workflow) or a single quick question.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-re-launch/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing launch relaunch debrief step-by-step planning",
+      "category": "content-creation",
+      "depends": "launch"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "launch",
+      "relaunch",
+      "debrief",
+      "step-by-step",
+      "planning"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-runway-projection",
+    "title": "Runway Projection",
+    "description": "Project runway across bear/base/bull scenarios with a date-of-zero per scenario and action triggers.\nUse when the user wants a structured multi-step process to project cash runway and set the rules for what to do as cash falls.\nDo NOT use for a single runway number an atomic finance skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-runway-projection/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "business-finance runway cashflow step-by-step cfo",
+      "category": "business-operations",
+      "depends": "finance-forecast finance-cashflow finance-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "business-finance",
+      "runway",
+      "cashflow",
+      "step-by-step",
+      "cfo"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-sku-launch",
+    "title": "SKU Launch",
+    "description": "Launch a new SKU end to end: gather the product brief, recommend pricing and a naming approach, build the listing, then build the post-purchase thank-you page and the upsell flow, with review gates before shipping the launch package.\nUse when the user wants a structured multi-step process to take a new product from idea to a complete, launch-ready package.\nDo NOT use for editing an existing live listing or a single pricing question.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-sku-launch/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "commerce ecommerce sku-launch pricing listing upsell step-by-step",
+      "category": "content-creation",
+      "depends": "funnels-offer-pricing commerce-listing commerce-description commerce-postpurchase-thankyou commerce-upsell-flow"
+    },
+    "category": "content-creation",
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "sku-launch",
+      "pricing",
+      "listing",
+      "upsell",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-support-churn-investigate",
+    "title": "Support Churn Investigate",
+    "description": "Investigate customer churn end to end: gather the brief, infer hypotheses to test, run a full investigation, synthesize a root cause, then build an action plan and ship the report.\nUse when the user wants a structured, multi-step process to diagnose churn root causes and produce an action plan they review as it is built.\nDo NOT use for a single churn-rate lookup or a one-line guess that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-support-churn-investigate/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "support churn retention root-cause action-plan step-by-step",
+      "category": "business-operations",
+      "depends": "support-churn-investigate support-nps-analysis"
+    },
+    "category": "business-operations",
+    "tags": [
+      "support",
+      "churn",
+      "retention",
+      "root-cause",
+      "action-plan",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-support-kb-article",
+    "title": "Support KB Article",
+    "description": "Build a self-serve knowledge-base article from a recurring support ticket: infer search intent, draft the article, then add an if-this-then-that troubleshooting tree.\nUse when the user wants a structured, multi-step process to turn a representative ticket and its resolution into a published-quality KB article with a troubleshooting tree.\nDo NOT use for a one-paragraph FAQ answer or a single edit that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-support-kb-article/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "support knowledge-base kb-article troubleshooting self-serve step-by-step",
+      "category": "business-operations",
+      "depends": "support-kb-article"
+    },
+    "category": "business-operations",
+    "tags": [
+      "support",
+      "knowledge-base",
+      "kb-article",
+      "troubleshooting",
+      "self-serve",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-support-macro-library",
+    "title": "Support Macro Library",
+    "description": "Build a reusable support macro library from recurring ticket patterns: identify the patterns, draft reply templates with personalization slots, then organize them into a category index.\nUse when the user wants a structured, multi-step process to turn a sample of recurring tickets into a complete macro library with templates and a lookup index.\nDo NOT use for a single canned reply or one template that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-support-macro-library/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "support macros templates faq category-index step-by-step",
+      "category": "business-operations",
+      "depends": "support-faq support-reply"
+    },
+    "category": "business-operations",
+    "tags": [
+      "support",
+      "macros",
+      "templates",
+      "faq",
+      "category-index",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-support-ticket-triage",
+    "title": "Support Ticket Triage",
+    "description": "Triage one inbound support ticket end to end: classify it, draft a reply, run an escalation check, then send or escalate.\nUse when the user wants a structured, multi-step process to triage a single support ticket from raw inbound to a sent reply or a clean escalation.\nDo NOT use for a one-line canned answer or a quick classification that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-support-ticket-triage/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "support triage ticket reply escalation step-by-step",
+      "category": "business-operations",
+      "depends": "support-reply support-escalation"
+    },
+    "category": "business-operations",
+    "tags": [
+      "support",
+      "triage",
+      "ticket",
+      "reply",
+      "escalation",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-support-week-batch",
+    "title": "Support Week Batch",
+    "description": "Run the weekly support batch deterministically: pull weekly metrics, check SLA compliance, and detect recurring patterns across the week's tickets in one pass.\nUse when the user wants an automated, multi-step weekly support roll-up from a ticket export, producing metrics, an SLA-compliance status, and detected patterns.\nDo NOT use for triaging a single live ticket or answering one ad-hoc support question that one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-support-week-batch/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "support weekly metrics sla pattern-detection batch deterministic",
+      "category": "business-operations",
+      "depends": "support-report support-sla-review support-faq"
+    },
+    "category": "business-operations",
+    "tags": [
+      "support",
+      "weekly",
+      "metrics",
+      "sla",
+      "pattern-detection",
+      "batch",
+      "deterministic"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-voice-bootstrap",
+    "title": "Voice Bootstrap",
+    "description": "Bootstrap a writing voice profile using the Ghostwrite Yourself interview: 22 questions across six voice dimensions, synthesized into a profile, saved to voice-notes.md, and validated on a sample post.\nUse when the user wants a structured multi-step process to capture their writing voice into a reusable profile other content workflows can apply.\nDo NOT use for a one-off rewrite or a quick tone tweak; this is the setup step that produces the voice profile other workflows depend on.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-voice-bootstrap/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "content voice writing onboarding step-by-step profile",
+      "category": "content-creation",
+      "depends": "content-voice-profile content-thought-leadership-post"
+    },
+    "category": "content-creation",
+    "tags": [
+      "content",
+      "voice",
+      "writing",
+      "onboarding",
+      "step-by-step",
+      "profile"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-vsl-build",
+    "title": "VSL Build",
+    "description": "Build an 18-minute VSL script plus the hosting page and thank-you page, with buy-button reveal mechanics and a Bullshit Filter pass.\nUse when the user wants a complete video sales letter package built from an offer, with an interactive review at each beat.\nDo NOT use when the user wants a text sales letter (use wayland-full-sales-asset) or only a close (use wayland-close-rebuild).",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-vsl-build/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing conversion copywriting vsl video-sales-letter step-by-step",
+      "category": "content-creation",
+      "depends": "convert-temperature convert-three-locks convert-vsl convert-vsl-page convert-thank-you-page convert-bullshit-filter"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "conversion",
+      "copywriting",
+      "vsl",
+      "video-sales-letter",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-webinar-funnel",
+    "title": "Webinar Funnel",
+    "description": "Conviction-webinar funnel design. Builds registration, pre-show drip, presentation outline, close, and post-webinar cart-close sequence around the offer sold at the close, with price driving the architecture.\nUse when the user wants a structured, multi-step process to design a webinar funnel for a warm-or-warmer audience and a high-AOV offer.\nDo NOT use for a single webinar asset (one email, one slide) or a question one atomic skill can answer without designing the full funnel.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-webinar-funnel/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "marketing funnels webinar conviction step-by-step high-ticket",
+      "category": "content-creation",
+      "depends": "sales-icp funnels-conviction-webinar convert-webinar-reg-page funnels-story-drip funnels-cart-cycle-launch"
+    },
+    "category": "content-creation",
+    "tags": [
+      "marketing",
+      "funnels",
+      "webinar",
+      "conviction",
+      "step-by-step",
+      "high-ticket"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
+    "name": "wayland-winback-campaign",
+    "title": "Winback Campaign",
+    "description": "Design a winback campaign end to end: define and segment lapsed customers, build the comeback offer, then write the email sequence that re-engages them, with review gates before shipping.\nUse when the user wants a structured multi-step process to re-engage lapsed or one-time customers with a segmented offer and a timed email sequence.\nDo NOT use for a single re-engagement email or a question one atomic skill can answer.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-winback-campaign/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "commerce ecommerce retention winback email segmentation step-by-step",
+      "category": "content-creation",
+      "depends": "commerce-winback funnels-offer"
+    },
+    "category": "content-creation",
+    "tags": [
+      "commerce",
+      "ecommerce",
+      "retention",
+      "winback",
+      "email",
+      "segmentation",
+      "step-by-step"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  }
+]

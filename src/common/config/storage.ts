@@ -84,6 +84,8 @@ export interface IConfigStorageRefer {
   language: string;
   theme: string;
   colorScheme: string;
+  /** First-run onboarding overlay completion flag. Once true, the overlay never shows again. */
+  onboardingCompleted?: boolean;
   /** User's preferred display name for the new-chat greeting. Empty = use the OS account name. */
   'user.displayName'?: string;
   /**
@@ -114,6 +116,13 @@ export interface IConfigStorageRefer {
     preferredMode?: string;
   };
   'wcore.defaultModel'?: { id: string; useModel: string };
+  /**
+   * User-pinned models for the composer model picker, as `providerId:modelId`
+   * keys. Surfaced in a dedicated "Pinned" zone at the top of the picker so a
+   * subset of a large catalog (e.g. Flux Router's many models) stays one click
+   * away. A UI preference, not provider state, so it lives in config not the DB.
+   */
+  pinnedModels?: string[];
   'tools.imageGenerationModel': TProviderWithModel & {
     /** @deprecated Image generation is now controlled via built-in MCP server toggle */
     switch?: boolean;
@@ -725,6 +734,21 @@ export interface IMcpServer {
   source?: McpServerSource;
   /** Catalog entry id if this server was installed from the MCP Library. */
   libraryEntryId?: string;
+  /**
+   * User-supplied OAuth client credentials for vendors that don't support
+   * Dynamic Client Registration (Slack, GitHub, HubSpot, Zoom, Box, Figma…).
+   * When present, the OAuth flow skips DCR and uses these credentials
+   * directly. The user must have registered an OAuth app on the vendor's
+   * developer console with the redirect URI set to
+   * http://localhost:57000/oauth/callback.
+   */
+  byoOAuth?: IByoOAuthCredentials;
+}
+
+export interface IByoOAuthCredentials {
+  clientId: string;
+  /** Optional — public clients with PKCE don't need a secret. */
+  clientSecret?: string;
 }
 
 /** Stable ID for the built-in image generation MCP server */

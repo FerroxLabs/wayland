@@ -179,6 +179,43 @@
   flex-shrink: 0;
 }
 
+/* Pin toggle on each model row. Hidden until row hover; stays lit when pinned
+   so the Pinned zone reads as deliberate. */
+.pinButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.1s ease,
+    color 0.1s ease,
+    background-color 0.1s ease;
+}
+
+.row:hover .pinButton {
+  opacity: 0.7;
+}
+
+.pinButton:hover {
+  opacity: 1;
+  background-color: var(--bg-2);
+  color: var(--text-primary);
+}
+
+.pinButton[data-pinned='true'] {
+  opacity: 1;
+  color: var(--primary);
+}
+
 .collapseHead {
   display: flex;
   align-items: center;

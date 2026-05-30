@@ -3,14 +3,14 @@
   "name": "com.bitbonsai/mcpvault",
   "title": "Obsidian Vault",
   "description": "Read, write, search, and back-link notes in any local Obsidian vault — no plugin required.",
-  "version": "0.5.0",
+  "version": "0.11.0",
   "websiteUrl": "https://github.com/bitbonsai/mcpvault",
   "repository": { "url": "https://github.com/bitbonsai/mcpvault", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
-      "identifier": "mcpvault",
-      "version": "0.5.0",
+      "identifier": "@bitbonsai/mcpvault",
+      "version": "0.11.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [

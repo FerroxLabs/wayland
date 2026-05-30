@@ -1,5 +1,7 @@
 import React from 'react';
 import { Check, ExternalLink } from 'lucide-react';
+import MarkdownView from '@renderer/components/Markdown';
+import { openExternalUrl } from '@renderer/utils/platform';
 import type { SetupGuide as GuideT, SetupStep } from '../types';
 
 interface Props {
@@ -7,6 +9,8 @@ interface Props {
   envValues: Record<string, string>;
   onEnvChange: (name: string, value: string) => void;
   onPrimary: (action: string) => void;
+  /** Step ids the parent has determined are complete (e.g. install done, OAuth authorized). */
+  completedStepIds?: ReadonlySet<string>;
 }
 
 function StepCard({
@@ -15,8 +19,9 @@ function StepCard({
   envValues,
   onEnvChange,
   onPrimary,
+  completedStepIds,
 }: Props & { step: SetupStep; idx: number }) {
-  const done = !!step.autoCompletedByInstall;
+  const done = !!step.autoCompletedByInstall || (completedStepIds?.has(step.id) ?? false);
   return (
     <div className={`mcp-step ${done ? 'is-done' : ''}`} data-step-id={step.id}>
       <div className="mcp-step-num">{done ? <Check size={14} /> : idx + 1}</div>
@@ -30,12 +35,17 @@ function StepCard({
             </span>
           ) : null}
         </div>
+        {step.body && (
+          <div className="mcp-step-body-md">
+            <MarkdownView>{step.body}</MarkdownView>
+          </div>
+        )}
         {step.externalAction && (
           <button
             className="mcp-open-link"
-            onClick={() =>
-              window.open(step.externalAction!.url, '_blank', 'noopener,noreferrer')
-            }
+            onClick={() => {
+              void openExternalUrl(step.externalAction!.url);
+            }}
           >
             <ExternalLink size={12} /> {step.externalAction.label}
           </button>

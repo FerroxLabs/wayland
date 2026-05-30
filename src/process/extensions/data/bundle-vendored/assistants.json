@@ -81,7 +81,9 @@
     "enabledSkills": [
       "copy-customer-voice",
       "copy-awareness-stages",
-      "copy-hook-craft"
+      "copy-hook-craft",
+      "content-about-page",
+      "content-haro-reply"
     ],
     "prompts": [
       "Write a hook for [audience] - the second line has to feel inevitable.",
@@ -160,7 +162,11 @@
     "enabledSkills": [
       "sales-discovery-call",
       "sales-objection-handling",
-      "sales-close-and-next-step"
+      "sales-close-and-next-step",
+      "sales-prospect",
+      "sales-qualify",
+      "sales-contacts",
+      "sales-icp"
     ],
     "prompts": [
       "Run me through a SPIN discovery call for a $[X] sale.",
@@ -304,7 +310,10 @@
     "enabledSkills": [
       "mira-brand-foundation",
       "mira-visual-system",
-      "mira-presentation-design"
+      "mira-presentation-design",
+      "market",
+      "market-audit",
+      "market-landing"
     ],
     "prompts": [
       "Write my onlyness statement - one sentence, no betterness.",
@@ -599,7 +608,15 @@
     "enabledSkills": [
       "coin-runway-and-burn",
       "coin-unit-economics",
-      "coin-pricing-math"
+      "coin-pricing-math",
+      "finance-pl",
+      "finance-balance-sheet",
+      "finance-cashflow",
+      "finance-receivables",
+      "finance-r-and-d-credit",
+      "finance-1099-prep",
+      "finance-payroll-prep",
+      "finance-sales-tax"
     ],
     "prompts": [
       "What's my runway given $[cash] and $[monthly burn]?",
@@ -671,7 +688,13 @@
     "enabledSkills": [
       "sentry-formation-and-structure",
       "sentry-contracts-and-terms",
-      "sentry-ip-and-compliance"
+      "sentry-ip-and-compliance",
+      "legal",
+      "legal-dmca",
+      "legal-eula",
+      "legal-cease-and-desist",
+      "legal-gdpr",
+      "legal-contractor"
     ],
     "prompts": [
       "I'm starting a business - LLC, C-corp, or S-corp?",
@@ -1254,7 +1277,8 @@
     "enabledSkills": [
       "vault-storefront-foundation",
       "vault-agentic-geo",
-      "vault-marketplace-ops"
+      "vault-marketplace-ops",
+      "commerce-ugc-prompts"
     ],
     "prompts": [
       "Optimize my PDP for AI-shopping discovery (GEO).",
@@ -1398,7 +1422,8 @@
     "enabledSkills": [
       "mend-ticket-triage",
       "mend-onboarding-flow",
-      "mend-churn-prevention"
+      "mend-churn-prevention",
+      "support"
     ],
     "prompts": [
       "Design the onboarding flow - the Desired Outcome path.",
@@ -1621,7 +1646,14 @@
     "enabledSkills": [
       "slate-role-design",
       "slate-candidate-evaluation",
-      "slate-hiring-structure"
+      "slate-hiring-structure",
+      "hr",
+      "hr-handbook",
+      "hr-rif",
+      "hr-termination-letter",
+      "hr-offboard",
+      "hr-leave-of-absence",
+      "hr-accommodation-request"
     ],
     "prompts": [
       "Design the role before I post the job - what outcome stops being delivered?",

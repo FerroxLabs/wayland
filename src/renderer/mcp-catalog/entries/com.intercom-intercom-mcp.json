@@ -1,0 +1,82 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.intercom/intercom-mcp",
+  "title": "Intercom",
+  "description": "Search conversations and contacts — Intercom's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developers.intercom.com/docs/guides/mcp",
+  "repository": {
+    "url": "https://github.com/intercom/intercom-mcp-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.intercom.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "support",
+      "communication"
+    ],
+    "tags": [
+      "intercom",
+      "support",
+      "conversations",
+      "crm"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 55,
+    "installRate": 0.09,
+    "iconUrl": "icons/intercom.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#1f8ded"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Intercom",
+      "providerSignupUrl": "https://www.intercom.com",
+      "scopes": [
+        {
+          "name": "read_users_companies",
+          "plainLanguage": "Read and list users and companies."
+        },
+        {
+          "name": "read_conversations",
+          "plainLanguage": "Read conversations and messages."
+        }
+      ]
+    },
+    "toolGroups": [
+      {
+        "label": "Search",
+        "count": 2
+      },
+      {
+        "label": "Conversations",
+        "count": 2
+      },
+      {
+        "label": "Contacts",
+        "count": 2
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.intercom-intercom-mcp.md",
+      "estimatedMinutes": 1,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

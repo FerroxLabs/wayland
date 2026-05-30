@@ -125,7 +125,9 @@ const DisplayModalContent: React.FC = () => {
         ? anchor.assistantId.slice('builtin-'.length)
         : anchor.assistantId;
       const preset = ASSISTANT_PRESETS.find((p) => p.id === bareId);
-      void launchAssistant({ id: bareId, presetAgentType: preset?.presetAgentType }, (path) => navigate(path));
+      void launchAssistant({ id: bareId, presetAgentType: preset?.presetAgentType }, (path, options) =>
+        navigate(path, options)
+      );
     },
     [navigate]
   );

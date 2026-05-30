@@ -114,6 +114,21 @@ extraResources:
     to: bundled-wayland-core
   - from: resources/hub
     to: hub
+  # Bundled business-pack extensions (real aion-extension.json trees).
+  # Copied into <userData>/extensions/<pack>/ on first run by initStorage so
+  # ExtensionLoader discovers them via the 'appdata' scan source. Ships outside
+  # app.asar so on-disk paths are real for fs scanning + SKILL.md reads.
+  - from: resources/bundled-extensions
+    to: bundled-extensions
+  # Skills library + Wayland built-in workflows: shipped as real on-disk
+  # Resources so SkillLibrary can read them in packaged builds. The previous
+  # asarUnpack entries for these never worked: the source lives under
+  # src/process/resources/ and was never copied into the asar, so asarUnpack
+  # matched nothing. extraResources copies them straight to Contents/Resources.
+  - from: src/process/resources/skills-library
+    to: skills-library
+  - from: src/process/resources/bundled-workflows
+    to: bundled-workflows
   # models.dev enrichment snapshot — offline floor for ModelsDevClient.
   # Generated at build time by scripts/bundle-modelsdev.ts (prebuild hook).
   - from: resources/modelsdev-snapshot.json
@@ -240,8 +255,17 @@ asarUnpack:
   - 'out/main/builtin-mcp-search-skills.js'
   - 'out/main/team-mcp-stdio.js'
   - 'out/main/team-guide-mcp-stdio.js'
-  # Skills library: read in-place at runtime — must not be packed into app.asar
-  - 'resources/skills-library/**/*'
+  # Bundled @wayland MCP servers (ship with installer, no npm publish)
+  - 'out/main/builtin-mcp-apple.mjs'
+  - 'out/main/builtin-mcp-imap.mjs'
+  - 'out/main/builtin-mcp-news.mjs'
+  - 'out/main/builtin-mcp-cal-com.mjs'
+  # Apple MCP native EventKit bridge (macOS only — built by `swiftc`)
+  - 'out/main/eventkit-bridge'
+  # NOTE: skills-library + bundled-workflows now ship via extraResources
+  # (Contents/Resources/{skills-library,bundled-workflows}); the old asarUnpack
+  # entries here matched nothing (source is under src/process/resources, never
+  # in the asar) so they were removed.
   # officecli (Office document generator used by Word/PPT/Excel/Morph/Academic
   # assistants). The runtime/ folder holds the real platform binary that
   # shellEnv.ts prepends to PATH for spawned subprocesses. Without unpacking,

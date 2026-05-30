@@ -5,6 +5,7 @@ import AppLoader from '@renderer/components/layout/AppLoader';
 import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { TEAM_MODE_ENABLED } from '@/common/config/constants';
 import { ToastProvider } from '@renderer/components/settings/shared/feedback/Toast';
+import OnboardingOverlay from '@renderer/components/onboarding/OnboardingOverlay';
 const Conversation = React.lazy(() => import('@renderer/pages/conversation'));
 const Guid = React.lazy(() => import('@renderer/pages/guid'));
 const AssistantsLibraryPage = React.lazy(() => import('@renderer/pages/assistants/AssistantsLibraryPage'));
@@ -48,8 +49,12 @@ const TeamsLibraryPage = React.lazy(() => import('@renderer/pages/teams/TeamsLib
 const TeamLauncherPage = React.lazy(() => import('@renderer/pages/teams/TeamLauncherPage'));
 const MemoryPage = React.lazy(() => import('@renderer/pages/memory/MemoryPage'));
 const IjfwSettingsPanel = React.lazy(() => import('@renderer/pages/settings/IjfwSettingsPanel'));
-const WikiHomePage = React.lazy(() => import('@renderer/pages/wiki/WikiHomePage').then((m) => ({ default: m.WikiHomePage })));
-const WikiDetailPage = React.lazy(() => import('@renderer/pages/wiki/WikiDetailPage').then((m) => ({ default: m.WikiDetailPageRoute })));
+const WikiHomePage = React.lazy(() =>
+  import('@renderer/pages/wiki/WikiHomePage').then((m) => ({ default: m.WikiHomePage }))
+);
+const WikiDetailPage = React.lazy(() =>
+  import('@renderer/pages/wiki/WikiDetailPage').then((m) => ({ default: m.WikiDetailPageRoute }))
+);
 
 const withRouteFallback = (Component: React.LazyExoticComponent<React.ComponentType>) => (
   <Suspense fallback={<AppLoader />}>
@@ -68,7 +73,12 @@ const ProtectedLayout: React.FC<{ layout: React.ReactElement }> = ({ layout }) =
     return <Navigate to='/login' replace />;
   }
 
-  return React.cloneElement(layout);
+  return (
+    <>
+      {React.cloneElement(layout)}
+      <OnboardingOverlay />
+    </>
+  );
 };
 
 const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
@@ -109,23 +119,14 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             {/* Legacy `/settings/mcp` route — the old McpSettings page was
               removed in P8; redirect to the new MCP Library Installed view so
               bookmarks still land somewhere useful. */}
-            <Route
-              path='/settings/mcp'
-              element={<Navigate to='/settings/mcp-library/installed' replace />}
-            />
+            <Route path='/settings/mcp' element={<Navigate to='/settings/mcp-library/installed' replace />} />
             {/* MCP Library — new catalog-driven Browse / Installed / Detail surface. */}
-            <Route
-              path='/settings/mcp-library'
-              element={<Navigate to='/settings/mcp-library/browse' replace />}
-            />
+            <Route path='/settings/mcp-library' element={<Navigate to='/settings/mcp-library/browse' replace />} />
             <Route path='/settings/mcp-library/browse' element={withRouteFallback(McpLibraryBrowsePage)} />
             <Route path='/settings/mcp-library/installed' element={withRouteFallback(McpLibraryInstalledPage)} />
             <Route path='/settings/mcp-library/:entryId' element={withRouteFallback(McpLibraryDetailPage)} />
             {/* Legacy redirect — old `/settings/tools/mcp` route now lands on Installed. */}
-            <Route
-              path='/settings/tools/mcp'
-              element={<Navigate to='/settings/mcp-library/installed' replace />}
-            />
+            <Route path='/settings/tools/mcp' element={<Navigate to='/settings/mcp-library/installed' replace />} />
             {/* APPEARANCE */}
             <Route path='/settings/theme' element={withRouteFallback(DisplaySettings)} />
             <Route path='/settings/editor' element={withRouteFallback(EditorSettings)} />

@@ -293,5 +293,10 @@
   "thinking": {
     "complete": "Роздуми завершено",
     "label": "Розмірковує..."
+  },
+  "subAgent": {
+    "statusRunning": "Виконується",
+    "statusDone": "Готово",
+    "statusFailed": "Помилка"
   }
 }

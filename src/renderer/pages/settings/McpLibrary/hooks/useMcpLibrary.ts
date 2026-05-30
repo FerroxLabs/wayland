@@ -26,6 +26,34 @@ const guideModules = import.meta.glob<string>(
   { eager: true, query: '?raw', import: 'default' },
 );
 
+// Vite resolves SVG asset URLs at build time. Catalog stores `iconUrl` as a
+// literal string like "icons/google.svg" (the path inside the catalog dir),
+// so we map filename → Vite-bundled URL once and resolve at hook construction.
+const iconModules = import.meta.glob<string>(
+  '@renderer/mcp-catalog/icons/*.svg',
+  { eager: true, query: '?url', import: 'default' },
+);
+
+const iconUrlByFilename: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const [key, url] of Object.entries(iconModules)) {
+    const slash = key.lastIndexOf('/');
+    const filename = slash >= 0 ? key.slice(slash + 1) : key;
+    map[filename] = url;
+  }
+  return map;
+})();
+
+function resolveIconUrl(catalogIconUrl: string | undefined): string | undefined {
+  if (!catalogIconUrl) return undefined;
+  // Already absolute (Vite-resolved on a previous pass, or http(s))
+  if (catalogIconUrl.startsWith('/') || /^https?:\/\//i.test(catalogIconUrl)) {
+    return catalogIconUrl;
+  }
+  const filename = catalogIconUrl.replace(/^icons\//, '');
+  return iconUrlByFilename[filename];
+}
+
 // Strict schema for guide frontmatter — never trust unvalidated YAML.
 const SetupStepSchema = z.object({
   id: z.string(),
@@ -45,6 +73,7 @@ const SetupStepSchema = z.object({
     )
     .optional(),
   warning: z.string().optional(),
+  body: z.string().optional(),
 });
 
 const GuideFrontmatterSchema = z.object({
@@ -122,7 +151,9 @@ export interface UseMcpLibrary {
 export function useMcpLibrary(): UseMcpLibrary {
   return useMemo(() => {
     const idx = catalog as unknown as CatalogIndex;
-    const entries = [...idx.entries].sort((a, b) => a.popularityRank - b.popularityRank);
+    const entries = [...idx.entries]
+      .sort((a, b) => a.popularityRank - b.popularityRank)
+      .map((e) => ({ ...e, iconUrl: resolveIconUrl(e.iconUrl) ?? e.iconUrl }));
     const recommended = entries.slice(0, 6);
     const byTier: Record<Tier, CatalogIndexEntry[]> = { core: [], worker: [], builder: [] };
     const byCategory: Record<string, CatalogIndexEntry[]> = {};
@@ -137,7 +168,16 @@ export function useMcpLibrary(): UseMcpLibrary {
       byCategory,
       getEntry: (id) => {
         const idxEntry = entries.find((e) => e.id === id);
-        return idxEntry ? getEntryByPath(idxEntry.entryUrl) : undefined;
+        if (!idxEntry) return undefined;
+        const raw = getEntryByPath(idxEntry.entryUrl);
+        const wayland = raw['x-wayland'];
+        return {
+          ...raw,
+          'x-wayland': {
+            ...wayland,
+            iconUrl: resolveIconUrl(wayland.iconUrl) ?? wayland.iconUrl,
+          },
+        };
       },
       getGuide: (id) => {
         const idxEntry = entries.find((e) => e.id === id);

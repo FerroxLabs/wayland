@@ -1,64 +1,114 @@
 import React from 'react';
-import { Check, Settings, Trash2, FileText, LogIn } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Switch } from '@arco-design/web-react';
+import { Settings, Trash2, FileText, LogIn, Server } from 'lucide-react';
+import type { McpOAuthStatus } from '@renderer/hooks/mcp/useMcpOAuth';
 
-interface Server {
+export type UIStatus = 'running' | 'warn' | 'error' | 'stopped';
+
+type ServerRowServer = {
   id: string;
+  name?: string;
   source?: 'library' | 'custom';
   libraryEntryId?: string;
-  status: 'running' | 'warn' | 'error' | 'stopped';
+  status: UIStatus;
   toolCount?: number;
   publisher?: string;
-  oauthState?: 'ok' | 'expired';
-}
+  enabled?: boolean;
+};
 
-interface Props {
-  server: Server;
+type Props = {
+  server: ServerRowServer;
   iconUrl?: string;
+  oauthStatus?: McpOAuthStatus;
   onReauth: () => void;
   onSettings: () => void;
   onRemove: () => void;
   onToggle: () => void;
   onLogs: () => void;
-}
+};
 
 export function ServerRow({
   server,
   iconUrl,
+  oauthStatus,
   onReauth,
   onSettings,
   onRemove,
   onToggle,
   onLogs,
 }: Props) {
+  const { t } = useTranslation();
+  const needsReauth = oauthStatus?.needsLogin === true;
+  // `stopped` is a catch-all in deriveStatus: it covers BOTH user-disabled
+  // (toggle off) and enabled-but-not-yet-connected. Split the label so the
+  // pill doesn't say "Disabled" while the user is staring at the toggle they
+  // just flipped on.
+  const stoppedLabel = server.enabled
+    ? t('mcpLibrary.installed.statusIdle', 'Idle')
+    : t('mcpLibrary.installed.statusStopped', 'Disabled');
+  const statusLabel = {
+    running: t('mcpLibrary.installed.statusRunning', 'Running'),
+    warn: t('mcpLibrary.installed.statusWarn', 'Needs re-authorization'),
+    error: t('mcpLibrary.installed.statusError', 'Error'),
+    stopped: stoppedLabel,
+  }[server.status];
+  const toggleLabel = t('mcpLibrary.installed.actionToggle', 'Enable / disable');
   return (
     <div className={`mcp-server-row mcp-server-${server.status}`}>
-      <img className="mcp-server-logo" src={iconUrl ?? 'icons/generic.svg'} alt="" />
+      {iconUrl ? (
+        <img className="mcp-server-logo" src={iconUrl} alt="" />
+      ) : (
+        <span className="mcp-server-logo mcp-server-logo-fallback" aria-hidden="true">
+          <Server size={18} />
+        </span>
+      )}
       <div className="mcp-server-main">
-        <div className="mcp-server-name">{server.id}</div>
+        <div className="mcp-server-name">{server.name ?? server.id}</div>
         <div className="mcp-server-pub">{server.publisher ?? ''}</div>
       </div>
       <div className="mcp-server-stats">{server.toolCount ?? 0} tools</div>
       <div className="mcp-server-status">
         <span className={`mcp-status-pill mcp-status-${server.status}`}>
-          <span className="mcp-dot" /> {server.status}
+          <span className="mcp-dot" /> {statusLabel}
         </span>
       </div>
       <div className="mcp-server-actions">
-        <button onClick={onToggle} title="Enable/disable">
-          <Check size={15} />
-        </button>
-        {server.oauthState === 'expired' && (
-          <button onClick={onReauth} className="mcp-btn-warn">
-            <LogIn size={15} /> Re-authorize
+        <Switch
+          size="small"
+          checked={server.enabled ?? false}
+          onChange={onToggle}
+          aria-label={toggleLabel}
+        />
+        {needsReauth && (
+          <button
+            onClick={onReauth}
+            className="mcp-btn-warn"
+            aria-label={t('mcpLibrary.installed.actionReauth', 'Re-authorize')}
+          >
+            <LogIn size={15} /> {t('mcpLibrary.installed.actionReauth', 'Re-authorize')}
           </button>
         )}
-        <button onClick={onSettings} title="Edit env">
+        <button
+          onClick={onSettings}
+          title={t('mcpLibrary.installed.actionSettings', 'Settings')}
+          aria-label={t('mcpLibrary.installed.actionSettings', 'Settings')}
+        >
           <Settings size={15} />
         </button>
-        <button onClick={onLogs} title="Logs">
+        <button
+          onClick={onLogs}
+          title={t('mcpLibrary.installed.actionLogs', 'View logs')}
+          aria-label={t('mcpLibrary.installed.actionLogs', 'View logs')}
+        >
           <FileText size={15} />
         </button>
-        <button onClick={onRemove} title="Remove" className="mcp-danger">
+        <button
+          onClick={onRemove}
+          title={t('mcpLibrary.installed.actionRemove', 'Remove')}
+          className="mcp-danger"
+          aria-label={t('mcpLibrary.installed.actionRemove', 'Remove')}
+        >
           <Trash2 size={15} />
         </button>
       </div>

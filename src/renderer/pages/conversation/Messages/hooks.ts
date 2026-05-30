@@ -219,6 +219,30 @@ function composeMessageWithIndex(message: TMessage, list: TMessage[], index: Mes
     return list.concat(message);
   }
 
+  // sub_agent message: merge by parentCallId (stored as msg_id).
+  // Append body text; terminal status (done/failed) wins over 'running'.
+  if (message.type === 'sub_agent' && message.msg_id) {
+    const existingIdx = index.msgIdIndex.get(message.msg_id);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'sub_agent') {
+        const prev = existingMsg.content;
+        const next = message.content;
+        const mergedStatus =
+          next.status === 'done' || next.status === 'failed' ? next.status : prev.status;
+        const newList = list.slice();
+        newList[existingIdx] = {
+          ...existingMsg,
+          content: { ...prev, status: mergedStatus, body: prev.body + next.body },
+        };
+        return newList;
+      }
+    }
+    const newIdx = list.length;
+    index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
   // plan message: update content and move to end of list
   if (message.type === 'plan' && message.msg_id) {
     const existingIdx = index.msgIdIndex.get(message.msg_id);

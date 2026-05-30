@@ -295,6 +295,11 @@
     "complete": "Размышление завершено",
     "label": "Размышляет..."
   },
+  "subAgent": {
+    "statusRunning": "Выполняется",
+    "statusDone": "Готово",
+    "statusFailed": "Ошибка"
+  },
   "skills": {
     "loaded": "Загруженные навыки"
   }

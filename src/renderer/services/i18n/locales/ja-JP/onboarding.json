@@ -1,0 +1,76 @@
+{
+  "brand": "Wayland",
+  "welcome": "Wayland へようこそ",
+  "footer": {
+    "manage": "検出は一度だけ実行されました。設定 → プロバイダー でいつでも変更できます。",
+    "noLockIn": "いずれの選択肢もあなたを縛りません。",
+    "keysKeepWorking": "どちらにしてもあなたのキーは動き続けます。Flux Router はその上に乗り、決して前に立ちはだかりません。",
+    "skip": "今はスキップ"
+  },
+  "connect": {
+    "title": "Flux Router に接続",
+    "subtitle": "Flux Router のキーを貼り付けてください。1 つのキーであらゆるモデルを、リクエストごとにルーティングします。",
+    "keyLabel": "Flux Router キー",
+    "keyPlaceholder": "sk-...",
+    "getKey": "fluxrouter.ai でキーを取得",
+    "submit": "接続",
+    "connecting": "接続中...",
+    "back": "戻る",
+    "errorUnauthorized": "そのキーは拒否されました。確認して再試行してください。",
+    "errorNoCredit": "このアカウントにはまだクレジットがありません。fluxrouter.ai でチャージしてから再試行してください。",
+    "errorOffline": "Flux Router に接続できませんでした。接続を確認して再試行してください。",
+    "errorUnrecognized": "これは Flux Router のキーではないようです。sk-flux- で始まる必要があります。",
+    "errorNoModels": "接続されましたが、モデルが返されませんでした。しばらくしてから再試行してください。",
+    "errorUnknown": "接続中に問題が発生しました。再試行してください。",
+    "trust": "Wayland を手がける Ferrox Labs より。"
+  },
+  "scenarioA": {
+    "greeting": "{{name}}さん、すでに準備万端です",
+    "subGeneric": "ツールが検出され、稼働しています。",
+    "sutherlandLede": "1 つのフラッグシップを固定すれば、すべてに答えます。それを必要としない手軽な作業でも。",
+    "sutherlandBody": "Flux Router をおすすめします。あなたが既に持っているもの、サブスク、ローカルの Ollama、Anthropic キーの中から、リクエストごとに最適なモデルを選びます。重要なところは同じ品質で、そうでないところは軽いモデルで。あなたは選ばなくてよくなります。選ぶのは Flux Router。あなたは書くだけ。",
+    "microTrust": "難しい問題は上へルーティングされ、決して下へは行きません。下限は設定で決めます。",
+    "primary": "Flux Router をセットアップ",
+    "ghost": "次の 10 ターンで試す"
+  },
+  "scenarioB": {
+    "greeting": "Wayland へようこそ",
+    "sub": "入り方を 1 つ選んでください。残りはいつでも追加できます。",
+    "heroTag": "おすすめ",
+    "heroTitle": "Flux Router",
+    "heroBody": "1 つのキーで、あらゆるモデルへ。リクエストごとに最適なモデルを選ぶので、迷わなくなります。安く、もっとできる。",
+    "heroFoot": "従量課金 · サブスク不要 · 最低料金なし",
+    "heroCta": "Flux Router に接続",
+    "pasteKeyTitle": "プロバイダーのキーを貼り付け",
+    "pasteKeyBody": "Anthropic、OpenAI、Google、DeepSeek、Moonshot など。スマートキーピッカーがどのキーかを自動で判別します。",
+    "pasteKeyFoot": "保存前にテスト済み",
+    "ollamaTitle": "Ollama をインストール",
+    "ollamaBody": "あなたのマシンでローカルモデルを実行。GPU があり、データをマシンの外に出したくない場合に最適です。",
+    "ollamaFoot": "ビデオ RAM 16 GB 以上 · ollama.com を開く"
+  },
+  "scenarioC": {
+    "greeting": "{{name}}さん、キーは正常に動いています",
+    "subGeneric": "検出され、稼働中です。今すぐすべて動きます。Flux Router はあなたのキーの間で、リクエストごとにルーティングします。あなたのキー、あなたの請求。",
+    "sutherlandLede": "どのキーも動きます。それでも Flux Router を上に置くことをおすすめします。理由はこちら。",
+    "sutherlandBody": "今はすべてのクエリがフラッグシップ料金を払っています。必要のないものまで。Flux Router は Haiku が適切なときはあなたのキーで Haiku を、GPT-5 が適切なときは GPT-5 を使います。フラッグシップが不要な問いではおよそ 1/20 のコストで、必要な問いでは同じ品質です。",
+    "microTrust": "プロンプトはプロバイダーへ直接送られます。Flux Router が見るのはルーティングの判断だけで、メッセージ本文は見ません。",
+    "primary": "Flux Router を上に追加",
+    "ghost": "手動で選び続ける"
+  },
+  "scenarioD": {
+    "greeting": "{{name}}さん、絶好調です",
+    "sub": "Flux Desktop が稼働中です。ルーティングは Flux Router を通っています。",
+    "body": "毎ターン適切なモデルを。難問は上へ、手軽なものは軽いモデルへ。",
+    "primary": "チャットを始める",
+    "dismiss": "閉じる"
+  },
+  "chips": {
+    "cli": "{{name}} · CLI",
+    "claudePro": "Claude Code · Pro",
+    "ollama": "Ollama · ローカルモデル {{count}} 個",
+    "ollama_one": "Ollama · ローカルモデル {{count}} 個",
+    "envKey": "{{name}} キー · 環境変数",
+    "fluxRouter": "Flux Router · 有効",
+    "fluxDesktop": "Flux Desktop · デーモン :7878"
+  }
+}

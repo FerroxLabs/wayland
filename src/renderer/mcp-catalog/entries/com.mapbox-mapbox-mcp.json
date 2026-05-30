@@ -1,0 +1,90 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.mapbox/mapbox-mcp",
+  "title": "Mapbox",
+  "description": "Geocoding, routing, isochrones, and geospatial analysis — Mapbox's official MCP server.",
+  "version": "0.11.0",
+  "websiteUrl": "https://docs.mapbox.com/api/guides/mcp-server/",
+  "repository": {
+    "url": "https://github.com/mapbox/mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@mapbox/mcp-server",
+      "version": "0.11.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "MAPBOX_ACCESS_TOKEN",
+          "description": "Access token from your Mapbox account.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "maps",
+      "developer",
+      "research"
+    ],
+    "tags": [
+      "mapbox",
+      "maps",
+      "geocoding",
+      "routing",
+      "geospatial"
+    ],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 56,
+    "installRate": 0.08,
+    "iconUrl": "icons/mapbox.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#314ccd"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Mapbox",
+      "providerSignupUrl": "https://account.mapbox.com/auth/signup/"
+    },
+    "toolGroups": [
+      {
+        "label": "Geocoding & Search",
+        "count": 4
+      },
+      {
+        "label": "Routing",
+        "count": 4
+      },
+      {
+        "label": "Offline Geometry",
+        "count": 9
+      },
+      {
+        "label": "Imagery",
+        "count": 2
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.mapbox-mapbox-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

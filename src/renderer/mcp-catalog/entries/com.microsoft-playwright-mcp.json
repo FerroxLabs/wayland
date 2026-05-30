@@ -3,14 +3,14 @@
   "name": "com.microsoft/playwright-mcp",
   "title": "Playwright",
   "description": "Headless browser automation — click, type, navigate, screenshot, and assert. Powered by Playwright.",
-  "version": "1.0.0",
+  "version": "0.0.75",
   "websiteUrl": "https://github.com/microsoft/playwright-mcp",
   "repository": { "url": "https://github.com/microsoft/playwright-mcp", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@playwright/mcp",
-      "version": "1.0.0",
+      "version": "0.0.75",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": []

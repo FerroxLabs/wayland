@@ -1,0 +1,79 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.miro/miro-mcp",
+  "title": "Miro",
+  "description": "Read and edit Miro boards — sticky notes, frames, shapes, and connectors. Miro's official hosted MCP with OAuth 2.1.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developers.miro.com/docs/miro-mcp",
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.miro.com/"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "design",
+      "productivity",
+      "communication"
+    ],
+    "tags": [
+      "miro",
+      "whiteboard",
+      "collaboration",
+      "diagrams"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 51,
+    "installRate": 0.12,
+    "iconUrl": "icons/miro.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#ffd02f"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Miro",
+      "providerSignupUrl": "https://miro.com/signup/",
+      "scopes": [
+        {
+          "name": "boards:read",
+          "plainLanguage": "Read content from boards you give Wayland access to."
+        },
+        {
+          "name": "boards:write",
+          "plainLanguage": "Create and edit sticky notes, frames, and shapes on those boards."
+        }
+      ]
+    },
+    "toolGroups": [
+      {
+        "label": "Boards",
+        "count": 4
+      },
+      {
+        "label": "Items",
+        "count": 5
+      },
+      {
+        "label": "Search",
+        "count": 2
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.miro-miro-mcp.md",
+      "estimatedMinutes": 1,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

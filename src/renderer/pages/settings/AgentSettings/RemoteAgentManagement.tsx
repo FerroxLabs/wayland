@@ -432,6 +432,8 @@ const RemoteAgentManagement: React.FC = () => {
       Modal.confirm({
         title: t('settings.remoteAgent.deleteConfirm'),
         content: t('settings.remoteAgent.deleteConfirmContent', { name: agent.name }),
+        okText: t('common.delete', { defaultValue: 'Delete' }),
+        cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
         okButtonProps: { status: 'danger' },
         onOk: async () => {
           await ipcBridge.remoteAgent.delete.invoke({ id: agent.id });

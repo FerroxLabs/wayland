@@ -3,14 +3,14 @@
   "name": "com.brave/brave-search-mcp",
   "title": "Brave Search",
   "description": "Independent web search index — fast, private, and ad-free, powered by Brave's own crawler.",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "websiteUrl": "https://brave.com/search/api/",
   "repository": { "url": "https://github.com/brave/brave-search-mcp", "source": "github" },
   "packages": [
     {
       "registryType": "npm",
       "identifier": "brave-search-mcp",
-      "version": "1.0.0",
+      "version": "2.1.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [

@@ -35,6 +35,19 @@ describe('migrateExistingServers', () => {
     expect(after).toEqual(tagged);
   });
 
+  test('returns the SAME object reference when source is already set (no-op write guard)', () => {
+    // useMcpServers detects "did migration change anything?" by reference
+    // equality (server !== data[idx]). If we cloned even when source was
+    // present, every launch would trigger a redundant disk write.
+    const tagged = [
+      { id: 'a', source: 'library' as const, libraryEntryId: 'x' },
+      { id: 'b', source: 'custom' as const },
+    ] as unknown as McpServerRecord[];
+    const after = migrateExistingServers(tagged);
+    expect(after[0]).toBe(tagged[0]);
+    expect(after[1]).toBe(tagged[1]);
+  });
+
   test('preserves all original fields', () => {
     const before = [
       {

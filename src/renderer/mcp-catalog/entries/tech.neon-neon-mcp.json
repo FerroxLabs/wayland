@@ -1,0 +1,91 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "tech.neon/neon-mcp",
+  "title": "Neon",
+  "description": "Manage serverless Postgres projects, branches, and queries on Neon — official hosted MCP with OAuth.",
+  "version": "0.6.5",
+  "websiteUrl": "https://neon.com/docs/ai/neon-mcp-server",
+  "repository": {
+    "url": "https://github.com/neondatabase/mcp-server-neon",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.neon.tech/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "database",
+      "developer",
+      "infrastructure"
+    ],
+    "tags": [
+      "neon",
+      "postgres",
+      "serverless",
+      "database"
+    ],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 60,
+    "installRate": 0.1,
+    "iconUrl": "icons/neon.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#00e599"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Neon",
+      "providerSignupUrl": "https://console.neon.tech/signup",
+      "scopes": [
+        {
+          "name": "projects:read",
+          "plainLanguage": "List your Neon projects and their settings."
+        },
+        {
+          "name": "projects:write",
+          "plainLanguage": "Create projects, branches, and database roles."
+        },
+        {
+          "name": "queries:run",
+          "plainLanguage": "Run SQL queries and migrations against your databases."
+        }
+      ]
+    },
+    "toolGroups": [
+      {
+        "label": "Projects",
+        "count": 5
+      },
+      {
+        "label": "Branches",
+        "count": 4
+      },
+      {
+        "label": "SQL",
+        "count": 3
+      },
+      {
+        "label": "Auth & Data API",
+        "count": 3
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/tech.neon-neon-mcp.md",
+      "estimatedMinutes": 1,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

@@ -8,10 +8,10 @@
   "repository": { "url": "https://github.com/TradeCanyon/waylandmcp", "source": "github" },
   "packages": [
     {
-      "registryType": "npm",
-      "identifier": "@wayland/imap-mcp",
+      "registryType": "binary",
+      "identifier": "builtin-mcp-imap.mjs",
       "version": "0.1.0",
-      "runtimeHint": "npx",
+      "runtimeHint": "native",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "IMAP_HOST", "description": "IMAP server hostname (e.g. imap.fastmail.com).", "isRequired": true, "isSecret": false },

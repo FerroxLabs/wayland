@@ -1,0 +1,221 @@
+{
+  "name": "business-conversion",
+  "displayName": "Business Conversion",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Direct-response conversion-asset authoring built on The Donahoe Method: copy frameworks, page builders, visual conversion engineering, and Method audit. Pilot extension for the waylandskills migration.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "assistants": [
+      {
+        "id": "dr-strategist",
+        "name": "DR Strategist",
+        "avatar": "icons/dr-strategist.svg",
+        "description": "Direct-response strategist applying The Donahoe Method. Picks framework, audits copy, drives revisions to Method standards.",
+        "presetAgentType": "claude",
+        "category": "sell",
+        "kind": "specialist",
+        "contextFile": "agents/dr-strategist.md",
+        "models": [
+          "inherit"
+        ],
+        "enabledSkills": [
+          "convert-above-fold",
+          "convert-bridge-page",
+          "convert-bullets",
+          "convert-bump",
+          "convert-checkout-page",
+          "convert-chute",
+          "convert-close",
+          "convert-cross-sell-page",
+          "convert-downsell-page",
+          "convert-fingerprint",
+          "convert-four-questions",
+          "convert-mobile",
+          "convert-open",
+          "convert-oto-page",
+          "convert-package",
+          "convert-proof-stack",
+          "convert-proof",
+          "convert-scroll-rhythm",
+          "convert-squeeze-page",
+          "convert-thank-you-page",
+          "convert-three-locks",
+          "convert-transition",
+          "convert-vsl-page",
+          "convert-vsl",
+          "convert",
+          "convert-audit",
+          "convert-sales-page",
+          "convert-lead-magnet-page",
+          "convert-webinar-reg-page",
+          "convert-temperature",
+          "convert-voice",
+          "convert-bullshit-filter"
+        ]
+      }
+    ],
+    "skills": [
+      {
+        "name": "convert-above-fold",
+        "description": "Engineer above-fold hierarchy for direct-response pages: 5-second comprehension test, hero rhythm, primary CTA placement, and visual scaffolding for the Four-Layer Open. Produces a wireframe spec + paste-ready HTML/CSS for the first viewport.",
+        "file": "skills/convert-above-fold/SKILL.md"
+      },
+      {
+        "name": "convert-bridge-page",
+        "description": "Author advertorial / pre-sell / listicle bridge pages: cold-traffic decompression content that warms the reader before they hit the squeeze or sales page. Emits brief + paste-ready HTML/CSS in editorial style.",
+        "file": "skills/convert-bridge-page/SKILL.md"
+      },
+      {
+        "name": "convert-bullets",
+        "description": "Generate Donahoe bullets across 4 types - Keyhole, Flip, Snapshot, Scar - mixed for rhythm. Each bullet is a miniature persuasion engine that creates a curiosity gap only the product resolves.",
+        "file": "skills/convert-bullets/SKILL.md"
+      },
+      {
+        "name": "convert-bump",
+        "description": "Author order-form bump offers: 30-80 word checkbox micro-copy that lifts AOV without breaking checkout flow. Emits brief + paste-ready HTML/CSS for the bump checkbox component.",
+        "file": "skills/convert-bump/SKILL.md"
+      },
+      {
+        "name": "convert-checkout-page",
+        "description": "Author checkout-page micro-copy + trust signals: order summary, form-field copy, bump slot, button label, guarantee restatement, and friction-reduction patterns. Emits brief + paste-ready HTML/CSS scaffold (payment-processor-agnostic).",
+        "file": "skills/convert-checkout-page/SKILL.md"
+      },
+      {
+        "name": "convert-chute",
+        "description": "Engineer the Greased Chute: open loops, paragraph length, sentence rhythm, transition curiosity, read-aloud test. Makes every sentence pull the reader into the next so the asset feels frictionless to read end-to-end.",
+        "file": "skills/convert-chute/SKILL.md"
+      },
+      {
+        "name": "convert-close",
+        "description": "Build the Cascade Close: Stack -> Vision -> Math -> Safety Net -> Door, with P.S. and P.P.S. that close again from new angles. Catches every type of buyer (vision-driven, logic-driven, risk-averse, action-ready) by closing from multiple sides.",
+        "file": "skills/convert-close/SKILL.md"
+      },
+      {
+        "name": "convert-cross-sell-page",
+        "description": "Author post-purchase cross-sell pages: lateral product offer to existing customer, with relevance framing and tight Method-applied copy. Emits brief + paste-ready HTML/CSS.",
+        "file": "skills/convert-cross-sell-page/SKILL.md"
+      },
+      {
+        "name": "convert-downsell-page",
+        "description": "Author OTO recovery (downsell) pages: reduced-commitment offer after an OTO decline, with explicit acknowledgment of the prior no and a smaller, easier yes. Emits brief + paste-ready HTML/CSS.",
+        "file": "skills/convert-downsell-page/SKILL.md"
+      },
+      {
+        "name": "convert-fingerprint",
+        "description": "Develop the Fingerprint - the only-you POV / contrarian take / vivid voice moment that lives inside the Four-Layer Open and recurs across the asset. Outputs a fingerprint pack: signature moments, contrarian takes, vivid images, and seller-specific phrases that make copy unswappable.",
+        "file": "skills/convert-fingerprint/SKILL.md"
+      },
+      {
+        "name": "convert-four-questions",
+        "description": "Run the Four Questions diagnostic before any copy is written: Why You / Why Me / Why This / Why Now answered from the customer's perspective in one specific sentence each. Produces the briefing the rest of the Method writes against.",
+        "file": "skills/convert-four-questions/SKILL.md"
+      },
+      {
+        "name": "convert-mobile",
+        "description": "Compress the Donahoe Method into mobile-first single-column layouts: thumb-zone CTA placement, Fitts-sized touch targets, mobile reading-pattern adaptation, sticky bottom CTA, and Method-density preservation under 375px width.",
+        "file": "skills/convert-mobile/SKILL.md"
+      },
+      {
+        "name": "convert-open",
+        "description": "Generate Four-Layer Opens for any direct-response asset: Layer 1 Nerve Strike + Layer 2 Side Door + Layer 3 Skin in the Game + Layer 4 Fingerprint. Produces 5 ranked opens with section-by-section breakdown.",
+        "file": "skills/convert-open/SKILL.md"
+      },
+      {
+        "name": "convert-oto-page",
+        "description": "Author One-Time Offer pages: post-purchase upgrade with single accept/decline decision, urgency framing, and tight Method-applied copy. Emits brief + paste-ready HTML/CSS with one-click yes/no markup.",
+        "file": "skills/convert-oto-page/SKILL.md"
+      },
+      {
+        "name": "convert-package",
+        "description": "Build a complete sales asset end-to-end via The Donahoe Method: diagnostic -> primitives -> fingerprint -> page -> integrity-gate -> visual -> audit -> report. Composite orchestrator that calls 14-16 sub-skills via delegate_task in an 8-phase DAG. Produces a client-ready full-asset bundle.",
+        "file": "skills/convert-package/SKILL.md"
+      },
+      {
+        "name": "convert-proof-stack",
+        "description": "Engineer visual proof stacks that map to the Donahoe Method's 5 proof types: testimonial layouts, logo bars, video > text hierarchy, quote-photo-result cards, numerical proof, case studies. Specs paste-ready HTML/CSS for each pattern + placement rules across the page.",
+        "file": "skills/convert-proof-stack/SKILL.md"
+      },
+      {
+        "name": "convert-proof",
+        "description": "Apply Conversational Proof to any claim: claim -> evidence -> reason -> move-on pattern, with a library of 5 proof types (Anecdote, Receipt, Drive-By, Namecheck, Because). Outputs proof-blocks woven through copy, never an isolated proof section.",
+        "file": "skills/convert-proof/SKILL.md"
+      },
+      {
+        "name": "convert-scroll-rhythm",
+        "description": "Orchestrate scroll depth across a long-form direct-response page: map zones to The Three Locks (Want -> Trust -> Excuse), engineer reading-pattern flow (F-pattern body / Z-pattern hero), place CTA anchors at decision points, and pace section transitions for The Greased Chute.",
+        "file": "skills/convert-scroll-rhythm/SKILL.md"
+      },
+      {
+        "name": "convert-squeeze-page",
+        "description": "Author single-purpose opt-in (squeeze) pages: compressed Method, one promise, one form, one CTA. Emits brief + paste-ready HTML/CSS with accessible form markup.",
+        "file": "skills/convert-squeeze-page/SKILL.md"
+      },
+      {
+        "name": "convert-thank-you-page",
+        "description": "Author thank-you pages with a deliberate secondary-offer stack: deliver the promised asset, calibrate next-step CTA, and use the under-leveraged post-conversion surface to lift downstream metrics. Emits brief + paste-ready HTML/CSS.",
+        "file": "skills/convert-thank-you-page/SKILL.md"
+      },
+      {
+        "name": "convert-three-locks",
+        "description": "Architect the Three Locks persuasion sequence: Lock 1 Want (sell the state), Lock 2 Trust (earn belief through proof + voice), Lock 3 Excuse (give the rational justification). Outputs the lock-by-lock blueprint that the rest of the asset writes against.",
+        "file": "skills/convert-three-locks/SKILL.md"
+      },
+      {
+        "name": "convert-transition",
+        "description": "Apply the Donahoe Transition System: 10 moves (Comparison Bomb, Escalation, Aside Bomb, Interrupt, Dismiss, Diagnostic, Assumed Agreement, Internal Moment, Admission, Energy Drop) that move copy through energy and momentum, never through filler phrases.",
+        "file": "skills/convert-transition/SKILL.md"
+      },
+      {
+        "name": "convert-vsl-page",
+        "description": "Author the page that hosts a Video Sales Letter: video embed, headline + subhead above the player, buy-button reveal mechanics, supporting copy below the fold, and Method audit footer. Emits brief + paste-ready HTML/CSS.",
+        "file": "skills/convert-vsl-page/SKILL.md"
+      },
+      {
+        "name": "convert-vsl",
+        "description": "Author Video Sales Letter scripts: 18-minute spoken structure with timestamps, doctor-visit pattern, Method primitives compressed to spoken cadence. Emits script + reader-cue annotations.",
+        "file": "skills/convert-vsl/SKILL.md"
+      },
+      {
+        "name": "convert",
+        "description": "Author direct-response conversion assets via The Donahoe Method: sales pages, VSLs, squeeze pages, OTOs, downsells, lead-magnet pages, bridge pages, webinar reg, thank-you pages, plus the Method's copy primitives (open, proof, locks, bullet",
+        "file": "skills/convert/SKILL.md"
+      },
+      {
+        "name": "convert-audit",
+        "description": "Score existing direct-response copy against The Donahoe Method's 8 frameworks: Four-Layer Open, Conversational Proof, Three Locks, Bullet System, Cascade Close, Greased Chute, Voice Rules + Bullshit Filter, Market Temperature. Produces a 0-",
+        "file": "skills/convert-audit/SKILL.md"
+      },
+      {
+        "name": "convert-sales-page",
+        "description": "Author long-form direct-response sales pages: section architecture, full body copy, paste-ready HTML/CSS, and Method audit footer. Applies The Donahoe Method top-to-bottom across 16 sections. Use when the user has a product and needs a comp",
+        "file": "skills/convert-sales-page/SKILL.md"
+      },
+      {
+        "name": "convert-lead-magnet-page",
+        "description": "Author lead-magnet (free → email) opt-in pages: longer than a squeeze, full Method-compressed argument for why the freebie is worth the email. Emits brief + paste-ready HTML/CSS. Use when the user has a substantive free asset (guide, traini",
+        "file": "skills/convert-lead-magnet-page/SKILL.md"
+      },
+      {
+        "name": "convert-webinar-reg-page",
+        "description": "Author webinar registration pages: time/date framing, big-promise headline, three-bullet curiosity stack, attendance-driving copy. Emits brief + paste-ready HTML/CSS with form + countdown markup. Use when the user has a scheduled live or ev",
+        "file": "skills/convert-webinar-reg-page/SKILL.md"
+      },
+      {
+        "name": "convert-temperature",
+        "description": "Classify reader temperature on the 5-level scale: Ice Cold / Cool / Warm / Hot / Boiling. Sets length, depth, education burden, and approach for every other Method primitive that follows.",
+        "file": "skills/convert-temperature/SKILL.md"
+      },
+      {
+        "name": "convert-voice",
+        "description": "Apply The Donahoe Voice Rules: sentence mechanics, word choices, structural moves, and the Bullshit Filter as a checklist. Operating system for every piece of copy that brings a draft to first-person, contraction-rich, specific, marketing-speak-free Donahoe Voice.",
+        "file": "skills/convert-voice/SKILL.md"
+      },
+      {
+        "name": "convert-bullshit-filter",
+        "description": "Coach a draft toward voice integrity: quotes the 3 weakest lines, forces 3 alternative rewrites of each, diagnoses the dominant voice-failure pattern, and returns a coaching artifact (no PASS / FAIL verdict).",
+        "file": "skills/convert-bullshit-filter/SKILL.md"
+      }
+    ]
+  }
+}

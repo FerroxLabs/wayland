@@ -62,7 +62,9 @@ function resolveSkillsLibraryDir(): string {
   const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
 
   const candidates = [
-    // Packaged build: asarUnpack target.
+    // Packaged build: extraResources copies to Contents/Resources/skills-library.
+    ...(process.resourcesPath ? [path.join(process.resourcesPath, 'skills-library')] : []),
+    // Legacy asarUnpack target (never populated; kept for back-compat).
     path.resolve(baseDirUnpacked, '../../resources/skills-library'),
     // Dev build: out/main/ → repo root → src/process/resources/skills-library.
     path.resolve(baseDir, '../../src/process/resources/skills-library'),
@@ -79,10 +81,48 @@ function resolveSkillsLibraryDir(): string {
   return candidates[0];
 }
 
+/**
+ * Resolve the on-disk directory that holds the Wayland built-in workflows
+ * (`index.json` + `bodies/`). These are Wayland-original workflows kept
+ * separate from the vendored skills-library, at
+ * `src/process/resources/bundled-workflows/` in the source tree and
+ * `app.asar.unpacked/resources/bundled-workflows/` once packaged.
+ *
+ * Mirrors {@link resolveSkillsLibraryDir}'s dev / packaged / standalone probe
+ * order. If no candidate exists the first is returned so a later read failure
+ * surfaces a concrete path. Unlike the skills-library this folder may legitimately
+ * be empty (an `index.json` of `[]`), so callers must no-op gracefully when the
+ * index is absent.
+ */
+function resolveBundledWorkflowsDir(): string {
+  const myDir = path.dirname(__filename);
+  const baseDir = path.basename(myDir) === 'chunks' ? path.dirname(myDir) : myDir;
+  const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
+
+  const candidates = [
+    // Packaged build: extraResources copies to Contents/Resources/bundled-workflows.
+    ...(process.resourcesPath ? [path.join(process.resourcesPath, 'bundled-workflows')] : []),
+    // Legacy asarUnpack target (never populated; kept for back-compat).
+    path.resolve(baseDirUnpacked, '../../resources/bundled-workflows'),
+    // Dev build: out/main/ → repo root → src/process/resources/bundled-workflows.
+    path.resolve(baseDir, '../../src/process/resources/bundled-workflows'),
+    // Pre-fix legacy default — kept last so an existing prod layout still works.
+    path.resolve(baseDir, '../../resources/bundled-workflows'),
+    path.resolve(baseDir, '../resources/bundled-workflows'),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(path.join(candidate, 'index.json'))) return candidate;
+  }
+  return candidates[0];
+}
+
 type ReadFileFn = (p: string) => Promise<string>;
 
 type SkillLibraryOptions = {
   resourceDir?: string;
+  /** Override for the Wayland built-in workflows dir (tests). */
+  bundledWorkflowsDir?: string;
   readFile?: ReadFileFn;
 };
 
@@ -108,17 +148,24 @@ export class SkillLibrary {
   private static instance: SkillLibrary | null = null;
 
   private readonly resourceDir: string;
+  private readonly bundledWorkflowsDir: string;
   private readonly readFileFn: ReadFileFn;
 
   /** Populated incrementally — index lazy-loaded, more sources via registerSource. */
   private entries: SkillIndexEntry[] = [];
   private byName: Map<string, SkillIndexEntry> = new Map();
+  /**
+   * Names whose body lives under {@link bundledWorkflowsDir} rather than
+   * {@link resourceDir}. Lets `loadBody` route to the correct resource root.
+   */
+  private bundledWorkflowNames: Set<string> = new Set();
   /** Tracks whether the on-disk index.json has been merged in yet. */
   private indexLoaded = false;
   private loadPromise: Promise<void> | null = null;
 
   private constructor(opts: SkillLibraryOptions = {}) {
     this.resourceDir = opts.resourceDir ?? resolveSkillsLibraryDir();
+    this.bundledWorkflowsDir = opts.bundledWorkflowsDir ?? resolveBundledWorkflowsDir();
     this.readFileFn = opts.readFile ?? ((p) => fsReadFile(p, 'utf-8'));
   }
 
@@ -156,6 +203,11 @@ export class SkillLibrary {
           this.byName.set(e.name, e);
         }
       }
+      // ALSO merge the Wayland built-in workflows folder. The main library
+      // wins on name conflict (the bundled-workflows entry is dropped). The
+      // folder is optional: a missing/empty/malformed index is a graceful
+      // no-op rather than a startup failure.
+      await this.loadBundledWorkflows();
       this.indexLoaded = true;
     })();
     return this.loadPromise;
@@ -164,6 +216,41 @@ export class SkillLibrary {
   private async ensureLoaded(): Promise<void> {
     if (this.indexLoaded) return;
     await this.load();
+  }
+
+  /**
+   * Merge the Wayland built-in workflows index ({@link bundledWorkflowsDir}/
+   * index.json) into the in-memory collections. The main library always wins
+   * on name conflict. Entries sourced here are tracked in
+   * {@link bundledWorkflowNames} so `loadBody` resolves their bodies against
+   * the bundled-workflows root.
+   *
+   * Failure modes (folder absent, index missing, JSON malformed) are swallowed
+   * with a warning — the built-in workflows are additive and must never break
+   * the skills-library load path.
+   */
+  private async loadBundledWorkflows(): Promise<void> {
+    let raw: string;
+    try {
+      raw = await this.readFileFn(path.join(this.bundledWorkflowsDir, 'index.json'));
+    } catch {
+      // No bundled-workflows folder/index — expected when none are vendored.
+      return;
+    }
+    let parsed: SkillIndexEntry[];
+    try {
+      parsed = JSON.parse(raw) as SkillIndexEntry[];
+    } catch (err) {
+      console.warn(`${TAG} Ignoring malformed bundled-workflows index.json`, err);
+      return;
+    }
+    if (!Array.isArray(parsed)) return;
+    for (const e of parsed) {
+      if (this.byName.has(e.name)) continue; // main library wins
+      this.entries.push(e);
+      this.byName.set(e.name, e);
+      this.bundledWorkflowNames.add(e.name);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -314,6 +401,21 @@ export class SkillLibrary {
         return await this.readFileFn(entry.path);
       } catch {
         return null;
+      }
+    }
+    // Wayland built-in workflows resolve their (relative) body against the
+    // bundled-workflows root, mirroring the skills-library literal-then-bodies
+    // fallback so index entries may store the path with or without the
+    // `bodies/` prefix.
+    if (this.bundledWorkflowNames.has(name)) {
+      try {
+        return await this.readFileFn(path.join(this.bundledWorkflowsDir, entry.path));
+      } catch {
+        try {
+          return await this.readFileFn(path.join(this.bundledWorkflowsDir, 'bodies', entry.path));
+        } catch {
+          return null;
+        }
       }
     }
     try {

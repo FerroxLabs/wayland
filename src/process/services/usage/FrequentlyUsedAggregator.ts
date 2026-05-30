@@ -42,8 +42,36 @@ export class FrequentlyUsedAggregator {
   constructor(private readonly repo: IUsageEventRepository) {}
 
   async queryFrequentlyUsedModels(options: FrequentlyUsedQueryOptions = {}): Promise<FrequentlyUsedModel[]> {
+    const models = await this.aggregate(options);
+    return models
+      .toSorted((a, b) => {
+        // Higher count first; ties broken by most-recent use so a tied model
+        // the user just picked surfaces above one they picked days ago.
+        if (b.useCount !== a.useCount) return b.useCount - a.useCount;
+        return b.lastUsedMs - a.lastUsedMs;
+      })
+      .slice(0, options.limit ?? DEFAULT_LIMIT);
+  }
+
+  /**
+   * Same aggregation as {@link queryFrequentlyUsedModels} but ordered by
+   * most-recent use first (ties broken by use count). Backs the "Recently
+   * used" zone of the model selector and the smart boot-default resolver
+   * (recent → frequent → safe) in `useGuidModelSelection`.
+   */
+  async queryRecentlyUsedModels(options: FrequentlyUsedQueryOptions = {}): Promise<FrequentlyUsedModel[]> {
+    const models = await this.aggregate(options);
+    return models
+      .toSorted((a, b) => {
+        if (b.lastUsedMs !== a.lastUsedMs) return b.lastUsedMs - a.lastUsedMs;
+        return b.useCount - a.useCount;
+      })
+      .slice(0, options.limit ?? DEFAULT_LIMIT);
+  }
+
+  /** Group `guid.model_selected` events within the lookback window by modelId. */
+  private async aggregate(options: FrequentlyUsedQueryOptions): Promise<FrequentlyUsedModel[]> {
     const windowMs = options.windowMs ?? DEFAULT_WINDOW_MS;
-    const limit = options.limit ?? DEFAULT_LIMIT;
     const nowMs = options.nowMs ?? Date.now();
     const sinceMs = nowMs - windowMs;
 
@@ -63,14 +91,10 @@ export class FrequentlyUsedAggregator {
       }
     }
 
-    return Array.from(buckets.entries())
-      .map(([modelId, { useCount, lastUsedMs }]) => ({ modelId, useCount, lastUsedMs }))
-      .toSorted((a, b) => {
-        // Higher count first; ties broken by most-recent use so a tied model
-        // the user just picked surfaces above one they picked days ago.
-        if (b.useCount !== a.useCount) return b.useCount - a.useCount;
-        return b.lastUsedMs - a.lastUsedMs;
-      })
-      .slice(0, limit);
+    return Array.from(buckets.entries()).map(([modelId, { useCount, lastUsedMs }]) => ({
+      modelId,
+      useCount,
+      lastUsedMs,
+    }));
   }
 }
