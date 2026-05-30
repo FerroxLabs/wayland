@@ -165,7 +165,13 @@ function launch(scriptName, withExtensions) {
 
   const env = { ...process.env };
   if (withExtensions) {
-    env.WAYLAND_EXTENSIONS_PATH = path.resolve(process.cwd(), 'examples');
+    // Load both the example extensions and the bundled business-pack extensions
+    // (which only auto-sync into appData when packaged) so dev mirrors production.
+    const sep = process.platform === 'win32' ? ';' : ':';
+    env.WAYLAND_EXTENSIONS_PATH = [
+      path.resolve(process.cwd(), 'examples'),
+      path.resolve(process.cwd(), 'resources', 'bundled-extensions'),
+    ].join(sep);
     log(`WAYLAND_EXTENSIONS_PATH=${env.WAYLAND_EXTENSIONS_PATH}`);
   }
 
