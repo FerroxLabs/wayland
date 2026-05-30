@@ -31,6 +31,25 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+// The entry uses react-router-dom's useLocation/useNavigate to highlight the
+// active route. Mock them so the component renders outside a <Router>. The
+// pathname is held in a hoisted object so individual tests can drive the
+// route-derived active styling.
+const routerState = vi.hoisted(() => ({ pathname: '/' }));
+vi.mock('react-router-dom', () => ({
+  useLocation: () => ({ pathname: routerState.pathname }),
+  useNavigate: () => vi.fn(),
+}));
+
+// The entry fetches the wiki orphan count on mount; stub the bridge so the
+// effect resolves quietly in jsdom.
+vi.mock('@/common/adapter/ipcBridge', () => ({
+  wiki: {
+    getState: { invoke: vi.fn().mockResolvedValue({ orphanCandidates: [] }) },
+    stateChanged: { on: vi.fn(() => () => undefined) },
+  },
+}));
+
 // eslint-disable-next-line import/first
 import SiderMemoryEntry from '@renderer/components/layout/Sider/SiderNav/SiderMemoryEntry';
 // eslint-disable-next-line import/first
@@ -77,34 +96,29 @@ describe('SiderMemoryEntry', () => {
     expect(screen.queryByText('sider.memory')).toBeNull();
   });
 
-  it('invokes onClick when clicked', () => {
-    const onClick = vi.fn();
-    render(
-      <SiderMemoryEntry
-        isMobile={false}
-        isActive={false}
-        collapsed={false}
-        siderTooltipProps={tooltipProps}
-        onClick={onClick}
-      />
-    );
-    fireEvent.click(screen.getByTestId('sider-memory-entry'));
-    expect(onClick).toHaveBeenCalledTimes(1);
+  it('toggles the expandable children when the parent row is clicked', () => {
+    localStorage.removeItem('wayland.sidebar.memory.expanded');
+    routerState.pathname = '/';
+    render(<SiderMemoryEntry isMobile={false} isActive={false} collapsed={false} siderTooltipProps={tooltipProps} />);
+    const row = screen.getByTestId('sider-memory-entry');
+    // Starts collapsed (not on a memory/wiki route): no child rows yet.
+    expect(row.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByTestId('sider-memory-archive-entry')).toBeNull();
+    // Clicking the parent expands and reveals the Archive + Wiki children.
+    fireEvent.click(row);
+    expect(row.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByTestId('sider-memory-archive-entry')).toBeTruthy();
+    expect(screen.getByTestId('sider-memory-wiki-entry')).toBeTruthy();
   });
 
-  it('applies the active styling when isActive is true', () => {
-    render(
-      <SiderMemoryEntry
-        isMobile={false}
-        isActive
-        collapsed={false}
-        siderTooltipProps={tooltipProps}
-        onClick={vi.fn()}
-      />
-    );
-    const node = screen.getByTestId('sider-memory-entry');
-    // Active state uses the primary-tinted bg utility; matches the pattern
-    // used in SiderScheduledEntry / SiderWorkflowsEntry / SiderTeamsEntry.
-    expect(node.className).toContain('text-primary');
+  it('highlights the Archive child with primary styling when on the /memory route', () => {
+    localStorage.removeItem('wayland.sidebar.memory.expanded');
+    // On a memory route the group auto-expands and the matching child row
+    // takes the primary-tinted active styling.
+    routerState.pathname = '/memory';
+    render(<SiderMemoryEntry isMobile={false} isActive collapsed={false} siderTooltipProps={tooltipProps} />);
+    const archive = screen.getByTestId('sider-memory-archive-entry');
+    expect(archive.className).toContain('text-primary');
+    routerState.pathname = '/';
   });
 });
