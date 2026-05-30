@@ -123,7 +123,7 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
     return (
       <button
         type='button'
-        className='w-full h-40px flex items-center justify-center rd-7px hover:bg-fill-2 text-text-2 hover:text-text-1 relative'
+        className='w-full h-40px flex items-center justify-center rd-7px bg-transparent border-none cursor-pointer hover:bg-fill-2 text-text-2 hover:text-text-1 relative'
         onClick={() => navigate('/workflows')}
         aria-label={`Workflows (${count} in-flight)`}
         title={`Workflows · ${count} in-flight`}

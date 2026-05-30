@@ -163,7 +163,7 @@ export const useAssistantEditor = ({
     setEditName('');
     setEditDescription('');
     setEditContext('');
-    setEditAvatar('\u{1F916}');
+    setEditAvatar('lucide:Bot');
     setEditAgent('gemini');
     setEditSkills('');
     setSelectedSkills([]);
@@ -193,7 +193,7 @@ export const useAssistantEditor = ({
     setActiveAssistantId(null);
     setEditName(`${assistant.nameI18n?.[localeKey] || assistant.name} (Copy)`);
     setEditDescription(assistant.descriptionI18n?.[localeKey] || assistant.description || '');
-    setEditAvatar(assistant.avatar || '\u{1F916}');
+    setEditAvatar(assistant.avatar || 'lucide:Bot');
     setEditAgent(assistant.presetAgentType || 'gemini');
     setPromptViewMode('edit');
     setEditVisible(true);

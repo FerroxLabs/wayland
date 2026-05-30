@@ -69,16 +69,18 @@ const ProviderHintBanner: React.FC<{
     };
   }, []);
 
-  // Hide once user has already chosen a non-local TTS provider.
-  const isLocalTTS = ttsConfig.provider === 'kokoro-local' || ttsConfig.provider === 'system-native';
-  if (!detected || !isLocalTTS) return null;
-
   const handleSwitch = useCallback(() => {
     // We optimistically point TTS at the detected provider; persistence still
     // works because TextToSpeechConfig.provider is a string-typed field at
     // runtime. Visible UI will fall back to defaults until a real adapter ships.
     onChange((current) => ({ ...current, provider: detected as unknown as TextToSpeechProvider }));
   }, [detected, onChange]);
+
+  // Hide once user has already chosen a non-local TTS provider. All hooks must
+  // run before this early return (React rules-of-hooks); otherwise the hook
+  // count differs between renders and React throws error #310.
+  const isLocalTTS = ttsConfig.provider === 'kokoro-local' || ttsConfig.provider === 'system-native';
+  if (!detected || !isLocalTTS) return null;
 
   const title =
     detected === 'openai'

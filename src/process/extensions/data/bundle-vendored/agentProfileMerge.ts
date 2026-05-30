@@ -40,6 +40,8 @@ type VendoredAgentProfile = {
   description: string;
   presetAgentType: 'agent-profile';
   category: string;
+  /** `lucide:IconName` reference so the assistant list/cards render a glyph instead of the Bot fallback. */
+  avatar: string;
   /** SKILL.md body, mirroring waylandteams resolver shape so editor's Rules surface reads it. */
   context: string;
   prompts: { system: string };
@@ -123,6 +125,59 @@ function mapCategory(rawCategory: string | undefined): string {
 }
 
 /**
+ * Per-agent glyph map. Keys are the agent-profile slugs from the skills
+ * library index; values are Lucide icon names registered in the renderer's
+ * LUCIDE_ICONS map (src/renderer/utils/lucideAvatar.tsx). Stored on the
+ * record as `lucide:<Name>` so the assistant list/cards render a meaningful
+ * icon instead of the generic Bot fallback. Any agent-profile not listed
+ * here falls back to a per-category glyph below.
+ */
+const AGENT_PROFILE_ICONS: Record<string, string> = {
+  'executive-communicator': 'Megaphone',
+  'finance-analyst': 'TrendingUp',
+  'legal-compliance-reviewer': 'Scale',
+  'marketing-strategist': 'Target',
+  'product-manager': 'Package',
+  'project-manager': 'ClipboardList',
+  'content-strategist': 'PenTool',
+  'ux-researcher': 'Compass',
+  'visual-designer': 'Palette',
+  'backend-architect': 'Server',
+  'code-reviewer': 'Code',
+  'devops-engineer': 'Cloud',
+  'frontend-developer': 'MonitorSmartphone',
+  'performance-engineer': 'Gauge',
+  'qa-engineer': 'Bug',
+  'security-auditor': 'ShieldCheck',
+  'technical-writer': 'FileText',
+  'customer-support-specialist': 'Headset',
+  'data-analyst': 'BarChart3',
+  'hr-specialist': 'UserRound',
+  'operations-manager': 'Workflow',
+  'incident-commander': 'Siren',
+  'research-orchestrator': 'Network',
+  'sprint-facilitator': 'CalendarClock',
+  'team-coordinator': 'Users',
+};
+
+/** Per-(mapped)-category fallback glyph for agent-profiles not in the map above. */
+const CATEGORY_FALLBACK_ICONS: Record<string, string> = {
+  sell: 'TrendingUp',
+  write: 'PenTool',
+  research: 'Compass',
+  build: 'Code',
+  run: 'Workflow',
+  office: 'FileText',
+  general: 'Sparkles',
+};
+
+/** Resolve the `lucide:<Name>` avatar for an agent-profile by slug, then category. */
+function pickAvatar(slug: string, mappedCategory: string): string {
+  const icon = AGENT_PROFILE_ICONS[slug] ?? CATEGORY_FALLBACK_ICONS[mappedCategory] ?? 'Sparkles';
+  return `lucide:${icon}`;
+}
+
+/**
  * Build the 25-entry overlay once and cache it. Returns [] on any I/O failure.
  */
 function buildOverlay(): VendoredAgentProfile[] {
@@ -183,12 +238,15 @@ function buildOverlay(): VendoredAgentProfile[] {
       }
     }
 
+    const mappedCategory = mapCategory(rawCategory);
+
     out.push({
       id: name,
       name: toDisplayName(name),
       description,
       presetAgentType: 'agent-profile',
-      category: mapCategory(rawCategory),
+      category: mappedCategory,
+      avatar: pickAvatar(name, mappedCategory),
       // The editor's "Rules" surface reads `context`; mirror the field used
       // by the waylandteams resolver so vendored agent-profiles surface
       // their SKILL.md body the same way.
