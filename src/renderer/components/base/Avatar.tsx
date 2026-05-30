@@ -35,7 +35,8 @@ const Avatar: React.FC<AvatarProps> = ({ avatar, name, alt = '' }) => {
   const mapped = avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
   const resolved = avatarValue ? mapped || resolveExtensionAssetUrl(avatarValue) || avatarValue : undefined;
   const showImage = resolved ? isImageAvatar(resolved) : false;
-  if (showImage && resolved) return <img src={resolved} alt={alt} />;
+  if (showImage && resolved)
+    return <img src={resolved} alt={alt} style={{ filter: 'var(--avatar-img-filter, none)' }} />;
   if (avatarValue && !showImage) return <span>{avatarValue}</span>;
   return <span>{initialsFor(name)}</span>;
 };
