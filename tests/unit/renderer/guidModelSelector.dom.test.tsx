@@ -59,10 +59,14 @@ vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-vi.mock('lucide-react', () => ({
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   Brain: () => <span>Brain</span>,
   ChevronDown: () => <span>ChevronDown</span>,
+  ChevronRight: () => <span>ChevronRight</span>,
+  Pin: () => <span>Pin</span>,
   Plus: () => <span>Plus</span>,
+  Search: () => <span>Search</span>,
 }));
 
 vi.mock('@/renderer/styles/colors', () => ({
@@ -86,9 +90,20 @@ vi.mock('@arco-design/web-react', () => {
       </div>
     ),
   });
+  // The picker added an Arco search Input above the model list (Packet 3B).
+  const Input = ({
+    value,
+    onChange,
+    placeholder,
+  }: {
+    value?: string;
+    onChange?: (v: string) => void;
+    placeholder?: string;
+  }) => <input value={value ?? ''} placeholder={placeholder} onChange={(e) => onChange?.(e.target.value)} />;
   return {
     Button: ({ children }: React.PropsWithChildren) => <button>{children}</button>,
     Dropdown: ({ droplist }: React.PropsWithChildren & { droplist?: React.ReactNode }) => <>{droplist}</>,
+    Input,
     Menu,
     Tooltip: ({ children }: React.PropsWithChildren) => <>{children}</>,
   };
@@ -107,6 +122,13 @@ vi.mock('@/common', () => ({
   ipcBridge: {
     modelRegistry: {
       resolveForChatStart: { invoke: mockResolveForChatStart },
+    },
+    // GuidModelSelector fires fire-and-forget usage telemetry on selection
+    // (useUsageTelemetry -> ipcBridge.usage.recordEvent.invoke). Without this
+    // namespace the call reads `.recordEvent` off undefined and the rejection
+    // escapes after the test completes, failing the whole shard.
+    usage: {
+      recordEvent: { invoke: vi.fn().mockResolvedValue(undefined) },
     },
   },
 }));
@@ -220,14 +242,17 @@ describe('GuidModelSelector home picker', () => {
     expect(screen.getByText('Claude Haiku 4.5')).toBeInTheDocument();
   });
 
-  it('renders a price tier per curated row', async () => {
+  it('renders one row per curated model in the provider picker', async () => {
     mockCuratedForAgent.mockResolvedValue(CLAUDE_MODELS);
 
     render(<GuidModelSelector {...baseProps} agentKey='wcore' />);
 
-    // Opus (15/75) → $$$, Haiku (0.8/4) → $.
-    expect(await screen.findByText('$$$')).toBeInTheDocument();
-    expect(screen.getByText('$')).toBeInTheDocument();
+    // The provider-based picker (ModelSelectorPanel) lists each curated model
+    // by display name. Price-tier glyphs are exercised by the costToPriceTier
+    // unit tests above; the inline tier badge now renders only on the ACP
+    // cached-model path, not in this curated panel.
+    expect(await screen.findByText('Claude Opus 4.7')).toBeInTheDocument();
+    expect(screen.getByText('Claude Haiku 4.5')).toBeInTheDocument();
   });
 
   it('renders the plain-language scope caption inline', async () => {

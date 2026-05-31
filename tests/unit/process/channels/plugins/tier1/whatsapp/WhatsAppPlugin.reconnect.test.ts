@@ -50,7 +50,7 @@ const { forkSpy, getFakeChild, resetChild, stdinWrites } = vi.hoisted(() => {
       emit(event, ...args) {
         const arr = listeners[event];
         if (!arr || arr.length === 0) return false;
-        for (const cb of [...arr]) cb(...args);
+        for (const cb of arr.slice()) cb(...args);
         return true;
       },
     };
@@ -144,10 +144,7 @@ function resolveConnectRpc(): void {
   const lastFrame = stdinWrites[stdinWrites.length - 1];
   if (!lastFrame) return;
   const parsed = JSON.parse(lastFrame.trim()) as { id: number; method: string };
-  getFakeChild().stdout.emit(
-    'data',
-    `${JSON.stringify({ jsonrpc: '2.0', id: parsed.id, result: { ok: true } })}\n`,
-  );
+  getFakeChild().stdout.emit('data', `${JSON.stringify({ jsonrpc: '2.0', id: parsed.id, result: { ok: true } })}\n`);
 }
 
 /**
@@ -292,7 +289,7 @@ describe('WhatsAppPlugin — W-10 reconnect ladder', () => {
           jsonrpc: '2.0',
           method: 'connection.status',
           params: { state: 'connected' },
-        })}\n`,
+        })}\n`
       );
       await flush();
 

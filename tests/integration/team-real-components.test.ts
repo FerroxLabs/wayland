@@ -654,7 +654,8 @@ describe('Real TeamMcpServer — TCP transport with real stores', () => {
     vi.clearAllMocks();
     repo = createInMemoryRepo();
     mailbox = new Mailbox(repo);
-    taskManager = new TaskManager(repo);
+    // Owner validation resolves slotIds against the live roster declared below.
+    taskManager = new TaskManager(repo, () => agents);
     mockWakeAgent = vi.fn().mockResolvedValue(undefined);
 
     agents = [

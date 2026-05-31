@@ -31,7 +31,13 @@ const finding = (threat: SkillThreat, severity: SkillSeverity, message: string, 
 });
 
 /** Scan body, description, and joined tags against a single regex. */
-const scanText = (input: SkillScanInput, regex: RegExp, threat: SkillThreat, severity: SkillSeverity, message: string): SkillFinding[] => {
+const scanText = (
+  input: SkillScanInput,
+  regex: RegExp,
+  threat: SkillThreat,
+  severity: SkillSeverity,
+  message: string
+): SkillFinding[] => {
   const out: SkillFinding[] = [];
   for (const text of [input.body, input.description, input.tags.join(' ')]) {
     const m = text.match(regex);
@@ -56,7 +62,7 @@ export const SKILL_GUARD_RULES: SkillGuardRule[] = [
     test: (input) =>
       scanText(
         input,
-        /~\/\.ssh\/|AKIA[0-9A-Z]{16}|Bearer\s+[A-Za-z0-9_\-]{20,}|\.env\b|\bid_rsa\b/i,
+        /~\/\.ssh\/|AKIA[0-9A-Z]{16}|Bearer\s+[A-Za-z0-9_-]{20,}|\.env\b|\bid_rsa\b/i,
         'credential-access',
         'critical',
         'reference to a credential store or token'
@@ -134,7 +140,14 @@ export const SKILL_GUARD_RULES: SkillGuardRule[] = [
       }).length;
       const ratio = appearing / input.tags.length;
       if (ratio >= 0.3) return [];
-      return [finding('index-poisoning', 'low', `${input.tags.length} tags but only ${Math.round(ratio * 100)}% appear in body/description`, input.tags.slice(0, 8).join(', '))];
+      return [
+        finding(
+          'index-poisoning',
+          'low',
+          `${input.tags.length} tags but only ${Math.round(ratio * 100)}% appear in body/description`,
+          input.tags.slice(0, 8).join(', ')
+        ),
+      ];
     },
   },
 ];

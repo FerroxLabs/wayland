@@ -181,13 +181,17 @@ describe('applicationBridge start-on-boot helpers', () => {
     }
   });
 
-  it('returns unsupported status on non-desktop-login platforms', async () => {
+  it('returns unsupported status when the app is not packaged', async () => {
+    // darwin/win32/linux are all supported start-on-boot platforms now (Linux
+    // gained XDG autostart in f7df052d2). The only unsupported axis left is an
+    // unpackaged (dev) build — isStartOnBootSupported() short-circuits on
+    // !app.isPackaged.
     setPlatform('linux');
     mockBridgeDependencies();
 
     vi.doMock('electron', () => ({
       app: {
-        isPackaged: true,
+        isPackaged: false,
         getLoginItemSettings: vi.fn(),
         setLoginItemSettings: vi.fn(),
       },
@@ -198,7 +202,7 @@ describe('applicationBridge start-on-boot helpers', () => {
     expect(getStartOnBootStatus()).toEqual({
       supported: false,
       enabled: false,
-      isPackaged: true,
+      isPackaged: false,
       platform: 'linux',
     });
   });
@@ -306,7 +310,7 @@ describe('applicationBridge start-on-boot helpers', () => {
     });
   });
 
-  it('returns an unsupported response from the set-start-on-boot IPC handler on linux', async () => {
+  it('returns an unsupported response from the set-start-on-boot IPC handler when not packaged', async () => {
     setPlatform('linux');
 
     const capturedHandlers: Record<string, (payload: { enabled: boolean }) => Promise<unknown>> = {};
@@ -361,7 +365,7 @@ describe('applicationBridge start-on-boot helpers', () => {
 
     vi.doMock('electron', () => ({
       app: {
-        isPackaged: true,
+        isPackaged: false,
         getLoginItemSettings: vi.fn(),
         setLoginItemSettings: vi.fn(),
       },
@@ -379,11 +383,11 @@ describe('applicationBridge start-on-boot helpers', () => {
 
     await expect(capturedHandlers.setStartOnBoot?.({ enabled: true })).resolves.toEqual({
       success: false,
-      msg: 'Start on boot is only available in packaged macOS and Windows apps.',
+      msg: 'Start on boot requires a packaged macOS, Windows, or Linux app.',
       data: {
         supported: false,
         enabled: false,
-        isPackaged: true,
+        isPackaged: false,
         platform: 'linux',
       },
     });

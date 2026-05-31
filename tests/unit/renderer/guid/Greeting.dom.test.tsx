@@ -6,7 +6,7 @@
 
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -31,6 +31,16 @@ vi.mock('react-i18next', () => ({
 import Greeting from '@/renderer/pages/guid/components/newChatStarter/Greeting';
 
 describe('<Greeting>', () => {
+  // The greeting now picks one phrasing per time bucket via Math.random; pin it
+  // to index 0 so each bucket renders its first (canonical) phrase.
+  beforeEach(() => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('renders "Morning" before noon with no name', () => {
     render(<Greeting now={new Date('2026-01-01T08:00:00')} displayName={null} />);
     expect(screen.getByTestId('new-chat-greeting').textContent).toBe('Morning');
@@ -46,8 +56,9 @@ describe('<Greeting>', () => {
     expect(screen.getByTestId('new-chat-greeting').textContent).toBe('Evening');
   });
 
-  it('renders "Night" at 22:00 with a whitespace-trimmed name', () => {
+  it('renders the night greeting at 22:00 with a whitespace-trimmed name', () => {
     render(<Greeting now={new Date('2026-01-01T22:00:00')} displayName='   Rory   ' />);
-    expect(screen.getByTestId('new-chat-greeting').textContent).toBe('Night, Rory');
+    // The night bucket's first phrase is 'Evening' (pool: Evening / Good evening / Winding down).
+    expect(screen.getByTestId('new-chat-greeting').textContent).toBe('Evening, Rory');
   });
 });

@@ -42,6 +42,7 @@ vi.mock('@process/agent/acp/AcpConnection', () => {
   return {
     AcpConnection: class MockAcpConnection {
       backend = 'codex';
+      setConversationId = vi.fn();
       loadSession = mockLoadSession;
       newSession = mockNewSession;
       initialize = mockInitialize;

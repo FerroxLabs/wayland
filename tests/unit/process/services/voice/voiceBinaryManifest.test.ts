@@ -12,7 +12,7 @@ import {
   type BinaryPostInstallIo,
 } from '@process/services/voice/voiceBinaryManifest';
 import { VoiceAssetManager } from '@process/services/voice/VoiceAssetManager';
-import { homedir } from 'node:os';
+import { getPlatformServices } from '@/common/platform';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -25,55 +25,55 @@ describe('pickManifestEntry', () => {
     const entry = pickManifestEntry('whisper-cpp', 'darwin', 'arm64');
     expect(entry).not.toBeNull();
     expect(entry?.url).toContain('whisper');
-    expect(entry?.sha256).toBe('TBD-darwin-arm64-whisper');
+    expect(entry?.sha256).toBe('');
     expect(entry?.filename).toBe('whisper-cli');
   });
 
   it('resolves whisper-cpp for darwin-x64', () => {
     const entry = pickManifestEntry('whisper-cpp', 'darwin', 'x64');
     expect(entry).not.toBeNull();
-    expect(entry?.sha256).toBe('TBD-darwin-x64-whisper');
+    expect(entry?.sha256).toBe('');
     expect(entry?.filename).toBe('whisper-cli');
   });
 
   it('resolves whisper-cpp for win32-x64 with .exe filename', () => {
     const entry = pickManifestEntry('whisper-cpp', 'win32', 'x64');
     expect(entry).not.toBeNull();
-    expect(entry?.sha256).toBe('TBD-win32-x64-whisper');
+    expect(entry?.sha256).toBe('');
     expect(entry?.filename).toBe('whisper-cli.exe');
   });
 
   it('resolves whisper-cpp for linux-x64', () => {
     const entry = pickManifestEntry('whisper-cpp', 'linux', 'x64');
     expect(entry).not.toBeNull();
-    expect(entry?.sha256).toBe('TBD-linux-x64-whisper');
+    expect(entry?.sha256).toBe('');
     expect(entry?.filename).toBe('whisper-cli');
   });
 
   it('resolves onnx-runtime for darwin-arm64', () => {
     const entry = pickManifestEntry('onnx-runtime', 'darwin', 'arm64');
     expect(entry).not.toBeNull();
-    expect(entry?.sha256).toBe('TBD-darwin-arm64-onnx');
+    expect(entry?.sha256).toBe('');
     expect(entry?.filename).toBe('onnxruntime');
   });
 
   it('resolves onnx-runtime for darwin-x64', () => {
     const entry = pickManifestEntry('onnx-runtime', 'darwin', 'x64');
     expect(entry).not.toBeNull();
-    expect(entry?.sha256).toBe('TBD-darwin-x64-onnx');
+    expect(entry?.sha256).toBe('');
   });
 
   it('resolves onnx-runtime for win32-x64 with .exe filename', () => {
     const entry = pickManifestEntry('onnx-runtime', 'win32', 'x64');
     expect(entry).not.toBeNull();
-    expect(entry?.sha256).toBe('TBD-win32-x64-onnx');
+    expect(entry?.sha256).toBe('');
     expect(entry?.filename).toBe('onnxruntime.exe');
   });
 
   it('resolves onnx-runtime for linux-x64', () => {
     const entry = pickManifestEntry('onnx-runtime', 'linux', 'x64');
     expect(entry).not.toBeNull();
-    expect(entry?.sha256).toBe('TBD-linux-x64-onnx');
+    expect(entry?.sha256).toBe('');
   });
 
   it('returns null for an unsupported platform/arch combo', () => {
@@ -96,9 +96,7 @@ describe('pickManifestEntry', () => {
 describe('resolveBinaryAsset', () => {
   it('returns a non-null entry for the current process.platform/arch when it is a supported combo', () => {
     // The CI host is one of the four supported combos.
-    const supportedCombos = new Set([
-      'darwin-arm64', 'darwin-x64', 'win32-x64', 'linux-x64',
-    ]);
+    const supportedCombos = new Set(['darwin-arm64', 'darwin-x64', 'win32-x64', 'linux-x64']);
     const current = `${process.platform}-${process.arch}`;
     if (supportedCombos.has(current)) {
       expect(resolveBinaryAsset('whisper-cpp')).not.toBeNull();
@@ -140,7 +138,7 @@ describe('acquireBinary — fresh download path', () => {
   });
 
   it('calls VoiceAssetManager.download with the manifest URL and sha256', async () => {
-    const destPath = path.join(homedir(), '.wayland', 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
+    const destPath = path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
     mockDownload.mockResolvedValue({
       assetId: 'whisper-cpp-darwin-arm64',
       destPath,
@@ -155,13 +153,13 @@ describe('acquireBinary — fresh download path', () => {
     expect(mockDownload).toHaveBeenCalledOnce();
     const [asset] = mockDownload.mock.calls[0] as Parameters<typeof VoiceAssetManager.download>;
     expect(asset.url).toContain('whisper');
-    expect(asset.sha256).toBe('TBD-darwin-arm64-whisper');
+    expect(asset.sha256).toBe('');
     expect(asset.destPath).toBe(destPath);
     expect(result).toBe(destPath);
   });
 
   it('sets the executable bit (chmod) after a fresh download', async () => {
-    const destPath = path.join(homedir(), '.wayland', 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
+    const destPath = path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
     mockDownload.mockResolvedValue({
       assetId: 'whisper-cpp-darwin-arm64',
       destPath,
@@ -178,7 +176,7 @@ describe('acquireBinary — fresh download path', () => {
   });
 
   it('runs xattr quarantine removal on darwin after a fresh download', async () => {
-    const destPath = path.join(homedir(), '.wayland', 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
+    const destPath = path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
     mockDownload.mockResolvedValue({
       assetId: 'whisper-cpp-darwin-arm64',
       destPath,
@@ -195,7 +193,7 @@ describe('acquireBinary — fresh download path', () => {
   });
 
   it('skips chmod and xattr when the asset is already cached', async () => {
-    const destPath = path.join(homedir(), '.wayland', 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
+    const destPath = path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
     mockDownload.mockResolvedValue({
       assetId: 'whisper-cpp-darwin-arm64',
       destPath,
@@ -212,7 +210,7 @@ describe('acquireBinary — fresh download path', () => {
   });
 
   it('uses the manifest URL and sha256 for onnx-runtime', async () => {
-    const destPath = path.join(homedir(), '.wayland', 'voice', 'bin', 'darwin-arm64', 'onnxruntime');
+    const destPath = path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', 'darwin-arm64', 'onnxruntime');
     mockDownload.mockResolvedValue({
       assetId: 'onnx-runtime-darwin-arm64',
       destPath,
@@ -225,7 +223,7 @@ describe('acquireBinary — fresh download path', () => {
     await acquireBinary('onnx-runtime', io);
 
     const [asset] = mockDownload.mock.calls[0] as Parameters<typeof VoiceAssetManager.download>;
-    expect(asset.sha256).toBe('TBD-darwin-arm64-onnx');
+    expect(asset.sha256).toBe('');
     expect(asset.url).toContain('onnxruntime');
   });
 });
@@ -253,7 +251,7 @@ describe('acquireBinary — failure paths', () => {
   });
 
   it('throws BinaryAcquisitionError when chmod fails', async () => {
-    const destPath = path.join(homedir(), '.wayland', 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
+    const destPath = path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
     mockDownload.mockResolvedValue({
       assetId: 'whisper-cpp-darwin-arm64',
       destPath,
@@ -262,12 +260,16 @@ describe('acquireBinary — failure paths', () => {
       sha256: 'TBD-darwin-arm64-whisper',
     });
 
-    const io = fakeIo({ chmodExec: vi.fn(async () => { throw new Error('EPERM'); }) });
+    const io = fakeIo({
+      chmodExec: vi.fn(async () => {
+        throw new Error('EPERM');
+      }),
+    });
     await expect(acquireBinary('whisper-cpp', io)).rejects.toBeInstanceOf(BinaryAcquisitionError);
   });
 
   it('does not throw when xattr removal fails (best-effort)', async () => {
-    const destPath = path.join(homedir(), '.wayland', 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
+    const destPath = path.join(getPlatformServices().paths.getDataDir(), 'voice', 'bin', 'darwin-arm64', 'whisper-cli');
     mockDownload.mockResolvedValue({
       assetId: 'whisper-cpp-darwin-arm64',
       destPath,
@@ -347,11 +349,14 @@ describe('WhisperLocal — acquisition via runtime seam', () => {
         filePath: '/tmp/audio.wav',
         cleanup: vi.fn(async () => undefined),
       })),
-      acquireBinary: vi.fn(async () => { throw new BinaryAcquisitionError('whisper-cpp', 'offline'); }),
+      acquireBinary: vi.fn(async () => {
+        throw new BinaryAcquisitionError('whisper-cpp', 'offline');
+      }),
     };
 
-    await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime))
-      .rejects.toBeInstanceOf(WhisperLocalUnavailableError);
+    await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime)).rejects.toBeInstanceOf(
+      WhisperLocalUnavailableError
+    );
   });
 
   it('throws WhisperLocalUnavailableError with STT_ prefix when acquireBinary rejects', async () => {
@@ -363,11 +368,14 @@ describe('WhisperLocal — acquisition via runtime seam', () => {
         filePath: '/tmp/audio.wav',
         cleanup: vi.fn(async () => undefined),
       })),
-      acquireBinary: vi.fn(async () => { throw new BinaryAcquisitionError('whisper-cpp', 'offline'); }),
+      acquireBinary: vi.fn(async () => {
+        throw new BinaryAcquisitionError('whisper-cpp', 'offline');
+      }),
     };
 
-    await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime))
-      .rejects.toThrow(/^STT_WHISPER_LOCAL_UNAVAILABLE/);
+    await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime)).rejects.toThrow(
+      /^STT_WHISPER_LOCAL_UNAVAILABLE/
+    );
   });
 
   it('throws WhisperLocalUnavailableError (hard-disable) when acquireBinary is absent and binary is null', async () => {
@@ -382,8 +390,9 @@ describe('WhisperLocal — acquisition via runtime seam', () => {
       // no acquireBinary member — tests existing graceful-degradation path
     };
 
-    await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime))
-      .rejects.toBeInstanceOf(WhisperLocalUnavailableError);
+    await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime)).rejects.toBeInstanceOf(
+      WhisperLocalUnavailableError
+    );
   });
 });
 
@@ -407,11 +416,14 @@ describe('KokoroLocal — acquisition via runtime seam', () => {
       resolveBinary: () => null,
       resolveModel: () => '/fake/kokoro-models/default.onnx',
       run: vi.fn(async () => new Uint8Array(0)),
-      acquireBinary: vi.fn(async () => { throw new BinaryAcquisitionError('onnx-runtime', 'offline'); }),
+      acquireBinary: vi.fn(async () => {
+        throw new BinaryAcquisitionError('onnx-runtime', 'offline');
+      }),
     };
 
-    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime))
-      .rejects.toBeInstanceOf(KokoroLocalUnavailableError);
+    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime)).rejects.toBeInstanceOf(
+      KokoroLocalUnavailableError
+    );
   });
 
   it('throws KokoroLocalUnavailableError with TTS_ prefix when acquireBinary rejects', async () => {
@@ -419,11 +431,14 @@ describe('KokoroLocal — acquisition via runtime seam', () => {
       resolveBinary: () => null,
       resolveModel: () => '/fake/kokoro-models/default.onnx',
       run: vi.fn(async () => new Uint8Array(0)),
-      acquireBinary: vi.fn(async () => { throw new BinaryAcquisitionError('onnx-runtime', 'offline'); }),
+      acquireBinary: vi.fn(async () => {
+        throw new BinaryAcquisitionError('onnx-runtime', 'offline');
+      }),
     };
 
-    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime))
-      .rejects.toThrow(/^TTS_KOKORO_LOCAL_UNAVAILABLE/);
+    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime)).rejects.toThrow(
+      /^TTS_KOKORO_LOCAL_UNAVAILABLE/
+    );
   });
 
   it('throws KokoroLocalUnavailableError (hard-disable) when acquireBinary is absent and binary is null', async () => {
@@ -434,7 +449,8 @@ describe('KokoroLocal — acquisition via runtime seam', () => {
       // no acquireBinary member
     };
 
-    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime))
-      .rejects.toBeInstanceOf(KokoroLocalUnavailableError);
+    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime)).rejects.toBeInstanceOf(
+      KokoroLocalUnavailableError
+    );
   });
 });

@@ -125,15 +125,25 @@ jobs:
   # Job 2: Unit tests across all platforms.
   # NOTE: job name "Unit Tests (<os>)" is a required check; pr-checks-docs.yml
   # mirrors these for docs-only PRs. Do not rename or collapse.
+  # Sharded worker jobs: the full vitest suite exceeds the 10-min job timeout on
+  # a single runner (native better-sqlite3 + timer-based channel-plugin tests),
+  # so split it across 4 file-shards per OS that each finish well under the cap.
+  # The required check names "Unit Tests (<os>)" are preserved by the aggregator
+  # jobs below (so branch protection + pr-checks-docs.yml need no changes).
   unit-tests:
-    name: Unit Tests (${{ matrix.os }})
+    name: Unit Tests Shard (${{ matrix.os }} ${{ matrix.shard }}/4)
     if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    # 20m headroom: windows-hosted runners are ~2.7x slower per shard than ubuntu
+    # (a quarter of the suite runs ~9.5m on windows vs ~3.5m on ubuntu). With the
+    # electron-log/renderer import-hang fixed, no shard should approach this — it
+    # only absorbs windows runner variance so a healthy ~9.5m shard can't tip over.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-14, windows-2022]
+        shard: [1, 2, 3, 4]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -168,15 +178,71 @@ jobs:
       - name: Run postinstall
         run: npm run postinstall || true
 
-      - name: Run unit tests (vitest)
-        run: bunx vitest run
+      - name: Run unit tests (vitest shard)
+        run: bunx vitest run --shard=${{ matrix.shard }}/4
+
+  # Aggregator jobs preserve the required-check names "Unit Tests (<os>)".
+  # Each waits on the full sharded matrix and fails if any shard (on any OS)
+  # failed, so a single failing unit test anywhere blocks the merge. GitHub's
+  # `needs.<job>.result` for a matrix job is success only when every cell
+  # succeeded.
+  unit-tests-ubuntu:
+    name: Unit Tests (ubuntu-latest)
+    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all unit-test shards passed
+        env:
+          SHARDS_RESULT: ${{ needs.unit-tests.result }}
+        run: |
+          if [ "$SHARDS_RESULT" != "success" ]; then
+            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+            exit 1
+          fi
+          echo "All unit-test shards passed."
+
+  unit-tests-macos:
+    name: Unit Tests (macos-14)
+    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all unit-test shards passed
+        env:
+          SHARDS_RESULT: ${{ needs.unit-tests.result }}
+        run: |
+          if [ "$SHARDS_RESULT" != "success" ]; then
+            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+            exit 1
+          fi
+          echo "All unit-test shards passed."
+
+  unit-tests-windows:
+    name: Unit Tests (windows-2022)
+    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all unit-test shards passed
+        env:
+          SHARDS_RESULT: ${{ needs.unit-tests.result }}
+        run: |
+          if [ "$SHARDS_RESULT" != "success" ]; then
+            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+            exit 1
+          fi
+          echo "All unit-test shards passed."
 
   # Job 3: Coverage test (Linux only) + Codecov upload
   coverage-tests:
     name: Coverage Test
     if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # The coverage run executes the whole suite WITH instrumentation, so it needs
+    # more than the 10-min unit-test cap. The test step is continue-on-error, so
+    # the job passes as long as it finishes (a timeout is its only red signal).
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -363,10 +429,50 @@ jobs:
       - name: Build (electron-vite, no packaging)
         run: bunx electron-vite build
 
-      - name: Install Playwright system deps
-        run: bunx playwright install --with-deps chromium
+      # The e2e spec launches the real Electron binary via _electron.launch().
+      # The restored node_modules cache has electron without a usable binary
+      # (path.txt missing / dist incomplete), and bun's --frozen-lockfile install
+      # doesn't re-run electron's download script for the already-present package.
+      # Official remedy: delete node_modules/electron and reinstall so bun re-runs
+      # electron's (trusted) install script. Then run install.js explicitly as a
+      # belt-and-suspenders, and verify require('electron') resolves so a bad
+      # install fails HERE (with `set -x` diagnostics) instead of mid-spec.
+      # electron's default CDN (github.com/electron/electron releases) truncates
+      # the binary zip on this runner, leaving a ~688KB partial dist with no
+      # path.txt. Use the npmmirror mirror, request remote checksums (so a partial
+      # is rejected, not silently accepted), and clear every cache so the download
+      # is genuinely fresh. Assert path.txt + the binary so a bad install fails HERE.
+      - name: Ensure Electron binary is installed
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+          electron_use_remote_checksums: '1'
+        run: |
+          set -ex
+          rm -rf node_modules/electron/dist node_modules/electron/path.txt ~/.cache/electron
+          force_no_cache=true node node_modules/electron/install.js
+          ls -la node_modules/electron/dist | head -12
+          test -s node_modules/electron/path.txt
+          node -e "const p=require('electron'); require('node:fs').accessSync(p); console.log('electron binary OK:', p)"
 
+      # This spec drives the BUILT Electron app via Playwright's _electron API
+      # (electronApp.evaluate / page.evaluate); it never uses Playwright's bundled
+      # chromium. `install --with-deps chromium` downloaded that unused ~170MB
+      # browser, and that CDN download stalled past the 30-min job cap on every
+      # run (the spec never even started). Install only the system libraries that
+      # Electron's chromium needs at runtime — no browser binary download.
+      - name: Install Playwright system deps (no browser download — Electron-only spec)
+        run: bunx playwright install-deps chromium
+
+      # This job does a fast UNPACKAGED electron-vite build (no electron-builder
+      # packaging). The e2e fixture defaults to PACKAGED mode in CI and looks for
+      # a packaged app under out/, which this job never produces. Force DEV mode
+      # so the spec launches the unpackaged build via `electron .`. The security
+      # properties under test (sandbox, contextIsolation, nodeIntegration:false,
+      # IPC handler registration, electron version) are identical in dev and
+      # packaged mode.
       - name: Run security-audit e2e spec
+        env:
+          E2E_DEV: '1'
         run: bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
 
       - name: Upload Playwright report on failure

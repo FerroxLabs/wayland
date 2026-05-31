@@ -37,7 +37,9 @@ function buildFrontmatter(fields: Record<string, string | string[] | number>): s
     if (Array.isArray(val)) {
       lines.push(`${key}: [${val.map((v) => String(v)).join(', ')}]`);
     } else {
-      const escaped = String(val).replace(/[\r\n]+/g, ' ').slice(0, 500);
+      const escaped = String(val)
+        .replace(/[\r\n]+/g, ' ')
+        .slice(0, 500);
       lines.push(`${key}: ${escaped}`);
     }
   }
@@ -74,12 +76,9 @@ function parseTags(raw: string | null): string[] {
  *
  * Returns early (no throw) if the database file is absent or unreadable.
  */
-export async function runClaudeMemImport(opts?: {
-  ijfwMemoryDir?: string;
-}): Promise<ClaudeMemImportResult> {
+export async function runClaudeMemImport(opts?: { ijfwMemoryDir?: string }): Promise<ClaudeMemImportResult> {
   const dbPath = path.join(os.homedir(), '.claude-mem', 'claude-mem.db');
-  const memDir =
-    opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
+  const memDir = opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
 
   const result: ClaudeMemImportResult = { imported: 0, skipped: 0, errors: [] };
 
@@ -124,7 +123,7 @@ export async function runClaudeMemImport(opts?: {
           continue;
         }
         // Sanitize to prevent path traversal via malformed row IDs.
-        const id = rawId.replace(/[^a-zA-Z0-9_\-]/g, '_').slice(0, 64);
+        const id = rawId.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64);
 
         const destFile = path.join(memDir, `observation-${id}.md`);
         // Guard: assert the resolved path stays within memDir.
@@ -145,9 +144,7 @@ export async function runClaudeMemImport(opts?: {
         }
 
         const body = row.body ?? '';
-        const summary = row.title
-          ? row.title.slice(0, 280)
-          : body.slice(0, 280).replace(/\n/g, ' ');
+        const summary = row.title ? row.title.slice(0, 280) : body.slice(0, 280).replace(/\n/g, ' ');
 
         const tags = parseTags(row.tags);
         const storedAt = createdAtMs(row.created_at);

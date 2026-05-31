@@ -1824,8 +1824,15 @@ const migration_v42: IMigration = {
   up: (db) => {
     // SQLite cannot ADD COLUMN inside a CHECK constraint table, but a plain
     // nullable INTEGER add is supported on existing rows (NULL backfill).
-    db.exec(`ALTER TABLE workflow_sessions ADD COLUMN begin_sent_at INTEGER`);
-    console.log('[Migration v42] Added begin_sent_at column to workflow_sessions');
+    // SQLite has no ADD COLUMN IF NOT EXISTS, so guard on table_info to keep
+    // up() idempotent — matching every other migration's IF NOT EXISTS guards
+    // and surviving a re-run from version 0 (crash recovery / re-entrancy).
+    const columns = db.pragma('table_info(workflow_sessions)') as Array<{ name: string }>;
+    const hasBeginSentAt = columns.some((c) => c.name === 'begin_sent_at');
+    if (!hasBeginSentAt) {
+      db.exec(`ALTER TABLE workflow_sessions ADD COLUMN begin_sent_at INTEGER`);
+      console.log('[Migration v42] Added begin_sent_at column to workflow_sessions');
+    }
   },
   down: (db) => {
     // SQLite has no DROP COLUMN before 3.35. Use the table-recreate idiom.

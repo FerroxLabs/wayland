@@ -17,11 +17,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/common', () => {
   const providerFn = vi.fn();
   const queryProviderFn = vi.fn();
+  const queryRecentProviderFn = vi.fn();
   return {
     ipcBridge: {
       usage: {
         recordEvent: { provider: providerFn },
         queryFrequentlyUsedModels: { provider: queryProviderFn },
+        queryRecentlyUsedModels: { provider: queryRecentProviderFn },
       },
     },
   };
@@ -101,9 +103,7 @@ describe('usageBridge — startup race (Gemini-HIGH)', () => {
     initUsageBridge(logger);
 
     await providerCallback!({ eventType: 'guid.message_sent', cliBackend: 'gemini' });
-    expect(recorded).toEqual([
-      { eventType: 'guid.message_sent', cliBackend: 'gemini' },
-    ]);
+    expect(recorded).toEqual([{ eventType: 'guid.message_sent', cliBackend: 'gemini' }]);
   });
 
   it('installs the IPC provider exactly once across init calls', () => {

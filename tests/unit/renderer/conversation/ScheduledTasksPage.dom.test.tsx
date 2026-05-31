@@ -58,6 +58,7 @@ vi.mock('react-i18next', () => ({
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  useSearchParams: () => [new URLSearchParams(), vi.fn()],
 }));
 
 // Mock @icon-park/react

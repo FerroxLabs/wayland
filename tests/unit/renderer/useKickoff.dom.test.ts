@@ -31,7 +31,7 @@ const makeSuggestion = (overrides?: Partial<Parameters<typeof Object.assign>[0]>
     { kickoffId: 'alt-1', text: 'Want me to prep 1:1 agendas?', prefill: 'Prep 1:1 agendas.' },
     { kickoffId: 'alt-2', text: 'Want me to retro the week?', prefill: 'Retro the week.' },
   ],
-  ...(overrides ?? {}),
+  ...overrides,
 });
 
 beforeEach(() => {
@@ -103,9 +103,7 @@ describe('useKickoff', () => {
       prefill = result.current.accept();
     });
     expect(prefill).toBe('Prep 1:1 agendas.');
-    expect(telemetryMock).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'accepted', kickoffId: 'alt-1' })
-    );
+    expect(telemetryMock).toHaveBeenCalledWith(expect.objectContaining({ event: 'accepted', kickoffId: 'alt-1' }));
   });
 
   it('dismissByInteraction fires dismissed telemetry and hides the card', async () => {

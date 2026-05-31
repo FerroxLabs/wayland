@@ -42,6 +42,19 @@ vi.mock('@process/utils/initStorage', () => ({
   loadSkillsContent: vi.fn().mockResolvedValue(''),
 }));
 
+// Pin the SkillLibrary singleton to an empty list so `libraryIsNonEmpty()`
+// returns false. The function reads a process-global singleton (agentUtils.ts:190)
+// that a sibling test file in the same Vitest run can populate, which would inject
+// the [Skills Location] block and wrap the content the "no skills" cases expect
+// raw. Matches the guard already in agentUtilsWorkflow.test.ts.
+vi.mock('@process/services/skills/SkillLibrary', () => ({
+  SkillLibrary: {
+    getInstance: () => ({
+      list: vi.fn().mockResolvedValue([]),
+    }),
+  },
+}));
+
 vi.mock('@process/team/prompts/teamGuidePrompt.ts', () => ({
   getTeamGuidePrompt: vi.fn(() => 'TEAM_GUIDE_PROMPT_BODY'),
 }));

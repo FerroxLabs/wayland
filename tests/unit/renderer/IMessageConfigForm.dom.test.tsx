@@ -32,7 +32,10 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
 
 // Arco overrides — we only need the DOM shapes the form renders.
 vi.mock('@arco-design/web-react', () => ({
-  Button: ({ children, ...props }: React.PropsWithChildren<{ loading?: boolean; type?: string; onClick?: () => void }>) => (
+  Button: ({
+    children,
+    ...props
+  }: React.PropsWithChildren<{ loading?: boolean; type?: string; onClick?: () => void }>) => (
     <button {...props}>{children}</button>
   ),
   Input: Object.assign(
@@ -48,14 +51,8 @@ vi.mock('@arco-design/web-react', () => ({
         value?: string;
         onChange?: (v: string) => void;
         placeholder?: string;
-      }) => (
-        <textarea
-          value={value ?? ''}
-          onChange={(e) => onChange?.(e.target.value)}
-          placeholder={placeholder}
-        />
-      ),
-    },
+      }) => <textarea value={value ?? ''} onChange={(e) => onChange?.(e.target.value)} placeholder={placeholder} />,
+    }
   ),
   InputNumber: ({
     value,
@@ -80,7 +77,8 @@ vi.mock('@arco-design/web-react', () => ({
   Message: { error: vi.fn(), success: vi.fn() },
 }));
 
-vi.mock('lucide-react', () => ({
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   AlertTriangle: () => <span data-testid='alert-icon' />,
 }));
 
@@ -91,16 +89,18 @@ describe('IMessageConfigForm renderer smoke (F17)', () => {
     render(<IMessageConfigForm pluginStatus={null} onStatusChange={() => undefined} />);
 
     expect(
-      screen.getByText(/Full Disk Access/i),
-      'FDA hint must be present so users know about the macOS permission gate',
+      // The form now references Full Disk Access in more than one place; assert
+      // at least one occurrence is present.
+      screen.getAllByText(/Full Disk Access/i)[0],
+      'FDA hint must be present so users know about the macOS permission gate'
     ).toBeInTheDocument();
     expect(
       screen.getByText(/Automation consent/i),
-      'Automation hint must be present so users know the second TCC prompt is coming',
+      'Automation hint must be present so users know the second TCC prompt is coming'
     ).toBeInTheDocument();
     expect(
       screen.getByText(/Text-only/i),
-      'Attachments-not-supported hint must be present so users do not expect media',
+      'Attachments-not-supported hint must be present so users do not expect media'
     ).toBeInTheDocument();
   });
 

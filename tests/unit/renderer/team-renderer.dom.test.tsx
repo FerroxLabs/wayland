@@ -75,14 +75,66 @@ vi.mock('@arco-design/web-react', () => {
     error: vi.fn(),
     useMessage: () => [vi.fn(), null],
   };
-  const Modal = {
-    confirm: vi.fn(),
-  };
+  // Modal is used both as a component (<Modal>...</Modal>) and via Modal.confirm.
+  const Modal = Object.assign(
+    ({ children, visible }: { children?: React.ReactNode; visible?: boolean }) =>
+      visible === false ? null : React.createElement('div', { 'data-testid': 'arco-modal' }, children),
+    { confirm: vi.fn() }
+  );
   const Spin = ({ loading }: { loading?: boolean }) =>
     loading ? React.createElement('div', { 'data-testid': 'spin' }) : null;
   const Button = ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) =>
     React.createElement('button', { 'data-testid': 'arco-button', onClick }, children);
-  return { Button, Message, Modal, Spin };
+  // TeamPage renders a deep tree (header switcher, onboarding steps, forms).
+  // Provide generic children-passthrough stubs for the Arco components it pulls
+  // in so the render never crashes on a missing named export.
+  type P = { children?: React.ReactNode };
+  const pass =
+    (testid: string) =>
+    ({ children }: P) =>
+      React.createElement('div', { 'data-testid': testid }, children);
+  const Select = Object.assign(
+    ({ children, onChange }: P & { onChange?: (v: unknown) => void }) =>
+      React.createElement('select', { 'data-testid': 'arco-select', onChange: () => onChange?.(undefined) }, children),
+    {
+      Option: ({ children, value }: P & { value?: unknown }) =>
+        React.createElement('option', { value: String(value ?? '') }, children),
+    }
+  );
+  const Steps = Object.assign(pass('arco-steps'), { Step: pass('arco-step') });
+  const Tabs = Object.assign(pass('arco-tabs'), { TabPane: pass('arco-tabpane') });
+  const Form = Object.assign(pass('arco-form'), {
+    Item: pass('arco-form-item'),
+    useForm: () => [{ getFieldsValue: () => ({}), setFieldsValue: vi.fn(), validate: vi.fn() }],
+  });
+  const Input = Object.assign(
+    (props: Record<string, unknown>) => React.createElement('input', { 'data-testid': 'arco-input', ...props }),
+    {
+      TextArea: (props: Record<string, unknown>) =>
+        React.createElement('textarea', { 'data-testid': 'arco-textarea', ...props }),
+    }
+  );
+  const Tooltip = ({ children }: P) => React.createElement(React.Fragment, null, children);
+  return {
+    Button,
+    Message,
+    Modal,
+    Select,
+    Spin,
+    Steps,
+    Tabs,
+    Form,
+    Input,
+    Tooltip,
+    Checkbox: (props: Record<string, unknown>) =>
+      React.createElement('input', { type: 'checkbox', 'data-testid': 'arco-checkbox', ...props }),
+    Tag: pass('arco-tag'),
+    Avatar: pass('arco-avatar'),
+    Divider: pass('arco-divider'),
+    Empty: pass('arco-empty'),
+    Switch: (props: Record<string, unknown>) =>
+      React.createElement('input', { type: 'checkbox', 'data-testid': 'arco-switch', ...props }),
+  };
 });
 
 vi.mock('@icon-park/react', () => ({
@@ -100,21 +152,41 @@ vi.mock('@icon-park/react', () => ({
   Right: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'right-icon', ...props }),
 }));
 
-vi.mock('lucide-react', () => ({
-  X: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'close-icon', ...props }),
-  XCircle: (props: Record<string, unknown>) =>
-    React.createElement('span', { 'data-testid': 'close-one-icon', ...props }),
-  Pencil: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'edit-icon', ...props }),
-  Plus: (props: Record<string, unknown>) => React.createElement('span', { 'data-testid': 'plus-icon', ...props }),
-  Maximize2: (props: Record<string, unknown>) =>
-    React.createElement('span', { 'data-testid': 'fullscreen-icon', ...props }),
-  Minimize2: (props: Record<string, unknown>) =>
-    React.createElement('span', { 'data-testid': 'offscreen-icon', ...props }),
-  ChevronLeft: (props: Record<string, unknown>) =>
-    React.createElement('span', { 'data-testid': 'left-icon', ...props }),
-  ChevronRight: (props: Record<string, unknown>) =>
-    React.createElement('span', { 'data-testid': 'right-icon', ...props }),
+// The chat-header tree consumes ThemeContext; provide a default so components
+// render outside a ThemeProvider.
+vi.mock('@renderer/hooks/context/ThemeContext', () => ({
+  useThemeContext: () => ({
+    theme: 'light',
+    themePreference: 'system',
+    setTheme: vi.fn(),
+    colorScheme: 'default',
+    setColorScheme: vi.fn(),
+    fontScale: 1,
+    setFontScale: vi.fn(),
+  }),
+  ThemeProvider: ({ children }: { children?: React.ReactNode }) => React.createElement(React.Fragment, null, children),
 }));
+
+// The TeamPage render tree imports a large, growing set of lucide icons. Spread
+// the real module so every icon resolves, and override only the icons the tests
+// query by data-testid. This keeps the queried stubs stable without crashing on
+// any new icon import elsewhere in the tree.
+vi.mock('lucide-react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('lucide-react')>();
+  const stub = (testid: string) => (props: Record<string, unknown>) =>
+    React.createElement('span', { 'data-testid': testid, ...props });
+  return {
+    ...actual,
+    X: stub('close-icon'),
+    XCircle: stub('close-one-icon'),
+    Pencil: stub('edit-icon'),
+    Plus: stub('plus-icon'),
+    Maximize2: stub('fullscreen-icon'),
+    Minimize2: stub('offscreen-icon'),
+    ChevronLeft: stub('left-icon'),
+    ChevronRight: stub('right-icon'),
+  };
+});
 
 vi.mock('@/renderer/styles/colors', () => ({
   iconColors: { primary: '#000' },

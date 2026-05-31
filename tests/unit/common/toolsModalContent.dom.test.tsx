@@ -76,6 +76,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+// ToolsModalContent navigates via react-router-dom's useNavigate. Mock it so
+// the component renders without a <Router> wrapper.
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
+}));
+
 vi.mock('@icon-park/react', () => ({
   Help: () => <span data-testid='icon-help' />,
   Down: () => <span data-testid='icon-down' />,

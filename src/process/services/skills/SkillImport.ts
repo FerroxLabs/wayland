@@ -127,10 +127,7 @@ export type ImportResult = {
 // `ssh://internal.host/internal-repo` and clone against an arbitrary
 // internal SSH host (SSRF). The `git@<host>:` short form already covers
 // GitHub/GitLab SSH use cases. (H5 fix.)
-const GIT_ALLOWLIST = [
-  /^https:\/\//,
-  /^git@[a-zA-Z0-9.\-]+:/,
-];
+const GIT_ALLOWLIST = [/^https:\/\//, /^git@[a-zA-Z0-9.-]+:/];
 
 function isAllowedGitUrl(url: string): boolean {
   return GIT_ALLOWLIST.some((re) => re.test(url));
@@ -212,9 +209,7 @@ export class SkillImport {
       // the order so the surviving body differed from what was scanned. One
       // skill per zip is the well-formed contract — bulk import is folder-
       // based via importFolder.
-      const skillMdCount = entries.filter(
-        (e) => !e.isSymlink && path.basename(e.path) === 'SKILL.md'
-      ).length;
+      const skillMdCount = entries.filter((e) => !e.isSymlink && path.basename(e.path) === 'SKILL.md').length;
       if (skillMdCount > 1) {
         throw new Error(
           `Rejected: zip contains ${skillMdCount} SKILL.md files. ` +

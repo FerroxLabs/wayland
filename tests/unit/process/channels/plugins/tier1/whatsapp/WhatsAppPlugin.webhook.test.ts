@@ -47,7 +47,7 @@ const { forkSpy, fakeChild, stdinWrites } = vi.hoisted(() => {
       emit(event, ...args) {
         const arr = listeners[event];
         if (!arr || arr.length === 0) return false;
-        for (const cb of [...arr]) cb(...args);
+        for (const cb of arr.slice()) cb(...args);
         return true;
       },
     };
@@ -172,7 +172,7 @@ describe('WhatsAppPlugin.handleWebhookPayload — Meta backend', () => {
 
     fakeChild.stdout.emit(
       'data',
-      `${JSON.stringify({ jsonrpc: '2.0', id: sent.id, result: { ok: true, emitted: 1 } })}\n`,
+      `${JSON.stringify({ jsonrpc: '2.0', id: sent.id, result: { ok: true, emitted: 1 } })}\n`
     );
     await expect(pending).resolves.toBeUndefined();
   });
@@ -184,7 +184,7 @@ describe('WhatsAppPlugin.handleWebhookPayload — Meta backend', () => {
     const pending = plugin.handleWebhookPayload(
       { object: 'whatsapp_business_account', entry: [] },
       { 'X-Forwarded-For': ['10.0.0.1', '10.0.0.2'] },
-      'whatsapp_default',
+      'whatsapp_default'
     );
     const sent = JSON.parse(stdinWrites[0]!.trim()) as {
       id: number;
@@ -192,10 +192,7 @@ describe('WhatsAppPlugin.handleWebhookPayload — Meta backend', () => {
     };
     expect(sent.params.headers['x-forwarded-for']).toBe('10.0.0.1, 10.0.0.2');
 
-    fakeChild.stdout.emit(
-      'data',
-      `${JSON.stringify({ jsonrpc: '2.0', id: sent.id, result: { ok: true } })}\n`,
-    );
+    fakeChild.stdout.emit('data', `${JSON.stringify({ jsonrpc: '2.0', id: sent.id, result: { ok: true } })}\n`);
     await pending;
   });
 });
@@ -210,7 +207,7 @@ describe('WhatsAppPlugin.handleWebhookPayload — non-Meta backends', () => {
     const plugin = new WhatsAppPlugin();
     await plugin.initialize(baileysConfig);
     await expect(
-      plugin.handleWebhookPayload({ object: 'whatsapp_business_account' }, {}, 'whatsapp_default'),
+      plugin.handleWebhookPayload({ object: 'whatsapp_business_account' }, {}, 'whatsapp_default')
     ).rejects.toThrow(/only valid for meta-business backend/);
     // No RPC should be written when the backend rejects the call up front.
     expect(stdinWrites).toHaveLength(0);

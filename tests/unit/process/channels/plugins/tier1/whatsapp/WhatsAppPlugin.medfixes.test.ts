@@ -47,7 +47,7 @@ const { forkSpy, fakeChild, stdinWrites } = vi.hoisted(() => {
       emit(event, ...args) {
         const arr = listeners[event];
         if (!arr || arr.length === 0) return false;
-        for (const cb of [...arr]) cb(...args);
+        for (const cb of arr.slice()) cb(...args);
         return true;
       },
     };
@@ -110,7 +110,7 @@ async function flush(): Promise<void> {
 
 async function captureInbound(
   plugin: WhatsAppPlugin,
-  params: Record<string, unknown>,
+  params: Record<string, unknown>
 ): Promise<IUnifiedIncomingMessage> {
   const received: IUnifiedIncomingMessage[] = [];
   plugin.onMessage(async (msg) => {
@@ -166,21 +166,18 @@ describe('WhatsAppPlugin — MED/LOW finding fixes', () => {
     ['document', 'document'],
     ['sticker', 'sticker'],
     ['image', 'photo'],
-  ] as const)(
-    'W-7: mediaType %s maps to content.type %s (no collapse to text)',
-    async (mediaType, expected) => {
-      const plugin = new WhatsAppPlugin();
-      await plugin.initialize(configFor('baileys'));
-      const msg = await captureInbound(plugin, {
-        messageId: `WA_in_${mediaType}`,
-        chatId: 'chat@x',
-        senderId: 'sender@x',
-        body: '',
-        mediaType,
-      });
-      expect(msg.content.type).toBe(expected);
-    },
-  );
+  ] as const)('W-7: mediaType %s maps to content.type %s (no collapse to text)', async (mediaType, expected) => {
+    const plugin = new WhatsAppPlugin();
+    await plugin.initialize(configFor('baileys'));
+    const msg = await captureInbound(plugin, {
+      messageId: `WA_in_${mediaType}`,
+      chatId: 'chat@x',
+      senderId: 'sender@x',
+      body: '',
+      mediaType,
+    });
+    expect(msg.content.type).toBe(expected);
+  });
 
   it('W-8: ms-encoded timestamps pass through (no double-multiply)', async () => {
     const plugin = new WhatsAppPlugin();

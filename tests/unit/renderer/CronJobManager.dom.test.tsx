@@ -27,6 +27,7 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  useSearchParams: () => [new URLSearchParams(), vi.fn()] as const,
 }));
 
 vi.mock('@arco-design/web-react', () => ({
@@ -92,6 +93,14 @@ vi.mock('@/renderer/pages/cron/cronUtils', () => ({
   getJobStatusFlags: mockGetJobStatusFlags,
 }));
 
+// CronJobManager mounts CreateTaskDialog (hidden until the user clicks Create).
+// Stub it so this unit test stays scoped to CronJobManager and doesn't pull in
+// CreateTaskDialog's heavy arco (Form.useForm) + react-router (useSearchParams)
+// surface, which this suite's narrow mocks intentionally don't cover.
+vi.mock('@/renderer/pages/cron/ScheduledTasksPage/CreateTaskDialog', () => ({
+  default: () => null,
+}));
+
 import type { ICronJob } from '@/common/adapter/ipcBridge';
 import CronJobManager from '@/renderer/pages/cron/components/CronJobManager';
 
@@ -130,10 +139,13 @@ describe('CronJobManager', () => {
     mockGetJobStatusFlags.mockReturnValue({ hasError: false, isPaused: false });
   });
 
-  it('returns null when hasCronSkill=false and no jobs', () => {
-    const { container } = render(<CronJobManager conversationId='conv-1' hasCronSkill={false} />);
+  it('renders the discovery popover even when hasCronSkill=false (gate dropped in v0.6.2.5)', () => {
+    // 0142750de dropped the hasCronSkill gate so the "turn this chat into a
+    // scheduled task" entry pill always renders in empty state, on every chat.
+    render(<CronJobManager conversationId='conv-1' hasCronSkill={false} />);
 
-    expect(container.innerHTML).toBe('');
+    expect(screen.getByTestId('arco-popover')).toBeInTheDocument();
+    expect(screen.getByText('cron.status.createNow')).toBeInTheDocument();
   });
 
   it('shows unconfigured state when hasCronSkill=true (default) and no jobs', () => {
@@ -197,15 +209,16 @@ describe('CronJobManager', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('returns null when hasCronSkill=false, no jobs, and not loading', () => {
+  it('renders the discovery popover when hasCronSkill=false, no jobs, not loading', () => {
     mockUseCronJobs.mockReturnValue({
       jobs: [],
       loading: false,
       hasJobs: false,
     });
 
-    const { container } = render(<CronJobManager conversationId='conv-1' hasCronSkill={false} />);
+    render(<CronJobManager conversationId='conv-1' hasCronSkill={false} />);
 
-    expect(container.innerHTML).toBe('');
+    // Gate dropped in v0.6.2.5 (0142750de): empty-state discovery always shows.
+    expect(screen.getByTestId('arco-popover')).toBeInTheDocument();
   });
 });

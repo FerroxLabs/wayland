@@ -7,6 +7,28 @@ import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 import * as React from 'react';
 
+// `electron-log/renderer` talks to the Electron main process over IPC. Under
+// jsdom there is no main process, so importing it HANGS at module-evaluation
+// time. That hang happens during test COLLECTION (a static `import`), which
+// `testTimeout` cannot bound — it only bounds test/hook bodies — so a single
+// renderer module that logs (e.g. ErrorBoundary, and transitively Router) stalls
+// the whole worker until the CI job's hard timeout cancels the shard. Stub it
+// globally so any renderer module can be imported in DOM tests. A per-file
+// `vi.mock('electron-log/renderer', ...)` still overrides this where a test
+// wants to assert on log calls.
+vi.mock('electron-log/renderer', () => {
+  const logger = {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    verbose: vi.fn(),
+    silly: vi.fn(),
+    log: vi.fn(),
+  };
+  return { default: logger, ...logger };
+});
+
 // Lucide test-id stamping: every Lucide icon gets data-testid='icon-<ComponentName>'
 // automatically. Stable across icon swaps; no per-icon TESTID_MAP maintenance.
 // Tests that previously asserted on icon-park kebab ids (e.g. `icon-delete`) must
@@ -18,8 +40,7 @@ vi.mock('lucide-react', async () => {
     if (typeof value === 'object' && value && (value as { $$typeof?: symbol }).$$typeof) {
       const Original = value as React.ComponentType<Record<string, unknown>>;
       const Display = React.forwardRef<unknown, Record<string, unknown>>((props, ref) => {
-        const merged =
-          'data-testid' in props ? props : { ...props, 'data-testid': `icon-${name}` };
+        const merged = 'data-testid' in props ? props : { ...props, 'data-testid': `icon-${name}` };
         return React.createElement(Original, { ...merged, ref } as Record<string, unknown>);
       });
       Display.displayName = name;

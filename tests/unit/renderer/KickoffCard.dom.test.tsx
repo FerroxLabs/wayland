@@ -15,16 +15,18 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@arco-design/web-react', () => ({
-  Button: ({
-    children,
-    ...props
-  }: React.ComponentProps<'button'> & { type?: string; loading?: boolean }) => (
+  Button: ({ children, ...props }: React.ComponentProps<'button'> & { type?: string; loading?: boolean }) => (
     <button {...(props as React.ComponentProps<'button'>)}>{children}</button>
   ),
 }));
 
-vi.mock('lucide-react', () => ({
-  X: (props: { size?: number }) => <span data-testid='x-icon' {...props}>×</span>,
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
+  X: (props: { size?: number }) => (
+    <span data-testid='x-icon' {...props}>
+      ×
+    </span>
+  ),
 }));
 
 import KickoffCard from '@/renderer/pages/guid/components/newChatStarter/KickoffCard';
@@ -123,10 +125,7 @@ describe('kickoff i18n keys (E-L-4)', () => {
     const fs = require('node:fs') as typeof import('node:fs');
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const path = require('node:path') as typeof import('node:path');
-    const guidPath = path.resolve(
-      __dirname,
-      '../../../src/renderer/services/i18n/locales/en-US/guid.json'
-    );
+    const guidPath = path.resolve(__dirname, '../../../src/renderer/services/i18n/locales/en-US/guid.json');
     const raw = fs.readFileSync(guidPath, 'utf-8');
     const parsed = JSON.parse(raw) as Record<string, any>;
     const kickoff = parsed?.newChat?.kickoff ?? parsed?.guid?.newChat?.kickoff;

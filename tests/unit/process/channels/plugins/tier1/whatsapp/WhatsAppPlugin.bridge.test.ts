@@ -49,7 +49,7 @@ const { forkSpy, fakeChild, stdinWrites } = vi.hoisted(() => {
       emit(event, ...args) {
         const arr = listeners[event];
         if (!arr || arr.length === 0) return false;
-        for (const cb of [...arr]) cb(...args);
+        for (const cb of arr.slice()) cb(...args);
         return true;
       },
     };
@@ -127,7 +127,9 @@ describe('WhatsAppPlugin — bridge JSON-RPC plumbing', () => {
     await plugin.initialize(configFor('baileys'));
     expect(forkSpy).toHaveBeenCalledTimes(1);
     const [entry, args] = forkSpy.mock.calls[0]!;
-    expect(String(entry)).toMatch(/whatsapp-bridge\/bridge\.js$/);
+    // Normalize separators: prod builds the entry with path.join, which emits
+    // backslashes on win32, so match on the posix-normalized tail.
+    expect(String(entry).replace(/\\/g, '/')).toMatch(/whatsapp-bridge\/bridge\.js$/);
     expect(args).toEqual(['--backend', 'baileys']);
   });
 
@@ -247,8 +249,8 @@ describe('WhatsAppPlugin — bridge JSON-RPC plumbing', () => {
   it('throws on editMessage — WhatsApp has no edit primitive on any backend', async () => {
     const plugin = new WhatsAppPlugin();
     await plugin.initialize(configFor('baileys'));
-    await expect(
-      plugin.editMessage('chat@x', 'WA_001', { type: 'text', text: 'edited' }),
-    ).rejects.toThrow(/does not support editing/);
+    await expect(plugin.editMessage('chat@x', 'WA_001', { type: 'text', text: 'edited' })).rejects.toThrow(
+      /does not support editing/
+    );
   });
 });

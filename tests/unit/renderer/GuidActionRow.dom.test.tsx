@@ -60,7 +60,8 @@ vi.mock('@icon-park/react', () => ({
   UploadOne: () => <span>UploadOne</span>,
 }));
 
-vi.mock('lucide-react', () => ({
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   ArrowUp: () => <span>ArrowUp</span>,
   Brain: () => <span>Brain</span>,
   FolderOpen: () => <span>FolderOpen</span>,

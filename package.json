@@ -272,9 +272,6 @@
     "@rollup/rollup-win32-x64-msvc": "^4.46.2",
     "electron-winstaller": "^5.4.0"
   },
-  "trustedDependencies": [
-    "officecli"
-  ],
   "resolutions": {
     "@xmldom/xmldom": "^0.8.13",
     "axios": ">=1.16.0",
@@ -321,5 +318,10 @@
   "patchedDependencies": {
     "7zip-bin@5.2.0": "patches/7zip-bin@5.2.0.patch"
   },
-  "productName": "Wayland"
+  "productName": "Wayland",
+  "trustedDependencies": [
+    "officecli",
+    "better-sqlite3",
+    "electron"
+  ]
 }

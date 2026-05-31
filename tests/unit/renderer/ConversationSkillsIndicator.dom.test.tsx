@@ -35,7 +35,8 @@ vi.mock('@icon-park/react', () => ({
   Lightning: () => <span data-testid='lightning-icon' />,
 }));
 
-vi.mock('lucide-react', () => ({
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   Zap: () => <span data-testid='lightning-icon' />,
 }));
 

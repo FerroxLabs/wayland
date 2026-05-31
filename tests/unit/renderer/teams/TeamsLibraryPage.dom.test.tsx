@@ -21,13 +21,7 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 
-const STANDING_IDS = [
-  'customer-success-org',
-  'dev-shop',
-  'editorial-newsroom',
-  'marketing-agency',
-  'sales-org',
-];
+const STANDING_IDS = ['customer-success-org', 'dev-shop', 'editorial-newsroom', 'marketing-agency', 'sales-org'];
 
 const NON_STANDING_TEAM_IDS = [
   'cold-outbound',
@@ -52,13 +46,7 @@ const NON_STANDING_TEAM_IDS = [
 ];
 
 const mockAssistants = vi.hoisted(() => {
-  const STANDING = [
-    'customer-success-org',
-    'dev-shop',
-    'editorial-newsroom',
-    'marketing-agency',
-    'sales-org',
-  ];
+  const STANDING = ['customer-success-org', 'dev-shop', 'editorial-newsroom', 'marketing-agency', 'sales-org'];
   const TEAMS = [
     'cold-outbound',
     'product-launch',
@@ -140,6 +128,19 @@ vi.mock('@/renderer/hooks/assistant', () => ({
     loadAssistants: vi.fn().mockResolvedValue(undefined),
     localeKey: 'en-US',
   }),
+}));
+
+// The page reads auth state via useAuth; provide a default so it renders
+// without an AuthProvider wrapper.
+vi.mock('@renderer/hooks/context/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    isAuthenticated: false,
+    loading: false,
+    login: vi.fn().mockResolvedValue({ success: true }),
+    logout: vi.fn().mockResolvedValue(undefined),
+  }),
+  AuthProvider: ({ children }: { children?: React.ReactNode }) => children,
 }));
 
 import TeamsLibraryPage from '../../../../src/renderer/pages/teams/TeamsLibraryPage';

@@ -194,7 +194,12 @@ describe('GAP-4: WCoreManager Cron Command Feedback Loop', () => {
   // ── AC-3: Cron command execution ──────────────────────────────────
 
   describe('AC-3: executes cron commands', () => {
-    it('executes CRON_CREATE command via cronService', async () => {
+    it('blocks agent-emitted CRON_CREATE (PROPOSE-default) and does NOT call addJob', async () => {
+      // v0.6.2.6.1 (396b758bc, Gemini G-S-01): agent-emitted [CRON_CREATE]
+      // bypasses the [CRON_PROPOSE] confirmation card, so it is now blocked.
+      // The handler surfaces a [System Response] warning instead of writing a
+      // job — only cronBridge.confirmProposal (user-approved) ever calls addJob.
+      const sendSpy = vi.spyOn(manager, 'sendMessage').mockResolvedValue(undefined);
       const cronCreateText = `[CRON_CREATE]
 name: Daily Report
 schedule: 0 9 * * *
@@ -203,14 +208,13 @@ message: Generate daily report
 [/CRON_CREATE]`;
       simulateTurn(manager, [cronCreateText]);
       await vi.waitFor(() => {
-        expect(mockCronService.addJob).toHaveBeenCalledWith(
+        expect(sendSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Daily Report',
-            conversationId: 'conv-test-1',
-            agentType: 'wcore',
+            content: expect.stringContaining('[System Response]'),
           })
         );
       });
+      expect(mockCronService.addJob).not.toHaveBeenCalled();
     });
 
     it('ignores CRON_DELETE (no longer supported)', async () => {
@@ -330,7 +334,7 @@ message: Generate daily report
   // ── White-box: boundary & edge cases ──────────────────────────────
 
   describe('Edge cases', () => {
-    it('handles multiple cron commands in one turn', async () => {
+    it('handles multiple cron commands in one turn (CREATE blocked, LIST honored)', async () => {
       const sendSpy = vi.spyOn(manager, 'sendMessage').mockResolvedValue(undefined);
       const text = `[CRON_CREATE]
 name: Morning Report
@@ -342,10 +346,11 @@ message: Generate morning report
 [CRON_LIST]`;
       simulateTurn(manager, [text]);
       await vi.waitFor(() => {
-        expect(mockCronService.addJob).toHaveBeenCalled();
         expect(mockCronService.listJobsByConversation).toHaveBeenCalled();
         expect(sendSpy).toHaveBeenCalled();
       });
+      // CREATE is blocked (PROPOSE-default); only LIST is honored.
+      expect(mockCronService.addJob).not.toHaveBeenCalled();
     });
 
     it('handles consecutive turns each with cron commands', async () => {

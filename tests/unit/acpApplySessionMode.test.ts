@@ -18,6 +18,7 @@ vi.mock('../../src/process/agent/acp/AcpConnection', () => ({
   AcpConnection: class {
     hasActiveSession = true;
     isConnected = true;
+    setConversationId = vi.fn();
     connect = mockConnect;
     setSessionMode = mockSetSessionMode;
     setModel = mockSetModel;

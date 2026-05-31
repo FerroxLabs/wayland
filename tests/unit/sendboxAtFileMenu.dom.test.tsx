@@ -228,7 +228,8 @@ vi.mock('@icon-park/react', () => ({
   Quote: () => React.createElement('span', {}, 'Quote'),
 }));
 
-vi.mock('lucide-react', () => ({
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   ArrowUp: () => React.createElement('span', {}, 'ArrowUp'),
   X: () => React.createElement('span', {}, 'CloseSmall'),
   Quote: () => React.createElement('span', {}, 'Quote'),

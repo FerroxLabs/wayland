@@ -50,7 +50,9 @@ describe('ErrorBoundary', () => {
     );
 
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
-    expect(screen.getByText('render failed')).toBeInTheDocument();
+    // The default fallback hides the raw error message outside development to
+    // avoid leaking internals; it renders a generic line instead.
+    expect(screen.getByText('An unexpected error occurred.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reload this view' })).toBeInTheDocument();
   });
 
@@ -79,7 +81,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('first render fails')).toBeInTheDocument();
+    expect(screen.getByText('An unexpected error occurred.')).toBeInTheDocument();
 
     // Fix the underlying cause and then trigger reset
     shouldThrow = false;

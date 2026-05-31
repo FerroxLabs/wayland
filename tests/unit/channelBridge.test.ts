@@ -33,6 +33,7 @@ vi.mock('../../src/common/adapter/ipcBridge', () => ({
     revokeUser: makeChannel('revokeUser'),
     getActiveSessions: makeChannel('getActiveSessions'),
     syncChannelSettings: makeChannel('syncChannelSettings'),
+    rotateWebhookToken: makeChannel('rotateWebhookToken'),
   },
 }));
 

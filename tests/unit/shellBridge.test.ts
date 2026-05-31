@@ -14,6 +14,7 @@ const {
   openExternalProvider,
   checkToolInstalledProvider,
   openFolderWithProvider,
+  openPathProvider,
   shellMock,
   execMock,
   spawnMock,
@@ -24,6 +25,7 @@ const {
   openExternalProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
   checkToolInstalledProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
   openFolderWithProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
+  openPathProvider: { fn: undefined as ((...args: any[]) => any) | undefined },
   shellMock: {
     openPath: vi.fn().mockResolvedValue(''),
     showItemInFolder: vi.fn(),
@@ -65,6 +67,11 @@ vi.mock('@/common', () => ({
       openFolderWith: {
         provider: vi.fn((fn: (...args: any[]) => any) => {
           openFolderWithProvider.fn = fn;
+        }),
+      },
+      openPath: {
+        provider: vi.fn((fn: (...args: any[]) => any) => {
+          openPathProvider.fn = fn;
         }),
       },
     },

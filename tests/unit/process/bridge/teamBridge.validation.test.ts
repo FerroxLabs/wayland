@@ -238,7 +238,7 @@ describe('teamBridge — W5 HIGH-1 IPC boundary validation', () => {
     it('rejects when specialists array exceeds 200', async () => {
       const out = await cb()({
         goalText: 'x',
-        specialists: new Array(201).fill({ id: 'x' }),
+        specialists: Array.from({ length: 201 }, () => ({ id: 'x' })),
         detectedBackends: [],
       });
       expect(isBridgeError(out)).toBe(true);

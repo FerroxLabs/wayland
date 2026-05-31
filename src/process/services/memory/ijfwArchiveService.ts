@@ -29,19 +29,12 @@ import type {
 } from '@/common/types/memory';
 
 // Memory files to read per project root.
-const MEMORY_FILES = [
-  'knowledge.md',
-  'journal.md',
-  'handoff.md',
-  'plan.md',
-  'brief.md',
-  'project-journal.md',
-] as const;
+const MEMORY_FILES = ['knowledge.md', 'journal.md', 'handoff.md', 'plan.md', 'brief.md', 'project-journal.md'] as const;
 
 type WatcherFactory = (
   filePath: string,
   opts: { persistent: boolean },
-  callback: (event: string, filename: string | null) => void,
+  callback: (event: string, filename: string | null) => void
 ) => { close(): void };
 
 // ===== Index data structures =====
@@ -85,9 +78,7 @@ function parseDateToMs(stored: string): number {
 function toMemoryType(raw: string): MemoryEntry['type'] {
   const lower = raw?.toLowerCase?.() ?? '';
   const valid = ['decision', 'pattern', 'observation', 'session', 'wiki', 'preference'] as const;
-  return (valid as readonly string[]).includes(lower)
-    ? (lower as MemoryEntry['type'])
-    : 'observation';
+  return (valid as readonly string[]).includes(lower) ? (lower as MemoryEntry['type']) : 'observation';
 }
 
 // ===== Registry reader =====
@@ -137,11 +128,7 @@ async function fallbackScanForProjects(): Promise<RegistryEntry[]> {
 
 // ===== Entry parser =====
 
-function parseEntriesFromFile(
-  filePath: string,
-  projectPath: string,
-  projectName: string,
-): MemoryEntry[] {
+function parseEntriesFromFile(filePath: string, projectPath: string, projectName: string): MemoryEntry[] {
   let content: string;
   try {
     content = fs.readFileSync(filePath, 'utf8');
@@ -165,11 +152,7 @@ function parseEntriesFromFile(
     const storedAt = parseDateToMs(storedStr) || Date.now();
 
     const rawTags = fm['tags'];
-    const tags: string[] = Array.isArray(rawTags)
-      ? rawTags
-      : typeof rawTags === 'string' && rawTags
-        ? [rawTags]
-        : [];
+    const tags: string[] = Array.isArray(rawTags) ? rawTags : typeof rawTags === 'string' && rawTags ? [rawTags] : [];
 
     const id = makeId(filePath, storedStr || String(storedAt), summary);
     const bodyPreview = stripMarkdown(block.body).slice(0, 200);
@@ -228,7 +211,7 @@ const REFS_TTL_MS = 5 * 60 * 1000; // 5 minutes
 function buildRefsMap(allEntries: MemoryEntry[]): Map<string, number> {
   const refs = new Map<string, number>();
   const journalEntries = allEntries.filter(
-    (e) => e.sourcePath.endsWith('journal.md') || e.sourcePath.endsWith('project-journal.md'),
+    (e) => e.sourcePath.endsWith('journal.md') || e.sourcePath.endsWith('project-journal.md')
   );
   const journalBodies = journalEntries.map((e) => e.bodyPreview + (e.body ?? ''));
 
@@ -260,7 +243,7 @@ async function countWikiFiles(projectPath: string): Promise<number> {
 
 function buildSparkline(entries: MemoryEntry[], days = 30): number[] {
   const now = Date.now();
-  const buckets = new Array<number>(days).fill(0);
+  const buckets: number[] = Array.from({ length: days }, () => 0);
   for (const e of entries) {
     const dayAgo = Math.floor((now - e.storedAt) / (24 * 60 * 60 * 1000));
     if (dayAgo >= 0 && dayAgo < days) {
@@ -376,7 +359,7 @@ class IjfwArchiveService {
       byType: groupBy(allEntries, (e) => e.type),
       byTag: groupByTags(allEntries),
       all: allEntries,
-      projects: projectSummaries.sort((a, b) => b.lastActive - a.lastActive),
+      projects: projectSummaries.toSorted((a, b) => b.lastActive - a.lastActive),
       wikiCounts,
       refsReady: false,
       refsExpiry: 0,
@@ -424,17 +407,23 @@ class IjfwArchiveService {
         for (const cb of this.changeCallbacks) cb(stats);
       })();
       this.activeRebuild = rebuild;
-      rebuild.catch((err) => {
-        log.error('[memory-archive] reindex failed', { err });
-      }).finally(() => {
-        if (this.activeRebuild === rebuild) this.activeRebuild = null;
-      });
+      rebuild
+        .catch((err) => {
+          log.error('[memory-archive] reindex failed', { err });
+        })
+        .finally(() => {
+          if (this.activeRebuild === rebuild) this.activeRebuild = null;
+        });
     }, 500);
   }
 
   private closeWatchers(): void {
     for (const w of this.watchers) {
-      try { w.close(); } catch { /* ignore */ }
+      try {
+        w.close();
+      } catch {
+        /* ignore */
+      }
     }
     this.watchers = [];
   }
@@ -468,8 +457,7 @@ class IjfwArchiveService {
 
     const since24h = now - DAY;
     const since7d = now - WEEK;
-    const countSince = (entries: MemoryEntry[], since: number) =>
-      entries.filter((e) => e.storedAt >= since).length;
+    const countSince = (entries: MemoryEntry[], since: number) => entries.filter((e) => e.storedAt >= since).length;
 
     const decisionEntries = idx.byType.get('decision') ?? [];
     const wikiEntries = idx.byType.get('wiki') ?? [];
@@ -497,7 +485,7 @@ class IjfwArchiveService {
       const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
       daySet.add(key);
     }
-    const sortedDays = [...daySet].sort();
+    const sortedDays = [...daySet].toSorted();
     let longestDays = 0;
     let currentRun = 0;
     let prevDayMs = 0;
@@ -589,11 +577,7 @@ class IjfwArchiveService {
       const now = Date.now();
       const DAY = 24 * 60 * 60 * 1000;
       const cutoff =
-        filter.timeWindow === 'today'
-          ? now - DAY
-          : filter.timeWindow === '7d'
-            ? now - 7 * DAY
-            : now - 30 * DAY;
+        filter.timeWindow === 'today' ? now - DAY : filter.timeWindow === '7d' ? now - 7 * DAY : now - 30 * DAY;
       entries = entries.filter((e) => e.storedAt >= cutoff);
     }
 
@@ -604,18 +588,18 @@ class IjfwArchiveService {
         (e) =>
           e.summary.toLowerCase().includes(q) ||
           e.bodyPreview.toLowerCase().includes(q) ||
-          e.tags.some((t) => t.toLowerCase().includes(q)),
+          e.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
 
     // Sort.
     const sort = filter.sort ?? 'recent';
     if (sort === 'recent') {
-      entries = [...entries].sort((a, b) => b.storedAt - a.storedAt);
+      entries = [...entries].toSorted((a, b) => b.storedAt - a.storedAt);
     } else if (sort === 'most-referenced') {
-      entries = [...entries].sort((a, b) => b.referencedBy - a.referencedBy);
+      entries = [...entries].toSorted((a, b) => b.referencedBy - a.referencedBy);
     } else {
-      entries = [...entries].sort((a, b) => b.promotionScore - a.promotionScore);
+      entries = [...entries].toSorted((a, b) => b.promotionScore - a.promotionScore);
     }
 
     const total = entries.length;
@@ -642,7 +626,7 @@ class IjfwArchiveService {
         const match = blocks.find(
           (b) =>
             typeof b.frontmatter['summary'] === 'string' &&
-            (b.frontmatter['summary'] as string).slice(0, 80) === entry.summary.slice(0, 80),
+            (b.frontmatter['summary'] as string).slice(0, 80) === entry.summary.slice(0, 80)
         );
         if (match) body = match.body;
       } catch {
@@ -660,9 +644,7 @@ class IjfwArchiveService {
 
   async getTags(project?: string): Promise<TagCount[]> {
     await this.init();
-    const entries = project
-      ? this.index.all.filter((e) => e.project === project)
-      : this.index.all;
+    const entries = project ? this.index.all.filter((e) => e.project === project) : this.index.all;
 
     const counts = new Map<string, number>();
     for (const entry of entries) {
@@ -674,7 +656,7 @@ class IjfwArchiveService {
 
     return [...counts.entries()]
       .map(([tag, count]) => ({ tag, count }))
-      .sort((a, b) => b.count - a.count)
+      .toSorted((a, b) => b.count - a.count)
       .slice(0, 20);
   }
 
@@ -685,7 +667,7 @@ class IjfwArchiveService {
     const candidates = this.index.all
       .filter((e) => e.promotionScore >= threshold)
       .map((e) => ({ id: e.id, score: e.promotionScore }))
-      .sort((a, b) => b.score - a.score);
+      .toSorted((a, b) => b.score - a.score);
     return {
       candidates,
       threshold,
@@ -770,7 +752,7 @@ function groupByTags(items: MemoryEntry[]): Map<string, MemoryEntry[]> {
 function defaultWatcherFactory(
   filePath: string,
   opts: { persistent: boolean },
-  callback: (event: string, filename: string | null) => void,
+  callback: (event: string, filename: string | null) => void
 ): { close(): void } {
   return fs.watch(filePath, opts, callback);
 }

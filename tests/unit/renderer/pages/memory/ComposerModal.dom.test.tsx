@@ -93,12 +93,7 @@ vi.mock('@arco-design/web-react', () => {
     className?: string;
     [key: string]: unknown;
   }) => (
-    <button
-      type='button'
-      onClick={onClick}
-      disabled={disabled === true || loading === true}
-      data-testid={testId}
-    >
+    <button type='button' onClick={onClick} disabled={disabled === true || loading === true} data-testid={testId}>
       {children}
     </button>
   );
@@ -130,10 +125,16 @@ vi.mock('@arco-design/web-react', () => {
   );
 
   const InputStub = Object.assign(
-    ({ value, onChange, 'data-testid': testId }: { value?: string; onChange?: (v: string) => void; 'data-testid'?: string }) => (
-      <input value={value} onChange={(e) => onChange?.(e.target.value)} data-testid={testId} />
-    ),
-    { TextArea: InputTextAreaStub },
+    ({
+      value,
+      onChange,
+      'data-testid': testId,
+    }: {
+      value?: string;
+      onChange?: (v: string) => void;
+      'data-testid'?: string;
+    }) => <input value={value} onChange={(e) => onChange?.(e.target.value)} data-testid={testId} />,
+    { TextArea: InputTextAreaStub }
   );
 
   const MessageStub = {
@@ -149,10 +150,9 @@ vi.mock('@arco-design/web-react', () => {
   };
 });
 
-vi.mock('lucide-react', () => ({
-  X: ({ size: _size, 'aria-hidden': _ah }: { size?: number; 'aria-hidden'?: boolean }) => (
-    <span data-icon='x' />
-  ),
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
+  X: ({ size: _size, 'aria-hidden': _ah }: { size?: number; 'aria-hidden'?: boolean }) => <span data-icon='x' />,
 }));
 
 // ---------------------------------------------------------------------------
@@ -330,9 +330,7 @@ describe('ComposerModal', () => {
       fireEvent.change(ta, { target: { value: 'global scope check' } });
       fireEvent.click(screen.getByTestId('composer-submit-btn'));
       await waitFor(() => {
-        expect(onSubmit).toHaveBeenCalledWith(
-          expect.objectContaining({ scope: 'global' }),
-        );
+        expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ scope: 'global' }));
       });
     });
 

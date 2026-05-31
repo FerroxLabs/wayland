@@ -31,13 +31,20 @@ const bundlePath = join(__dirname, '../../../src/process/extensions/data/bundle-
 const bundle: BundleEntry[] = JSON.parse(readFileSync(bundlePath, 'utf-8'));
 
 // Per TEAM-BLITZ-PLAN.md §1 D7 + DISPATCH-PACKETS.md W1a T1a.4 — locked Standing Companies set
-const STANDING_IDS = ['customer-success-org', 'dev-shop', 'editorial-newsroom', 'marketing-agency', 'sales-org'];
+const STANDING_IDS = [
+  'customer-success-org',
+  'dev-shop',
+  'editorial-newsroom',
+  'marketing-agency',
+  'quiet-money-standing',
+  'sales-org',
+];
 
 describe('teams bundle (vendored) — content smoke', () => {
-  it('has 44 entries: 24 launchers (kind=team) + 20 specialists (kind=specialist)', () => {
-    expect(bundle.length).toBe(44);
-    expect(bundle.filter((a) => a.kind === 'team').length).toBe(24);
-    expect(bundle.filter((a) => a.kind === 'specialist').length).toBe(20);
+  it('has 54 entries: 26 launchers (kind=team) + 28 specialists (kind=specialist)', () => {
+    expect(bundle.length).toBe(54);
+    expect(bundle.filter((a) => a.kind === 'team').length).toBe(26);
+    expect(bundle.filter((a) => a.kind === 'specialist').length).toBe(28);
   });
 
   it('every launcher teammate references a real specialist (zero orphans)', () => {
@@ -53,7 +60,7 @@ describe('teams bundle (vendored) — content smoke', () => {
     expect(orphans).toEqual([]);
   });
 
-  it('exactly the 5 Standing Companies have standing:true and non-empty rituals[]', () => {
+  it('exactly the 6 Standing Companies have standing:true and non-empty rituals[]', () => {
     const standing = bundle.filter((a) => a.standing === true);
     expect(standing.map((a) => a.id).sort()).toEqual(STANDING_IDS);
     for (const company of standing) {

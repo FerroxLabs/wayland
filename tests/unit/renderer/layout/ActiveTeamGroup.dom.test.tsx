@@ -70,7 +70,8 @@ vi.mock('@arco-design/web-react', () => {
   return { Collapse };
 });
 
-vi.mock('lucide-react', () => ({
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   Bot: (props: { size?: number; color?: string }) => (
     <span data-testid='bot-icon' data-size={props.size} data-color={props.color} />
   ),
@@ -136,9 +137,7 @@ const HostedGroup: React.FC<{
       header={
         <div>
           <span data-testid='header-name'>{team.name}</span>
-          {unreadCount > 0 && (
-            <span data-testid='header-badge'>{unreadCount > 99 ? '99+' : String(unreadCount)}</span>
-          )}
+          {unreadCount > 0 && <span data-testid='header-badge'>{unreadCount > 99 ? '99+' : String(unreadCount)}</span>}
         </div>
       }
       onTeammateClick={(t) => onTeammateClick?.(t.slotId)}

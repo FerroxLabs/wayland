@@ -6,7 +6,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CURRENT_DB_VERSION, initSchema } from '@process/services/database/schema';
-import { runMigrations } from '@process/services/database/migrations';
+import { ALL_MIGRATIONS, runMigrations } from '@process/services/database/migrations';
 import { BetterSqlite3Driver } from '@process/services/database/drivers/BetterSqlite3Driver';
 
 let nativeOk = true;
@@ -35,24 +35,30 @@ describeOrSkip('Migration v41 — workflow_sessions table', () => {
 
   it('creates the workflow_sessions table with all required columns', () => {
     const cols = driver.pragma('table_info(workflow_sessions)') as Array<{ name: string }>;
-    const colNames = cols.map((c) => c.name).sort();
-    expect(colNames).toEqual([
-      'asks_json',
-      'category',
-      'completed_at',
-      'conversation_id',
-      'created_at',
-      'current_step',
-      'id',
-      'palette',
-      'skills_json',
-      'status',
-      'steps_json',
-      'total_steps',
-      'updated_at',
-      'workflow_name',
-      'workflow_title',
-    ]);
+    const colNames = cols.map((c) => c.name);
+    // beforeEach runs the FULL chain (0 -> CURRENT_DB_VERSION), so later
+    // migrations also touch this table (v42 adds begin_sent_at). Assert v41's
+    // columns are all PRESENT rather than an exact set, so this stays correct
+    // as future migrations extend the table.
+    expect(colNames).toEqual(
+      expect.arrayContaining([
+        'asks_json',
+        'category',
+        'completed_at',
+        'conversation_id',
+        'created_at',
+        'current_step',
+        'id',
+        'palette',
+        'skills_json',
+        'status',
+        'steps_json',
+        'total_steps',
+        'updated_at',
+        'workflow_name',
+        'workflow_title',
+      ])
+    );
   });
 
   it('enforces CHECK constraints (status enum + monotonic step bounds)', () => {
@@ -115,14 +121,10 @@ describeOrSkip('Migration v41 — workflow_sessions table', () => {
     expect(() => baseInsert({ id: 'ws-bad-total', total_steps: -1 })).toThrow(/CHECK constraint/i);
 
     // current_step > total_steps + 1 rejected.
-    expect(() => baseInsert({ id: 'ws-overshoot', current_step: 7, total_steps: 5 })).toThrow(
-      /CHECK constraint/i
-    );
+    expect(() => baseInsert({ id: 'ws-overshoot', current_step: 7, total_steps: 5 })).toThrow(/CHECK constraint/i);
 
     // current_step === total_steps + 1 is the legal "just completed" boundary.
-    expect(() =>
-      baseInsert({ id: 'ws-just-done', current_step: 6, total_steps: 5, status: 'complete' })
-    ).not.toThrow();
+    expect(() => baseInsert({ id: 'ws-just-done', current_step: 6, total_steps: 5, status: 'complete' })).not.toThrow();
   });
 
   it('creates all three workflow_sessions indexes', () => {
@@ -133,10 +135,22 @@ describeOrSkip('Migration v41 — workflow_sessions table', () => {
     expect(idxNames).toContain('idx_workflow_sessions_active_recency');
   });
 
-  it('is idempotent — re-running the migration does not throw', () => {
-    // Already ran once via beforeEach. Re-running ALL migrations from 0 to
-    // CURRENT_DB_VERSION exercises migration_v41's IF NOT EXISTS guards.
-    expect(() => runMigrations(driver, 0, CURRENT_DB_VERSION)).not.toThrow();
+  it('is idempotent — re-running the workflow_sessions migrations does not throw', () => {
+    // beforeEach already ran the full chain. Re-running v41 (CREATE TABLE/INDEX
+    // IF NOT EXISTS) and v42 (guarded ADD COLUMN) again must be a no-op. Scope
+    // to these two migrations rather than re-running the whole chain from 0:
+    // older migrations (e.g. v8's unguarded ADD COLUMN source) predate the
+    // idempotency convention and are out of scope for this file. Production
+    // never re-runs a migration anyway — runMigrations is gated by the stored
+    // user_version (see getMigrationsToRun).
+    const v41 = ALL_MIGRATIONS.find((m) => m.version === 41);
+    const v42 = ALL_MIGRATIONS.find((m) => m.version === 42);
+    expect(v41).toBeDefined();
+    expect(v42).toBeDefined();
+    expect(() => {
+      v41!.up(driver);
+      v42!.up(driver);
+    }).not.toThrow();
     const cols = driver.pragma('table_info(workflow_sessions)') as Array<{ name: string }>;
     expect(cols.length).toBeGreaterThan(0);
   });

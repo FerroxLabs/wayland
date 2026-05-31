@@ -7,46 +7,51 @@ const mockShowOpen = vi.hoisted(() => vi.fn().mockResolvedValue([]));
 const mockIsElectronDesktop = vi.hoisted(() => vi.fn(() => true));
 
 // Mock react-i18next
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: Record<string, string>) => {
-      if (key === 'cron.page.scheduleDesc.manual') return 'Manual';
-      if (key === 'cron.page.scheduleDesc.hourly') return 'Every hour';
-      if (key === 'cron.page.scheduleDesc.dailyAt') return `Daily at ${options?.time}`;
-      if (key === 'cron.page.scheduleDesc.weekdaysAt') return `Weekdays at ${options?.time}`;
-      if (key === 'cron.page.scheduleDesc.weeklyAt') return `Weekly on ${options?.day} at ${options?.time}`;
-      if (key === 'cron.page.form.newConversation') return 'New conversation';
-      if (key === 'cron.page.form.existingConversation') return 'Ongoing conversation';
-      if (key === 'cron.page.form.newConversationHint') return 'Start fresh on every run';
-      if (key === 'cron.page.form.existingConversationHint') return 'Keep building in one conversation';
-      if (key === 'cron.page.form.executionModeEditHint') return 'Execution mode cannot be changed after creation.';
-      if (key === 'cron.detail.executionModeDescriptionNew') {
-        return 'Each run starts a fresh conversation, so previous context does not carry over.';
-      }
-      if (key === 'cron.detail.executionModeDescriptionExisting') {
-        return 'Each run continues in the same conversation, so earlier context and results stay available.';
-      }
-      if (key === 'cron.page.form.advancedSettings') return 'Advanced settings';
-      if (key === 'cron.page.form.workspace') return 'Workspace';
-      if (key === 'cron.page.form.workspaceHint') return 'Optional workspace';
-      if (key === 'cron.page.form.workspacePlaceholder') return 'Workspace path';
-      if (key === 'cron.page.form.selectFolder') return 'Select folder';
-      if (key === 'cron.page.customCronWarning') {
-        return "This task has a custom schedule that can't be edited here. Changing the frequency will replace it.";
-      }
-      if (key === 'cron.page.scheduleHint') {
-        return 'Scheduled tasks use a randomized delay of several minutes for server performance.';
-      }
-      if (key === 'team.create.recentLabel') return 'Recent';
-      if (key === 'team.create.chooseDifferentFolder') return 'Choose a different folder';
-      if (key.startsWith('cron.page.weekday.')) {
-        const day = key.split('.').pop();
-        return day?.charAt(0).toUpperCase() + day?.slice(1);
-      }
-      return key;
-    },
-  }),
-}));
+vi.mock('react-i18next', () => {
+  // Stable t reference for the module's lifetime — mirrors real react-i18next,
+  // where t is memoized. An unstable t (new function each render) re-runs every
+  // effect that lists t as a dependency on every render; here that would re-fire
+  // the create-mode reset effect and snap the advanced panel shut immediately
+  // after the toggle click.
+  const t = (key: string, options?: Record<string, string>) => {
+    if (key === 'cron.page.scheduleDesc.manual') return 'Manual';
+    if (key === 'cron.page.scheduleDesc.hourly') return 'Every hour';
+    if (key === 'cron.page.scheduleDesc.dailyAt') return `Daily at ${options?.time}`;
+    if (key === 'cron.page.scheduleDesc.weekdaysAt') return `Weekdays at ${options?.time}`;
+    if (key === 'cron.page.scheduleDesc.weeklyAt') return `Weekly on ${options?.day} at ${options?.time}`;
+    if (key === 'cron.page.form.newConversation') return 'New conversation';
+    if (key === 'cron.page.form.existingConversation') return 'Ongoing conversation';
+    if (key === 'cron.page.form.newConversationHint') return 'Start fresh on every run';
+    if (key === 'cron.page.form.existingConversationHint') return 'Keep building in one conversation';
+    if (key === 'cron.page.form.executionModeEditHint') return 'Execution mode cannot be changed after creation.';
+    if (key === 'cron.detail.executionModeDescriptionNew') {
+      return 'Each run starts a fresh conversation, so previous context does not carry over.';
+    }
+    if (key === 'cron.detail.executionModeDescriptionExisting') {
+      return 'Each run continues in the same conversation, so earlier context and results stay available.';
+    }
+    if (key === 'cron.page.form.advancedSettings') return 'Advanced settings';
+    if (key === 'cron.page.form.workspace') return 'Workspace';
+    if (key === 'cron.page.form.workspaceHint') return 'Optional workspace';
+    if (key === 'cron.page.form.workspacePlaceholder') return 'Workspace path';
+    if (key === 'cron.page.form.selectFolder') return 'Select folder';
+    if (key === 'cron.page.customCronWarning') {
+      return "This task has a custom schedule that can't be edited here. Changing the frequency will replace it.";
+    }
+    if (key === 'cron.page.scheduleHint') {
+      return 'Scheduled tasks use a randomized delay of several minutes for server performance.';
+    }
+    if (key === 'team.create.recentLabel') return 'Recent';
+    if (key === 'team.create.chooseDifferentFolder') return 'Choose a different folder';
+    if (key.startsWith('cron.page.weekday.')) {
+      const day = key.split('.').pop();
+      return day?.charAt(0).toUpperCase() + day?.slice(1);
+    }
+    return key;
+  };
+  const translation = { t };
+  return { useTranslation: () => translation };
+});
 
 // Mock @icon-park/react
 vi.mock('@icon-park/react', () => ({
@@ -88,6 +93,13 @@ vi.mock('@/common', () => ({
     cron: {
       addJob: { invoke: (...args: unknown[]) => mockAddJob(...args) },
       updateJob: { invoke: (...args: unknown[]) => mockUpdateJob(...args) },
+    },
+    // 'From workflow' tab (87b304c54): create mode loads the workflow list and
+    // a selected workflow's body via skills.*. Plain functions (not vi.fn) so
+    // the nested beforeEach vi.clearAllMocks() cannot strip their resolution.
+    skills: {
+      list: { invoke: () => Promise.resolve([]) },
+      getBody: { invoke: () => Promise.resolve(null) },
     },
   },
 }));
@@ -737,6 +749,10 @@ describe('CreateTaskDialog - schedule preset definitions', () => {
 
     render(<CreateTaskDialog visible={true} onClose={onClose} conversationId='conv-1' />);
 
+    // v0.6.2.6 (ef793ad31): when launched from a conversation, executionMode
+    // starts null and Save is gated until the user picks one. Select 'existing'.
+    fireEvent.click(document.querySelector('input[value="existing"]') as HTMLInputElement);
+
     // The default frequency should be 'manual'
     // Click OK to submit
     fireEvent.click(screen.getByTestId('modal-ok'));
@@ -1199,6 +1215,10 @@ describe('CreateTaskDialog - component behavior', () => {
 
     render(<CreateTaskDialog visible={true} onClose={onClose} conversationId='conv-1' />);
 
+    // v0.6.2.6 (ef793ad31): executionMode is null until picked when launched
+    // from a conversation; Save is gated on it. Select 'existing' before submit.
+    fireEvent.click(document.querySelector('input[value="existing"]') as HTMLInputElement);
+
     fireEvent.click(screen.getByTestId('modal-ok'));
 
     await waitFor(() => {
@@ -1262,19 +1282,26 @@ describe('CreateTaskDialog - advanced settings panel', () => {
     mockIsElectronDesktop.mockReturnValue(true);
   });
 
-  it('toggles the advanced settings panel open and closed', () => {
+  it('toggles the advanced settings panel open and closed', async () => {
     render(<CreateTaskDialog visible={true} onClose={vi.fn()} conversationId='conv-1' />);
+
+    // The 'From workflow' tab loads the workflow list asynchronously on mount
+    // (skills.list -> setWorkflows). Let that settle first so its re-render can't
+    // race the synchronous toggle click below.
+    await screen.findByTestId('mock-button');
 
     // Workspace picker is hidden initially
     expect(screen.queryByTestId('cron-workspace-trigger')).not.toBeInTheDocument();
 
     // Open panel
     fireEvent.click(screen.getByTestId('mock-button'));
-    expect(screen.getByTestId('cron-workspace-trigger')).toBeInTheDocument();
+    expect(await screen.findByTestId('cron-workspace-trigger')).toBeInTheDocument();
 
     // Close panel again
     fireEvent.click(screen.getByTestId('mock-button'));
-    expect(screen.queryByTestId('cron-workspace-trigger')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('cron-workspace-trigger')).not.toBeInTheDocument();
+    });
   });
 
   it('clears the workspace via the close icon inside the picker', () => {

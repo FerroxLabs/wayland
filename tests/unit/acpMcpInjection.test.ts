@@ -78,6 +78,7 @@ const mockDestroy = vi.fn();
 vi.mock('../../src/process/agent/acp/AcpConnection', () => ({
   AcpConnection: class MockAcpConnection {
     backend: string = 'codex';
+    setConversationId = vi.fn();
     loadSession = mockLoadSession;
     newSession = mockNewSession;
     initialize = mockInitialize;

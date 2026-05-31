@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { findAssistantInRegistry, SignalCollector } from './SignalCollector';
+import type { SignalCollector } from './SignalCollector';
+import { findAssistantInRegistry } from './SignalCollector';
 import { dateKey, hashSeed, seededShuffle } from './seededShuffle';
 import {
   THREAD_MIN_DURATION_MS,
@@ -87,7 +88,8 @@ export class SuggestionEngine {
 
     // Level 3 — Cold-start library, time-bucket filtered, seeded shuffle
     const coldStarts = kickoffs.filter(
-      (k) => k.scenario === 'cold-start' && k.beginnerSafe !== true && (!k.timeBucket || k.timeBucket === signals.timeBucket)
+      (k) =>
+        k.scenario === 'cold-start' && k.beginnerSafe !== true && (!k.timeBucket || k.timeBucket === signals.timeBucket)
     );
     if (coldStarts.length > 0) {
       const seed = hashSeed(`${signals.installUuid}:${assistantId}:${dateKey(signals.now)}`);
@@ -149,11 +151,7 @@ function buildSuggestion(
  * typos / schema drift surface in logs instead of silently disabling
  * cascade tiers at runtime.
  */
-const VALID_SCENARIOS = new Set<KickoffEntry['scenario']>([
-  'cold-start',
-  'continuation-friendly',
-  'post-fire-ritual',
-]);
+const VALID_SCENARIOS = new Set<KickoffEntry['scenario']>(['cold-start', 'continuation-friendly', 'post-fire-ritual']);
 const VALID_TIME_BUCKETS = new Set<NonNullable<KickoffEntry['timeBucket']>>([
   'late-night',
   'morning',
@@ -164,8 +162,7 @@ const VALID_TIME_BUCKETS = new Set<NonNullable<KickoffEntry['timeBucket']>>([
 function readKickoffArray(raw: Record<string, unknown>): KickoffEntry[] {
   const candidate = raw.kickoffs;
   if (!Array.isArray(candidate)) return [];
-  const assistantId =
-    typeof (raw as { id?: unknown }).id === 'string' ? (raw as { id: string }).id : '<unknown>';
+  const assistantId = typeof (raw as { id?: unknown }).id === 'string' ? (raw as { id: string }).id : '<unknown>';
   const out: KickoffEntry[] = [];
   for (const entry of candidate) {
     if (!entry || typeof entry !== 'object') continue;
@@ -185,7 +182,10 @@ function readKickoffArray(raw: Record<string, unknown>): KickoffEntry[] {
 
     let timeBucket: KickoffEntry['timeBucket'];
     if (e.timeBucket !== undefined) {
-      if (typeof e.timeBucket === 'string' && VALID_TIME_BUCKETS.has(e.timeBucket as NonNullable<KickoffEntry['timeBucket']>)) {
+      if (
+        typeof e.timeBucket === 'string' &&
+        VALID_TIME_BUCKETS.has(e.timeBucket as NonNullable<KickoffEntry['timeBucket']>)
+      ) {
         timeBucket = e.timeBucket as KickoffEntry['timeBucket'];
       } else {
         console.warn(

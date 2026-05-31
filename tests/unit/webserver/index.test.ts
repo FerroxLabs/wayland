@@ -69,7 +69,26 @@ const {
 });
 
 vi.mock('express', () => ({
-  default: vi.fn(() => ({})),
+  // express() builds the app (now registers a webhook route directly via
+  // app.post + express.raw()); express.raw/json/... are static body-parser
+  // factories. Give the app the chainable route methods the server uses.
+  default: Object.assign(
+    vi.fn(() => ({
+      use: vi.fn(),
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+      set: vi.fn(),
+      listen: vi.fn(),
+    })),
+    {
+      raw: vi.fn(() => vi.fn()),
+      json: vi.fn(() => vi.fn()),
+      urlencoded: vi.fn(() => vi.fn()),
+      static: vi.fn(() => vi.fn()),
+    }
+  ),
 }));
 
 vi.mock('http', () => ({

@@ -116,8 +116,8 @@ describe('BrowseModal', () => {
     expect(screen.getByText('settings.modelsPage.browse.group.chinese')).toBeInTheDocument();
     expect(screen.getByText('settings.modelsPage.browse.group.voice')).toBeInTheDocument();
 
-    // All 31 providers render as tiles.
-    expect(tiles().length).toBe(31);
+    // All 32 providers render as tiles.
+    expect(tiles().length).toBe(32);
   });
 
   it('filters the grid by the search input', async () => {
@@ -316,7 +316,7 @@ describe('BrowseModal', () => {
     fireEvent.click(screen.getByText('settings.modelsPage.browse.back'));
 
     // The grid is back.
-    await waitFor(() => expect(tiles().length).toBe(31));
+    await waitFor(() => expect(tiles().length).toBe(32));
   });
 
   // ---- Ship-gate Fix B2 ----------------------------------------------------

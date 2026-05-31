@@ -46,7 +46,12 @@ vi.mock('@icon-park/react', () => ({
   Robot: () => <span data-testid='icon-robot'>RobotIcon</span>,
 }));
 
-vi.mock('lucide-react', () => ({
+// Spread the real module so every icon lucideAvatar's LUCIDE_ICONS record
+// references (BarChart3, BookOpen, ...) resolves; override only the few this
+// suite asserts on by test id. A plain-object mock omits the rest and crashes
+// at import with "No <Icon> export is defined on the lucide-react mock".
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   Settings: () => <span data-testid='icon-setting'>SettingIcon</span>,
   PencilLine: () => <span data-testid='icon-edit'>EditIcon</span>,
   Pencil: () => <span data-testid='icon-edit'>EditIcon</span>,

@@ -21,7 +21,8 @@ import React from 'react';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('lucide-react', () => ({
+vi.mock('lucide-react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('lucide-react')>()),
   Clock: () => <span data-testid='icon-clock'>Clock</span>,
   Coins: () => <span data-testid='icon-coins'>Coins</span>,
   DollarSign: () => <span data-testid='icon-dollar'>DollarSign</span>,
@@ -43,7 +44,7 @@ const makeStep = (n: number, status: StepState['status']): StepState => ({
 });
 
 const makeSession = (
-  overrides: Partial<WorkflowSession> & { status?: WorkflowSessionStatus } = {},
+  overrides: Partial<WorkflowSession> & { status?: WorkflowSessionStatus } = {}
 ): WorkflowSession => ({
   id: 's-1',
   workflow_name: 'demo',
@@ -76,12 +77,7 @@ describe('WorkflowStatusBar', () => {
   });
 
   it('renders all five segments when liveStats is provided', () => {
-    render(
-      <WorkflowStatusBar
-        session={makeSession()}
-        liveStats={{ tokens: 12_345, spentCents: 187 }}
-      />,
-    );
+    render(<WorkflowStatusBar session={makeSession()} liveStats={{ tokens: 12_345, spentCents: 187 }} />);
 
     expect(screen.getByTestId('workflow-status-bar')).toBeInTheDocument();
     expect(screen.getByText(/active/i)).toBeInTheDocument();
@@ -114,10 +110,7 @@ describe('WorkflowStatusBar', () => {
 
   it('renders nothing when session.status === "ended"', () => {
     const { container } = render(
-      <WorkflowStatusBar
-        session={makeSession({ status: 'ended' })}
-        liveStats={{ tokens: 1, spentCents: 1 }}
-      />,
+      <WorkflowStatusBar session={makeSession({ status: 'ended' })} liveStats={{ tokens: 1, spentCents: 1 }} />
     );
     expect(container).toBeEmptyDOMElement();
   });

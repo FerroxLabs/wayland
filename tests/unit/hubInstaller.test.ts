@@ -28,8 +28,16 @@ vi.mock('fs', async () => {
   };
 });
 
-vi.mock('child_process', () => ({ exec: vi.fn() }));
-vi.mock('util', () => ({ promisify: () => vi.fn(async () => ({ stdout: '', stderr: '' })) }));
+// HubInstaller builds `execAsync = promisify(exec)` at module load and awaits it
+// during extraction. The exec mock MUST invoke its callback or the promisified
+// wrapper never resolves and every install-success test hangs to timeout. Invoke
+// the callback synchronously with an empty success result.
+vi.mock('child_process', () => ({
+  exec: (_cmd: string, cb?: (err: unknown, res: { stdout: string; stderr: string }) => void) => {
+    cb?.(null, { stdout: '', stderr: '' });
+    return { on: () => undefined };
+  },
+}));
 
 vi.mock('@process/utils', () => ({ getDataPath: () => '/data' }));
 

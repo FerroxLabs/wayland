@@ -52,7 +52,13 @@ describe('TaskManager', () => {
 
   beforeEach(() => {
     repo = makeRepo();
-    taskManager = new TaskManager(repo);
+    // Owner validation looks up slotIds via a getAgents thunk; provide the
+    // roster the tests reference (slot-1 / slot-2).
+    const getAgents = () =>
+      [{ slotId: 'slot-1' }, { slotId: 'slot-2' }] as unknown as ReturnType<
+        ConstructorParameters<typeof TaskManager>[1]
+      >;
+    taskManager = new TaskManager(repo, getAgents);
     vi.clearAllMocks();
   });
 

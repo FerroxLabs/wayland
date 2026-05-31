@@ -60,10 +60,7 @@ describe('ijfwSystemService.detectLocalInstall', () => {
   it('returns installed=true with version from package.json (directory)', async () => {
     const mcp = path.join(tmpHome, '.ijfw', 'mcp-server');
     fs.mkdirSync(mcp, { recursive: true });
-    fs.writeFileSync(
-      path.join(mcp, 'package.json'),
-      JSON.stringify({ name: '@ijfw/mcp-server', version: '1.5.4' }),
-    );
+    fs.writeFileSync(path.join(mcp, 'package.json'), JSON.stringify({ name: '@ijfw/mcp-server', version: '1.5.4' }));
     const result = await ijfwSystemService.detectLocalInstall();
     expect(result.installed).toBe(true);
     expect(result.version).toBe('1.5.4');
@@ -80,13 +77,14 @@ describe('ijfwSystemService.detectLocalInstall', () => {
     expect(result.detectedVia).toBe('directory');
   });
 
-  it('follows a symlink and reports detectedVia=symlink', async () => {
+  // Creating a directory symlink on win32 needs elevation/Developer Mode, which
+  // CI runners lack (fs.symlinkSync throws EPERM). Prod's symlink-following via
+  // realpathSync works on windows when a link exists; only the test setup can't
+  // create one. Covered on the posix shards.
+  it.skipIf(process.platform === 'win32')('follows a symlink and reports detectedVia=symlink', async () => {
     const realDir = path.join(tmpHome, 'real-mcp');
     fs.mkdirSync(realDir, { recursive: true });
-    fs.writeFileSync(
-      path.join(realDir, 'package.json'),
-      JSON.stringify({ version: '1.6.0' }),
-    );
+    fs.writeFileSync(path.join(realDir, 'package.json'), JSON.stringify({ version: '1.6.0' }));
     fs.mkdirSync(path.join(tmpHome, '.ijfw'), { recursive: true });
     fs.symlinkSync(realDir, path.join(tmpHome, '.ijfw', 'mcp-server'));
     const result = await ijfwSystemService.detectLocalInstall();

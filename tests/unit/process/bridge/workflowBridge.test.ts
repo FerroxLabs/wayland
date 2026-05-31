@@ -28,6 +28,7 @@ const {
   resolveSkillsProvider,
   updateSessionStateProvider,
   dispatchAutonomousStepProvider,
+  countActiveProvider,
 } = vi.hoisted(() => ({
   startProvider: vi.fn(),
   findActiveProvider: vi.fn(),
@@ -35,6 +36,7 @@ const {
   resolveSkillsProvider: vi.fn(),
   updateSessionStateProvider: vi.fn(),
   dispatchAutonomousStepProvider: vi.fn(),
+  countActiveProvider: vi.fn(),
 }));
 
 vi.mock('@/common', () => ({
@@ -46,6 +48,7 @@ vi.mock('@/common', () => ({
       resolveSkills: { provider: resolveSkillsProvider },
       updateSessionState: { provider: updateSessionStateProvider },
       dispatchAutonomousStep: { provider: dispatchAutonomousStepProvider },
+      countActive: { provider: countActiveProvider },
     },
   },
 }));

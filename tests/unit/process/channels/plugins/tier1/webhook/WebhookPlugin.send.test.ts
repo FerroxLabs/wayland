@@ -46,7 +46,7 @@ describe('WebhookPlugin.sendMessage', () => {
     expect(fetch).toHaveBeenCalledOnce();
     const [url, init] = vi.mocked(fetch).mock.calls[0];
     expect(url).toBe('https://example.com/hook');
-    expect((init?.headers as Record<string, string>)['content-type']).toBe('application/json');
+    expect(((init?.headers ?? {}) as Record<string, string>)['content-type']).toBe('application/json');
 
     const body = JSON.parse(init?.body as string) as { chatId: string; message: string };
     expect(body.chatId).toBe('chat-1');
@@ -79,18 +79,14 @@ describe('WebhookPlugin.sendMessage', () => {
     vi.mocked(fetch).mockResolvedValue(new Response('Bad Gateway', { status: 502 }));
     const plugin = await initPlugin();
 
-    await expect(plugin.sendMessage('chat-1', { type: 'text', text: 'hi' })).rejects.toThrow(
-      /502/
-    );
+    await expect(plugin.sendMessage('chat-1', { type: 'text', text: 'hi' })).rejects.toThrow(/502/);
   });
 
   it('throws on network failure', async () => {
     vi.mocked(fetch).mockRejectedValue(new Error('network down'));
     const plugin = await initPlugin();
 
-    await expect(plugin.sendMessage('chat-1', { type: 'text', text: 'hi' })).rejects.toThrow(
-      /network down/i
-    );
+    await expect(plugin.sendMessage('chat-1', { type: 'text', text: 'hi' })).rejects.toThrow(/network down/i);
   });
 });
 
@@ -164,8 +160,6 @@ describe('WebhookPlugin capabilities', () => {
   it('editMessage falls through to the BasePlugin no-op (does not throw)', async () => {
     const plugin = await initPlugin();
     // canEdit=false means BasePlugin.editMessage is a no-op; must not throw.
-    await expect(
-      plugin.editMessage('chat-1', 'msg-id', { type: 'text', text: 'edit' })
-    ).resolves.toBeUndefined();
+    await expect(plugin.editMessage('chat-1', 'msg-id', { type: 'text', text: 'edit' })).resolves.toBeUndefined();
   });
 });

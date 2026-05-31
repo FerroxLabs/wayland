@@ -21,10 +21,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TeamSandboxedError } from '@process/team/importExport/errors';
-import {
-  openInsideWorkspace,
-  withOpenInsideWorkspace,
-} from '@process/team/sandbox/workspaceFs';
+import { openInsideWorkspace, withOpenInsideWorkspace } from '@process/team/sandbox/workspaceFs';
 
 let workspaceDir: string;
 let scratchRoot: string;
@@ -58,16 +55,12 @@ describe('openInsideWorkspace — escape + traversal', () => {
     const sibling = path.join(scratchRoot, 'workspace-evil');
     await fs.mkdir(sibling, { recursive: true });
     await fs.writeFile(path.join(sibling, 'file'), 'x', 'utf8');
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, '../workspace-evil/file', 'read')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, '../workspace-evil/file', 'read'));
     expect(err.message).toMatch(/escapes workspace/i);
   });
 
   it('rejects `..` traversal even when target would resolve outside workspace', async () => {
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, '../outside.txt', 'read')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, '../outside.txt', 'read'));
     expect(err.message).toMatch(/escapes workspace/i);
   });
 });
@@ -79,9 +72,7 @@ describe('openInsideWorkspace — symlinks', () => {
     const link = path.join(workspaceDir, 'link.txt');
     await fs.symlink(real, link);
 
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, 'link.txt', 'read')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, 'link.txt', 'read'));
     // Either path (lstat-walk catches it first OR O_NOFOLLOW ELOOPs) is fine.
     expect(err.message).toMatch(/symlink/i);
   });
@@ -93,9 +84,7 @@ describe('openInsideWorkspace — symlinks', () => {
     const linkDir = path.join(workspaceDir, 'linkdir');
     await fs.symlink(real, linkDir);
 
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, 'linkdir/child.txt', 'read')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, 'linkdir/child.txt', 'read'));
     expect(err.message).toMatch(/symlink/i);
   });
 });
@@ -128,23 +117,17 @@ describe('openInsideWorkspace — protected segments (case + Unicode)', () => {
   it('rejects backslash-style protected segment (Windows-shape input on POSIX host)', async () => {
     // Splitter handles both `/` and `\` regardless of host `path.sep` so
     // `foo\.ENV` cannot bypass the denylist on POSIX systems.
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, 'foo\\.ENV', 'read')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, 'foo\\.ENV', 'read'));
     expect(err.message).toMatch(/protected segment/i);
   });
 
   it('rejects node_modules/.cache/foo', async () => {
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, 'node_modules/.cache/foo', 'read')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, 'node_modules/.cache/foo', 'read'));
     expect(err.message).toMatch(/protected segment sequence/i);
   });
 
   it('rejects node_modules/.bin/foo (TRIAGE round-5 Gemini HIGH)', async () => {
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, 'node_modules/.bin/foo', 'read')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, 'node_modules/.bin/foo', 'read'));
     expect(err.message).toMatch(/protected segment sequence/i);
   });
 
@@ -153,11 +136,7 @@ describe('openInsideWorkspace — protected segments (case + Unicode)', () => {
     const target = path.join(workspaceDir, 'node_modules-other', '.cache');
     await fs.mkdir(target, { recursive: true });
     await fs.writeFile(path.join(target, 'foo'), '', 'utf8');
-    const fh = await openInsideWorkspace(
-      workspaceDir,
-      'node_modules-other/.cache/foo',
-      'read'
-    );
+    const fh = await openInsideWorkspace(workspaceDir, 'node_modules-other/.cache/foo', 'read');
     await fh.close();
   });
 
@@ -165,20 +144,14 @@ describe('openInsideWorkspace — protected segments (case + Unicode)', () => {
     const target = path.join(workspaceDir, 'node_modules', '.cache2');
     await fs.mkdir(target, { recursive: true });
     await fs.writeFile(path.join(target, 'foo'), '', 'utf8');
-    const fh = await openInsideWorkspace(
-      workspaceDir,
-      'node_modules/.cache2/foo',
-      'read'
-    );
+    const fh = await openInsideWorkspace(workspaceDir, 'node_modules/.cache2/foo', 'read');
     await fh.close();
   });
 });
 
 describe('openInsideWorkspace — write + mkdir', () => {
   it('rejects writes when the parent directory does not exist with the mkdir hint', async () => {
-    const err = await expectSandboxedError(
-      openInsideWorkspace(workspaceDir, 'missing-parent/file.txt', 'write')
-    );
+    const err = await expectSandboxedError(openInsideWorkspace(workspaceDir, 'missing-parent/file.txt', 'write'));
     expect(err.message).toMatch(/use mkdir/i);
   });
 
@@ -198,9 +171,7 @@ describe('openInsideWorkspace — write + mkdir', () => {
   it('mkdir is non-recursive: rejects when an intermediate dir is missing', async () => {
     // node fs.mkdir without recursive throws ENOENT — surface as the raw
     // error since it's not a sandbox violation per se.
-    await expect(
-      openInsideWorkspace(workspaceDir, 'a/b/c', 'mkdir')
-    ).rejects.toThrow();
+    await expect(openInsideWorkspace(workspaceDir, 'a/b/c', 'mkdir')).rejects.toThrow();
   });
 });
 
@@ -249,7 +220,12 @@ describe('withOpenInsideWorkspace — fd discipline', () => {
   });
 });
 
-describe('openInsideWorkspace — O_NOFOLLOW flag plumbing', () => {
+// O_NOFOLLOW is a POSIX-only open flag; Node leaves `constants.O_NOFOLLOW`
+// undefined on win32, so prod's `| constants.O_NOFOLLOW` is a no-op there and
+// these bit assertions are meaningless. The escape/traversal/symlink-via-lstat
+// protections above DO run on windows. Skip the flag-plumbing assertions on
+// win32 (covered on the posix shards).
+describe.skipIf(process.platform === 'win32')('openInsideWorkspace — O_NOFOLLOW flag plumbing', () => {
   it('passes O_NOFOLLOW to fs.open on read', async () => {
     await fs.writeFile(path.join(workspaceDir, 'data.txt'), 'hello', 'utf8');
     const openSpy = vi.spyOn(fs, 'open');

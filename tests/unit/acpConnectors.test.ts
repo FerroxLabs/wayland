@@ -325,7 +325,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',
-      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.29.2']),
+      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.33.1']),
       expect.objectContaining({
         cwd: '/cwd',
         detached: true,
@@ -349,7 +349,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',
-      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.29.2']),
+      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.33.1']),
       expect.objectContaining({
         env: expect.objectContaining({
           PATH: '/usr/bin',
@@ -370,7 +370,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       expect.stringContaining('chcp 65001 >nul &&'),
-      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.29.2']),
+      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.33.1']),
       expect.objectContaining({
         cwd: 'C:\\cwd',
         detached: false,

@@ -65,6 +65,11 @@ vi.mock('@/common', () => ({
           registeredProviders['openFolderWith'] = fn;
         }),
       },
+      openPath: {
+        provider: vi.fn((fn: Function) => {
+          registeredProviders['openPath'] = fn;
+        }),
+      },
     },
   },
 }));
