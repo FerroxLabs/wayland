@@ -1,0 +1,74 @@
+{
+  "siderEntry": "Projects",
+  "list": {
+    "title": "Projects",
+    "subtitle": "Group related chats under one umbrella",
+    "newButton": "New project"
+  },
+  "empty": {
+    "title": "No projects yet",
+    "body": "Create a project to keep related chats, their workspace and knowledge together. Any backend, model or assistant can run inside it.",
+    "cta": "Create your first project"
+  },
+  "card": {
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "edit": "Edit",
+    "delete": "Delete",
+    "more": "More",
+    "noDescription": "No description yet",
+    "chatCount": "{{count}} chats"
+  },
+  "modal": {
+    "createTitle": "New project",
+    "editTitle": "Edit project",
+    "createButton": "Create project",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Launch funnel",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What is this project about? (optional)",
+    "workspaceLabel": "Workspace folder",
+    "chooseFolder": "Choose folder",
+    "workspaceHint": "Optional. Chats in this project start here, and a .wayland/ knowledge folder is created so every chat shares the same context.",
+    "colorLabel": "Color"
+  },
+  "workspace": {
+    "loading": "Loading project...",
+    "edit": "Edit",
+    "newChat": "New chat in this project",
+    "knowledgeHint": "Knowledge folder: {{path}}/.wayland",
+    "emptyTitle": "No chats in this project yet",
+    "emptyBody": "Start a chat with any backend, model or assistant. It will live under this project, and you can run as many as you like at once.",
+    "untitledChat": "Untitled chat",
+    "removeChat": "Remove"
+  },
+  "assign": {
+    "title": "Add to project",
+    "empty": "You don't have any projects yet. Create one below.",
+    "newPlaceholder": "New project name",
+    "createButton": "Create"
+  },
+  "delete": {
+    "title": "Delete project?",
+    "body": "Delete \"{{name}}\"? Its chats are kept and simply removed from the project.",
+    "confirm": "Delete project"
+  },
+  "removeChat": {
+    "title": "Remove from project?",
+    "body": "The chat itself is kept; it is just detached from this project.",
+    "confirm": "Remove"
+  },
+  "history": {
+    "addToProject": "Add to project",
+    "removeFromProject": "Remove from project"
+  },
+  "toast": {
+    "created": "Project created",
+    "updated": "Project updated",
+    "deleted": "Project deleted",
+    "saveFailed": "Something went wrong. Please try again.",
+    "deleteFailed": "Could not delete the project.",
+    "chatAdded": "Added to project",
+    "chatRemoved": "Removed from project"
+  }
+}

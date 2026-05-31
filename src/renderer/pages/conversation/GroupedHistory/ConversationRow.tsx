@@ -273,7 +273,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
                     <Menu.Item key='assignProject'>
                       <div className='flex items-center gap-8px'>
                         <FolderPlus size={14} />
-                        <span>{t('conversation.history.addToProject')}</span>
+                        <span>{t('projects.history.addToProject')}</span>
                       </div>
                     </Menu.Item>
                   )}
@@ -281,7 +281,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
                     <Menu.Item key='removeProject'>
                       <div className='flex items-center gap-8px'>
                         <FolderMinus size={14} />
-                        <span>{t('conversation.history.removeFromProject')}</span>
+                        <span>{t('projects.history.removeFromProject')}</span>
                       </div>
                     </Menu.Item>
                   )}
