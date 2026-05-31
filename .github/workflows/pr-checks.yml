@@ -438,7 +438,16 @@ jobs:
       - name: Install Playwright system deps (no browser download — Electron-only spec)
         run: bunx playwright install-deps chromium
 
+      # This job does a fast UNPACKAGED electron-vite build (no electron-builder
+      # packaging). The e2e fixture defaults to PACKAGED mode in CI and looks for
+      # a packaged app under out/, which this job never produces. Force DEV mode
+      # so the spec launches the unpackaged build via `electron .`. The security
+      # properties under test (sandbox, contextIsolation, nodeIntegration:false,
+      # IPC handler registration, electron version) are identical in dev and
+      # packaged mode.
       - name: Run security-audit e2e spec
+        env:
+          E2E_DEV: '1'
         run: bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
 
       - name: Upload Playwright report on failure
