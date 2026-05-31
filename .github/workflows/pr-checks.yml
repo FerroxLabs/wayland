@@ -429,8 +429,14 @@ jobs:
       - name: Build (electron-vite, no packaging)
         run: bunx electron-vite build
 
-      - name: Install Playwright system deps
-        run: bunx playwright install --with-deps chromium
+      # This spec drives the BUILT Electron app via Playwright's _electron API
+      # (electronApp.evaluate / page.evaluate); it never uses Playwright's bundled
+      # chromium. `install --with-deps chromium` downloaded that unused ~170MB
+      # browser, and that CDN download stalled past the 30-min job cap on every
+      # run (the spec never even started). Install only the system libraries that
+      # Electron's chromium needs at runtime — no browser binary download.
+      - name: Install Playwright system deps (no browser download — Electron-only spec)
+        run: bunx playwright install-deps chromium
 
       - name: Run security-audit e2e spec
         run: bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
