@@ -123,6 +123,13 @@ vi.mock('@/common', () => ({
     modelRegistry: {
       resolveForChatStart: { invoke: mockResolveForChatStart },
     },
+    // GuidModelSelector fires fire-and-forget usage telemetry on selection
+    // (useUsageTelemetry -> ipcBridge.usage.recordEvent.invoke). Without this
+    // namespace the call reads `.recordEvent` off undefined and the rejection
+    // escapes after the test completes, failing the whole shard.
+    usage: {
+      recordEvent: { invoke: vi.fn().mockResolvedValue(undefined) },
+    },
   },
 }));
 
