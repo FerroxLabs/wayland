@@ -82,6 +82,42 @@ const UNSAFE_ROOT_PREFIXES: readonly string[] = [
   '/sys',
 ];
 
+/**
+ * Windows system-root prefixes. XP-DROP-WIN-01: the POSIX list above never
+ * matches a Windows path, so a GUI-launched app with cwd under
+ * `C:\Windows\System32` or `C:\Program Files` would otherwise be treated as a
+ * trusted drop root. These are derived from the standard Windows env vars
+ * (with a hardcoded fallback) and matched as path PREFIXES, not exact strings,
+ * so any subdirectory of a system root is also refused.
+ */
+function windowsUnsafeRootPrefixes(): string[] {
+  const sysDrive = process.env.SystemDrive ?? 'C:';
+  const prefixes = [
+    process.env.SystemRoot ?? `${sysDrive}\\Windows`,
+    process.env.ProgramFiles ?? `${sysDrive}\\Program Files`,
+    process.env['ProgramFiles(x86)'] ?? `${sysDrive}\\Program Files (x86)`,
+    process.env.ProgramData ?? `${sysDrive}\\ProgramData`,
+  ];
+  return prefixes.map((p) => p.toLowerCase());
+}
+
+/**
+ * True when `cwd` sits at or beneath any unsafe system root. Uses a normalized
+ * prefix check (via `path.relative`) so subdirectories of a system root are
+ * refused too — exact-equality alone let `C:\Windows\System32` slip through on
+ * Windows (XP-DROP-WIN-01).
+ */
+function isUnsafeRoot(cwd: string): boolean {
+  if (process.platform === 'win32') {
+    const norm = cwd.toLowerCase();
+    return windowsUnsafeRootPrefixes().some((root) => {
+      const rel = path.relative(root, norm);
+      return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+    });
+  }
+  return UNSAFE_ROOT_PREFIXES.some((root) => cwd === root);
+}
+
 function trustedRootCandidates(): string[] {
   const cwd = process.cwd();
   const home = process.env.HOME ?? process.env.USERPROFILE ?? '';
@@ -89,12 +125,7 @@ function trustedRootCandidates(): string[] {
   // cwd is only a candidate when it's NOT one of the unsafe roots and NOT the
   // bare HOME directory (which is too broad — would whitelist ~/.aws etc.).
   if (cwd && cwd !== home) {
-    const norm = process.platform === 'win32' ? cwd.toLowerCase() : cwd;
-    const isUnsafe = UNSAFE_ROOT_PREFIXES.some((u) => {
-      const target = process.platform === 'win32' ? u.toLowerCase() : u;
-      return norm === target;
-    });
-    if (!isUnsafe && cwd !== path.parse(cwd).root) {
+    if (!isUnsafeRoot(cwd) && cwd !== path.parse(cwd).root) {
       roots.push(cwd);
     }
   }
@@ -120,9 +151,7 @@ async function listImpl(): Promise<{ files: Array<{ name: string; size: number; 
     const files: Array<{ name: string; size: number; mtimeMs: number }> = [];
     for (const name of entries) {
       if (name.startsWith('.')) continue; // skip .quarantine and dot-files
-      const stat = await fs.promises
-        .lstat(path.join(dumpDir(), name))
-        .catch((): fs.Stats | null => null);
+      const stat = await fs.promises.lstat(path.join(dumpDir(), name)).catch((): fs.Stats | null => null);
       if (!stat || !stat.isFile()) continue;
       files.push({ name, size: stat.size, mtimeMs: stat.mtimeMs });
     }

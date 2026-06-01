@@ -18,7 +18,11 @@ import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveServi
 import { runClaudeMemImport } from '@process/services/import/claudeMemImporter';
 import { runObsidianImport } from '@process/services/import/obsidianImporter';
 import { runDevScanImport, scanForMemoryDirs } from '@process/services/import/devScanImporter';
-import { runDropFolderProcess, startDropFolderWatcher, getDropFolderStatus } from '@process/services/import/dropFolderWatcher';
+import {
+  runDropFolderProcess,
+  startDropFolderWatcher,
+  getDropFolderStatus,
+} from '@process/services/import/dropFolderWatcher';
 import type { DropFolderWatcherHandle } from '@process/services/import/dropFolderWatcher';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
@@ -80,8 +84,12 @@ export function initImportBridge(): void {
     try {
       // Expand tilde and resolve to absolute path in main process
       let vaultPath = parsed.data.vaultPath;
-      if (vaultPath.startsWith('~/') || vaultPath === '~') {
-        vaultPath = os.homedir() + vaultPath.slice(1);
+      // Expand a leading `~`, matching both `~/` (POSIX) and `~\` (Windows)
+      // and joining via path.join so separators stay platform-correct.
+      if (vaultPath === '~') {
+        vaultPath = os.homedir();
+      } else if (vaultPath.startsWith('~/') || vaultPath.startsWith('~' + path.sep)) {
+        vaultPath = path.join(os.homedir(), vaultPath.slice(2));
       }
       vaultPath = path.resolve(vaultPath);
       // Restrict to home dir subtree
@@ -106,16 +114,16 @@ export function initImportBridge(): void {
       const memDir = resolveMemoryDir();
       const candidates = await scanForMemoryDirs();
       // Import all candidates not already in the registry.
-      const newCandidatePaths = candidates
-        .filter((c) => !c.alreadyInRegistry)
-        .map((c) => c.path);
+      const newCandidatePaths = candidates.filter((c) => !c.alreadyInRegistry).map((c) => c.path);
 
       if (newCandidatePaths.length === 0) {
         log.info('[import] scanDevDir — no new candidates');
         return { count: 0, projectsFound: candidates.length, errors: [] };
       }
 
-      const { imported, skipped, projectsFound, errors } = await runDevScanImport(newCandidatePaths, { ijfwMemoryDir: memDir });
+      const { imported, skipped, projectsFound, errors } = await runDevScanImport(newCandidatePaths, {
+        ijfwMemoryDir: memDir,
+      });
       log.info('[import] scanDevDir done', { imported, skipped, projectsFound, errorCount: errors.length });
       return { count: imported, projectsFound, errors };
     } catch (err) {
@@ -175,7 +183,10 @@ export function initImportBridge(): void {
       const destPath = path.join(memDir, destName);
 
       const scope = file.scope ?? 'global';
-      const summary = file.content.split('\n')[0].slice(0, 200).replace(/[\r\n]+/g, ' ');
+      const summary = file.content
+        .split('\n')[0]
+        .slice(0, 200)
+        .replace(/[\r\n]+/g, ' ');
       const hasFrontmatter = file.content.trimStart().startsWith('---');
 
       let fileContent: string;

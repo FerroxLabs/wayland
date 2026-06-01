@@ -110,6 +110,31 @@ async function copyDirectory(src: string, dest: string) {
 }
 
 /**
+ * Link a skill directory into `targetPath`, falling back to a recursive copy
+ * when the symlink/junction cannot be created. XP-SKILL-SYMLINK-01: Windows
+ * 'junction' links are directory-only, require an ABSOLUTE target, and are
+ * unsupported on non-NTFS volumes (FAT/exFAT/network shares). We resolve the
+ * source to an absolute path first, then fall back to `copyDirectory` on the
+ * errors that indicate the link is unsupported (EPERM/ENOSYS/EINVAL).
+ *
+ * @returns `'symlink'` when a link was created, `'copy'` when copied instead.
+ */
+async function linkOrCopySkill(skillPath: string, targetPath: string): Promise<'symlink' | 'copy'> {
+  const absoluteSource = path.resolve(skillPath);
+  try {
+    await fs.symlink(absoluteSource, targetPath, 'junction');
+    return 'symlink';
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'EPERM' || code === 'ENOSYS' || code === 'EINVAL') {
+      await copyDirectory(absoluteSource, targetPath);
+      return 'copy';
+    }
+    throw error;
+  }
+}
+
+/**
  * Read a builtin resource file (.md only)
  */
 async function readBuiltinResource(resourceType: ResourceType, fileName: string): Promise<string> {
@@ -1783,8 +1808,8 @@ export function initFsBridge(): void {
         // Does not exist, proceed
       }
 
-      await fs.symlink(skillPath, targetDir, 'junction');
-      console.log(`[fsBridge] Created symlink for skill "${skillName}" at ${targetDir}`);
+      const importMode = await linkOrCopySkill(skillPath, targetDir);
+      console.log(`[fsBridge] Imported skill "${skillName}" at ${targetDir} via ${importMode}`);
       return {
         success: true,
         data: { skillName },
@@ -1875,9 +1900,10 @@ export function initFsBridge(): void {
         // Path does not exist, proceed
       }
 
-      // Create symlink
-      await fs.symlink(skillPath, targetPath, 'junction');
-      console.log(`[fsBridge] Exported skill "${skillName}" to ${targetPath} via symlink`);
+      // Create symlink, falling back to a recursive copy where junctions are
+      // unsupported (non-NTFS targets, relative paths) — XP-SKILL-SYMLINK-01.
+      const exportMode = await linkOrCopySkill(skillPath, targetPath);
+      console.log(`[fsBridge] Exported skill "${skillName}" to ${targetPath} via ${exportMode}`);
 
       return { success: true, msg: `Successfully exported to ${targetPath}` };
     } catch (error) {

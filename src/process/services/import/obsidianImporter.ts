@@ -48,7 +48,7 @@ async function scanForObsidianDirs(
   dir: string,
   currentDepth: number,
   maxDepth: number,
-  results: VaultInfo[],
+  results: VaultInfo[]
 ): Promise<void> {
   if (currentDepth > maxDepth) return;
 
@@ -84,12 +84,7 @@ async function scanForObsidianDirs(
     } catch {
       continue;
     }
-    await scanForObsidianDirs(
-      fullPath,
-      currentDepth + 1,
-      maxDepth,
-      results,
-    );
+    await scanForObsidianDirs(fullPath, currentDepth + 1, maxDepth, results);
   }
 }
 
@@ -151,7 +146,9 @@ function buildFrontmatter(fields: Record<string, string | string[] | number>): s
     if (Array.isArray(val)) {
       lines.push(`${key}: [${val.map((v) => String(v)).join(', ')}]`);
     } else {
-      const escaped = String(val).replace(/[\r\n]+/g, ' ').slice(0, 500);
+      const escaped = String(val)
+        .replace(/[\r\n]+/g, ' ')
+        .slice(0, 500);
       lines.push(`${key}: ${escaped}`);
     }
   }
@@ -191,17 +188,20 @@ async function walkMdFiles(dir: string, skip: string[]): Promise<string[]> {
  */
 export async function runObsidianImport(
   rawVaultPath: string,
-  opts?: { ijfwMemoryDir?: string },
+  opts?: { ijfwMemoryDir?: string }
 ): Promise<ObsidianImportResult> {
   // Expand tilde in main process (renderer must not pass unexpanded paths).
   let vaultPath = rawVaultPath;
-  if (vaultPath.startsWith('~/') || vaultPath === '~') {
-    vaultPath = os.homedir() + vaultPath.slice(1);
+  // Expand a leading `~`, matching both `~/` (POSIX) and `~\` (Windows) and
+  // joining via path.join so separators stay platform-correct.
+  if (vaultPath === '~') {
+    vaultPath = os.homedir();
+  } else if (vaultPath.startsWith('~/') || vaultPath.startsWith('~' + path.sep)) {
+    vaultPath = path.join(os.homedir(), vaultPath.slice(2));
   }
   vaultPath = path.resolve(vaultPath);
 
-  const memDir =
-    opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
+  const memDir = opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
   const result: ObsidianImportResult = { imported: 0, skipped: 0, errors: [] };
 
   try {
@@ -219,10 +219,7 @@ export async function runObsidianImport(
   }
 
   const vaultName = path.basename(vaultPath);
-  const skipDirs = [
-    path.join(vaultPath, '.obsidian'),
-    path.join(vaultPath, '.trash'),
-  ];
+  const skipDirs = [path.join(vaultPath, '.obsidian'), path.join(vaultPath, '.trash')];
 
   let mdFiles: string[];
   try {
