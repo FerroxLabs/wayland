@@ -86,7 +86,8 @@ const makeGitHubReleaseResponse = () => [
       },
       {
         name: 'Wayland-1.9.22-win-x64.exe',
-        browser_download_url: 'https://github.com/TradeCanyon/Wayland/releases/download/v1.9.22/Wayland-1.9.22-win-x64.exe',
+        browser_download_url:
+          'https://github.com/TradeCanyon/Wayland/releases/download/v1.9.22/Wayland-1.9.22-win-x64.exe',
         size: 456,
         content_type: 'application/vnd.microsoft.portable-executable',
       },
@@ -193,9 +194,14 @@ describe('updateBridge allowlist includes CDN host', () => {
       if (!lastCall) throw new Error('update.download handler not registered');
       const handler = lastCall[0];
 
+      // UPD-02: the secure download path requires `tagName` so the downloaded
+      // bytes can be sha512-verified against the signed GitHub release metadata
+      // before the file is openable. Without it the handler fails closed.
       const result = await handler({
         url: 'https://static.wayland.app/releases/1.9.22/Wayland-1.9.22-mac-arm64.dmg',
         fileName: 'Wayland-1.9.22-mac-arm64.dmg',
+        tagName: 'v1.9.22',
+        repo: 'TradeCanyon/Wayland',
       });
 
       expect(result.success).toBe(true);
