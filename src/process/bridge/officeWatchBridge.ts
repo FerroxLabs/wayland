@@ -15,6 +15,7 @@
 import { ipcBridge } from '@/common';
 import { spawn, type ChildProcess } from 'node:child_process';
 import net from 'node:net';
+import path from 'node:path';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { installOfficecli } from './officecliInstaller';
 import { confinePath } from './pathConfinement';
@@ -29,13 +30,42 @@ interface WatchSession {
   aborted: boolean;
 }
 
-// Track sessions by filePath — separate maps for word and excel
+// Track sessions by canonical session key — separate maps for word and excel.
+// The key is derived from the confined path but normalised so the watcher
+// (start) and preview client (stop) agree on it across processes on
+// case-insensitive filesystems (XP-OFFICE-PIPE-01).
 const wordSessions = new Map<string, WatchSession>();
 const excelSessions = new Map<string, WatchSession>();
 
 // Pending kill timers — delayed stop allows Strict Mode re-mount to reuse sessions
 const wordPendingKills = new Map<string, ReturnType<typeof setTimeout>>();
 const excelPendingKills = new Map<string, ReturnType<typeof setTimeout>>();
+
+/**
+ * Whether the host filesystem treats paths case-insensitively. Windows (NTFS)
+ * and the default macOS volume (APFS case-insensitive) fold case, so a path that
+ * differs only by drive-letter/segment case refers to the same file. Linux is
+ * case-sensitive.
+ */
+const CASE_INSENSITIVE_FS = process.platform === 'win32' || process.platform === 'darwin';
+
+/**
+ * Canonicalise a confined path into a stable session/pipe key.
+ *
+ * officecli is spawned with the confined real path, but the *key* under which we
+ * track its watch session (and which must match what a separately-bundled
+ * officecli computes for its pipe/port name) has to be identical no matter how
+ * the path arrives. On case-insensitive filesystems realpath may return a
+ * drive-letter or segment in either case, and Windows callers may use `\` while
+ * the resolver used `/`; without normalisation start and stop can key different
+ * strings for the same file and never reuse/stop the session. We normalise
+ * separators to the platform default and lowercase the whole path on
+ * case-insensitive filesystems so the key is process-stable.
+ */
+function canonicalizeSessionKey(confinedPath: string): string {
+  const normalized = path.normalize(confinedPath);
+  return CASE_INSENSITIVE_FS ? normalized.toLowerCase() : normalized;
+}
 
 function getSessionMap(docType: OfficeDocType): Map<string, WatchSession> {
   return docType === 'word' ? wordSessions : excelSessions;
@@ -91,14 +121,15 @@ function waitForPort(port: number, maxRetries = 150, interval = 100): Promise<vo
 }
 
 /**
- * Kill an existing session and remove it from the map.
+ * Kill an existing session and remove it from the map. `key` is the canonical
+ * session key (see {@link canonicalizeSessionKey}).
  */
-function killSession(filePath: string, sessions: Map<string, WatchSession>): void {
-  const session = sessions.get(filePath);
+function killSession(key: string, sessions: Map<string, WatchSession>): void {
+  const session = sessions.get(key);
   if (session) {
     session.aborted = true;
     session.process.kill();
-    sessions.delete(filePath);
+    sessions.delete(key);
   }
 }
 
@@ -124,26 +155,30 @@ async function startWatch(
     throw new Error('Refused to preview a file outside the allowed directories');
   }
   filePath = confined;
+  // Session/pipe key derived from the confined path, normalised so start and
+  // stop agree across processes on case-insensitive filesystems
+  // (XP-OFFICE-PIPE-01).
+  const sessionKey = canonicalizeSessionKey(filePath);
 
   const sessions = getSessionMap(docType);
   const pendingKills = getPendingKillsMap(docType);
 
   // Cancel any pending delayed kill (Strict Mode re-mount)
-  const pendingTimer = pendingKills.get(filePath);
+  const pendingTimer = pendingKills.get(sessionKey);
   if (pendingTimer) {
     clearTimeout(pendingTimer);
-    pendingKills.delete(filePath);
+    pendingKills.delete(sessionKey);
   }
 
   // Reuse existing session if process is still alive
-  const existing = sessions.get(filePath);
+  const existing = sessions.get(sessionKey);
   if (existing && !existing.aborted && existing.process.exitCode === null) {
     const url = `http://localhost:${existing.port}`;
     return url;
   }
 
   // Kill any existing/pending session for this file first
-  killSession(filePath, sessions);
+  killSession(sessionKey, sessions);
 
   const port = await findFreePort();
 
@@ -156,14 +191,14 @@ async function startWatch(
 
   // Track session immediately so stop can kill it
   const session: WatchSession = { process: child, port, aborted: false };
-  sessions.set(filePath, session);
+  sessions.set(sessionKey, session);
 
   return new Promise<string>((resolve, reject) => {
     let settled = false;
     const timeout = setTimeout(() => {
       if (!settled) {
         settled = true;
-        killSession(filePath, sessions);
+        killSession(sessionKey, sessions);
         reject(new Error('officecli watch timed out'));
       }
     }, 15000);
@@ -194,7 +229,7 @@ async function startWatch(
       })
       .catch(() => {
         settle(new Error('officecli watch server did not become ready'));
-        killSession(filePath, sessions);
+        killSession(sessionKey, sessions);
       });
 
     child.stderr?.on('data', (data: Buffer) => {
@@ -203,7 +238,7 @@ async function startWatch(
 
     child.on('error', (err) => {
       console.error(`[officeWatch] spawn error (${docType}):`, err.message);
-      sessions.delete(filePath);
+      sessions.delete(sessionKey);
       if ((err as NodeJS.ErrnoException).code === 'ENOENT' && !retry) {
         // officecli not found (bundled binary unresolvable) — offer a
         // consent-gated, pinned, checksum-verified install, then retry once.
@@ -226,7 +261,7 @@ async function startWatch(
     });
 
     child.on('exit', (code, signal) => {
-      sessions.delete(filePath);
+      sessions.delete(sessionKey);
       if (session.aborted) {
         settle();
         return;
@@ -259,11 +294,11 @@ export function isActiveOfficeWatchPort(port: number): boolean {
  * Stop all running Word and Excel watch processes (called on app shutdown).
  */
 export function stopAllOfficeWatchSessions(): void {
-  for (const [filePath] of wordSessions) {
-    killSession(filePath, wordSessions);
+  for (const [key] of wordSessions) {
+    killSession(key, wordSessions);
   }
-  for (const [filePath] of excelSessions) {
-    killSession(filePath, excelSessions);
+  for (const [key] of excelSessions) {
+    killSession(key, excelSessions);
   }
 }
 
@@ -284,7 +319,9 @@ export function initOfficeWatchBridge(): void {
     // Out-of-root paths never had a session, so nothing to stop.
     const confined = await confinePath(filePath);
     if (!confined) return;
-    const key = confined;
+    // Canonicalise to the same key start used so stop matches the session on
+    // case-insensitive filesystems (XP-OFFICE-PIPE-01).
+    const key = canonicalizeSessionKey(confined);
     // Delay kill to allow Strict Mode re-mount to reuse the session
     const timer = setTimeout(() => {
       wordPendingKills.delete(key);
@@ -309,7 +346,9 @@ export function initOfficeWatchBridge(): void {
     // Out-of-root paths never had a session, so nothing to stop.
     const confined = await confinePath(filePath);
     if (!confined) return;
-    const key = confined;
+    // Canonicalise to the same key start used so stop matches the session on
+    // case-insensitive filesystems (XP-OFFICE-PIPE-01).
+    const key = canonicalizeSessionKey(confined);
     // Delay kill to allow Strict Mode re-mount to reuse the session
     const timer = setTimeout(() => {
       excelPendingKills.delete(key);
