@@ -6,6 +6,7 @@
 
 import { shell } from 'electron';
 import { ipcBridge } from '@/common';
+import { isAllowedExternalUrl } from '@/common/utils/urlValidation';
 import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 import * as fs from 'fs';
@@ -236,10 +237,11 @@ export function initShellBridge(): void {
   });
 
   ipcBridge.shell.openExternal.provider(async (url) => {
-    try {
-      new URL(url);
-    } catch {
-      console.warn(`[shellBridge] Invalid URL passed to openExternal: ${url}`);
+    // Allowlist schemes (https:/http:/mailto: and the app's own wayland: deep-link
+    // scheme); reject file:/smb:/ms-*/vbscript:/custom handlers so model-rendered
+    // markdown links cannot drive the OS into opening local files or leaking creds.
+    if (!isAllowedExternalUrl(url)) {
+      console.warn(`[shellBridge] Rejected openExternal for disallowed scheme: ${url}`);
       return;
     }
     try {

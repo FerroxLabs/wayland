@@ -8,6 +8,8 @@
  * Platform detection utilities
  */
 
+import { isAllowedExternalUrl } from '@/common/utils/urlValidation';
+
 /**
  * Check if running in Electron desktop environment
  */
@@ -101,9 +103,20 @@ export const resolveExtensionAssetUrl = (url: string | undefined): string | unde
  * Open external URL in the appropriate context
  * - Electron: uses shell.openExternal via IPC (opens on local machine)
  * - WebUI: uses window.open in client browser (opens on remote client)
+ *
+ * Scheme is allowlisted (https:/http:/mailto: and the app's own wayland:
+ * deep-link scheme) before opening; file:, smb:, ms-* , vbscript:, and any
+ * custom-protocol URLs from model-rendered markdown links are rejected. Mirrors
+ * the gate in the main-process shell bridges so the WebUI window.open path is
+ * protected too.
  */
 export const openExternalUrl = async (url: string): Promise<void> => {
   if (!url) return;
+
+  if (!isAllowedExternalUrl(url)) {
+    console.warn(`[platform] Rejected openExternalUrl for disallowed scheme: ${url}`);
+    return;
+  }
 
   if (isElectronDesktop()) {
     const { ipcBridge } = await import('@/common');

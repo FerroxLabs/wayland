@@ -97,3 +97,33 @@ export function isOpenAIHost(urlString: string): boolean {
 export function isAnthropicHost(urlString: string): boolean {
   return isOfficialHost(urlString, Object.values(API_HOST_CONFIG.anthropic));
 }
+
+/**
+ * Schemes allowed to be handed to the OS via shell.openExternal.
+ *
+ * Only web/mail and the app's own deep-link scheme (`wayland:`, see
+ * src/process/utils/deepLink.ts PROTOCOL_SCHEME) are permitted. Everything else
+ * — `file:`, `smb:`, `ms-*`, `vbscript:`, and any registered custom-protocol
+ * handler — is rejected so model-rendered markdown links cannot drive the OS
+ * into opening local files, leaking NTLM credentials, or launching arbitrary
+ * protocol handlers. Schemes are compared lowercase, with the trailing colon.
+ */
+export const ALLOWED_EXTERNAL_URL_SCHEMES: readonly string[] = ['https:', 'http:', 'mailto:', 'wayland:'];
+
+/**
+ * Validate that a URL uses a scheme on the openExternal allowlist.
+ *
+ * Returns false for unparseable URLs and for any scheme not in
+ * {@link ALLOWED_EXTERNAL_URL_SCHEMES}. Used by both the main-process shell
+ * bridges and the renderer's openExternalUrl helper so the gate is identical on
+ * every path.
+ */
+export function isAllowedExternalUrl(urlString: string): boolean {
+  let protocol: string;
+  try {
+    protocol = new URL(urlString).protocol;
+  } catch {
+    return false;
+  }
+  return ALLOWED_EXTERNAL_URL_SCHEMES.includes(protocol.toLowerCase());
+}
