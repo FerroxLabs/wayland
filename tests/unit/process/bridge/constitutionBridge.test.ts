@@ -66,7 +66,13 @@ describe('readConstitutionWithOverlay', () => {
     // Bridge's `readConstitution` returns '' (no auto-seed of DEFAULT_CONSTITUTION on read;
     // that path only fires through writeConstitution/resetConstitution).
     expect(result).toEqual({ constitution: '', overlay: null });
-    expect(fsMock.readFileSync).not.toHaveBeenCalled();
+    // The bridge must not read any Constitution/overlay/specialist file when
+    // nothing exists on disk. (The rate-limit guard added by the security
+    // hardening pulls in a transitive import that reads the app's own
+    // package.json at module-load time; that read is unrelated to the bridge's
+    // file access and is excluded here.)
+    const waylandReads = fsMock.readFileSync.mock.calls.filter((call) => String(call[0]).includes(WAYLAND_DIR));
+    expect(waylandReads).toEqual([]);
   });
 
   it('returns CONSTITUTION.md contents and null overlay when assistantId is omitted', async () => {
@@ -246,7 +252,11 @@ describe('specialist overlay CRUD', () => {
       const result = __test__.readConstitutionSpecialist('copy');
 
       expect(result).toBe('');
-      expect(fsMock.readFileSync).not.toHaveBeenCalled();
+      // No overlay file exists, so the bridge must not read any specialist
+      // file. (A transitive import reads the app's own package.json at
+      // module-load time; that read is unrelated and excluded here.)
+      const waylandReads = fsMock.readFileSync.mock.calls.filter((call) => String(call[0]).includes(WAYLAND_DIR));
+      expect(waylandReads).toEqual([]);
     });
 
     it("returns '' for path-traversal ids without probing the dangerous path", async () => {
