@@ -20,10 +20,11 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import ChatWorkspace from '@/renderer/pages/conversation/Workspace';
+import ProjectFilesPanel from './components/ProjectFilesPanel';
 import ProjectSettingsDrawer, { type SettingsSection } from './components/ProjectSettingsDrawer';
 import ProjectReferencePanel from './components/ProjectReferencePanel';
 import ProjectMemoryPanel from './components/ProjectMemoryPanel';
+import styles from './components/projectCards.module.css';
 
 type ProjectTab = 'chats' | 'files' | 'reference' | 'memory';
 
@@ -237,7 +238,7 @@ const ProjectWorkspacePage: React.FC = () => {
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') navigate(`/conversation/${c.id}`);
                       }}
-                      className='group flex items-center gap-12px px-14px py-12px rd-10px bg-fill-1 border border-solid border-2 cursor-pointer hover:border-3 transition-all'
+                      className={`group flex items-center gap-12px px-14px py-12px cursor-pointer ${styles.card}`}
                     >
                       <div className='flex flex-col gap-2px min-w-0 flex-1'>
                         <div className='text-14px font-500 text-t-primary truncate'>
@@ -267,7 +268,7 @@ const ProjectWorkspacePage: React.FC = () => {
         {activeTab === 'files' &&
           (project?.workspace ? (
             <div className='h-full'>
-              <ChatWorkspace workspace={project.workspace} conversation_id={`project:${projectId}`} messageApi={Message} />
+              <ProjectFilesPanel workspace={project.workspace} projectId={projectId || ''} />
             </div>
           ) : (
             <div className='flex flex-col items-center justify-center gap-12px h-full text-center px-20px'>

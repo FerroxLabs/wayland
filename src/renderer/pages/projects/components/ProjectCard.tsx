@@ -9,6 +9,7 @@ import { Dropdown, Menu } from '@arco-design/web-react';
 import { Folder, MessageSquare, MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import styles from './projectCards.module.css';
 
 type ProjectCardProps = {
   project: IProject;
@@ -40,7 +41,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, chatCount, onOpen, o
           onOpen(project);
         }
       }}
-      className='group relative flex flex-col gap-12px p-16px rd-12px bg-fill-1 border border-solid border-2 cursor-pointer transition-all hover:border-3 hover:shadow-sm'
+      className={`group relative flex flex-col gap-12px p-16px cursor-pointer ${styles.card}`}
     >
       <div className='flex items-start justify-between'>
         <div
