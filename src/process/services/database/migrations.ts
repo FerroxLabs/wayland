@@ -1921,6 +1921,88 @@ const migration_v43: IMigration = {
 };
 
 /**
+ * Migration v43 -> v44: Drop the legacy provider_catalogs / provider_models /
+ * default_models tables (the pre-registry model store).
+ *
+ * `provider_catalogs.api_key_encrypted` held API keys "encrypted" with a key
+ * derived from a constant baked into the shipped binary (the legacy
+ * `encryptKey` helper) — anyone who could read the SQLite file could decrypt
+ * them with no per-install entropy (SEC-DATA-01). The Models & Providers
+ * redesign (migration v39) moved every live read/write onto the
+ * `model_registry_*` tables, which use OS-keychain `safeStorage`; the legacy
+ * tables and their hardcoded-key helpers are now dead code (zero callers).
+ *
+ * Dropping the tables removes the residual weak-key ciphertext from any DB that
+ * was written before the cut-over, so stale at-rest secrets do not linger after
+ * upgrade. The legacy-config migration (`legacyModelConfigMigration`) reads its
+ * source from the on-disk `model.json`, not these tables, so this drop does not
+ * affect the one-time import path.
+ *
+ * Every DROP is guarded with `IF EXISTS` so up() is idempotent and survives a
+ * re-run from version 0 (crash recovery / re-entrancy) on a fresh DB that never
+ * created the legacy tables.
+ */
+const migration_v44: IMigration = {
+  version: 44,
+  name: 'Drop legacy provider_catalogs / provider_models / default_models tables',
+  up: (db) => {
+    db.exec('DROP TABLE IF EXISTS default_models');
+    db.exec('DROP INDEX IF EXISTS idx_provider_models_catalog_model');
+    db.exec('DROP INDEX IF EXISTS idx_provider_models_catalog_id');
+    db.exec('DROP TABLE IF EXISTS provider_models');
+    db.exec('DROP INDEX IF EXISTS idx_provider_catalogs_provider_id');
+    db.exec('DROP TABLE IF EXISTS provider_catalogs');
+    console.log('[Migration v44] Dropped legacy provider_catalogs / provider_models / default_models tables');
+  },
+  down: (db) => {
+    // Recreate the legacy schema verbatim (matching migration_v33) so a
+    // rollback restores the table shape. The rows are gone — the weak-key
+    // ciphertext they held was the point of the drop and is not regenerated.
+    db.exec(`CREATE TABLE IF NOT EXISTS provider_catalogs (
+      id TEXT PRIMARY KEY,
+      provider_id TEXT NOT NULL,
+      display_name TEXT,
+      api_key_encrypted TEXT NOT NULL,
+      additional_fields TEXT NOT NULL DEFAULT '{}',
+      status TEXT NOT NULL DEFAULT 'connected',
+      last_refreshed_at INTEGER,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )`);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_provider_catalogs_provider_id ON provider_catalogs(provider_id)');
+
+    db.exec(`CREATE TABLE IF NOT EXISTS provider_models (
+      id TEXT PRIMARY KEY,
+      catalog_id TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      tier TEXT NOT NULL,
+      capabilities TEXT NOT NULL DEFAULT '[]',
+      enabled INTEGER NOT NULL DEFAULT 1,
+      deprecated INTEGER NOT NULL DEFAULT 0,
+      deprecated_at INTEGER,
+      context_window INTEGER,
+      pricing TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      FOREIGN KEY (catalog_id) REFERENCES provider_catalogs(id) ON DELETE CASCADE
+    )`);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_provider_models_catalog_id ON provider_models(catalog_id)');
+    db.exec(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_provider_models_catalog_model ON provider_models(catalog_id, model_id)'
+    );
+
+    db.exec(`CREATE TABLE IF NOT EXISTS default_models (
+      scope TEXT PRIMARY KEY,
+      catalog_id TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    )`);
+    console.log('[Migration v44] Rolled back: recreated legacy provider tables (empty)');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -1932,7 +2014,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v25, migration_v26, migration_v27, migration_v28, migration_v29, migration_v30,
   migration_v31, migration_v32, migration_v33, migration_v34, migration_v35, migration_v36,
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
-  migration_v43,
+  migration_v43, migration_v44,
 ];
 
 /**
