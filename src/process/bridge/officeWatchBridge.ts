@@ -13,10 +13,11 @@
  */
 
 import { ipcBridge } from '@/common';
-import { spawn, execSync, type ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 import fs from 'node:fs';
 import net from 'node:net';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
+import { installOfficecli } from './officecliInstaller';
 
 type OfficeDocType = 'word' | 'excel';
 
@@ -98,32 +99,6 @@ function killSession(filePath: string, sessions: Map<string, WatchSession>): voi
     session.aborted = true;
     session.process.kill();
     sessions.delete(filePath);
-  }
-}
-
-/**
- * Auto-install officecli if not found.
- */
-function installOfficecli(emitStatus: StatusEmitter): boolean {
-  try {
-    emitStatus({ state: 'installing' });
-    if (process.platform === 'win32') {
-      execSync(
-        'powershell -Command "irm https://raw.githubusercontent.com/TradeCanyon/OfficeCli/main/install.ps1 | iex"',
-        { stdio: 'inherit' }
-      );
-    } else {
-      execSync('curl -fsSL https://raw.githubusercontent.com/TradeCanyon/OfficeCli/main/install.sh | bash', {
-        stdio: 'inherit',
-      });
-      try {
-        execSync('xattr -cr ~/.local/bin/officecli && codesign -s - --force ~/.local/bin/officecli', { stdio: 'pipe' });
-      } catch {}
-    }
-    return true;
-  } catch (e) {
-    console.error('[officeWatch] Failed to install officecli:', e);
-    return false;
   }
 }
 
@@ -225,16 +200,21 @@ async function startWatch(
       console.error(`[officeWatch] spawn error (${docType}):`, err.message);
       sessions.delete(filePath);
       if ((err as NodeJS.ErrnoException).code === 'ENOENT' && !retry) {
-        // officecli not found — try auto-install then retry once
+        // officecli not found (bundled binary unresolvable) — offer a
+        // consent-gated, pinned, checksum-verified install, then retry once.
         // settle() without error: defuses the current promise machinery
-        // (clears timeout, prevents double-settle) while the recursive retry
-        // call below chains its own resolve/reject to the outer promise.
+        // (clears timeout, prevents double-settle) while the install + recursive
+        // retry below chains its own resolve/reject to the outer promise.
         settle();
-        if (installOfficecli(emitStatus)) {
-          startWatch(filePath, docType, emitStatus, true).then(resolve, reject);
-        } else {
-          reject(new Error('officecli is not installed and auto-install failed'));
-        }
+        installOfficecli(emitStatus)
+          .then((installed) => {
+            if (installed) {
+              startWatch(filePath, docType, emitStatus, true).then(resolve, reject);
+            } else {
+              reject(new Error('officecli is not installed and auto-install was declined or failed'));
+            }
+          })
+          .catch(reject);
       } else {
         settle(new Error(`Failed to start officecli: ${err.message}`));
       }
