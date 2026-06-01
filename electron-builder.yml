@@ -162,9 +162,44 @@ win:
     - zip
   icon: resources/app.ico # Use the checked-in Windows icon resource for executable metadata/icon patching
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  # Code signing (UPD-01). Signing engages only when the credential env is
+  # present, and is MANDATORY on release tags (see verifyUpdateCodeSignature
+  # below + the CI gate that must fail the build when these are empty on a tag).
+  #
+  # Subject-name signing drives signtool against an OV/EV certificate that has
+  # been imported into the Windows certificate store on the signing host (the
+  # same approach electron-builder documents for HSM-backed EV tokens, which
+  # cannot export a CSC_LINK .pfx). When WIN_CSC_SUBJECT_NAME is empty the
+  # macro resolves to '' and electron-builder skips signing — so unsigned dev
+  # builds still succeed, while release CI sets it and signs.
+  #
+  # Alternatively, electron-builder reads WIN_CSC_LINK + CSC_KEY_PASSWORD from
+  # the environment automatically for a .pfx-based OV cert; leaving those set
+  # also works without touching this file.
+  certificateSubjectName: ${env.WIN_CSC_SUBJECT_NAME}
+  signtoolOptions:
+    # Timestamp every signature so binaries stay valid after the cert expires.
+    timeStampServer: ${env.WIN_TIMESTAMP_URL}
+    rfc3161TimeStampServer: ${env.WIN_TIMESTAMP_URL}
+    signingHashAlgorithms:
+      - sha256
+  # Pin the publisher identity electron-updater enforces on the Windows
+  # auto-update path. Without this, the publisher check is a no-op even on a
+  # signed installer. Must match the CN of the signing certificate exactly.
+  publisherName:
+    - ${env.WIN_PUBLISHER_NAME}
+  # Make electron-updater REQUIRE a valid, matching Authenticode signature on
+  # every downloaded Windows update before it is applied — closes UPD-01.
+  verifyUpdateCodeSignature: true
 
 nsis:
   oneClick: false
+  # UPD-04: install per-machine into a root/admin-writable Program Files
+  # location so the bundled engine binary cannot be swapped by an unprivileged
+  # process between launches (tamper-then-spawn). Tradeoff recorded in residual:
+  # the installer now elevates (UAC) and installs for all users instead of the
+  # current user only.
+  perMachine: true
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
