@@ -52,13 +52,14 @@ function buildDraftPrompt(params: {
   kind: 'context' | 'rules';
   sourceText?: string;
   sourceFiles?: string;
+  relatedKnowledge?: string;
   audience?: string;
   constraints?: string;
 }): string {
-  const { name, description, kind, sourceText, sourceFiles, audience, constraints } = params;
+  const { name, description, kind, sourceText, sourceFiles, relatedKnowledge, audience, constraints } = params;
   const guidance =
     kind === 'rules'
-      ? 'Write a tight set of hard rules and conventions as markdown bullet points: non-negotiables, formatting/tone constraints, and explicit never-dos. Keep it scannable. No long prose.'
+      ? 'Write a tight set of hard rules and conventions as markdown bullet points: non-negotiables, formatting/tone constraints, and explicit never-dos. Derive them from the project intent and everything provided above. Keep it scannable. No long prose.'
       : 'Write concise project instructions as markdown with short `##` sections: what this project is, who it is for, tone & voice, what every chat should always keep in mind, and a brief definition of done. Be concrete, not generic.';
   const lines: string[] = [
     `You are helping a user author the ${kind === 'rules' ? 'Rules & conventions' : 'Instructions'} document for a project.`,
@@ -69,6 +70,8 @@ function buildDraftPrompt(params: {
   if (description) lines.push(`Project description: ${description}`);
   if (audience) lines.push(`Audience: ${audience}`);
   if (constraints) lines.push(`Must always keep in mind: ${constraints}`);
+  if (relatedKnowledge && relatedKnowledge.trim())
+    lines.push('', "The project's existing instructions and decisions (use these to infer intent):", relatedKnowledge.trim());
   if (sourceText && sourceText.trim()) lines.push('', 'What the user said about the project:', sourceText.trim());
   if (sourceFiles && sourceFiles.trim()) lines.push('', 'Reference material the user provided:', sourceFiles.trim());
   lines.push('', guidance, '', 'Output ONLY the document as clean markdown. No preamble, no closing remarks, no code fences.');
@@ -194,27 +197,31 @@ export function initProjectBridge(): void {
     }
   });
 
-  ipcBridge.project.generateKnowledgeDraft.provider(async ({ name, description, kind, sourceText, filePaths, audience, constraints }) => {
-    // High-stakes, rarely-run: use the best model the user has, not the cheap one.
-    // Never reject — return a structured error so the wizard never hangs.
-    try {
-      const model = await pickBestModel();
-      if (!model) return { draft: '', error: 'no-model' };
-      const sourceFiles = filePaths && filePaths.length > 0 ? await readSourceFiles(filePaths) : '';
-      const prompt = buildDraftPrompt({ name, description, kind, sourceText, sourceFiles, audience, constraints });
-      const raw = await oneShotComplete(prompt, { model, maxTokens: 1200 });
-      // Strip accidental wrapping code fences from a chatty model.
-      const draft = raw
-        .replace(/^```(?:markdown|md)?\s*\n?/i, '')
-        .replace(/\n?```\s*$/i, '')
-        .trim();
-      return { draft };
-    } catch (err) {
-      console.error('[projectBridge] generateKnowledgeDraft failed:', err);
-      const msg = err instanceof Error ? err.message : '';
-      return { draft: '', error: msg === 'no-usable-model' ? 'no-model' : 'failed' };
+  ipcBridge.project.generateKnowledgeDraft.provider(
+    async ({ name, description, kind, sourceText, filePaths, relatedKnowledge, audience, constraints }) => {
+      // High-stakes, rarely-run: use the best model the user has, not the cheap one.
+      // Never reject — return a structured error so the wizard never hangs.
+      try {
+        const model = await pickBestModel();
+        if (!model) return { draft: '', error: 'no-model' };
+        const sourceFiles = filePaths && filePaths.length > 0 ? await readSourceFiles(filePaths) : '';
+        const prompt = buildDraftPrompt({ name, description, kind, sourceText, sourceFiles, relatedKnowledge, audience, constraints });
+        // A 1200-token draft from a flagship/reasoning model can take well over the
+        // cheap-summary timeout; give it room so it doesn't abort mid-generation.
+        const raw = await oneShotComplete(prompt, { model, maxTokens: 1200, timeoutMs: 90_000 });
+        // Strip accidental wrapping code fences from a chatty model.
+        const draft = raw
+          .replace(/^```(?:markdown|md)?\s*\n?/i, '')
+          .replace(/\n?```\s*$/i, '')
+          .trim();
+        return { draft };
+      } catch (err) {
+        console.error('[projectBridge] generateKnowledgeDraft failed:', err);
+        const msg = err instanceof Error ? err.message : '';
+        return { draft: '', error: msg === 'no-usable-model' ? 'no-model' : 'failed' };
+      }
     }
-  });
+  );
 
   ipcBridge.project.appendDecision.provider(async ({ id, text }) => {
     const workspace = await requireWorkspace(id);

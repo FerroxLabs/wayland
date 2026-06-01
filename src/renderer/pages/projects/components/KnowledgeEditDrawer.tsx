@@ -131,7 +131,7 @@ const KnowledgeEditDrawer: React.FC<{
 
           {/* Body — TipTap WYSIWYG markdown editor (keyed by kind so it remounts per doc) */}
           <span className='text-12px font-600 text-t-secondary'>{t('projects.knowledge.bodyLabel')}</span>
-          <div className='flex-1 overflow-auto rd-8px border border-solid border-border-2 min-h-320px'>
+          <div className='flex-1 overflow-auto rd-8px border border-solid border-2 min-h-320px'>
             <TipTapMarkdownEditor key={kind} value={body} onChange={setBody} />
           </div>
         </div>

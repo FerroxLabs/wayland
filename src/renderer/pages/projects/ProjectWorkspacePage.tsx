@@ -237,7 +237,7 @@ const ProjectWorkspacePage: React.FC = () => {
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') navigate(`/conversation/${c.id}`);
                       }}
-                      className='group flex items-center gap-12px px-14px py-12px rd-10px bg-fill-1 border border-solid border-border-2 cursor-pointer hover:border-border-3 transition-all'
+                      className='group flex items-center gap-12px px-14px py-12px rd-10px bg-fill-1 border border-solid border-2 cursor-pointer hover:border-3 transition-all'
                     >
                       <div className='flex flex-col gap-2px min-w-0 flex-1'>
                         <div className='text-14px font-500 text-t-primary truncate'>

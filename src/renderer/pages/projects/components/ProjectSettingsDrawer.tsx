@@ -42,6 +42,7 @@ const ProjectSettingsDrawer: React.FC<{
 
   const [contextBody, setContextBody] = useState('');
   const [rulesBody, setRulesBody] = useState('');
+  const [decisionsBody, setDecisionsBody] = useState('');
   const [editorKey, setEditorKey] = useState(0); // bump to remount TipTap with new value
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -60,6 +61,7 @@ const ProjectSettingsDrawer: React.FC<{
         const k = await ipcBridge.project.readKnowledge.invoke({ id: project.id });
         setContextBody(k.context || '');
         setRulesBody(k.rules || '');
+        setDecisionsBody(k.decisions || '');
         setEditorKey((n) => n + 1);
       } catch (err) {
         console.error('[ProjectSettingsDrawer] load failed:', err);
@@ -189,7 +191,7 @@ const ProjectSettingsDrawer: React.FC<{
               <div className='flex flex-col gap-6px'>
                 <span className='text-13px font-500 text-t-secondary'>{t('projects.modal.workspaceLabel')}</span>
                 {workspace ? (
-                  <div className='flex items-center gap-8px bg-fill-1 rd-8px px-12px py-8px border border-solid border-border-2'>
+                  <div className='flex items-center gap-8px bg-fill-1 rd-8px px-12px py-8px border border-solid border-2'>
                     <FolderOpen size={14} className='flex-shrink-0 text-t-secondary' />
                     <span className='text-13px truncate flex-1' title={workspace}>
                       {workspace}
@@ -252,11 +254,11 @@ const ProjectSettingsDrawer: React.FC<{
                     <span className='text-11px text-t-tertiary'>{t('projects.knowledge.noModelHint')}</span>
                   )}
                   {noWorkspace ? (
-                    <div className='rd-10px border border-dashed border-border-2 px-16px py-20px text-center text-12px text-t-tertiary leading-relaxed'>
+                    <div className='rd-10px border border-dashed border-2 px-16px py-20px text-center text-12px text-t-tertiary leading-relaxed'>
                       {t('projects.settings.needWorkspace')}
                     </div>
                   ) : (
-                    <div className='rd-8px border border-solid border-border-2 min-h-300px overflow-auto'>
+                    <div className='rd-8px border border-solid border-2 min-h-300px overflow-auto'>
                       <TipTapMarkdownEditor key={`${section}-${editorKey}`} value={body} onChange={setBody} />
                     </div>
                   )}
@@ -272,6 +274,13 @@ const ProjectSettingsDrawer: React.FC<{
           kind={wizard}
           projectName={name}
           projectDescription={description}
+          // Rules are drafted from the project's intent: feed the current
+          // instructions and decisions so the rules stay consistent with them.
+          relatedKnowledge={
+            wizard === 'rules'
+              ? [contextBody.trim(), decisionsBody.trim()].filter(Boolean).join('\n\n')
+              : undefined
+          }
           onClose={() => setWizard(null)}
           onAccept={(draft) => acceptDraft(wizard, draft)}
         />

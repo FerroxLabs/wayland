@@ -139,9 +139,9 @@ export async function hasUsableModel(): Promise<boolean> {
   return (await pickCheapestFastModel()) !== null;
 }
 
-const fetchWithTimeout = async (url: string, init: RequestInit): Promise<Response> => {
+const fetchWithTimeout = async (url: string, init: RequestInit, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> => {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, { ...init, signal: controller.signal });
   } finally {
@@ -157,7 +157,7 @@ const joinUrl = (base: string, suffix: string): string => `${base.replace(/\/+$/
  */
 export async function oneShotComplete(
   prompt: string,
-  opts?: { maxTokens?: number; model?: PickedModel }
+  opts?: { maxTokens?: number; model?: PickedModel; timeoutMs?: number }
 ): Promise<string> {
   const picked = opts?.model ?? (await pickCheapestFastModel());
   if (!picked) throw new Error('no-usable-model');
@@ -165,19 +165,24 @@ export async function oneShotComplete(
   const endpoint = resolveEndpoint(provider);
   if (!endpoint) throw new Error('no-usable-model');
   const maxTokens = opts?.maxTokens ?? 160;
+  const timeoutMs = opts?.timeoutMs;
   const { flavor, base } = endpoint;
 
   if (flavor === 'anthropic') {
-    const res = await fetchWithTimeout(joinUrl(base, '/v1/messages'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': provider.apiKey,
-        'anthropic-version': '2023-06-01',
-        'User-Agent': 'Wayland/1.0',
+    const res = await fetchWithTimeout(
+      joinUrl(base, '/v1/messages'),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': provider.apiKey,
+          'anthropic-version': '2023-06-01',
+          'User-Agent': 'Wayland/1.0',
+        },
+        body: JSON.stringify({ model: modelId, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }),
       },
-      body: JSON.stringify({ model: modelId, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }),
-    });
+      timeoutMs
+    );
     const data = (await res.json()) as { content?: Array<{ text?: string }>; error?: { message?: string } };
     if (!res.ok) throw new Error(`${res.status}: ${data.error?.message || 'request failed'}`);
     return (data.content?.[0]?.text || '').trim();
@@ -185,14 +190,18 @@ export async function oneShotComplete(
 
   if (flavor === 'gemini') {
     const url = joinUrl(base, `/v1beta/models/${modelId}:generateContent?key=${provider.apiKey}`);
-    const res = await fetchWithTimeout(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'User-Agent': 'Wayland/1.0' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: maxTokens },
-      }),
-    });
+    const res = await fetchWithTimeout(
+      url,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Wayland/1.0' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: maxTokens },
+        }),
+      },
+      timeoutMs
+    );
     const data = (await res.json()) as {
       candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
       error?: { message?: string };
@@ -202,15 +211,19 @@ export async function oneShotComplete(
   }
 
   // OpenAI-compatible
-  const res = await fetchWithTimeout(joinUrl(base, '/chat/completions'), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${provider.apiKey}`,
-      'User-Agent': 'Wayland/1.0',
+  const res = await fetchWithTimeout(
+    joinUrl(base, '/chat/completions'),
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${provider.apiKey}`,
+        'User-Agent': 'Wayland/1.0',
+      },
+      body: JSON.stringify({ model: modelId, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }),
     },
-    body: JSON.stringify({ model: modelId, max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] }),
-  });
+    timeoutMs
+  );
   const data = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
     error?: { message?: string };

@@ -28,9 +28,11 @@ const KnowledgeWizard: React.FC<{
   kind: WizardKind;
   projectName?: string;
   projectDescription?: string;
+  /** Existing project knowledge (instructions + decisions) used to inform a Rules draft. */
+  relatedKnowledge?: string;
   onClose: () => void;
   onAccept: (draftMarkdown: string) => void;
-}> = ({ visible, kind, projectName, projectDescription, onClose, onAccept }) => {
+}> = ({ visible, kind, projectName, projectDescription, relatedKnowledge, onClose, onAccept }) => {
   const { t } = useTranslation();
   const [step, setStep] = useState(0); // 0 source · 1 questions · 2 draft
 
@@ -110,6 +112,7 @@ const KnowledgeWizard: React.FC<{
         kind,
         sourceText: sourceText.trim() || undefined,
         filePaths: files.length > 0 ? files.map((f) => f.path) : undefined,
+        relatedKnowledge: relatedKnowledge?.trim() || undefined,
         audience: audience.length > 0 ? audience.join(', ') : undefined,
         constraints: constraintText || undefined,
       });
@@ -121,7 +124,7 @@ const KnowledgeWizard: React.FC<{
     } finally {
       setGenerating(false);
     }
-  }, [constraints, extra, projectName, projectDescription, kind, sourceText, files, audience]);
+  }, [constraints, extra, projectName, projectDescription, relatedKnowledge, kind, sourceText, files, audience]);
 
   // Auto-generate when arriving at the draft step with no draft yet.
   useEffect(() => {
@@ -198,7 +201,7 @@ const KnowledgeWizard: React.FC<{
                   {files.map((f) => (
                     <div
                       key={f.path}
-                      className='group flex items-center gap-8px px-10px py-6px rd-8px bg-fill-1 border border-solid border-border-2'
+                      className='group flex items-center gap-8px px-10px py-6px rd-8px bg-fill-1 border border-solid border-2'
                     >
                       <FileText size={13} className='text-t-tertiary flex-shrink-0' />
                       <span className='text-12px text-t-primary truncate flex-1' title={f.path}>
@@ -270,7 +273,7 @@ const KnowledgeWizard: React.FC<{
                 <div className='text-14px font-600 text-t-primary'>{t('projects.wizard.draft.q')}</div>
                 <span className='text-11px text-t-tertiary'>{t('projects.wizard.draft.modelNote')}</span>
               </div>
-              <div className='rd-10px border border-solid border-border-2 bg-fill-1 min-h-200px max-h-360px overflow-auto px-14px py-12px'>
+              <div className='rd-10px border border-solid border-2 bg-fill-1 min-h-200px max-h-360px overflow-auto px-14px py-12px'>
                 {generating ? (
                   <div className='flex flex-col items-center justify-center gap-10px py-40px text-t-tertiary'>
                     <Spin />

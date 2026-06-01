@@ -2147,6 +2147,8 @@ export const project = {
       kind: 'context' | 'rules';
       sourceText?: string;
       filePaths?: string[];
+      /** Existing project knowledge (e.g. instructions + decisions) to inform a Rules draft. */
+      relatedKnowledge?: string;
       audience?: string;
       constraints?: string;
     }

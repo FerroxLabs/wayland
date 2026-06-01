@@ -115,7 +115,7 @@ const ProjectMemoryPanel: React.FC<{
       </div>
 
       {adding && (
-        <div className='flex flex-col gap-8px rd-10px border border-solid border-border-2 bg-fill-1 px-14px py-12px'>
+        <div className='flex flex-col gap-8px rd-10px border border-solid border-2 bg-fill-1 px-14px py-12px'>
           <Input.TextArea
             value={draft}
             onChange={setDraft}
@@ -142,14 +142,14 @@ const ProjectMemoryPanel: React.FC<{
       )}
 
       {isEmpty ? (
-        <div className='rd-12px border border-dashed border-border-2 px-16px py-28px text-center'>
+        <div className='rd-12px border border-dashed border-2 px-16px py-28px text-center'>
           <div className='text-13px font-600 text-t-secondary'>{t('projects.memory.emptyTitle')}</div>
           <div className='text-12px text-t-tertiary mt-3px leading-relaxed max-w-380px mx-auto'>
             {t('projects.memory.emptyBody')}
           </div>
         </div>
       ) : (
-        <div className='rd-12px border border-solid border-border-2 bg-fill-1 px-16px py-14px text-13px text-t-primary'>
+        <div className='rd-12px border border-solid border-2 bg-fill-1 px-16px py-14px text-13px text-t-primary'>
           <Markdown>{decisions}</Markdown>
         </div>
       )}

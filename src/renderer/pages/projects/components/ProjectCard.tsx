@@ -40,7 +40,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, chatCount, onOpen, o
           onOpen(project);
         }
       }}
-      className='group relative flex flex-col gap-12px p-16px rd-12px bg-fill-1 border border-solid border-border-2 cursor-pointer transition-all hover:border-border-3 hover:shadow-sm'
+      className='group relative flex flex-col gap-12px p-16px rd-12px bg-fill-1 border border-solid border-2 cursor-pointer transition-all hover:border-3 hover:shadow-sm'
     >
       <div className='flex items-start justify-between'>
         <div

@@ -146,7 +146,7 @@ const NewProjectWizard: React.FC<{
                   <span className='text-t-tertiary font-400'>{t('projects.newWizard.workspaceOptional')}</span>
                 </span>
                 {workspace ? (
-                  <div className='flex items-center gap-8px bg-fill-1 rd-8px px-12px py-8px border border-solid border-border-2'>
+                  <div className='flex items-center gap-8px bg-fill-1 rd-8px px-12px py-8px border border-solid border-2'>
                     <FolderOpen size={14} className='flex-shrink-0 text-t-secondary' />
                     <span className='text-13px truncate flex-1' title={workspace}>
                       {workspace}
@@ -168,7 +168,7 @@ const NewProjectWizard: React.FC<{
           {step === 1 && (
             <div className='flex flex-col gap-12px'>
               {!canGenerate ? (
-                <div className='rd-10px border border-solid border-border-2 bg-fill-1 px-16px py-16px text-center'>
+                <div className='rd-10px border border-solid border-2 bg-fill-1 px-16px py-16px text-center'>
                   <div className='text-13px font-600 text-t-secondary'>{t('projects.newWizard.noModelTitle')}</div>
                   <div className='text-12px text-t-tertiary mt-3px leading-relaxed'>
                     {t('projects.newWizard.noModelBody')}
@@ -182,7 +182,7 @@ const NewProjectWizard: React.FC<{
                   >
                     <Check size={14} /> {t('projects.newWizard.instructionsReady')}
                   </span>
-                  <div className='rd-10px border border-solid border-border-2 bg-fill-1 px-14px py-12px max-h-200px overflow-auto text-12px text-t-secondary whitespace-pre-wrap'>
+                  <div className='rd-10px border border-solid border-2 bg-fill-1 px-14px py-12px max-h-200px overflow-auto text-12px text-t-secondary whitespace-pre-wrap'>
                     {instructions}
                   </div>
                   <Button size='small' type='text' icon={<Sparkles size={13} />} onClick={() => setWizardOpen(true)}>
@@ -190,7 +190,7 @@ const NewProjectWizard: React.FC<{
                   </Button>
                 </div>
               ) : (
-                <div className='rd-10px border border-dashed border-border-2 px-16px py-20px text-center flex flex-col items-center gap-10px'>
+                <div className='rd-10px border border-dashed border-2 px-16px py-20px text-center flex flex-col items-center gap-10px'>
                   <div className='text-13px text-t-secondary leading-relaxed max-w-380px'>
                     {t('projects.newWizard.instructionsPrompt')}
                   </div>

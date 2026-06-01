@@ -128,7 +128,7 @@ const ProjectReferencePanel: React.FC<{
           {refs.map((f) => (
             <div
               key={f.name}
-              className='group flex flex-col gap-8px rd-10px border border-solid border-border-2 bg-fill-1 px-14px py-13px'
+              className='group flex flex-col gap-8px rd-10px border border-solid border-2 bg-fill-1 px-14px py-13px'
             >
               <div className='flex items-start justify-between'>
                 <div className='flex items-center justify-center w-32px h-32px rd-8px bg-fill-2 text-t-secondary'>

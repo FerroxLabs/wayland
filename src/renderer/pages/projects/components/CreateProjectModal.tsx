@@ -107,7 +107,7 @@ const CreateProjectModal = ModalHOC<CreateProjectModalProps>(({ modalProps, moda
         <div className='space-y-6px'>
           <div className='text-13px font-500 text-t-secondary'>{t('projects.modal.workspaceLabel')}</div>
           {workspace ? (
-            <div className='flex items-center gap-8px bg-fill-1 rd-8px px-12px py-8px border border-solid border-border-2'>
+            <div className='flex items-center gap-8px bg-fill-1 rd-8px px-12px py-8px border border-solid border-2'>
               <FolderOpen size={14} className='flex-shrink-0 text-t-secondary' />
               <span className='text-13px truncate flex-1' title={workspace}>
                 {workspace}
