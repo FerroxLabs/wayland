@@ -19,6 +19,9 @@ import { WebSocketManager } from '@process/webserver/websocket/WebSocketManager'
 function createMockWss() {
   return {
     on: vi.fn(),
+    // WS-POSTAUTH-DISPATCH: a noServer WebSocketServer always exposes `options`;
+    // initialize() sets options.maxPayload on it to bound inbound frame size.
+    options: {} as Record<string, unknown>,
   } as any;
 }
 
@@ -42,6 +45,17 @@ describe('WebSocketManager', () => {
     vi.useFakeTimers();
     mockWss = createMockWss();
     manager = new WebSocketManager(mockWss);
+  });
+
+  describe('initialize - inbound frame size bound', () => {
+    it('should set maxPayload to 4 MiB on the WSS options (DoS guard)', () => {
+      manager.initialize();
+
+      // WS-POSTAUTH-DISPATCH: the ws default is 100 MiB/frame parsed on the main
+      // thread. initialize() must bound it at the protocol layer so a single huge
+      // frame cannot OOM/stall the process.
+      expect(mockWss.options.maxPayload).toBe(4 * 1024 * 1024);
+    });
   });
 
   describe('checkClients - EPIPE resilience', () => {
