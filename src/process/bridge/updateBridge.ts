@@ -15,8 +15,10 @@ import type {
 } from '@/common/update/updateTypes';
 import { uuid } from '@/common/utils';
 import { app } from 'electron';
+import * as crypto from 'node:crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import yaml from 'js-yaml';
 import semver from 'semver';
 import { autoUpdaterService } from '../services/autoUpdaterService';
 
@@ -278,6 +280,141 @@ const fetchGitHubReleases = async (repo: string): Promise<GitHubReleaseApi[]> =>
   }
 };
 
+// ── UPD-02: artifact integrity verification ──────────────────────────────────
+// The signed electron-updater metadata (`latest*.yml`, published as GitHub
+// release assets) carries a base64-encoded SHA-512 for every installer. We fetch
+// it directly from the GitHub release (the trusted source — NOT the CDN), parse
+// the expected hash for the asset we downloaded, and refuse to mark the download
+// "completed" (the only state from which the renderer can open/run the file)
+// unless the bytes on disk match. This closes the path where a hijacked CDN
+// serves a trojaned installer that the user is then prompted to run.
+
+/** Shape of a single file entry inside an electron-updater `latest*.yml`. */
+type UpdaterYmlFile = {
+  url?: string;
+  sha512?: string;
+  size?: number;
+};
+
+type UpdaterYml = {
+  path?: string;
+  sha512?: string;
+  files?: UpdaterYmlFile[];
+};
+
+/** Candidate `latest*.yml` names electron-builder publishes per platform. */
+const updaterMetadataNames = (): string[] => {
+  if (process.platform === 'win32') return ['latest.yml'];
+  if (process.platform === 'darwin') return ['latest-mac.yml'];
+  // Linux publishes arch-specific channel files; try arm64 first on arm hosts.
+  const arch = normalizeArch(process.arch);
+  return arch === 'arm64' ? ['latest-linux-arm64.yml', 'latest-linux.yml'] : ['latest-linux.yml'];
+};
+
+/** Fetch a single GitHub release by tag and return its raw API payload. */
+const fetchReleaseByTag = async (repo: string, tag: string): Promise<GitHubReleaseApi> => {
+  const url = `https://api.github.com/repos/${repo}/releases/tags/${encodeURIComponent(tag)}`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': DEFAULT_USER_AGENT,
+      },
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      throw new Error((await getI18n()).t('update.errors.githubApiFailed', { status: res.status }));
+    }
+    return (await res.json()) as GitHubReleaseApi;
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error((await getI18n()).t('update.errors.githubApiTimeout'), { cause: err });
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+/**
+ * Resolve the expected base64-encoded SHA-512 for `assetName` from the signed
+ * electron-updater metadata on the GitHub release for `tag`. Throws on any
+ * failure (no metadata, asset absent from metadata, parse error) so callers
+ * fail closed rather than skip verification.
+ */
+const fetchExpectedSha512 = async (repo: string, tag: string, assetName: string): Promise<string> => {
+  const release = await fetchReleaseByTag(repo, tag);
+  const releaseAssets = release.assets || [];
+
+  const wantedYmlNames = updaterMetadataNames();
+  // Match by exact name first; fall back to any `latest*.yml` on the release so
+  // arch/channel naming drift does not silently disable verification.
+  const ymlAssets = releaseAssets.filter((a) => {
+    const lower = a.name.toLowerCase();
+    return wantedYmlNames.includes(lower) || (lower.startsWith('latest') && lower.endsWith('.yml'));
+  });
+
+  if (ymlAssets.length === 0) {
+    throw new Error((await getI18n()).t('update.errors.metadataMissing'));
+  }
+
+  for (const ymlAsset of ymlAssets) {
+    // The metadata itself must come from GitHub (the trusted, signed source).
+    await assertAllowedUrl(ymlAsset.browser_download_url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    let text: string;
+    try {
+      const res = await fetchWithAllowlistedRedirects(ymlAsset.browser_download_url, controller.signal);
+      if (!res.ok) continue;
+      text = await res.text();
+    } catch {
+      continue;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    let parsed: UpdaterYml;
+    try {
+      parsed = (yaml.load(text) as UpdaterYml) ?? {};
+    } catch {
+      continue;
+    }
+
+    const fromFiles = (parsed.files || []).find((f) => f.url === assetName)?.sha512;
+    const fromTop = parsed.path === assetName ? parsed.sha512 : undefined;
+    const sha = fromFiles || fromTop;
+    if (sha) return sha;
+  }
+
+  throw new Error((await getI18n()).t('update.errors.assetNotInMetadata', { name: assetName }));
+};
+
+/** Compute the base64-encoded SHA-512 of a file by streaming it. */
+const computeFileSha512 = (filePath: string): Promise<string> =>
+  new Promise<string>((resolve, reject) => {
+    const hash = crypto.createHash('sha512');
+    const stream = fs.createReadStream(filePath);
+    stream.on('error', reject);
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('end', () => resolve(hash.digest('base64')));
+  });
+
+/**
+ * Verify the file at `filePath` matches `expectedBase64` (a base64 SHA-512).
+ * Uses a constant-time comparison. Returns true only on an exact match.
+ */
+const verifyFileSha512 = async (filePath: string, expectedBase64: string): Promise<boolean> => {
+  const actual = await computeFileSha512(filePath);
+  const a = Buffer.from(actual, 'base64');
+  const b = Buffer.from(expectedBase64, 'base64');
+  if (a.length !== b.length || a.length === 0) return false;
+  return crypto.timingSafeEqual(a, b);
+};
+
 const mapRelease = (rel: GitHubReleaseApi): UpdateReleaseInfo | null => {
   const version = normalizeTagToSemver(rel.tag_name);
   if (!version) return null;
@@ -452,11 +589,18 @@ const attemptDownload = async (
   }
 };
 
+type IntegrityContext = {
+  repo: string;
+  tagName: string;
+  assetName: string;
+};
+
 const startDownloadInBackground = async (
   downloadId: string,
   url: string,
   filePath: string,
   abortController: AbortController,
+  integrity: IntegrityContext,
   fallbackUrl?: string
 ) => {
   const runWithFallback = async (): Promise<DownloadAttempt> => {
@@ -480,18 +624,7 @@ const startDownloadInBackground = async (
   const finalResult = await runWithFallback();
 
   try {
-    if (finalResult.ok) {
-      emitProgress({
-        downloadId,
-        status: 'completed',
-        receivedBytes: finalResult.receivedBytes,
-        totalBytes: finalResult.totalBytes,
-        percent: finalResult.totalBytes
-          ? Math.min(100, (finalResult.receivedBytes / finalResult.totalBytes) * 100)
-          : undefined,
-        filePath,
-      });
-    } else {
+    if (!finalResult.ok) {
       emitProgress({
         downloadId,
         status: finalResult.isAbort ? 'cancelled' : 'error',
@@ -499,7 +632,53 @@ const startDownloadInBackground = async (
         totalBytes: finalResult.totalBytes,
         error: finalResult.message,
       });
+      return;
     }
+
+    // UPD-02: the bytes are on disk but UNTRUSTED — they may have come from the
+    // CDN. Verify the sha512 against the signed GitHub-hosted metadata BEFORE
+    // emitting `completed` (the only state from which the UI exposes "Open").
+    // Any failure (mismatch, missing metadata, fetch/parse error) deletes the
+    // file and surfaces an error: fail closed, never open an unverified binary.
+    let verified = false;
+    let verifyError = '';
+    try {
+      const expected = await fetchExpectedSha512(integrity.repo, integrity.tagName, integrity.assetName);
+      verified = await verifyFileSha512(filePath, expected);
+      if (!verified) {
+        verifyError = (await getI18n()).t('update.errors.checksumMismatch');
+      }
+    } catch (err: unknown) {
+      verifyError = err instanceof Error ? err.message : String(err);
+    }
+
+    if (!verified) {
+      try {
+        if (fs.existsSync(filePath)) fs.rmSync(filePath, { force: true });
+      } catch {
+        // ignore cleanup failure
+      }
+      console.error('[updateBridge] Integrity verification failed; refusing to open artifact:', verifyError);
+      emitProgress({
+        downloadId,
+        status: 'error',
+        receivedBytes: finalResult.receivedBytes,
+        totalBytes: finalResult.totalBytes,
+        error: verifyError || (await getI18n()).t('update.errors.checksumMismatch'),
+      });
+      return;
+    }
+
+    emitProgress({
+      downloadId,
+      status: 'completed',
+      receivedBytes: finalResult.receivedBytes,
+      totalBytes: finalResult.totalBytes,
+      percent: finalResult.totalBytes
+        ? Math.min(100, (finalResult.receivedBytes / finalResult.totalBytes) * 100)
+        : undefined,
+      filePath,
+    });
   } finally {
     downloads.delete(downloadId);
   }
@@ -590,11 +769,35 @@ export function initUpdateBridge(): void {
         const urlName = path.basename(urlObj.pathname);
         const baseName = sanitizeFileName(params.fileName || urlName);
 
+        // UPD-02: the integrity context locates the signed electron-updater
+        // metadata (`latest*.yml`) on the GitHub release so the downloaded bytes
+        // can be sha512-verified before they are openable. `tagName` is required:
+        // without it there is no trusted hash to check against, so we refuse the
+        // download outright rather than open an unverified installer.
+        if (!params.tagName) {
+          return { success: false, msg: (await getI18n()).t('update.errors.missingTag') };
+        }
+        // `assetName` must match the metadata's file entry — that is the asset's
+        // real release filename, NOT the (possibly de-duplicated) on-disk name.
+        const assetName = params.fileName || urlName;
+        const integrity: IntegrityContext = {
+          repo: resolveRepo(params.repo),
+          tagName: params.tagName,
+          assetName,
+        };
+
         const targetPath = ensureUniquePath(path.join(downloadsDir, baseName));
         downloads.set(downloadId, { abortController, filePath: targetPath });
 
         // Start background download, but return immediately so the UI stays responsive.
-        void startDownloadInBackground(downloadId, params.url, targetPath, abortController, params.fallbackUrl);
+        void startDownloadInBackground(
+          downloadId,
+          params.url,
+          targetPath,
+          abortController,
+          integrity,
+          params.fallbackUrl
+        );
 
         return Promise.resolve({ success: true, data: { downloadId, filePath: targetPath } });
       } catch (err: unknown) {

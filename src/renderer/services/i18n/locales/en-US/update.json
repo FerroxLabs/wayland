@@ -21,5 +21,11 @@
   "autoUpdateMode": "Auto-update mode",
   "showInFolder": "Show in folder",
   "openFile": "Open file",
-  "errorTitle": "Update failed"
+  "errorTitle": "Update failed",
+  "errors": {
+    "missingTag": "Cannot verify this update: the release tag is missing. Please update from the Releases page.",
+    "metadataMissing": "Could not find signed update metadata (latest.yml) for this release. Refusing to open an unverified installer.",
+    "assetNotInMetadata": "The downloaded file \"{{name}}\" is not listed in the signed update metadata. Refusing to open an unverified installer.",
+    "checksumMismatch": "The downloaded update failed integrity verification (checksum mismatch) and was discarded. Do not run it. Please retry or download from the Releases page."
+  }
 }

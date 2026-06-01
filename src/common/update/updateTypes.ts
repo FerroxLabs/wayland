@@ -44,6 +44,16 @@ export interface UpdateDownloadRequest {
   /** Fallback URL tried when the primary URL fails (e.g. CDN down). */
   fallbackUrl?: string;
   fileName?: string;
+  /**
+   * Release tag the asset belongs to (e.g. `v1.2.3`). Required so the main
+   * process can locate the signed electron-updater metadata (`latest*.yml`)
+   * on the GitHub release and verify the downloaded artifact's sha512 before
+   * the renderer is allowed to open/run it. When omitted, integrity
+   * verification cannot run and the download is refused (fail-closed).
+   */
+  tagName?: string;
+  /** Repo (`owner/name`) the release lives in; defaults to the trusted repo. */
+  repo?: string;
 }
 
 export interface UpdateDownloadResult {

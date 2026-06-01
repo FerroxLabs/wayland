@@ -128,6 +128,10 @@ const UpdateModal: React.FC = () => {
           url: asset.url,
           fallbackUrl: asset.fallbackUrl,
           fileName: asset.name,
+          // UPD-02: pass the release tag so the main process can fetch the
+          // signed latest*.yml metadata and verify this artifact's sha512
+          // before the "Open" action is enabled.
+          tagName: updateInfo.tagName,
         });
         if (!res?.success || !res.data) {
           throw new Error(res?.msg || t('update.downloadStartFailed'));

@@ -21,5 +21,11 @@
   "autoUpdateMode": "Otomatik güncelleme modu",
   "showInFolder": "Klasörde göster",
   "openFile": "Dosyayı aç",
-  "errorTitle": "Güncelleme başarısız"
+  "errorTitle": "Güncelleme başarısız",
+  "errors": {
+    "missingTag": "Bu güncelleme doğrulanamıyor: sürüm etiketi eksik. Lütfen Releases sayfasından güncelleyin.",
+    "metadataMissing": "Bu sürüm için imzalı güncelleme meta verisi (latest.yml) bulunamadı. Doğrulanmamış bir yükleyici açılmayacak.",
+    "assetNotInMetadata": "İndirilen \"{{name}}\" dosyası imzalı güncelleme meta verisinde listelenmiyor. Doğrulanmamış bir yükleyici açılmayacak.",
+    "checksumMismatch": "İndirilen güncelleme bütünlük doğrulamasından (sağlama toplamı uyuşmazlığı) geçemedi ve silindi. Çalıştırmayın. Lütfen yeniden deneyin veya Releases sayfasından indirin."
+  }
 }

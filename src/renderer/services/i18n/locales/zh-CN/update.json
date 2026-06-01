@@ -21,5 +21,11 @@
   "autoUpdateMode": "自动更新模式",
   "showInFolder": "在文件夹中显示",
   "openFile": "打开文件",
-  "errorTitle": "更新失败"
+  "errorTitle": "更新失败",
+  "errors": {
+    "missingTag": "无法验证此更新：缺少发布标签。请从 Releases 页面更新。",
+    "metadataMissing": "找不到此版本的已签名更新元数据 (latest.yml)。拒绝打开未经验证的安装程序。",
+    "assetNotInMetadata": "下载的文件“{{name}}”未列在已签名的更新元数据中。拒绝打开未经验证的安装程序。",
+    "checksumMismatch": "下载的更新未通过完整性校验（校验和不匹配），已被丢弃。请勿运行它。请重试或从 Releases 页面下载。"
+  }
 }

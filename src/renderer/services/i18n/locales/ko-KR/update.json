@@ -21,5 +21,11 @@
   "autoUpdateMode": "자동 업데이트 모드",
   "showInFolder": "폴더에서 보기",
   "openFile": "파일 열기",
-  "errorTitle": "업데이트 실패"
+  "errorTitle": "업데이트 실패",
+  "errors": {
+    "missingTag": "이 업데이트를 검증할 수 없습니다: 릴리스 태그가 없습니다. Releases 페이지에서 업데이트하세요.",
+    "metadataMissing": "이 릴리스의 서명된 업데이트 메타데이터(latest.yml)를 찾을 수 없습니다. 검증되지 않은 설치 프로그램을 열지 않습니다.",
+    "assetNotInMetadata": "다운로드한 파일 \"{{name}}\"이(가) 서명된 업데이트 메타데이터에 없습니다. 검증되지 않은 설치 프로그램을 열지 않습니다.",
+    "checksumMismatch": "다운로드한 업데이트가 무결성 검증(체크섬 불일치)에 실패하여 삭제되었습니다. 실행하지 마세요. 다시 시도하거나 Releases 페이지에서 다운로드하세요."
+  }
 }
