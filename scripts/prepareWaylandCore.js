@@ -2,9 +2,17 @@
  * Prepare wayland-core binary for Electron packaging.
  *
  * Resolution order:
- *  1. GitHub release download (requires WCORE_VERSION or defaults to "latest")
+ *  0. Pre-placed local binary (a local source build copied into the bundle dir,
+ *     or — once wayland-core ships on npm — a binary resolved from node_modules).
+ *     Kept as-is, never wiped or re-downloaded. Release/CI builds skip this and
+ *     require a verified download unless WCORE_USE_LOCAL=1.
+ *  1. GitHub release download (requires WCORE_VERSION or defaults to "latest"),
+ *     SHA-256 verified before extract/copy/execute.
  *
  * Output: resources/bundled-wayland-core/{platform}-{arch}/wayland-core[.exe]
+ *
+ * Env: WCORE_USE_LOCAL=1 trust a pre-placed binary even on release builds;
+ *      WCORE_FORCE_DOWNLOAD=1 always re-download (ignore a pre-placed binary).
  *
  * Pattern follows prepareBundledBun.js.
  */
@@ -353,6 +361,46 @@ function prepareWaylandCore() {
     });
     console.log(`  wayland-core skip requested (WCORE_SKIP=1); wrote skip manifest at resources/bundled-wayland-core/${runtimeKey}/manifest.json`);
     return { prepared: false, reason: 'env_skip' };
+  }
+
+  // 0. Non-destructive local / pre-placed binary path. If a usable binary is
+  //    already present (a local source build copied in, or — once wayland-core
+  //    ships on npm — a binary resolved from node_modules into this dir), keep
+  //    it instead of wiping and re-downloading. Prevents destroying a
+  //    hand-placed binary when no release asset exists, and supports the
+  //    build-and-copy workflow. Release/CI builds still require a verified
+  //    download UNLESS WCORE_USE_LOCAL=1 explicitly trusts the local artifact.
+  //    WCORE_FORCE_DOWNLOAD=1 always ignores a pre-placed binary.
+  {
+    const localTargetDir = path.join(projectRoot, 'resources', 'bundled-wayland-core', runtimeKey);
+    const localBinaryName = getBinaryName(platform);
+    const preplaced = path.join(localTargetDir, localBinaryName);
+    const hasPreplaced = fs.existsSync(preplaced) && fs.statSync(preplaced).isFile();
+    const forceDownload = process.env.WCORE_FORCE_DOWNLOAD === '1';
+    const useLocal = process.env.WCORE_USE_LOCAL === '1';
+    if (hasPreplaced && !forceDownload && (!isReleaseBuild() || useLocal)) {
+      ensureExecutableMode(preplaced);
+      const sha256 = crypto.createHash('sha256').update(fs.readFileSync(preplaced)).digest('hex');
+      let binaryVersion = version;
+      try {
+        binaryVersion = execFileSync(preplaced, ['--version'], { encoding: 'utf-8', timeout: 5000 }).trim();
+      } catch {}
+      writeJson(path.join(localTargetDir, 'manifest.json'), {
+        platform,
+        arch,
+        version: binaryVersion,
+        generatedAt: new Date().toISOString(),
+        sourceType: 'local-prebuilt',
+        source: { note: 'Pre-placed binary kept as-is (build-and-copy or npm-resolved); not re-downloaded. WCORE_FORCE_DOWNLOAD=1 to override.' },
+        sha256,
+        files: [localBinaryName],
+        skipped: false,
+      });
+      console.log(
+        `  Using pre-placed wayland-core: resources/bundled-wayland-core/${runtimeKey}/${localBinaryName} [source=local-prebuilt sha256=${sha256.slice(0, 12)}...]`
+      );
+      return { prepared: true, dir: localTargetDir, sourceType: 'local-prebuilt' };
+    }
   }
 
   // Resolve the actual version tag — asset filenames include the tag.
