@@ -252,6 +252,7 @@ describe('getEnhancedEnv Windows extra paths', () => {
 // -------------------------------------------------------------------
 describe('getEnhancedEnv Windows extra paths (cross-platform mock)', () => {
   const originalPlatform = process.platform;
+  const originalArch = process.arch;
   const originalPath = process.env.PATH;
   const originalAppData = process.env.APPDATA;
   const originalLocalAppData = process.env.LOCALAPPDATA;
@@ -263,6 +264,7 @@ describe('getEnhancedEnv Windows extra paths (cross-platform mock)', () => {
 
   afterEach(() => {
     Object.defineProperty(process, 'platform', { value: originalPlatform });
+    Object.defineProperty(process, 'arch', { value: originalArch });
     process.env.PATH = originalPath;
     process.env.APPDATA = originalAppData;
     process.env.LOCALAPPDATA = originalLocalAppData;
@@ -375,6 +377,11 @@ describe('getEnhancedEnv Windows extra paths (cross-platform mock)', () => {
 
   it('skips shell env loading on Windows and relies on extra tool paths', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32' });
+    // Pin arch so this test exercises the Windows x64 path deterministically on
+    // every host (CI runners are arm64 on macOS, x64 on Linux). Without this the
+    // x64-only bundled-bun AVX2 probe fires only on x64 hosts, making the test
+    // host-arch-sensitive.
+    Object.defineProperty(process, 'arch', { value: 'x64' });
     process.env.PATH = 'C:\\Windows\\System32';
     process.env.APPDATA = 'C:\\Users\\test\\AppData\\Roaming';
     process.env.LOCALAPPDATA = 'C:\\Users\\test\\AppData\\Local';
@@ -400,8 +407,12 @@ describe('getEnhancedEnv Windows extra paths (cross-platform mock)', () => {
     const { getEnhancedEnv } = await import('@process/utils/shellEnv');
     getEnhancedEnv();
 
-    // execFileSync should NOT be called on Windows (shell env loading is skipped)
-    expect(execFileSync).not.toHaveBeenCalled();
+    // Shell environment loading must be skipped on Windows. The only permitted
+    // execFileSync call is the cached one-shot AVX2 capability probe (powershell
+    // `[Avx2]::IsSupported`) used to pick the bundled bun build — that is not
+    // shell-env loading. Assert no shell-loading subprocess was spawned.
+    const shellEnvCalls = execFileSync.mock.calls.filter((call) => !JSON.stringify(call).includes('Avx2'));
+    expect(shellEnvCalls).toEqual([]);
   });
 });
 
