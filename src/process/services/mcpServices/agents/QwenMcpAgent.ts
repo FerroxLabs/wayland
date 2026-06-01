@@ -12,6 +12,7 @@ import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { safeExec, safeExecFile } from '@process/utils/safeExec';
+import { validateMcpEnvEntry } from '../validateMcpServer';
 
 /** Env options for exec calls — ensures CLI is found from Finder/launchd launches */
 const getExecEnv = () => ({
@@ -159,6 +160,9 @@ export class QwenMcpAgent extends AbstractMcpAgent {
               args.push(...server.transport.args);
             }
             for (const [key, value] of Object.entries(server.transport.env || {})) {
+              // Reject argv-breaking keys/values before they ride into the
+              // `--env KEY=VALUE` argv element (RT-B2-01 / RT-B2-03).
+              validateMcpEnvEntry(server.name, key, String(value ?? ''));
               args.push('--env', `${key}=${value}`);
             }
 

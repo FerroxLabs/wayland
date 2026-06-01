@@ -87,11 +87,7 @@ describe('parseMarkdownBlocks', () => {
   });
 
   it('returns empty frontmatter when block has no key: value pairs', () => {
-    const content = [
-      '---',
-      '---',
-      'Just body text.',
-    ].join('\n');
+    const content = ['---', '---', 'Just body text.'].join('\n');
 
     const blocks = parseMarkdownBlocks(content);
     expect(blocks).toHaveLength(1);
@@ -130,9 +126,29 @@ describe('parseMarkdownBlocks', () => {
   });
 
   it('handles CRLF line endings', () => {
-    const content = '---\r\ntype: decision\r\nsummary: CRLF test\r\nstored: 2026-05-01T00:00:00.000Z\r\ntags: []\r\n---\r\nbody text\r\n';
+    const content =
+      '---\r\ntype: decision\r\nsummary: CRLF test\r\nstored: 2026-05-01T00:00:00.000Z\r\ntags: []\r\n---\r\nbody text\r\n';
     const blocks = parseMarkdownBlocks(content);
     expect(blocks).toHaveLength(1);
     expect(blocks[0].frontmatter['type']).toBe('decision');
+  });
+
+  it('decodes a JSON-quoted scalar back to its original (with embedded newline/---)', () => {
+    const original = 'line1\n---\ninjected: pwned';
+    const encoded = JSON.stringify(original); // single-line "line1\n---\ninjected: pwned"
+    const content = ['---', 'type: decision', `summary: ${encoded}`, 'tags: []', '---', 'body'].join('\n');
+
+    const blocks = parseMarkdownBlocks(content);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].frontmatter['summary']).toBe(original);
+    expect(blocks[0].frontmatter['injected']).toBeUndefined();
+  });
+
+  it('decodes JSON-quoted tag elements and ignores commas inside them', () => {
+    const tagA = JSON.stringify('alpha, with comma');
+    const content = ['---', 'type: pattern', `tags: [${tagA}, beta]`, '---', 'body'].join('\n');
+
+    const blocks = parseMarkdownBlocks(content);
+    expect(blocks[0].frontmatter['tags']).toEqual(['alpha, with comma', 'beta']);
   });
 });

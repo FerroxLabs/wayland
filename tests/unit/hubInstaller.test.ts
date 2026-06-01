@@ -283,6 +283,54 @@ describe('HubInstaller', () => {
 
       await expect(hubInstaller.retryInstall('broken-ext')).rejects.toThrow('manifest missing');
     });
+
+    // SECURITY (RT-B4-06): when the target dir already exists, retryInstall must NOT
+    // re-run the on-disk onInstall lifecycle without re-verifying the source. It now
+    // delegates to the verified install() path, which re-resolves the trusted archive,
+    // checks it against dist.integrity, and re-extracts over the existing dir before any
+    // lifecycle hook runs. An on-disk extension whose source archive no longer matches
+    // dist.integrity (tampered files / poisoned mirror) is REJECTED before onInstall runs.
+    it('should reject retry when source integrity no longer matches (tampered)', async () => {
+      // Existing on-disk dir + manifest present. retry → install() re-resolves the
+      // source archive and verifies it against the declared dist.integrity. Here the
+      // resolved archive's actual hash does NOT match the declared integrity (a wrong/
+      // poisoned hash), simulating tampered code — verification must fail before any
+      // lifecycle hook runs. (Bundled archive with a PRESENT integrity is still verified.)
+      const WRONG_INTEGRITY = 'sha512-' + Buffer.from('x'.repeat(64)).toString('base64');
+      mocks.getExtensionResult = makeExtInfo('tampered-ext', true, WRONG_INTEGRITY);
+      mockedExistsSync.mockImplementation((p) => {
+        const s = String(p);
+        if (s === path.join('/ext-install-dir', 'tampered-ext')) return true; // dir exists
+        if (s.includes('tampered-ext.zip') && s.includes('resources')) return true; // source present
+        if (s.includes('aion-extension.json')) return true; // on-disk manifest present
+        return false;
+      });
+
+      await expect(hubInstaller.retryInstall('tampered-ext')).rejects.toThrow('Integrity verification failed');
+      // onInstall / lifecycle re-run was NOT reached.
+      expect(mockMarkForReinstall).not.toHaveBeenCalled();
+      expect(mocks.setTransientCalls.at(-1)?.[1]).toBe('install_failed');
+    });
+
+    // An untampered extension whose existing dir is present still retries normally:
+    // the verified install() path re-resolves + verifies the source, re-extracts, and
+    // re-runs the lifecycle to completion.
+    it('should retry normally for an untampered existing extension', async () => {
+      mocks.getExtensionResult = makeExtInfo('clean-retry-ext', true);
+      mockedExistsSync.mockImplementation((p) => {
+        const s = String(p);
+        if (s === path.join('/ext-install-dir', 'clean-retry-ext')) return true; // dir exists
+        // Bundled source archive present in resources → trusted path, no integrity needed.
+        if (s.includes('clean-retry-ext.zip') && s.includes('resources')) return true;
+        if (s.includes('aion-extension.json')) return true;
+        return false;
+      });
+
+      await hubInstaller.retryInstall('clean-retry-ext');
+
+      expect(mockMarkForReinstall).toHaveBeenCalledWith('clean-retry-ext');
+      expect(mocks.setTransientCalls.at(-1)).toEqual(['clean-retry-ext', 'installed']);
+    });
   });
 
   describe('markExtensionForReinstall', () => {
@@ -306,6 +354,9 @@ describe('HubInstaller', () => {
       mockedExistsSync.mockImplementation((p) => {
         const s = String(p);
         if (s === path.join('/ext-install-dir', 'retry-mark-ext')) return true;
+        // retry now delegates to the verified install() path, which re-resolves the
+        // trusted (bundled) source archive before re-running the lifecycle.
+        if (s.includes('retry-mark-ext.zip') && s.includes('resources')) return true;
         if (s.includes('aion-extension.json')) return true;
         return false;
       });

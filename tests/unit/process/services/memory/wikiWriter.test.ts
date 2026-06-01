@@ -14,6 +14,7 @@ import {
   isEntryPromoted,
   clearWikiWriterState,
 } from '@process/services/memory/wikiWriter';
+import { parseMarkdownBlocks } from '@process/services/memory/markdownFrontmatter';
 import type { MemoryEntry } from '@/common/types/memory';
 
 // ===== Helpers =====
@@ -129,6 +130,62 @@ describe('wikiWriter', () => {
     expect(fs.existsSync(nestedDir)).toBe(true);
   });
 
+  // ----- RT-F5-05: frontmatter injection hardening -----
+
+  it('RT-F5-05: a value with newlines + --- + injected key cannot break out of its field', async () => {
+    // Malicious sourcePath crafted to terminate the frontmatter block early and
+    // inject a new top-level key if values were interpolated unescaped.
+    const evil = '/tmp/p.md\n---\ninjected: pwned\n# rogue heading';
+    const entry = makeEntry({
+      id: 'inject-01',
+      summary: 'Injection hardening test',
+      sourcePath: evil,
+      sourceLine: 1,
+    });
+    const result = await promoteEntry(entry, tmpDir);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const content = fs.readFileSync(result.wikiPath, 'utf8');
+
+    // The serialized promoted_from value stays on a single physical line: the
+    // escaped newlines are literal `\n` chars, so no real line in the
+    // frontmatter block is a bare `injected: pwned` key, and the closing `---`
+    // appears exactly twice (open + close), not three times.
+    const physicalLines = content.split('\n');
+    const fenceLines = physicalLines.filter((l) => l === '---');
+    expect(fenceLines).toHaveLength(2);
+    const closeIdx = physicalLines.indexOf('---', physicalLines.indexOf('---') + 1);
+    const frontmatterLines = physicalLines.slice(physicalLines.indexOf('---') + 1, closeIdx);
+    expect(frontmatterLines.some((l) => l.trim() === 'injected: pwned')).toBe(false);
+    expect(frontmatterLines.filter((l) => l.startsWith('promoted_from:'))).toHaveLength(1);
+
+    // Round-trips back through the reader to exactly one block with the
+    // original string preserved and no injected key.
+    const blocks = parseMarkdownBlocks(content);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].frontmatter['promoted_from']).toBe(`${evil}:L1`);
+    expect(blocks[0].frontmatter['injected']).toBeUndefined();
+  });
+
+  it('RT-F5-05: a tag containing --- and a colon round-trips and injects nothing', async () => {
+    const evilTag = 'a\n---\ninjected: x';
+    const entry = makeEntry({
+      id: 'inject-02',
+      summary: 'Tag injection hardening',
+      tags: [evilTag, 'safe'],
+    });
+    const result = await promoteEntry(entry, tmpDir);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const content = fs.readFileSync(result.wikiPath, 'utf8');
+    const blocks = parseMarkdownBlocks(content);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].frontmatter['tags']).toEqual([evilTag, 'safe']);
+    expect(blocks[0].frontmatter['injected']).toBeUndefined();
+  });
+
   // ----- wiki-index.md -----
 
   it('creates wiki-index.md after first promotion', async () => {
@@ -181,10 +238,7 @@ describe('wikiWriter', () => {
     clearWikiWriterState(); // force sidecar re-read
     // Manually re-check against sidecar by passing a mock entry with the same id
     // and a projectPath that resolves to tmpDir.
-    const result = await isEntryPromoted(
-      { ...entry, projectPath: tmpDir, project: 'x' },
-      tmpDir,
-    );
+    const result = await isEntryPromoted({ ...entry, projectPath: tmpDir, project: 'x' }, tmpDir);
     expect(result).toBe(true);
   });
 
@@ -212,9 +266,7 @@ describe('wikiWriter', () => {
     const entry = makeEntry({ id: 'abc137' });
     await promoteEntry(entry, tmpDir);
     await undoPromotion('abc137');
-    const json = JSON.parse(
-      fs.readFileSync(path.join(tmpDir, '.promoted.json'), 'utf8'),
-    ) as { ids: string[] };
+    const json = JSON.parse(fs.readFileSync(path.join(tmpDir, '.promoted.json'), 'utf8')) as { ids: string[] };
     expect(json.ids).not.toContain('abc137');
   });
 

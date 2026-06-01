@@ -15,6 +15,7 @@ import {
 } from '@process/resources/builtinMcp/constants';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { safeExecFile } from '@process/utils/safeExec';
+import { validateMcpEnvEntry } from '../validateMcpServer';
 
 /** Env options for exec calls — ensures CLI is found from Finder/launchd launches */
 const getExecEnv = () => ({
@@ -123,6 +124,9 @@ export function buildCodexAddArgs(server: IMcpServer): string[] | null {
     const args = ['mcp', 'add', server.name];
 
     for (const [key, value] of Object.entries(server.transport.env || {})) {
+      // Reject argv-breaking keys/values before they ride into the
+      // `--env KEY=VALUE` argv element (RT-B2-01 / RT-B2-03).
+      validateMcpEnvEntry(server.name, key, String(value ?? ''));
       args.push('--env', `${key}=${value}`);
     }
 

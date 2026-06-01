@@ -8,6 +8,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
+import { parse, stringify } from 'smol-toml';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { resolveWCoreBinary } from './binaryResolver';
@@ -17,6 +18,60 @@ import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
 
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string }) => void;
+
+/**
+ * Sanitize an existing `.wcore.toml` body and merge in the app's own provider
+ * config, returning the serialized result plus whether an attacker-owned
+ * `providers` table was present and dropped.
+ *
+ * Provider tables are app-owned: they hold `base_url`/endpoint keys that decide
+ * where credentials and prompts are sent. A pre-placed or sibling-written config
+ * must never inject or keep a provider override the app did not author, or an
+ * attacker with workspace write access could redirect traffic to their own host
+ * (RT-B6-07).
+ *
+ * We parse with a real TOML library rather than scanning lines, because TOML
+ * exposes the same `providers` table through many equivalent syntaxes —
+ * bracket header `[providers.openai]`, inline table
+ * `providers = { openai = { ... } }`, dotted key `providers.openai.base_url`,
+ * spaced dotted `providers . openai . base_url`, quoted-key header
+ * `["providers"]`, headers with trailing comments — and a string scan cannot
+ * robustly catch them all. Parsing collapses every form into the single
+ * top-level `providers` object key, so one `delete` strips every variant.
+ *
+ * The app's own provider fragment (`appContent`) is parsed and its `providers`
+ * (plus any other app-owned top-level keys) merged over the sanitized user
+ * object, so the app's values always win. Legitimate user-authored non-provider
+ * settings (top-level keys, other tables) are preserved.
+ *
+ * Fails closed: if the existing file is not valid TOML (malformed / attacker
+ * garbage), the user content is discarded entirely and only the app's
+ * known-good config is written. `parsed` is `false` in that case.
+ */
+function sanitizeProjectConfig(
+  existing: string,
+  appContent: string
+): { written: string; strippedProviders: boolean; parsed: boolean } {
+  const appObject = parse(appContent) as Record<string, unknown>;
+
+  let userObject: Record<string, unknown>;
+  try {
+    userObject = parse(existing) as Record<string, unknown>;
+  } catch {
+    // Fail closed: unparseable user content is untrusted — write only the
+    // app's known-good config.
+    return { written: `${stringify(appObject).trim()}\n`, strippedProviders: false, parsed: false };
+  }
+
+  // Every TOML form of an attacker `providers` override collapses to this one
+  // top-level key after parsing, so a single delete catches all variants.
+  const strippedProviders = Object.prototype.hasOwnProperty.call(userObject, 'providers');
+  delete userObject.providers;
+
+  // App-owned keys (including `providers`) win over anything user-authored.
+  const merged = { ...userObject, ...appObject };
+  return { written: `${stringify(merged).trim()}\n`, strippedProviders, parsed: true };
+}
 
 /**
  * A stdio-transport MCP server to inject into the wcore session. Each entry
@@ -709,20 +764,37 @@ export class WCoreAgent {
   /**
    * Write a temporary .wcore.toml in the workspace for provider compat overrides.
    * Backs up existing file content so it can be restored on exit.
+   *
+   * Security (RT-B6-07): the app owns every `[providers.*]` section because those
+   * carry `base_url`/endpoint overrides that decide where API keys and prompts are
+   * sent. A pre-placed or sibling-written `.wcore.toml` must never be allowed to
+   * inject or keep a provider override the app did not author — otherwise an
+   * attacker with workspace write access (temp-dir race or a custom workspace)
+   * could redirect traffic to their own host. We therefore parse the existing
+   * file with a real TOML library, drop ALL existing `providers.*` overrides
+   * (in every equivalent TOML syntax), and regenerate them from the app's own
+   * `content`, letting the app's intended values win. Non-provider, user-authored
+   * settings are preserved. If the existing file is unparseable, we fail closed
+   * and write only the app's known-good config.
    */
   private writeProjectConfig(content: string): void {
     const configPath = join(this.options.workspace, WCORE_PROJECT_CONFIG);
     const existing = existsSync(configPath) ? readFileSync(configPath, 'utf-8') : null;
 
-    // If a project config already exists, only append lines that are not yet present.
-    // This prevents duplicate TOML sections when restore failed on a previous run.
     let written: string;
     if (existing) {
-      const missingLines = content.split('\n').filter((line) => line.trim() && !existing.includes(line.trim()));
-      written = missingLines.length > 0 ? `${existing}\n${missingLines.join('\n')}\n` : existing;
-      if (missingLines.length > 0) {
-        writeFileSync(configPath, written, 'utf-8');
+      const { written: sanitized, strippedProviders, parsed } = sanitizeProjectConfig(existing, content);
+      written = sanitized;
+      if (!parsed) {
+        console.warn(
+          `[WCoreAgent] Existing ${WCORE_PROJECT_CONFIG} is not valid TOML; discarding it and writing only app-owned provider config.`
+        );
+      } else if (strippedProviders) {
+        console.warn(
+          `[WCoreAgent] Stripped untrusted [providers.*] override(s) from existing ${WCORE_PROJECT_CONFIG}; app-owned provider config wins.`
+        );
       }
+      writeFileSync(configPath, written, 'utf-8');
     } else {
       written = content;
       writeFileSync(configPath, written, 'utf-8');

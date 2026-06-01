@@ -238,43 +238,26 @@ export class HubInstallerImpl {
         return;
       }
 
-      // Target directory exists — verify manifest then let registry handle lifecycle
+      // Target directory exists. If the on-disk manifest is gone the install is
+      // unrecoverable in place — surface a clear "reinstall from scratch" error.
       const manifestPath = path.join(targetDir, EXTENSION_MANIFEST_FILE);
       if (!fs.existsSync(manifestPath)) {
         throw new Error('Extension manifest missing, please reinstall from scratch.');
       }
 
-      // Re-running onInstall is a code-execution event (see install()); gate it
-      // behind the same native local-user confirmation so a remote token alone
-      // cannot trigger a lifecycle re-run.
-      const retryExtInfo = hubIndexManager.getExtension(name);
-      const confirmed = await requireConfirmation({
-        title: 'Reinstall extension',
-        message: `Reinstall "${retryExtInfo?.displayName || name}"?`,
-        detail:
-          `Reinstalling re-runs the extension's install hooks, which execute code with full system access. ` +
-          `Only reinstall extensions you trust.`,
-        confirmLabel: 'Reinstall',
-      });
-      if (!confirmed) {
-        throw new Error('Extension reinstall cancelled by user');
-      }
-
-      // Reload registry — clear persisted state to force onInstall re-run
-      await markExtensionForReinstall(name);
-      await ExtensionRegistry.hotReload();
-      await agentRegistry.refreshAll();
-
-      // Verify contributed capabilities
-      const extInfo = hubIndexManager.getExtension(name);
-      if (extInfo) {
-        const verification = verifyInstallation(extInfo);
-        if (!verification.ok) {
-          throw new Error(verification.reason);
-        }
-      }
-
-      hubStateManager.setTransientState(name, 'installed');
+      // SECURITY (RT-B4-06): the previous fast path skipped re-download / re-extract
+      // / re-verify and re-ran the on-disk `onInstall` lifecycle hook directly. That
+      // means tampered-on-disk extension code would execute unverified. `dist.integrity`
+      // pins the SHA-512 of the source ARCHIVE (not the extracted dir), and we keep no
+      // per-directory hash, so there is no sound way to recompute a matching hash from
+      // the already-extracted files. The correct, verified path is to re-resolve the
+      // trusted source archive, verify it against `dist.integrity`, re-extract it over
+      // the existing target dir, and only then re-run the lifecycle — which is exactly
+      // what install() does (it overwrites an existing targetDir before re-extracting).
+      // Delegating here guarantees onInstall never runs on unverified on-disk code while
+      // keeping the legitimate retry working for an untampered extension. install() also
+      // shows the same non-spoofable native confirmation, so the reachability cut holds.
+      await this.install(name);
     } catch (error) {
       console.error(`[HubInstaller] Failed to retry install ${name}:`, error);
       const errorMessage = error instanceof Error ? error.message : String(error);

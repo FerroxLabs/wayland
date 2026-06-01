@@ -11,6 +11,7 @@ import type { IMcpServer } from '@/common/config/storage';
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import { safeExecFile } from '@process/utils/safeExec';
+import { validateMcpEnvEntry } from '../validateMcpServer';
 
 /**
  * CodeBuddy MCP server entry in ~/.codebuddy/mcp.json
@@ -193,6 +194,9 @@ export class CodebuddyMcpAgent extends AbstractMcpAgent {
               }
 
               for (const [key, value] of Object.entries(server.transport.env || {})) {
+                // Reject argv-breaking keys/values before they ride into the
+                // `-e KEY=VALUE` argv element (RT-B2-01 / RT-B2-03).
+                validateMcpEnvEntry(server.name, key, String(value ?? ''));
                 args.push('-e', `${key}=${value}`);
               }
 

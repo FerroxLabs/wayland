@@ -15,17 +15,75 @@ type ParsedBlock = {
   body: string;
 };
 
+/**
+ * Decode a single frontmatter scalar.
+ *
+ * The writer (see `serializeFrontmatterValue` in wikiWriter.ts) emits values
+ * that contain YAML-significant characters as JSON-style double-quoted strings
+ * (e.g. `"a\nb: c"`), which keeps every value on a single line and prevents
+ * block break-out. A leading `"` therefore signals a quoted scalar that must
+ * be JSON-parsed back to its original text. Plain values pass through as-is so
+ * existing unquoted files keep parsing.
+ */
+function decodeScalar(raw: string): string {
+  const trimmed = raw.trim();
+  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    try {
+      const decoded = JSON.parse(trimmed) as unknown;
+      if (typeof decoded === 'string') return decoded;
+    } catch {
+      // Not a valid JSON string — fall through and treat literally.
+    }
+  }
+  return trimmed;
+}
+
 /** Parse a YAML-like tags array: `[a, b, c]` → `['a', 'b', 'c']`. */
 function parseTagsArray(raw: string): string[] {
   const trimmed = raw.trim();
   if (!trimmed.startsWith('[') || !trimmed.endsWith(']')) {
-    return trimmed ? [trimmed] : [];
+    return trimmed ? [decodeScalar(trimmed)] : [];
   }
   const inner = trimmed.slice(1, -1);
-  return inner
-    .split(',')
-    .map((t) => t.trim())
+  return splitTopLevel(inner)
+    .map((t) => decodeScalar(t))
     .filter((t) => t.length > 0);
+}
+
+/**
+ * Split a tags-array body on top-level commas, respecting JSON-quoted elements
+ * so a comma inside a quoted tag does not split it. Falls back to naive
+ * comma-splitting for any malformed input.
+ */
+function splitTopLevel(inner: string): string[] {
+  const parts: string[] = [];
+  let buf = '';
+  let inQuote = false;
+  let escaped = false;
+  for (const ch of inner) {
+    if (inQuote) {
+      buf += ch;
+      if (escaped) {
+        escaped = false;
+      } else if (ch === '\\') {
+        escaped = true;
+      } else if (ch === '"') {
+        inQuote = false;
+      }
+      continue;
+    }
+    if (ch === '"') {
+      inQuote = true;
+      buf += ch;
+    } else if (ch === ',') {
+      parts.push(buf);
+      buf = '';
+    } else {
+      buf += ch;
+    }
+  }
+  parts.push(buf);
+  return parts.map((p) => p.trim()).filter((p) => p.length > 0);
 }
 
 /** Parse a single frontmatter block (lines between `---` markers). */
@@ -41,7 +99,7 @@ function parseFrontmatterBlock(fmText: string): Record<string, FrontmatterValue>
     if (key === 'tags') {
       result[key] = parseTagsArray(value);
     } else {
-      result[key] = value;
+      result[key] = decodeScalar(value);
     }
   }
   return result;
