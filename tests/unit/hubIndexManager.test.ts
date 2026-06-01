@@ -51,6 +51,7 @@ describe('HubIndexManager', () => {
     mockFetch.mockRejectedValue(new Error('no network'));
     // Reset singleton state so each test starts fresh
     (hubIndexManager as any)['mergedIndex'] = {};
+    (hubIndexManager as any)['trustedNames'] = new Set<string>();
     (hubIndexManager as any)['localLoaded'] = false;
     (hubIndexManager as any)['remoteLoaded'] = false;
   });
@@ -131,6 +132,96 @@ describe('HubIndexManager', () => {
 
       await hubIndexManager.loadIndexes();
       expect(hubIndexManager.getExtension('bundled-ext')?.bundled).toBe(true);
+    });
+  });
+
+  // RT-B4-03 (HIGH): the integrity hash used to verify a downloaded archive
+  // (dist.integrity, consumed by HubInstaller.verifyIntegrity) must NOT be
+  // sourced from the untrusted remote index for an extension that also exists
+  // in the TRUSTED bundled/local index (which ships inside the code-signed app
+  // bundle). A compromised/MITM'd mirror could otherwise serve a matching
+  // {integrity, archive} pair, pass verification, and run onInstall with full
+  // Node privileges. The local dist block is pinned on name conflict.
+  describe('integrity source pinning (RT-B4-03)', () => {
+    const TRUSTED_INTEGRITY = 'sha512-TRUSTEDLOCALHASHFROMCODESIGNEDBUNDLE==';
+    const ATTACKER_INTEGRITY = 'sha512-ATTACKERSUBSTITUTEDHASHFROMEVILMIRROR==';
+
+    it('uses the trusted local integrity when remote substitutes a different hash for a known extension', async () => {
+      const localExt = makeExt({
+        name: 'ext-claude-code',
+        dist: { tarball: 'extensions/ext-claude-code.zip', integrity: TRUSTED_INTEGRITY, unpackedSize: 100 },
+      });
+      // Compromised mirror serves the same name with a matching {integrity,
+      // archive} pair for its malicious payload.
+      const remoteExt = makeExt({
+        name: 'ext-claude-code',
+        dist: { tarball: 'extensions/evil.zip', integrity: ATTACKER_INTEGRITY, unpackedSize: 100 },
+      });
+
+      const localIndex = { schemaVersion: 1, generatedAt: '', extensions: { 'ext-claude-code': localExt } };
+      const remoteIndex = { schemaVersion: 1, generatedAt: '', extensions: { 'ext-claude-code': remoteExt } };
+
+      mockExistsSync.mockImplementation((p: string) => p.includes('index.json'));
+      mockReadFileSync.mockReturnValue(JSON.stringify(localIndex));
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => remoteIndex });
+
+      await hubIndexManager.loadIndexes();
+
+      const ext = hubIndexManager.getExtension('ext-claude-code');
+      // The integrity-bearing dist block stays pinned to the trusted local value.
+      expect(ext?.dist.integrity).toBe(TRUSTED_INTEGRITY);
+      expect(ext?.dist.tarball).toBe('extensions/ext-claude-code.zip');
+      expect(ext?.dist.integrity).not.toBe(ATTACKER_INTEGRITY);
+    });
+
+    it('lets remote refresh display metadata while still pinning the trusted dist', async () => {
+      const localExt = makeExt({
+        name: 'ext-claude-code',
+        dist: { tarball: 'extensions/ext-claude-code.zip', integrity: TRUSTED_INTEGRITY, unpackedSize: 100 },
+      });
+      const remoteExt = makeExt({
+        name: 'ext-claude-code',
+        description: 'updated remote description',
+        version: '9.9.9',
+        dist: { tarball: 'extensions/evil.zip', integrity: ATTACKER_INTEGRITY, unpackedSize: 100 },
+      });
+
+      const localIndex = { schemaVersion: 1, generatedAt: '', extensions: { 'ext-claude-code': localExt } };
+      const remoteIndex = { schemaVersion: 1, generatedAt: '', extensions: { 'ext-claude-code': remoteExt } };
+
+      mockExistsSync.mockImplementation((p: string) => p.includes('index.json'));
+      mockReadFileSync.mockReturnValue(JSON.stringify(localIndex));
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => remoteIndex });
+
+      await hubIndexManager.loadIndexes();
+
+      const ext = hubIndexManager.getExtension('ext-claude-code');
+      // Non-security metadata may be refreshed from remote...
+      expect(ext?.description).toBe('updated remote description');
+      expect(ext?.version).toBe('9.9.9');
+      // ...but the integrity source remains pinned to the trusted local value.
+      expect(ext?.dist.integrity).toBe(TRUSTED_INTEGRITY);
+      expect(ext?.dist.tarball).toBe('extensions/ext-claude-code.zip');
+    });
+
+    it('leaves legitimate remote-only extensions unchanged (no trusted entry to pin)', async () => {
+      const remoteOnly = makeExt({
+        name: 'community-ext',
+        dist: { tarball: 'extensions/community-ext.zip', integrity: ATTACKER_INTEGRITY, unpackedSize: 100 },
+      });
+      const remoteIndex = { schemaVersion: 1, generatedAt: '', extensions: { 'community-ext': remoteOnly } };
+
+      // No local index.json on disk -> no trusted names.
+      mockExistsSync.mockReturnValue(false);
+      mockFetch.mockResolvedValueOnce({ ok: true, json: async () => remoteIndex });
+
+      await hubIndexManager.loadIndexes();
+
+      const ext = hubIndexManager.getExtension('community-ext');
+      // Remote-only: its remote dist is used as-is. The override attack only
+      // applies to KNOWN names; verifyIntegrity still hard-fails a missing or
+      // malformed hash at install time for remote downloads.
+      expect(ext?.dist.integrity).toBe(ATTACKER_INTEGRITY);
     });
   });
 });

@@ -4,15 +4,24 @@
  * Resolution order:
  *  0. Pre-placed local binary (a local source build copied into the bundle dir,
  *     or — once wayland-core ships on npm — a binary resolved from node_modules).
- *     Kept as-is, never wiped or re-downloaded. Release/CI builds skip this and
- *     require a verified download unless WCORE_USE_LOCAL=1.
+ *     DEV/LOCAL builds keep it as-is, never wiped or re-downloaded, with NO
+ *     shasum requirement (no published release with real hashes yet). On a
+ *     RELEASE/CI build a pre-placed binary is only trusted if its SHA-256
+ *     verifies against bundled-wcore-shasums.json — otherwise the build falls
+ *     through to the download+verify path. A release build NEVER bundles an
+ *     unverified binary, regardless of the WCORE_* trust/bypass env vars.
  *  1. GitHub release download (requires WCORE_VERSION or defaults to "latest"),
  *     SHA-256 verified before extract/copy/execute.
  *
  * Output: resources/bundled-wayland-core/{platform}-{arch}/wayland-core[.exe]
  *
- * Env: WCORE_USE_LOCAL=1 trust a pre-placed binary even on release builds;
- *      WCORE_FORCE_DOWNLOAD=1 always re-download (ignore a pre-placed binary).
+ * Env (DEV ONLY — IGNORED for skipping verification on release/CI builds):
+ *      WCORE_USE_LOCAL=1      trust a pre-placed binary on a dev build;
+ *      WCORE_FORCE_DOWNLOAD=1 always re-download (ignore a pre-placed binary);
+ *      WCORE_ALLOW_UNVERIFIED=1 (historical) does NOT downgrade a release build.
+ *   On a release/CI build these never bypass SHA-256 verification — the build
+ *   either verifies a present local binary or downloads-and-verifies, else fails
+ *   closed.
  *
  * Pattern follows prepareBundledBun.js.
  */
@@ -23,8 +32,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const GITHUB_OWNER = "TradeCanyon";
-const GITHUB_REPO = "wayland-core";
+const GITHUB_OWNER = 'TradeCanyon';
+const GITHUB_REPO = 'wayland-core';
 
 // Authoritative per-platform SHA-256 manifest for the downloaded release
 // archives. Supply-chain guard (UPD-03): every release build must fetch the
@@ -77,20 +86,34 @@ function readJsonSafe(filePath) {
 }
 
 /**
- * Release builds must fail closed when the engine archive cannot be verified
- * (missing/placeholder hash, download failure). Local/dev builds keep the
- * lenient skip-manifest behaviour so a forked checkout without published
- * release assets can still iterate. Set WCORE_ALLOW_UNVERIFIED=1 to force the
- * lenient path even in CI (escape hatch for bootstrapping a brand-new tag).
+ * Detect a release/CI build. When true the supply-chain guard is mandatory:
+ * every bundled engine binary MUST have a verified SHA-256, and the WCORE_*
+ * trust/bypass env vars are IGNORED for the purpose of skipping verification.
+ *
+ * Signals (any one is sufficient):
+ *  - process.env.CI                  — standard CI marker (GitHub Actions etc.)
+ *  - process.env.npm_config_production / NODE_ENV=production — prod install/build
+ *  - electron-builder release context — set by electron-builder during a build
+ *    (npm_lifecycle_event starts with dist/build/make/package, or a publish run).
+ *  - WCORE_REQUIRE_VERIFIED=1         — explicit opt-in to the strict path.
+ *
+ * IMPORTANT (RT-B6-06): WCORE_ALLOW_UNVERIFIED must NOT be able to flip this to
+ * false. A genuine release/CI build stays a release build regardless of that
+ * env var, so it can never downgrade itself into trusting an unverified binary.
  */
 function isReleaseBuild() {
-  if (process.env.WCORE_ALLOW_UNVERIFIED === '1') return false;
+  const lifecycle = (process.env.npm_lifecycle_event || '').toLowerCase();
+  const builderRelease =
+    /^(dist|build|make|package)/.test(lifecycle) ||
+    process.env.EP_PRE_RELEASE === 'true' ||
+    process.env.PUBLISH_FOR_PULL_REQUEST === 'true';
   return (
     process.env.CI === '1' ||
     process.env.CI === 'true' ||
     process.env.WCORE_REQUIRE_VERIFIED === '1' ||
     process.env.NODE_ENV === 'production' ||
-    process.env.npm_config_production === 'true'
+    process.env.npm_config_production === 'true' ||
+    builderRelease
   );
 }
 
@@ -119,12 +142,13 @@ function loadExpectedShaForAsset(tag, assetName) {
 
   const raw = tagEntry[assetName];
   if (!raw || typeof raw !== 'string') {
-    throw new Error(
-      `No SHA-256 entry for asset "${assetName}" under tag "${tag}" in ${SHASUMS_FILE}.`
-    );
+    throw new Error(`No SHA-256 entry for asset "${assetName}" under tag "${tag}" in ${SHASUMS_FILE}.`);
   }
 
-  const hex = raw.replace(/^sha256:/i, '').trim().toLowerCase();
+  const hex = raw
+    .replace(/^sha256:/i, '')
+    .trim()
+    .toLowerCase();
   if (!/^[0-9a-f]{64}$/.test(hex)) {
     throw new Error(
       `Malformed or placeholder SHA-256 for "${assetName}" (tag "${tag}") in ${SHASUMS_FILE}: ${raw}. ` +
@@ -359,7 +383,9 @@ function prepareWaylandCore() {
       skipped: true,
       reason: 'WCORE_SKIP=1 set; runtime will fetch the engine on first launch.',
     });
-    console.log(`  wayland-core skip requested (WCORE_SKIP=1); wrote skip manifest at resources/bundled-wayland-core/${runtimeKey}/manifest.json`);
+    console.log(
+      `  wayland-core skip requested (WCORE_SKIP=1); wrote skip manifest at resources/bundled-wayland-core/${runtimeKey}/manifest.json`
+    );
     return { prepared: false, reason: 'env_skip' };
   }
 
@@ -368,38 +394,97 @@ function prepareWaylandCore() {
   //    ships on npm — a binary resolved from node_modules into this dir), keep
   //    it instead of wiping and re-downloading. Prevents destroying a
   //    hand-placed binary when no release asset exists, and supports the
-  //    build-and-copy workflow. Release/CI builds still require a verified
-  //    download UNLESS WCORE_USE_LOCAL=1 explicitly trusts the local artifact.
-  //    WCORE_FORCE_DOWNLOAD=1 always ignores a pre-placed binary.
+  //    build-and-copy workflow.
+  //
+  //    DEV/LOCAL (!isReleaseBuild()): trusted as-is, NO shasum requirement.
+  //      WCORE_FORCE_DOWNLOAD=1 still skips it to exercise the download path.
+  //
+  //    RELEASE/CI (isReleaseBuild()): the WCORE_* trust/bypass env vars are
+  //      IGNORED for the purpose of skipping verification (RT-B6-01/02,
+  //      RT-R3-02). A pre-placed binary is trusted ONLY if its SHA-256 matches
+  //      bundled-wcore-shasums.json for the pinned tag's archive. On
+  //      PENDING/missing/mismatch we DO NOT bundle it — we fall through to the
+  //      download+verify path (which itself fails closed for a release build).
   {
     const localTargetDir = path.join(projectRoot, 'resources', 'bundled-wayland-core', runtimeKey);
     const localBinaryName = getBinaryName(platform);
     const preplaced = path.join(localTargetDir, localBinaryName);
     const hasPreplaced = fs.existsSync(preplaced) && fs.statSync(preplaced).isFile();
     const forceDownload = process.env.WCORE_FORCE_DOWNLOAD === '1';
-    const useLocal = process.env.WCORE_USE_LOCAL === '1';
-    if (hasPreplaced && !forceDownload && (!isReleaseBuild() || useLocal)) {
+    const releaseBuild = isReleaseBuild();
+
+    // Does this pre-placed binary's SHA-256 match the pinned release archive's
+    // checksum? Note: the manifest pins the *archive* (.tar.gz/.zip) hash, not
+    // the extracted binary hash, so a bare pre-placed binary can only be
+    // verified once a manifest carries a real binary checksum. Until then a
+    // release build's local artifact is treated as UNVERIFIABLE and is never
+    // bundled — it falls through to download+verify (which fails closed on
+    // PENDING). This is the fail-closed posture the findings require.
+    function localBinaryVerifies() {
+      if (!hasPreplaced) return false;
+      let resolvedTag;
+      try {
+        resolvedTag = version === 'latest' ? resolveLatestTag() : version.startsWith('v') ? version : `v${version}`;
+      } catch {
+        return false;
+      }
+      if (!resolvedTag) return false;
+      const assetName = getAssetName(platform, arch, resolvedTag);
+      if (!assetName) return false;
+      let expectedHex;
+      try {
+        // Throws on missing manifest / missing entry / PENDING placeholder.
+        expectedHex = loadExpectedShaForAsset(resolvedTag, assetName);
+      } catch {
+        return false;
+      }
+      const actualHex = computeFileSha256(preplaced);
+      return actualHex === expectedHex;
+    }
+
+    const devTrustLocal = !releaseBuild && hasPreplaced && !forceDownload;
+    const releaseTrustLocal = releaseBuild && !forceDownload && localBinaryVerifies();
+
+    if (devTrustLocal || releaseTrustLocal) {
       ensureExecutableMode(preplaced);
-      const sha256 = crypto.createHash('sha256').update(fs.readFileSync(preplaced)).digest('hex');
+      const sha256 = computeFileSha256(preplaced);
       let binaryVersion = version;
       try {
         binaryVersion = execFileSync(preplaced, ['--version'], { encoding: 'utf-8', timeout: 5000 }).trim();
       } catch {}
+      const verified = releaseTrustLocal;
       writeJson(path.join(localTargetDir, 'manifest.json'), {
         platform,
         arch,
         version: binaryVersion,
         generatedAt: new Date().toISOString(),
         sourceType: 'local-prebuilt',
-        source: { note: 'Pre-placed binary kept as-is (build-and-copy or npm-resolved); not re-downloaded. WCORE_FORCE_DOWNLOAD=1 to override.' },
+        source: {
+          note: verified
+            ? 'Pre-placed binary verified against bundled-wcore-shasums.json; not re-downloaded.'
+            : 'Pre-placed binary kept as-is for local/dev build (no shasum requirement). WCORE_FORCE_DOWNLOAD=1 to override.',
+          verified,
+        },
         sha256,
         files: [localBinaryName],
         skipped: false,
       });
       console.log(
-        `  Using pre-placed wayland-core: resources/bundled-wayland-core/${runtimeKey}/${localBinaryName} [source=local-prebuilt sha256=${sha256.slice(0, 12)}...]`
+        `  Using pre-placed wayland-core: resources/bundled-wayland-core/${runtimeKey}/${localBinaryName} ` +
+          `[source=local-prebuilt verified=${verified} sha256=${sha256.slice(0, 12)}...]`
       );
       return { prepared: true, dir: localTargetDir, sourceType: 'local-prebuilt' };
+    }
+
+    if (releaseBuild && hasPreplaced && !forceDownload) {
+      // A pre-placed binary exists but did NOT verify on a release build. Do
+      // not bundle it. Fall through to the download+verify path, which fails
+      // closed (PENDING/missing/mismatch) for release builds.
+      console.warn(
+        `  Release build: pre-placed wayland-core at resources/bundled-wayland-core/${runtimeKey}/${localBinaryName} ` +
+          `is UNVERIFIED against bundled-wcore-shasums.json — refusing to trust it. ` +
+          `Taking the download+verify path instead (WCORE_USE_LOCAL / WCORE_ALLOW_UNVERIFIED do not bypass this).`
+      );
     }
   }
 
@@ -439,6 +524,20 @@ function prepareWaylandCore() {
   const targetBinaryPath = path.join(targetDir, binaryName);
 
   console.log(`Preparing wayland-core for ${runtimeKey} (version: ${tag})`);
+
+  // Fail closed BEFORE any destructive cleanup on a release build: if the
+  // pinned archive has no real checksum (PENDING/missing), abort now so we
+  // neither wipe a pre-placed binary nor download an unverifiable artifact.
+  // This keeps the script non-destructive on a release build that can't be
+  // verified, and guarantees no release path ever bundles an unverified binary.
+  if (isReleaseBuild()) {
+    const assetName = getAssetName(platform, arch, tag);
+    if (!assetName) {
+      throw new Error(`Release build: unsupported wayland-core target ${runtimeKey} (tag ${tag}); cannot verify.`);
+    }
+    // Throws on missing manifest / missing entry / PENDING placeholder.
+    loadExpectedShaForAsset(tag, assetName);
+  }
 
   removeDirectorySafe(targetDir);
   ensureDirectory(targetDir);
@@ -530,3 +629,15 @@ function prepareWaylandCore() {
 }
 
 module.exports = prepareWaylandCore;
+
+// Allow standalone invocation: `node scripts/prepareWaylandCore.js`.
+// build-with-builder.js requires the module and calls the function directly;
+// this runner makes the script independently executable (and testable).
+if (require.main === module) {
+  try {
+    prepareWaylandCore();
+  } catch (error) {
+    console.error(`prepareWaylandCore failed: ${error.message}`);
+    process.exit(1);
+  }
+}

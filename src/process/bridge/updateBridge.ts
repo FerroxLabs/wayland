@@ -194,10 +194,22 @@ export const pickRecommendedAsset = (
   return scored[0]?.asset;
 };
 
-const resolveRepo = (requestRepo?: string): string => {
-  const envRepo = process.env.WAYLAND_GITHUB_REPO?.trim();
-  const repo = (requestRepo || envRepo || DEFAULT_REPO).trim();
-  return repo || DEFAULT_REPO;
+/**
+ * RT-B6-04: The repo that supplies update metadata + integrity-verification
+ * hashes MUST be a build-time constant. A renderer-supplied `repo` (or the
+ * `WAYLAND_GITHUB_REPO` env var in a packaged build) would let an attacker
+ * redirect the VERIFICATION SOURCE at `attacker/fake-wayland` and serve a
+ * matching SHA-512, defeating the integrity check entirely. So the renderer
+ * override is ignored outright, and the env override is honored ONLY in
+ * unpackaged (dev) builds to support forks/staging. Packaged production builds
+ * always update from the canonical repo.
+ */
+const resolveRepo = (): string => {
+  if (!app.isPackaged) {
+    const envRepo = process.env.WAYLAND_GITHUB_REPO?.trim();
+    if (envRepo) return envRepo;
+  }
+  return DEFAULT_REPO;
 };
 
 const assertAllowedUrl = async (rawUrl: string) => {
@@ -701,7 +713,7 @@ export function initUpdateBridge(): void {
   ipcBridge.update.check.provider(
     async (params): Promise<{ success: boolean; data?: UpdateCheckResult; msg?: string }> => {
       try {
-        const repo = resolveRepo(params?.repo);
+        const repo = resolveRepo();
         const includePrerelease = Boolean(params?.includePrerelease);
         const currentVersion = app.getVersion();
 
@@ -781,7 +793,7 @@ export function initUpdateBridge(): void {
         // real release filename, NOT the (possibly de-duplicated) on-disk name.
         const assetName = params.fileName || urlName;
         const integrity: IntegrityContext = {
-          repo: resolveRepo(params.repo),
+          repo: resolveRepo(),
           tagName: params.tagName,
           assetName,
         };

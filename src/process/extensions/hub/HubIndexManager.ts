@@ -24,6 +24,14 @@ import {
  */
 class HubIndexManagerImpl {
   private mergedIndex: Record<string, IHubExtension> = {};
+  /**
+   * Names that came from the bundled/trusted local index. The local index ships
+   * inside the code-signed app bundle, so its `dist` block (tarball + integrity)
+   * is authentic. The remote index — fetched over the network from a mirror an
+   * attacker can MITM or compromise — must NOT be allowed to substitute the
+   * integrity source for any extension that also exists here. See `loadIndexes`.
+   */
+  private trustedNames = new Set<string>();
   private localLoaded = false;
   private remoteLoaded = false;
 
@@ -34,23 +42,42 @@ class HubIndexManagerImpl {
    * will automatically retry.
    */
   public async loadIndexes(): Promise<void> {
-    // Step 1: Local index — load once
+    // Step 1: Local index — load once. This is the TRUSTED source: it ships
+    // inside the code-signed app bundle, so its `dist.integrity` is authentic.
     if (!this.localLoaded) {
       const localIndex = this.fetchLocalIndex();
       for (const [name, ext] of Object.entries(localIndex)) {
         this.mergedIndex[name] = ext;
+        this.trustedNames.add(name);
       }
       this.localLoaded = true;
     }
 
-    // Step 2: Remote index — retry until success
+    // Step 2: Remote index — retry until success.
+    //
+    // SECURITY (RT-B4-03): the remote index is fetched over the network from a
+    // mirror that an attacker can MITM or compromise. The integrity hash used to
+    // verify a downloaded archive (`dist.integrity`, consumed by
+    // HubInstaller.verifyIntegrity) must therefore NOT be sourced from the remote
+    // index for any extension that also exists in the trusted local index — a
+    // compromised mirror could otherwise serve a matching {integrity, archive}
+    // pair and pass verification. For trusted names we PIN the entire `dist`
+    // block (tarball + integrity) to the local value; remote may still refresh
+    // non-security display metadata. Remote-only extensions are unaffected and
+    // install normally.
     if (!this.remoteLoaded) {
       const remoteIndex = await this.fetchRemoteIndex();
 
       if (Object.keys(remoteIndex).length > 0) {
-        // Merge: remote WINS on name conflict
         for (const [name, ext] of Object.entries(remoteIndex)) {
-          this.mergedIndex[name] = ext;
+          const trusted = this.trustedNames.has(name) ? this.mergedIndex[name] : undefined;
+          if (trusted) {
+            // Keep the remote metadata but force the integrity-bearing `dist`
+            // block back to the trusted, code-signed local value.
+            this.mergedIndex[name] = { ...ext, dist: trusted.dist };
+          } else {
+            this.mergedIndex[name] = ext;
+          }
         }
         this.remoteLoaded = true;
       }
