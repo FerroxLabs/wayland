@@ -1610,6 +1610,26 @@ export type IModelRegistryResolveForChatStartResult =
   | { ok: true; provider: IModelRegistryChatStartPayload }
   | { ok: false; error: 'not-connected' | 'undecryptable' | 'unsupported' | 'unknown' };
 
+/**
+ * Summary of a global `refreshAll` run. `succeeded` / `failed` carry provider
+ * ids; `added` carries the genuinely-new models a refresh surfaced (diffed from
+ * each provider's catalog before/after). `lastRefreshedAt` is the success-only
+ * freshness timestamp (epoch ms) — `null` when no provider succeeded.
+ */
+export type IModelRegistryRefreshSummary = {
+  ok: boolean;
+  succeeded: string[];
+  failed: string[];
+  added: { providerId: string; modelId: string; displayName: string }[];
+  lastRefreshedAt: number | null;
+};
+
+/** Live freshness state for the Models settings header / scheduler. */
+export type IModelRegistryRefreshState = {
+  lastRefreshedAt: number | null;
+  refreshing: boolean;
+};
+
 export const modelRegistry = {
   // Auto-discover provider keys from the environment / credential stores.
   detectKeys: buildProvider<IModelRegistryDetectedKey[], void>('modelRegistry.detectKeys'),
@@ -1647,6 +1667,16 @@ export const modelRegistry = {
     IModelRegistryResolveForChatStartResult,
     { providerId: ProviderId; modelId: string }
   >('modelRegistry.resolveForChatStart'),
+  // Re-fetch + re-enrich every connected provider once; success-gated freshness stamp.
+  refreshAll: buildProvider<IModelRegistryRefreshSummary, { reason?: 'manual' }>('modelRegistry.refreshAll'),
+  // Current freshness + in-flight state for the Models settings header.
+  getRefreshState: buildProvider<IModelRegistryRefreshState, void>('modelRegistry.getRefreshState'),
+  // The auto-refresh toggle (persisted `models.autoRefresh`, default on).
+  getAutoRefresh: buildProvider<boolean, void>('modelRegistry.getAutoRefresh'),
+  setAutoRefresh: buildProvider<{ ok: boolean }, { value: boolean }>('modelRegistry.setAutoRefresh'),
+  // Emitted once after every successful refreshAll / manual per-provider refresh
+  // so an open picker / the Models page can re-fetch curated views live.
+  listChanged: buildEmitter<void>('modelRegistry.list-changed'),
 };
 
 // Team Mode API

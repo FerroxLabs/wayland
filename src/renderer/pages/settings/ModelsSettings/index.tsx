@@ -1,11 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Spin } from '@arco-design/web-react';
+import { Button, Message, Spin, Switch } from '@arco-design/web-react';
+import { RefreshCw as RefreshIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { IModelRegistryDetectedKey, IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
+import type {
+  IModelRegistryDetectedKey,
+  IModelRegistryProviderView,
+  IModelRegistryRefreshSummary,
+} from '@/common/adapter/ipcBridge';
+import { ipcBridge } from '@/common';
 import type { ProviderId } from '@process/providers/types';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import SettingsPageWrapper from '@renderer/pages/settings/components/SettingsPageWrapper';
-import { ModelRegistryProvider, useModelRegistry } from '@renderer/hooks/useModelRegistry';
+import { ModelRegistryProvider, useModelRegistry, useRefreshState } from '@renderer/hooks/useModelRegistry';
 import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
@@ -19,6 +25,46 @@ import styles from './ModelsSettings.module.css';
 /** Stable identity for a detected key (provider + source). */
 function detectedKeyId(dk: IModelRegistryDetectedKey): string {
   return `${dk.providerId}:${dk.source}`;
+}
+
+/**
+ * Build the "updated Xh ago" / "Never" freshness label from the success-only
+ * `lastRefreshedAt` epoch-ms timestamp. Sub-hour ages floor to "0h ago" so the
+ * label stays a whole-hours summary (the scheduler cadence is 24h, not minutes).
+ */
+function freshnessLabel(t: ReturnType<typeof useTranslation>['t'], lastRefreshedAt: number | null): string {
+  if (lastRefreshedAt == null) return t('settings.modelsPage.refresh.never');
+  const hours = Math.max(0, Math.floor((Date.now() - lastRefreshedAt) / 3_600_000));
+  return t('settings.modelsPage.refresh.updatedAgo', { hours });
+}
+
+/**
+ * New-model toast (SPEC §4.4). Shows up to 3 humanized names + "and N more".
+ * Names come from the summary's `added[].displayName` (already diffed + deduped
+ * against `announcedModelIds` by the main process). Suppressed entirely on a
+ * first-populate run — when `lastRefreshedAt` was `null` *before* this refresh,
+ * every model is "new" and announcing them would be noise. No em-dash (repo
+ * ship-gate): the separator is "·".
+ */
+function showNewModelsToast(
+  t: ReturnType<typeof useTranslation>['t'],
+  summary: IModelRegistryRefreshSummary,
+  hadPriorRefresh: boolean
+): void {
+  if (!hadPriorRefresh) return; // first-populate — never announce
+  const added = summary.added ?? [];
+  if (added.length === 0) return;
+
+  const names = added.map((a) => a.displayName);
+  const SHOWN = 3;
+  const shown = names.slice(0, SHOWN);
+  const remaining = names.length - shown.length;
+  // Join the shown names with a "·" separator; when some are elided, append the
+  // "and N more" fragment as the final segment.
+  const namesText =
+    remaining > 0 ? [...shown, t('models.toast.andMore', { count: remaining })].join(' · ') : shown.join(' · ');
+
+  Message.info(t('models.toast.newModels', { count: added.length, names: namesText }));
 }
 
 /**
@@ -48,7 +94,67 @@ export function getPendingDeepLinkSeed(): { apiKey?: string; baseUrl?: string } 
  */
 const ModelsSettingsInner: React.FC = () => {
   const { t } = useTranslation();
-  const { providers, loading, error, connect, detectKeys } = useModelRegistry();
+  const { providers, loading, error, connect, detectKeys, refreshAll } = useModelRegistry();
+  const refreshState = useRefreshState();
+
+  // Local in-flight flag for the header button (the click owns the spinner;
+  // the scheduler-driven `refreshState.refreshing` covers background runs).
+  const [refreshingNow, setRefreshingNow] = useState(false);
+
+  // ── Auto-refresh master switch (models.autoRefresh, default on) ──────────
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefreshLoading, setAutoRefreshLoading] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await ipcBridge.modelRegistry.getAutoRefresh.invoke();
+        // Default to `on` when the value is unset or the read fails.
+        if (!cancelled) setAutoRefresh(res ?? true);
+      } catch {
+        if (!cancelled) setAutoRefresh(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleAutoRefreshChange = useCallback(
+    async (enabled: boolean) => {
+      // Optimistic flip — revert on failure.
+      setAutoRefresh(enabled);
+      setAutoRefreshLoading(true);
+      try {
+        const res = await ipcBridge.modelRegistry.setAutoRefresh.invoke({ value: enabled });
+        if (!res?.ok) throw new Error('setAutoRefresh failed');
+      } catch {
+        setAutoRefresh(!enabled);
+        Message.error(t('settings.modelsPage.autoRefresh.saveFailed'));
+      } finally {
+        setAutoRefreshLoading(false);
+      }
+    },
+    [t]
+  );
+
+  // ── Global "Refresh models" handler ──────────────────────────────────────
+  // Capture the prior freshness so the toast can suppress on first-populate.
+  const handleRefreshAll = useCallback(async () => {
+    const hadPriorRefresh = refreshState.lastRefreshedAt != null;
+    setRefreshingNow(true);
+    try {
+      const summary = await refreshAll();
+      showNewModelsToast(t, summary, hadPriorRefresh);
+    } catch {
+      Message.error(t('settings.modelsPage.refresh.failed'));
+    } finally {
+      setRefreshingNow(false);
+    }
+  }, [refreshAll, refreshState.lastRefreshedAt, t]);
+
+  const refreshing = refreshingNow || refreshState.refreshing;
+  const noProviders = providers.length === 0;
 
   const [detectedKeys, setDetectedKeys] = useState<IModelRegistryDetectedKey[]>([]);
   const [ignoredKeys, setIgnoredKeys] = useState<Set<string>>(new Set());
@@ -244,11 +350,29 @@ const ModelsSettingsInner: React.FC = () => {
     );
   }
 
+  const headerActions = (
+    <div className='flex items-center gap-12px'>
+      <span className='text-12px text-t-tertiary whitespace-nowrap'>
+        {refreshing ? t('settings.modelsPage.refresh.refreshing') : freshnessLabel(t, refreshState.lastRefreshedAt)}
+      </span>
+      <Button
+        size='small'
+        icon={<RefreshIcon size={14} aria-hidden='true' />}
+        loading={refreshing}
+        disabled={noProviders}
+        onClick={() => void handleRefreshAll()}
+      >
+        {t('settings.modelsPage.refresh.button')}
+      </Button>
+    </div>
+  );
+
   return (
     <SettingsPageShell
       title={t('settings.modelsPage.title')}
       subtitle={t('settings.modelsPage.subtitle')}
       breadcrumb={[{ label: t('settings.modelsPage.crumbAiModels') }, { label: t('settings.modelsPage.title') }]}
+      actions={headerActions}
     >
       <FluxRouterHero connected={fluxConnected} onConnectKey={connectFluxKey} />
 
@@ -284,6 +408,18 @@ const ModelsSettingsInner: React.FC = () => {
           ))}
         </div>
       )}
+
+      <div className='flex items-center justify-between gap-16px pt-8px'>
+        <div className='flex flex-col gap-2px min-w-0'>
+          <span className='text-13px text-t-primary'>{t('settings.modelsPage.autoRefresh.label')}</span>
+          <span className='text-12px text-t-tertiary'>{t('settings.modelsPage.autoRefresh.hint')}</span>
+        </div>
+        <Switch
+          checked={autoRefresh}
+          loading={autoRefreshLoading}
+          onChange={(checked) => void handleAutoRefreshChange(checked)}
+        />
+      </div>
 
       <BrowseModal visible={browseOpen} onClose={handleBrowseClose} initialProvider={browseInitialProvider} />
     </SettingsPageShell>

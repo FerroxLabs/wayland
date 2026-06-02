@@ -201,7 +201,7 @@ const isExperimentalCurated = (m: CuratedModel): boolean =>
  * and label untouched rather than surface a preview they never chose. This is
  * the guard that stops the picker booting to "Antigravity Preview".
  */
-const firstSafeCuratedModel = (list: CuratedModel[]): CuratedModel | undefined =>
+export const firstSafeCuratedModel = (list: CuratedModel[]): CuratedModel | undefined =>
   list.find((m) => m.recommended && m.enabled && !isExperimentalCurated(m)) ??
   list.find((m) => m.enabled && !isExperimentalCurated(m)) ??
   list.find((m) => !isExperimentalCurated(m));
@@ -218,7 +218,7 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { curatedForAgent } = useModelRegistry();
+  const { curatedForAgent, registryVersion } = useModelRegistry();
   const recordTelemetry = useUsageTelemetry();
   const defaultModelLabel = t('common.defaultModel');
 
@@ -235,23 +235,31 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   }, [agentKey, t]);
 
   // ── Curated set, scoped to the selected agent ────────────────────────────
-  // Re-fetched whenever the agent changes (`agentKey` in the deps). May
-  // resolve to `[]` for a non-enumerable CLI whose provider isn't connected.
+  // Re-fetched whenever the agent changes (`agentKey` in the deps) AND whenever
+  // the registry's `listChanged` invalidation counter advances — a background /
+  // manual `refreshAll` lands a new catalog, so an already-open picker updates
+  // live (SPEC §4.4). May resolve to `[]` for a non-enumerable CLI whose
+  // provider isn't connected.
   const [curated, setCurated] = React.useState<CuratedModel[] | undefined>(undefined);
+  // Only blank the panel back to its loading state when the *agent* changes; a
+  // `listChanged`-triggered re-fetch keeps the current list on screen until the
+  // new one resolves so the open dropdown doesn't flash empty mid-refresh.
+  React.useEffect(() => {
+    setCurated(undefined);
+  }, [agentKey]);
   React.useEffect(() => {
     let cancelled = false;
-    setCurated(undefined);
     curatedForAgent(agentKey)
       .then((models) => {
         if (!cancelled) setCurated(models);
       })
       .catch(() => {
-        if (!cancelled) setCurated([]);
+        if (!cancelled) setCurated((prev) => prev ?? []);
       });
     return () => {
       cancelled = true;
     };
-  }, [agentKey, curatedForAgent]);
+  }, [agentKey, curatedForAgent, registryVersion]);
 
   // Resolve the currently-selected curated model so its row is highlighted
   // and its label shown on the button.
@@ -385,30 +393,59 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // no curated yet (still loading), curated empty (no recommendation), or
   // no pinned selection at all.
   const fallbackFiredRef = React.useRef<string | null>(null);
+  // Tracks whether the currently-selected key was present in the *previously
+  // resolved* curated set, keyed by `${agentKey}:${selectedCuratedKey}`. This
+  // is the no-flip guard's memory: a key that existed before a refresh and is
+  // momentarily absent after one is a refresh artifact (re-flag / re-order /
+  // mid-fetch), NOT a genuine drop, so the silent re-pin must not fire.
+  const previouslyPresentRef = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (!isGeminiMode) return;
     if (!curated || curated.length === 0) return;
     if (!selectedCuratedKey) return;
+    const presenceKey = `${agentKey}:${selectedCuratedKey}`;
     const stillAvailable = curated.some(
       (m) => `${m.providerId}:${m.id}` === selectedCuratedKey || m.id === selectedCuratedKey
     );
-    if (stillAvailable) return;
-    // The pin may be a real, configured model that simply isn't in THIS agent's
-    // curated subset (e.g. a user-set `wcore.defaultModel = gpt-5.5`). That is
-    // not a dropped pin — keep the user's deliberate choice rather than repair
-    // it onto a curated model. Only genuinely-missing models fall through.
+    if (stillAvailable) {
+      // Record that this (agent, selection) pair is currently selectable so a
+      // later refresh that transiently drops it is recognized as an artifact.
+      previouslyPresentRef.current = presenceKey;
+      return;
+    }
+    // NO-FLIP GUARD (SPEC §4.4 + §6): the selected model is absent from the
+    // curated set. `curatedForAgent` returns the FULL per-agent catalog (every
+    // persisted model, not just the recommended subset), so a true absence
+    // means the model id is genuinely gone. But a background `refreshAll`
+    // re-assembles that catalog, and we must NEVER silently change the user's
+    // selection as a *reaction* to a refresh. If this exact (agent, selection)
+    // pair was present before — i.e. the user could select it earlier this
+    // session — treat its post-refresh absence as a refresh artifact and do
+    // NOT re-pin. The fallback then only ever fires for a selection that was
+    // never selectable for this agent (a genuinely-dropped / never-present id,
+    // e.g. an old pin migrated in from a deleted model), which is the original
+    // intent of this effect.
+    if (previouslyPresentRef.current === presenceKey) return;
+    // The pin may also be a real, configured model that simply isn't in THIS
+    // agent's curated subset (e.g. a user-set `wcore.defaultModel = gpt-5.5`).
+    // That is a deliberate choice, not a dropped pin — keep it rather than
+    // repair onto a curated model. Only genuinely-missing models fall through.
     if (currentModel?.useModel && modelList.some((p) => p.model?.includes(currentModel.useModel))) return;
     // Guard against re-firing on every render. Keyed by the pair so a
     // new agent or new pinned-model retries the fallback decision once.
     const guardKey = `${agentKey}:${selectedCuratedKey}`;
     if (fallbackFiredRef.current === guardKey) return;
     fallbackFiredRef.current = guardKey;
-    // Repair the dropped pin onto the first SAFE curated model (enabled,
-    // non-experimental) — never curated[0], which is now Google's dead
-    // antigravity preview. If every curated entry is a preview, leave the
-    // user's pin untouched rather than silently switch them onto a preview.
-    const safe = firstSafeCuratedModel(curated);
-    if (safe) void handlePickCurated(safe, { silent: true });
+    // silent: this fallback is internal repair. If the chosen provider is
+    // unconfigured, leaving the user on /guid is correct — they may have
+    // selected a preset assistant whose backend will be configured later.
+    // Pick the first recommended/enabled model, never a blind curated[0]: the
+    // list is in provider-model order, so index 0 can be a disabled preview
+    // (e.g. the dead `antigravity-preview-…` Google returns first), which is
+    // what silently re-pinned the home composer to it on every boot.
+    const fallbackModel = firstSafeCuratedModel(curated);
+    if (!fallbackModel) return;
+    void handlePickCurated(fallbackModel, { silent: true });
   }, [agentKey, curated, isGeminiMode, selectedCuratedKey, handlePickCurated, currentModel?.useModel, modelList]);
 
   // Resolve a price tier for an ACP model entry. CLI-agent options use short

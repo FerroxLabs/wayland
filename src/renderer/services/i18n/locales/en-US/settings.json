@@ -1661,6 +1661,18 @@
     "crumbAiModels": "AI Models",
     "connectedLabel": "Connected",
     "loadError": "Couldn't load your connected providers. Try again in a moment.",
+    "refresh": {
+      "button": "Refresh models",
+      "updatedAgo": "Updated {{hours}}h ago",
+      "never": "Never refreshed",
+      "refreshing": "Refreshing…",
+      "failed": "Couldn't refresh your models. Try again in a moment."
+    },
+    "autoRefresh": {
+      "label": "Automatic refresh",
+      "hint": "Check for new models in the background and keep your list current.",
+      "saveFailed": "Couldn't save the automatic refresh setting."
+    },
     "connect": {
       "title": "Connect a provider",
       "keyLabel": "Paste an API key",

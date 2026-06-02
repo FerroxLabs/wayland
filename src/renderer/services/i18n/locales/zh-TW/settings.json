@@ -1231,6 +1231,18 @@
       "badgeFlagship": "旗艦",
       "badgePreview": "預覽",
       "badgeLegacy": "舊版"
+    },
+    "refresh": {
+      "button": "重新整理模型",
+      "updatedAgo": "{{hours}} 小時前更新",
+      "never": "從未重新整理",
+      "refreshing": "正在重新整理…",
+      "failed": "重新整理模型失敗，請稍後再試。"
+    },
+    "autoRefresh": {
+      "label": "自動重新整理",
+      "hint": "在背景檢查新模型，讓清單保持最新。",
+      "saveFailed": "儲存自動重新整理設定失敗。"
     }
   },
   "mcpPage": {

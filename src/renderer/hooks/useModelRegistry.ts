@@ -6,6 +6,8 @@ import type {
   IModelRegistryCreds,
   IModelRegistryDetectedKey,
   IModelRegistryProviderView,
+  IModelRegistryRefreshState,
+  IModelRegistryRefreshSummary,
   IModelRegistryTestResult,
 } from '@/common/adapter/ipcBridge';
 import type { CuratedModel, ProviderId } from '@process/providers/types';
@@ -56,6 +58,21 @@ export type UseModelRegistry = {
   rekey: (providerId: ProviderId, creds: IModelRegistryCreds) => Promise<IModelRegistryConnectResult>;
   /** Curated model list scoped to a CLI agent / backend key. */
   curatedForAgent: (agentKey: string) => Promise<CuratedModel[]>;
+  /**
+   * Re-fetch + re-enrich every connected provider once and return the run
+   * summary (added models, success/failure, freshness stamp). Reloads the
+   * providers list on resolve so the page header / row badges reflect the run.
+   */
+  refreshAll: () => Promise<IModelRegistryRefreshSummary>;
+  /**
+   * Monotonic invalidation counter for registry-derived data. Bumped on every
+   * `modelRegistry.listChanged` event (a global or per-provider refresh landed)
+   * and on every successful `reload()`. Consumers that fetch derived views
+   * imperatively (`curatedForAgent` / `getCatalog`, which are pass-throughs,
+   * not hook-held state) depend on this value so an open picker / catalog view
+   * re-fetches live when a background refresh changes the catalog.
+   */
+  registryVersion: number;
 };
 
 const ModelRegistryContext = createContext<UseModelRegistry | null>(null);
@@ -74,6 +91,9 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
   const [providers, setProviders] = useState<IModelRegistryProviderView[]>([]);
   const [loading, setLoading] = useState(!skipInitialReload);
   const [error, setError] = useState<string | null>(null);
+  // Invalidation counter for registry-derived data — see `registryVersion` in
+  // the {@link UseModelRegistry} contract.
+  const [registryVersion, setRegistryVersion] = useState(0);
 
   // Monotonic request sequence. Concurrent mutations each `await reload()`;
   // `list()` calls can resolve out of order, so a stale snapshot could win.
@@ -90,6 +110,10 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
       if (seq !== reloadSeq.current) return; // a newer reload superseded this one
       if (Array.isArray(list)) {
         setProviders(list);
+        // A fresh providers snapshot can carry new catalogs (a connect / rekey
+        // / refresh landed) — bump the invalidation counter so derived-view
+        // consumers re-fetch.
+        setRegistryVersion((v) => v + 1);
       } else {
         // A non-array response is an IPC error — surface it as `error` and
         // keep the previous providers list intact (don't blank the UI).
@@ -106,6 +130,18 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
   useEffect(() => {
     if (!skipInitialReload) void reload();
   }, [reload, skipInitialReload]);
+
+  // Live invalidation: the main process emits `modelRegistry.listChanged` once
+  // at the end of every successful global `refreshAll` and after a manual
+  // per-provider refresh. Subscribe the same way the renderer subscribes to
+  // `conversation.listChanged` / `team.listChanged` (see useTeamList.ts) and
+  // re-fetch the providers list — `reload()` also bumps `registryVersion`, so
+  // derived-view consumers (curatedForAgent / getCatalog) re-fetch live.
+  useEffect(() => {
+    return modelRegistry.listChanged.on(() => {
+      void reload();
+    });
+  }, [reload]);
 
   const detectKeys = useCallback(() => modelRegistry.detectKeys.invoke(), []);
 
@@ -167,6 +203,16 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
 
   const curatedForAgent = useCallback((agentKey: string) => modelRegistry.curatedForAgent.invoke({ agentKey }), []);
 
+  const refreshAll = useCallback(async () => {
+    const summary = await modelRegistry.refreshAll.invoke({ reason: 'manual' });
+    // Refresh the providers list so per-row badges / model counts reflect the
+    // run. The main process also emits `listChanged`, but awaiting `reload()`
+    // here keeps the click → freshness-label / row update synchronous for the
+    // Models page header.
+    await reload();
+    return summary;
+  }, [reload]);
+
   return useMemo(
     () => ({
       providers,
@@ -182,6 +228,8 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
       disconnect,
       rekey,
       curatedForAgent,
+      refreshAll,
+      registryVersion,
     }),
     [
       providers,
@@ -197,8 +245,39 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
       disconnect,
       rekey,
       curatedForAgent,
+      refreshAll,
+      registryVersion,
     ]
   );
+}
+
+/**
+ * Read the global model-registry refresh state (last success timestamp +
+ * in-flight flag) for the Models settings header. Fetches once on mount and
+ * re-fetches on every `modelRegistry.listChanged` event so the "updated Xh
+ * ago" label and the spinner track background / scheduler-driven refreshes
+ * even when this surface didn't trigger them.
+ */
+export function useRefreshState(): IModelRegistryRefreshState {
+  const [state, setState] = useState<IModelRegistryRefreshState>({ lastRefreshedAt: null, refreshing: false });
+
+  const load = useCallback(async () => {
+    try {
+      const next = await modelRegistry.getRefreshState.invoke();
+      if (next && typeof next === 'object') setState(next);
+    } catch {
+      // Best-effort — a failed read leaves the last-known freshness on screen.
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+    return modelRegistry.listChanged.on(() => {
+      void load();
+    });
+  }, [load]);
+
+  return state;
 }
 
 /**

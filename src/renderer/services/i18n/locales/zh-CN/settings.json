@@ -1230,6 +1230,18 @@
       "badgeFlagship": "旗舰",
       "badgePreview": "预览",
       "badgeLegacy": "旧版"
+    },
+    "refresh": {
+      "button": "刷新模型",
+      "updatedAgo": "{{hours}} 小时前更新",
+      "never": "从未刷新",
+      "refreshing": "正在刷新…",
+      "failed": "刷新模型失败，请稍后重试。"
+    },
+    "autoRefresh": {
+      "label": "自动刷新",
+      "hint": "在后台检查新模型，保持列表最新。",
+      "saveFailed": "保存自动刷新设置失败。"
     }
   },
   "mcpPage": {

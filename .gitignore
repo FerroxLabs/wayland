@@ -218,3 +218,7 @@ design-mockups/
 
 # Quarantine for deleted skills/assistants — never tracked
 .archive/
+
+# IJFW / tooling scratch dirs (local memory, sessions, wiki; never tracked)
+.wayland-core/
+/ijfw/

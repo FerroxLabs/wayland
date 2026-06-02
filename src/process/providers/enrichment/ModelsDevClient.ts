@@ -76,7 +76,11 @@ export class ModelsDevClient {
           return null;
         }
       }
-      const body = await res.text();
+      // A chunked / content-length-less response bypasses the header guard
+      // above, so read the body with a running cap and abort the moment it
+      // exceeds the ceiling — never buffer an unbounded payload via `res.text()`.
+      const body = await readBodyCapped(res, MAX_RESPONSE_BYTES);
+      if (body == null) return null;
       return this.parseAndValidate(body);
     } catch {
       // Network error, timeout/abort, or non-JSON body — fall through.
@@ -144,5 +148,47 @@ export class ModelsDevClient {
     } catch {
       return null;
     }
+  }
+}
+
+// ─── Pure helpers ───────────────────────────────────────────────────────────────
+
+/**
+ * Read a response body as text with a hard byte ceiling, independent of any
+ * declared `content-length`. Streams chunk-by-chunk and bails (returning
+ * `null`) the instant the accumulated size would exceed `maxBytes`. Falls back
+ * to `res.text()` only when the runtime exposes no readable stream.
+ */
+async function readBodyCapped(res: Response, maxBytes: number): Promise<string | null> {
+  const stream = res.body;
+  if (!stream || typeof stream.getReader !== 'function') {
+    // No stream available — fall back to a buffered read, then enforce the cap.
+    const text = await res.text();
+    return Buffer.byteLength(text, 'utf8') > maxBytes ? null : text;
+  }
+
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let out = '';
+  try {
+    for (;;) {
+      // Sequential by nature — each chunk arrives only after the previous read.
+      // oxlint-disable-next-line no-await-in-loop
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) {
+        total += value.byteLength;
+        if (total > maxBytes) {
+          await reader.cancel().catch(() => {});
+          return null;
+        }
+        out += decoder.decode(value, { stream: true });
+      }
+    }
+    out += decoder.decode();
+    return out;
+  } finally {
+    reader.releaseLock();
   }
 }

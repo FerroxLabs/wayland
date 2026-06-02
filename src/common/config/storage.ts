@@ -171,6 +171,24 @@ export interface IConfigStorageRefer {
    * the stored value. Absent the cursor is treated as `0`.
    */
   'migration.modelRegistryCatalogDataVersion'?: number;
+  /**
+   * Epoch-ms timestamp of the last *successful* global model refresh
+   * (`refreshAll`). Advanced only when ≥1 provider succeeded — a total-failure
+   * round leaves it untouched so the "updated Xh ago" label never lies. Absent
+   * before the first successful refresh (rendered as "Never").
+   */
+  'models.lastRefreshedAt'?: number;
+  /**
+   * Model ids already surfaced in a "new models" toast. A genuinely-new id is
+   * announced once, then recorded here so a subsequent refresh never re-announces
+   * the same model.
+   */
+  'models.announcedModelIds'?: string[];
+  /**
+   * Master switch for automatic background model refresh (interval + launch).
+   * Default `true`. The manual "Refresh models" button always works regardless.
+   */
+  'models.autoRefresh'?: boolean;
   // 关闭窗口时最小化到系统托盘 / Minimize to system tray when closing window
   'system.closeToTray'?: boolean;
   // First-run flag: set once after applying smart defaults (close-to-tray on, start-on-boot on).

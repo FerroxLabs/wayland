@@ -1231,6 +1231,18 @@
       "badgeFlagship": "플래그십",
       "badgePreview": "프리뷰",
       "badgeLegacy": "레거시"
+    },
+    "refresh": {
+      "button": "모델 새로 고침",
+      "updatedAgo": "{{hours}}시간 전 업데이트",
+      "never": "새로 고침한 적 없음",
+      "refreshing": "새로 고치는 중…",
+      "failed": "모델을 새로 고칠 수 없습니다. 잠시 후 다시 시도하세요."
+    },
+    "autoRefresh": {
+      "label": "자동 새로 고침",
+      "hint": "백그라운드에서 새 모델을 확인하여 목록을 최신 상태로 유지합니다.",
+      "saveFailed": "자동 새로 고침 설정을 저장할 수 없습니다."
     }
   },
   "mcpPage": {

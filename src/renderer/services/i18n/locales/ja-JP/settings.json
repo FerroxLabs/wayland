@@ -1231,6 +1231,18 @@
       "badgeFlagship": "フラッグシップ",
       "badgePreview": "プレビュー",
       "badgeLegacy": "レガシー"
+    },
+    "refresh": {
+      "button": "モデルを更新",
+      "updatedAgo": "{{hours}}時間前に更新",
+      "never": "未更新",
+      "refreshing": "更新中…",
+      "failed": "モデルを更新できませんでした。しばらくして再試行してください。"
+    },
+    "autoRefresh": {
+      "label": "自動更新",
+      "hint": "バックグラウンドで新しいモデルを確認し、リストを最新に保ちます。",
+      "saveFailed": "自動更新設定を保存できませんでした。"
     }
   },
   "mcpPage": {

@@ -46,6 +46,8 @@ import type {
   IModelRegistryCreds,
   IModelRegistryDetectedKey,
   IModelRegistryProviderView,
+  IModelRegistryRefreshState,
+  IModelRegistryRefreshSummary,
   IModelRegistryResolveForChatStartResult,
   IModelRegistryTestResult,
 } from '@/common/adapter/ipcBridge';
@@ -53,6 +55,8 @@ import { getDatabase } from '@process/services/database';
 import type { ConnectError, CuratedModel, ProviderConnState, ProviderId, RawModel } from '../types';
 import type { CatalogSource } from '../sources/CatalogSource';
 import { ApiProviderSource } from '../sources/ApiProviderSource';
+import { validateProviderBaseUrl } from '../sources/validateBaseUrl';
+import { ModelRefreshScheduler } from '../scheduler/ModelRefreshScheduler';
 import { CliAgentSource, isEnumerableCliAgent } from '../sources/CliAgentSource';
 import type { CliAgentKey } from '../sources/CliAgentSource';
 import { CatalogAssembler, MODELS_DEV_PROVIDER_KEY } from '../catalog/CatalogAssembler';
@@ -169,6 +173,16 @@ export type ModelRegistryDeps = {
     enumerable: boolean;
     underlyingProviderId: ProviderId;
   };
+  /**
+   * Optional refresh-orchestration deps (the global `refreshAllOnce` core).
+   * Omitted by the per-handler unit tests that don't exercise refreshAll; wired
+   * for real in `initModelRegistryIpc`. `now` is injectable so the
+   * success-gated freshness stamp is deterministic in tests.
+   */
+  mirror?: (providerId: ProviderId) => Promise<void>;
+  emitListChanged?: () => void;
+  setLastRefreshedAt?: (value: number) => Promise<void>;
+  now?: () => number;
 };
 
 /** The 10 `modelRegistry` handler functions, keyed by contract method name. */
@@ -187,6 +201,14 @@ export type ModelRegistryHandlers = {
     providerId: ProviderId;
     modelId: string;
   }) => Promise<IModelRegistryResolveForChatStartResult>;
+  /**
+   * Re-fetch + re-assemble + persist EVERY connected provider's catalog in one
+   * pass: models.dev registry fetched once, providers refreshed serially with an
+   * SSRF-validated baseUrl gate, the legacy `model.config` mirror awaited per
+   * provider, `lastRefreshedAt` advanced only on ≥1 success, and `listChanged`
+   * emitted once. Returns the genuinely-new model ids for the toast.
+   */
+  refreshAllOnce: () => Promise<IModelRegistryRefreshSummary>;
 };
 
 // ─── Handler factory ──────────────────────────────────────────────────────────
@@ -269,7 +291,8 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    */
   async function buildAndPersistCatalog(
     providerId: ProviderId,
-    creds: { key: string } | { fields: Record<string, string> } | { useGoogleAuth: true }
+    creds: { key: string } | { fields: Record<string, string> } | { useGoogleAuth: true },
+    prefetchedRegistry?: ModelsDevRegistry
   ): Promise<{ ok: boolean; models: number; sourceErrors: number }> {
     try {
       // FK precondition: catalog rows reference the provider row. Guard it
@@ -279,7 +302,12 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         return { ok: false, models: 0, sourceErrors: 0 };
       }
 
-      const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
+      // `refreshAllOnce` fetches the models.dev registry once for the whole
+      // sweep and threads it in, so N providers don't each re-fetch (and can't
+      // assemble against different registry versions mid-sweep). Single-provider
+      // callers (connect / refresh / rekey) pass nothing and fetch their own.
+      const registry =
+        prefetchedRegistry ?? (await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry));
 
       const isGoogleAuth = 'useGoogleAuth' in creds && creds.useGoogleAuth === true;
 
@@ -591,6 +619,76 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       } catch {
         return { ok: false };
       }
+    },
+
+    async refreshAllOnce(): Promise<IModelRegistryRefreshSummary> {
+      const succeeded: string[] = [];
+      const failed: string[] = [];
+      const added: IModelRegistryRefreshSummary['added'] = [];
+
+      // Registry fetched ONCE for the whole sweep (audit HIGH): N providers
+      // must not each re-fetch models.dev, nor assemble against different
+      // registry versions mid-sweep.
+      const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
+
+      const providers = repo.listRegistryProviders();
+      for (let i = 0; i < providers.length; i++) {
+        const { providerId } = providers[i];
+        // Yield between providers so a large sweep doesn't starve the main loop
+        // with back-to-back synchronous assemble + sqlite writes.
+        if (i > 0) await new Promise<void>((resolve) => setImmediate(resolve));
+
+        try {
+          const stored = repo.getRegistryProviderCreds(providerId);
+          if (stored.status !== 'ok') {
+            failed.push(providerId);
+            continue;
+          }
+          // SSRF gate: a stored custom baseUrl is fired unattended on a timer
+          // with the key in the header — validate before every scheduled fetch.
+          const storedBaseUrl = stored.creds.baseUrl;
+          if (
+            typeof storedBaseUrl === 'string' &&
+            storedBaseUrl.trim().length > 0 &&
+            !validateProviderBaseUrl(storedBaseUrl).ok
+          ) {
+            failed.push(providerId);
+            continue;
+          }
+
+          const before = new Set(repo.getRegistryCatalog(providerId).map((m) => m.id));
+          const creds = toTestCreds(stored.creds);
+          const built = await buildAndPersistCatalog(providerId, creds, registry);
+          if (!built.ok) {
+            failed.push(providerId);
+            continue;
+          }
+          // Await the legacy `model.config` mirror so the toast / picker
+          // invalidation never precedes the mirror write.
+          if (deps.mirror) await deps.mirror(providerId).catch(() => {});
+
+          for (const model of repo.getRegistryCatalog(providerId)) {
+            if (!before.has(model.id)) {
+              added.push({ providerId, modelId: model.id, displayName: model.displayName || model.id });
+            }
+          }
+          succeeded.push(providerId);
+        } catch {
+          failed.push(providerId);
+        }
+      }
+
+      // Advance the freshness stamp ONLY when ≥1 provider refreshed — else
+      // "updated Xh ago" would lie after a total failure (audit MED).
+      let lastRefreshedAt: number | null = null;
+      if (succeeded.length > 0) {
+        lastRefreshedAt = (deps.now ?? Date.now)();
+        if (deps.setLastRefreshedAt) await deps.setLastRefreshedAt(lastRefreshedAt);
+      }
+
+      deps.emitListChanged?.();
+
+      return { ok: succeeded.length > 0, succeeded, failed, added, lastRefreshedAt };
     },
 
     async disconnect({ providerId }): Promise<{ ok: boolean }> {
@@ -952,6 +1050,9 @@ let _repo: ProviderRepository | null = null;
  */
 let _handlers: ModelRegistryHandlers | null = null;
 
+/** The auto-refresh scheduler singleton, created at `initModelRegistryIpc` time. */
+let _scheduler: ModelRefreshScheduler | null = null;
+
 /**
  * Build the production dependency set wired to the real 1A–1E modules and the
  * SQLite-backed `ProviderRepository`.
@@ -977,6 +1078,12 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
     },
     makeApiSource: (providerId, apiKey, baseUrl) => new ApiProviderSource(providerId, apiKey, baseUrl),
     makeCliSource: (agentKey) => new CliAgentSource(agentKey),
+    // Refresh-orchestration collaborators for `refreshAllOnce`: the legacy
+    // `model.config` mirror (awaited so the toast can't precede it), the live
+    // picker-invalidation emitter, and the success-only freshness stamp.
+    mirror: (providerId) => (_repo ? mirrorConnectOrRekey(_repo, providerId) : Promise.resolve()),
+    emitListChanged: () => ipcBridge.modelRegistry.listChanged.emit(),
+    setLastRefreshedAt: (value) => setLastRefreshedAt(value),
   };
 }
 
@@ -1073,6 +1180,8 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.refresh.provider(async (payload) => {
     const result = await h.refresh(payload);
     if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);
+    // Live-update any open picker / the Models page after a manual refresh.
+    if (result.ok) ipcBridge.modelRegistry.listChanged.emit();
     return result;
   });
   ipcBridge.modelRegistry.disconnect.provider(async (payload) => {
@@ -1087,6 +1196,24 @@ export async function initModelRegistryIpc(): Promise<void> {
   });
   ipcBridge.modelRegistry.curatedForAgent.provider((payload) => h.curatedForAgent(payload));
   ipcBridge.modelRegistry.resolveForChatStart.provider((payload) => h.resolveForChatStart(payload));
+
+  // ── Automatic refresh: scheduler + the global "Refresh models" surface ──────
+  _scheduler = new ModelRefreshScheduler({
+    runRefresh: () => h.refreshAllOnce(),
+    getLastRefreshedAt,
+    getAutoRefresh,
+  });
+  ipcBridge.modelRegistry.refreshAll.provider((payload) => _scheduler!.refreshAll(payload?.reason ?? 'manual'));
+  ipcBridge.modelRegistry.getRefreshState.provider(() => Promise.resolve(_scheduler!.getState()));
+  ipcBridge.modelRegistry.getAutoRefresh.provider(() => getAutoRefresh());
+  ipcBridge.modelRegistry.setAutoRefresh.provider(async ({ value }) => {
+    await setAutoRefresh(value);
+    // Apply immediately: arming starts the poll + launch-if-stale; disabling
+    // stops the interval (the manual button still works regardless).
+    if (value) void _scheduler!.start();
+    else _scheduler!.stop();
+    return { ok: true };
+  });
 
   // Wave-4 ship-gate Fix A1 — defer the one-time legacy-config migration to
   // `app.whenReady()`. `safeStorage.encryptString` (which the migration uses
@@ -1140,14 +1267,22 @@ function scheduleStartupMigration(): void {
         // outer guard so a thrown migration cannot crash the main process.
         console.warn('[modelRegistry] Legacy-config migration failed:', error);
       }
+      let postUpgradeSwept = false;
       try {
         // The post-upgrade refresh is independent of the legacy migration —
         // it runs whether or not the legacy step did any work. A failure of
         // one provider's refresh does not block the others.
-        await runPostUpgradeCatalogRefresh();
+        postUpgradeSwept = await runPostUpgradeCatalogRefresh();
       } catch (error) {
         console.warn('[modelRegistry] Post-upgrade catalog refresh failed:', error);
       }
+      // If the post-upgrade sweep just refreshed every provider, stamp the
+      // freshness clock so the auto-refresh scheduler's launch-if-stale check
+      // sees a fresh catalog and does NOT immediately re-fetch them all (audit
+      // MED: coordinate with the pre-existing boot sweep). Then start the
+      // scheduler — it self-arms only when auto-refresh is enabled.
+      if (postUpgradeSwept) await setLastRefreshedAt(Date.now()).catch(() => {});
+      if (_scheduler) void _scheduler.start();
     })
     .catch((error) => {
       console.warn('[modelRegistry] app.whenReady() rejected before migration could run:', error);
@@ -1173,8 +1308,13 @@ function scheduleStartupMigration(): void {
  * Exported (via the test wrapper below) so unit tests can assert the cursor
  * behavior without spinning up the Electron `app` lifecycle.
  */
-async function runPostUpgradeCatalogRefresh(): Promise<void> {
-  if (!_repo || !_handlers) return;
+async function runPostUpgradeCatalogRefresh(): Promise<boolean> {
+  if (!_repo || !_handlers) return false;
+  // Whether this boot's cursor is behind — i.e. the sweep will actually
+  // re-refresh every provider (vs. a no-op on an already-migrated boot). The
+  // caller stamps the freshness clock only when this is true.
+  const cursor = await ProcessConfig.get('migration.modelRegistryCatalogDataVersion');
+  const willSweep = !(typeof cursor === 'number' && cursor >= CATALOG_DATA_VERSION);
   await _runPostUpgradeCatalogRefresh(_repo, _handlers, {
     get: async () => {
       const v = await ProcessConfig.get('migration.modelRegistryCatalogDataVersion');
@@ -1184,6 +1324,45 @@ async function runPostUpgradeCatalogRefresh(): Promise<void> {
       await ProcessConfig.set('migration.modelRegistryCatalogDataVersion', v);
     },
   });
+  return willSweep;
+}
+
+// ─── Auto-refresh persistence (W0 seam) ─────────────────────────────────────────
+// Typed get/set wrappers over `ProcessConfig` for the three `models.*` keys the
+// scheduler (W1) + Models settings (W2) read and write. Same pattern as the
+// `migration.modelRegistryCatalogDataVersion` cursor above.
+
+/** Last *successful* global-refresh timestamp (epoch ms), or `null` before any. */
+export async function getLastRefreshedAt(): Promise<number | null> {
+  const v = await ProcessConfig.get('models.lastRefreshedAt');
+  return typeof v === 'number' ? v : null;
+}
+
+/** Persist the success-only freshness timestamp (epoch ms). */
+export async function setLastRefreshedAt(value: number): Promise<void> {
+  await ProcessConfig.set('models.lastRefreshedAt', value);
+}
+
+/** Model ids already surfaced in a "new models" toast (empty before any). */
+export async function getAnnouncedModelIds(): Promise<string[]> {
+  const v = await ProcessConfig.get('models.announcedModelIds');
+  return Array.isArray(v) ? v : [];
+}
+
+/** Persist the de-dup set of already-announced model ids. */
+export async function setAnnouncedModelIds(value: string[]): Promise<void> {
+  await ProcessConfig.set('models.announcedModelIds', value);
+}
+
+/** Whether automatic background refresh is enabled. Defaults to `true`. */
+export async function getAutoRefresh(): Promise<boolean> {
+  const v = await ProcessConfig.get('models.autoRefresh');
+  return typeof v === 'boolean' ? v : true;
+}
+
+/** Persist the auto-refresh master switch. */
+export async function setAutoRefresh(value: boolean): Promise<void> {
+  await ProcessConfig.set('models.autoRefresh', value);
 }
 
 /**

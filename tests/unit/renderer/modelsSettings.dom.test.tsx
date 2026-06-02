@@ -67,6 +67,15 @@ vi.mock('../../../src/common/adapter/ipcBridge', () => ({
     refresh: { invoke: vi.fn() },
     rekey: { invoke: vi.fn() },
     curatedForAgent: { invoke: vi.fn() },
+    // Automatic-refresh surface (consumed by useModelRegistry's listChanged
+    // subscription + the Settings refresh button / auto-refresh toggle).
+    refreshAll: {
+      invoke: vi.fn().mockResolvedValue({ ok: true, succeeded: [], failed: [], added: [], lastRefreshedAt: null }),
+    },
+    getRefreshState: { invoke: vi.fn().mockResolvedValue({ lastRefreshedAt: null, refreshing: false }) },
+    getAutoRefresh: { invoke: vi.fn().mockResolvedValue(true) },
+    setAutoRefresh: { invoke: vi.fn().mockResolvedValue({ ok: true }) },
+    listChanged: { on: vi.fn(() => vi.fn()) },
   },
 }));
 

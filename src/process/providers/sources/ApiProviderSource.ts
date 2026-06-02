@@ -26,6 +26,10 @@ import { ANTHROPIC_VERSION, appendQuery, authStrategyFor } from '../detection/pr
 const FETCH_TIMEOUT_MS = 15_000;
 /** Hard ceiling on pagination loops — a misbehaving provider cannot hang us. */
 const MAX_PAGES = 50;
+/** Per-page response byte ceiling — never buffer an unbounded `/v1/models` body. */
+const MAX_RESPONSE_BYTES = 32 * 1024 * 1024;
+/** Hard ceiling on total accumulated models — a provider cannot flood the catalog. */
+const MAX_TOTAL_MODELS = 5000;
 
 /**
  * A typed failure from a catalog source. The `code` is a `ConnectError` the
@@ -102,6 +106,13 @@ export class ApiProviderSource implements CatalogSource {
       const body = await this.fetchPage(url, auth);
       const parsed = this.parsePage(body);
       models.push(...parsed.models);
+      // Cap total accumulated models so a flooding provider cannot exhaust memory.
+      if (models.length > MAX_TOTAL_MODELS) {
+        throw new ProviderSourceError(
+          'unknown',
+          `Provider "${this.providerId}" returned more than ${MAX_TOTAL_MODELS} models`
+        );
+      }
       cursor = parsed.nextCursor;
       if (!cursor) return models;
     }
@@ -162,8 +173,14 @@ export class ApiProviderSource implements CatalogSource {
       throw await this.classifyHttpError(res);
     }
 
+    // Read the body with a hard byte cap before parsing — a content-length-less
+    // (chunked) 200 must not let a provider stream an unbounded payload at us.
+    const body = await readBodyCapped(res, MAX_RESPONSE_BYTES);
+    if (body == null) {
+      throw new ProviderSourceError('unknown', `Provider response exceeded the ${MAX_RESPONSE_BYTES}-byte cap`);
+    }
     try {
-      return await res.json();
+      return JSON.parse(body);
     } catch {
       // 200 but an unparseable body — treat as an unknown provider fault.
       throw new ProviderSourceError('unknown', `Provider returned a non-JSON body (${res.status})`);
@@ -272,6 +289,45 @@ export class ApiProviderSource implements CatalogSource {
 }
 
 // ─── Pure helpers ─────────────────────────────────────────────────────────────
+
+/**
+ * Read a response body as text with a hard byte ceiling, independent of any
+ * declared `content-length`. Streams chunk-by-chunk and bails (returning
+ * `null`) the instant the accumulated size would exceed `maxBytes`. Falls back
+ * to `res.text()` only when the runtime exposes no readable stream.
+ */
+async function readBodyCapped(res: Response, maxBytes: number): Promise<string | null> {
+  const stream = res.body;
+  if (!stream || typeof stream.getReader !== 'function') {
+    const text = await res.text();
+    return Buffer.byteLength(text, 'utf8') > maxBytes ? null : text;
+  }
+
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let out = '';
+  try {
+    for (;;) {
+      // Sequential by nature — each chunk arrives only after the previous read.
+      // oxlint-disable-next-line no-await-in-loop
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) {
+        total += value.byteLength;
+        if (total > maxBytes) {
+          await reader.cancel().catch(() => {});
+          return null;
+        }
+        out += decoder.decode(value, { stream: true });
+      }
+    }
+    out += decoder.decode();
+    return out;
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 /** Classify an HTTP status (and optional body) into a `ConnectError` code. */
 function classifyStatus(status: number, body: string): ConnectError {

@@ -1229,6 +1229,18 @@
       "badgeFlagship": "amiral gemisi",
       "badgePreview": "önizleme",
       "badgeLegacy": "eski"
+    },
+    "refresh": {
+      "button": "Modelleri yenile",
+      "updatedAgo": "{{hours}} saat önce güncellendi",
+      "never": "Hiç yenilenmedi",
+      "refreshing": "Yenileniyor…",
+      "failed": "Modeller yenilenemedi. Birazdan tekrar deneyin."
+    },
+    "autoRefresh": {
+      "label": "Otomatik yenileme",
+      "hint": "Arka planda yeni modelleri kontrol eder ve listeni güncel tutar.",
+      "saveFailed": "Otomatik yenileme ayarı kaydedilemedi."
     }
   },
   "mcpPage": {

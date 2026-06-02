@@ -1,0 +1,7 @@
+{
+  "toast": {
+    "newModels_one": "{{count}} нова модель · {{names}}",
+    "newModels_other": "{{count}} нових моделей · {{names}}",
+    "andMore": "і ще {{count}}"
+  }
+}
