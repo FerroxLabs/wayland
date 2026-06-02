@@ -126,6 +126,20 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
     });
   }, [session]);
 
+  const handleDelete = useCallback(() => {
+    Modal.confirm({
+      title: 'Delete workflow?',
+      content:
+        'This permanently removes the workflow session, including a stuck or stalled one. The underlying conversation is kept. This cannot be undone.',
+      okText: 'Delete',
+      okButtonProps: { status: 'danger' },
+      cancelText: 'Cancel',
+      onOk: () => {
+        void session.remove();
+      },
+    });
+  }, [session]);
+
   const handleJumpToStep = useCallback(
     (n: number) => {
       void session.jumpToStep(n);
@@ -268,7 +282,13 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
       <div className={styles.body}>
         <div className={styles.main}>
           <div className={styles.headerSlot}>
-            <WorkflowHeader session={data} paused={paused} onPauseToggle={handlePauseToggle} onEnd={handleEnd} />
+            <WorkflowHeader
+              session={data}
+              paused={paused}
+              onPauseToggle={handlePauseToggle}
+              onEnd={handleEnd}
+              onDelete={handleDelete}
+            />
           </div>
           {pendingAsks.length > 0 && (
             <div className={styles.asks} data-testid='workflow-surface-asks'>

@@ -546,6 +546,16 @@ export class WorkflowSessionService {
   }
 
   /**
+   * Permanently remove a session and its row — distinct from `endSession`,
+   * which only flips status to `ended`. Lets the user clear a stuck or unwanted
+   * in-flight workflow. Idempotent: deleting an already-gone session is a no-op.
+   */
+  async deleteSession(sessionId: string): Promise<void> {
+    this.repo.delete(sessionId);
+    ipcBridge.workflow.sessionChanged.emit({ session_id: sessionId, action: 'delete' });
+  }
+
+  /**
    * Mark that the hidden "begin" message has been sent for this session.
    * Idempotent — subsequent calls are no-ops because the field is already
    * set. Used by WorkflowSurface's auto-send guard to guarantee

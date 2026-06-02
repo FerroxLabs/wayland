@@ -1921,9 +1921,13 @@ export const workflow = {
   // strip and badge counts without re-fetching the full session payload.
   // `action` distinguishes lifecycle phase: 'start' (insert), 'update'
   // (any state mutation), 'complete' (terminal flip to complete/ended).
-  sessionChanged: buildEmitter<{ session_id: string; action: 'start' | 'update' | 'complete' }>(
+  sessionChanged: buildEmitter<{ session_id: string; action: 'start' | 'update' | 'complete' | 'delete' }>(
     'workflow.session-changed'
   ),
+  // 6.6.1 — Permanently delete a workflow session (and its row). Distinct from
+  // the 'ended' status flip (updateSessionState): lets the user clear a stuck
+  // or unwanted in-flight workflow they can no longer make progress on.
+  deleteSession: buildProvider<void, { sessionId: string }>('workflow.delete-session'),
   // 6.7 — Count of currently-active (non-complete, non-ended) workflow
   // sessions. Backs the sidebar Workflows-section badge so the badge can
   // refresh in response to `sessionChanged` without paying for the full

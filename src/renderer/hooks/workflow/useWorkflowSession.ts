@@ -48,6 +48,8 @@ export type UseWorkflowSessionReturn = {
   resume: () => void;
   /** Sends setSessionStatus='ended' via IPC. */
   end: () => Promise<void>;
+  /** Permanently deletes the session via IPC (distinct from `end`, which only flips status). */
+  remove: () => Promise<void>;
   /** Re-fetches the session from main via `findAllActive` + client-side filter. */
   refresh: () => Promise<void>;
   /** Apply a marker emitted by the stream parser to the session state (also persists via IPC). */
@@ -232,6 +234,14 @@ export function useWorkflowSession(
     }
   }, [sessionId]);
 
+  const remove = useCallback(async () => {
+    if (!sessionId) return;
+    await ipcBridge.workflow.deleteSession.invoke({ sessionId });
+    if (activeSessionIdRef.current !== sessionId) return;
+    setData(null);
+    setError(null);
+  }, [sessionId]);
+
   const runStepAutonomously = useCallback(
     async (n: number) => {
       if (!sessionId) {
@@ -271,6 +281,7 @@ export function useWorkflowSession(
     pause,
     resume,
     end,
+    remove,
     refresh,
     applyStepMarker,
     markBeginSent,

@@ -6,7 +6,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Button } from '@arco-design/web-react';
-import { Check, ChevronDown, ChevronUp, Pause, Play, Workflow, X } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Pause, Play, Trash2, Workflow, X } from 'lucide-react';
 
 import AssistantIconTile from '@/renderer/pages/guid/components/AssistantIconTile';
 import { resolveWorkflowPalette } from '@/renderer/pages/guid/components/workflow/workflowPalette';
@@ -28,19 +28,22 @@ export type WorkflowHeaderProps = {
   paused: boolean;
   onPauseToggle: () => void;
   onEnd: () => void;
+  onDelete: () => void;
 };
 
-const WORKFLOW_PALETTE_TO_TILE_KEY: Record<string, 'cowork' | 'write' | 'sales' | 'launch' | 'research' | 'finance' | 'dev'> =
-  {
-    'business-ops': 'cowork',
-    violet: 'write',
-    emerald: 'dev',
-    rose: 'launch',
-    blue: 'research',
-    amber: 'finance',
-    slate: 'cowork',
-    orange: 'cowork',
-  };
+const WORKFLOW_PALETTE_TO_TILE_KEY: Record<
+  string,
+  'cowork' | 'write' | 'sales' | 'launch' | 'research' | 'finance' | 'dev'
+> = {
+  'business-ops': 'cowork',
+  violet: 'write',
+  emerald: 'dev',
+  rose: 'launch',
+  blue: 'research',
+  amber: 'finance',
+  slate: 'cowork',
+  orange: 'cowork',
+};
 
 const formatElapsed = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -62,7 +65,7 @@ const formatDuration = (ms: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-export const WorkflowHeader: React.FC<WorkflowHeaderProps> = ({ session, paused, onPauseToggle, onEnd }) => {
+export const WorkflowHeader: React.FC<WorkflowHeaderProps> = ({ session, paused, onPauseToggle, onEnd, onDelete }) => {
   const [skillsOpen, setSkillsOpen] = useState(false);
 
   const tileKey = useMemo(() => {
@@ -75,11 +78,7 @@ export const WorkflowHeader: React.FC<WorkflowHeaderProps> = ({ session, paused,
     const endedAt = session.completed_at ?? session.updated_at;
     const duration = formatDuration(endedAt - session.created_at);
     return (
-      <div
-        className={`${styles.root} ${styles.complete}`}
-        data-testid='workflow-header'
-        data-status='complete'
-      >
+      <div className={`${styles.root} ${styles.complete}`} data-testid='workflow-header' data-status='complete'>
         <div className={styles.completeRow}>
           <span className={styles.completeIcon} aria-hidden='true'>
             <Check size={16} />
@@ -136,6 +135,16 @@ export const WorkflowHeader: React.FC<WorkflowHeaderProps> = ({ session, paused,
             aria-label='End workflow'
           >
             End workflow
+          </Button>
+          <Button
+            size='small'
+            type='secondary'
+            status='danger'
+            icon={<Trash2 size={12} />}
+            onClick={onDelete}
+            aria-label='Delete workflow'
+          >
+            Delete
           </Button>
         </div>
       </div>

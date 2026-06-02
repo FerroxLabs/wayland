@@ -141,6 +141,11 @@ export function registerWorkflowBridge(): void {
     return { session };
   });
 
+  ipcBridge.workflow.deleteSession.provider(async (input) => {
+    const svc = requireService('deleteSession');
+    await svc.deleteSession(input.sessionId);
+  });
+
   ipcBridge.workflow.dispatchAutonomousStep.provider(async (input) => {
     const svc = requireService('dispatchAutonomousStep');
     if (liveDispatchDeps === null) {
