@@ -440,6 +440,37 @@ const WebuiModalContent: React.FC = () => {
     setSetPasswordModalVisible(true);
   };
 
+  // Forgot-password recovery: generate a brand-new password WITHOUT the old one.
+  // The desktop owner is the authority (the main process shows a native
+  // confirmation dialog), so a forgotten password never locks them out. All web
+  // sessions are invalidated and the new password is shown above.
+  const handleForgotPasswordReset = async () => {
+    if (!window.electronAPI?.webuiResetPassword) {
+      Message.error(
+        t('settings.webui.resetUnavailable', { defaultValue: 'Password reset is only available in the desktop app.' })
+      );
+      return;
+    }
+    setResetLoading(true);
+    try {
+      const result = await window.electronAPI.webuiResetPassword();
+      if (result.success && result.newPassword) {
+        setSetPasswordModalVisible(false);
+        form.resetFields();
+        setCachedPassword(result.newPassword);
+        setCanShowPlainPassword(true);
+        setStatus((prev) => (prev ? { ...prev, initialPassword: result.newPassword } : null));
+        Message.success(
+          t('settings.webui.passwordReset', { defaultValue: 'Password reset — your new password is shown above.' })
+        );
+      } else if (result.msg && result.msg !== 'CONFIRMATION_DECLINED') {
+        Message.error(result.msg);
+      }
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   const handleResetUsername = () => {
     // Clear any stale current-password entry before re-opening the modal.
     usernameForm.resetFields();
@@ -950,6 +981,11 @@ const WebuiModalContent: React.FC = () => {
           >
             <Input.Password placeholder={t('settings.webui.currentPasswordPlaceholder')} />
           </Form.Item>
+          <div className='flex justify-end -mt-12px mb-4px'>
+            <Button type='text' size='mini' status='warning' loading={resetLoading} onClick={handleForgotPasswordReset}>
+              {t('settings.webui.forgotPassword', { defaultValue: 'Forgot your password? Reset it' })}
+            </Button>
+          </div>
           <Form.Item
             label={t('settings.webui.newPassword')}
             field='newPassword'
