@@ -106,13 +106,19 @@ const computeSubLine = (
 
 type StepRowProps = {
   step: StepState;
+  /** True when this is the workflow's current step (session.current_step). */
+  isCurrent: boolean;
   onJump: (n: number) => void;
   onRequestRun: (n: number) => void;
 };
 
-const StepRow: React.FC<StepRowProps> = ({ step, onJump, onRequestRun }) => {
+const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, onJump, onRequestRun }) => {
   const { t } = useTranslation();
   const autonomousRunning = step.autonomous_run?.state === 'running';
+  // The live step: the workflow's current step while it's still todo/now. The
+  // step's own status often lags behind current_step (transitions aren't always
+  // emitted), so current_step is the reliable signal for "which step is live".
+  const isActiveStep = isCurrent && (step.status === 'todo' || step.status === 'now');
   const runningElapsedSec = useElapsedSeconds(autonomousRunning ? step.autonomous_run!.started_at : null);
   const canRunAutonomously = !autonomousRunning && (step.status === 'todo' || step.status === 'now');
   const sub = computeSubLine(step, t);
@@ -134,6 +140,7 @@ const StepRow: React.FC<StepRowProps> = ({ step, onJump, onRequestRun }) => {
       data-step={step.n}
       data-status={step.status}
       data-running={autonomousRunning ? 'true' : undefined}
+      data-active={isActiveStep ? 'true' : undefined}
       className={styles.row}
       aria-label={t('workflow.rail.jumpToStep', {
         defaultValue: 'Jump to step {{n}}: {{title}}',
@@ -246,7 +253,13 @@ export const WorkflowStepRail: React.FC<WorkflowStepRailProps> = ({
 
       <div className='flex flex-col gap-2px'>
         {session.steps.map((step) => (
-          <StepRow key={step.n} step={step} onJump={handleRowJump} onRequestRun={handleRequestRun} />
+          <StepRow
+            key={step.n}
+            step={step}
+            isCurrent={step.n === session.current_step}
+            onJump={handleRowJump}
+            onRequestRun={handleRequestRun}
+          />
         ))}
       </div>
 

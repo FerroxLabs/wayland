@@ -82,7 +82,8 @@
    autonomous sub-agent — reads as a clear yellow so the user can see at a
    glance which step is live. */
 .row[data-status='now'],
-.row[data-running='true'] {
+.row[data-running='true'],
+.row[data-active='true'] {
   background: rgba(250, 204, 21, 0.16);
   border-color: rgba(250, 204, 21, 0.6);
 }
