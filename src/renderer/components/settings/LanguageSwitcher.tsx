@@ -3,6 +3,7 @@ import type { SelectHandle } from '@arco-design/web-react/es/Select/interface';
 import React, { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { changeLanguage } from '@/renderer/services/i18n';
+import { LANGUAGE_OPTIONS } from '@/common/config/i18n';
 
 const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
@@ -29,18 +30,11 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <div className='flex items-center gap-8px'>
       <WaylandSelect ref={selectRef} className='w-160px' value={i18n.language} onChange={handleLanguageChange}>
-        <WaylandSelect.Option value='en-US'>English</WaylandSelect.Option>
-        <WaylandSelect.Option value='es-ES'>Español</WaylandSelect.Option>
-        <WaylandSelect.Option value='pt-BR'>Português (Brasil)</WaylandSelect.Option>
-        <WaylandSelect.Option value='de-DE'>Deutsch</WaylandSelect.Option>
-        <WaylandSelect.Option value='fr-FR'>Français</WaylandSelect.Option>
-        <WaylandSelect.Option value='zh-CN'>简体中文</WaylandSelect.Option>
-        <WaylandSelect.Option value='zh-TW'>繁體中文</WaylandSelect.Option>
-        <WaylandSelect.Option value='ja-JP'>日本語</WaylandSelect.Option>
-        <WaylandSelect.Option value='ko-KR'>한국어</WaylandSelect.Option>
-        <WaylandSelect.Option value='tr-TR'>Türkçe</WaylandSelect.Option>
-        <WaylandSelect.Option value='ru-RU'>Русский</WaylandSelect.Option>
-        <WaylandSelect.Option value='uk-UA'>Українська</WaylandSelect.Option>
+        {LANGUAGE_OPTIONS.map((lang) => (
+          <WaylandSelect.Option key={lang.code} value={lang.code}>
+            {lang.label}
+          </WaylandSelect.Option>
+        ))}
       </WaylandSelect>
     </div>
   );

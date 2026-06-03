@@ -29,6 +29,57 @@
       "redirect": "Başka bir şey",
       "dismissAria": "Öneriyi kapat",
       "regionAria": "Önerilen ilk mesaj"
-    }
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": [
+          "Geç saatlere kaldın",
+          "Sabahın köründe çalışıyorsun",
+          "Hâlâ ayaktasın"
+        ],
+        "morning": [
+          "Günaydın",
+          "Hayırlı sabahlar",
+          "Güne merhaba"
+        ],
+        "afternoon": [
+          "İyi günler",
+          "Hayırlı günler",
+          "Tekrar hoş geldin"
+        ],
+        "evening": [
+          "İyi akşamlar",
+          "Hayırlı akşamlar",
+          "Tekrar hoş geldin"
+        ],
+        "night": [
+          "İyi akşamlar",
+          "Hayırlı akşamlar",
+          "Günü kapatıyorsun"
+        ]
+      }
+    },
+    "intent": {
+      "sell": "Sat",
+      "write": "Yaz",
+      "research": "Araştır",
+      "build": "Oluştur",
+      "run": "Çalıştır"
+    },
+    "pillBar": {
+      "label": "Bir amaç seçin",
+      "pillLabel": "{{label}} amacı"
+    },
+    "suggestionPanel": {
+      "label": "{{label}} başlangıç istemleri",
+      "heading": "{{label}} ile başlayın",
+      "close": "Önerileri kapat"
+    },
+    "recents": {
+      "label": "Son sohbetler",
+      "heading": "Kaldığınız yerden devam edin"
+    },
+    "voiceHint": "Konuşmak için mikrofona tıklayın"
   }
 }

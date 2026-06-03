@@ -145,40 +145,6 @@
     "resolve_success": "衝突已解決"
   },
   "wiki": {
-    "list_empty": "尚無 Wiki 條目。提升一筆記憶以開始。",
-    "select_prompt": "選擇一個條目以檢視內容。",
-    "promote": "提升",
-    "export": "匯出",
-    "share_readme": "分享 README",
-    "promote_ok": "已提升至 Wiki",
-    "promote_err": "無法提升該條目",
-    "export_queued": "匯出已加入佇列。下載將於 Wave 6 接上",
-    "export_err": "無法匯出該條目",
-    "share_ok": "README 分享已加入佇列",
-    "share_err": "無法分享 README"
-  },
-  "crossProject": {
-    "scope_label_app": "搜尋: 所有專案（應用範圍）",
-    "scope_label_project": "搜尋: {{project}}（專案範圍）",
-    "search_placeholder": "跨專案搜尋記憶",
-    "search_button": "搜尋",
-    "toggle_label": "包含其他專案",
-    "prompt_empty": "輸入查詢以跨專案記憶搜尋。",
-    "results_empty": "搜尋範圍內沒有符合項目。",
-    "navigation_stub": "跨專案導覽將於 Wave 6 支援"
-  },
-  "drop": {
-    "zone_title": "將檔案拖到這裡",
-    "zone_hint": "Markdown、文字、JSON、YAML、CSV。最大 50MB。佇列最多 20 個檔案。",
-    "browse_button": "瀏覽",
-    "queue_title": "佇列中的檔案",
-    "queue_empty": "佇列中沒有檔案",
-    "quarantine_button": "隔離",
-    "ingest_success": "已將 {{name}} 加入佇列",
-    "quarantine_success": "已隔離 {{name}}",
-    "path_unavailable": "無法讀取檔案路徑。請改用瀏覽按鈕。"
-  },
-  "wiki": {
     "home": {
       "title": "Wiki",
       "conceptCount": "{{count}} 個概念來自 {{memories}} 條記憶",
@@ -248,6 +214,27 @@
       "notFound": "找不到該概念。",
       "notFoundBack": "← 返回 Wiki"
     }
+  },
+  "crossProject": {
+    "scope_label_app": "搜尋: 所有專案（應用範圍）",
+    "scope_label_project": "搜尋: {{project}}（專案範圍）",
+    "search_placeholder": "跨專案搜尋記憶",
+    "search_button": "搜尋",
+    "toggle_label": "包含其他專案",
+    "prompt_empty": "輸入查詢以跨專案記憶搜尋。",
+    "results_empty": "搜尋範圍內沒有符合項目。",
+    "navigation_stub": "跨專案導覽將於 Wave 6 支援"
+  },
+  "drop": {
+    "zone_title": "將檔案拖到這裡",
+    "zone_hint": "Markdown、文字、JSON、YAML、CSV。最大 50MB。佇列最多 20 個檔案。",
+    "browse_button": "瀏覽",
+    "queue_title": "佇列中的檔案",
+    "queue_empty": "佇列中沒有檔案",
+    "quarantine_button": "隔離",
+    "ingest_success": "已將 {{name}} 加入佇列",
+    "quarantine_success": "已隔離 {{name}}",
+    "path_unavailable": "無法讀取檔案路徑。請改用瀏覽按鈕。"
   },
   "archive": {
     "topbar": {
@@ -396,6 +383,51 @@
       "load_failed": "無法載入記憶。{{reason}}",
       "missing_api": "記憶 API 尚未就緒，請稍後再試。",
       "promote_failed": "無法升級。{{reason}}"
+    },
+    "import": {
+      "title": "匯入記憶",
+      "close": "關閉匯入面板",
+      "importing": "匯入中…",
+      "status": {
+        "ready": "就緒",
+        "checking": "檢查中",
+        "importing": "匯入中",
+        "unavailable": "無法使用",
+        "idle": "閒置"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "點按以從 ~/.claude-mem/claude-mem.db 匯入",
+        "count": "已匯入約 {{count}} 筆項目",
+        "btn": "匯入",
+        "success": "已匯入 {{count}} 筆項目 · {{errors}} 個錯誤",
+        "error": "匯入失敗，請重試。"
+      },
+      "obsidian": {
+        "title": "Obsidian 知識庫",
+        "hint": "點按以掃描知識庫",
+        "count": "已匯入約 {{count}} 筆項目",
+        "btn": "匯入",
+        "success": "已匯入 {{count}} 筆項目 · {{errors}} 個錯誤",
+        "error": "Obsidian 匯入失敗，請重試。"
+      },
+      "devScan": {
+        "title": "~/dev 掃描",
+        "hint": "掃描 ~/dev 以尋找 IJFW 記憶目錄",
+        "count": "已匯入約 {{count}} 筆項目",
+        "btn": "匯入",
+        "success": "已從 {{projects}} 個專案匯入 {{count}} 筆項目",
+        "error": "Dev 掃描匯入失敗，請重試。"
+      },
+      "dropFolder": {
+        "title": "拖放資料夾",
+        "hint": "將 .md / .txt / .json 檔案拖放至 ~/Documents/Wayland-Memory/",
+        "count": "已處理 {{count}} 個檔案",
+        "openBtn": "開啟資料夾",
+        "processBtn": "立即處理",
+        "success": "已處理 {{count}} 個檔案 · {{errors}} 個錯誤",
+        "error": "處理失敗，請重試。"
+      }
     }
   }
 }

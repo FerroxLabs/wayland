@@ -4,16 +4,16 @@
   "supportedLanguages": [
     "en-US",
     "es-ES",
-    "pt-BR",
-    "de-DE",
     "fr-FR",
+    "de-DE",
+    "pt-BR",
     "zh-CN",
-    "ja-JP",
     "zh-TW",
+    "ja-JP",
     "ko-KR",
-    "tr-TR",
     "ru-RU",
-    "uk-UA"
+    "uk-UA",
+    "tr-TR"
   ],
   "modules": [
     "common",

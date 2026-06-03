@@ -145,40 +145,6 @@
     "resolve_success": "冲突已解决"
   },
   "wiki": {
-    "list_empty": "暂无 Wiki 条目。提升一条记忆以开始。",
-    "select_prompt": "选择一个条目查看内容。",
-    "promote": "提升",
-    "export": "导出",
-    "share_readme": "分享 README",
-    "promote_ok": "已提升至 Wiki",
-    "promote_err": "无法提升该条目",
-    "export_queued": "导出已加入队列。下载将在 Wave 6 中接入",
-    "export_err": "无法导出该条目",
-    "share_ok": "README 分享已加入队列",
-    "share_err": "无法分享 README"
-  },
-  "crossProject": {
-    "scope_label_app": "搜索: 所有项目（应用范围）",
-    "scope_label_project": "搜索: {{project}}（项目范围）",
-    "search_placeholder": "跨项目搜索记忆",
-    "search_button": "搜索",
-    "toggle_label": "包含其他项目",
-    "prompt_empty": "输入查询以跨项目记忆搜索。",
-    "results_empty": "搜索范围内没有匹配。",
-    "navigation_stub": "跨项目导航将在 Wave 6 中支持"
-  },
-  "drop": {
-    "zone_title": "将文件拖到这里",
-    "zone_hint": "Markdown、文本、JSON、YAML、CSV。最大 50MB。队列最多 20 个文件。",
-    "browse_button": "浏览",
-    "queue_title": "队列中的文件",
-    "queue_empty": "队列中没有文件",
-    "quarantine_button": "隔离",
-    "ingest_success": "已将 {{name}} 加入队列",
-    "quarantine_success": "已隔离 {{name}}",
-    "path_unavailable": "无法读取文件路径。请改用浏览按钮。"
-  },
-  "wiki": {
     "home": {
       "title": "Wiki",
       "conceptCount": "{{count}} 个概念来自 {{memories}} 条记忆",
@@ -248,6 +214,27 @@
       "notFound": "未找到该概念。",
       "notFoundBack": "← 返回 Wiki"
     }
+  },
+  "crossProject": {
+    "scope_label_app": "搜索: 所有项目（应用范围）",
+    "scope_label_project": "搜索: {{project}}（项目范围）",
+    "search_placeholder": "跨项目搜索记忆",
+    "search_button": "搜索",
+    "toggle_label": "包含其他项目",
+    "prompt_empty": "输入查询以跨项目记忆搜索。",
+    "results_empty": "搜索范围内没有匹配。",
+    "navigation_stub": "跨项目导航将在 Wave 6 中支持"
+  },
+  "drop": {
+    "zone_title": "将文件拖到这里",
+    "zone_hint": "Markdown、文本、JSON、YAML、CSV。最大 50MB。队列最多 20 个文件。",
+    "browse_button": "浏览",
+    "queue_title": "队列中的文件",
+    "queue_empty": "队列中没有文件",
+    "quarantine_button": "隔离",
+    "ingest_success": "已将 {{name}} 加入队列",
+    "quarantine_success": "已隔离 {{name}}",
+    "path_unavailable": "无法读取文件路径。请改用浏览按钮。"
   },
   "archive": {
     "topbar": {
@@ -396,6 +383,51 @@
       "load_failed": "无法加载记忆。{{reason}}",
       "missing_api": "记忆 API 尚未就绪，请稍后再试。",
       "promote_failed": "无法升级。{{reason}}"
+    },
+    "import": {
+      "title": "导入记忆",
+      "close": "关闭导入面板",
+      "importing": "正在导入…",
+      "status": {
+        "ready": "就绪",
+        "checking": "检查中",
+        "importing": "导入中",
+        "unavailable": "不可用",
+        "idle": "空闲"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "点击以从 ~/.claude-mem/claude-mem.db 导入",
+        "count": "已导入约 {{count}} 条",
+        "btn": "导入",
+        "success": "已导入 {{count}} 条 · {{errors}} 个错误",
+        "error": "导入失败。请重试。"
+      },
+      "obsidian": {
+        "title": "Obsidian 仓库",
+        "hint": "点击以扫描仓库",
+        "count": "已导入约 {{count}} 条",
+        "btn": "导入",
+        "success": "已导入 {{count}} 条 · {{errors}} 个错误",
+        "error": "Obsidian 导入失败。请重试。"
+      },
+      "devScan": {
+        "title": "~/dev 扫描",
+        "hint": "扫描 ~/dev 以查找 IJFW 记忆目录",
+        "count": "已导入约 {{count}} 条",
+        "btn": "导入",
+        "success": "已从 {{projects}} 个项目导入 {{count}} 条",
+        "error": "Dev 扫描导入失败。请重试。"
+      },
+      "dropFolder": {
+        "title": "拖放文件夹",
+        "hint": "将 .md / .txt / .json 文件拖放到 ~/Documents/Wayland-Memory/",
+        "count": "已处理 {{count}} 个文件",
+        "openBtn": "打开文件夹",
+        "processBtn": "立即处理",
+        "success": "已处理 {{count}} 个文件 · {{errors}} 个错误",
+        "error": "处理失败。请重试。"
+      }
     }
   }
 }

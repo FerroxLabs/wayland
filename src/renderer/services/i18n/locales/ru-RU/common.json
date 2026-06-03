@@ -105,5 +105,9 @@
       "explain": "[TODO:translate] Explain a topic",
       "plan": "[TODO:translate] Draft a plan"
     }
+  },
+  "unit": {
+    "minute_short": "мин",
+    "second_short": "с"
   }
 }

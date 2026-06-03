@@ -68,5 +68,9 @@
   "agentBackendSwap": {
     "success": "[TODO:translate] Agent backend changed",
     "error": "[TODO:translate] Failed to change agent backend"
+  },
+  "removeAgent": {
+    "confirmTitle": "Видалити учасника команди",
+    "confirmContent": "Цей учасник зараз активний. Видалити примусово?"
   }
 }

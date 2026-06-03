@@ -29,6 +29,57 @@
       "redirect": "他のこと",
       "dismissAria": "提案を閉じる",
       "regionAria": "提案された最初のメッセージ"
-    }
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}、{{name}}さん",
+      "labels": {
+        "lateNight": [
+          "お疲れさまです",
+          "夜更かしですね",
+          "まだ起きてるんですね"
+        ],
+        "morning": [
+          "おはよう",
+          "おはようございます",
+          "今日も一日がんばりましょう"
+        ],
+        "afternoon": [
+          "こんにちは",
+          "こんにちは",
+          "おかえりなさい"
+        ],
+        "evening": [
+          "こんばんは",
+          "こんばんは",
+          "おかえりなさい"
+        ],
+        "night": [
+          "こんばんは",
+          "こんばんは",
+          "そろそろ一息つきましょう"
+        ]
+      }
+    },
+    "intent": {
+      "sell": "販売",
+      "write": "作成",
+      "research": "リサーチ",
+      "build": "構築",
+      "run": "実行"
+    },
+    "pillBar": {
+      "label": "用途を選択",
+      "pillLabel": "{{label}}の用途"
+    },
+    "suggestionPanel": {
+      "label": "{{label}}のスタータープロンプト",
+      "heading": "{{label}}から始める",
+      "close": "候補を閉じる"
+    },
+    "recents": {
+      "label": "最近の会話",
+      "heading": "続きから始める"
+    },
+    "voiceHint": "マイクをクリックして話す"
   }
 }

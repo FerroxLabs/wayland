@@ -145,40 +145,6 @@
     "resolve_success": "충돌이 해결되었습니다"
   },
   "wiki": {
-    "list_empty": "아직 Wiki 항목이 없습니다. 메모리를 승격하여 시작하세요.",
-    "select_prompt": "내용을 보려면 항목을 선택하세요.",
-    "promote": "승격",
-    "export": "내보내기",
-    "share_readme": "README 공유",
-    "promote_ok": "Wiki로 승격되었습니다",
-    "promote_err": "항목을 승격할 수 없습니다",
-    "export_queued": "내보내기가 대기열에 추가되었습니다. Wave 6에서 다운로드를 연결합니다",
-    "export_err": "항목을 내보낼 수 없습니다",
-    "share_ok": "README 공유가 대기열에 추가되었습니다",
-    "share_err": "README를 공유할 수 없습니다"
-  },
-  "crossProject": {
-    "scope_label_app": "검색 중: 모든 프로젝트 (앱 범위)",
-    "scope_label_project": "검색 중: {{project}} (프로젝트 범위)",
-    "search_placeholder": "프로젝트 전체에서 메모리 검색",
-    "search_button": "검색",
-    "toggle_label": "다른 프로젝트 포함",
-    "prompt_empty": "프로젝트 브레인에서 검색할 쿼리를 입력하세요.",
-    "results_empty": "검색 범위에서 일치하는 항목이 없습니다.",
-    "navigation_stub": "프로젝트 간 탐색은 Wave 6에서 제공됩니다"
-  },
-  "drop": {
-    "zone_title": "여기에 파일을 끌어다 놓으세요",
-    "zone_hint": "Markdown, 텍스트, JSON, YAML, CSV. 최대 50MB. 대기열 최대 20개 파일.",
-    "browse_button": "찾아보기",
-    "queue_title": "대기 중인 파일",
-    "queue_empty": "대기 중인 파일이 없습니다",
-    "quarantine_button": "격리",
-    "ingest_success": "{{name}}을(를) 대기열에 추가했습니다",
-    "quarantine_success": "{{name}}을(를) 격리했습니다",
-    "path_unavailable": "파일 경로를 읽을 수 없습니다. 대신 찾아보기 버튼을 사용하세요."
-  },
-  "wiki": {
     "home": {
       "title": "Wiki",
       "conceptCount": "{{memories}}개의 메모리에서 {{count}}개의 개념 합성",
@@ -248,6 +214,27 @@
       "notFound": "개념을 찾을 수 없습니다.",
       "notFoundBack": "← Wiki로 돌아가기"
     }
+  },
+  "crossProject": {
+    "scope_label_app": "검색 중: 모든 프로젝트 (앱 범위)",
+    "scope_label_project": "검색 중: {{project}} (프로젝트 범위)",
+    "search_placeholder": "프로젝트 전체에서 메모리 검색",
+    "search_button": "검색",
+    "toggle_label": "다른 프로젝트 포함",
+    "prompt_empty": "프로젝트 브레인에서 검색할 쿼리를 입력하세요.",
+    "results_empty": "검색 범위에서 일치하는 항목이 없습니다.",
+    "navigation_stub": "프로젝트 간 탐색은 Wave 6에서 제공됩니다"
+  },
+  "drop": {
+    "zone_title": "여기에 파일을 끌어다 놓으세요",
+    "zone_hint": "Markdown, 텍스트, JSON, YAML, CSV. 최대 50MB. 대기열 최대 20개 파일.",
+    "browse_button": "찾아보기",
+    "queue_title": "대기 중인 파일",
+    "queue_empty": "대기 중인 파일이 없습니다",
+    "quarantine_button": "격리",
+    "ingest_success": "{{name}}을(를) 대기열에 추가했습니다",
+    "quarantine_success": "{{name}}을(를) 격리했습니다",
+    "path_unavailable": "파일 경로를 읽을 수 없습니다. 대신 찾아보기 버튼을 사용하세요."
   },
   "archive": {
     "topbar": {
@@ -396,6 +383,51 @@
       "load_failed": "메모리를 로드할 수 없습니다. {{reason}}",
       "missing_api": "메모리 API가 아직 준비되지 않았습니다. 잠시 후 다시 시도하세요.",
       "promote_failed": "승격할 수 없습니다. {{reason}}"
+    },
+    "import": {
+      "title": "메모리 가져오기",
+      "close": "가져오기 창 닫기",
+      "importing": "가져오는 중…",
+      "status": {
+        "ready": "준비됨",
+        "checking": "확인 중",
+        "importing": "가져오는 중",
+        "unavailable": "사용 불가",
+        "idle": "대기 중"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "~/.claude-mem/claude-mem.db에서 가져오려면 클릭하세요",
+        "count": "약 {{count}}개 항목 가져옴",
+        "btn": "가져오기",
+        "success": "{{count}}개 항목 가져옴 · 오류 {{errors}}개",
+        "error": "가져오기에 실패했습니다. 다시 시도하세요."
+      },
+      "obsidian": {
+        "title": "Obsidian 보관함",
+        "hint": "보관함을 검색하려면 클릭하세요",
+        "count": "약 {{count}}개 항목 가져옴",
+        "btn": "가져오기",
+        "success": "{{count}}개 항목 가져옴 · 오류 {{errors}}개",
+        "error": "Obsidian 가져오기에 실패했습니다. 다시 시도하세요."
+      },
+      "devScan": {
+        "title": "~/dev 검색",
+        "hint": "~/dev에서 IJFW 메모리 디렉터리를 검색합니다",
+        "count": "약 {{count}}개 항목 가져옴",
+        "btn": "가져오기",
+        "success": "{{projects}}개 프로젝트에서 {{count}}개 항목 가져옴",
+        "error": "Dev 검색 가져오기에 실패했습니다. 다시 시도하세요."
+      },
+      "dropFolder": {
+        "title": "폴더에 끌어다 놓기",
+        "hint": ".md / .txt / .json 파일을 ~/Documents/Wayland-Memory/에 끌어다 놓으세요",
+        "count": "{{count}}개 파일 처리됨",
+        "openBtn": "폴더 열기",
+        "processBtn": "지금 처리",
+        "success": "{{count}}개 파일 처리됨 · 오류 {{errors}}개",
+        "error": "처리에 실패했습니다. 다시 시도하세요."
+      }
     }
   }
 }

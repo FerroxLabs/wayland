@@ -145,40 +145,6 @@
     "resolve_success": "Çakışma çözüldü"
   },
   "wiki": {
-    "list_empty": "Henüz wiki girdisi yok. Başlamak için bir belleği yükseltin.",
-    "select_prompt": "İçeriğini görüntülemek için bir girdi seçin.",
-    "promote": "Yükselt",
-    "export": "Dışa aktar",
-    "share_readme": "README'yi paylaş",
-    "promote_ok": "Wiki'ye yükseltildi",
-    "promote_err": "Girdi yükseltilemedi",
-    "export_queued": "Dışa aktarma sıraya eklendi. İndirme Wave 6'da bağlanacak",
-    "export_err": "Girdi dışa aktarılamadı",
-    "share_ok": "README paylaşımı sıraya eklendi",
-    "share_err": "README paylaşılamadı"
-  },
-  "crossProject": {
-    "scope_label_app": "Arama kapsamı: tüm projeler (uygulama kapsamı)",
-    "scope_label_project": "Arama kapsamı: {{project}} (proje kapsamı)",
-    "search_placeholder": "Tüm projelerde bellekte ara",
-    "search_button": "Ara",
-    "toggle_label": "Diğer projeleri dahil et",
-    "prompt_empty": "Proje belleklerinde arama yapmak için bir sorgu girin.",
-    "results_empty": "Aranan kapsamda eşleşme yok.",
-    "navigation_stub": "Projeler arası gezinti Wave 6'da geliyor"
-  },
-  "drop": {
-    "zone_title": "Dosyaları buraya bırakın",
-    "zone_hint": "Markdown, metin, JSON, YAML, CSV. En fazla 50MB. Sırada en fazla 20 dosya.",
-    "browse_button": "Gözat",
-    "queue_title": "Sıradaki dosyalar",
-    "queue_empty": "Sırada dosya yok",
-    "quarantine_button": "Karantinaya al",
-    "ingest_success": "{{name}} sıraya eklendi",
-    "quarantine_success": "{{name}} karantinaya alındı",
-    "path_unavailable": "Dosya yolu okunamadı. Bunun yerine Gözat düğmesini kullanın."
-  },
-  "wiki": {
     "home": {
       "title": "Wiki",
       "conceptCount": "{{memories}} anıdan {{count}} kavram sentezlendi",
@@ -248,6 +214,27 @@
       "notFound": "Kavram bulunamadı.",
       "notFoundBack": "← Wiki'ye dön"
     }
+  },
+  "crossProject": {
+    "scope_label_app": "Arama kapsamı: tüm projeler (uygulama kapsamı)",
+    "scope_label_project": "Arama kapsamı: {{project}} (proje kapsamı)",
+    "search_placeholder": "Tüm projelerde bellekte ara",
+    "search_button": "Ara",
+    "toggle_label": "Diğer projeleri dahil et",
+    "prompt_empty": "Proje belleklerinde arama yapmak için bir sorgu girin.",
+    "results_empty": "Aranan kapsamda eşleşme yok.",
+    "navigation_stub": "Projeler arası gezinti Wave 6'da geliyor"
+  },
+  "drop": {
+    "zone_title": "Dosyaları buraya bırakın",
+    "zone_hint": "Markdown, metin, JSON, YAML, CSV. En fazla 50MB. Sırada en fazla 20 dosya.",
+    "browse_button": "Gözat",
+    "queue_title": "Sıradaki dosyalar",
+    "queue_empty": "Sırada dosya yok",
+    "quarantine_button": "Karantinaya al",
+    "ingest_success": "{{name}} sıraya eklendi",
+    "quarantine_success": "{{name}} karantinaya alındı",
+    "path_unavailable": "Dosya yolu okunamadı. Bunun yerine Gözat düğmesini kullanın."
   },
   "archive": {
     "topbar": {
@@ -396,6 +383,51 @@
       "load_failed": "Bellek yüklenemedi. {{reason}}",
       "missing_api": "Bellek API'si henüz hazır değil. Bir an sonra tekrar deneyin.",
       "promote_failed": "Yükseltilemedi. {{reason}}"
+    },
+    "import": {
+      "title": "Anıları içe aktar",
+      "close": "İçe aktarma çekmecesini kapat",
+      "importing": "İçe aktarılıyor…",
+      "status": {
+        "ready": "hazır",
+        "checking": "denetleniyor",
+        "importing": "içe aktarılıyor",
+        "unavailable": "kullanılamıyor",
+        "idle": "boşta"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "~/.claude-mem/claude-mem.db konumundan içe aktarmak için tıklayın",
+        "count": "~{{count}} kayıt içe aktarıldı",
+        "btn": "İçe aktar",
+        "success": "{{count}} kayıt içe aktarıldı · {{errors}} hata",
+        "error": "İçe aktarma başarısız oldu. Tekrar deneyin."
+      },
+      "obsidian": {
+        "title": "Obsidian kasası",
+        "hint": "Kasaları taramak için tıklayın",
+        "count": "~{{count}} kayıt içe aktarıldı",
+        "btn": "İçe aktar",
+        "success": "{{count}} kayıt içe aktarıldı · {{errors}} hata",
+        "error": "Obsidian içe aktarma başarısız oldu. Tekrar deneyin."
+      },
+      "devScan": {
+        "title": "~/dev taraması",
+        "hint": "IJFW bellek dizinleri için ~/dev tarar",
+        "count": "~{{count}} kayıt içe aktarıldı",
+        "btn": "İçe aktar",
+        "success": "{{projects}} projeden {{count}} kayıt içe aktarıldı",
+        "error": "Dev taraması içe aktarma başarısız oldu. Tekrar deneyin."
+      },
+      "dropFolder": {
+        "title": "Klasöre bırak",
+        "hint": ".md / .txt / .json dosyalarını ~/Documents/Wayland-Memory/ içine bırakın",
+        "count": "{{count}} dosya işlendi",
+        "openBtn": "Klasörü aç",
+        "processBtn": "Şimdi işle",
+        "success": "{{count}} dosya işlendi · {{errors}} hata",
+        "error": "İşleme başarısız oldu. Tekrar deneyin."
+      }
     }
   }
 }

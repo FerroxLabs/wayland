@@ -13,7 +13,8 @@
     "launch": "Launch now",
     "schedule": "Schedule",
     "import": "Import workflow",
-    "build": "Build a workflow"
+    "build": "Build a workflow",
+    "runOn": "実行先"
   },
   "import": {
     "placeholder": "Import wiring lands next: folder / git URL / SKILL.md with type:workflow auto-detected via frontmatter, scanned by Skill Guard, and registered as source:imported."
@@ -35,5 +36,9 @@
   "noDescription": "No description provided.",
   "launch": {
     "placeholder": "Launch wiring is in flight. Soon you will pick an engine (Wayland Core / Gemini / Claude / Codex), and the workflow will load as the agent's first directive in a fresh chat."
+  },
+  "launchError": "ワークフローの起動に失敗しました: {{msg}}",
+  "picker": {
+    "noAgent": "バックエンドが選択されていません"
   }
 }

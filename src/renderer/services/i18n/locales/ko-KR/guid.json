@@ -29,6 +29,57 @@
       "redirect": "다른 것",
       "dismissAria": "제안 닫기",
       "regionAria": "추천 시작 메시지"
-    }
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": [
+          "늦게까지 일하시네요",
+          "밤늦게까지 고생이 많으세요",
+          "아직 안 주무셨네요"
+        ],
+        "morning": [
+          "좋은 아침",
+          "좋은 아침이에요",
+          "상쾌한 아침이에요"
+        ],
+        "afternoon": [
+          "안녕하세요",
+          "좋은 오후예요",
+          "다시 오셨네요"
+        ],
+        "evening": [
+          "좋은 저녁",
+          "좋은 저녁이에요",
+          "다시 오셨네요"
+        ],
+        "night": [
+          "좋은 저녁",
+          "좋은 저녁이에요",
+          "하루 마무리할 시간이네요"
+        ]
+      }
+    },
+    "intent": {
+      "sell": "판매",
+      "write": "작성",
+      "research": "조사",
+      "build": "구축",
+      "run": "실행"
+    },
+    "pillBar": {
+      "label": "용도 선택",
+      "pillLabel": "{{label}} 용도"
+    },
+    "suggestionPanel": {
+      "label": "{{label}} 시작 프롬프트",
+      "heading": "{{label}}(으)로 시작하기",
+      "close": "추천 닫기"
+    },
+    "recents": {
+      "label": "최근 대화",
+      "heading": "이어서 시작하기"
+    },
+    "voiceHint": "마이크를 클릭하여 말하세요"
   }
 }

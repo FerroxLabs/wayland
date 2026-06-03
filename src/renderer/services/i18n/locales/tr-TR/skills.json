@@ -4,7 +4,8 @@
   "search": {
     "placeholder": "Beceri ara...",
     "empty": "Aramanızla eşleşen beceri yok",
-    "resultsCount": "{{count}} eşleşen beceri"
+    "resultsCount": "{{count}} eşleşen beceri",
+    "emptyLibrary": "Henüz yüklenmiş beceri yok — bir tane içe aktarmayı deneyin veya paketlenmiş kütüphaneyi yeniden yüklemek için uygulamayı yeniden başlatın."
   },
   "filters": {
     "allSources": "Tüm kaynaklar",
@@ -60,7 +61,49 @@
       "folder": "Klasör",
       "git": "Git URL",
       "zip": "ZIP dosyası",
-      "marketplace": "Market (yakında)"
+      "marketplace": "Market (yakında)",
+      "singleSkillMd": "Tek SKILL.md"
+    },
+    "folder": {
+      "label": "Beceri klasörü",
+      "placeholder": "Bir klasör seçmek için tıklayın…",
+      "browse": "Gözat"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP dosyası",
+      "placeholder": "Bir ZIP seçmek için tıklayın…",
+      "browse": "Gözat"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md dosyası",
+      "placeholder": "Bir SKILL.md seçmek için tıklayın…",
+      "browse": "Gözat"
+    },
+    "actions": {
+      "import": "İçe aktar",
+      "importing": "İçe aktarılıyor…",
+      "importAllClean": "Tüm temiz olanları içe aktar",
+      "reviewAndSelect": "İncele ve seç",
+      "cancel": "İptal"
+    },
+    "scan": {
+      "title": "Tarama sonuçları",
+      "verdict": {
+        "clean": "Temiz",
+        "review": "İnceleme gerekiyor",
+        "blocked": "Engellendi"
+      },
+      "noFindings": "Sorun bulunamadı",
+      "finding": "{{count}} bulgu",
+      "finding_other": "{{count}} bulgu"
+    },
+    "error": {
+      "failed": "İçe aktarma başarısız oldu",
+      "invalidUrl": "Geçerli bir https:// veya git@ URL girin"
     }
   },
   "builder": {
@@ -118,5 +161,21 @@
     "metadata": "Meta veri",
     "body": "Gövde",
     "quarantined": "Bu beceri karantinaya alındı ve yüklenemiyor."
+  },
+  "stats": {
+    "total": "Toplam beceri",
+    "pinned": "Sabitlenmiş",
+    "flagged": "İşaretlenmiş",
+    "sources": "Kaynaklar"
+  },
+  "sections": {
+    "sources": "Kaynaklar",
+    "status": "Durum",
+    "categories": "Kategoriler"
+  },
+  "cliDiscovery": {
+    "title": "Becerileri kurulu CLI araçlarından yansıt",
+    "subtitle": "~/.claude/skills, ~/.codex/skills ve ~/.gemini/skills içindeki becerileri Beceriler sayfanızda görünmeleri için ortaya çıkarın. İsteğe bağlıdır. Etkili olması için yeniden başlatma gerekir.",
+    "restartNeeded": "— uygulamak için uygulamayı yeniden başlatın."
   }
 }

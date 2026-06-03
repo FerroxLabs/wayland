@@ -249,7 +249,615 @@
   "webui": "遠端連線",
   "installed": "已安裝",
   "builtin": "內建",
-  "channels": "頻道",
+  "channels": {
+    "label": "頻道",
+    "telegram": {
+      "help": "透過 Telegram 與你的 Wayland AI 助理對話。使用 @BotFather 建立一個機器人即可開始。"
+    },
+    "slack": {
+      "comingSoonTitle": "Slack 支援將於 {{phase}} 推出",
+      "comingSoonBody": "透過 Socket Mode 進行機器人整合。可在你工作區的任何頻道發送及接收訊息。",
+      "learnMore": "瞭解詳情",
+      "help": "透過 @slack/bolt 進行原生 Slack 機器人整合。選擇 Socket Mode 可獲得最簡單的設定（不需要公開的 webhook URL），若你已有穩定的 HTTPS 端點則可選擇 Events API。",
+      "replaceWarning": "連接新的 Slack 工作區會取代你現有的工作區。",
+      "connectionSuccess": "已連接！機器人：@{{username}}",
+      "connectionFailed": "連接失敗",
+      "pluginEnabled": "Slack 機器人已啟用",
+      "enableFailed": "無法啟用外掛程式",
+      "testAndEnable": "測試並啟用",
+      "credentials": {
+        "transport": {
+          "label": "傳輸方式",
+          "help": "Socket Mode 會由 Slack 發起一個對外的 WebSocket 連線，不需要公開 URL。Events API 則使用以簽署密鑰驗證的對內 HTTPS webhook。",
+          "socket": "Socket Mode",
+          "events": "Events API"
+        },
+        "botToken": {
+          "label": "機器人 Token",
+          "placeholder": "xoxb-...你的機器人-token...",
+          "help": "OAuth & Permissions → Bot User OAuth Token。以「xoxb-」開頭。",
+          "required": "請輸入機器人 Token"
+        },
+        "appToken": {
+          "label": "App 層級 Token",
+          "placeholder": "xapp-...你的-app-token...",
+          "help": "Socket Mode 必填。Basic Information → App-Level Tokens → Generate Token and Scopes，並加入 connections:write。以「xapp-」開頭。",
+          "required": "Socket Mode 需要 App 層級 Token"
+        },
+        "signingSecret": {
+          "label": "簽署密鑰",
+          "placeholder": "32 字元的十六進位簽署密鑰",
+          "help": "Events API 必填。Basic Information → App Credentials → Signing Secret。用於驗證每次 webhook 傳送的 X-Slack-Signature HMAC。",
+          "required": "Events API 傳輸方式需要簽署密鑰"
+        }
+      }
+    },
+    "discord": {
+      "comingSoonTitle": "Discord 支援即將推出",
+      "comingSoonBody": "原生 Discord 機器人整合正在開發中。可在功能推出後設定你的機器人 Token、Application ID 及允許的伺服器。",
+      "learnMore": "瞭解詳情",
+      "help": "透過 Gateway 進行原生 Discord 機器人整合。在 Developer Portal 中建立 Discord 應用程式與機器人，然後在下方貼上機器人 Token。",
+      "replaceWarning": "連接新的 Discord 機器人會取代你現有的機器人。",
+      "connectionSuccess": "已連接！機器人：@{{username}}",
+      "connectionFailed": "連接失敗",
+      "pluginEnabled": "Discord 機器人已啟用",
+      "enableFailed": "無法啟用外掛程式",
+      "testAndEnable": "測試並啟用",
+      "credentials": {
+        "botToken": {
+          "label": "機器人 Token",
+          "placeholder": "MTI...你的機器人-token...",
+          "help": "可在 Discord Developer Portal 中你的應用程式底下找到：Bot → Reset Token。",
+          "required": "請輸入機器人 Token"
+        },
+        "applicationId": {
+          "label": "Application ID",
+          "placeholder": "1234567890123456789",
+          "help": "選填。僅在為此機器人註冊斜線命令時才需要。"
+        },
+        "publicKey": {
+          "label": "公開金鑰",
+          "placeholder": "十六進位格式的 ed25519 公開金鑰",
+          "help": "選填。僅在你日後改用 HTTP 互動端點而非 Gateway 時才需要。"
+        }
+      }
+    },
+    "webhook": {
+      "comingSoonTitle": "Webhook 頻道將於 {{phase}} 推出",
+      "comingSoonBody": "具備 HMAC 簽章驗證的通用對內 HTTP 端點。適用於自訂整合。",
+      "learnMore": "瞭解詳情"
+    },
+    "dingtalk": {
+      "help": "透過釘釘機器人進行企業訊息傳遞。在釘釘群組內建立自訂機器人即可取得存取權杖。",
+      "comingSoonTitle": "釘釘支援即將推出",
+      "comingSoonBody": "原生釘釘機器人整合開發中。ClientId/Secret 與串流模式將於推出後提供。",
+      "learnMore": "瞭解更多"
+    },
+    "lark": {
+      "help": "適用於 Lark / 飛書群組的工作區訊息傳遞。在 Lark 開發者後台建立自訂應用程式即可取得 App ID 和 App Secret。",
+      "comingSoonTitle": "Lark / 飛書支援即將推出",
+      "comingSoonBody": "原生 Lark 與飛書機器人整合開發中。網域選擇器、AppId/Secret 與進階 webhook 選項將於推出後提供。",
+      "learnMore": "瞭解更多"
+    },
+    "wechat": {
+      "help": "與微信個人帳號的 QR 配對。用微信掃描配對 QR 即可啟用對話路由。",
+      "comingSoonTitle": "微信支援即將推出",
+      "comingSoonBody": "微信 QR 配對整合開發中。可用後以微信掃描即可連線。",
+      "learnMore": "瞭解更多"
+    },
+    "wecom": {
+      "help": "適用於公司工作區的企業微信。註冊自建應用程式即可取得 Corp ID、Agent ID 和 Secret。",
+      "comingSoonTitle": "企業微信支援即將推出",
+      "comingSoonBody": "企業微信機器人整合開發中。支援回呼 URL 設定的 webhook 與 WebSocket 模式將於推出後提供。",
+      "learnMore": "瞭解更多"
+    },
+    "whatsapp": {
+      "comingSoonTitle": "WhatsApp 將於 {{phase}} 推出",
+      "comingSoonBody": "Meta WhatsApp Business Cloud API。透過已驗證的 webhook 接收訊息，並以 REST 發送訊息。自由格式回覆受 24 小時客戶服務時間窗限制。",
+      "help": "三種後端：Baileys（直接使用 WhatsApp Web 協定，建議）、WhatsApp Web.js（以 Puppeteer 為基礎的替代方案），或 Meta Business Cloud API（已驗證的商業號碼）。",
+      "replaceWarning": "連接新的 WhatsApp 帳號會取代你現有的帳號。",
+      "accountLockWarning": "連接新的 WhatsApp 帳號會取代你現有的帳號。現有的 QR 配對或 webhook URL 將失效。",
+      "connectionSuccess": "WhatsApp 已連接",
+      "connectionFailed": "連接失敗",
+      "pluginEnabled": "WhatsApp 外掛程式已啟用",
+      "enableFailed": "無法啟用外掛程式",
+      "testAndEnable": "測試並啟用",
+      "credentials": {
+        "backend": {
+          "label": "後端",
+          "placeholder": "baileys",
+          "help": "個人帳號建議使用 Baileys。已驗證的商業帳號及範本訊息則必須使用 Meta Business。",
+          "required": "請選擇一個後端",
+          "baileys": "Baileys（建議）",
+          "whatsappWeb": "WhatsApp Web.js",
+          "metaBusiness": "Meta Business"
+        },
+        "accessToken": {
+          "label": "存取 Token",
+          "placeholder": "EAAG...你的-token...",
+          "help": "Meta 系統使用者或臨時存取 Token。於 Meta Business Suite → System Users 中產生。",
+          "required": "Meta 後端需要存取 Token 和 Phone Number ID"
+        },
+        "phoneNumberId": {
+          "label": "Phone Number ID",
+          "placeholder": "123456789012345",
+          "help": "來自 Meta Business → WhatsApp → Phone Numbers 的數字 ID，並非電話號碼本身。",
+          "required": "Meta 後端需要 Phone Number ID"
+        },
+        "businessAccountId": {
+          "label": "Business Account ID",
+          "placeholder": "987654321098765",
+          "help": "選填。可在對內訊息事件中啟用更豐富的中繼資料。",
+          "required": ""
+        },
+        "verifyToken": {
+          "label": "驗證 Token",
+          "placeholder": "一段很長的隨機字串",
+          "help": "由操作者自訂的字串，Meta 會在 GET /webhook 交握過程中回傳。必須與你貼到 Meta 後台的內容相符。",
+          "required": ""
+        }
+      },
+      "qrPairing": {
+        "title": "QR 配對",
+        "help": "在手機上開啟 WhatsApp → 設定 → 已連結的裝置 → 連結裝置，然後掃描下方的代碼。在完成配對前，代碼每分鐘會更換一次。",
+        "refreshing": "正在等待橋接器傳來配對代碼…"
+      },
+      "webhookUrl": {
+        "label": "對內 Webhook URL",
+        "help": "將此 URL 貼到 Meta Business → WhatsApp → Configuration → Webhook callback URL。",
+        "tunnelPlaceholder": "（於 Phase 4 設定通道）",
+        "notMinted": "<not-minted>",
+        "copyButton": "複製",
+        "rotateButton": "輪替",
+        "rotateSuccess": "Webhook URL 已輪替",
+        "rotateFailed": "輪替失敗"
+      }
+    },
+    "smsTwilio": {
+      "comingSoonTitle": "SMS（Twilio）將於 {{phase}} 推出",
+      "comingSoonBody": "透過 Twilio Programmable Messaging 發送及接收 SMS。每個號碼的 webhook 路由皆採用 HMAC-SHA1 簽章驗證。美國部署需註冊 A2P 10DLC。",
+      "accountLockWarning": "連接新的 SMS 帳號會取代你現有的帳號。現有的 webhook URL 將失效。",
+      "a2pNotice": "美國部署需註冊 A2P 10DLC 品牌與行銷活動。免付費號碼需另行驗證。兩項程序皆可能耗時數天。",
+      "credentials": {
+        "accountSid": {
+          "label": "Account SID",
+          "placeholder": "ACxxxxxxxxxxxxxxxx",
+          "help": "可在 Twilio Console 主控台中找到您的 Account SID，開頭為「AC」。"
+        },
+        "authToken": {
+          "label": "Auth Token",
+          "placeholder": "auth token",
+          "help": "請將 auth token 視同密碼妥善保管，Twilio 會用它為每個 webhook 簽章。"
+        },
+        "fromNumber": {
+          "label": "發送號碼",
+          "placeholder": "+14155550123",
+          "help": "E.164 格式，例如 +14155550123。請提供發送號碼或 Messaging Service SID 其中之一。",
+          "invalid": "必須為 E.164 格式，例如 +14155550123"
+        },
+        "messagingServiceSid": {
+          "label": "Messaging Service SID",
+          "placeholder": "MGxxxxxxxxxxxxxxxx",
+          "help": "發送號碼的選用替代方案。使用 Messaging Service 可啟用號碼集區或寄件者 ID 輪替。"
+        }
+      },
+      "webhookUrl": {
+        "label": "入站 Webhook URL",
+        "help": "請將此 URL 貼到 Twilio 號碼的「A Message Comes In」webhook 欄位（POST）。",
+        "tunnelPlaceholder": "（請於第 4 階段設定通道）",
+        "notMinted": "<not-minted>",
+        "copyButton": "複製",
+        "rotateButton": "輪替",
+        "rotateSuccess": "Webhook URL 已輪替",
+        "rotateFailed": "輪替失敗"
+      }
+    },
+    "signal": {
+      "comingSoonTitle": "Signal 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 signal-cli 子程序連線。端對端加密。需要專屬電話號碼進行一次性註冊。",
+      "help": "透過 signal-cli 子程序常駐程式進行端對端加密通訊。需要已於 Signal 註冊的專屬電話號碼。必須安裝 signal-cli 或可透過內建執行環境使用。",
+      "replaceWarning": "連接新的 Signal 帳號將取代您現有的帳號。",
+      "connectionSuccess": "Signal 已連線",
+      "connectionFailed": "Signal 連線測試失敗",
+      "pluginEnabled": "Signal 外掛已啟用",
+      "enableFailed": "無法啟用 Signal 外掛",
+      "testAndEnable": "測試並啟用",
+      "installHowTo": "若沒有內建執行環境，必須另行安裝 signal-cli。安裝方式：brew install signal-cli | apt-get install signal-cli。安裝後請註冊您的號碼：signal-cli -a +1… register",
+      "credentials": {
+        "phoneNumber": {
+          "label": "電話號碼",
+          "placeholder": "+14155551234",
+          "help": "E.164 格式，且必須已於 Signal 註冊。建議使用專屬號碼。",
+          "required": "請輸入您的 Signal 電話號碼",
+          "invalid": "電話號碼必須為 E.164 格式，例如 +14155551234"
+        },
+        "cliPath": {
+          "label": "signal-cli 路徑（選填）",
+          "placeholder": "/usr/local/bin/signal-cli",
+          "help": "留空則使用內建執行環境或您 PATH 中的 signal-cli。"
+        }
+      }
+    },
+    "matrix": {
+      "comingSoonTitle": "Matrix 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 matrix-js-sdk 支援聯邦架構。選用的端對端加密並支援裝置驗證。相容於任何 homeserver。",
+      "help": "透過 matrix-js-sdk 進行支援聯邦架構的通訊。請提供您的 homeserver URL、完整 mxid（例如 @bot:matrix.org）以及長期有效的 access token。",
+      "replaceWarning": "連接新的 Matrix 帳號將取代您現有的帳號。",
+      "connectionSuccess": "Matrix 已連線",
+      "connectionFailed": "Matrix 連線失敗",
+      "pluginEnabled": "Matrix 外掛已啟用",
+      "enableFailed": "無法啟用外掛",
+      "testAndEnable": "測試並啟用",
+      "accessTokenHowTo": "如何取得 access token：請參閱 https://t2bot.io/docs/access_tokens/ 或您 homeserver 的設定。",
+      "credentials": {
+        "homeserverUrl": {
+          "label": "Homeserver URL",
+          "placeholder": "https://matrix.org",
+          "help": "您 Matrix homeserver 的 HTTPS 基礎 URL。公開的旗艦伺服器請使用 https://matrix.org。",
+          "required": "請輸入 homeserver URL"
+        },
+        "userId": {
+          "label": "使用者 ID（mxid）",
+          "placeholder": "@bot:matrix.org",
+          "help": "包含伺服器後綴的完整 Matrix ID，例如 @bot:matrix.org。",
+          "required": "請輸入 Matrix 使用者 ID（mxid）"
+        },
+        "accessToken": {
+          "label": "Access Token",
+          "placeholder": "syt_...your-matrix-access-token...",
+          "help": "長期有效的 access token。Element：All settings → Help & About → Access Token。或使用專屬的機器人帳號。",
+          "required": "請輸入 access token"
+        }
+      }
+    },
+    "msTeams": {
+      "comingSoonTitle": "MS Teams 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 Azure Bot Service 使用 Microsoft Bot Framework。以 Adaptive Cards 呈現豐富訊息。需要 Azure 訂閱及 Teams 管理員核准。",
+      "help": "透過 Azure Bot Service 使用 Bot Framework。註冊機器人、設定 webhook 端點，並於下方貼上您的 App ID 與用戶端密鑰。",
+      "replaceWarning": "儲存新的憑證將取代現有的 MS Teams 機器人連線。",
+      "connectionFailed": "MS Teams 連線失敗",
+      "connectionSuccess": "MS Teams 已連線",
+      "pluginEnabled": "MS Teams 外掛已啟用",
+      "enableFailed": "無法啟用外掛",
+      "testAndEnable": "測試並啟用",
+      "setupHint": "請在 Azure 入口網站註冊您的機器人：Azure Bot Service → 建立資源 → 設定 Microsoft Teams 頻道 → 將傳訊端點設為您的 Wayland webhook URL → 在此處複製 App ID 與用戶端密鑰。",
+      "credentials": {
+        "appId": {
+          "label": "App ID（MicrosoftAppId）",
+          "help": "Azure AD 應用程式註冊的用戶端 ID，位於 Azure 入口網站 → App Registrations → Overview。",
+          "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          "required": "請輸入 App ID"
+        },
+        "appPassword": {
+          "label": "App Password（用戶端密鑰）",
+          "help": "Azure AD 用戶端密鑰，App Registrations → Certificates & secrets → New client secret。",
+          "placeholder": "貼上您的用戶端密鑰值",
+          "required": "請輸入 App Password"
+        }
+      },
+      "webhookUrl": {
+        "label": "入站 Webhook URL",
+        "help": "請在 Azure Bot Service 中將此設為傳訊端點（Messaging Endpoint）。",
+        "copyButton": "複製",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "line": {
+      "credentials": {
+        "bothRequired": "必須提供 Channel Access Token 與 Channel Secret",
+        "channelAccessToken": {
+          "label": "Channel Access Token",
+          "help": "來自 LINE Developers Console → Messaging API → Channel access token 的長期有效權杖。",
+          "placeholder": "貼上您的 channel access token"
+        },
+        "channelSecret": {
+          "label": "Channel Secret",
+          "help": "來自 LINE Developers Console → Basic settings 的 channel secret。用於驗證 webhook 簽章。",
+          "placeholder": "貼上您的 channel secret"
+        }
+      },
+      "accountLockWarning": "儲存新的憑證將取代現有的 LINE 機器人連線。",
+      "connectionFailed": "連線失敗",
+      "connectionSuccess": "已以 {{botUsername}} 連線",
+      "pluginEnabled": "LINE 外掛已啟用",
+      "enableFailed": "無法啟用外掛",
+      "testAndEnable": "測試並啟用",
+      "webhookUrl": {
+        "label": "入站 Webhook URL",
+        "help": "請將此 URL 貼到 LINE Developers Console → Messaging API → Webhook URL。",
+        "copyButton": "複製",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "imessage": {
+      "comingSoonTitle": "iMessage 將於 {{phase}} 推出",
+      "comingSoonBody": "僅限 macOS，實驗性功能。透過 AppleScript 橋接 Messages.app。Apple 會悄悄限制指令稿發送速率，因此傳訊會受到節流。"
+    },
+    "viber": {
+      "comingSoonTitle": "Viber 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 Viber Bot API 進行機器人整合。入站使用 webhook，出站使用 REST。需要公開 URL。"
+    },
+    "bluebubbles": {
+      "comingSoonTitle": "BlueBubbles 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 BlueBubbles 中繼伺服器使用 iMessage。需要您網路上有一台執行 BlueBubbles 伺服器的備用 Mac。"
+    },
+    "threema": {
+      "comingSoonTitle": "Threema 將於 {{phase}} 推出",
+      "comingSoonBody": "Threema Gateway API。採用每則訊息計價的 B2B 合約。端對端加密。"
+    },
+    "mastodon": {
+      "comingSoonTitle": "Mastodon 將於 {{phase}} 推出",
+      "comingSoonBody": "每個站台使用 OAuth 加上 WebSocket 串流。每個帳號在單一站台上對應一組憑證。"
+    },
+    "bluesky": {
+      "comingSoonTitle": "Bluesky 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 @atproto/api 使用 AT Protocol。以 Jetstream firehose 接收提及；以 XRPC 發文。請使用應用程式專用密碼，而非您的主要登入密碼。"
+    },
+    "reddit": {
+      "comingSoonTitle": "Reddit 私訊將於 {{phase}} 推出",
+      "comingSoonBody": "使用 Reddit API 處理私訊。僅支援輪詢（私訊無串流端點）。"
+    },
+    "twitch": {
+      "comingSoonTitle": "Twitch 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 IRC 橋接或 EventSub 使用 Twitch 聊天。每組權杖連接一個頻道。",
+      "help": "透過 IRC（tmi.js）使用 Twitch 聊天。以 OAuth 連接機器人帳號，即可在一個或多個頻道中讀取與發送訊息。",
+      "connectionSuccess": "Twitch 已成功連線",
+      "connectionFailed": "Twitch 連線失敗，請檢查權杖與使用者名稱",
+      "pluginEnabled": "Twitch 外掛已啟用",
+      "enableFailed": "無法啟用 Twitch 外掛",
+      "replaceWarning": "連接新的 Twitch 機器人將取代您現有的憑證。",
+      "testAndEnable": "測試並啟用",
+      "tokenHowTo": "請使用專用的機器人帳號，切勿使用您個人的 Twitch 帳號。請至 twitchtokengenerator.com 產生 token，並選取 chat:read 與 chat:edit 範圍。",
+      "credentials": {
+        "botUsername": {
+          "label": "機器人使用者名稱",
+          "help": "您機器人帳號的 Twitch 登入名稱（小寫）。",
+          "required": "請輸入機器人使用者名稱"
+        },
+        "oauthToken": {
+          "label": "OAuth Token",
+          "help": "具備 chat:read 與 chat:edit 範圍的機器人 OAuth token。請至 twitchtokengenerator.com 取得。",
+          "required": "請輸入 OAuth token"
+        },
+        "channels": {
+          "label": "頻道",
+          "help": "以逗號分隔要加入的頻道名稱（例如 mychannel, otherchannel）。# 前綴為選用。",
+          "required": "請至少輸入一個要加入的頻道"
+        }
+      }
+    },
+    "nostr": {
+      "comingSoonTitle": "Nostr 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 Nostr relay 進行加密私訊。請自備您的私鑰（nsec）。"
+    },
+    "telegramUserbot": {
+      "comingSoonTitle": "Telegram Userbot 將於 {{phase}} 推出",
+      "comingSoonBody": "MTProto 使用者模式（gramjs / mtcute）。與 Bot API 分開。警告：執行 userbot 可能因違反服務條款而導致電話號碼遭封鎖。"
+    },
+    "mattermost": {
+      "comingSoonTitle": "Mattermost 將於 {{phase}} 推出",
+      "comingSoonBody": "可自行架設的 Slack 替代方案。WebSocket 事件搭配 REST。"
+    },
+    "googleChat": {
+      "comingSoonTitle": "Google Chat 將於 {{phase}} 推出",
+      "comingSoonBody": "透過 Chat API 進行 Google Workspace 整合。需要 OAuth。",
+      "help": "Google Chat（Workspace）機器人。請貼上您的服務帳戶 JSON 金鑰檔，並提供用於 webhook 驗證的預期 JWT 對象（專案編號或應用程式 URL）。",
+      "replaceWarning": "儲存新憑證將取代現有的 Google Chat 機器人連線。",
+      "connectionSuccess": "Google Chat 已連線為 {{email}}",
+      "connectionFailed": "Google Chat 連線失敗",
+      "pluginEnabled": "Google Chat 外掛已啟用",
+      "enableFailed": "無法啟用 Google Chat 外掛",
+      "testAndEnable": "測試並啟用",
+      "credentials": {
+        "serviceAccountJson": {
+          "label": "服務帳戶 JSON",
+          "help": "請貼上您 Google Cloud 服務帳戶金鑰檔（JSON）的完整內容。機器人必須具備 Chat API 範圍（chat.bot）。",
+          "placeholder": "{ \"type\": \"service_account\", \"project_id\": \"...\", ... }"
+        },
+        "audience": {
+          "label": "JWT 對象",
+          "help": "Google Chat 的 Bearer JWT 中預期的 `aud` 宣告。請使用您的 Google Cloud 專案編號（例如 123456789012）或已註冊的應用程式 URL。",
+          "placeholder": "123456789012",
+          "required": "Webhook 驗證需要 JWT 對象"
+        },
+        "bothRequired": "服務帳戶 JSON 與 JWT 對象為必填"
+      },
+      "webhookUrl": {
+        "label": "傳入 Webhook URL",
+        "help": "請將此 URL 貼到 Google Cloud Console → Google Chat API → 設定 → 應用程式 URL。",
+        "copyButton": "複製",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "nextcloudTalk": {
+      "comingSoonTitle": "Nextcloud Talk 將於 {{phase}} 推出",
+      "comingSoonBody": "適用於 Nextcloud 執行個體的自架聊天。使用者名稱 + 應用程式密碼。",
+      "help": "透過應用程式密碼 Basic 驗證的自架 Nextcloud Talk。請提供您的伺服器 URL、Nextcloud 使用者名稱，以及在「個人 → 安全性 → 應用程式密碼」下產生的應用程式密碼。",
+      "replaceWarning": "連接新帳號將取代您現有的 Nextcloud Talk 連線。",
+      "connectionSuccess": "Nextcloud Talk 已連線",
+      "connectionFailed": "Nextcloud Talk 連線失敗",
+      "pluginEnabled": "Nextcloud Talk 外掛已啟用",
+      "enableFailed": "無法啟用外掛",
+      "testAndEnable": "測試並啟用",
+      "appPasswordHowTo": "如何建立應用程式密碼：開啟 Nextcloud → 右上方頭像 → 個人設定 → 安全性 → 應用程式密碼。",
+      "credentials": {
+        "serverUrl": {
+          "label": "伺服器 URL",
+          "help": "您 Nextcloud 執行個體的基底 URL，例如 https://cloud.example.com",
+          "placeholder": "https://cloud.example.com",
+          "required": "請輸入 Nextcloud 伺服器 URL"
+        },
+        "username": {
+          "label": "使用者名稱",
+          "help": "您的 Nextcloud 登入名稱。",
+          "placeholder": "youruser",
+          "required": "請輸入您的 Nextcloud 使用者名稱"
+        },
+        "appPassword": {
+          "label": "應用程式密碼",
+          "help": "請在您的 Nextcloud 設定中於「個人 → 安全性 → 應用程式密碼」下產生。",
+          "placeholder": "xxxx-xxxx-xxxx-xxxx",
+          "required": "請輸入應用程式密碼"
+        }
+      }
+    },
+    "synologyChat": {
+      "comingSoonTitle": "Synology Chat 將於 {{phase}} 推出",
+      "comingSoonBody": "在 Synology NAS 上聊天。傳入使用 Webhook，傳出使用 REST。",
+      "replaceWarning": "連接新的 Synology Chat 帳號將取代您現有的帳號。",
+      "connectionSuccess": "Synology Chat 已連線",
+      "connectionFailed": "Synology Chat 連線失敗",
+      "pluginEnabled": "Synology Chat 外掛已啟用",
+      "enableFailed": "無法啟用 Synology Chat 外掛",
+      "testAndEnable": "測試並啟用",
+      "howTo": "設定指南：Synology Chat → 管理 → 整合 → 傳入/傳出 Webhook。",
+      "credentials": {
+        "incomingUrl": {
+          "label": "傳入 Webhook URL",
+          "help": "來自 Synology Chat 管理面板（整合 → 傳入 Webhook）的 webhook URL。我們會將回覆 POST 到此處。",
+          "placeholder": "https://your-nas/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&...",
+          "required": "請輸入 Synology Chat 傳入 webhook URL"
+        },
+        "incomingToken": {
+          "label": "Webhook Token",
+          "help": "Synology Chat 在每個傳出 webhook 請求中傳送的 token（傳出 Webhook → Token）。用於驗證傳入的傳遞。",
+          "placeholder": "your-synology-webhook-token",
+          "required": "請輸入 webhook token"
+        }
+      },
+      "webhookUrl": {
+        "label": "傳入 Webhook URL",
+        "help": "請將此 URL 貼到 Synology Chat → 傳出 Webhook → 傳出 URL。",
+        "copyButton": "複製",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "irc": {
+      "comingSoonTitle": "IRC 將於 {{phase}} 推出",
+      "comingSoonBody": "經典的 IRC 連線。伺服器、連接埠、頻道，以及選用的 SASL 驗證。"
+    },
+    "qq": {
+      "comingSoonTitle": "QQ 將於 {{phase}} 推出",
+      "comingSoonBody": "騰訊 QQ 訊息。在中國以外的實用性有限。"
+    },
+    "xiaomi": {
+      "comingSoonTitle": "小米將於 {{phase}} 推出",
+      "comingSoonBody": "小米 MIUI 訊息。僅限中國。"
+    },
+    "zalo": {
+      "comingSoonTitle": "Zalo 將於 {{phase}} 推出",
+      "comingSoonBody": "越南訊息平台。Webhook + REST。"
+    },
+    "xDms": {
+      "comingSoonTitle": "X / Twitter 私訊",
+      "premiumGate": "需要 Premium API 層級（每月 $200）。請訂閱 X Developer Platform Basic 或更高層級以啟用私訊。截至 2026 年，X Basic 層級已不開放新註冊。"
+    },
+    "emailAgentMail": {
+      "help": "透過 AgentMail 的 webhook 驅動 SaaS 電子郵件。每個代理都有專屬收件匣；AgentMail 負責處理送達率、串接與簽署的傳入 webhook。",
+      "replaceWarning": "取代 AgentMail 帳號會使現有的 webhook URL 失效。",
+      "accountLockWarning": "連接新的 AgentMail 帳號將取代您現有的帳號。現有的 webhook URL 將失效。",
+      "connectionSuccess": "AgentMail 連線已驗證",
+      "connectionFailed": "AgentMail 連線測試失敗",
+      "pluginEnabled": "AgentMail 頻道已啟用",
+      "enableFailed": "無法啟用 AgentMail 外掛",
+      "testAndEnable": "測試並啟用",
+      "credentials": {
+        "apiKey": {
+          "label": "API 金鑰",
+          "placeholder": "am_xxxxxxxxxxxxxxxx",
+          "help": "AgentMail 儀表板 → API 金鑰。請比照密碼處理。",
+          "required": "API 金鑰為必填"
+        },
+        "inboxAddress": {
+          "label": "收件匣地址",
+          "placeholder": "agent@workspace.agentmail.to",
+          "help": "AgentMail 為此代理配置的專屬收件匣，例如 agent@workspace.agentmail.to。",
+          "required": "收件匣地址為必填"
+        },
+        "webhookSecret": {
+          "label": "Webhook 密鑰",
+          "placeholder": "whsec_xxxxxxxxxxxxxxxx",
+          "help": "AgentMail 用於簽署 webhook 傳遞的選用 HMAC 密鑰。請從 AgentMail 儀表板複製。",
+          "required": "簽署傳遞驗證需要 webhook 密鑰"
+        }
+      },
+      "webhookUrl": {
+        "label": "傳入 Webhook URL",
+        "help": "請將此 URL 貼到 AgentMail 儀表板的「Webhook URL」欄位。",
+        "tunnelPlaceholder": "（在第 4 階段設定通道）",
+        "notMinted": "<not-minted>",
+        "copyButton": "複製",
+        "rotateButton": "輪替",
+        "rotateSuccess": "Webhook URL 已輪替",
+        "rotateFailed": "輪替失敗"
+      }
+    },
+    "emailImap": {
+      "comingSoonTitle": "Email (IMAP/SMTP) 將於 {{phase}} 推出",
+      "comingSoonBody": "使用您自己的收件匣。以 IMAP IDLE 接收郵件、SMTP 寄送郵件。支援 Gmail 與 Outlook 的 OAuth。",
+      "help": "使用您自己的收件匣。可用時以 IMAP IDLE 接收郵件（無法使用時改為每 30 秒輪詢），並以 SMTP 寄送郵件。Gmail / Outlook 請使用應用程式密碼。",
+      "connectionFailed": "連線測試失敗",
+      "pluginEnabled": "Email (IMAP) 已啟用",
+      "enableFailed": "啟用外掛失敗",
+      "testAndEnable": "測試並啟用",
+      "sections": {
+        "imap": "IMAP（接收）",
+        "smtp": "SMTP（寄送）"
+      },
+      "credentials": {
+        "imapHost": {
+          "label": "IMAP 主機",
+          "placeholder": "imap.gmail.com",
+          "help": "您 IMAP 伺服器的主機名稱，例如 imap.gmail.com。",
+          "required": "必須填寫 IMAP 主機"
+        },
+        "imapPort": {
+          "label": "IMAP 連接埠",
+          "help": "IMAPS 預設為 993。"
+        },
+        "imapUser": {
+          "label": "IMAP 使用者",
+          "placeholder": "agent@example.com",
+          "help": "通常為您的完整電子郵件地址。",
+          "required": "必須填寫 IMAP 使用者"
+        },
+        "imapPassword": {
+          "label": "IMAP 密碼",
+          "help": "Gmail / Outlook 請使用應用程式密碼，您的帳號登入密碼無法使用。",
+          "required": "必須填寫 IMAP 密碼"
+        },
+        "imapTls": {
+          "label": "IMAP TLS",
+          "help": "使用 TLS（建議）。"
+        },
+        "useSameAuth": {
+          "label": "SMTP 沿用 IMAP 憑證",
+          "help": "開啟時，SMTP 會沿用 IMAP 的使用者與密碼。關閉以另外提供 SMTP 登入資訊。"
+        },
+        "smtpHost": {
+          "label": "SMTP 主機",
+          "placeholder": "smtp.gmail.com",
+          "help": "留空以沿用 IMAP 主機。"
+        },
+        "smtpPort": {
+          "label": "SMTP 連接埠",
+          "help": "STARTTLS 預設為 587。隱式 TLS 請使用 465。"
+        },
+        "smtpUser": {
+          "label": "SMTP 使用者",
+          "required": "必須填寫 SMTP 使用者"
+        },
+        "smtpPassword": {
+          "label": "SMTP 密碼",
+          "required": "必須填寫 SMTP 密碼"
+        },
+        "smtpTls": {
+          "label": "SMTP TLS",
+          "help": "連接埠為 587 時使用 STARTTLS，為 465 時使用隱式 TLS。"
+        }
+      }
+    }
+  },
   "webui.description": "把 Wayland 當作「7*24小時的遠程助手」，隨時隨地用遠程設備安排任務。",
   "webui.steps": "步驟 1. 開啟 WebUI 開關；步驟 2. 複製存取網址；步驟 3. 遠程瀏覽器開啟",
   "webui.configuration": "WebUI 配置",
@@ -953,7 +1561,10 @@
     "discardChange": "捨棄變更",
     "confirm": "確認",
     "dismiss": "關閉",
-    "statusPrefix": "狀態：{{label}}"
+    "statusPrefix": "狀態：{{label}}",
+    "comingSoonTitle": "將於下一版推出",
+    "back": "上一步",
+    "next": "下一步"
   },
   "sider": {
     "groupWorkspace": "工作區",
@@ -973,7 +1584,9 @@
     "storage": "儲存",
     "skills": "技能與工具",
     "agents": "智能體",
-    "constitution": "章程"
+    "constitution": "章程",
+    "images": "圖片生成",
+    "voice": "語音"
   },
   "channelsIndex": {
     "title": "訊息渠道",
@@ -991,7 +1604,35 @@
     "configure": "進入設定 →",
     "footerText": "更多渠道可透過擴充套件新增。",
     "browseExtensions": "瀏覽擴充套件 →",
-    "channelsMovedHint": "訊息渠道已移至整合 →"
+    "channelsMovedHint": "訊息渠道已移至整合 →",
+    "subtitle": "將 Wayland 連接至訊息平台。每個連線都有各自的設定、憑證與狀態。",
+    "tier1Tab": "第 1 級",
+    "tier2Tab": "第 2 級",
+    "tier3Tab": "第 3 級",
+    "phase1Label": "階段 1",
+    "phase2Label": "階段 2",
+    "phase3Label": "階段 3",
+    "phase5Label": "階段 5",
+    "whatsappTagline": "Meta WhatsApp Business Cloud API。",
+    "smsTwilioTagline": "透過 Twilio 收發簡訊。",
+    "signalTagline": "透過 signal-cli 端對端加密。",
+    "matrixTagline": "透過 matrix-js-sdk 支援聯邦架構。",
+    "msteamsTagline": "透過 Azure Bot Service 使用 Bot Framework。",
+    "lineTagline": "透過 LINE Messaging API 的機器人。",
+    "imessageTagline": "僅限 macOS，透過 AppleScript（實驗性）。",
+    "bluebubblesTagline": "iMessage 轉接（需要一台備用 Mac）。",
+    "twitchTagline": "透過 IRC 或 EventSub 的 Twitch 聊天。",
+    "nostrTagline": "透過 Nostr 中繼站的加密私訊。",
+    "mattermostTagline": "可自架的 Slack 替代方案。",
+    "googleChatTagline": "Google Workspace Chat API。",
+    "nextcloudTalkTagline": "自架的 Nextcloud 聊天。",
+    "synologyChatTagline": "Synology NAS 上的聊天。",
+    "ircTagline": "經典的 IRC 連線。",
+    "emailAgentMailTagline": "透過 AgentMail 為每個 agent 提供專屬收件匣。",
+    "emailImapTagline": "使用您自己的 IMAP / SMTP 收件匣。",
+    "notConnected": "未連線",
+    "connected": "已連線",
+    "detailComingSoon": "含憑證欄位與連線卡片 UI 的各頻道設定將於下一版推出。"
   },
   "modelsPage": {
     "title": "模型",
@@ -1246,7 +1887,8 @@
     }
   },
   "mcpPage": {
-    "title": "MCP 伺服器"
+    "title": "MCP 伺服器",
+    "subtitle": "透過 Model Context Protocol 將 Wayland 連接至外部工具伺服器。新增、設定 MCP 伺服器並在各 agent 間同步。"
   },
   "imageGenPage": {
     "title": "圖像生成",
@@ -1258,17 +1900,108 @@
     "toggleError": "切換圖像生成失敗，請重試。"
   },
   "generalPage": {
-    "title": "一般"
+    "title": "一般",
+    "subtitle": "全應用程式偏好設定：語言、啟動行為、逾時、通知與儲存路徑。"
   },
   "notificationsPage": {
-    "title": "通知"
+    "title": "通知",
+    "subtitle": "Wayland 在何時以何種方式提醒您。",
+    "comingSoon": "各類別開關、勿擾時段與音效控制將於下一版推出。",
+    "systemTitle": "系統通知",
+    "master": "總開關",
+    "masterHelp": "關閉時，Wayland 不會傳送任何系統通知。下方其他規則將被忽略。",
+    "agentFinished": "agent 完成時通知",
+    "agentFinishedHelp": "於長時間執行的任務或團隊啟動器完成時觸發。",
+    "scheduledTask": "排程任務觸發時通知",
+    "scheduledTaskHelp": "Cron 樣式的任務於執行時通知。",
+    "agentError": "agent 發生錯誤時通知",
+    "agentErrorHelp": "失敗、逾時、連線中斷。",
+    "channelMessage": "頻道訊息時通知",
+    "channelMessageHelp": "來自已連接頻道的 Telegram / Lark / 釘釘 / 微信訊息。",
+    "soundTitle": "音效",
+    "playSound": "通知時播放音效",
+    "playSoundHelp": "使用系統預設音效。",
+    "quietHours": "勿擾時段",
+    "quietHoursHelp": "在這些時段內不發出音效。"
   },
   "storagePage": {
-    "title": "儲存"
+    "title": "儲存",
+    "comingSoon": "用量明細、備份、還原與同步將於下一版推出。",
+    "usageTitle": "儲存空間用量",
+    "totalUsed": "已使用 {{used}}，共 {{total}}",
+    "usageStale": "更新於 {{ago}}",
+    "refresh": "重新整理",
+    "conversations": "對話",
+    "cache": "快取",
+    "logs": "記錄",
+    "directoriesTitle": "目錄",
+    "workspace": "工作區",
+    "cacheDir": "快取",
+    "logsDir": "記錄",
+    "open": "開啟",
+    "clear": "清除",
+    "clearConfirmTitle": "要清除目錄嗎？",
+    "clearConfirmBody": "這將永久移除其中的檔案。Wayland 會在需要時重新建立。",
+    "backupTitle": "備份與還原",
+    "exportIncludeKeys": "匯出時包含 API 金鑰",
+    "exportPassphraseLabel": "加密密碼",
+    "exportPassphrasePlaceholder": "包含金鑰時為必填",
+    "exportAll": "匯出全部",
+    "restore": "從備份還原",
+    "syncTitle": "同步（端對端加密）",
+    "syncComingSoon": "端對端加密同步至資料夾或中繼伺服器。",
+    "resetTitle": "重設 Wayland",
+    "resetDescription": "永久刪除所有對話、設定與快取資料。",
+    "resetAction": "重設全部",
+    "resetConfirmTitle": "要重設全部嗎？",
+    "resetConfirmBody": "這會永久刪除所有資料，包括供應商、對話與設定。此操作無法復原。",
+    "resetTypePlaceholder": "輸入「reset」以確認",
+    "sync": {
+      "title": "同步（端對端加密）",
+      "betaTag": "Beta",
+      "disabledDescription": "端對端加密同步至本機資料夾。金鑰絕不會離開此裝置。",
+      "enableButton": "啟用同步",
+      "enableTitle": "啟用端對端加密同步",
+      "enabledStatus": "同步已啟用",
+      "disableButton": "停用同步",
+      "disableConfirmTitle": "要停用同步嗎？",
+      "disableConfirmBody": "停止同步此裝置。所選資料夾中的備份檔案將維持不變。",
+      "syncNow": "立即同步",
+      "lastSync": "上次同步：{{when}}",
+      "never": "從未",
+      "itemsCount": "已同步 {{count}} 個項目",
+      "passphrase": "密碼",
+      "passphrasePlaceholder": "至少 16 個字元",
+      "passphraseConfirm": "確認密碼",
+      "passphraseConfirmPlaceholder": "重新輸入密碼",
+      "passphraseWarning": "此密碼用於加密您的資料。若您忘記，我們將無法復原，請將其抄寫在安全的地方。",
+      "passphraseTooShort": "密碼長度至少須為 {{min}} 個字元",
+      "passphraseMismatch": "兩次輸入的密碼不一致",
+      "backendIntro": "選擇加密套件包的儲存位置。",
+      "backendLocalFile": "本機資料夾",
+      "backendCloudRelay": "雲端中繼（即將推出）",
+      "folderPath": "同步資料夾",
+      "pickFolder": "選擇資料夾",
+      "pickFolderFirst": "請先選擇資料夾",
+      "enable": "啟用同步"
+    }
   },
   "editorPage": {
     "title": "編輯器",
-    "comingSoon": "編輯器偏好設定將在下一版本中推出。"
+    "comingSoon": "編輯器偏好設定將在下一版本中推出。",
+    "preferencesTitle": "編輯器偏好設定",
+    "defaultMode": "預設模式",
+    "defaultModeHelp": "開啟新文件時使用的檢視模式。",
+    "modeEditor": "編輯器",
+    "modeSource": "原始碼",
+    "modePreview": "預覽",
+    "autoSaveDelay": "自動儲存延遲",
+    "autoSaveDelayHelp": "停止輸入後等待多久才儲存。",
+    "frontmatter": "保留 YAML frontmatter",
+    "frontmatterHelp": "保持 Markdown 檔案頂端的 `--- ... ---` 區塊完整。",
+    "spellCheck": "拼字檢查",
+    "syntaxHighlight": "語法醒目顯示",
+    "syntaxHighlightHelp": "醒目顯示 Markdown 文件中的程式碼區塊。"
   },
   "skillsPage": {
     "title": "技能與工具"
@@ -1337,5 +2070,31 @@
       "soon": "即將推出",
       "desc": "讓任何智能體都能跨你已連接的所有模型和提供商進行路由，而不只是它自己的。"
     }
+  },
+  "commandPalette": {
+    "placeholder": "搜尋設定…",
+    "noResults": "找不到任何結果"
+  },
+  "shortcuts": {
+    "title": "鍵盤快速鍵",
+    "openPalette": "開啟命令面板",
+    "showShortcuts": "顯示鍵盤快速鍵",
+    "navigateResults": "瀏覽結果",
+    "selectResult": "選取結果",
+    "close": "關閉"
+  },
+  "displayPage": {
+    "matchSystem": "跟隨系統主題",
+    "reduceMotion": "減少動態效果",
+    "densityComfortable": "寬鬆",
+    "densityCompact": "緊湊",
+    "sidebarWidth": "側邊欄寬度",
+    "yourName": "你的名稱",
+    "yourNamePlaceholder": "輸入你的名稱"
+  },
+  "systemUpdateChannelUnavailable": "更新通道無法使用：{{error}}。自動更新已停用，直到下次啟動為止。",
+  "voicePage": {
+    "title": "語音",
+    "subtitle": "聊天框的語音轉文字與文字轉語音設定。開啟各區段以啟用語音輸入與輸出。"
   }
 }

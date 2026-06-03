@@ -15,6 +15,31 @@ export const DEFAULT_LANGUAGE = i18nConfig.fallbackLanguage;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 /**
+ * Canonical display order for the language picker, used EVERYWHERE a language
+ * list is rendered (Web UI login, Settings, etc.) so the order never drifts
+ * between surfaces. Each language is shown in its own native name (endonym).
+ *
+ * Order: English first, then Western European (by prominence), then East Asian,
+ * Cyrillic, and Turkic groups. Keep in sync with
+ * `i18n-config.json#supportedLanguages` (same set; the JSON drives validation,
+ * this drives display order + labels).
+ */
+export const LANGUAGE_OPTIONS: ReadonlyArray<{ code: SupportedLanguage; label: string }> = [
+  { code: 'en-US', label: 'English' },
+  { code: 'es-ES', label: 'Español' },
+  { code: 'fr-FR', label: 'Français' },
+  { code: 'de-DE', label: 'Deutsch' },
+  { code: 'pt-BR', label: 'Português (Brasil)' },
+  { code: 'zh-CN', label: '简体中文' },
+  { code: 'zh-TW', label: '繁體中文' },
+  { code: 'ja-JP', label: '日本語' },
+  { code: 'ko-KR', label: '한국어' },
+  { code: 'ru-RU', label: 'Русский' },
+  { code: 'uk-UA', label: 'Українська' },
+  { code: 'tr-TR', label: 'Türkçe' },
+];
+
+/**
  * Normalize a language code to a supported BCP 47 tag.
  * e.g. 'zh' → 'zh-CN', 'ja_JP' → 'ja-JP'
  */

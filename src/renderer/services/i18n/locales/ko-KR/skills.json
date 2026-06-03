@@ -4,7 +4,8 @@
   "search": {
     "placeholder": "스킬 검색...",
     "empty": "검색 결과와 일치하는 스킬이 없습니다",
-    "resultsCount": "{{count}}개의 일치 스킬"
+    "resultsCount": "{{count}}개의 일치 스킬",
+    "emptyLibrary": "아직 로드된 스킬이 없습니다 — 하나를 가져오거나, 번들된 라이브러리를 다시 로드하려면 재시작하세요."
   },
   "filters": {
     "allSources": "모든 소스",
@@ -60,7 +61,49 @@
       "folder": "폴더",
       "git": "Git URL",
       "zip": "ZIP 파일",
-      "marketplace": "마켓플레이스 (출시 예정)"
+      "marketplace": "마켓플레이스 (출시 예정)",
+      "singleSkillMd": "단일 SKILL.md"
+    },
+    "folder": {
+      "label": "스킬 폴더",
+      "placeholder": "클릭하여 폴더를 선택하세요…",
+      "browse": "찾아보기"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP 파일",
+      "placeholder": "클릭하여 ZIP을 선택하세요…",
+      "browse": "찾아보기"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md 파일",
+      "placeholder": "클릭하여 SKILL.md를 선택하세요…",
+      "browse": "찾아보기"
+    },
+    "actions": {
+      "import": "가져오기",
+      "importing": "가져오는 중…",
+      "importAllClean": "정상 항목 모두 가져오기",
+      "reviewAndSelect": "검토 후 선택",
+      "cancel": "취소"
+    },
+    "scan": {
+      "title": "스캔 결과",
+      "verdict": {
+        "clean": "정상",
+        "review": "검토 필요",
+        "blocked": "차단됨"
+      },
+      "noFindings": "발견된 문제 없음",
+      "finding": "발견 항목 {{count}}건",
+      "finding_other": "발견 항목 {{count}}건"
+    },
+    "error": {
+      "failed": "가져오기 실패",
+      "invalidUrl": "유효한 https:// 또는 git@ URL을 입력하세요"
     }
   },
   "builder": {
@@ -118,5 +161,21 @@
     "metadata": "메타데이터",
     "body": "본문",
     "quarantined": "이 스킬은 격리되어 불러올 수 없습니다."
+  },
+  "stats": {
+    "total": "전체 스킬",
+    "pinned": "고정됨",
+    "flagged": "플래그됨",
+    "sources": "소스"
+  },
+  "sections": {
+    "sources": "소스",
+    "status": "상태",
+    "categories": "카테고리"
+  },
+  "cliDiscovery": {
+    "title": "설치된 CLI 도구에서 스킬 미러링",
+    "subtitle": "~/.claude/skills, ~/.codex/skills, ~/.gemini/skills의 스킬을 노출하여 스킬 페이지에 표시합니다. 선택적으로 사용합니다. 적용하려면 재시작이 필요합니다.",
+    "restartNeeded": "— 적용하려면 앱을 재시작하세요."
   }
 }

@@ -145,40 +145,6 @@
     "resolve_success": "競合を解決しました"
   },
   "wiki": {
-    "list_empty": "Wiki エントリはまだありません。メモリをプロモートして開始してください。",
-    "select_prompt": "内容を表示するエントリを選択してください。",
-    "promote": "プロモート",
-    "export": "エクスポート",
-    "share_readme": "README を共有",
-    "promote_ok": "Wiki にプロモートしました",
-    "promote_err": "エントリをプロモートできませんでした",
-    "export_queued": "エクスポートをキューに入れました。Wave 6 でダウンロードに対応します",
-    "export_err": "エントリをエクスポートできませんでした",
-    "share_ok": "README の共有をキューに入れました",
-    "share_err": "README を共有できませんでした"
-  },
-  "crossProject": {
-    "scope_label_app": "検索範囲: すべてのプロジェクト (アプリ全体)",
-    "scope_label_project": "検索範囲: {{project}} (プロジェクト単位)",
-    "search_placeholder": "プロジェクトをまたいでメモリを検索",
-    "search_button": "検索",
-    "toggle_label": "他のプロジェクトを含める",
-    "prompt_empty": "プロジェクト横断で検索するクエリを入力してください。",
-    "results_empty": "対象範囲には一致がありません。",
-    "navigation_stub": "プロジェクト横断ナビゲーションは Wave 6 で対応します"
-  },
-  "drop": {
-    "zone_title": "ここにファイルをドロップ",
-    "zone_hint": "Markdown、テキスト、JSON、YAML、CSV。最大 50MB。キューは最大 20 ファイルまで。",
-    "browse_button": "参照",
-    "queue_title": "キュー内のファイル",
-    "queue_empty": "キュー内のファイルはありません",
-    "quarantine_button": "隔離",
-    "ingest_success": "{{name}} をキューに登録しました",
-    "quarantine_success": "{{name}} を隔離しました",
-    "path_unavailable": "ファイルパスを読み取れませんでした。代わりに参照ボタンを使ってください。"
-  },
-  "wiki": {
     "home": {
       "title": "Wiki",
       "conceptCount": "{{memories}} 件のメモリから {{count}} 件のコンセプトを合成",
@@ -248,6 +214,27 @@
       "notFound": "コンセプトが見つかりません。",
       "notFoundBack": "← Wikiに戻る"
     }
+  },
+  "crossProject": {
+    "scope_label_app": "検索範囲: すべてのプロジェクト (アプリ全体)",
+    "scope_label_project": "検索範囲: {{project}} (プロジェクト単位)",
+    "search_placeholder": "プロジェクトをまたいでメモリを検索",
+    "search_button": "検索",
+    "toggle_label": "他のプロジェクトを含める",
+    "prompt_empty": "プロジェクト横断で検索するクエリを入力してください。",
+    "results_empty": "対象範囲には一致がありません。",
+    "navigation_stub": "プロジェクト横断ナビゲーションは Wave 6 で対応します"
+  },
+  "drop": {
+    "zone_title": "ここにファイルをドロップ",
+    "zone_hint": "Markdown、テキスト、JSON、YAML、CSV。最大 50MB。キューは最大 20 ファイルまで。",
+    "browse_button": "参照",
+    "queue_title": "キュー内のファイル",
+    "queue_empty": "キュー内のファイルはありません",
+    "quarantine_button": "隔離",
+    "ingest_success": "{{name}} をキューに登録しました",
+    "quarantine_success": "{{name}} を隔離しました",
+    "path_unavailable": "ファイルパスを読み取れませんでした。代わりに参照ボタンを使ってください。"
   },
   "archive": {
     "topbar": {
@@ -396,6 +383,51 @@
       "load_failed": "メモリを読み込めませんでした。{{reason}}",
       "missing_api": "メモリ API がまだ準備できていません。しばらくしてから再試行してください。",
       "promote_failed": "プロモートできませんでした。{{reason}}"
+    },
+    "import": {
+      "title": "メモリをインポート",
+      "close": "インポートドロワーを閉じる",
+      "importing": "インポート中…",
+      "status": {
+        "ready": "準備完了",
+        "checking": "確認中",
+        "importing": "インポート中",
+        "unavailable": "利用不可",
+        "idle": "待機中"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "クリックして ~/.claude-mem/claude-mem.db からインポート",
+        "count": "約 {{count}} 件のエントリをインポートしました",
+        "btn": "インポート",
+        "success": "{{count}} 件のエントリをインポートしました · {{errors}} 件のエラー",
+        "error": "インポートに失敗しました。もう一度お試しください。"
+      },
+      "obsidian": {
+        "title": "Obsidian ボールト",
+        "hint": "クリックしてボールトをスキャン",
+        "count": "約 {{count}} 件のエントリをインポートしました",
+        "btn": "インポート",
+        "success": "{{count}} 件のエントリをインポートしました · {{errors}} 件のエラー",
+        "error": "Obsidian のインポートに失敗しました。もう一度お試しください。"
+      },
+      "devScan": {
+        "title": "~/dev スキャン",
+        "hint": "~/dev をスキャンして IJFW メモリディレクトリを検索します",
+        "count": "約 {{count}} 件のエントリをインポートしました",
+        "btn": "インポート",
+        "success": "{{projects}} 件のプロジェクトから {{count}} 件のエントリをインポートしました",
+        "error": "Dev スキャンのインポートに失敗しました。もう一度お試しください。"
+      },
+      "dropFolder": {
+        "title": "ドロップフォルダ",
+        "hint": ".md / .txt / .json ファイルを ~/Documents/Wayland-Memory/ にドロップ",
+        "count": "{{count}} 件のファイルを処理しました",
+        "openBtn": "フォルダを開く",
+        "processBtn": "今すぐ処理",
+        "success": "{{count}} 件のファイルを処理しました · {{errors}} 件のエラー",
+        "error": "処理に失敗しました。もう一度お試しください。"
+      }
     }
   }
 }

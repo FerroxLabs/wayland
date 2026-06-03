@@ -241,7 +241,615 @@
   "webui": "Удалённый доступ",
   "installed": "Установлено",
   "builtin": "Встроено",
-  "channels": "Каналы",
+  "channels": {
+    "label": "Каналы",
+    "telegram": {
+      "help": "Общайтесь с ИИ-ассистентом Wayland через Telegram. Чтобы начать, создайте бота с помощью @BotFather."
+    },
+    "slack": {
+      "comingSoonTitle": "Поддержка Slack появится в {{phase}}",
+      "comingSoonBody": "Интеграция бота через Socket Mode. Отправляйте и получайте сообщения в любом канале вашего рабочего пространства.",
+      "learnMore": "Подробнее",
+      "help": "Нативная интеграция бота Slack через @slack/bolt. Выберите Socket Mode для самой простой настройки (публичный URL webhook не требуется) или Events API, если у вас уже есть стабильная конечная точка HTTPS.",
+      "replaceWarning": "Подключение нового рабочего пространства Slack заменит текущее.",
+      "connectionSuccess": "Подключено! Бот: @{{username}}",
+      "connectionFailed": "Не удалось подключиться",
+      "pluginEnabled": "Бот Slack включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "credentials": {
+        "transport": {
+          "label": "Транспорт",
+          "help": "Socket Mode открывает исходящее WebSocket-соединение, инициируемое Slack, публичный URL не требуется. Events API использует входящий webhook HTTPS, проверяемый с помощью signing secret.",
+          "socket": "Socket Mode",
+          "events": "Events API"
+        },
+        "botToken": {
+          "label": "Bot Token",
+          "placeholder": "xoxb-...ваш-bot-token...",
+          "help": "OAuth & Permissions → Bot User OAuth Token. Начинается с «xoxb-».",
+          "required": "Введите bot token"
+        },
+        "appToken": {
+          "label": "App-Level Token",
+          "placeholder": "xapp-...ваш-app-token...",
+          "help": "Требуется для Socket Mode. Basic Information → App-Level Tokens → Generate Token and Scopes с областью connections:write. Начинается с «xapp-».",
+          "required": "Для Socket Mode требуется app-level token"
+        },
+        "signingSecret": {
+          "label": "Signing Secret",
+          "placeholder": "32-символьный шестнадцатеричный signing secret",
+          "help": "Требуется для Events API. Basic Information → App Credentials → Signing Secret. Используется для проверки HMAC X-Slack-Signature при каждой доставке webhook.",
+          "required": "Для транспорта Events API требуется signing secret"
+        }
+      }
+    },
+    "discord": {
+      "comingSoonTitle": "Поддержка Discord скоро появится",
+      "comingSoonBody": "Нативная интеграция бота Discord находится в разработке. Когда она станет доступна, настройте bot token, Application ID и список разрешённых серверов.",
+      "learnMore": "Подробнее",
+      "help": "Нативная интеграция бота Discord через Gateway. Создайте приложение и бота Discord в Developer Portal, затем вставьте bot token ниже.",
+      "replaceWarning": "Подключение нового бота Discord заменит текущего.",
+      "connectionSuccess": "Подключено! Бот: @{{username}}",
+      "connectionFailed": "Не удалось подключиться",
+      "pluginEnabled": "Бот Discord включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "credentials": {
+        "botToken": {
+          "label": "Bot Token",
+          "placeholder": "MTI...ваш-bot-token...",
+          "help": "Найдите его в Discord Developer Portal в вашем приложении → Bot → Reset Token.",
+          "required": "Введите bot token"
+        },
+        "applicationId": {
+          "label": "Application ID",
+          "placeholder": "1234567890123456789",
+          "help": "Необязательно. Требуется только при регистрации slash-команд для этого бота."
+        },
+        "publicKey": {
+          "label": "Public Key",
+          "placeholder": "публичный ключ ed25519 в шестнадцатеричном виде",
+          "help": "Необязательно. Требуется только если вы позже переключитесь на конечную точку HTTP-взаимодействий вместо Gateway."
+        }
+      }
+    },
+    "webhook": {
+      "comingSoonTitle": "Канал webhook появится в {{phase}}",
+      "comingSoonBody": "Универсальная входящая конечная точка HTTP с проверкой HMAC-подписи. Используйте для пользовательских интеграций.",
+      "learnMore": "Подробнее"
+    },
+    "dingtalk": {
+      "help": "Корпоративный обмен сообщениями через ботов DingTalk. Создайте собственного бота в группе DingTalk, чтобы получить access token.",
+      "comingSoonTitle": "Поддержка DingTalk скоро появится",
+      "comingSoonBody": "Нативная интеграция ботов DingTalk находится в разработке. ClientId/Secret и потоковый режим станут доступны после выпуска.",
+      "learnMore": "Подробнее"
+    },
+    "lark": {
+      "help": "Обмен сообщениями в группах Lark / Feishu. Создайте собственное приложение в консоли разработчика Lark, чтобы получить App ID и App Secret.",
+      "comingSoonTitle": "Поддержка Lark / Feishu скоро появится",
+      "comingSoonBody": "Нативная интеграция ботов Lark и Feishu находится в разработке. Выбор домена, AppId/Secret и расширенные параметры webhook станут доступны после выпуска.",
+      "learnMore": "Подробнее"
+    },
+    "wechat": {
+      "help": "Сопряжение с личными аккаунтами WeChat по QR-коду. Отсканируйте QR-код сопряжения в WeChat, чтобы включить маршрутизацию диалогов.",
+      "comingSoonTitle": "Поддержка WeChat скоро появится",
+      "comingSoonBody": "Интеграция WeChat через сопряжение по QR находится в разработке. Отсканируйте код в WeChat для подключения, когда станет доступно.",
+      "learnMore": "Подробнее"
+    },
+    "wecom": {
+      "help": "Корпоративный WeChat для рабочих пространств компании. Зарегистрируйте самостоятельно созданное приложение, чтобы получить Corp ID, Agent ID и Secret.",
+      "comingSoonTitle": "Поддержка WeCom скоро появится",
+      "comingSoonBody": "Интеграция ботов WeCom (Корпоративный WeChat) находится в разработке. Режимы webhook и WebSocket с настройкой callback URL станут доступны после выпуска.",
+      "learnMore": "Подробнее"
+    },
+    "whatsapp": {
+      "comingSoonTitle": "WhatsApp появится в {{phase}}",
+      "comingSoonBody": "Meta WhatsApp Business Cloud API. Входящие через проверенные webhook, исходящие через REST. К свободным ответам применяется 24-часовое окно обслуживания клиентов.",
+      "help": "Три бэкенда: Baileys (прямой протокол WhatsApp Web, рекомендуется), WhatsApp Web.js (альтернатива на основе Puppeteer) или Meta Business Cloud API (проверенные бизнес-номера).",
+      "replaceWarning": "Подключение нового аккаунта WhatsApp заменит текущий.",
+      "accountLockWarning": "Подключение нового аккаунта WhatsApp заменит текущий. Текущее сопряжение по QR-коду или URL webhook станут недействительными.",
+      "connectionSuccess": "WhatsApp подключён",
+      "connectionFailed": "Не удалось подключиться",
+      "pluginEnabled": "Плагин WhatsApp включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "credentials": {
+        "backend": {
+          "label": "Бэкенд",
+          "placeholder": "baileys",
+          "help": "Baileys рекомендуется для личных аккаунтов. Meta Business требуется для проверенных бизнес-аккаунтов и шаблонных сообщений.",
+          "required": "Выберите бэкенд",
+          "baileys": "Baileys (рекомендуется)",
+          "whatsappWeb": "WhatsApp Web.js",
+          "metaBusiness": "Meta Business"
+        },
+        "accessToken": {
+          "label": "Access Token",
+          "placeholder": "EAAG...ваш-token...",
+          "help": "Access token системного пользователя Meta или временный. Создаётся в Meta Business Suite → System Users.",
+          "required": "Для бэкенда Meta требуются Access Token и Phone Number ID"
+        },
+        "phoneNumberId": {
+          "label": "Phone Number ID",
+          "placeholder": "123456789012345",
+          "help": "Числовой ID из Meta Business → WhatsApp → Phone Numbers. Не сам номер телефона.",
+          "required": "Для бэкенда Meta требуется Phone Number ID"
+        },
+        "businessAccountId": {
+          "label": "Business Account ID",
+          "placeholder": "987654321098765",
+          "help": "Необязательно. Добавляет расширенные метаданные в события входящих сообщений.",
+          "required": ""
+        },
+        "verifyToken": {
+          "label": "Verify Token",
+          "placeholder": "длинная случайная строка",
+          "help": "Выбранная оператором строка, которую Meta возвращает во время рукопожатия GET /webhook. Должна совпадать с тем, что вы вставляете в панель управления Meta.",
+          "required": ""
+        }
+      },
+      "qrPairing": {
+        "title": "Сопряжение по QR-коду",
+        "help": "Откройте WhatsApp на телефоне → Настройки → Связанные устройства → Привязка устройства, затем отсканируйте код ниже. Код обновляется каждую минуту до сопряжения.",
+        "refreshing": "Ожидание кода сопряжения от моста…"
+      },
+      "webhookUrl": {
+        "label": "URL входящего webhook",
+        "help": "Вставьте этот URL в Meta Business → WhatsApp → Configuration → Webhook callback URL.",
+        "tunnelPlaceholder": "(настройте туннель в Фазе 4)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Копировать",
+        "rotateButton": "Сменить",
+        "rotateSuccess": "URL webhook изменён",
+        "rotateFailed": "Не удалось сменить"
+      }
+    },
+    "smsTwilio": {
+      "comingSoonTitle": "SMS (Twilio) появится в {{phase}}",
+      "comingSoonBody": "Отправляйте и получайте SMS через Twilio Programmable Messaging. Маршрутизация webhook по каждому номеру с проверкой подписи HMAC-SHA1. Для развёртываний в США требуется регистрация A2P 10DLC.",
+      "accountLockWarning": "Подключение нового аккаунта SMS заменит текущий. Текущий URL webhook станет недействительным.",
+      "a2pNotice": "Для развёртываний в США требуется регистрация бренда и кампании A2P 10DLC. Для бесплатных номеров (toll-free) требуется отдельная проверка. Оба процесса могут занять несколько дней.",
+      "credentials": {
+        "accountSid": {
+          "label": "Account SID",
+          "placeholder": "ACxxxxxxxxxxxxxxxx",
+          "help": "Найдите ваш Account SID на панели управления Twilio Console. Начинается с «AC»."
+        },
+        "authToken": {
+          "label": "Токен авторизации",
+          "placeholder": "токен авторизации",
+          "help": "Относитесь к токену авторизации как к паролю — Twilio подписывает им каждый webhook."
+        },
+        "fromNumber": {
+          "label": "Номер отправителя",
+          "placeholder": "+14155550123",
+          "help": "Формат E.164, например +14155550123. Укажите либо номер отправителя, либо Messaging Service SID.",
+          "invalid": "Должен быть в формате E.164, например +14155550123"
+        },
+        "messagingServiceSid": {
+          "label": "Messaging Service SID",
+          "placeholder": "MGxxxxxxxxxxxxxxxx",
+          "help": "Необязательная альтернатива номеру отправителя. Используйте Messaging Service для пула номеров или ротации идентификатора отправителя."
+        }
+      },
+      "webhookUrl": {
+        "label": "URL входящего webhook",
+        "help": "Вставьте этот URL в поле webhook «A Message Comes In» номера Twilio (POST).",
+        "tunnelPlaceholder": "(настройте туннель на этапе 4)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Копировать",
+        "rotateButton": "Сменить",
+        "rotateSuccess": "URL webhook изменён",
+        "rotateFailed": "Не удалось сменить"
+      }
+    },
+    "signal": {
+      "comingSoonTitle": "Signal появится в {{phase}}",
+      "comingSoonBody": "Подключение через подпроцесс signal-cli. Сквозное шифрование. Требуется отдельный номер телефона для однократной регистрации.",
+      "help": "Обмен сообщениями со сквозным шифрованием через демон-подпроцесс signal-cli. Требуется отдельный номер телефона, зарегистрированный в Signal. signal-cli должен быть установлен или доступен через встроенную среду выполнения.",
+      "replaceWarning": "Подключение новой учётной записи Signal заменит существующую.",
+      "connectionSuccess": "Signal подключён",
+      "connectionFailed": "Не удалось проверить подключение к Signal",
+      "pluginEnabled": "Плагин Signal включён",
+      "enableFailed": "Не удалось включить плагин Signal",
+      "testAndEnable": "Проверить и включить",
+      "installHowTo": "signal-cli необходимо установить отдельно, если встроенная среда выполнения отсутствует. Установка: brew install signal-cli | apt-get install signal-cli. После установки зарегистрируйте номер: signal-cli -a +1… register",
+      "credentials": {
+        "phoneNumber": {
+          "label": "Номер телефона",
+          "placeholder": "+14155551234",
+          "help": "Формат E.164, должен быть зарегистрирован в Signal. Рекомендуется отдельный номер.",
+          "required": "Пожалуйста, введите ваш номер телефона Signal",
+          "invalid": "Номер телефона должен быть в формате E.164, например +14155551234"
+        },
+        "cliPath": {
+          "label": "Путь к signal-cli (необязательно)",
+          "placeholder": "/usr/local/bin/signal-cli",
+          "help": "Оставьте пустым, чтобы использовать встроенную среду выполнения или signal-cli из вашего PATH."
+        }
+      }
+    },
+    "matrix": {
+      "comingSoonTitle": "Matrix появится в {{phase}}",
+      "comingSoonBody": "Поддержка федерации через matrix-js-sdk. Опциональное сквозное шифрование с проверкой устройств. Совместимо с любым домашним сервером.",
+      "help": "Обмен сообщениями с поддержкой федерации через matrix-js-sdk. Укажите URL вашего домашнего сервера, полный mxid (например, @bot:matrix.org) и долгоживущий токен доступа.",
+      "replaceWarning": "Подключение новой учётной записи Matrix заменит существующую.",
+      "connectionSuccess": "Matrix подключён",
+      "connectionFailed": "Не удалось подключиться к Matrix",
+      "pluginEnabled": "Плагин Matrix включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "accessTokenHowTo": "Как получить токен доступа: см. https://t2bot.io/docs/access_tokens/ или настройки вашего домашнего сервера.",
+      "credentials": {
+        "homeserverUrl": {
+          "label": "URL домашнего сервера",
+          "placeholder": "https://matrix.org",
+          "help": "Базовый HTTPS-URL вашего домашнего сервера Matrix. Используйте https://matrix.org для публичного основного сервера.",
+          "required": "Пожалуйста, введите URL домашнего сервера"
+        },
+        "userId": {
+          "label": "ID пользователя (mxid)",
+          "placeholder": "@bot:matrix.org",
+          "help": "Полный Matrix ID, включая суффикс сервера, например @bot:matrix.org.",
+          "required": "Пожалуйста, введите Matrix ID пользователя (mxid)"
+        },
+        "accessToken": {
+          "label": "Токен доступа",
+          "placeholder": "syt_...your-matrix-access-token...",
+          "help": "Долгоживущий токен доступа. Element: All settings → Help & About → Access Token. Или используйте отдельную учётную запись бота.",
+          "required": "Пожалуйста, введите токен доступа"
+        }
+      }
+    },
+    "msTeams": {
+      "comingSoonTitle": "MS Teams появится в {{phase}}",
+      "comingSoonBody": "Microsoft Bot Framework через Azure Bot Service. Adaptive Cards для насыщенных сообщений. Требуется подписка Azure и одобрение администратора Teams.",
+      "help": "Bot Framework через Azure Bot Service. Зарегистрируйте бота, задайте конечную точку webhook и вставьте ваш App ID и клиентский секрет ниже.",
+      "replaceWarning": "Сохранение новых учётных данных заменит существующее подключение бота MS Teams.",
+      "connectionFailed": "Не удалось подключиться к MS Teams",
+      "connectionSuccess": "MS Teams подключён",
+      "pluginEnabled": "Плагин MS Teams включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "setupHint": "Зарегистрируйте бота в Azure Portal: Azure Bot Service → Create resource → настройте канал Microsoft Teams → задайте конечную точку обмена сообщениями на URL webhook Wayland → скопируйте App ID и клиентский секрет сюда.",
+      "credentials": {
+        "appId": {
+          "label": "App ID (MicrosoftAppId)",
+          "help": "Client ID регистрации приложения Azure AD, находится в Azure Portal → App Registrations → Overview.",
+          "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          "required": "Пожалуйста, введите App ID"
+        },
+        "appPassword": {
+          "label": "App Password (клиентский секрет)",
+          "help": "Клиентский секрет Azure AD, App Registrations → Certificates & secrets → New client secret.",
+          "placeholder": "Вставьте значение вашего клиентского секрета",
+          "required": "Пожалуйста, введите App Password"
+        }
+      },
+      "webhookUrl": {
+        "label": "URL входящего webhook",
+        "help": "Задайте это как конечную точку обмена сообщениями (Messaging Endpoint) в Azure Bot Service.",
+        "copyButton": "Копировать",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "line": {
+      "credentials": {
+        "bothRequired": "Требуются Channel Access Token и Channel Secret",
+        "channelAccessToken": {
+          "label": "Channel Access Token",
+          "help": "Долгоживущий токен из LINE Developers Console → Messaging API → Channel access token.",
+          "placeholder": "Вставьте ваш channel access token"
+        },
+        "channelSecret": {
+          "label": "Channel Secret",
+          "help": "Channel secret из LINE Developers Console → Basic settings. Используется для проверки подписей webhook.",
+          "placeholder": "Вставьте ваш channel secret"
+        }
+      },
+      "accountLockWarning": "Сохранение новых учётных данных заменит существующее подключение бота LINE.",
+      "connectionFailed": "Не удалось подключиться",
+      "connectionSuccess": "Подключено как {{botUsername}}",
+      "pluginEnabled": "Плагин LINE включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "webhookUrl": {
+        "label": "URL входящего webhook",
+        "help": "Вставьте этот URL в LINE Developers Console → Messaging API → Webhook URL.",
+        "copyButton": "Копировать",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "imessage": {
+      "comingSoonTitle": "iMessage появится в {{phase}}",
+      "comingSoonBody": "Только для macOS, экспериментально. Мост AppleScript к Messages.app. Apple незаметно ограничивает скорость скриптовых отправок, поэтому обмен сообщениями ограничен."
+    },
+    "viber": {
+      "comingSoonTitle": "Viber появится в {{phase}}",
+      "comingSoonBody": "Интеграция бота через Viber Bot API. Webhook для входящих, REST для исходящих. Требуется публичный URL."
+    },
+    "bluebubbles": {
+      "comingSoonTitle": "BlueBubbles появится в {{phase}}",
+      "comingSoonBody": "iMessage через сервер-ретранслятор BlueBubbles. Требуется свободный Mac в вашей сети с запущенным сервером BlueBubbles."
+    },
+    "threema": {
+      "comingSoonTitle": "Threema появится в {{phase}}",
+      "comingSoonBody": "Threema Gateway API. B2B-контракт с оплатой за сообщение. Сквозное шифрование."
+    },
+    "mastodon": {
+      "comingSoonTitle": "Mastodon появится в {{phase}}",
+      "comingSoonBody": "OAuth для каждого инстанса плюс потоковая передача через WebSocket. Один набор учётных данных на учётную запись на одном инстансе."
+    },
+    "bluesky": {
+      "comingSoonTitle": "Bluesky появится в {{phase}}",
+      "comingSoonBody": "AT Protocol через @atproto/api. Поток Jetstream для упоминаний; XRPC для публикации. Используйте пароль приложения, а не основной логин."
+    },
+    "reddit": {
+      "comingSoonTitle": "Личные сообщения Reddit появятся в {{phase}}",
+      "comingSoonBody": "Reddit API для личных сообщений. Только опрос (нет потоковой конечной точки для личных сообщений)."
+    },
+    "twitch": {
+      "comingSoonTitle": "Twitch появится в {{phase}}",
+      "comingSoonBody": "Чат Twitch через IRC-мост или EventSub. Подключается к одному каналу на токен.",
+      "help": "Чат Twitch через IRC (tmi.js). Подключите учётную запись бота с OAuth для чтения и отправки сообщений в одном или нескольких каналах.",
+      "connectionSuccess": "Twitch успешно подключён",
+      "connectionFailed": "Не удалось подключиться к Twitch, проверьте токен и имя пользователя",
+      "pluginEnabled": "Плагин Twitch включён",
+      "enableFailed": "Не удалось включить плагин Twitch",
+      "replaceWarning": "Подключение нового бота Twitch заменит существующие учётные данные.",
+      "testAndEnable": "Проверить и включить",
+      "tokenHowTo": "Используйте отдельную учётную запись для бота, никогда не используйте свой личный аккаунт Twitch. Создайте токен на twitchtokengenerator.com и выберите области chat:read и chat:edit.",
+      "credentials": {
+        "botUsername": {
+          "label": "Имя пользователя бота",
+          "help": "Логин Twitch учётной записи вашего бота (в нижнем регистре).",
+          "required": "Введите имя пользователя бота"
+        },
+        "oauthToken": {
+          "label": "Токен OAuth",
+          "help": "OAuth токен бота с областями chat:read + chat:edit. Получите его на twitchtokengenerator.com.",
+          "required": "Введите токен OAuth"
+        },
+        "channels": {
+          "label": "Каналы",
+          "help": "Имена каналов для подключения через запятую (например, mychannel, otherchannel). Префикс # необязателен.",
+          "required": "Укажите хотя бы один канал для подключения"
+        }
+      }
+    },
+    "nostr": {
+      "comingSoonTitle": "Nostr появится в {{phase}}",
+      "comingSoonBody": "Зашифрованные личные сообщения через релеи Nostr. Используйте собственный закрытый ключ (nsec)."
+    },
+    "telegramUserbot": {
+      "comingSoonTitle": "Userbot Telegram появится в {{phase}}",
+      "comingSoonBody": "Пользовательский режим MTProto (gramjs / mtcute). Отдельно от Bot API. ВНИМАНИЕ: запуск userbot может привести к блокировке номера телефона за нарушение условий использования."
+    },
+    "mattermost": {
+      "comingSoonTitle": "Mattermost появится в {{phase}}",
+      "comingSoonBody": "Самостоятельно размещаемая альтернатива Slack. События WebSocket плюс REST."
+    },
+    "googleChat": {
+      "comingSoonTitle": "Google Chat появится в {{phase}}",
+      "comingSoonBody": "Интеграция с Google Workspace через Chat API. Требуется OAuth.",
+      "help": "Бот Google Chat (Workspace). Вставьте JSON-файл ключа сервисного аккаунта и укажите ожидаемую аудиторию JWT (номер проекта или URL приложения) для проверки webhook.",
+      "replaceWarning": "Сохранение новых учётных данных заменит существующее подключение бота Google Chat.",
+      "connectionSuccess": "Google Chat подключён как {{email}}",
+      "connectionFailed": "Не удалось подключить Google Chat",
+      "pluginEnabled": "Плагин Google Chat включён",
+      "enableFailed": "Не удалось включить плагин Google Chat",
+      "testAndEnable": "Проверить и включить",
+      "credentials": {
+        "serviceAccountJson": {
+          "label": "JSON сервисного аккаунта",
+          "help": "Вставьте полное содержимое файла ключа сервисного аккаунта Google Cloud (JSON). Бот должен иметь область Chat API (chat.bot).",
+          "placeholder": "{ \"type\": \"service_account\", \"project_id\": \"...\", ... }"
+        },
+        "audience": {
+          "label": "Аудитория JWT",
+          "help": "Ожидаемое утверждение `aud` в Bearer JWT от Google Chat. Используйте номер проекта Google Cloud (например, 123456789012) или зарегистрированный URL приложения.",
+          "placeholder": "123456789012",
+          "required": "Для проверки webhook требуется аудитория JWT"
+        },
+        "bothRequired": "Требуются JSON сервисного аккаунта и аудитория JWT"
+      },
+      "webhookUrl": {
+        "label": "URL входящего webhook",
+        "help": "Вставьте этот URL в Google Cloud Console → Google Chat API → Configuration → App URL.",
+        "copyButton": "Копировать",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "nextcloudTalk": {
+      "comingSoonTitle": "Nextcloud Talk появится в {{phase}}",
+      "comingSoonBody": "Самостоятельно размещаемый чат для инстансов Nextcloud. Имя пользователя + пароль приложения.",
+      "help": "Самостоятельно размещаемый Nextcloud Talk с Basic-аутентификацией по паролю приложения. Укажите URL сервера, имя пользователя Nextcloud и пароль приложения, созданный в разделе Личное → Безопасность → Пароли приложений.",
+      "replaceWarning": "Подключение новой учётной записи заменит существующее подключение Nextcloud Talk.",
+      "connectionSuccess": "Nextcloud Talk подключён",
+      "connectionFailed": "Не удалось подключить Nextcloud Talk",
+      "pluginEnabled": "Плагин Nextcloud Talk включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "appPasswordHowTo": "Как создать пароль приложения: откройте Nextcloud → аватар в правом верхнем углу → Личные настройки → Безопасность → Пароли приложений.",
+      "credentials": {
+        "serverUrl": {
+          "label": "URL сервера",
+          "help": "Базовый URL вашего инстанса Nextcloud, например https://cloud.example.com",
+          "placeholder": "https://cloud.example.com",
+          "required": "Введите URL сервера Nextcloud"
+        },
+        "username": {
+          "label": "Имя пользователя",
+          "help": "Ваш логин Nextcloud.",
+          "placeholder": "youruser",
+          "required": "Введите имя пользователя Nextcloud"
+        },
+        "appPassword": {
+          "label": "Пароль приложения",
+          "help": "Создайте в разделе Личное → Безопасность → Пароли приложений в настройках Nextcloud.",
+          "placeholder": "xxxx-xxxx-xxxx-xxxx",
+          "required": "Введите пароль приложения"
+        }
+      }
+    },
+    "synologyChat": {
+      "comingSoonTitle": "Synology Chat появится в {{phase}}",
+      "comingSoonBody": "Чат на Synology NAS. Webhook для входящих, REST для исходящих.",
+      "replaceWarning": "Подключение новой учётной записи Synology Chat заменит существующую.",
+      "connectionSuccess": "Synology Chat подключён",
+      "connectionFailed": "Не удалось подключить Synology Chat",
+      "pluginEnabled": "Плагин Synology Chat включён",
+      "enableFailed": "Не удалось включить плагин Synology Chat",
+      "testAndEnable": "Проверить и включить",
+      "howTo": "Руководство по настройке: Synology Chat → Администрирование → Интеграции → Входящие/исходящие webhook.",
+      "credentials": {
+        "incomingUrl": {
+          "label": "URL входящего webhook",
+          "help": "URL webhook из панели администратора Synology Chat (Интеграция → Входящие webhook). Сюда мы отправляем ответы методом POST.",
+          "placeholder": "https://your-nas/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&...",
+          "required": "Введите URL входящего webhook Synology Chat"
+        },
+        "incomingToken": {
+          "label": "Токен webhook",
+          "help": "Токен, который Synology Chat отправляет с каждым исходящим запросом webhook (Исходящие webhook → Токен). Используется для проверки входящих доставок.",
+          "placeholder": "your-synology-webhook-token",
+          "required": "Введите токен webhook"
+        }
+      },
+      "webhookUrl": {
+        "label": "URL входящего webhook",
+        "help": "Вставьте этот URL в Synology Chat → Исходящие webhook → Исходящий URL.",
+        "copyButton": "Копировать",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "irc": {
+      "comingSoonTitle": "IRC появится в {{phase}}",
+      "comingSoonBody": "Классическое подключение к IRC. Сервер, порт, каналы, опциональная аутентификация SASL."
+    },
+    "qq": {
+      "comingSoonTitle": "QQ появится в {{phase}}",
+      "comingSoonBody": "Обмен сообщениями Tencent QQ. Ограниченная польза за пределами Китая."
+    },
+    "xiaomi": {
+      "comingSoonTitle": "Xiaomi появится в {{phase}}",
+      "comingSoonBody": "Обмен сообщениями Xiaomi MIUI. Только для Китая."
+    },
+    "zalo": {
+      "comingSoonTitle": "Zalo появится в {{phase}}",
+      "comingSoonBody": "Вьетнамская платформа для обмена сообщениями. Webhook + REST."
+    },
+    "xDms": {
+      "comingSoonTitle": "Личные сообщения X / Twitter",
+      "premiumGate": "Требуется премиум-уровень API ($200/месяц). Подпишитесь на X Developer Platform Basic или выше, чтобы включить личные сообщения. С 2026 года уровень X Basic закрыт для новых регистраций."
+    },
+    "emailAgentMail": {
+      "help": "Электронная почта SaaS на основе webhook через AgentMail. Каждый агент получает выделенный почтовый ящик; AgentMail обеспечивает доставляемость, ветвление переписки и подписанные входящие webhook.",
+      "replaceWarning": "Замена учётной записи AgentMail делает существующий URL webhook недействительным.",
+      "accountLockWarning": "Подключение новой учётной записи AgentMail заменит существующую. Существующий URL webhook станет недействительным.",
+      "connectionSuccess": "Подключение AgentMail подтверждено",
+      "connectionFailed": "Не удалось проверить подключение AgentMail",
+      "pluginEnabled": "Канал AgentMail включён",
+      "enableFailed": "Не удалось включить плагин AgentMail",
+      "testAndEnable": "Проверить и включить",
+      "credentials": {
+        "apiKey": {
+          "label": "Ключ API",
+          "placeholder": "am_xxxxxxxxxxxxxxxx",
+          "help": "Панель AgentMail → API Keys. Обращайтесь как с паролем.",
+          "required": "Требуется ключ API"
+        },
+        "inboxAddress": {
+          "label": "Адрес почтового ящика",
+          "placeholder": "agent@workspace.agentmail.to",
+          "help": "Выделенный почтовый ящик, предоставленный AgentMail для этого агента, например agent@workspace.agentmail.to.",
+          "required": "Требуется адрес почтового ящика"
+        },
+        "webhookSecret": {
+          "label": "Секрет webhook",
+          "placeholder": "whsec_xxxxxxxxxxxxxxxx",
+          "help": "Опциональный секрет HMAC, который AgentMail использует для подписи доставок webhook. Скопируйте из панели AgentMail.",
+          "required": "Для проверки подписанной доставки требуется секрет webhook"
+        }
+      },
+      "webhookUrl": {
+        "label": "URL входящего webhook",
+        "help": "Вставьте этот URL в поле \"Webhook URL\" в панели AgentMail.",
+        "tunnelPlaceholder": "(настройте туннель в Phase 4)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Копировать",
+        "rotateButton": "Сменить",
+        "rotateSuccess": "URL webhook сменён",
+        "rotateFailed": "Не удалось сменить"
+      }
+    },
+    "emailImap": {
+      "comingSoonTitle": "Email (IMAP/SMTP) появится в {{phase}}",
+      "comingSoonBody": "Используйте собственный почтовый ящик. IMAP IDLE для входящих, SMTP для исходящих. Поддерживается OAuth для Gmail и Outlook.",
+      "help": "Используйте собственный почтовый ящик. IMAP IDLE для входящих, если доступно (запасной опрос каждые 30 с), SMTP для исходящих. Используйте пароль приложения для Gmail / Outlook.",
+      "connectionFailed": "Проверка подключения не удалась",
+      "pluginEnabled": "Email (IMAP) включён",
+      "enableFailed": "Не удалось включить плагин",
+      "testAndEnable": "Проверить и включить",
+      "sections": {
+        "imap": "IMAP (входящие)",
+        "smtp": "SMTP (исходящие)"
+      },
+      "credentials": {
+        "imapHost": {
+          "label": "Сервер IMAP",
+          "placeholder": "imap.gmail.com",
+          "help": "Имя хоста вашего сервера IMAP, например imap.gmail.com.",
+          "required": "Необходимо указать сервер IMAP"
+        },
+        "imapPort": {
+          "label": "Порт IMAP",
+          "help": "По умолчанию 993 для IMAPS."
+        },
+        "imapUser": {
+          "label": "Пользователь IMAP",
+          "placeholder": "agent@example.com",
+          "help": "Обычно это ваш полный адрес электронной почты.",
+          "required": "Необходимо указать пользователя IMAP"
+        },
+        "imapPassword": {
+          "label": "Пароль IMAP",
+          "help": "Используйте пароль приложения для Gmail / Outlook — пароль от учётной записи не подойдёт.",
+          "required": "Необходимо указать пароль IMAP"
+        },
+        "imapTls": {
+          "label": "IMAP TLS",
+          "help": "Использовать TLS (рекомендуется)."
+        },
+        "useSameAuth": {
+          "label": "Использовать учётные данные IMAP для SMTP",
+          "help": "Когда включено, SMTP использует тот же пользователь и пароль IMAP. Выключите, чтобы указать отдельные данные для входа в SMTP."
+        },
+        "smtpHost": {
+          "label": "Сервер SMTP",
+          "placeholder": "smtp.gmail.com",
+          "help": "Оставьте пустым, чтобы использовать сервер IMAP."
+        },
+        "smtpPort": {
+          "label": "Порт SMTP",
+          "help": "По умолчанию 587 для STARTTLS. Используйте 465 для неявного TLS."
+        },
+        "smtpUser": {
+          "label": "Пользователь SMTP",
+          "required": "Необходимо указать пользователя SMTP"
+        },
+        "smtpPassword": {
+          "label": "Пароль SMTP",
+          "required": "Необходимо указать пароль SMTP"
+        },
+        "smtpTls": {
+          "label": "SMTP TLS",
+          "help": "STARTTLS при порте = 587, неявный TLS при порте = 465."
+        }
+      }
+    }
+  },
   "webui.description": "Используйте Wayland как «круглосуточного удалённого ассистента», управляйте задачами с любого устройства в любое время.",
   "webui.steps": "Шаг 1. Включите WebUI; Шаг 2. Скопируйте URL доступа; Шаг 3. Откройте в удалённом браузере",
   "webui.configuration": "Настройка WebUI",
@@ -953,7 +1561,10 @@
     "discardChange": "Отменить изменение",
     "confirm": "Подтвердить",
     "dismiss": "Закрыть",
-    "statusPrefix": "Статус: {{label}}"
+    "statusPrefix": "Статус: {{label}}",
+    "comingSoonTitle": "Появится в следующем выпуске",
+    "back": "Назад",
+    "next": "Далее"
   },
   "sider": {
     "groupWorkspace": "РАБОЧЕЕ ПРОСТРАНСТВО",
@@ -973,7 +1584,9 @@
     "storage": "Хранилище",
     "skills": "Навыки и инструменты",
     "agents": "Агенты",
-    "constitution": "Конституция"
+    "constitution": "Конституция",
+    "images": "Генерация изображений",
+    "voice": "Голос"
   },
   "channelsIndex": {
     "title": "Каналы",
@@ -991,7 +1604,35 @@
     "configure": "Настройки →",
     "footerText": "Дополнительные каналы доступны через расширения.",
     "browseExtensions": "Обзор расширений →",
-    "channelsMovedHint": "Каналы перемещены в раздел Интеграции →"
+    "channelsMovedHint": "Каналы перемещены в раздел Интеграции →",
+    "subtitle": "Подключите Wayland к платформам обмена сообщениями. У каждого подключения есть собственные настройки, учётные данные и статус.",
+    "tier1Tab": "Уровень 1",
+    "tier2Tab": "Уровень 2",
+    "tier3Tab": "Уровень 3",
+    "phase1Label": "Этап 1",
+    "phase2Label": "Этап 2",
+    "phase3Label": "Этап 3",
+    "phase5Label": "Этап 5",
+    "whatsappTagline": "Meta WhatsApp Business Cloud API.",
+    "smsTwilioTagline": "Отправка и приём SMS через Twilio.",
+    "signalTagline": "Сквозное шифрование через signal-cli.",
+    "matrixTagline": "С поддержкой федерации через matrix-js-sdk.",
+    "msteamsTagline": "Bot Framework через Azure Bot Service.",
+    "lineTagline": "Бот через LINE Messaging API.",
+    "imessageTagline": "Только для macOS через AppleScript (экспериментально).",
+    "bluebubblesTagline": "Ретрансляция iMessage (требуется отдельный Mac).",
+    "twitchTagline": "Чат Twitch через IRC или EventSub.",
+    "nostrTagline": "Зашифрованные личные сообщения через реле Nostr.",
+    "mattermostTagline": "Самостоятельно размещаемая альтернатива Slack.",
+    "googleChatTagline": "Google Workspace Chat API.",
+    "nextcloudTalkTagline": "Самостоятельно размещаемый чат Nextcloud.",
+    "synologyChatTagline": "Чат на Synology NAS.",
+    "ircTagline": "Классическое подключение по IRC.",
+    "emailAgentMailTagline": "Выделенный почтовый ящик для каждого агента через AgentMail.",
+    "emailImapTagline": "Используйте собственный почтовый ящик IMAP / SMTP.",
+    "notConnected": "Не подключено",
+    "connected": "Подключено",
+    "detailComingSoon": "Настройка для каждого канала с полями учётных данных и интерфейсом Connection Card появится в следующем выпуске."
   },
   "modelsPage": {
     "title": "Модели",
@@ -1246,7 +1887,8 @@
     }
   },
   "mcpPage": {
-    "title": "MCP серверы"
+    "title": "MCP серверы",
+    "subtitle": "Подключите Wayland к внешним серверам инструментов через Model Context Protocol. Добавляйте, настраивайте и синхронизируйте серверы MCP между вашими агентами."
   },
   "imageGenPage": {
     "title": "Генерация изображений",
@@ -1258,17 +1900,108 @@
     "toggleError": "Не удалось переключить генерацию изображений. Попробуйте снова."
   },
   "generalPage": {
-    "title": "Основные"
+    "title": "Основные",
+    "subtitle": "Общие настройки приложения: язык, поведение при запуске, тайм-ауты, уведомления и пути хранения."
   },
   "notificationsPage": {
-    "title": "Уведомления"
+    "title": "Уведомления",
+    "subtitle": "Когда и как Wayland уведомляет вас.",
+    "comingSoon": "Переключатели по категориям, режим тишины и управление звуком появятся в следующем выпуске.",
+    "systemTitle": "Системные уведомления",
+    "master": "Главный переключатель",
+    "masterHelp": "Когда выключено, Wayland не отправляет системные уведомления. Остальные правила ниже игнорируются.",
+    "agentFinished": "Уведомлять о завершении работы агента",
+    "agentFinishedHelp": "Срабатывает при завершении длительной задачи или запуска команды.",
+    "scheduledTask": "Уведомлять о запуске запланированной задачи",
+    "scheduledTaskHelp": "Задачи в стиле cron уведомляют при запуске.",
+    "agentError": "Уведомлять об ошибке агента",
+    "agentErrorHelp": "Сбои, тайм-ауты, потеря соединения.",
+    "channelMessage": "Уведомлять о сообщении в канале",
+    "channelMessageHelp": "Сообщения Telegram / Lark / DingTalk / WeChat из подключённых каналов.",
+    "soundTitle": "Звук",
+    "playSound": "Воспроизводить звук при уведомлении",
+    "playSoundHelp": "Используется системный звук по умолчанию.",
+    "quietHours": "Режим тишины",
+    "quietHoursHelp": "Отключать звук в указанные часы."
   },
   "storagePage": {
-    "title": "Хранилище"
+    "title": "Хранилище",
+    "comingSoon": "Разбивка использования, резервное копирование, восстановление и синхронизация появятся в следующем выпуске.",
+    "usageTitle": "Использование хранилища",
+    "totalUsed": "Использовано {{used}} из {{total}}",
+    "usageStale": "Обновлено {{ago}}",
+    "refresh": "Обновить",
+    "conversations": "Беседы",
+    "cache": "Кэш",
+    "logs": "Журналы",
+    "directoriesTitle": "Каталоги",
+    "workspace": "Рабочая область",
+    "cacheDir": "Кэш",
+    "logsDir": "Журналы",
+    "open": "Открыть",
+    "clear": "Очистить",
+    "clearConfirmTitle": "Очистить каталог?",
+    "clearConfirmBody": "Это безвозвратно удалит находящиеся внутри файлы. Wayland воссоздаст их по мере необходимости.",
+    "backupTitle": "Резервное копирование и восстановление",
+    "exportIncludeKeys": "Включить API-ключи в экспорт",
+    "exportPassphraseLabel": "Пароль шифрования",
+    "exportPassphrasePlaceholder": "Обязательно при включении ключей",
+    "exportAll": "Экспортировать всё",
+    "restore": "Восстановить из резервной копии",
+    "syncTitle": "Синхронизация (E2EE)",
+    "syncComingSoon": "Сквозное шифрование при синхронизации с папкой или ретранслятором.",
+    "resetTitle": "Сбросить Wayland",
+    "resetDescription": "Безвозвратно удалить все беседы, настройки и кэшированные данные.",
+    "resetAction": "Сбросить всё",
+    "resetConfirmTitle": "Сбросить всё?",
+    "resetConfirmBody": "Это безвозвратно удалит все данные, включая провайдеров, беседы и настройки. Это действие нельзя отменить.",
+    "resetTypePlaceholder": "Введите «reset» для подтверждения",
+    "sync": {
+      "title": "Синхронизация (E2EE)",
+      "betaTag": "Бета",
+      "disabledDescription": "Сквозное шифрование при синхронизации с локальной папкой. Ключи никогда не покидают это устройство.",
+      "enableButton": "Включить синхронизацию",
+      "enableTitle": "Включить синхронизацию со сквозным шифрованием",
+      "enabledStatus": "Синхронизация включена",
+      "disableButton": "Отключить синхронизацию",
+      "disableConfirmTitle": "Отключить синхронизацию?",
+      "disableConfirmBody": "Останавливает синхронизацию этого устройства. Файлы резервных копий в выбранной папке остаются нетронутыми.",
+      "syncNow": "Синхронизировать сейчас",
+      "lastSync": "Последняя синхронизация: {{when}}",
+      "never": "никогда",
+      "itemsCount": "Синхронизировано элементов: {{count}}",
+      "passphrase": "Пароль",
+      "passphrasePlaceholder": "Не менее 16 символов",
+      "passphraseConfirm": "Подтвердите пароль",
+      "passphraseConfirmPlaceholder": "Введите пароль повторно",
+      "passphraseWarning": "Этот пароль шифрует ваши данные. Мы не сможем восстановить его, если вы его забудете, запишите его в надёжном месте.",
+      "passphraseTooShort": "Пароль должен содержать не менее {{min}} символов",
+      "passphraseMismatch": "Пароли не совпадают",
+      "backendIntro": "Выберите, где будет храниться зашифрованный пакет.",
+      "backendLocalFile": "Локальная папка",
+      "backendCloudRelay": "Облачный ретранслятор (скоро)",
+      "folderPath": "Папка синхронизации",
+      "pickFolder": "Выбрать папку",
+      "pickFolderFirst": "Сначала выберите папку",
+      "enable": "Включить синхронизацию"
+    }
   },
   "editorPage": {
     "title": "Редактор",
-    "comingSoon": "Настройки редактора появятся в следующем выпуске."
+    "comingSoon": "Настройки редактора появятся в следующем выпуске.",
+    "preferencesTitle": "Настройки редактора",
+    "defaultMode": "Режим по умолчанию",
+    "defaultModeHelp": "В каком режиме открывать новые документы.",
+    "modeEditor": "Редактор",
+    "modeSource": "Исходный код",
+    "modePreview": "Предпросмотр",
+    "autoSaveDelay": "Задержка автосохранения",
+    "autoSaveDelayHelp": "Сколько ждать после остановки ввода перед сохранением.",
+    "frontmatter": "Сохранять YAML-фронтматтер",
+    "frontmatterHelp": "Сохранять блоки `--- ... ---` в начале Markdown-файлов без изменений.",
+    "spellCheck": "Проверка орфографии",
+    "syntaxHighlight": "Подсветка синтаксиса",
+    "syntaxHighlightHelp": "Подсвечивать блоки кода в Markdown-документах."
   },
   "skillsPage": {
     "title": "Навыки и инструменты"
@@ -1337,5 +2070,31 @@
       "soon": "Скоро",
       "desc": "Позволяет любому агенту маршрутизировать запросы по всем подключённым моделям и провайдерам, а не только своим."
     }
+  },
+  "commandPalette": {
+    "placeholder": "Поиск по настройкам…",
+    "noResults": "Ничего не найдено"
+  },
+  "shortcuts": {
+    "title": "Сочетания клавиш",
+    "openPalette": "Открыть командную палитру",
+    "showShortcuts": "Показать сочетания клавиш",
+    "navigateResults": "Переходить по результатам",
+    "selectResult": "Выбрать результат",
+    "close": "Закрыть"
+  },
+  "displayPage": {
+    "matchSystem": "Как в системе",
+    "reduceMotion": "Уменьшить анимацию",
+    "densityComfortable": "Просторно",
+    "densityCompact": "Компактно",
+    "sidebarWidth": "Ширина боковой панели",
+    "yourName": "Ваше имя",
+    "yourNamePlaceholder": "Введите ваше имя"
+  },
+  "systemUpdateChannelUnavailable": "Канал обновлений недоступен: {{error}}. Автообновления отключены до следующего запуска.",
+  "voicePage": {
+    "title": "Голос",
+    "subtitle": "Настройки преобразования речи в текст и текста в речь для поля чата. Включите разделы, чтобы активировать голосовой ввод и вывод."
   }
 }

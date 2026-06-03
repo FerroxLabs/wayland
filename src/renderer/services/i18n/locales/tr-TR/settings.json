@@ -249,7 +249,615 @@
   "webui": "Uzak Bağlantı",
   "installed": "Yüklü",
   "builtin": "Yerleşik",
-  "channels": "Kanallar",
+  "channels": {
+    "label": "Kanallar",
+    "telegram": {
+      "help": "Wayland AI asistanınızla Telegram üzerinden sohbet edin. Başlamak için @BotFather ile bir bot oluşturun."
+    },
+    "slack": {
+      "comingSoonTitle": "Slack desteği {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Socket Mode üzerinden bot entegrasyonu. Çalışma alanınızın herhangi bir kanalında mesaj gönderin ve alın.",
+      "learnMore": "Daha fazla bilgi",
+      "help": "@slack/bolt üzerinden yerel Slack bot entegrasyonu. En basit kurulum için Socket Mode seçin (genel webhook URL'si gerekmez) veya halihazırda kararlı bir HTTPS uç noktanız varsa Events API'yi seçin.",
+      "replaceWarning": "Yeni bir Slack çalışma alanı bağlamak mevcut olanın yerini alacaktır.",
+      "connectionSuccess": "Bağlandı! Bot: @{{username}}",
+      "connectionFailed": "Bağlantı başarısız",
+      "pluginEnabled": "Slack botu etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "credentials": {
+        "transport": {
+          "label": "Aktarım",
+          "help": "Socket Mode, Slack tarafından başlatılan giden bir WebSocket açar; genel URL gerekmez. Events API ise imzalama gizli anahtarıyla doğrulanan gelen bir HTTPS webhook'u kullanır.",
+          "socket": "Socket Mode",
+          "events": "Events API"
+        },
+        "botToken": {
+          "label": "Bot Token'ı",
+          "placeholder": "xoxb-...bot-token'ınız...",
+          "help": "OAuth & Permissions → Bot User OAuth Token. \"xoxb-\" ile başlar.",
+          "required": "Lütfen bir bot token'ı girin"
+        },
+        "appToken": {
+          "label": "Uygulama Düzeyi Token",
+          "placeholder": "xapp-...uygulama-token'ınız...",
+          "help": "Socket Mode için gereklidir. Basic Information → App-Level Tokens → connections:write kapsamıyla Generate Token and Scopes. \"xapp-\" ile başlar.",
+          "required": "Socket Mode bir uygulama düzeyi token gerektirir"
+        },
+        "signingSecret": {
+          "label": "İmzalama Gizli Anahtarı",
+          "placeholder": "32 karakterlik hex imzalama gizli anahtarı",
+          "help": "Events API için gereklidir. Basic Information → App Credentials → Signing Secret. Her webhook teslimatındaki X-Slack-Signature HMAC'ini doğrulamak için kullanılır.",
+          "required": "Events API aktarımı bir imzalama gizli anahtarı gerektirir"
+        }
+      }
+    },
+    "discord": {
+      "comingSoonTitle": "Discord desteği yakında geliyor",
+      "comingSoonBody": "Yerel Discord bot entegrasyonu geliştirme aşamasında. Kullanıma sunulduğunda bot token'ınızı, Application ID'nizi ve izin verilen sunucuları yapılandırın.",
+      "learnMore": "Daha fazla bilgi",
+      "help": "Gateway üzerinden yerel Discord bot entegrasyonu. Developer Portal'da bir Discord uygulaması ve botu oluşturun, ardından bot token'ını aşağıya yapıştırın.",
+      "replaceWarning": "Yeni bir Discord botu bağlamak mevcut olanın yerini alacaktır.",
+      "connectionSuccess": "Bağlandı! Bot: @{{username}}",
+      "connectionFailed": "Bağlantı başarısız",
+      "pluginEnabled": "Discord botu etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "credentials": {
+        "botToken": {
+          "label": "Bot Token'ı",
+          "placeholder": "MTI...bot-token'ınız...",
+          "help": "Bunu Discord Developer Portal'da uygulamanız → Bot → Reset Token altında bulun.",
+          "required": "Lütfen bir bot token'ı girin"
+        },
+        "applicationId": {
+          "label": "Application ID",
+          "placeholder": "1234567890123456789",
+          "help": "İsteğe bağlı. Yalnızca bu bot için eğik çizgi komutları kaydettiğinizde gereklidir."
+        },
+        "publicKey": {
+          "label": "Genel Anahtar",
+          "placeholder": "hex biçiminde ed25519 genel anahtarı",
+          "help": "İsteğe bağlı. Yalnızca daha sonra Gateway yerine HTTP etkileşim uç noktasına geçerseniz gereklidir."
+        }
+      }
+    },
+    "webhook": {
+      "comingSoonTitle": "Webhook kanalı {{phase}} aşamasında geliyor",
+      "comingSoonBody": "HMAC imza doğrulamalı genel gelen HTTP uç noktası. Özel entegrasyonlar için kullanın.",
+      "learnMore": "Daha fazla bilgi"
+    },
+    "dingtalk": {
+      "help": "DingTalk botları aracılığıyla kurumsal mesajlaşma. Erişim token'ını almak için bir DingTalk grubunun içinde özel bir bot oluşturun.",
+      "comingSoonTitle": "DingTalk desteği yakında geliyor",
+      "comingSoonBody": "Yerel DingTalk bot entegrasyonu geliştirme aşamasında. ClientId/Secret ve akış modu yayınlandığında kullanılabilir olacak.",
+      "learnMore": "Daha fazla bilgi"
+    },
+    "lark": {
+      "help": "Lark / Feishu grupları için çalışma alanı mesajlaşması. App ID ve App Secret almak için Lark geliştirici konsolunda özel bir uygulama oluşturun.",
+      "comingSoonTitle": "Lark / Feishu desteği yakında geliyor",
+      "comingSoonBody": "Yerel Lark ve Feishu bot entegrasyonu geliştirme aşamasında. Etki alanı seçici, AppId/Secret ve gelişmiş webhook seçenekleri yayınlandığında kullanılabilir olacak.",
+      "learnMore": "Daha fazla bilgi"
+    },
+    "wechat": {
+      "help": "WeChat kişisel hesaplarıyla QR tabanlı eşleştirme. Konuşma yönlendirmesini etkinleştirmek için eşleştirme QR'ını WeChat ile tarayın.",
+      "comingSoonTitle": "WeChat desteği yakında geliyor",
+      "comingSoonBody": "WeChat QR eşleştirme entegrasyonu geliştirme aşamasında. Kullanılabilir olduğunda bağlanmak için WeChat ile tarayın.",
+      "learnMore": "Daha fazla bilgi"
+    },
+    "wecom": {
+      "help": "Şirket çalışma alanları için Kurumsal WeChat. Corp ID, Agent ID ve Secret almak için kendiliğinden oluşturulan bir uygulama kaydedin.",
+      "comingSoonTitle": "WeCom desteği yakında geliyor",
+      "comingSoonBody": "WeCom (Kurumsal WeChat) bot entegrasyonu geliştirme aşamasında. Geri çağırma URL yapılandırmalı webhook ve WebSocket modları yayınlandığında kullanılabilir olacak.",
+      "learnMore": "Daha fazla bilgi"
+    },
+    "whatsapp": {
+      "comingSoonTitle": "WhatsApp {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Meta WhatsApp Business Cloud API. Doğrulanmış webhook'lar üzerinden gelen, REST üzerinden giden. Serbest biçimli yanıtlar için 24 saatlik müşteri hizmetleri penceresi geçerlidir.",
+      "help": "Üç arka uç: Baileys (doğrudan WhatsApp Web protokolü, önerilir), WhatsApp Web.js (Puppeteer tabanlı alternatif) veya Meta Business Cloud API (doğrulanmış işletme numaraları).",
+      "replaceWarning": "Yeni bir WhatsApp hesabı bağlamak mevcut olanın yerini alacaktır.",
+      "accountLockWarning": "Yeni bir WhatsApp hesabı bağlamak mevcut olanın yerini alacaktır. Mevcut QR eşleştirmesi veya webhook URL'si geçersiz hale gelir.",
+      "connectionSuccess": "WhatsApp bağlandı",
+      "connectionFailed": "Bağlantı başarısız",
+      "pluginEnabled": "WhatsApp eklentisi etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "credentials": {
+        "backend": {
+          "label": "Arka Uç",
+          "placeholder": "baileys",
+          "help": "Kişisel hesaplar için Baileys önerilir. Doğrulanmış işletme hesapları ve şablonlu mesajlaşma için Meta Business gereklidir.",
+          "required": "Lütfen bir arka uç seçin",
+          "baileys": "Baileys (önerilir)",
+          "whatsappWeb": "WhatsApp Web.js",
+          "metaBusiness": "Meta Business"
+        },
+        "accessToken": {
+          "label": "Erişim Token'ı",
+          "placeholder": "EAAG...token'ınız...",
+          "help": "Meta sistem kullanıcısı veya geçici erişim token'ı. Meta Business Suite → System Users altında oluşturulur.",
+          "required": "Meta arka ucu için Erişim Token'ı ve Phone Number ID gereklidir"
+        },
+        "phoneNumberId": {
+          "label": "Phone Number ID",
+          "placeholder": "123456789012345",
+          "help": "Meta Business → WhatsApp → Phone Numbers'tan alınan sayısal ID. Telefon numarasının kendisi değildir.",
+          "required": "Meta arka ucu için Phone Number ID gereklidir"
+        },
+        "businessAccountId": {
+          "label": "Business Account ID",
+          "placeholder": "987654321098765",
+          "help": "İsteğe bağlı. Gelen mesaj olaylarında daha zengin meta veri sağlar.",
+          "required": ""
+        },
+        "verifyToken": {
+          "label": "Doğrulama Token'ı",
+          "placeholder": "uzun bir rastgele dize",
+          "help": "GET /webhook el sıkışması sırasında Meta'nın geri yansıttığı, operatör tarafından seçilen dize. Meta panosuna yapıştırdığınızla eşleşmelidir.",
+          "required": ""
+        }
+      },
+      "qrPairing": {
+        "title": "QR Eşleştirme",
+        "help": "Telefonunuzda WhatsApp'ı açın → Ayarlar → Bağlı Cihazlar → Cihaz Bağla, ardından aşağıdaki kodu tarayın. Kod, eşleştirilene kadar her dakika değişir.",
+        "refreshing": "Köprüden eşleştirme kodu bekleniyor…"
+      },
+      "webhookUrl": {
+        "label": "Gelen Webhook URL'si",
+        "help": "Bu URL'yi Meta Business → WhatsApp → Configuration → Webhook callback URL alanına yapıştırın.",
+        "tunnelPlaceholder": "(tüneli Aşama 4'te yapılandırın)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Kopyala",
+        "rotateButton": "Döndür",
+        "rotateSuccess": "Webhook URL'si döndürüldü",
+        "rotateFailed": "Döndürme başarısız"
+      }
+    },
+    "smsTwilio": {
+      "comingSoonTitle": "SMS (Twilio) {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Twilio Programmable Messaging üzerinden SMS gönderin ve alın. HMAC-SHA1 imza doğrulamalı numara başına webhook yönlendirmesi. ABD dağıtımları A2P 10DLC kaydı gerektirir.",
+      "accountLockWarning": "Yeni bir SMS hesabı bağlamak mevcut olanın yerini alacaktır. Mevcut webhook URL'si geçersiz hale gelir.",
+      "a2pNotice": "ABD dağıtımları A2P 10DLC marka ve kampanya kaydı gerektirir. Ücretsiz arama numaraları ayrı bir doğrulama gerektirir. Her iki süreç de birkaç gün sürebilir.",
+      "credentials": {
+        "accountSid": {
+          "label": "Account SID",
+          "placeholder": "ACxxxxxxxxxxxxxxxx",
+          "help": "Account SID'inizi Twilio Console kontrol panelinde bulabilirsiniz. \"AC\" ile başlar."
+        },
+        "authToken": {
+          "label": "Auth Token",
+          "placeholder": "auth token",
+          "help": "Auth token'ı bir parola gibi koruyun; Twilio her webhook'u onunla imzalar."
+        },
+        "fromNumber": {
+          "label": "Gönderen Numarası",
+          "placeholder": "+14155550123",
+          "help": "E.164 biçiminde, örn. +14155550123. Bir Gönderen Numarası ya da bir Messaging Service SID girin.",
+          "invalid": "E.164 biçiminde olmalıdır, örn. +14155550123"
+        },
+        "messagingServiceSid": {
+          "label": "Messaging Service SID",
+          "placeholder": "MGxxxxxxxxxxxxxxxx",
+          "help": "Gönderen Numarasına isteğe bağlı bir alternatif. Numara havuzlamayı veya gönderen kimliği değişimini etkinleştirmek için bir Messaging Service kullanın."
+        }
+      },
+      "webhookUrl": {
+        "label": "Gelen Webhook URL'si",
+        "help": "Bu URL'yi Twilio numarasının \"A Message Comes In\" webhook alanına yapıştırın (POST).",
+        "tunnelPlaceholder": "(tüneli Aşama 4'te yapılandırın)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Kopyala",
+        "rotateButton": "Döndür",
+        "rotateSuccess": "Webhook URL'si döndürüldü",
+        "rotateFailed": "Döndürme başarısız oldu"
+      }
+    },
+    "signal": {
+      "comingSoonTitle": "Signal {{phase}} aşamasında geliyor",
+      "comingSoonBody": "signal-cli alt süreci üzerinden bağlanın. Uçtan uca şifrelidir. Tek seferlik kayıt için özel bir telefon numarası gerektirir.",
+      "help": "signal-cli alt süreç arka plan hizmeti üzerinden uçtan uca şifreli mesajlaşma. Signal'e kayıtlı özel bir telefon numarası gerektirir. signal-cli yüklü olmalı veya paketlenmiş çalışma zamanı aracılığıyla kullanılabilir olmalıdır.",
+      "replaceWarning": "Yeni bir Signal hesabı bağlamak mevcut hesabınızın yerine geçer.",
+      "connectionSuccess": "Signal bağlandı",
+      "connectionFailed": "Signal bağlantı testi başarısız oldu",
+      "pluginEnabled": "Signal eklentisi etkinleştirildi",
+      "enableFailed": "Signal eklentisi etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "installHowTo": "Paketlenmiş çalışma zamanı yoksa signal-cli ayrıca yüklenmelidir. Şununla yükleyin: brew install signal-cli | apt-get install signal-cli. Yükledikten sonra numaranızı kaydedin: signal-cli -a +1… register",
+      "credentials": {
+        "phoneNumber": {
+          "label": "Telefon Numarası",
+          "placeholder": "+14155551234",
+          "help": "E.164 biçiminde, Signal'e kayıtlı olmalıdır. Özel bir numara önerilir.",
+          "required": "Lütfen Signal telefon numaranızı girin",
+          "invalid": "Telefon numarası E.164 biçiminde olmalıdır, örn. +14155551234"
+        },
+        "cliPath": {
+          "label": "signal-cli yolu (isteğe bağlı)",
+          "placeholder": "/usr/local/bin/signal-cli",
+          "help": "Paketlenmiş çalışma zamanını veya PATH'inizdeki signal-cli'yi kullanmak için boş bırakın."
+        }
+      }
+    },
+    "matrix": {
+      "comingSoonTitle": "Matrix {{phase}} aşamasında geliyor",
+      "comingSoonBody": "matrix-js-sdk aracılığıyla federasyon farkındalıklı. Cihaz doğrulamalı isteğe bağlı uçtan uca şifreleme. Herhangi bir homeserver ile uyumlu.",
+      "help": "matrix-js-sdk aracılığıyla federasyon farkındalıklı mesajlaşma. Homeserver URL'nizi, tam mxid'inizi (örn. @bot:matrix.org) ve uzun ömürlü bir erişim token'ı girin.",
+      "replaceWarning": "Yeni bir Matrix hesabı bağlamak mevcut hesabınızın yerine geçer.",
+      "connectionSuccess": "Matrix bağlandı",
+      "connectionFailed": "Matrix bağlantısı başarısız oldu",
+      "pluginEnabled": "Matrix eklentisi etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "accessTokenHowTo": "Erişim token'ı nasıl alınır: https://t2bot.io/docs/access_tokens/ adresine veya homeserver ayarlarınıza bakın.",
+      "credentials": {
+        "homeserverUrl": {
+          "label": "Homeserver URL'si",
+          "placeholder": "https://matrix.org",
+          "help": "Matrix homeserver'ınızın HTTPS taban URL'si. Herkese açık amiral gemisi sunucu için https://matrix.org kullanın.",
+          "required": "Lütfen bir homeserver URL'si girin"
+        },
+        "userId": {
+          "label": "Kullanıcı ID'si (mxid)",
+          "placeholder": "@bot:matrix.org",
+          "help": "Sunucu son ekini de içeren tam Matrix ID'si, örn. @bot:matrix.org.",
+          "required": "Lütfen bir Matrix kullanıcı ID'si (mxid) girin"
+        },
+        "accessToken": {
+          "label": "Erişim Token'ı",
+          "placeholder": "syt_...your-matrix-access-token...",
+          "help": "Uzun ömürlü erişim token'ı. Element: All settings → Help & About → Access Token. Veya özel bir bot hesabı kullanın.",
+          "required": "Lütfen bir erişim token'ı girin"
+        }
+      }
+    },
+    "msTeams": {
+      "comingSoonTitle": "MS Teams {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Azure Bot Service aracılığıyla Microsoft Bot Framework. Zengin mesajlar için Adaptive Cards. Azure aboneliği ve Teams yönetici onayı gerektirir.",
+      "help": "Azure Bot Service aracılığıyla Bot Framework. Bir bot kaydedin, webhook uç noktasını ayarlayın ve App ID ile istemci gizli anahtarınızı aşağıya yapıştırın.",
+      "replaceWarning": "Yeni kimlik bilgilerini kaydetmek mevcut MS Teams bot bağlantısının yerine geçer.",
+      "connectionFailed": "MS Teams bağlantısı başarısız oldu",
+      "connectionSuccess": "MS Teams bağlandı",
+      "pluginEnabled": "MS Teams eklentisi etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "setupHint": "Botunuzu Azure Portal'da kaydedin: Azure Bot Service → Create resource → Microsoft Teams kanalını yapılandırın → mesajlaşma uç noktasını Wayland webhook URL'nize ayarlayın → App ID ile istemci gizli anahtarını buraya kopyalayın.",
+      "credentials": {
+        "appId": {
+          "label": "App ID (MicrosoftAppId)",
+          "help": "Azure AD uygulama kaydı istemci ID'si; Azure Portal → App Registrations → Overview altında bulunur.",
+          "placeholder": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          "required": "Lütfen bir App ID girin"
+        },
+        "appPassword": {
+          "label": "App Password (İstemci Gizli Anahtarı)",
+          "help": "Azure AD istemci gizli anahtarı; App Registrations → Certificates & secrets → New client secret.",
+          "placeholder": "İstemci gizli anahtar değerinizi yapıştırın",
+          "required": "Lütfen bir App Password girin"
+        }
+      },
+      "webhookUrl": {
+        "label": "Gelen Webhook URL'si",
+        "help": "Bunu Azure Bot Service'te Messaging Endpoint olarak ayarlayın.",
+        "copyButton": "Kopyala",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "line": {
+      "credentials": {
+        "bothRequired": "Channel Access Token ve Channel Secret gereklidir",
+        "channelAccessToken": {
+          "label": "Channel Access Token",
+          "help": "LINE Developers Console → Messaging API → Channel access token'dan alınan uzun ömürlü token.",
+          "placeholder": "Channel access token'ınızı yapıştırın"
+        },
+        "channelSecret": {
+          "label": "Channel Secret",
+          "help": "LINE Developers Console → Basic settings'ten alınan channel secret. Webhook imzalarını doğrulamak için kullanılır.",
+          "placeholder": "Channel secret'ınızı yapıştırın"
+        }
+      },
+      "accountLockWarning": "Yeni kimlik bilgilerini kaydetmek mevcut LINE bot bağlantısının yerine geçer.",
+      "connectionFailed": "Bağlantı başarısız oldu",
+      "connectionSuccess": "{{botUsername}} olarak bağlandı",
+      "pluginEnabled": "LINE eklentisi etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "webhookUrl": {
+        "label": "Gelen Webhook URL'si",
+        "help": "Bu URL'yi LINE Developers Console → Messaging API → Webhook URL'ye yapıştırın.",
+        "copyButton": "Kopyala",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "imessage": {
+      "comingSoonTitle": "iMessage {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Yalnızca macOS, deneysel. Messages.app'e AppleScript köprüsü. Apple, betikle yapılan gönderimleri sessizce hız sınırladığından mesajlaşma kısıtlanır."
+    },
+    "viber": {
+      "comingSoonTitle": "Viber {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Viber Bot API aracılığıyla bot entegrasyonu. Gelen için webhook, giden için REST. Herkese açık URL gerekir."
+    },
+    "bluebubbles": {
+      "comingSoonTitle": "BlueBubbles {{phase}} aşamasında geliyor",
+      "comingSoonBody": "BlueBubbles aktarma sunucusu aracılığıyla iMessage. Ağınızda BlueBubbles sunucusunu çalıştıran yedek bir Mac gerektirir."
+    },
+    "threema": {
+      "comingSoonTitle": "Threema {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Threema Gateway API. Mesaj başına fiyatlandırmalı B2B sözleşme. Uçtan uca şifreli."
+    },
+    "mastodon": {
+      "comingSoonTitle": "Mastodon {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Örnek başına OAuth artı WebSocket akışı. Bir örnekteki her hesap için bir kimlik bilgisi seti."
+    },
+    "bluesky": {
+      "comingSoonTitle": "Bluesky {{phase}} aşamasında geliyor",
+      "comingSoonBody": "@atproto/api aracılığıyla AT Protocol. Bahsetmeler için Jetstream firehose; gönderim için XRPC. Ana girişinizi değil, bir uygulama parolası kullanın."
+    },
+    "reddit": {
+      "comingSoonTitle": "Reddit DM'leri {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Doğrudan mesajlar için Reddit API. Yalnızca yoklama (DM'ler için akış uç noktası yok)."
+    },
+    "twitch": {
+      "comingSoonTitle": "Twitch {{phase}} aşamasında geliyor",
+      "comingSoonBody": "IRC köprüsü veya EventSub aracılığıyla Twitch sohbeti. Token başına bir kanala bağlanır.",
+      "help": "IRC (tmi.js) aracılığıyla Twitch sohbeti. Bir veya daha fazla kanalda mesaj okumak ve göndermek için OAuth ile bir bot hesabı bağlayın.",
+      "connectionSuccess": "Twitch başarıyla bağlandı",
+      "connectionFailed": "Twitch bağlantısı başarısız oldu, token ve kullanıcı adını kontrol edin",
+      "pluginEnabled": "Twitch eklentisi etkinleştirildi",
+      "enableFailed": "Twitch eklentisi etkinleştirilemedi",
+      "replaceWarning": "Yeni bir Twitch botu bağlamak mevcut kimlik bilgilerinizin yerine geçer.",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "tokenHowTo": "Özel bir bot hesabı kullanın, kişisel Twitch hesabınızı asla kullanmayın. twitchtokengenerator.com adresinde bir token oluşturun ve chat:read ile chat:edit kapsamlarını seçin.",
+      "credentials": {
+        "botUsername": {
+          "label": "Bot Kullanıcı Adı",
+          "help": "Bot hesabınızın Twitch giriş adı (küçük harf).",
+          "required": "Lütfen bot kullanıcı adını girin"
+        },
+        "oauthToken": {
+          "label": "OAuth Token",
+          "help": "chat:read + chat:edit kapsamlarına sahip bot OAuth token'ı. twitchtokengenerator.com adresinden alabilirsiniz.",
+          "required": "Lütfen OAuth token'ı girin"
+        },
+        "channels": {
+          "label": "Kanallar",
+          "help": "Katılınacak kanal adları virgülle ayrılmış olarak (örn. mychannel, otherchannel). # ön eki isteğe bağlıdır.",
+          "required": "Lütfen katılmak için en az bir kanal girin"
+        }
+      }
+    },
+    "nostr": {
+      "comingSoonTitle": "Nostr {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Nostr aktarıcıları üzerinden şifreli özel mesajlar. Kendi özel anahtarınızı (nsec) getirin."
+    },
+    "telegramUserbot": {
+      "comingSoonTitle": "Telegram Userbot {{phase}} aşamasında geliyor",
+      "comingSoonBody": "MTProto kullanıcı modu (gramjs / mtcute). Bot API'sinden ayrıdır. UYARI, bir userbot çalıştırmak telefon numarasının hizmet şartları ihlali nedeniyle yasaklanmasına yol açabilir."
+    },
+    "mattermost": {
+      "comingSoonTitle": "Mattermost {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Kendi sunucunuzda barındırılabilen Slack alternatifi. WebSocket olayları ve REST."
+    },
+    "googleChat": {
+      "comingSoonTitle": "Google Chat {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Chat API aracılığıyla Google Workspace entegrasyonu. OAuth gereklidir.",
+      "help": "Google Chat (Workspace) botu. Hizmet hesabı JSON anahtar dosyanızı yapıştırın ve webhook doğrulaması için beklenen JWT hedef kitlesini (proje numarası veya uygulama URL'si) girin.",
+      "replaceWarning": "Yeni kimlik bilgilerini kaydetmek mevcut Google Chat bot bağlantısının yerine geçer.",
+      "connectionSuccess": "Google Chat {{email}} olarak bağlandı",
+      "connectionFailed": "Google Chat bağlantısı başarısız oldu",
+      "pluginEnabled": "Google Chat eklentisi etkinleştirildi",
+      "enableFailed": "Google Chat eklentisi etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "credentials": {
+        "serviceAccountJson": {
+          "label": "Hizmet Hesabı JSON",
+          "help": "Google Cloud hizmet hesabı anahtar dosyanızın tüm içeriğini (JSON) yapıştırın. Botun Chat API kapsamına (chat.bot) sahip olması gerekir.",
+          "placeholder": "{ \"type\": \"service_account\", \"project_id\": \"...\", ... }"
+        },
+        "audience": {
+          "label": "JWT Hedef Kitlesi",
+          "help": "Google Chat'in Bearer JWT'sinde beklenen `aud` talebi. Google Cloud proje numaranızı (örn. 123456789012) veya kayıtlı uygulama URL'sini kullanın.",
+          "placeholder": "123456789012",
+          "required": "Webhook doğrulaması için JWT hedef kitlesi gereklidir"
+        },
+        "bothRequired": "Hizmet Hesabı JSON ve JWT hedef kitlesi gereklidir"
+      },
+      "webhookUrl": {
+        "label": "Gelen Webhook URL'si",
+        "help": "Bu URL'yi Google Cloud Console → Google Chat API → Yapılandırma → Uygulama URL'si alanına yapıştırın.",
+        "copyButton": "Kopyala",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "nextcloudTalk": {
+      "comingSoonTitle": "Nextcloud Talk {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Nextcloud örnekleri için kendi sunucunuzda barındırılan sohbet. Kullanıcı adı + uygulama parolası.",
+      "help": "Uygulama parolası Basic auth ile kendi sunucunuzda barındırılan Nextcloud Talk. Sunucu URL'nizi, Nextcloud kullanıcı adınızı ve Kişisel → Güvenlik → Uygulama parolaları altında oluşturulan bir uygulama parolasını girin.",
+      "replaceWarning": "Yeni bir hesap bağlamak mevcut Nextcloud Talk bağlantınızın yerine geçer.",
+      "connectionSuccess": "Nextcloud Talk bağlandı",
+      "connectionFailed": "Nextcloud Talk bağlantısı başarısız oldu",
+      "pluginEnabled": "Nextcloud Talk eklentisi etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "appPasswordHowTo": "Uygulama parolası nasıl oluşturulur: Nextcloud'u açın → sağ üstteki avatar → Kişisel ayarlar → Güvenlik → Uygulama parolaları.",
+      "credentials": {
+        "serverUrl": {
+          "label": "Sunucu URL'si",
+          "help": "Nextcloud örneğinizin temel URL'si, örn. https://cloud.example.com",
+          "placeholder": "https://cloud.example.com",
+          "required": "Lütfen Nextcloud sunucu URL'sini girin"
+        },
+        "username": {
+          "label": "Kullanıcı Adı",
+          "help": "Nextcloud giriş adınız.",
+          "placeholder": "youruser",
+          "required": "Lütfen Nextcloud kullanıcı adınızı girin"
+        },
+        "appPassword": {
+          "label": "Uygulama Parolası",
+          "help": "Nextcloud ayarlarınızda Kişisel → Güvenlik → Uygulama parolaları altında oluşturun.",
+          "placeholder": "xxxx-xxxx-xxxx-xxxx",
+          "required": "Lütfen bir uygulama parolası girin"
+        }
+      }
+    },
+    "synologyChat": {
+      "comingSoonTitle": "Synology Chat {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Synology NAS üzerinde sohbet. Gelen için webhook, giden için REST.",
+      "replaceWarning": "Yeni bir Synology Chat hesabı bağlamak mevcut hesabınızın yerine geçer.",
+      "connectionSuccess": "Synology Chat bağlandı",
+      "connectionFailed": "Synology Chat bağlantısı başarısız oldu",
+      "pluginEnabled": "Synology Chat eklentisi etkinleştirildi",
+      "enableFailed": "Synology Chat eklentisi etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "howTo": "Kurulum kılavuzu: Synology Chat → Yönetim → Entegrasyonlar → Gelen/Giden Webhook'lar.",
+      "credentials": {
+        "incomingUrl": {
+          "label": "Gelen Webhook URL'si",
+          "help": "Synology Chat yönetim panelinden (Entegrasyon → Gelen Webhook'lar) alınan webhook URL'si. Yanıtları buraya POST ederiz.",
+          "placeholder": "https://your-nas/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&...",
+          "required": "Lütfen Synology Chat gelen webhook URL'sini girin"
+        },
+        "incomingToken": {
+          "label": "Webhook Token'ı",
+          "help": "Synology Chat'in her giden webhook isteğiyle birlikte gönderdiği token (Giden Webhook'lar → Token). Gelen teslimatları doğrulamak için kullanılır.",
+          "placeholder": "your-synology-webhook-token",
+          "required": "Lütfen webhook token'ını girin"
+        }
+      },
+      "webhookUrl": {
+        "label": "Gelen Webhook URL'si",
+        "help": "Bu URL'yi Synology Chat → Giden Webhook'lar → Giden URL alanına yapıştırın.",
+        "copyButton": "Kopyala",
+        "notMinted": "<not-minted>"
+      }
+    },
+    "irc": {
+      "comingSoonTitle": "IRC {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Klasik IRC bağlantısı. Sunucu, port, kanallar, isteğe bağlı SASL kimlik doğrulaması."
+    },
+    "qq": {
+      "comingSoonTitle": "QQ {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Tencent QQ mesajlaşması. Çin dışında sınırlı kullanım."
+    },
+    "xiaomi": {
+      "comingSoonTitle": "Xiaomi {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Xiaomi MIUI mesajlaşması. Yalnızca Çin."
+    },
+    "zalo": {
+      "comingSoonTitle": "Zalo {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Vietnam mesajlaşma platformu. Webhook + REST."
+    },
+    "xDms": {
+      "comingSoonTitle": "X / Twitter Özel Mesajları",
+      "premiumGate": "Premium API katmanı gereklidir (aylık 200 $). Özel mesajları etkinleştirmek için X Developer Platform Basic veya üstüne abone olun. X Basic katmanı 2026 itibarıyla yeni kayıtlara kapalıdır."
+    },
+    "emailAgentMail": {
+      "help": "AgentMail aracılığıyla webhook tabanlı SaaS e-postası. Her temsilci özel bir gelen kutusu alır; AgentMail teslim edilebilirliği, dizileri ve imzalı gelen webhook'ları yönetir.",
+      "replaceWarning": "AgentMail hesabını değiştirmek mevcut webhook URL'sini geçersiz kılar.",
+      "accountLockWarning": "Yeni bir AgentMail hesabı bağlamak mevcut hesabınızın yerine geçer. Mevcut webhook URL'si geçersiz hale gelir.",
+      "connectionSuccess": "AgentMail bağlantısı doğrulandı",
+      "connectionFailed": "AgentMail bağlantı testi başarısız oldu",
+      "pluginEnabled": "AgentMail kanalı etkinleştirildi",
+      "enableFailed": "AgentMail eklentisi etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "credentials": {
+        "apiKey": {
+          "label": "API Anahtarı",
+          "placeholder": "am_xxxxxxxxxxxxxxxx",
+          "help": "AgentMail kontrol paneli → API Anahtarları. Bir parola gibi muamele edin.",
+          "required": "API anahtarı gereklidir"
+        },
+        "inboxAddress": {
+          "label": "Gelen Kutusu Adresi",
+          "placeholder": "agent@workspace.agentmail.to",
+          "help": "AgentMail'in bu temsilci için sağladığı özel gelen kutusu, örn. agent@workspace.agentmail.to.",
+          "required": "Gelen kutusu adresi gereklidir"
+        },
+        "webhookSecret": {
+          "label": "Webhook Gizli Anahtarı",
+          "placeholder": "whsec_xxxxxxxxxxxxxxxx",
+          "help": "AgentMail'in webhook teslimatlarını imzalamak için kullandığı isteğe bağlı HMAC gizli anahtarı. AgentMail kontrol panelinden kopyalayın.",
+          "required": "İmzalı teslimat doğrulaması için webhook gizli anahtarı gereklidir"
+        }
+      },
+      "webhookUrl": {
+        "label": "Gelen Webhook URL'si",
+        "help": "Bu URL'yi AgentMail kontrol panelindeki \"Webhook URL\" alanına yapıştırın.",
+        "tunnelPlaceholder": "(tüneli 4. Aşamada yapılandırın)",
+        "notMinted": "<not-minted>",
+        "copyButton": "Kopyala",
+        "rotateButton": "Döndür",
+        "rotateSuccess": "Webhook URL'si döndürüldü",
+        "rotateFailed": "Döndürme başarısız oldu"
+      }
+    },
+    "emailImap": {
+      "comingSoonTitle": "E-posta (IMAP/SMTP) {{phase}} aşamasında geliyor",
+      "comingSoonBody": "Kendi gelen kutunuzu kullanın. Gelen için IMAP IDLE, giden için SMTP. Gmail ve Outlook için OAuth desteklenir.",
+      "help": "Kendi gelen kutunuzu kullanın. Mevcut olduğunda gelen için IMAP IDLE (30 sn'de bir yoklama yedeği), giden için SMTP. Gmail / Outlook için uygulama parolası kullanın.",
+      "connectionFailed": "Bağlantı testi başarısız oldu",
+      "pluginEnabled": "E-posta (IMAP) etkinleştirildi",
+      "enableFailed": "Eklenti etkinleştirilemedi",
+      "testAndEnable": "Test Et ve Etkinleştir",
+      "sections": {
+        "imap": "IMAP (gelen)",
+        "smtp": "SMTP (giden)"
+      },
+      "credentials": {
+        "imapHost": {
+          "label": "IMAP Sunucusu",
+          "placeholder": "imap.gmail.com",
+          "help": "IMAP sunucunuzun ana bilgisayar adı, örn. imap.gmail.com.",
+          "required": "IMAP sunucusu gereklidir"
+        },
+        "imapPort": {
+          "label": "IMAP Bağlantı Noktası",
+          "help": "IMAPS için varsayılan 993."
+        },
+        "imapUser": {
+          "label": "IMAP Kullanıcısı",
+          "placeholder": "agent@example.com",
+          "help": "Genellikle tam e-posta adresiniz.",
+          "required": "IMAP kullanıcısı gereklidir"
+        },
+        "imapPassword": {
+          "label": "IMAP Parolası",
+          "help": "Gmail / Outlook için uygulama parolası kullanın; hesap giriş parolanız çalışmaz.",
+          "required": "IMAP parolası gereklidir"
+        },
+        "imapTls": {
+          "label": "IMAP TLS",
+          "help": "TLS kullanın (önerilir)."
+        },
+        "useSameAuth": {
+          "label": "SMTP için IMAP kimlik bilgilerini kullan",
+          "help": "Açıkken SMTP, IMAP kullanıcı adı ve parolasını yeniden kullanır. Ayrı bir SMTP girişi sağlamak için kapatın."
+        },
+        "smtpHost": {
+          "label": "SMTP Sunucusu",
+          "placeholder": "smtp.gmail.com",
+          "help": "IMAP sunucusunu yeniden kullanmak için boş bırakın."
+        },
+        "smtpPort": {
+          "label": "SMTP Bağlantı Noktası",
+          "help": "STARTTLS için varsayılan 587. Örtük TLS için 465 kullanın."
+        },
+        "smtpUser": {
+          "label": "SMTP Kullanıcısı",
+          "required": "SMTP kullanıcısı gereklidir"
+        },
+        "smtpPassword": {
+          "label": "SMTP Parolası",
+          "required": "SMTP parolası gereklidir"
+        },
+        "smtpTls": {
+          "label": "SMTP TLS",
+          "help": "Bağlantı noktası = 587 olduğunda STARTTLS, bağlantı noktası = 465 olduğunda örtük TLS."
+        }
+      }
+    }
+  },
   "webui.description": "Wayland'nizi \"7/24 Uzaktan Asistan\" olarak kullanın - görevleri istediğiniz zaman, istediğiniz yerden herhangi bir uzak cihazdan düzenleyin.",
   "webui.steps": "Adım 1. Web Arayüzünü açın; Adım 2. Erişim URL'sini kopyalayın; Adım 3. Uzak tarayıcıda açın",
   "webui.configuration": "Web Arayüzü Yapılandırması",
@@ -951,7 +1559,10 @@
     "discardChange": "Değişikliği İptal Et",
     "confirm": "Onayla",
     "dismiss": "Kapat",
-    "statusPrefix": "Durum: {{label}}"
+    "statusPrefix": "Durum: {{label}}",
+    "comingSoonTitle": "Sonraki sürümde geliyor",
+    "back": "Geri",
+    "next": "İleri"
   },
   "sider": {
     "groupWorkspace": "ÇALIŞMA ALANI",
@@ -971,7 +1582,9 @@
     "storage": "Depolama",
     "skills": "Beceriler ve Araçlar",
     "agents": "Ajanlar",
-    "constitution": "Anayasa"
+    "constitution": "Anayasa",
+    "images": "Görsel Üretme",
+    "voice": "Ses"
   },
   "channelsIndex": {
     "title": "Kanallar",
@@ -989,7 +1602,35 @@
     "configure": "Yapılandır →",
     "footerText": "Daha fazla kanal uzantılarla eklenebilir.",
     "browseExtensions": "Uzantılara göz at →",
-    "channelsMovedHint": "Kanallar Entegrasyonlar bölümüne taşındı →"
+    "channelsMovedHint": "Kanallar Entegrasyonlar bölümüne taşındı →",
+    "subtitle": "Wayland'ı mesajlaşma platformlarına bağlayın. Her bağlantının kendi kurulumu, kimlik bilgileri ve durumu vardır.",
+    "tier1Tab": "Kademe 1",
+    "tier2Tab": "Kademe 2",
+    "tier3Tab": "Kademe 3",
+    "phase1Label": "Aşama 1",
+    "phase2Label": "Aşama 2",
+    "phase3Label": "Aşama 3",
+    "phase5Label": "Aşama 5",
+    "whatsappTagline": "Meta WhatsApp Business Cloud API.",
+    "smsTwilioTagline": "Twilio üzerinden SMS gönderin ve alın.",
+    "signalTagline": "signal-cli ile uçtan uca şifreli.",
+    "matrixTagline": "matrix-js-sdk ile federasyon farkındalıklı.",
+    "msteamsTagline": "Azure Bot Service üzerinden Bot Framework.",
+    "lineTagline": "LINE Messaging API üzerinden bot.",
+    "imessageTagline": "AppleScript ile yalnızca macOS (deneysel).",
+    "bluebubblesTagline": "iMessage aktarımı (yedek bir Mac gerektirir).",
+    "twitchTagline": "IRC veya EventSub ile Twitch sohbeti.",
+    "nostrTagline": "Nostr aktarıcıları üzerinden şifreli DM'ler.",
+    "mattermostTagline": "Kendi sunucunuzda barındırılabilen Slack alternatifi.",
+    "googleChatTagline": "Google Workspace Chat API.",
+    "nextcloudTalkTagline": "Kendi sunucunuzda barındırılan Nextcloud sohbeti.",
+    "synologyChatTagline": "Synology NAS üzerinde sohbet.",
+    "ircTagline": "Klasik IRC bağlantısı.",
+    "emailAgentMailTagline": "AgentMail ile ajan başına özel gelen kutusu.",
+    "emailImapTagline": "Kendi IMAP / SMTP gelen kutunuzu kullanın.",
+    "notConnected": "Bağlı değil",
+    "connected": "Bağlandı",
+    "detailComingSoon": "Kimlik bilgisi alanları ve Bağlantı Kartı arayüzü içeren kanal başına kurulum sonraki sürümde geliyor."
   },
   "modelsPage": {
     "title": "Modeller",
@@ -1244,7 +1885,8 @@
     }
   },
   "mcpPage": {
-    "title": "MCP Sunucuları"
+    "title": "MCP Sunucuları",
+    "subtitle": "Wayland'ı Model Context Protocol ile harici araç sunucularına bağlayın. Ajanlarınız arasında MCP sunucuları ekleyin, yapılandırın ve eşitleyin."
   },
   "imageGenPage": {
     "title": "Görsel Oluşturma",
@@ -1256,17 +1898,108 @@
     "toggleError": "Görsel oluşturma değiştirilemedi. Lütfen tekrar deneyin."
   },
   "generalPage": {
-    "title": "Genel"
+    "title": "Genel",
+    "subtitle": "Uygulama genelinde tercihler: dil, başlangıç davranışı, zaman aşımları, bildirimler ve depolama yolları."
   },
   "notificationsPage": {
-    "title": "Bildirimler"
+    "title": "Bildirimler",
+    "subtitle": "Wayland'ın sizi ne zaman ve nasıl uyaracağı.",
+    "comingSoon": "Kategori başına anahtarlar, sessiz saatler ve ses denetimleri sonraki sürümde geliyor.",
+    "systemTitle": "Sistem bildirimleri",
+    "master": "Ana anahtar",
+    "masterHelp": "Kapalıyken Wayland hiçbir sistem bildirimi göndermez. Aşağıdaki diğer kurallar yok sayılır.",
+    "agentFinished": "Ajan bittiğinde bildir",
+    "agentFinishedHelp": "Uzun süren bir görev veya ekip başlatıcı tamamlandığında tetiklenir.",
+    "scheduledTask": "Zamanlanmış görev tetiklendiğinde bildir",
+    "scheduledTaskHelp": "Cron tarzı görevler çalıştığında bildirir.",
+    "agentError": "Ajan hatasında bildir",
+    "agentErrorHelp": "Hatalar, zaman aşımları, kopan bağlantılar.",
+    "channelMessage": "Kanal mesajında bildir",
+    "channelMessageHelp": "Bağlı kanallardan gelen Telegram / Lark / DingTalk / WeChat mesajları.",
+    "soundTitle": "Ses",
+    "playSound": "Bildirimde ses çal",
+    "playSoundHelp": "Sistem varsayılan sesini kullanır.",
+    "quietHours": "Sessiz saatler",
+    "quietHoursHelp": "Bu saatler arasında sesi bastırır."
   },
   "storagePage": {
-    "title": "Depolama"
+    "title": "Depolama",
+    "comingSoon": "Kullanım dökümü, yedekleme, geri yükleme ve eşitleme sonraki sürümde geliyor.",
+    "usageTitle": "Depolama kullanımı",
+    "totalUsed": "{{total}} içinden {{used}} kullanıldı",
+    "usageStale": "{{ago}} güncellendi",
+    "refresh": "Yenile",
+    "conversations": "Konuşmalar",
+    "cache": "Önbellek",
+    "logs": "Günlükler",
+    "directoriesTitle": "Dizinler",
+    "workspace": "Çalışma alanı",
+    "cacheDir": "Önbellek",
+    "logsDir": "Günlükler",
+    "open": "Aç",
+    "clear": "Temizle",
+    "clearConfirmTitle": "Dizin temizlensin mi?",
+    "clearConfirmBody": "Bu işlem içindeki dosyaları kalıcı olarak kaldırır. Wayland gerektiğinde bunları yeniden oluşturur.",
+    "backupTitle": "Yedekle ve geri yükle",
+    "exportIncludeKeys": "API anahtarlarını dışa aktarmaya dahil et",
+    "exportPassphraseLabel": "Şifreleme parolası",
+    "exportPassphrasePlaceholder": "Anahtarlar dahil edildiğinde gereklidir",
+    "exportAll": "Her şeyi dışa aktar",
+    "restore": "Yedekten geri yükle",
+    "syncTitle": "Eşitleme (E2EE)",
+    "syncComingSoon": "Bir klasöre veya aktarıcıya uçtan uca şifreli eşitleme.",
+    "resetTitle": "Wayland'i sıfırla",
+    "resetDescription": "Tüm konuşmaları, ayarları ve önbelleğe alınmış verileri kalıcı olarak sil.",
+    "resetAction": "Her şeyi sıfırla",
+    "resetConfirmTitle": "Her şey sıfırlansın mı?",
+    "resetConfirmBody": "Bu işlem, sağlayıcılar, konuşmalar ve ayarlar dahil tüm verileri kalıcı olarak siler. Bu işlem geri alınamaz.",
+    "resetTypePlaceholder": "Onaylamak için \"reset\" yazın",
+    "sync": {
+      "title": "Eşitleme (E2EE)",
+      "betaTag": "Beta",
+      "disabledDescription": "Yerel bir klasöre uçtan uca şifreli eşitleme. Anahtarlar bu cihazdan asla çıkmaz.",
+      "enableButton": "Eşitlemeyi etkinleştir",
+      "enableTitle": "Uçtan uca şifreli eşitlemeyi etkinleştir",
+      "enabledStatus": "Eşitleme etkin",
+      "disableButton": "Eşitlemeyi devre dışı bırak",
+      "disableConfirmTitle": "Eşitleme devre dışı bırakılsın mı?",
+      "disableConfirmBody": "Bu cihazda eşitlemeyi durdurur. Seçilen klasördeki yedekleme dosyalarına dokunulmaz.",
+      "syncNow": "Şimdi eşitle",
+      "lastSync": "Son eşitleme: {{when}}",
+      "never": "hiçbir zaman",
+      "itemsCount": "{{count}} öğe eşitlendi",
+      "passphrase": "Parola",
+      "passphrasePlaceholder": "En az 16 karakter",
+      "passphraseConfirm": "Parolayı onayla",
+      "passphraseConfirmPlaceholder": "Parolayı yeniden girin",
+      "passphraseWarning": "Bu parola verilerinizi şifreler. Unutursanız kurtaramayız, güvenli bir yere not edin.",
+      "passphraseTooShort": "Parola en az {{min}} karakter olmalıdır",
+      "passphraseMismatch": "Parolalar eşleşmiyor",
+      "backendIntro": "Şifrelenmiş paketin nerede saklanacağını seçin.",
+      "backendLocalFile": "Yerel klasör",
+      "backendCloudRelay": "Bulut aktarıcısı (yakında)",
+      "folderPath": "Eşitleme klasörü",
+      "pickFolder": "Klasör seç",
+      "pickFolderFirst": "Önce bir klasör seçin",
+      "enable": "Eşitlemeyi etkinleştir"
+    }
   },
   "editorPage": {
     "title": "Düzenleyici",
-    "comingSoon": "Düzenleyici tercihleri bir sonraki sürümde gelecek."
+    "comingSoon": "Düzenleyici tercihleri bir sonraki sürümde gelecek.",
+    "preferencesTitle": "Düzenleyici tercihleri",
+    "defaultMode": "Varsayılan mod",
+    "defaultModeHelp": "Yeni belgelerin hangi görünümde açılacağı.",
+    "modeEditor": "Düzenleyici",
+    "modeSource": "Kaynak",
+    "modePreview": "Önizleme",
+    "autoSaveDelay": "Otomatik kaydetme gecikmesi",
+    "autoSaveDelayHelp": "Yazma durduktan sonra kaydetmeden önce ne kadar bekleneceği.",
+    "frontmatter": "YAML ön bilgisini koru",
+    "frontmatterHelp": "Markdown dosyalarının başındaki `--- ... ---` bloklarını olduğu gibi koru.",
+    "spellCheck": "Yazım denetimi",
+    "syntaxHighlight": "Sözdizimi vurgulama",
+    "syntaxHighlightHelp": "Markdown belgelerindeki kod bloklarını vurgula."
   },
   "skillsPage": {
     "title": "Beceriler ve Araçlar"
@@ -1335,5 +2068,31 @@
       "soon": "Yakında",
       "desc": "Herhangi bir ajanın yalnızca kendi modelleri değil, bağladığınız tüm modeller ve sağlayıcılar arasında yönlendirme yapmasını sağlar."
     }
+  },
+  "commandPalette": {
+    "placeholder": "Ayarlarda ara…",
+    "noResults": "Sonuç bulunamadı"
+  },
+  "shortcuts": {
+    "title": "Klavye Kısayolları",
+    "openPalette": "Komut paletini aç",
+    "showShortcuts": "Klavye kısayollarını göster",
+    "navigateResults": "Sonuçlarda gezin",
+    "selectResult": "Sonucu seç",
+    "close": "Kapat"
+  },
+  "displayPage": {
+    "matchSystem": "Sistem Temasıyla Eşleştir",
+    "reduceMotion": "Hareketi Azalt",
+    "densityComfortable": "Rahat",
+    "densityCompact": "Sıkışık",
+    "sidebarWidth": "Kenar Çubuğu Genişliği",
+    "yourName": "Adınız",
+    "yourNamePlaceholder": "Adınızı girin"
+  },
+  "systemUpdateChannelUnavailable": "Güncelleme kanalı kullanılamıyor: {{error}}. Otomatik güncellemeler bir sonraki başlatmaya kadar devre dışı.",
+  "voicePage": {
+    "title": "Ses",
+    "subtitle": "Sohbet kutusu için konuşmadan metne ve metinden konuşmaya ayarları. Ses girişini ve çıkışını etkinleştirmek için bölümleri açın."
   }
 }

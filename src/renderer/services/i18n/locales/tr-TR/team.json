@@ -60,7 +60,10 @@
       "help_build": "Sıfırdan yeni bir özellik oluşturmama yardım et",
       "analyze_code": "Bu kod tabanını analiz et ve iyileştirmeler öner",
       "write_report": "Bir konuyu araştır ve ayrıntılı rapor yaz",
-      "fix_bug": "Projemizdeki hataları bul ve düzelt"
+      "fix_bug": "Projemizdeki hataları bul ve düzelt",
+      "debate": "Farklı tarafları savunan ajanlarla bir tartışma düzenleyin",
+      "interview": "Ajanlar arasında derinlemesine bir görüşme planlayın",
+      "expert_review": "Birden fazla uzmanın aynı sorunu analiz etmesini sağlayın"
     }
   },
   "errors": {

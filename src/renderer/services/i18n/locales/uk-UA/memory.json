@@ -145,40 +145,6 @@
     "resolve_success": "Конфлікт вирішено"
   },
   "wiki": {
-    "list_empty": "Записів у Wiki ще немає. Підвищте пам'ять, щоб почати.",
-    "select_prompt": "Виберіть запис, щоб переглянути його вміст.",
-    "promote": "Підвищити",
-    "export": "Експортувати",
-    "share_readme": "Поділитися README",
-    "promote_ok": "Підвищено до Wiki",
-    "promote_err": "Не вдалося підвищити запис",
-    "export_queued": "Експорт додано до черги. Завантаження з'явиться у Wave 6",
-    "export_err": "Не вдалося експортувати запис",
-    "share_ok": "Шерінг README додано до черги",
-    "share_err": "Не вдалося поділитися README"
-  },
-  "crossProject": {
-    "scope_label_app": "Пошук: всі проєкти (область застосунку)",
-    "scope_label_project": "Пошук: {{project}} (область проєкту)",
-    "search_placeholder": "Шукати в пам'яті по проєктах",
-    "search_button": "Шукати",
-    "toggle_label": "Включити інші проєкти",
-    "prompt_empty": "Введіть запит, щоб шукати по пам'яті проєктів.",
-    "results_empty": "Збігів у вибраній області немає.",
-    "navigation_stub": "Навігація між проєктами з'явиться у Wave 6"
-  },
-  "drop": {
-    "zone_title": "Перетягніть файли сюди",
-    "zone_hint": "Markdown, текст, JSON, YAML, CSV. Максимум 50 МБ. У черзі не більше 20 файлів.",
-    "browse_button": "Огляд",
-    "queue_title": "Файли в черзі",
-    "queue_empty": "У черзі немає файлів",
-    "quarantine_button": "Карантин",
-    "ingest_success": "{{name}} додано до черги",
-    "quarantine_success": "{{name}} відправлено в карантин",
-    "path_unavailable": "Не вдалося прочитати шлях до файлу. Скористайтеся кнопкою Огляд."
-  },
-  "wiki": {
     "home": {
       "title": "Wiki",
       "conceptCount": "{{count}} концепцій синтезовано з {{memories}} спогадів",
@@ -248,6 +214,27 @@
       "notFound": "Концепцію не знайдено.",
       "notFoundBack": "← Повернутись до Wiki"
     }
+  },
+  "crossProject": {
+    "scope_label_app": "Пошук: всі проєкти (область застосунку)",
+    "scope_label_project": "Пошук: {{project}} (область проєкту)",
+    "search_placeholder": "Шукати в пам'яті по проєктах",
+    "search_button": "Шукати",
+    "toggle_label": "Включити інші проєкти",
+    "prompt_empty": "Введіть запит, щоб шукати по пам'яті проєктів.",
+    "results_empty": "Збігів у вибраній області немає.",
+    "navigation_stub": "Навігація між проєктами з'явиться у Wave 6"
+  },
+  "drop": {
+    "zone_title": "Перетягніть файли сюди",
+    "zone_hint": "Markdown, текст, JSON, YAML, CSV. Максимум 50 МБ. У черзі не більше 20 файлів.",
+    "browse_button": "Огляд",
+    "queue_title": "Файли в черзі",
+    "queue_empty": "У черзі немає файлів",
+    "quarantine_button": "Карантин",
+    "ingest_success": "{{name}} додано до черги",
+    "quarantine_success": "{{name}} відправлено в карантин",
+    "path_unavailable": "Не вдалося прочитати шлях до файлу. Скористайтеся кнопкою Огляд."
   },
   "archive": {
     "topbar": {
@@ -396,6 +383,51 @@
       "load_failed": "Не вдалося завантажити пам'ять. {{reason}}",
       "missing_api": "API пам'яті ще не готовий. Спробуйте за мить.",
       "promote_failed": "Не вдалося підвищити. {{reason}}"
+    },
+    "import": {
+      "title": "Імпорт спогадів",
+      "close": "Закрити панель імпорту",
+      "importing": "Імпортування…",
+      "status": {
+        "ready": "готово",
+        "checking": "перевірка",
+        "importing": "імпортування",
+        "unavailable": "недоступно",
+        "idle": "очікування"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "Натисніть, щоб імпортувати з ~/.claude-mem/claude-mem.db",
+        "count": "~{{count}} записів імпортовано",
+        "btn": "Імпортувати",
+        "success": "Імпортовано {{count}} записів · {{errors}} помилок",
+        "error": "Не вдалося імпортувати. Спробуйте ще раз."
+      },
+      "obsidian": {
+        "title": "Сховище Obsidian",
+        "hint": "Натисніть, щоб виконати пошук сховищ",
+        "count": "~{{count}} записів імпортовано",
+        "btn": "Імпортувати",
+        "success": "Імпортовано {{count}} записів · {{errors}} помилок",
+        "error": "Не вдалося імпортувати з Obsidian. Спробуйте ще раз."
+      },
+      "devScan": {
+        "title": "Сканування ~/dev",
+        "hint": "Сканує ~/dev на наявність каталогів пам'яті IJFW",
+        "count": "~{{count}} записів імпортовано",
+        "btn": "Імпортувати",
+        "success": "Імпортовано {{count}} записів із {{projects}} проєктів",
+        "error": "Не вдалося імпортувати зі сканування dev. Спробуйте ще раз."
+      },
+      "dropFolder": {
+        "title": "Тека для перетягування",
+        "hint": "Перетягніть файли .md / .txt / .json до ~/Documents/Wayland-Memory/",
+        "count": "{{count}} файлів оброблено",
+        "openBtn": "Відкрити теку",
+        "processBtn": "Обробити зараз",
+        "success": "Оброблено {{count}} файлів · {{errors}} помилок",
+        "error": "Не вдалося обробити. Спробуйте ще раз."
+      }
     }
   }
 }

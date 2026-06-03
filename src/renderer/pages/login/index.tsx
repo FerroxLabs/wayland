@@ -1,7 +1,8 @@
 import loginLogo from '@renderer/assets/logo-contained.svg';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { changeLanguage } from '@/renderer/services/i18n';
+import { LANGUAGE_OPTIONS } from '@/common/config/i18n';
 import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, Input, Select } from '@arco-design/web-react';
 import type { RefInputType } from '@arco-design/web-react/es/Input/interface';
@@ -111,23 +112,7 @@ const LoginPage: React.FC = () => {
     [clearMessageLater]
   );
 
-  const supportedLanguages = useMemo<{ code: string; label: string }[]>(
-    () => [
-      { code: 'en-US', label: 'English' },
-      { code: 'es-ES', label: 'Español' },
-      { code: 'pt-BR', label: 'Português (Brasil)' },
-      { code: 'de-DE', label: 'Deutsch' },
-      { code: 'fr-FR', label: 'Français' },
-      { code: 'zh-CN', label: '简体中文' },
-      { code: 'zh-TW', label: '繁體中文' },
-      { code: 'ja-JP', label: '日本語' },
-      { code: 'ko-KR', label: '한국어' },
-      { code: 'tr-TR', label: 'Türkçe' },
-      { code: 'ru-RU', label: 'Русский' },
-      { code: 'uk-UA', label: 'Українська' },
-    ],
-    []
-  );
+  const supportedLanguages = LANGUAGE_OPTIONS;
 
   const handleLanguageChange = useCallback((nextLanguage: string) => {
     changeLanguage(nextLanguage).catch((error: Error) => {
