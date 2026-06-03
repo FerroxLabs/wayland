@@ -421,10 +421,34 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
       return { ...match, useModel } as TProviderWithModel;
     }
 
-    // Fallback: return first available provider
+    // No provider is named after this backend. `wcore` in particular is a
+    // backend, not a provider — it proxies whichever provider actually serves
+    // the chosen model. Bind the preferred model to the provider whose catalog
+    // contains it, NOT providerList[0]: pasting an OpenAI model id (e.g.
+    // `gpt-5.5`) onto a Google provider POSTs it to
+    // generativelanguage.googleapis.com → `404 models/gpt-5.5 not found`. (C1/C2)
+    // `model.config` rows are IProvider at runtime (each carries the `model[]`
+    // catalog), even though the local type omits it. Read it back safely.
+    const catalogOf = (p: TProviderWithModel): string[] => {
+      const m = (p as unknown as { model?: unknown }).model;
+      return Array.isArray(m) ? (m as string[]) : [];
+    };
+
+    if (preferredModelId) {
+      const owner = providerList.find((p) => catalogOf(p).includes(preferredModelId));
+      if (owner) {
+        return { ...owner, useModel: preferredModelId } as TProviderWithModel;
+      }
+    }
+
+    // Fallback: no provider matched the backend AND none serves the preferred
+    // model. Use the first provider with ITS OWN model — never paste a foreign
+    // model id onto a mismatched provider's endpoint (the C1/C2 404).
     if (providerList.length > 0) {
-      const useModel = preferredModelId || providerList[0].useModel || 'auto';
-      return { ...providerList[0], useModel } as TProviderWithModel;
+      const first = providerList[0];
+      const ownModel = catalogOf(first)[0];
+      const useModel = ownModel || first.useModel || 'auto';
+      return { ...first, useModel } as TProviderWithModel;
     }
 
     // Last resort placeholder

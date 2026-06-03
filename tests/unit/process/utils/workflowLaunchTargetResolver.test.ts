@@ -218,6 +218,64 @@ describe('resolveDefaultLaunchTarget()', () => {
     expect(result.model.useModel).toBe('claude-sonnet-4-5');
   });
 
+  it('binds the preferred model to the provider that SERVES it for wcore, not providerList[0] (C1)', async () => {
+    const google = {
+      id: 'google',
+      platform: 'gemini',
+      name: 'Google',
+      baseUrl: 'https://generativelanguage.googleapis.com',
+      apiKey: 'k',
+      useModel: 'gemini-3-pro',
+      model: ['gemini-3-pro', 'gemini-3-flash'],
+    } as unknown as TProviderWithModel;
+    const openai = {
+      id: 'openai',
+      platform: 'openai',
+      name: 'OpenAI',
+      baseUrl: 'https://api.openai.com',
+      apiKey: 'k',
+      useModel: 'gpt-5.5',
+      model: ['gpt-5.5', 'gpt-5'],
+    } as unknown as TProviderWithModel;
+    const config = makeConfig({
+      'guid.lastSelectedAgent': 'wcore',
+      'model.config': [google, openai], // Google is index 0
+      'acp.config': { wcore: { preferredModelId: 'gpt-5.5' } },
+    });
+    const registry = makeRegistry([WCORE_AGENT]);
+
+    const result = await resolveDefaultLaunchTarget(config, registry);
+
+    // gpt-5.5 must bind to OpenAI (its owner), NOT Google (providerList[0]) —
+    // otherwise gpt-5.5 is POSTed to the Google API → 404.
+    expect(result.model.id).toBe('openai');
+    expect(result.model.useModel).toBe('gpt-5.5');
+  });
+
+  it("uses the first provider's OWN model when nothing serves the preferred model (C1/C2 — no foreign alias)", async () => {
+    const google = {
+      id: 'google',
+      platform: 'gemini',
+      name: 'Google',
+      baseUrl: 'https://generativelanguage.googleapis.com',
+      apiKey: 'k',
+      useModel: 'gemini-3-pro',
+      model: ['gemini-3-pro'],
+    } as unknown as TProviderWithModel;
+    const config = makeConfig({
+      'guid.lastSelectedAgent': 'wcore',
+      'model.config': [google], // only Google; nothing serves gpt-5.5
+      'acp.config': { wcore: { preferredModelId: 'gpt-5.5' } },
+    });
+    const registry = makeRegistry([WCORE_AGENT]);
+
+    const result = await resolveDefaultLaunchTarget(config, registry);
+
+    // Must NOT paste gpt-5.5 onto Google (would 404) — use Google's own model.
+    expect(result.model.id).toBe('google');
+    expect(result.model.useModel).toBe('gemini-3-pro');
+  });
+
   it('handles config.get throwing gracefully — defaults to claude + undefined cliPath', async () => {
     const config: ProcessConfigLike = {
       get: async () => {

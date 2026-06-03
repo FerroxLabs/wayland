@@ -131,14 +131,35 @@ export async function resolveDefaultLaunchTarget(
   }
 
   const providerMatch = providerList.find((p) => p.platform === backend || p.id === backend);
+  const desiredModelId = preferredModelId || cachedModelId;
+  // `model.config` rows are IProvider at runtime (each carries the `model[]`
+  // catalog), even though the local type omits it. Read it back safely.
+  const catalogOf = (p: TProviderWithModel): string[] => {
+    const m = (p as unknown as { model?: unknown }).model;
+    return Array.isArray(m) ? (m as string[]) : [];
+  };
+  const modelOwner =
+    desiredModelId && desiredModelId.length > 0
+      ? providerList.find((p) => catalogOf(p).includes(desiredModelId))
+      : undefined;
 
   let model: TProviderWithModel;
   if (providerMatch) {
-    const useModel = preferredModelId || cachedModelId || providerMatch.useModel || '';
+    const useModel = desiredModelId || providerMatch.useModel || '';
     model = { ...providerMatch, useModel } as TProviderWithModel;
+  } else if (modelOwner && desiredModelId) {
+    // `wcore` (and any backend that is not itself a provider) proxies whichever
+    // provider serves the chosen model. Bind the desired model to the provider
+    // whose catalog contains it, NOT providerList[0] — pasting e.g. an OpenAI
+    // `gpt-5.5` onto a Google provider POSTs it to the Google API → 404. (C1)
+    model = { ...modelOwner, useModel: desiredModelId } as TProviderWithModel;
   } else if (providerList.length > 0) {
+    // No provider matched the backend AND none serves the desired model — use
+    // the first provider with ITS OWN model rather than a foreign alias that
+    // would 404 against the wrong endpoint. (C1/C2)
     const first = providerList[0];
-    const useModel = preferredModelId || cachedModelId || first.useModel || '';
+    const ownModel = catalogOf(first)[0];
+    const useModel = ownModel || first.useModel || '';
     model = { ...first, useModel } as TProviderWithModel;
   } else {
     // No providers configured — synthetic placeholder. The conversation
