@@ -2,13 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Message, Modal } from '@arco-design/web-react';
-import {
-  useMcpServers,
-  useMcpAgentStatus,
-  useMcpOperations,
-  useMcpOAuth,
-  useMcpServerCRUD,
-} from '@renderer/hooks/mcp';
+import { useMcpServers, useMcpAgentStatus, useMcpOperations, useMcpOAuth, useMcpServerCRUD } from '@renderer/hooks/mcp';
 import type { McpOAuthStatus } from '@renderer/hooks/mcp/useMcpOAuth';
 import type { IMcpServer } from '@/common/config/storage';
 import { useMcpLibrary } from './hooks/useMcpLibrary';
@@ -40,17 +34,11 @@ export function InstalledPage() {
     syncMcpToAgents,
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
-    setAgentInstallStatus,
+    setAgentInstallStatus
   );
 
-  const fromLibrary = useMemo(
-    () => mcpServers.filter((s) => s.source === 'library'),
-    [mcpServers],
-  );
-  const custom = useMemo(
-    () => mcpServers.filter((s) => s.source !== 'library'),
-    [mcpServers],
-  );
+  const fromLibrary = useMemo(() => mcpServers.filter((s) => s.source === 'library'), [mcpServers]);
+  const custom = useMemo(() => mcpServers.filter((s) => s.source !== 'library'), [mcpServers]);
 
   const summary = useMemo(() => {
     let running = 0;
@@ -70,16 +58,14 @@ export function InstalledPage() {
     (s: IMcpServer) => {
       void crud.handleToggleMcpServer(s.id, !s.enabled);
     },
-    [crud],
+    [crud]
   );
 
   const handleReauth = useCallback(
     async (s: IMcpServer) => {
       const result = await login(s);
       if (result.success === true) {
-        message.success(
-          t('mcpLibrary.install.oauthSuccess', 'Authorized.'),
-        );
+        message.success(t('mcpLibrary.install.oauthSuccess', 'Authorized.'));
         return;
       }
       if (result.success === false && result.code === 'needs_byo') {
@@ -93,10 +79,10 @@ export function InstalledPage() {
       message.error(
         t('mcpLibrary.install.oauthFailed', 'Authorization failed: {{error}}', {
           error: (result.success === false && result.error) || 'Unknown error',
-        }),
+        })
       );
     },
-    [login, message, t, navigate],
+    [login, message, t, navigate]
   );
 
   const handleSettings = useCallback(
@@ -104,22 +90,37 @@ export function InstalledPage() {
       if (s.source === 'library' && s.libraryEntryId) {
         navigate(`/settings/mcp-library/${encodeURIComponent(s.libraryEntryId)}`);
       } else {
-        message.info(
-          t(
-            'mcpLibrary.installed.customNoDetail',
-            "Custom servers don't have a detail page yet.",
-          ),
-        );
+        message.info(t('mcpLibrary.installed.customNoDetail', "Custom servers don't have a detail page yet."));
       }
     },
-    [navigate, message, t],
+    [navigate, message, t]
   );
 
   const handleLogs = useCallback(() => {
-    message.info(
-      t('mcpLibrary.installed.logsToast', 'Log viewer coming soon.'),
-    );
+    message.info(t('mcpLibrary.installed.logsToast', 'Log viewer coming soon.'));
   }, [message, t]);
+
+  const handleReconnect = useCallback(
+    async (s: IMcpServer) => {
+      try {
+        // Re-enable re-pushes the server config to every agent; running workers
+        // pick it up on their next message via the MCP-changed refresh.
+        await crud.handleToggleMcpServer(s.id, true);
+        message.success(
+          t(
+            'mcpLibrary.installed.reconnectToast',
+            'Reconnecting {{name}} — agents will pick it up on the next message.',
+            {
+              name: s.name,
+            }
+          )
+        );
+      } catch {
+        message.error(t('settings.mcpSyncError', 'Failed to sync MCP to agents.'));
+      }
+    },
+    [crud, message, t]
+  );
 
   const handleRemove = useCallback(
     (s: IMcpServer) => {
@@ -128,7 +129,7 @@ export function InstalledPage() {
         content: t(
           'mcpLibrary.installed.removeConfirm',
           'Remove {{name}} from your library? This will also uninstall it from all CLI agents.',
-          { name: s.name },
+          { name: s.name }
         ),
         okText: t('mcpLibrary.installed.actionRemove', 'Remove'),
         cancelText: t('mcpLibrary.installed.confirmCancel', 'Cancel'),
@@ -138,13 +139,11 @@ export function InstalledPage() {
         },
       });
     },
-    [crud, t],
+    [crud, t]
   );
 
   const renderRow = (s: IMcpServer) => {
-    const entry = s.libraryEntryId
-      ? library.entries.find((e) => e.id === s.libraryEntryId)
-      : undefined;
+    const entry = s.libraryEntryId ? library.entries.find((e) => e.id === s.libraryEntryId) : undefined;
     const oauth = oauthStatus[s.id];
     const status = deriveStatus(s, oauth);
     return (
@@ -167,74 +166,63 @@ export function InstalledPage() {
         onRemove={() => handleRemove(s)}
         onToggle={() => handleToggle(s)}
         onLogs={handleLogs}
+        onReconnect={() => void handleReconnect(s)}
       />
     );
   };
 
   return (
-    <div className="mcp-installed-page">
+    <div className='mcp-installed-page'>
       {contextHolder}
-      <header className="mcp-page-head">
+      <header className='mcp-page-head'>
         <h2>{t('mcpLibrary.installed.title', 'MCP Library — Installed')}</h2>
-        <button
-          className="mcp-btn-primary"
-          onClick={() => navigate('/settings/mcp-library/browse')}
-        >
+        <button className='mcp-btn-primary' onClick={() => navigate('/settings/mcp-library/browse')}>
           {t('mcpLibrary.installed.addCustom', '+ Add custom MCP')}
         </button>
       </header>
 
-      <div className="mcp-status-strip">
-        <div className="mcp-status-cell mcp-status-running">
-          <b>{summary.running}</b>{' '}
-          {t('mcpLibrary.installed.statusRunningCountLabel', 'Running')}
+      <div className='mcp-status-strip'>
+        <div className='mcp-status-cell mcp-status-running'>
+          <b>{summary.running}</b> {t('mcpLibrary.installed.statusRunningCountLabel', 'Running')}
         </div>
-        <div className="mcp-status-cell mcp-status-warn">
-          <b>{summary.warn}</b>{' '}
-          {t('mcpLibrary.installed.statusReauthCountLabel', 'Needs re-auth')}
+        <div className='mcp-status-cell mcp-status-warn'>
+          <b>{summary.warn}</b> {t('mcpLibrary.installed.statusReauthCountLabel', 'Needs re-auth')}
         </div>
-        <div className="mcp-status-cell mcp-status-error">
-          <b>{summary.error}</b>{' '}
-          {t('mcpLibrary.installed.statusErrorCountLabel', 'Error')}
+        <div className='mcp-status-cell mcp-status-error'>
+          <b>{summary.error}</b> {t('mcpLibrary.installed.statusErrorCountLabel', 'Error')}
         </div>
-        <div className="mcp-status-cell">
-          <b>{summary.tools}</b>{' '}
-          {t('mcpLibrary.installed.statusToolCountLabel', 'Tools available')}
+        <div className='mcp-status-cell'>
+          <b>{summary.tools}</b> {t('mcpLibrary.installed.statusToolCountLabel', 'Tools available')}
         </div>
       </div>
 
       <section>
-        <header className="mcp-group-head">
+        <header className='mcp-group-head'>
           <h3>{t('mcpLibrary.installed.fromLibrary', 'From Library')}</h3>
           <button onClick={() => navigate('/settings/mcp-library/browse')}>
             {t('mcpLibrary.installed.browseLibrary', '+ Browse library')}
           </button>
         </header>
         {fromLibrary.length === 0 ? (
-          <div className="mcp-empty">
-            {t(
-              'mcpLibrary.installed.empty',
-              'No MCPs installed yet. Browse the library to add one.',
-            )}
+          <div className='mcp-empty'>
+            {t('mcpLibrary.installed.empty', 'No MCPs installed yet. Browse the library to add one.')}
           </div>
         ) : (
-          <div className="mcp-server-list">{fromLibrary.map(renderRow)}</div>
+          <div className='mcp-server-list'>{fromLibrary.map(renderRow)}</div>
         )}
       </section>
 
       <section>
-        <header className="mcp-group-head">
+        <header className='mcp-group-head'>
           <h3>{t('mcpLibrary.installed.custom', 'Custom')}</h3>
           <button onClick={() => navigate('/settings/mcp-library/browse')}>
             {t('mcpLibrary.installed.addCustom', '+ Add custom MCP')}
           </button>
         </header>
         {custom.length === 0 ? (
-          <div className="mcp-empty">
-            {t('mcpLibrary.installed.customEmpty', 'No custom MCPs.')}
-          </div>
+          <div className='mcp-empty'>{t('mcpLibrary.installed.customEmpty', 'No custom MCPs.')}</div>
         ) : (
-          <div className="mcp-server-list">{custom.map(renderRow)}</div>
+          <div className='mcp-server-list'>{custom.map(renderRow)}</div>
         )}
       </section>
     </div>
