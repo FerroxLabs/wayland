@@ -1,5 +1,8 @@
+diff --git a/node_modules/@office-ai/aioncli-core/.bun-tag-e430e8d9d3acdb6c b/.bun-tag-e430e8d9d3acdb6c
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/dist/src/core/openaiContentGenerator.js b/dist/src/core/openaiContentGenerator.js
-index 2bdb1c5b9306902dabe47a5aedcf0e49bb954db6..549e8b9834e317770e26644660ed646bb591fea8 100644
+index 2bdb1c5b9306902dabe47a5aedcf0e49bb954db6..20db52dd3861f7e803440710e5d9697131cc3283 100644
 --- a/dist/src/core/openaiContentGenerator.js
 +++ b/dist/src/core/openaiContentGenerator.js
 @@ -644,6 +644,19 @@ export class OpenAIContentGenerator {
@@ -22,3 +25,41 @@ index 2bdb1c5b9306902dabe47a5aedcf0e49bb954db6..549e8b9834e317770e26644660ed646b
                  else if (typeof value === 'object') {
                      result[key] = convertTypes(value);
                  }
+@@ -1538,6 +1551,16 @@ export class OpenAIContentGenerator {
+             if (isKimiModel) {
+                 params.top_p = 0.95;
+             }
++            else if (modelName.includes('gpt-5') || modelName.includes('gpt5')) {
++                // OpenAI reasoning models (gpt-5.x) reject top_p and the penalty
++                // knobs entirely (`400 Unsupported parameter: 'top_p'`); only
++                // temperature=1 is accepted. Strip the unsupported sampling params.
++                delete params.top_p;
++                delete params.top_k;
++                delete params.frequency_penalty;
++                delete params.presence_penalty;
++                delete params.repetition_penalty;
++            }
+         }
+         return params;
+     }
+diff --git a/package.json b/package.json
+index e9d3a992a9c3ffb35080509fbfff8224274e8d14..87b394208f6a9e1e73e855f6f1b85cc2b43e3e66 100644
+--- a/package.json
++++ b/package.json
+@@ -74,13 +74,13 @@
+     "node-fetch": "^3.3.2",
+     "open": "^10.1.2",
+     "openai": "^5.11.0",
+-    "picomatch": "^4.0.1",
++    "picomatch": "*",
+     "proper-lockfile": "^4.1.2",
+     "read-package-up": "^11.0.0",
+     "shell-quote": "^1.8.3",
+-    "simple-git": "^3.28.0",
++    "simple-git": "*",
+     "strip-ansi": "^7.1.0",
+-    "systeminformation": "^5.25.11",
++    "systeminformation": "*",
+     "tiktoken": "^1.0.22",
+     "tree-sitter-bash": "^0.25.0",
+     "undici": "^7.10.0",
