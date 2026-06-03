@@ -577,6 +577,7 @@ const ChatConversation: React.FC<{
         </div>
       )}
       <ConversationSkillsIndicator conversation={conversation} />
+      {conversation && <AddSkillToChatButton conversationId={conversation.id} />}
       {conversation && (
         <div className='shrink-0'>
           <CronJobManager
