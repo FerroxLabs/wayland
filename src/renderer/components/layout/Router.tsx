@@ -50,6 +50,7 @@ const TeamLauncherPage = React.lazy(() => import('@renderer/pages/teams/TeamLaun
 const MemoryPage = React.lazy(() => import('@renderer/pages/memory/MemoryPage'));
 const ProjectsListPage = React.lazy(() => import('@renderer/pages/projects/ProjectsListPage'));
 const ProjectWorkspacePage = React.lazy(() => import('@renderer/pages/projects/ProjectWorkspacePage'));
+const ConversationsListPage = React.lazy(() => import('@renderer/pages/conversations/ConversationsListPage'));
 const IjfwSettingsPanel = React.lazy(() => import('@renderer/pages/settings/IjfwSettingsPanel'));
 const WikiHomePage = React.lazy(() =>
   import('@renderer/pages/wiki/WikiHomePage').then((m) => ({ default: m.WikiHomePage }))
@@ -172,6 +173,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/teams/new' element={withRouteFallback(TeamLauncherPage)} />
             <Route path='/teams/:teamId/launch' element={withRouteFallback(TeamLauncherPage)} />
             <Route path='/projects' element={withRouteFallback(ProjectsListPage)} />
+            <Route path='/conversations' element={withRouteFallback(ConversationsListPage)} />
             <Route path='/project/:projectId' element={withRouteFallback(ProjectWorkspacePage)} />
             <Route path='/memory' element={withRouteFallback(MemoryPage)} />
             <Route path='/wiki' element={withRouteFallback(WikiHomePage)} />
