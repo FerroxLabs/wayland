@@ -68,6 +68,7 @@ signals:
     domain: content
     name: post-rewrite
 ---
+
 # Wayland - Project Guide
 
 All contributors (human and AI) must follow [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
@@ -76,7 +77,7 @@ All contributors (human and AI) must follow [CONTRIBUTING.md](CONTRIBUTING.md) b
 
 ### File & Directory Structure
 
-- **Directory size limit**: A single directory must not exceed **10** direct children (files + subdirectories). Split by responsibility when approaching this limit.
+- **Directory size limit**: New or actively refactored directories should not exceed **10** direct children (files + subdirectories). Split by responsibility when approaching this limit. Some legacy directories exceed this target; do not expand them further unless the change also reduces structure debt.
 
 See [docs/contributing/file-structure.md](docs/contributing/file-structure.md) for complete rules on directory naming, page module layout, and shared vs private code placement. Agents working in this repository must also read and follow the `architecture` skill (`.claude/skills/architecture/SKILL.md`) when creating files, modules, or making structure decisions.
 
@@ -106,7 +107,9 @@ See [docs/contributing/file-structure.md](docs/contributing/file-structure.md) f
 
 ### TypeScript
 
-- Strict mode enabled - no `any`, no implicit returns
+- Current compiler config enforces `noImplicitAny`; treat full `strict` mode and
+  `noImplicitReturns` as targets unless they are enabled in `tsconfig.json`.
+- Avoid new `any` unless there is no practical typed alternative.
 - Use path aliases: `@/*`, `@process/*`, `@renderer/*`, `@worker/*`
 - Prefer `type` over `interface` (per Oxlint config)
 - English for code comments; JSDoc for public functions
@@ -124,7 +127,7 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) for details.
 
 ## Testing
 
-**Framework**: Vitest 4 (`vitest.config.ts`). Run `bun run test` before every commit. Coverage target ≥ 80%.
+**Framework**: Vitest 4 (`vitest.config.ts`). Run `bun run test` before every commit. Coverage is reported in CI; hard coverage thresholds are not currently enforced.
 
 See the `testing` skill (`.claude/skills/testing/SKILL.md`) for complete workflow, quality rules, and checklist.
 
@@ -206,9 +209,13 @@ All user-facing text must use i18n keys - never hardcode strings. Languages and 
 See the `i18n` skill (`.claude/skills/i18n/SKILL.md`) for complete workflow, key naming, and validation steps.
 
 <!-- IJFW-MEMORY-START -->
+
 Project memory at .ijfw/memory/. Call `ijfw_memory_prelude` for full context.
+
 <!-- IJFW-MEMORY-END -->
 
 <!-- IJFW-AGENTS-START -->
+
 No project agents yet. Run `ijfw team` to set them up.
+
 <!-- IJFW-AGENTS-END -->

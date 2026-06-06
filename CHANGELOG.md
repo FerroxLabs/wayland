@@ -1,6 +1,11 @@
 # Changelog
 
-All notable changes to the Wayland Electron app are documented in this file. Format follows [Keep a Changelog](https://keepachangelog.com/). Versions track the `v0.1.x-wayland-*` tag series on FerroxLabs/wayland.
+All notable changes to the Wayland Electron app are documented in this file. Format follows [Keep a Changelog](https://keepachangelog.com/).
+
+> **Status:** this changelog still contains historical `v0.1.x-wayland-*`
+> release notes and has not yet been reconciled with the current
+> `v0.9.6-rc.1` public release-candidate track. Use GitHub Releases as the
+> current package artifact source until this file is updated.
 
 ## [Unreleased]
 

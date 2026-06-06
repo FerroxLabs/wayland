@@ -2,6 +2,10 @@
 
 Self-host **Wayland** - your always-on AI agent - on any Linux box or VPS. Headless web server, reachable from your phone.
 
+> **Publication status:** this package is not published to npm yet. The commands
+> below document the intended public flow and should only be advertised as live
+> after `npm view getwayland` resolves.
+
 ```bash
 npm install -g getwayland
 wayland setup     # paste a Flux key (free at fluxrouter.ai) or any OpenAI / Anthropic / Gemini key
@@ -31,17 +35,17 @@ Otherwise it binds `0.0.0.0` - front it with a reverse proxy + TLS, and rely on 
 
 ## Commands
 
-| | |
-|---|---|
-| `wayland setup` | Paste a key, wire it, get your login |
+|                 |                                           |
+| --------------- | ----------------------------------------- |
+| `wayland setup` | Paste a key, wire it, get your login      |
 | `wayland start` | Run the server (reads the env from setup) |
-| `wayland help` | Usage |
+| `wayland help`  | Usage                                     |
 
 Override the data dir with `DATA_DIR=…`, the port with `PORT=…`.
 
 ## Notes
 
 - The **Wayland Core** engine (`aionrs`) is fetched per-platform on install (Linux/macOS x64+arm64). If the download is skipped, the Flux / API-key path still works - only the Wayland Core agent is unavailable until the engine is present.
-- Adding a *new* key from the web UI on a headless box is a known fast-follow (in-app key storage needs a headless secret backend); for now, add keys by re-running `wayland setup`.
+- Adding a _new_ key from the web UI on a headless box is a known fast-follow (in-app key storage needs a headless secret backend); for now, add keys by re-running `wayland setup`.
 
 AGPL-3.0-or-later · [FerroxLabs/wayland](https://github.com/FerroxLabs/wayland)

@@ -35,6 +35,12 @@
   <a href="#supported-agents-and-models">Supported agents</a>
 </p>
 
+> **Release status:** `v0.9.6-rc.1` is a release candidate for early adopters.
+> The current macOS and Windows installers are not notarized/code-signed yet, and
+> the Linux packages are distributed through GitHub Releases rather than a signed
+> distro repository. Use the packaged builds if you are comfortable with that
+> trust model; otherwise build from source and review the code first.
+
 ## What is Wayland
 
 Wayland is the command center for every AI CLI on your machine. It is a full agent in its own right, and it also drives the CLIs you already use, all from one app, all on your own keys. It perceives, reasons, acts, and evolves locally.
@@ -68,16 +74,16 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 ## Download
 
-Grab the latest build for your platform. No account, no sign-up. Every link opens the latest Releases page, where you pick the file for your platform.
+Grab the latest release-candidate build for your platform. No account, no sign-up. Every link opens the latest Releases page, where you pick the file for your platform.
 
-| Platform | Architecture | File |
-|----------|--------------|------|
-| **macOS** | Apple Silicon (M1 and up) | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **macOS** | Intel | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | x64 | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | ARM64 | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux** | x64 (Debian / Ubuntu) | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux** | ARM64 (Debian / Ubuntu) | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
+| Platform    | Architecture              | File                                                          |
+| ----------- | ------------------------- | ------------------------------------------------------------- |
+| **macOS**   | Apple Silicon (M1 and up) | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **macOS**   | Intel                     | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Windows** | x64                       | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Windows** | ARM64                     | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Linux**   | x64 (Debian / Ubuntu)     | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Linux**   | ARM64 (Debian / Ubuntu)   | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
 
 The installer bundles the Wayland-Core engine for your platform, so a clean install runs agents the moment you add a provider key.
 
@@ -113,7 +119,7 @@ Prefer to build it yourself? See [Build from source](#build-from-source).
 
 ## Self-host in the cloud
 
-Run Wayland as an always-on agent on any Linux box or VPS, reachable from your phone. Three commands, no config files.
+Run Wayland as an always-on agent on any Linux box or VPS, reachable from your phone.
 
 > **Status: shipping soon.** The `getwayland` package is not on npm yet. This is the verified flow (it boots on a fresh Ubuntu VPS and answers through Flux), and the commands go live the moment the package publishes.
 
@@ -209,23 +215,39 @@ Set your rules once and every agent follows them, no matter which CLI runs the t
 
 Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you bring the CLI's own auth. The bundled Wayland-Core engine and Gemini run natively.
 
-| Agent | Command | Connect with |
-|:--|:--|:--|
-| <img src=".github/assets/logos/openclaw.svg" width="20" valign="middle"/> &nbsp;**OpenClaw** | gateway | OpenClaw account |
-| <img src=".github/assets/logos/hermes.svg" width="20" valign="middle"/> &nbsp;**Hermes** (Nous Research) | `hermes acp` | Hermes login |
-| <img src=".github/assets/logos/claude.svg" width="20" valign="middle"/> &nbsp;**Claude Code** | `claude` | Claude login or `ANTHROPIC_API_KEY` |
-| <img src=".github/assets/logos/cursor.png" width="20" valign="middle"/> &nbsp;**Cursor Agent** | `agent` | Cursor subscription |
-| <img src=".github/assets/logos/copilot.png" width="20" valign="middle"/> &nbsp;**GitHub Copilot** | `copilot` | Copilot subscription |
-| <img src=".github/assets/logos/codex.svg" width="20" valign="middle"/> &nbsp;**Codex** (OpenAI) | `codex` | ChatGPT auth or `OPENAI_API_KEY` |
-| <img src=".github/assets/logos/gemini.svg" width="20" valign="middle"/> &nbsp;**Gemini** (Google) | native | Google auth |
-| <img src=".github/assets/logos/goose.png" width="20" valign="middle"/> &nbsp;**Goose** (Block) | `goose acp` | provider key |
-| <img src=".github/assets/logos/qwen.svg" width="20" valign="middle"/> &nbsp;**Qwen Code** | `qwen` | Qwen auth |
-| <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode** | `opencode` | provider key |
-| <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot) | `kimi` | Kimi login |
+| Agent                                                                                                    | Command      | Connect with                        |
+| :------------------------------------------------------------------------------------------------------- | :----------- | :---------------------------------- |
+| <img src=".github/assets/logos/openclaw.svg" width="20" valign="middle"/> &nbsp;**OpenClaw**             | gateway      | OpenClaw account                    |
+| <img src=".github/assets/logos/hermes.svg" width="20" valign="middle"/> &nbsp;**Hermes** (Nous Research) | `hermes acp` | Hermes login                        |
+| <img src=".github/assets/logos/claude.svg" width="20" valign="middle"/> &nbsp;**Claude Code**            | `claude`     | Claude login or `ANTHROPIC_API_KEY` |
+| <img src=".github/assets/logos/cursor.png" width="20" valign="middle"/> &nbsp;**Cursor Agent**           | `agent`      | Cursor subscription                 |
+| <img src=".github/assets/logos/copilot.png" width="20" valign="middle"/> &nbsp;**GitHub Copilot**        | `copilot`    | Copilot subscription                |
+| <img src=".github/assets/logos/codex.svg" width="20" valign="middle"/> &nbsp;**Codex** (OpenAI)          | `codex`      | ChatGPT auth or `OPENAI_API_KEY`    |
+| <img src=".github/assets/logos/gemini.svg" width="20" valign="middle"/> &nbsp;**Gemini** (Google)        | native       | Google auth                         |
+| <img src=".github/assets/logos/goose.png" width="20" valign="middle"/> &nbsp;**Goose** (Block)           | `goose acp`  | provider key                        |
+| <img src=".github/assets/logos/qwen.svg" width="20" valign="middle"/> &nbsp;**Qwen Code**                | `qwen`       | Qwen auth                           |
+| <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode**             | `opencode`   | provider key                        |
+| <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot)          | `kimi`       | Kimi login                          |
 
 Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 16 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
 
 **Engine-native providers** (Wayland-Core): Anthropic, OpenAI and OpenAI-compatible (including o1/o3 reasoning, DeepSeek, Ollama), AWS Bedrock, Google Vertex AI. Sign in with Anthropic OAuth to use a Claude subscription with no key.
+
+## Capability status
+
+Wayland is moving fast, and not every surface has the same maturity. Public
+release notes should be read with this status map:
+
+| Area                                                | Current status                                                      |
+| --------------------------------------------------- | ------------------------------------------------------------------- |
+| Desktop app, local chats, ACP agents                | Release candidate                                                   |
+| Packaged macOS / Windows / Linux installers         | Release candidate; unsigned or not notarized as noted above         |
+| Remote Web UI                                       | Beta; keep behind localhost, SSH, Tailscale, or a TLS reverse proxy |
+| Extension and channel plugins                       | Trusted-code model; install only extensions you trust               |
+| Marketplace, signed extension manifests, hosted Pro | Planned / in progress                                               |
+
+See [docs/SECURITY.md](./docs/SECURITY.md) for the trust boundaries behind
+local execution, remote Web UI, updates, and extensions.
 
 ## How it works
 
@@ -246,7 +268,7 @@ Requirements: [Bun](https://bun.sh) 1.3 or later, Node 22 to 24, and your platfo
 
 ```bash
 git clone https://github.com/ferroxlabs/wayland.git
-cd wayland/app
+cd wayland
 bun install
 
 # Run the desktop app in dev
@@ -283,21 +305,27 @@ The CLI self-updates with `npm update -g @ferroxlabs/wayland-core`, independent 
 
 Wayland runs on your provider credentials. There is no required Wayland-hosted backend to chat.
 
-| What | Where | Notes |
-|---|---|---|
-| Anthropic key | `ANTHROPIC_API_KEY` or in-app | Or sign in with Anthropic OAuth for a Claude subscription, no key |
-| OpenAI key | `OPENAI_API_KEY` or in-app | Covers OpenAI-compatible endpoints (DeepSeek, Ollama, and more) |
-| Other providers | in-app | AWS Bedrock, Google Vertex, per-CLI auth for each ACP backend |
-| Flux Router | `FLUX_API_KEY` (`sk-flux-...`) | Optional. Only needed if you route through Flux |
-| Constitution | `~/.wayland/CONSTITUTION.md` | An editable rulebook prepended to every turn, with per-specialist overrides |
-| Data and memory | SQLite under your OS config dir | Your files, chats, and memory stay on disk |
+| What            | Where                           | Notes                                                                       |
+| --------------- | ------------------------------- | --------------------------------------------------------------------------- |
+| Anthropic key   | `ANTHROPIC_API_KEY` or in-app   | Or sign in with Anthropic OAuth for a Claude subscription, no key           |
+| OpenAI key      | `OPENAI_API_KEY` or in-app      | Covers OpenAI-compatible endpoints (DeepSeek, Ollama, and more)             |
+| Other providers | in-app                          | AWS Bedrock, Google Vertex, per-CLI auth for each ACP backend               |
+| Flux Router     | `FLUX_API_KEY` (`sk-flux-...`)  | Optional. Only needed if you route through Flux                             |
+| Constitution    | `~/.wayland/CONSTITUTION.md`    | An editable rulebook prepended to every turn, with per-specialist overrides |
+| Data and memory | SQLite under your OS config dir | Your files, chats, and memory stay on disk                                  |
 
 Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then provider-specific env, then OAuth.
 
 ## FAQ
 
 **Are my keys and data private?**
-Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. The engine runs air-gapped and every tool call goes through a single sandboxed egress chokepoint. Nothing leaves your machine unless you send it.
+Desktop provider keys are stored in the OS keychain where supported, and data
+lives in SQLite on your disk. Headless self-hosting uses environment files
+instead because OS keychains are usually unavailable. Model calls, remote
+channels, update checks, optional telemetry, Flux routing, and user-installed
+extensions can send data over the network depending on how you configure them.
+Review [docs/SECURITY.md](./docs/SECURITY.md) before granting broad file, shell,
+network, or extension permissions.
 
 **Can I run fully offline?**
 Yes. Point the engine at a local Ollama model and Wayland runs with no network at all. Voice dictation runs offline with a bundled Whisper model, and Wayland can read replies back to you with voice output, so you can work hands-free.
