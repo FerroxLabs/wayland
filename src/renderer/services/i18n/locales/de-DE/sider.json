@@ -9,7 +9,7 @@
     "install": {
       "body": "Codex, Cursor und Claude Code werden noch nicht geroutet. Flux Desktop verbindet alle drei mit einem Klick.",
       "action": "Flux Desktop installieren",
-      "sub": "fluxrouter.ai/downloads"
+      "sub": "fluxrouter.ai/download"
     },
     "ollama": {
       "body": "Lokales Ollama hat letzte Woche {{pct}}% übernommen. Flux Router fängt den Rest ab, wenn deine Hardware an ihre Grenzen stößt.",

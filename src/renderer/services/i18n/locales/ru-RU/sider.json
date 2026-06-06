@@ -9,7 +9,7 @@
     "install": {
       "body": "Codex, Cursor, Claude Code ещё не маршрутизируются. Flux Desktop подключает все три в один клик.",
       "action": "Установить Flux Desktop",
-      "sub": "fluxrouter.ai/downloads"
+      "sub": "fluxrouter.ai/download"
     },
     "ollama": {
       "body": "На прошлой неделе локальная Ollama обработала {{pct}}%. Flux Router возьмёт на себя остальное, когда мощности не хватит.",

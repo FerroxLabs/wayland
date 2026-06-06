@@ -9,7 +9,7 @@
     "install": {
       "body": "Codex、Cursor、Claude Code はまだルーティングされていません。Flux Desktop ならワンクリックで3つすべてを連携できます。",
       "action": "Flux Desktop をインストール",
-      "sub": "fluxrouter.ai/downloads"
+      "sub": "fluxrouter.ai/download"
     },
     "ollama": {
       "body": "先週はローカルの Ollama が {{pct}}% を処理しました。ハードウェアが限界に達したときは Flux Router が残りを引き受けます。",

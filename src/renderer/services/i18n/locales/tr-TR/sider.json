@@ -9,7 +9,7 @@
     "install": {
       "body": "Codex, Cursor, Claude Code henüz yönlendirilmiyor. Flux Desktop üçünü tek tıklamayla bağlar.",
       "action": "Flux Desktop'ı yükle",
-      "sub": "fluxrouter.ai/downloads"
+      "sub": "fluxrouter.ai/download"
     },
     "ollama": {
       "body": "Yerel Ollama geçen hafta işlerin %{{pct}} kadarını yaptı. Donanımın yetmediği yerde gerisini Flux Router üstlenir.",
