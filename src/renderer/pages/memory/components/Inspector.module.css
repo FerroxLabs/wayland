@@ -1,0 +1,312 @@
+/**
+ * Inspector - right-pane detail view for the Memory Archive page.
+ *
+ * Layout: sticky header + scrollable body. Width provided by parent (1.2fr).
+ * Colors: semantic tokens only, except the 3-state score bar accent vars.
+ */
+
+/* ---- Root ---- */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-left: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+}
+
+/* ---- Empty state ---- */
+
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--color-text-3);
+  font-size: 13px;
+  padding: 32px;
+  text-align: center;
+}
+
+.emptyIcon {
+  opacity: 0.45;
+}
+
+.emptyHint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.kbdChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--color-fill-2);
+  border: 1px solid var(--color-border-2);
+  color: var(--color-text-3);
+  font-size: 11px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+/* ---- Header (sticky) ---- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  backdrop-filter: blur(20px);
+}
+
+.headerTop {
+  position: relative;
+  padding-right: 36px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  margin: 0 0 8px;
+  word-break: break-word;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--color-text-3);
+}
+
+.typeBadge {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.typeBadge.decision {
+  background: rgba(255, 107, 53, 0.14);
+  color: var(--color-primary-6, var(--color-primary));
+}
+
+.typeBadge.pattern {
+  background: rgba(251, 191, 36, 0.14);
+  color: #d97706;
+}
+
+.typeBadge.observation {
+  background: rgba(74, 222, 128, 0.14);
+  color: #16a34a;
+}
+
+.typeBadge.session {
+  background: rgba(96, 165, 250, 0.14);
+  color: #2563eb;
+}
+
+.typeBadge.wiki {
+  background: rgba(167, 139, 250, 0.14);
+  color: #7c3aed;
+}
+
+.typeBadge.preference {
+  background: rgba(251, 113, 133, 0.14);
+  color: #e11d48;
+}
+
+/* ---- Actions ---- */
+
+.actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+/* ---- Promotion score bar ---- */
+
+.scoreWrap {
+  padding: 14px 24px 0;
+}
+
+.scoreLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--color-text-2);
+  margin-bottom: 6px;
+}
+
+.scoreText {
+  font-weight: 600;
+}
+
+.scoreBar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-fill-2);
+  overflow: hidden;
+}
+
+.scoreBarFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.scoreBarFill.green {
+  background: var(--color-success-6, #16a34a);
+}
+
+.scoreBarFill.orange {
+  background: var(--color-primary-6, var(--color-primary));
+}
+
+.scoreBarFill.gray {
+  background: var(--color-text-4, var(--color-text-3));
+}
+
+/* ---- Scrollable body ---- */
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 40px;
+}
+
+/* ---- Sections ---- */
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  color: var(--color-primary-6, var(--color-primary));
+  letter-spacing: 0.10em;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.sectionContent {
+  font-size: 13.5px;
+  color: var(--color-text-2);
+  line-height: 1.65;
+}
+
+.sectionContent p {
+  margin: 0;
+}
+
+.sectionAbsent {
+  font-size: 13px;
+  color: var(--color-text-3);
+  font-style: italic;
+}
+
+/* ---- Dereference cards ---- */
+
+.derefHeader {
+  font-size: 12px;
+  color: var(--color-text-3);
+  margin-bottom: 8px;
+}
+
+.derefList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.derefCard {
+  padding: 10px 12px;
+  background: var(--color-fill-1);
+  border: 1px solid var(--color-border-2);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.derefCard:hover {
+  background: var(--color-fill-2);
+}
+
+.derefCardMeta {
+  font-size: 11px;
+  color: var(--color-text-3);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  margin-bottom: 4px;
+}
+
+.derefCardPreview {
+  font-size: 12px;
+  color: var(--color-text-2);
+  font-style: italic;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---- Tags ---- */
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* ---- Source path footer ---- */
+
+.sourcePath {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--color-text-3);
+  font-size: 11px;
+  transition: color 0.1s;
+}
+
+.sourcePath:hover {
+  color: var(--color-text-1);
+}
+
+.sourcePathText {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 11px;
+  background: var(--color-fill-2);
+  padding: 3px 7px;
+  border-radius: 4px;
+  word-break: break-all;
+}

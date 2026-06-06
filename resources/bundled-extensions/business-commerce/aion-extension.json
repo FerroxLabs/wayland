@@ -1,0 +1,17 @@
+{
+  "name": "business-commerce",
+  "displayName": "Business Commerce",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Net-new DTC and marketplace commerce capability for the Wayland business suite: post-delivery UGC request prompts with product-type-aware timing and platform-TOS-compliant incentives. The existing Storefront operator role and its merge-delta skills are enriched separately app-side.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "commerce-ugc-prompts",
+        "description": "Generate review + photo + video request prompts that fire at the right post-delivery moment by product type (consumable / durable / cosmetic / apparel), with platform-TOS-compliant incentive structures (Amazon, Etsy, Trustpilot anti-incentive rules) and per-category timing (D+3 / D+7 / D+14). Emits prompt-timing recommendation, template copy, incentive structure, and photo-prompt CTA.",
+        "file": "skills/commerce-ugc-prompts/SKILL.md"
+      }
+    ]
+  }
+}

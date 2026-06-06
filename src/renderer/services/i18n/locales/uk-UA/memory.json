@@ -1,0 +1,444 @@
+{
+  "page": {
+    "title": "Пам'ять",
+    "subtitle": "Постійні знання вашого ШІ у всіх сесіях"
+  },
+  "pitch": {
+    "headline": "Пам'ять, що йде за вами",
+    "lede": "Wayland пам'ятає, над чим ви працювали, які рішення ухвалювали і що випускали. Кожен асистент отримує контекст -- не потрібно пояснювати наново. Працює на IJFW, відкритому рушії пам'яті від Ferrox Labs.",
+    "bullet1": "Зберігається між чатами, проєктами та CLI",
+    "bullet2": "З можливістю пошуку, експорту і повністю у вашому розпорядженні",
+    "bullet3": "Жодних налаштувань після встановлення",
+    "install_cta": "Встановити Пам'ять",
+    "enable_cta": "Увімкнути Пам'ять",
+    "settings_link": "Не потрібно? Ви можете вимкнути це в Налаштуваннях"
+  },
+  "setting_up": {
+    "title": "Налаштовуємо Пам'ять",
+    "subtitle": "Це відбувається один раз, у фоновому режимі. Ви можете продовжувати працювати.",
+    "brand_line": "IJFW Memory by Ferrox Labs",
+    "taking_longer": "Налаштування триває... за повільного з'єднання це може зайняти до хвилини.",
+    "help": "Виникли проблеми? Відкрийте Налаштування, щоб повторити вручну."
+  },
+  "brand": {
+    "tagline": "IJFW Memory by Ferrox Labs",
+    "footer": "На базі IJFW (відкритий код) від Ferrox Labs",
+    "github_link": "github.com/FerroxLabs/ijfw"
+  },
+  "installing": {
+    "title": "Встановлення Пам'яті",
+    "subtitle": "Це займе близько хвилини",
+    "version_label": "Встановлюється версія {{version}}",
+    "step_download": "Завантаження з npm",
+    "step_extract": "Розпакування файлів",
+    "step_verify": "Перевірка встановлення",
+    "step_activate": "Активація"
+  },
+  "upgrading": {
+    "title": "Оновлення Пам'яті",
+    "subtitle": "Підготовка {{version}} до наступного запуску",
+    "pending_message": "Оновлення готове. Воно активується при перезапуску Wayland.",
+    "restart_now": "Перезапустити зараз"
+  },
+  "failed": {
+    "title": "Не вдалося завершити встановлення",
+    "retry": "Повторити",
+    "details_toggle": "Показати подробиці",
+    "details_hide": "Сховати подробиці",
+    "support_link": "По допомогу відвідайте github.com/FerroxLabs/ijfw"
+  },
+  "error": {
+    "spawn_error": "Не вдалося запустити інсталятор. Переконайтеся, що npm доступний у PATH.",
+    "install_exit_nonzero": "Встановлення завершилося з помилкою. Подробиці нижче можуть допомогти.",
+    "invalid_target_version": "Реєстр повернув некоректний номер версії. Спробуйте пізніше.",
+    "unsafe_ownership": "Тека з очікуваним встановленням має небезпечного власника і була відхилена. Перевстановіть, щоб відновити.",
+    "stage_pending_failed": "Не вдалося підготувати нове встановлення. Перевірте вільне місце на диску та спробуйте ще раз.",
+    "stage_swap_failed": "Не вдалося переключитися на нове встановлення. Перезапустіть Wayland, щоб повторити спробу.",
+    "upgrade_failed_no_rollback": "Оновлення не вдалося, і попередню версію відновити не вдалося. Перевстановіть, щоб відновити.",
+    "upgrade_failed_rolled_back": "Оновлення не вдалося, але попередня версія продовжує працювати. Спробуйте пізніше або перегляньте подробиці.",
+    "rollback_also_failed": "І нова версія, і відкат не вдалися. Перевстановіть, щоб відновити.",
+    "mcp_crashed": "Пам'ять аварійно завершила роботу. Перезапустіть Wayland для відновлення.",
+    "mcp_error": "Пам'ять повернула помилку. Спробуйте ще раз.",
+    "timeout": "Пам'ять не відповіла вчасно. Спробуйте ще раз.",
+    "validation_failed": "Цей запит не відповідає тому, що очікує Пам'ять.",
+    "unavailable": "Пам'ять ще не запущена. Встановіть або перезапустіть, щоб увімкнути її.",
+    "opt_out": "Пам'ять вимкнено в Налаштуваннях.",
+    "unknown": "Щось пішло не так. Спробуйте ще раз."
+  },
+  "empty": {
+    "title": "Пам'ять готова",
+    "subtitle": "Запитайте її про все, що хочете запам'ятати на майбутнє",
+    "placeholder": "Що Пам'ять має знати про вас?",
+    "chip1": "Запам'ятай стек, на якому ми випускаємо продукт",
+    "chip2": "Нагадай, що ми вирішили щодо автентифікації",
+    "chip3": "Що зламалося в останньому розгортанні",
+    "save_button": "Зберегти пам'ять",
+    "save_ok": "Пам'ять збережено",
+    "save_err": "Не вдалося зберегти пам'ять"
+  },
+  "panel": {
+    "header_breadcrumb": "Пам'ять",
+    "subtitle": "IJFW Memory by Ferrox Labs",
+    "button_drop": "Скинути",
+    "button_history": "Історія",
+    "button_add": "Додати запис",
+    "tab_home": "Головна",
+    "tab_search": "Пошук",
+    "tab_wiki": "Вікі",
+    "tab_promotions": "Просування",
+    "tab_drop": "Скидання",
+    "tab_conflicts": "Конфлікти",
+    "tab_cross_project": "Між проєктами"
+  },
+  "degraded": {
+    "toast": "Пам'ять активується після першого налаштування",
+    "banner": "Пам'ять зараз працює у деградованому режимі -- чат продовжує працювати, але збагачення вимкнено"
+  },
+  "settings": {
+    "panel_title": "IJFW Memory (Ferrox Labs)",
+    "skip_label": "Пропустити автоматичне налаштування IJFW",
+    "skip_description": "Коли увімкнено, Wayland не встановлюватиме і не оновлюватиме IJFW. Ви зможете встановити вручну пізніше через сторінку Пам'яті.",
+    "manual_install_hint": "Для встановлення вручну виконайте в терміналі: `npx -y @ijfw/install@latest`",
+    "about_title": "IJFW Memory",
+    "about_body": "Відкритий рушій постійної пам'яті від Ferrox Labs."
+  },
+  "prelude": {
+    "installing_notice": "IJFW встановлюється. Зовнішні CLI (Claude Code, Codex, Gemini CLI) підхоплять його після завершення встановлення.",
+    "disabled_notice": "IJFW вимкнено в Налаштуваннях Wayland. Увімкніть його знову, щоб ділитися пам'яттю з зовнішніми CLI.",
+    "failed_notice": "Встановлення IJFW не вдалося. Відкрийте сторінку Пам'яті у Wayland, щоб повторити спробу."
+  },
+  "home": {
+    "wiki_title": "Wiki",
+    "wiki_empty": "Записів у Wiki ще немає",
+    "links_title": "Останні зв'язки",
+    "links_empty": "Зв'язків ще немає",
+    "promote_title": "Готово до підвищення",
+    "promote_empty": "Готових кандидатів немає",
+    "promote_button": "Підвищити",
+    "promote_success": "Підвищено до Wiki"
+  },
+  "search": {
+    "placeholder": "Спитайте все, що пам'ять знає про вашу роботу",
+    "examples_title": "Спробуйте один з варіантів:",
+    "example_1": "Який стек автентифікації ми обрали?",
+    "example_2": "Що зламалося під час останнього розгортання?",
+    "example_3": "Який асистент відповідає за планувальник cron?",
+    "citation_stub": "Навігація по цитатах з'явиться у Wave 6"
+  },
+  "promotions": {
+    "title": "Очікує підвищення до Wiki",
+    "refresh": "Оновити",
+    "empty": "У черзі нічого немає. Нові факти з'являться тут, коли будуть готові до підвищення.",
+    "promote": "Підвищити",
+    "skip": "Пропустити",
+    "preview": "Попередній перегляд",
+    "preview_hide": "Сховати",
+    "queued_at": "У черзі з {{time}}",
+    "promote_success": "Підвищено до Wiki.",
+    "promote_error": "Не вдалося підвищити цей запис. Повторіть спробу.",
+    "skip_success": "Пропущено.",
+    "skip_error": "Не вдалося пропустити цей запис. Повторіть спробу."
+  },
+  "conflicts": {
+    "empty": "Конфліктів не виявлено. Пам'ять узгоджена.",
+    "keep_this": "Залишити це",
+    "resolve_success": "Конфлікт вирішено"
+  },
+  "wiki": {
+    "home": {
+      "title": "Wiki",
+      "conceptCount": "{{count}} концепцій синтезовано з {{memories}} спогадів",
+      "viewList": "Список",
+      "viewGraph": "Граф",
+      "newConcept": "+ Нова концепція",
+      "settings": "Налаштування",
+      "search": {
+        "placeholder": "Пошук концепцій…"
+      },
+      "columns": {
+        "byTopic": "За темою",
+        "updatedThisWeek": "Оновлено цього тижня",
+        "emerging": "Нові - варто створити сторінки концепцій"
+      },
+      "mostReferenced": "Найбільш згадувані",
+      "references": "згадувань",
+      "empty": "Wiki порожня. Просуньте спогад або зачекайте на автосинхронізацію.",
+      "status": {
+        "concepts": "{{count}} концепцій",
+        "memoriesSynthesized": "{{count}} спогадів синтезовано",
+        "autoSync": "автосинхронізація кожні 30 хв",
+        "lastSync": "остання синхронізація {{when}} тому"
+      },
+      "emergingLabel": "Нові"
+    },
+    "orphan": {
+      "references": "{{count}} згадувань",
+      "projects": "{{count}} проектів",
+      "projectsSingular": "{{count}} проект",
+      "synthesize": "Синтезувати сторінку →",
+      "noPageYet": "Сторінка відсутня"
+    },
+    "concept": {
+      "synthesizedFrom": "Синтезовано з {{count}} спогадів"
+    },
+    "detail": {
+      "back": "← Wiki",
+      "edit": "Редагувати",
+      "updateFromSources": "Оновити з джерел",
+      "settings": "Налаштування",
+      "updatedAgo": "Оновлено {{when}}",
+      "synthesizedFromMem": "Синтезовано з {{count}} спогадів",
+      "freshness": {
+        "fresh": "Свіже",
+        "stale": "Застаріле",
+        "neverReviewed": "Не перевірялось"
+      },
+      "tldr": "Коротко",
+      "sources": "Джерела",
+      "linkedFrom": "Посилання з",
+      "relatedConcepts": "Пов'язані концепції",
+      "openMemory": "Відкрити спогад →",
+      "showAll": "Показати всі {{count}} ↓",
+      "hiddenSourcesOne": "Ще {{count}} джерело",
+      "hiddenSourcesOther": "Ще {{count}} джерел",
+      "autoSynthesized": "Синтезовано автоматично",
+      "lastReviewedNever": "остання перевірка: ніколи",
+      "lastSynthesized": "Останній синтез: {{when}}",
+      "markAsReviewed": "Позначити як перевірене",
+      "editThisPage": "Редагувати сторінку",
+      "reSynthesizeFromSources": "Пересинтезувати з джерел",
+      "statusTotalConcepts": "{{count}} концепцій всього",
+      "statusNotReviewedYet": "Ще не перевірено",
+      "statusLastSync": "остання синхронізація {{when}} тому",
+      "loading": "Завантаження…",
+      "notFound": "Концепцію не знайдено.",
+      "notFoundBack": "← Повернутись до Wiki"
+    },
+    "list_empty": "Записів у вікі ще немає. Підвищте пам'ять, щоб почати.",
+    "select_prompt": "Виберіть запис, щоб переглянути його вміст.",
+    "promote": "Підвищити",
+    "export": "Експортувати",
+    "share_readme": "Поділитися README",
+    "promote_ok": "Підвищено до вікі",
+    "promote_err": "Не вдалося підвищити запис",
+    "export_queued": "Експорт у черзі - завантаження з'явиться незабаром",
+    "export_err": "Не вдалося експортувати запис",
+    "share_ok": "Спільний доступ до README у черзі",
+    "share_err": "Не вдалося поділитися README"
+  },
+  "crossProject": {
+    "scope_label_app": "Пошук: всі проєкти (область застосунку)",
+    "scope_label_project": "Пошук: {{project}} (область проєкту)",
+    "search_placeholder": "Шукати в пам'яті по проєктах",
+    "search_button": "Шукати",
+    "toggle_label": "Включити інші проєкти",
+    "prompt_empty": "Введіть запит, щоб шукати по пам'яті проєктів.",
+    "results_empty": "Збігів у вибраній області немає.",
+    "navigation_stub": "Навігація між проєктами з'явиться у Wave 6"
+  },
+  "drop": {
+    "zone_title": "Перетягніть файли сюди",
+    "zone_hint": "Markdown, текст, JSON, YAML, CSV. Максимум 50 МБ. У черзі не більше 20 файлів.",
+    "browse_button": "Огляд",
+    "queue_title": "Файли в черзі",
+    "queue_empty": "У черзі немає файлів",
+    "quarantine_button": "Карантин",
+    "ingest_success": "{{name}} додано до черги",
+    "quarantine_success": "{{name}} відправлено в карантин",
+    "path_unavailable": "Не вдалося прочитати шлях до файлу. Скористайтеся кнопкою Огляд."
+  },
+  "archive": {
+    "topbar": {
+      "title": "Пам'ять",
+      "subtitle": "IJFW · Ferrox Labs",
+      "streak_pill": "{{sessions}} сесій · {{longestDays}} дн. макс. серія",
+      "streak_empty": "Сесій ще немає",
+      "import_btn": "Імпорт…",
+      "settings_btn": "Налаштування"
+    },
+    "stats": {
+      "memories": "Записи",
+      "banked": "Збережено",
+      "decisions": "Рішення",
+      "wiki": "Wiki",
+      "sessions": "Сесії",
+      "projects": "Проєкти",
+      "delta_today": "{{count}} сьогодні",
+      "delta_week": "{{count}} за тиждень",
+      "delta_none": "без змін",
+      "banked_tooltip": "Оцінна економія на інференсі: посилання × $0,15 + рішення × $0,50 + wiki × $2,00",
+      "no_data": "0"
+    },
+    "banner": {
+      "candidates_ready": "{{count}} кандидатів готові до автопідвищення",
+      "threshold": "поріг ≥ {{value}}",
+      "next_sweep": "автопідвищення через {{time}}",
+      "last_dream": "Останній цикл: {{facts}} фактів · {{promoted}} підвищено · {{ago}} тому",
+      "no_dream": "Останніх циклів немає",
+      "tune_btn": "Налаштувати",
+      "review_btn": "Переглянути {{count}} →",
+      "review_btn_zero": "Переглянути"
+    },
+    "filters": {
+      "projects_title": "Проєкти",
+      "all_projects": "Всі проєкти",
+      "this_project": "Цей проєкт",
+      "global": "Глобальні",
+      "time_title": "Період",
+      "time_all": "Всі",
+      "time_today": "Сьогодні",
+      "time_7d": "7 днів",
+      "time_30d": "30 днів",
+      "time_custom": "Власний період…",
+      "tags_title": "Теги",
+      "tags_clear": "Очистити теги",
+      "autopromo_title": "Автопідвищення",
+      "candidates_only": "Лише кандидати на підвищення",
+      "hide_promoted": "Сховати вже підвищені",
+      "candidates_subline": "{{count}} готово · поріг ≥ {{value}}",
+      "section_collapse": "Згорнути",
+      "section_expand": "Розгорнути"
+    },
+    "list": {
+      "search_placeholder": "Пошук у пам'яті…",
+      "search_kbd_hint": "/",
+      "chip_all": "Всі",
+      "chip_decision": "Рішення",
+      "chip_pattern": "Патерни",
+      "chip_session": "Сесії",
+      "chip_wiki": "Wiki",
+      "chip_observation": "Спостереження",
+      "chip_preference": "Вподобання",
+      "chip_count": "({{count}})",
+      "empty_title": "Нічого не знайдено",
+      "empty_subtitle": "Спробуйте прибрати фільтр або очистити пошук.",
+      "empty_clear_btn": "Скинути фільтри",
+      "footer": "Показано 1–{{shown}} з {{total}} · прокрутіть для перегляду",
+      "footer_all_loaded": "Всі {{total}} завантажено",
+      "loading_more": "Завантаження…"
+    },
+    "row": {
+      "used_pill": "Використано {{count}}× за тиждень",
+      "type_decision": "Рішення",
+      "type_pattern": "Патерн",
+      "type_observation": "Спостереження",
+      "type_session": "Сесія",
+      "type_wiki": "Wiki",
+      "type_preference": "Вподобання"
+    },
+    "inspector": {
+      "empty_title": "Виберіть запис для перегляду",
+      "kbd_navigate": "↑/↓ переміщення",
+      "kbd_select": "Enter вибір",
+      "kbd_close": "Esc закрити",
+      "close_btn": "Закрити",
+      "promote_btn": "Підвищити до Wiki",
+      "promote_disabled": "Вже підвищено ✓",
+      "open_btn": "Відкрити файл",
+      "copy_btn": "Копіювати",
+      "score_label": "Оцінка підвищення {{score}}/100",
+      "score_threshold": "автопідвищення при {{threshold}}",
+      "score_help": "Як це розраховується?",
+      "summary_title": "Короткий зміст",
+      "why_title": "Причина",
+      "why_empty": "«Причина» не записана",
+      "how_title": "Як застосовувати",
+      "how_empty": "«Як застосовувати» не записано",
+      "derefs_title": "Реальне використання",
+      "derefs_subtitle": "Використано {{count}}× за тиждень",
+      "tags_title": "Теги",
+      "source_label": "Джерело",
+      "source_copied": "Шлях до джерела скопійовано",
+      "promote_success": "Підвищено до Wiki",
+      "promote_error": "Не вдалося підвищити. Спробуйте ще раз.",
+      "score_tooltip": "+30 рішення/патерн · +10 за кожне міжпроєктне посилання · +5 за кожне розіменування · +20 тег підвищення · +15 новизна (спадає за 30 днів)"
+    },
+    "quickadd": {
+      "placeholder": "Запам'ятай що завгодно…",
+      "scope_project": "проєкт",
+      "scope_global": "глобально",
+      "submit_btn": "Запам'ятати →",
+      "submitting": "Збереження…",
+      "success": "Збережено",
+      "error": "Не вдалося зберегти. Спробуйте ще раз."
+    },
+    "statusbar": {
+      "brain_live": "Мозок активний",
+      "brain_offline": "Мозок не в мережі",
+      "cli_count": "{{count}} CLI",
+      "cli_count_none": "CLI не виявлено",
+      "last_dream": "Останній цикл: {{facts}} фактів · {{promoted}} підвищено · {{ago}} тому",
+      "no_dream": "Очікування першого циклу",
+      "kbd_capture": "швидкий захват",
+      "kbd_search": "пошук",
+      "kbd_close": "закрити інспектор",
+      "spend_today": "${{usd}} сьогодні"
+    },
+    "threshold_modal": {
+      "title": "Налаштування автопідвищення",
+      "threshold_label": "Поріг підвищення",
+      "autopromo_label": "Автопідвищення за розкладом",
+      "autopromo_help": "Коли увімкнено, кандидати, що перевищили поріг і пройшли 10-хвилинну чергу, автоматично записуються до wiki.",
+      "live_preview": "{{count}} кандидатів при порозі {{value}}",
+      "score_formula_title": "Формула оцінки",
+      "formula_decision": "+30 якщо тип - рішення або патерн",
+      "formula_refs": "+10 за кожен проєкт, що посилається на цей запис",
+      "formula_referenced": "+5 за кожне розіменування",
+      "formula_tag": "+20 якщо є тег рішення, патерн, глобальний, дизайн або архітектура",
+      "formula_recency": "+15 якщо збережено менше 24 год тому (спадає лінійно за 30 днів)",
+      "save_btn": "Зберегти",
+      "cancel_btn": "Скасувати",
+      "save_success": "Збережено"
+    },
+    "errors": {
+      "load_failed": "Не вдалося завантажити пам'ять. {{reason}}",
+      "missing_api": "API пам'яті ще не готовий. Спробуйте за мить.",
+      "promote_failed": "Не вдалося підвищити. {{reason}}"
+    },
+    "import": {
+      "title": "Імпорт спогадів",
+      "close": "Закрити панель імпорту",
+      "importing": "Імпортування…",
+      "status": {
+        "ready": "готово",
+        "checking": "перевірка",
+        "importing": "імпортування",
+        "unavailable": "недоступно",
+        "idle": "очікування"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "Натисніть, щоб імпортувати з ~/.claude-mem/claude-mem.db",
+        "count": "~{{count}} записів імпортовано",
+        "btn": "Імпортувати",
+        "success": "Імпортовано {{count}} записів · {{errors}} помилок",
+        "error": "Не вдалося імпортувати. Спробуйте ще раз."
+      },
+      "obsidian": {
+        "title": "Сховище Obsidian",
+        "hint": "Натисніть, щоб виконати пошук сховищ",
+        "count": "~{{count}} записів імпортовано",
+        "btn": "Імпортувати",
+        "success": "Імпортовано {{count}} записів · {{errors}} помилок",
+        "error": "Не вдалося імпортувати з Obsidian. Спробуйте ще раз."
+      },
+      "devScan": {
+        "title": "Сканування ~/dev",
+        "hint": "Сканує ~/dev на наявність каталогів пам'яті IJFW",
+        "count": "~{{count}} записів імпортовано",
+        "btn": "Імпортувати",
+        "success": "Імпортовано {{count}} записів із {{projects}} проєктів",
+        "error": "Не вдалося імпортувати зі сканування dev. Спробуйте ще раз."
+      },
+      "dropFolder": {
+        "title": "Тека для перетягування",
+        "hint": "Перетягніть файли .md / .txt / .json до ~/Documents/Wayland-Memory/",
+        "count": "{{count}} файлів оброблено",
+        "openBtn": "Відкрити теку",
+        "processBtn": "Обробити зараз",
+        "success": "Оброблено {{count}} файлів · {{errors}} помилок",
+        "error": "Не вдалося обробити. Спробуйте ще раз."
+      }
+    }
+  }
+}

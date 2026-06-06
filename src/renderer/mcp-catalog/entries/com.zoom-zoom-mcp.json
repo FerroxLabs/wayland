@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.zoom/zoom-mcp",
+  "title": "Zoom",
+  "description": "Schedule meetings, list recordings, manage chat, and read your calendar - Zoom's official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://marketplace.zoom.us/mcp",
+  "repository": { "url": "https://github.com/zoom/zoom-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.zoom.us" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["communication", "calendar"],
+    "tags": ["zoom", "meetings", "video"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 22,
+    "installRate": 0.19,
+    "iconUrl": "icons/zoom.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#2d8cff" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Zoom",
+      "providerSignupUrl": "https://zoom.us",
+      "byoClient": {
+        "registrationUrl": "https://marketplace.zoom.us/develop/create",
+        "requiresSecret": true,
+        "guide": "Zoom requires every OAuth integration to be registered as a Zoom App in their Marketplace.\n\n**1.** Open **marketplace.zoom.us/develop/create** and sign in. Click **Build App** → choose **OAuth** (or **User-managed OAuth App** if prompted).\n\n**2.** Pick **User-managed app** (so each Wayland user authorizes their own account). Click **Create**.\n\n**3.** On the **App credentials** tab:\n  - Add the URL Wayland shows below to **Redirect URL for OAuth** AND to **OAuth allow list**.\n  - Copy **Client ID** and **Client Secret**.\n\n**4.** On the **Scopes** tab, click **Add Scopes** and add: `meeting:read`, `meeting:write`, `recording:read`, `chat_message:write`.\n\n**5.** Paste the Client ID and Secret below. The app does not need to be published to the marketplace - local testing is enough."
+      },
+      "scopes": [
+        { "name": "meeting:read", "plainLanguage": "See your meetings." },
+        { "name": "meeting:write", "plainLanguage": "Schedule and update meetings." },
+        { "name": "recording:read", "plainLanguage": "List your cloud recordings." },
+        { "name": "chat_message:write", "plainLanguage": "Send Zoom chat messages." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Meetings", "count": 6 },
+      { "label": "Recordings", "count": 3 },
+      { "label": "Chat", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.zoom-zoom-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

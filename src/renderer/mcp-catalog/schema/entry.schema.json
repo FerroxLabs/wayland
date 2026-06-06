@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "wayland-mcp-catalog/entry.schema.json",
+  "title": "Wayland MCP Catalog Entry",
+  "type": "object",
+  "required": ["name", "title", "description", "version", "packages", "x-wayland"],
+  "properties": {
+    "name": { "type": "string", "description": "Reverse-DNS id, matches official MCP Registry." },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "version": { "type": "string" },
+    "websiteUrl": { "type": "string", "format": "uri" },
+    "repository": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "source": { "type": "string", "enum": ["github", "gitlab", "other"] }
+      }
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["registryType", "identifier", "version", "runtimeHint", "transport"],
+        "properties": {
+          "registryType": { "enum": ["npm", "pypi", "oci", "binary", "mcpb"] },
+          "identifier": { "type": "string" },
+          "version": { "type": "string" },
+          "runtimeHint": { "enum": ["npx", "uvx", "docker", "native"] },
+          "transport": {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "enum": ["stdio", "streamable-http", "sse"] } }
+          },
+          "environmentVariables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "description", "isRequired"],
+              "properties": {
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "isRequired": { "type": "boolean" },
+                "isSecret": { "type": "boolean" },
+                "default": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "remotes": { "type": "array" },
+    "x-wayland": {
+      "type": "object",
+      "required": ["tier", "categories", "maintainerType", "iconUrl", "auth"],
+      "properties": {
+        "tier": { "enum": ["core", "worker", "builder"] },
+        "categories": { "type": "array", "items": { "type": "string" } },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "maintainerType": { "enum": ["official", "wayland", "community"] },
+        "license": { "type": "string" },
+        "verifiedAt": { "type": "string", "format": "date" },
+        "verifiedBy": { "type": "string" },
+        "popularityRank": { "type": "integer" },
+        "installRate": { "type": "number" },
+        "iconUrl": { "type": "string" },
+        "brand": {
+          "type": "object",
+          "properties": {
+            "logoBackground": { "type": "string" },
+            "logoForeground": { "type": "string" }
+          }
+        },
+        "auth": {
+          "type": "object",
+          "required": ["method"],
+          "properties": {
+            "method": { "enum": ["none", "api-key", "oauth2-byo", "local-credentials"] },
+            "providerName": { "type": "string" },
+            "providerSignupUrl": { "type": "string", "format": "uri" },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "plainLanguage"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "plainLanguage": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "toolGroups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "count"],
+            "properties": {
+              "label": { "type": "string" },
+              "count": { "type": "integer" }
+            }
+          }
+        },
+        "setupGuide": {
+          "type": "object",
+          "required": ["path", "estimatedMinutes", "stepCount"],
+          "properties": {
+            "path": { "type": "string" },
+            "estimatedMinutes": { "type": "integer" },
+            "stepCount": { "type": "integer" }
+          }
+        },
+        "platforms": { "type": "array", "items": { "enum": ["macos", "windows", "linux"] } },
+        "minWaylandVersion": { "type": "string" }
+      }
+    }
+  }
+}

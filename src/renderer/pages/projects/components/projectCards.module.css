@@ -1,0 +1,26 @@
+/**
+ * Shared card surface for project chats + project tiles. Mirrors the assistant
+ * "specialist" card: an elevated fill with a subtle resting border that lights
+ * up to the brand orange (with a soft ring) on hover - the same affordance used
+ * elsewhere in the app, so project cards feel native.
+ */
+.card {
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  background: var(--color-bg-2);
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.card:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.4);
+}
+
+/* Same resting surface for non-interactive cards (e.g. the memory feed) - keeps
+ * the background + border identical to the interactive cards, without a hover. */
+.surface {
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  background: var(--color-bg-2);
+}

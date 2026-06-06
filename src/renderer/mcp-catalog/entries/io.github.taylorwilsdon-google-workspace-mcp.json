@@ -1,0 +1,60 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.github.taylorwilsdon/google-workspace-mcp",
+  "title": "Google Workspace",
+  "description": "Gmail, Calendar, Drive, Docs, Sheets, Slides, Chat, Forms, Tasks - every Google service in one MCP.",
+  "version": "1.4.2",
+  "websiteUrl": "https://github.com/taylorwilsdon/google_workspace_mcp",
+  "repository": { "url": "https://github.com/taylorwilsdon/google_workspace_mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "workspace-mcp",
+      "version": "1.4.2",
+      "runtimeHint": "uvx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "GOOGLE_OAUTH_CLIENT_ID", "description": "OAuth client ID from your Google Cloud Console.", "isRequired": true, "isSecret": false },
+        { "name": "GOOGLE_OAUTH_CLIENT_SECRET", "description": "OAuth client secret.", "isRequired": true, "isSecret": true },
+        { "name": "GOOGLE_OAUTH_REDIRECT_URI", "description": "Local redirect URI Wayland listens on.", "isRequired": false, "default": "http://localhost:8765" }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["communication", "files-and-docs", "calendar"],
+    "tags": ["gmail", "google-calendar", "google-drive", "google-docs"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "verifiedBy": "wayland-editorial",
+    "popularityRank": 1,
+    "installRate": 0.87,
+    "iconUrl": "icons/google.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#ea4335" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Google Cloud",
+      "providerSignupUrl": "https://console.cloud.google.com",
+      "scopes": [
+        { "name": "gmail.modify", "plainLanguage": "Read, send, and archive Gmail." },
+        { "name": "calendar", "plainLanguage": "Read and write Calendar events." },
+        { "name": "drive.file", "plainLanguage": "Per-file access - only files you open." },
+        { "name": "documents", "plainLanguage": "Read and edit Docs." },
+        { "name": "spreadsheets", "plainLanguage": "Read and edit Sheets." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Gmail", "count": 14 },
+      { "label": "Calendar", "count": 9 },
+      { "label": "Drive", "count": 8 },
+      { "label": "Docs", "count": 10 },
+      { "label": "Sheets", "count": 11 },
+      { "label": "Slides", "count": 5 },
+      { "label": "Tasks & Forms", "count": 5 }
+    ],
+    "setupGuide": { "path": "guides/io.github.taylorwilsdon-google-workspace-mcp.md", "estimatedMinutes": 7, "stepCount": 4 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

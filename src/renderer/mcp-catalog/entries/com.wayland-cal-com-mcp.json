@@ -1,0 +1,47 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.wayland/cal-com-mcp",
+  "title": "Cal.com Scheduling",
+  "description": "Open-source scheduling - bookings, event types, and availability via Cal.com's API.",
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/FerroxLabs/waylandmcp/tree/main/packages/cal-com-mcp",
+  "repository": { "url": "https://github.com/FerroxLabs/waylandmcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "binary",
+      "identifier": "builtin-mcp-cal-com.mjs",
+      "version": "0.1.0",
+      "runtimeHint": "native",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "CALCOM_API_KEY", "description": "API key from your Cal.com settings.", "isRequired": true, "isSecret": true },
+        { "name": "CALCOM_BASE_URL", "description": "Override for self-hosted Cal.com instances.", "isRequired": false, "default": "https://api.cal.com/v2" }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["calendar", "productivity"],
+    "tags": ["cal-com", "scheduling", "open-source"],
+    "maintainerType": "wayland",
+    "license": "MIT",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 25,
+    "installRate": 0.16,
+    "iconUrl": "icons/cal-com.svg",
+    "brand": { "logoBackground": "linear-gradient(135deg,#ff6b35 0%,#1a1a1a 100%)", "logoForeground": "#ffffff" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Cal.com",
+      "providerSignupUrl": "https://app.cal.com/settings/developer/api-keys"
+    },
+    "toolGroups": [
+      { "label": "Bookings", "count": 5 },
+      { "label": "Event Types", "count": 4 },
+      { "label": "Availability", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.wayland-cal-com-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

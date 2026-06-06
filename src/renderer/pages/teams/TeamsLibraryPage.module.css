@@ -1,0 +1,109 @@
+/**
+ * Teams library page - mirrors AssistantsLibraryPage layout but adds
+ * sub-grouping for Standing Companies (5) vs ad-hoc Teams (19) per
+ * mockup §1. Inherits --color-team from AssistantsLibraryPage tokens;
+ * the standing color is page-local until the chat-redesign tokens
+ * propagate.
+ */
+:root {
+  /* Forge Orange - Wayland brand. Was lavender (192,132,252) which read
+     as off-brand against the rest of the UI (CTAs, primary accents are
+     orange). Aligning Standing Companies with the brand orange so the
+     "this is the headline tier" emphasis lands without color drift. */
+  --color-standing-rgb: 255, 107, 53;
+  --color-standing: rgb(var(--color-standing-rgb));
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--color-bg-1);
+}
+
+.scroll {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 24px 28px 48px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.search {
+  max-width: 340px;
+}
+
+.sortControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.sortLabel {
+  font-size: 12px;
+  color: var(--color-text-3);
+  white-space: nowrap;
+}
+
+.sortSelect {
+  width: 168px;
+}
+
+/* Stronger break between Standing Companies and Teams sections so the
+   two tiers read as distinct. */
+.sectionGroup + .sectionGroup {
+  margin-top: var(--space-8);
+  padding-top: var(--space-7);
+  border-top: 1px solid var(--color-border-2);
+}
+
+.gridStanding {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gridTeams {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1280px) {
+  .gridStanding {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gridTeams {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .gridStanding,
+  .gridTeams {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .gridStanding,
+  .gridTeams {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.emptyState {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-text-3);
+  font-size: 14px;
+}

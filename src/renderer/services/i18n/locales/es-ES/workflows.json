@@ -1,0 +1,44 @@
+{
+  "siderEntry": "Flujos de trabajo",
+  "title": "Flujos de trabajo",
+  "subtitle": "Recetas paso a paso que puedes lanzar con un solo clic o programar para que se ejecuten automáticamente. Elige un flujo de trabajo, selecciona tu motor y el agente te guiará a lo largo del proceso.",
+  "count": "{{count}} flujo de trabajo",
+  "count_other": "{{count}} flujos de trabajo",
+  "allCategories": "Todos los flujos de trabajo",
+  "section": {
+    "featured": "Flujos de trabajo destacados",
+    "all": "Todos los flujos de trabajo"
+  },
+  "actions": {
+    "launch": "Lanzar ahora",
+    "schedule": "Programar",
+    "import": "Importar flujo de trabajo",
+    "build": "Crear un flujo de trabajo",
+    "runOn": "Ejecutar en"
+  },
+  "launchError": "No se pudo lanzar el flujo de trabajo: {{msg}}",
+  "picker": {
+    "noAgent": "Ningún backend seleccionado"
+  },
+  "import": {
+    "placeholder": "El sistema de importación llega pronto: carpeta / URL de git / SKILL.md con type:workflow detectado automáticamente mediante frontmatter, analizado por Skill Guard y registrado como source:imported."
+  },
+  "build": {
+    "placeholder": "El constructor de flujos de trabajo llega pronto: descríbelo en lenguaje natural → la IA redacta un SKILL.md con la categoría y las dependencias inferidas de la biblioteca de skills activa → revisar y guardar."
+  },
+  "depends": {
+    "title": "Usa estos skills",
+    "openSkill": "Abrir en la página de Skills"
+  },
+  "search": {
+    "placeholder": "Buscar flujos de trabajo…",
+    "empty": "Ningún flujo de trabajo coincide con tu búsqueda",
+    "emptyLibrary": "Aún no se ha cargado ningún flujo de trabajo. La biblioteca incluida se rellenará en el próximo reinicio."
+  },
+  "whatHappens": "Cuando lances esto",
+  "bodyFallback": "El agente carga este flujo de trabajo como su primera directiva y te guía paso a paso. Puedes interrumpirlo o cambiar de rumbo en cualquier momento.",
+  "noDescription": "No se proporcionó ninguna descripción.",
+  "launch": {
+    "placeholder": "El sistema de lanzamiento está en desarrollo. Pronto podrás elegir un motor (Wayland Core / Gemini / Claude / Codex) y el flujo de trabajo se cargará como la primera directiva del agente en un chat nuevo."
+  }
+}

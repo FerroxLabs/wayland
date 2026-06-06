@@ -1,0 +1,45 @@
+.row {
+  margin-bottom: 22px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 4px;
+}
+
+.viewAll {
+  background: transparent;
+  border: none;
+  color: var(--color-text-3);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.viewAll:hover {
+  color: var(--color-text-1);
+  background: var(--color-fill-2);
+}

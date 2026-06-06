@@ -1,0 +1,48 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.kesslerio/attio-mcp",
+  "title": "Attio",
+  "description": "People, companies, deals, and lists in the Attio CRM via API token.",
+  "version": "1.6.1",
+  "websiteUrl": "https://github.com/kesslerio/attio-mcp",
+  "repository": { "url": "https://github.com/kesslerio/attio-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "attio-mcp",
+      "version": "1.6.1",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "ATTIO_API_KEY", "description": "Workspace API key from Attio settings.", "isRequired": true, "isSecret": true },
+        { "name": "ATTIO_WORKSPACE_ID", "description": "Workspace ID (optional; required for some multi-workspace setups).", "isRequired": false, "isSecret": false }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["sales", "crm"],
+    "tags": ["attio", "crm", "sales"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 28,
+    "installRate": 0.13,
+    "iconUrl": "icons/attio.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#1f1f1f" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Attio",
+      "providerSignupUrl": "https://attio.com"
+    },
+    "toolGroups": [
+      { "label": "People", "count": 4 },
+      { "label": "Companies", "count": 4 },
+      { "label": "Deals", "count": 3 },
+      { "label": "Lists", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.kesslerio-attio-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

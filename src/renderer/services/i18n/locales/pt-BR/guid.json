@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} está indisponível, usando {{fallback}} no lugar.",
+  "noAgentAvailable": "Nenhum Agente Principal disponível. Faça login no Google ou instale a CLI do Claude/Codex. Ir para as configurações?",
+  "noAgentAvailableShort": "Nenhum Agente Principal disponível. Clique para configurar.",
+  "agentTabAutoSwitch": "Modelo incompatível com o Gemini, alternado automaticamente para {{fallback}}",
+  "autoSwitchToAgent": "O Gemini não está configurado, alternando automaticamente para {{agent}}",
+  "autoSwitchedAgent": "{{from}} está indisponível, alternado para {{to}}",
+  "promptExamplesHint": "Experimente prompts de exemplo:",
+  "agentSwitcherLabel": "Agente",
+  "switchedToAgent": "Alternado para {{agent}}",
+  "hint": {
+    "search": "Pressione {{key}} para pesquisar",
+    "backend": "{{key}} para backend",
+    "newChat": "{{key}} para novo chat"
+  },
+  "scanning": {
+    "initialMessage": "O Agente atual está indisponível, detectando outros agentes disponíveis...",
+    "scanningMessage": "Buscando agentes disponíveis localmente...",
+    "connectingMessage": "Conectado com sucesso, aguarde...",
+    "establishingConnection": "Estabelecendo conexão...",
+    "statusQueued": "Na fila",
+    "statusTesting": "Testando latência...",
+    "statusUnreachable": "Inacessível",
+    "statusAvailable": "Disponível"
+  },
+  "newChat": {
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": ["Trabalhando até tarde", "Virando a noite", "Acordado até tarde"],
+        "morning": ["Bom dia", "Bom dia", "Hora de acordar"],
+        "afternoon": ["Boa tarde", "Boa tarde", "Bem-vindo de volta"],
+        "evening": ["Boa noite", "Boa noite", "Bem-vindo de volta"],
+        "night": ["Boa noite", "Boa noite", "Encerrando o dia"]
+      }
+    },
+    "intent": {
+      "sell": "Vender",
+      "write": "Escrever",
+      "research": "Pesquisar",
+      "build": "Construir",
+      "run": "Executar"
+    },
+    "pillBar": {
+      "label": "Escolha uma intenção",
+      "pillLabel": "Intenção {{label}}"
+    },
+    "suggestionPanel": {
+      "label": "Prompts iniciais de {{label}}",
+      "heading": "Comece com {{label}}",
+      "close": "Fechar sugestões"
+    },
+    "recents": {
+      "label": "Conversas recentes",
+      "heading": "Retome de onde parou"
+    },
+    "voiceHint": "Clique no microfone para falar",
+    "kickoff": {
+      "accept": "Sim, vamos começar",
+      "redirect": "Outra coisa",
+      "dismissAria": "Dispensar sugestão",
+      "regionAria": "Primeira mensagem sugerida"
+    }
+  }
+}

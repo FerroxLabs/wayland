@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.hubspot/hubspot-mcp",
+  "title": "HubSpot",
+  "description": "Contacts, companies, deals, and tickets - HubSpot's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developers.hubspot.com/docs/mcp",
+  "repository": { "url": "https://github.com/HubSpot/hubspot-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.hubspot.com" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["sales", "crm"],
+    "tags": ["hubspot", "crm", "sales"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 26,
+    "installRate": 0.17,
+    "iconUrl": "icons/hubspot.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#ff7a59" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "HubSpot",
+      "providerSignupUrl": "https://www.hubspot.com",
+      "byoClient": {
+        "registrationUrl": "https://developers.hubspot.com/get-started",
+        "requiresSecret": true,
+        "guide": "HubSpot requires you to create a Public App in their developer portal first, then Wayland connects with the credentials it issues.\n\n**1.** Sign in to **developers.hubspot.com** with your HubSpot account. If you've never created a developer account before, click **Create app developer account** (free).\n\n**2.** From the developer dashboard, click **Apps → Create app** (top right).\n\n**3.** On the **Auth** tab:\n  - Set the **Redirect URL** to the URL Wayland shows below.\n  - Under **Scopes**, search for and add: `crm.objects.contacts.read`, `crm.objects.contacts.write`, `crm.objects.deals.read`, `crm.objects.deals.write`.\n  - Click **Save changes**.\n\n**4.** Copy the **Client ID** and **Client secret** from the **Auth** tab and paste them below."
+      },
+      "scopes": [
+        { "name": "crm.objects.contacts.read", "plainLanguage": "Read contacts." },
+        { "name": "crm.objects.contacts.write", "plainLanguage": "Create and update contacts." },
+        { "name": "crm.objects.deals.read", "plainLanguage": "Read deals." },
+        { "name": "crm.objects.deals.write", "plainLanguage": "Create and update deals." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Contacts", "count": 5 },
+      { "label": "Companies", "count": 4 },
+      { "label": "Deals", "count": 5 },
+      { "label": "Tickets", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.hubspot-hubspot-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

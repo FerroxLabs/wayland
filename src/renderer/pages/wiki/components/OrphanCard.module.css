@@ -1,0 +1,52 @@
+/**
+ * OrphanCard - Emerging column card.
+ */
+
+.card {
+  padding: 14px;
+  margin-bottom: 10px;
+  background: var(--surface, var(--color-bg-2, #16181b));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+
+.card:hover {
+  border-color: rgba(255, 122, 69, 0.25);
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1, var(--color-text-1, #e8e9ec));
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.meta {
+  font-size: 11px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.synthBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  background: var(--orange-tint, rgba(255, 122, 69, 0.12)) !important;
+  border-color: rgba(255, 122, 69, 0.25) !important;
+  color: var(--orange, var(--color-primary-6, #ff7a45)) !important;
+  transition: background 0.15s !important;
+  height: auto !important;
+  line-height: 1.5 !important;
+  padding: 5px 10px !important;
+  border-radius: 6px !important;
+}
+
+.synthBtn:hover {
+  background: rgba(255, 122, 69, 0.2) !important;
+}

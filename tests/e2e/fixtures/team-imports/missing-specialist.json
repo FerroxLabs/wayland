@@ -1,0 +1,27 @@
+{
+  "version": "v1",
+  "id": "imported-missing-specialist",
+  "name": "Missing Specialist Team",
+  "leader": {
+    "id": "research"
+  },
+  "teammates": [
+    {
+      "id": "ghost-specialist-does-not-exist",
+      "name": "Ghost Teammate",
+      "prompt": "A teammate that references a skill not present in the receiving bundle."
+    },
+    {
+      "id": "copy",
+      "name": "Copy Lead",
+      "prompt": "Draft on-brand copy."
+    }
+  ],
+  "capabilities": {
+    "canReadFiles": false,
+    "canWriteFiles": false,
+    "canSpawnAgents": false,
+    "canNetworkRequest": false,
+    "canCrossTeamMessage": false
+  }
+}

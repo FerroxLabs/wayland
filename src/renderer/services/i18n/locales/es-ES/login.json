@@ -1,0 +1,25 @@
+{
+  "pageTitle": "Wayland - Iniciar sesión",
+  "brand": "Wayland",
+  "subtitle": "Bienvenido de nuevo, inicia sesión en tu cuenta",
+  "username": "Usuario",
+  "usernamePlaceholder": "Introduce tu usuario",
+  "password": "Contraseña",
+  "passwordPlaceholder": "Introduce tu contraseña",
+  "rememberMe": "Recordarme",
+  "submit": "Iniciar sesión",
+  "submitting": "Iniciando sesión...",
+  "success": "¡Sesión iniciada correctamente! Redirigiendo...",
+  "showPassword": "Mostrar contraseña",
+  "hidePassword": "Ocultar contraseña",
+  "footerPrimary": "Brillante hoy, más inteligente mañana",
+  "footerSecondary": "Percibe · Razona · Se adapta · Evoluciona",
+  "errors": {
+    "empty": "Introduce el usuario y la contraseña",
+    "invalidCredentials": "Usuario o contraseña no válidos",
+    "tooManyAttempts": "Demasiados intentos, inténtalo de nuevo más tarde",
+    "networkError": "Error de conexión, inténtalo de nuevo",
+    "serverError": "Error del servidor, inténtalo de nuevo más tarde",
+    "unknown": "Error al iniciar sesión, inténtalo de nuevo"
+  }
+}

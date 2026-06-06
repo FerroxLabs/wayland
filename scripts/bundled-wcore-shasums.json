@@ -1,0 +1,12 @@
+{
+  "_comment": "Authoritative SHA-256 checksums for bundled wayland-core release archives (the downloaded .tar.gz / .zip assets), keyed by release tag then asset filename. Mirrors scripts/bundled-bun-shasums.json. Source of truth: the SHASUMS published alongside each signed FerroxLabs/wayland-core release. The downloaded archive is verified against this file BEFORE it is extracted, copied, or executed. Update this file in lockstep with DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js and regenerate on every engine version bump.",
+  "_ownerAction": "Fill in the canonical per-platform archive SHA-256 values from the signed wayland-core release for each tag below. Until the real values are present, release builds (CI=1 / npm_config_production / NODE_ENV=production without WCORE_ALLOW_UNVERIFIED=1) will fail closed on a missing entry. The 'PENDING-...' placeholders are intentionally invalid 64-hex strings so they can never accidentally match a real artifact.",
+  "v0.9.6-rc.1": {
+    "wayland-core-v0.9.6-rc.1-aarch64-apple-darwin.tar.gz": "sha256:6256f1d64fd396f959aaf75ffc2fb767db9140ab3e31e21b4fe5d82d368480f2",
+    "wayland-core-v0.9.6-rc.1-x86_64-apple-darwin.tar.gz": "sha256:89e36c7cf1f12045a8e602b3d3bedac1ca4beea6396f086b4667605570d13c9d",
+    "wayland-core-v0.9.6-rc.1-aarch64-unknown-linux-gnu.tar.gz": "sha256:366512d988ea7d6a9aab684e34fe492005a685592c4ec0b292f953742c34a894",
+    "wayland-core-v0.9.6-rc.1-x86_64-unknown-linux-gnu.tar.gz": "sha256:ae3a722d274b970468df7ac4c91c0b908db9bcfa340f27d6a9f78772ce944c43",
+    "wayland-core-v0.9.6-rc.1-aarch64-pc-windows-msvc.zip": "sha256:8c1674b38d06714b88a2d7ac22662ecd5753c419bfb2b3f1390b9ca096424d00",
+    "wayland-core-v0.9.6-rc.1-x86_64-pc-windows-msvc.zip": "sha256:7ca2a9c9f6d2144872e92cf2ba1eab3ff7c4a7e056ab18a0ef64ca703814e819"
+  }
+}

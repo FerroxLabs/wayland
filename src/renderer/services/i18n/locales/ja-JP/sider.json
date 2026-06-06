@@ -1,0 +1,37 @@
+{
+  "memory": "メモリ",
+  "fluxRouter": {
+    "label": "Flux ステータス",
+    "connect": {
+      "body": "すべてのクエリがフラッグシップに送られています。Flux Router がリクエストごとに最適なモデルを選びます。",
+      "action": "Flux Router を接続"
+    },
+    "install": {
+      "body": "Codex、Cursor、Claude Code はまだルーティングされていません。Flux Desktop ならワンクリックで3つすべてを連携できます。",
+      "action": "Flux Desktop をインストール",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "先週はローカルの Ollama が {{pct}}% を処理しました。ハードウェアが限界に達したときは Flux Router が残りを引き受けます。",
+      "action": "フォールバックを設定"
+    },
+    "wired": {
+      "body": "直近100: H{{h}} · S{{s}} · O{{o}}",
+      "action": "各ターンの行き先を見る"
+    }
+  },
+  "accordion": {
+    "scheduled": "スケジュール済みタスク",
+    "workflows": "ワークフロー",
+    "teams": "チーム",
+    "recentChats": "最近のチャット",
+    "inFlight": "進行中",
+    "running": "実行中",
+    "recentlyLaunched": "最近起動",
+    "myTeams": "マイチーム",
+    "seeAllWorkflows": "すべてのワークフローを表示 →",
+    "seeAllScheduled": "すべてのスケジュールを表示 →",
+    "seeAllChats": "すべてのチャットを表示 →",
+    "showMore": "さらに {{count}} 件を表示 →"
+  }
+}

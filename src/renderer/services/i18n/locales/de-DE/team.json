@@ -1,0 +1,76 @@
+{
+  "sider": {
+    "title": "Teams",
+    "createTeam": "Neues Team",
+    "pin": "Anheften",
+    "unpin": "Lösen",
+    "rename": "Umbenennen",
+    "delete": "Löschen",
+    "renameTitle": "Team umbenennen",
+    "renamePlaceholder": "Teamname",
+    "deleteConfirm": "Dieses Team löschen?",
+    "deleteConfirmContent": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteConfirmTitle": "Team löschen?",
+    "deleteConfirmBody": "Dadurch werden {{teamName}} und der zugehörige Gesprächsverlauf dauerhaft gelöscht. Gib zur Bestätigung unten \"delete\" ein.",
+    "deleteConfirmCta": "Team löschen",
+    "deleteConfirmCancelCta": "Abbrechen",
+    "deleteConfirmInputPlaceholder": "delete",
+    "deleteOk": "Löschen",
+    "deleteCancel": "Abbrechen",
+    "renameOk": "Speichern",
+    "renameCancel": "Abbrechen",
+    "renameSuccess": "Team umbenannt",
+    "deleteSuccess": "Team gelöscht"
+  },
+  "newAgent": "Neuer Agent",
+  "noMessages": "Noch keine Nachrichten.",
+  "agentNotConfigured": "Agent noch nicht konfiguriert.",
+  "sendBox": {
+    "placeholder": "Nachricht an Dispatch-Agent..."
+  },
+  "create": {
+    "title": "Team erstellen",
+    "namePlaceholder": "Teamname",
+    "dispatchAgentPlaceholder": "Teamleiter auswählen",
+    "subAgentsPlaceholder": "Sub-Agenten auswählen",
+    "workspacePlaceholder": "Workspace-Pfad (optional)",
+    "confirm": "Team erstellen",
+    "noSupportedAgents": "Keine unterstützten Agenten installiert",
+    "supportedAgentsHint": "Unterstützt derzeit Claude und Codex. Weitere Agenten folgen in Kürze.",
+    "leaderDesc": "Versteht deine Ziele und koordiniert Agenten, um Aufgaben zu erledigen",
+    "step": {
+      "dispatch": "Teamleiter",
+      "subAgents": "Sub-Agenten",
+      "workspace": "Workspace"
+    },
+    "nameRequired": "Bitte gib einen Teamnamen ein",
+    "leaderRequired": "Bitte wähle einen Teamleiter aus",
+    "selectFolder": "Ordner auswählen",
+    "recentLabel": "Zuletzt verwendet",
+    "chooseDifferentFolder": "Anderen Ordner wählen",
+    "error": "Team konnte nicht erstellt werden"
+  },
+  "removeAgent": {
+    "confirmTitle": "Teammitglied entfernen",
+    "confirmContent": "Dieses Mitglied ist derzeit aktiv. Trotzdem entfernen?"
+  },
+  "emptyState": {
+    "subtitle": "Beschreibe dein Ziel, und ich lasse das Team daran arbeiten",
+    "suggestions": {
+      "debate": "Eine Debatte organisieren, in der Agenten unterschiedliche Standpunkte vertreten",
+      "interview": "Ein ausführliches Interview zwischen Agenten planen",
+      "expert_review": "Mehrere Experten dasselbe Problem analysieren lassen"
+    }
+  },
+  "errors": {
+    "loadFailed": {
+      "title": "Dieses Team konnte nicht geladen werden",
+      "body": "Möglicherweise wurde es gelöscht oder seine Daten sind nicht mehr verfügbar. Kehre zur Team-Bibliothek zurück, um ein anderes Team auszuwählen oder ein neues zu starten.",
+      "backCta": "Zurück zu Teams"
+    }
+  },
+  "agentBackendSwap": {
+    "success": "Agent-Backend geändert",
+    "error": "Agent-Backend konnte nicht geändert werden"
+  }
+}

@@ -1,0 +1,99 @@
+/* TopbarChips */
+
+.chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border-2);
+  background: transparent;
+  font-size: 12px;
+  color: var(--color-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+  line-height: 1.4;
+}
+
+.chip:hover {
+  background: var(--color-fill-2);
+  border-color: var(--color-border-1);
+}
+
+.chipActive {
+  background: rgba(255, 122, 69, 0.12);
+  border-color: var(--color-primary-6, #FF7A45);
+  color: var(--color-text-1);
+}
+
+.chipGlyph {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.chipCount {
+  font-weight: 700;
+  color: var(--color-text-1);
+  font-size: 12px;
+}
+
+.chipLabel {
+  color: var(--color-text-2);
+  font-size: 11.5px;
+}
+
+/* Popover content */
+.popoverContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 2px;
+  min-width: 120px;
+}
+
+.popoverStat {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  line-height: 1.1;
+}
+
+.popoverDelta {
+  font-size: 11px;
+  color: #4ADE80;
+  font-weight: 500;
+}
+
+.popoverSparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 24px;
+}
+
+.sparkBar {
+  flex: 1;
+  background: var(--color-primary-6, #FF7A45);
+  opacity: 0.5;
+  border-radius: 1px;
+  min-height: 2px;
+}
+
+.popoverLink {
+  font-size: 11px;
+  color: var(--color-primary-6, #FF7A45);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+}

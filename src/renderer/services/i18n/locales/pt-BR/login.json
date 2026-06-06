@@ -1,0 +1,25 @@
+{
+  "pageTitle": "Wayland - Entrar",
+  "brand": "Wayland",
+  "subtitle": "Bem-vindo de volta, entre na sua conta",
+  "username": "Usuário",
+  "usernamePlaceholder": "Digite seu usuário",
+  "password": "Senha",
+  "passwordPlaceholder": "Digite sua senha",
+  "rememberMe": "Lembrar de mim",
+  "submit": "Entrar",
+  "submitting": "Entrando...",
+  "success": "Login realizado! Redirecionando...",
+  "showPassword": "Mostrar senha",
+  "hidePassword": "Ocultar senha",
+  "footerPrimary": "Brilhante hoje, mais inteligente amanhã",
+  "footerSecondary": "Percebe · Raciocina · Adapta · Evolui",
+  "errors": {
+    "empty": "Informe o usuário e a senha",
+    "invalidCredentials": "Usuário ou senha inválidos",
+    "tooManyAttempts": "Muitas tentativas, tente novamente mais tarde",
+    "networkError": "Falha na conexão, tente novamente",
+    "serverError": "Erro no servidor, tente novamente mais tarde",
+    "unknown": "Falha ao entrar, tente novamente"
+  }
+}

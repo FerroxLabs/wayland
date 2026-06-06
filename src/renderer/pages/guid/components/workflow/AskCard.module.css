@@ -1,0 +1,102 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  background: var(--color-bg-2);
+}
+
+.question {
+  font-size: 13px;
+  color: var(--color-text-1);
+  line-height: 1.4;
+}
+
+.inputZone {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.starRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.starBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.starBtn:hover {
+  background: var(--color-fill-2);
+}
+
+.starBtnOn {
+  color: var(--color-warning, #f59e0b);
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 2px;
+}
+
+.skipLink {
+  font-size: 12px;
+  color: var(--color-text-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 2px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.skipLink:hover {
+  color: var(--color-text-2);
+}
+
+/* Read-only "answered" state */
+.answered {
+  padding: 10px 14px;
+}
+
+.answeredRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-1);
+  flex-wrap: wrap;
+}
+
+.answeredAnswer {
+  color: var(--color-text-1);
+  font-weight: 500;
+}
+
+.answeredLabel {
+  font-size: 11px;
+  color: var(--color-text-3);
+  font-style: italic;
+}

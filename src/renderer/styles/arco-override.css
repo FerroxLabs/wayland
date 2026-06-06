@@ -1,0 +1,456 @@
+/* Arco Design custom overrides - non-theme related */
+
+/* ---------- Typography (UI System v1: Sora display + IBM Plex Mono) ----------
+   Sora is the primary display face. Inter / system fonts stay in the fallback
+   chain so the renderer never goes unstyled when the Google Fonts CDN is
+   unreachable on first launch. IBM Plex Mono powers eyebrows, chips, code,
+   and any monospace surface. */
+:root {
+  --forge-font: 'Sora', 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --forge-mono-font: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+html,
+body {
+  font-family: var(--forge-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Arco Design uses its own CSS var for the font stack; override it so all
+   Arco components (Button, Input, Modal, etc.) inherit the Forge font
+   automatically. */
+:root,
+body,
+.arco-design {
+  --arco-font-family: var(--forge-font);
+}
+
+
+/* Override Arco Design component backgrounds to white in light mode */
+/* .arco-input,
+.arco-textarea,
+.arco-select-view,
+.arco-picker,
+.arco-input-number,
+.arco-cascader-view,
+.arco-tree-select-view,
+.arco-auto-complete-view,
+.arco-mentions-view {
+  background-color: #ffffff !important;
+}
+
+.arco-input-wrapper {
+  background-color: #ffffff !important;
+}
+
+.arco-select-popup .arco-select-option {
+  &:hover {
+    background-color: #fafafa !important;
+  }
+} */
+
+.arco-btn {
+  &.arco-btn-outline {
+    border-color: #86909c;
+    color: #86909c;
+  }
+}
+
+.arco-btn-primary.arco-btn-disabled {
+  background-color: var(--aou-2) !important;
+  border-color: var(--aou-2) !important;
+}
+
+.arco-collapse {
+  border: none;
+  border-radius: 8px;
+  .arco-collapse-item-header {
+    border-bottom: none;
+  }
+}
+
+/* Arco Tag dark mode styles - enhance contrast with semi-transparent backgrounds */
+body[arco-theme='dark'] .arco-tag-checked.arco-tag-blue {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  color: rgb(96, 165, 250) !important;
+}
+
+body[arco-theme='dark'] .arco-tag-checked.arco-tag-green {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+  color: rgb(74, 222, 128) !important;
+}
+
+body[arco-theme='dark'] .arco-tag-checked.arco-tag-red {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  color: rgb(248, 113, 113) !important;
+}
+
+body[arco-theme='dark'] .arco-tag-checked.arco-tag-orange {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: rgb(251, 191, 36) !important;
+}
+
+body[arco-theme='dark'] .arco-tag-checked.arco-tag-gray {
+  background-color: rgba(156, 163, 175, 0.2) !important;
+  color: rgb(209, 213, 219) !important;
+}
+
+/* Wayland Steps wrapper styles */
+.wayland-steps .arco-steps-item-process .arco-steps-item-icon {
+  background-color: var(--aou-6-brand) !important;
+  border-color: var(--aou-6-brand) !important;
+}
+
+.wayland-steps .arco-steps-item-finish .arco-steps-item-icon {
+  background-color: #e8f3ff !important;
+  border-color: #e8f3ff !important;
+  border-radius: 50% !important;
+}
+
+.wayland-steps .arco-steps-item-finish .arco-steps-item-icon .arco-steps-icon {
+  line-height: 28px !important;
+}
+
+/* Wayland Modal wrapper styles */
+.wayland-modal .arco-modal-content {
+  background: var(--dialog-fill-0) !important;
+  border: 1px solid var(--border-base) !important;
+  border-radius: 16px !important;
+}
+
+/*
+ * Dark-theme chrome for the outer modal container.
+ * Arco's `Modal.confirm` uses `.arco-modal-simple`, where `.arco-modal-content`
+ * is the inner CONTENT text body (not the outer chrome) - applying a border
+ * there draws a stray rectangle around the message text. The `:not(.arco-modal-simple)`
+ * scopes this border to plain `<Modal>` instances where the outer container is the chrome.
+ */
+body[arco-theme='dark'] .arco-modal:not(.arco-modal-simple) .arco-modal-content {
+  background-color: var(--dialog-fill-0) !important;
+  border: 1px solid var(--border-base) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-simple .arco-modal-content {
+  background-color: var(--dialog-fill-0) !important;
+}
+
+body[arco-theme='dark'] .arco-modal {
+  background-color: var(--dialog-fill-0) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-header {
+  background-color: var(--dialog-fill-0) !important;
+  border-bottom-color: var(--border-base) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-body,
+body[arco-theme='dark'] .arco-modal-footer {
+  background-color: var(--dialog-fill-0) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-footer {
+  border-top-color: var(--border-base) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-title {
+  color: var(--text-primary) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-body,
+body[arco-theme='dark'] .arco-modal-confirm-title,
+body[arco-theme='dark'] .arco-modal-confirm-content {
+  color: var(--text-primary) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-close-icon {
+  color: var(--text-secondary) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-close-icon:hover {
+  color: var(--text-primary) !important;
+  background-color: var(--color-fill-1) !important;
+}
+
+body[arco-theme='dark'] .arco-modal-confirm-icon {
+  color: var(--warning) !important;
+}
+
+/* Modal form controls need visible idle outlines so fields don't disappear into the dialog surface. */
+.arco-modal
+  .arco-input:not(.arco-input-disabled):not(.arco-input-error):not(.arco-input-warning):not(.arco-input-focus):not(
+    :focus
+  ),
+.arco-modal
+  .arco-input-inner-wrapper:not(.arco-input-inner-wrapper-disabled):not(.arco-input-inner-wrapper-error):not(
+    .arco-input-inner-wrapper-warning
+  ):not(.arco-input-inner-wrapper-focus),
+.arco-modal
+  .arco-textarea:not(.arco-textarea-disabled):not(.arco-textarea-error):not(.arco-textarea-warning):not(
+    .arco-textarea-focus
+  ):not(:focus),
+.arco-modal
+  .arco-select:not(.arco-select-disabled):not(.arco-select-error):not(.arco-select-warning):not(.arco-select-focused)
+  .arco-select-view,
+.arco-modal
+  .arco-cascader:not(.arco-cascader-disabled):not(.arco-cascader-error):not(.arco-cascader-warning):not(
+    .arco-cascader-focused
+  )
+  .arco-cascader-view,
+.arco-modal
+  .arco-tree-select:not(.arco-tree-select-disabled):not(.arco-tree-select-error):not(.arco-tree-select-warning):not(
+    .arco-tree-select-focused
+  )
+  .arco-tree-select-view,
+.arco-modal
+  .arco-picker:not(.arco-picker-disabled):not(.arco-picker-error):not(.arco-picker-warning):not(.arco-picker-focused) {
+  border-color: var(--border-base) !important;
+}
+
+.arco-modal
+  .arco-input:not(.arco-input-disabled):not(.arco-input-error):not(.arco-input-warning):not(.arco-input-focus):hover,
+.arco-modal
+  .arco-input-inner-wrapper:not(.arco-input-inner-wrapper-disabled):not(.arco-input-inner-wrapper-error):not(
+    .arco-input-inner-wrapper-warning
+  ):not(.arco-input-inner-wrapper-focus):hover,
+.arco-modal
+  .arco-textarea:not(.arco-textarea-disabled):not(.arco-textarea-error):not(.arco-textarea-warning):not(
+    .arco-textarea-focus
+  ):hover,
+.arco-modal
+  .arco-select:not(.arco-select-disabled):not(.arco-select-error):not(.arco-select-warning):not(
+    .arco-select-focused
+  ):hover
+  .arco-select-view,
+.arco-modal
+  .arco-cascader:not(.arco-cascader-disabled):not(.arco-cascader-error):not(.arco-cascader-warning):not(
+    .arco-cascader-focused
+  ):hover
+  .arco-cascader-view,
+.arco-modal
+  .arco-tree-select:not(.arco-tree-select-disabled):not(.arco-tree-select-error):not(.arco-tree-select-warning):not(
+    .arco-tree-select-focused
+  ):hover
+  .arco-tree-select-view,
+.arco-modal
+  .arco-picker:not(.arco-picker-disabled):not(.arco-picker-error):not(.arco-picker-warning):not(
+    .arco-picker-focused
+  ):hover {
+  border-color: var(--bg-4) !important;
+}
+
+.wayland-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+}
+
+.wayland-modal-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.wayland-modal-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.wayland-modal-close-btn:hover {
+  background: var(--color-fill-1);
+}
+
+/* Arco Message custom styles */
+.arco-message {
+  border: none !important;
+  border-radius: 8px !important;
+}
+
+/* Light mode */
+.arco-message-success {
+  background: linear-gradient(270deg, #f9fff2 0%, #d2ffd9 100%) !important;
+}
+
+.arco-message-warning {
+  background: linear-gradient(90deg, #fff3dc 0%, #fff8de 100%) !important;
+}
+
+.arco-message-info {
+  background: linear-gradient(90deg, #e8f3ff 0%, #f8f8ff 49.52%) !important;
+}
+
+.arco-message-error {
+  background: linear-gradient(90deg, #ffdddb 0%, #fff3f0 100%) !important;
+}
+
+/* Dark mode */
+body[arco-theme='dark'] .arco-message-success {
+  background: linear-gradient(270deg, rgba(249, 255, 242, 0.3) 0%, rgba(210, 255, 217, 0.3) 100%) !important;
+}
+
+body[arco-theme='dark'] .arco-message-warning {
+  background: linear-gradient(90deg, rgba(255, 243, 220, 0.3) 0%, rgba(255, 248, 222, 0.3) 100%) !important;
+}
+
+body[arco-theme='dark'] .arco-message-info {
+  background: linear-gradient(90deg, rgba(232, 243, 255, 0.3) 0%, rgba(248, 248, 255, 0.3) 49.52%) !important;
+}
+
+body[arco-theme='dark'] .arco-message-error {
+  background: linear-gradient(90deg, rgba(255, 221, 219, 0.3) 0%, rgba(255, 243, 240, 0.3) 100%) !important;
+}
+
+/* Workspace tree selection styles - use text color instead of background */
+.workspace-tree .arco-tree-node-selected .arco-tree-node-title {
+  background-color: transparent !important;
+}
+
+/* Workspace tree hover styles - more visible hover effect */
+.workspace-tree .arco-tree-node:hover .arco-tree-node-title {
+  background-color: var(--color-fill-3) !important;
+}
+
+/* Alert styles - content is now displayed below the Alert card, so these rules are no longer needed */
+/* Alert styles - content is now shown below the Alert card, so these rules are no longer needed */
+
+/* Settings modal mobile tabs styles */
+/* Settings modal mobile Tabs styles */
+.settings-mobile-tabs {
+  .arco-tabs-nav {
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .arco-tabs-nav-tab {
+    font-size: 14px;
+    padding: 8px 0;
+    margin: 0 12px;
+    color: var(--color-text-2);
+  }
+
+  .arco-tabs-nav-tab:first-child {
+    margin-left: 0;
+  }
+
+  .arco-tabs-nav-tab-active {
+    color: var(--color-text-1);
+    font-weight: 500;
+  }
+
+  .arco-tabs-nav-ink {
+    height: 2px;
+    background: var(--color-primary);
+  }
+}
+
+/* ---------- Form input placeholder contrast ----------
+   Arco's default placeholder color (`--color-text-3`) sits near `--bg-6` in
+   dark mode (~#4d4d4d) - barely readable on a near-black input background.
+   Pin every Arco input/textarea/select placeholder to `--text-muted` so they
+   pass WCAG AA in both themes. */
+.arco-input::placeholder,
+.arco-input-inner-wrapper input::placeholder,
+.arco-input-tag input::placeholder,
+.arco-textarea::placeholder,
+.arco-textarea-wrapper textarea::placeholder,
+.arco-select-view-input::placeholder,
+.arco-picker-input input::placeholder {
+  color: var(--text-placeholder) !important;
+  opacity: 1;
+}
+/* Arco's Select shows an empty-state placeholder via this span, not an input. */
+.arco-select-view-value > .arco-select-view-input,
+.arco-select-view-value [class*='arco-select-view-input'],
+.arco-select .arco-select-view-value .arco-select-view-input,
+.arco-select-view-value::placeholder {
+  color: var(--text-placeholder);
+}
+
+/* ---------- Form input field boundary contrast ----------
+   Arco's default input/select/picker uses a faint tinted background and no
+   visible border in dark mode, which makes form fields disappear into the
+   page. Pin a solid background + visible border so each field is clearly
+   delineated. Focus state uses the brand color. */
+.arco-input-inner-wrapper:not(.arco-input-inner-wrapper-disabled),
+.arco-textarea-wrapper:not(.arco-textarea-wrapper-disabled),
+.arco-select-view:not(.arco-select-view-disabled),
+.arco-picker:not(.arco-picker-disabled),
+.arco-input-tag:not(.arco-input-tag-disabled) {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  transition: border-color 120ms ease;
+}
+.arco-input-inner-wrapper:hover,
+.arco-textarea-wrapper:hover,
+.arco-select-view:hover,
+.arco-picker:hover,
+.arco-input-tag:hover {
+  background-color: var(--input-bg);
+  border-color: var(--border-bright);
+}
+.arco-input-inner-wrapper.arco-input-inner-wrapper-focus,
+.arco-textarea-wrapper.arco-textarea-wrapper-focus,
+.arco-select-view.arco-select-view-focus,
+.arco-select.arco-select-focused .arco-select-view,
+.arco-picker.arco-picker-focused,
+.arco-input-tag.arco-input-tag-focus {
+  background-color: var(--input-bg);
+  border-color: var(--input-border-focus);
+}
+
+/* ---------- Switch - Forge Orange across all states ----------
+   Arco's default disabled-checked rendering drops the active color to a
+   dim brown that reads as 'wrong shade' (see the Assistants page where
+   extension assistants - forced disabled={true} checked={true} - were
+   visually muddled with bright user-toggled ones). Pin the checked state
+   to full Forge Orange and keep disabled-checked at full saturation so
+   every toggle across the system renders the same green-light tone.
+   Semantic non-interactivity is communicated by surrounding chrome (an
+   'EXTENSION' badge etc.), not by dimming the orange. */
+.arco-switch.arco-switch-checked,
+.arco-switch.arco-switch-checked.arco-switch-disabled {
+  background-color: rgb(var(--primary-6)) !important;
+}
+.arco-switch.arco-switch-checked.arco-switch-disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+.arco-switch.arco-switch-checked.arco-switch-disabled .arco-switch-dot {
+  background-color: var(--text-white);
+}
+
+/* WebUI / Channels tabs in Remote settings */
+.settings-remote-tabs {
+  .arco-tabs-nav {
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .arco-tabs-nav-tab {
+    color: var(--color-text-2);
+    padding: 8px 0;
+  }
+
+  .arco-tabs-nav-tab:hover {
+    color: var(--color-text-1);
+  }
+
+  .arco-tabs-nav-tab-active {
+    color: var(--color-text-1);
+    font-weight: 600;
+  }
+
+  .arco-tabs-nav-ink {
+    height: 2px;
+    background: var(--color-primary);
+  }
+}

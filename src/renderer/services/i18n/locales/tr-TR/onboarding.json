@@ -1,0 +1,191 @@
+{
+  "brand": "Wayland",
+  "welcome": "Wayland'e hoş geldiniz",
+  "footer": {
+    "manage": "Algılama bir kez çalıştı. Her şeyi Ayarlar → Sağlayıcılar bölümünden değiştirebilirsiniz.",
+    "noLockIn": "Bu seçeneklerin hiçbiri sizi bağlamaz.",
+    "keysKeepWorking": "Her durumda anahtarlarınız çalışmaya devam eder. Flux Router üstte durur, asla önünüze geçmez.",
+    "skip": "Şimdilik atla"
+  },
+  "connect": {
+    "title": "Flux Router'a bağlan",
+    "subtitle": "Flux Router anahtarınızı yapıştırın. Tek anahtar, tüm modeller, istek başına yönlendirme.",
+    "keyLabel": "Flux Router anahtarı",
+    "keyPlaceholder": "sk-...",
+    "getKey": "fluxrouter.ai'den bir anahtar alın",
+    "submit": "Bağlan",
+    "connecting": "Bağlanıyor...",
+    "back": "Geri",
+    "errorUnauthorized": "Anahtar reddedildi. Kontrol edip tekrar deneyin.",
+    "errorNoCredit": "Bu hesapta henüz kredi yok. fluxrouter.ai'de kredi ekleyin, sonra tekrar deneyin.",
+    "errorOffline": "Flux Router'a ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+    "errorUnrecognized": "Bu bir Flux Router anahtarına benzemiyor. sk-flux- ile başlamalı.",
+    "errorNoModels": "Bağlandı ama hiç model gelmedi. Birazdan tekrar deneyin.",
+    "errorUnknown": "Bağlanırken bir sorun oluştu. Tekrar deneyin.",
+    "trust": "Wayland'in arkasındaki ekip Ferrox Labs'ten."
+  },
+  "scenarioA": {
+    "greeting": "{{name}}, zaten hazırsınız",
+    "subGeneric": "Araçlarınız algılandı ve etkin.",
+    "sutherlandLede": "Bir amiral gemisi modeli sabitleyin, her şeye o yanıt verir. Ona ihtiyaç duymayan basit işlere bile.",
+    "sutherlandBody": "Flux Router'ı öneriyoruz. Zaten sahip olduklarınızın arasında her istek için doğru modeli seçer: abonelikleriniz, yerel Ollama'nız, Anthropic anahtarınız. Önemli yerlerde aynı kalite, gerekmeyen yerlerde daha hafif modeller. Siz seçmeyi bırakırsınız. O seçer. Siz yazarsınız.",
+    "microTrust": "Zor sorunlar yukarı yönlendirilir, asla aşağı değil. Alt sınırı Ayarlar'da siz belirlersiniz.",
+    "primary": "Flux Router'ı kur",
+    "ghost": "Sonraki 10 turda deneyin"
+  },
+  "scenarioB": {
+    "greeting": "Wayland'e hoş geldiniz",
+    "sub": "Bir giriş yolu seçin. Gerisini istediğiniz zaman ekleyin.",
+    "heroTag": "Önerilen",
+    "heroTitle": "Flux Router",
+    "heroBody": "Tek anahtar. Tüm modeller. Her istek için doğru olanı seçer, böylece tahmin etmeyi bırakırsınız. Daha az maliyet, daha çok iş.",
+    "heroFoot": "Kullandıkça öde · abonelik yok · alt limit yok",
+    "heroCta": "Flux Router'a bağlan",
+    "pasteKeyTitle": "Bir sağlayıcı anahtarı yapıştırın",
+    "pasteKeyBody": "Anthropic, OpenAI, Google, DeepSeek, Moonshot ve daha fazlası. Akıllı Anahtar Seçici hangisi olduğunu otomatik olarak anlar.",
+    "pasteKeyFoot": "Kaydedilmeden önce test edilir",
+    "ollamaTitle": "Ollama'yı kur",
+    "ollamaBody": "Yerel modeller kendi makinenizde. GPU'nuz varsa ve hiçbir verinin kutudan çıkmasını istemiyorsanız en iyisi.",
+    "ollamaFoot": "En az 16 GB video RAM · ollama.com'u açar"
+  },
+  "scenarioC": {
+    "greeting": "{{name}}, anahtarlarınız çalışıyor",
+    "subGeneric": "Algılandı ve etkin. Şu anda her şey çalışıyor. Flux Router anahtarlarınız arasında istek başına yönlendirir. Anahtarlarınız, faturanız.",
+    "sutherlandLede": "Her anahtar çalışıyor. Yine de Flux Router'ı üste koymanızı öneririz, işte nedeni.",
+    "sutherlandBody": "Şu anda her sorgu amiral gemisi ücretini ödüyor, buna ihtiyaç duymayanlar bile. Flux Router, Haiku doğru olduğunda anahtarınızla Haiku'yu, GPT-5 doğru olduğunda GPT-5'i kullanır. Amiral gemisi gerektirmeyen sorularda yaklaşık 1/20 maliyet, gerektirenlerde aynı kalite.",
+    "microTrust": "İstemler doğrudan sağlayıcıya gider. Flux Router yalnızca yönlendirme kararını görür, mesaj içeriğini değil.",
+    "primary": "Üste Flux Router ekle",
+    "ghost": "Elle seçmeye devam et"
+  },
+  "scenarioD": {
+    "greeting": "{{name}}, bu iş tıkır tıkır işliyor",
+    "sub": "Flux Desktop etkin. Yönlendirmeniz Flux Router üzerinden geçiyor.",
+    "body": "Her turda doğru model. Zor sorunlar yukarı, basit işler daha hafif modellere.",
+    "primary": "Sohbete başla",
+    "dismiss": "Kapat"
+  },
+  "chips": {
+    "cli": "{{name}} · CLI",
+    "claudePro": "Claude Code · Pro",
+    "ollama": "Ollama · {{count}} yerel model",
+    "ollama_one": "Ollama · {{count}} yerel model",
+    "envKey": "{{name}} anahtarı · ortamda",
+    "fluxRouter": "Flux Router · etkin",
+    "fluxDesktop": "Flux Desktop · arka plan hizmeti :7878"
+  },
+  "flow": {
+    "personas": {
+      "content": "Content & creative",
+      "sales": "Sales & growth",
+      "business": "Running a business",
+      "dev": "Building / dev",
+      "finance": "Finance & money",
+      "general": "A bit of everything"
+    },
+    "scanLines": {
+      "path": "Checking PATH…",
+      "env": "Reading environment keys…",
+      "models": "Pinging local models…",
+      "almost": "Almost there…"
+    },
+    "logoAlt": {
+      "wordmark": "Wayland"
+    },
+    "flux": {
+      "title": "Get the best answer. Pay the right price. And get it done faster.",
+      "body": "Flux Router is the #1 smart router - the only one that matches every prompt to its best-fit model across 40+ premium models. One key, one bill, the same quality you would get going direct.",
+      "cta": "Set up Flux Router →"
+    },
+    "key": {
+      "placeholder": "Paste a provider key, then press Enter",
+      "ariaConnect": "Connect key",
+      "detected": "{{label}} key detected, tested and added to your pool.",
+      "notRecognized": "That key wasn't recognized. Check it and try again.",
+      "needsFields": "That provider needs more than a key - finish setup in Settings → Models.",
+      "didNotConnect": "That key did not connect. Check it and try again."
+    },
+    "errors": {
+      "googleFailed": "Could not connect Google. Please try again.",
+      "geminiFailed": "Signed in with Google, but loading Gemini models failed. Please try again.",
+      "fluxFailed": "Flux did not finish connecting. Try again."
+    },
+    "quickstart": {
+      "headline": "First - what should I call you",
+      "sub": "So Wayland knows what to call you. Next we'll see what's already on your machine.",
+      "googleButton": "Continue with Google",
+      "freeNote": "Free with your Google account · basic Gemini limits · nothing to pay",
+      "changeLater": "You can change everything later.",
+      "skip": "Skip, I'll do this later →",
+      "namePlaceholder": "Your name",
+      "continue": "Continue"
+    },
+    "scan": {
+      "headlineCleanSlate": "Clean slate",
+      "headlineFoundNamed": "OK {{name}}, here's what we found and connected for you",
+      "headlineFound": "Here's what we found and connected for you",
+      "headlineScanningNamed": "Seeing what you already have, {{name}}",
+      "headlineScanning": "Seeing what you already have installed",
+      "subCleanSlate": "No tools, keys or local models found. Let us get you a model and you're in.",
+      "subFound": "Everything below is already on this machine. We wired up what we can.",
+      "subScanning": "A quick local look for tools, keys and models. Runs on your machine. Nothing leaves your device.",
+      "groupAgents": "Agents",
+      "groupModels": "Models",
+      "timeNote": "About 60 seconds, and most of it was the scan.",
+      "continue": "Continue"
+    },
+    "chips": {
+      "claudePro": "Claude Pro",
+      "envKey": "{{label}} key",
+      "ollama": "Ollama · {{count}} local",
+      "flux": "Flux Router",
+      "gemini": "Gemini · Google"
+    },
+    "outcome": {
+      "wiredHeadline": "you're all wired up",
+      "wired": "{{label}}, wired and tested. ",
+      "wiredSubTail": "Your best model is selected automatically, change anything in Settings.",
+      "failedNote": "{{label}} {{was}} found but could not be verified. You can re-add {{them}} in Settings.",
+      "failedWas": "was",
+      "failedWere": "were",
+      "failedIt": "it",
+      "failedThem": "them",
+      "addMore": "Got more? Add another key and we'll wire it in.",
+      "cliHeadline": "your tools are detected",
+      "cliSub": "Your installed tools are ready. We'll connect to one on your first message.",
+      "cliNote": "We can see they're installed, not whether they're signed in. If one isn't, we'll walk you through it in a single step. No broken first message.",
+      "readyHeadline": "you're all ready to go",
+      "readySub": "Gemini is live through your Google account. That's everything you need to start right now.",
+      "readyFluxBody": "Free Gemini gets you started. Flux is the upgrade: One key, one bill, 40+ premium models with the best-fit match on every prompt. Same quality you would get going direct.",
+      "readyPasteLabel": "Already have a provider key? Paste it and we'll detect it.",
+      "coldHeadline": "Let's get you a model",
+      "coldSubFailed": "We found {{label}} but couldn't verify {{them}}. Pick a working option below.",
+      "coldSub": "One choice and you're in. Add more anytime.",
+      "doorFluxTitle": "Flux Router",
+      "doorFluxRecommended": "Recommended",
+      "doorFluxBody": "One key, every model. The right tool for each job, smart-routed.",
+      "doorFluxFoot": "Free to start · no card · opens your browser",
+      "doorGoogleTitle": "Continue with Google",
+      "doorGoogleBody": "Free with your Google account. Gemini in your picker, and we'll greet you by name.",
+      "doorGoogleFoot": "Genuinely free · basic limits",
+      "doLater": "I'll do this later",
+      "editableLater": "Everything is editable later.",
+      "continue": "Continue",
+      "geminiKeyHint": "No key yet?",
+      "geminiKeyLink": "Get a free Gemini key →"
+    },
+    "interests": {
+      "headlineNamed": "What are you working on, {{name}}",
+      "headline": "What are you working on",
+      "sub": "Pick what fits. We load the right assistants, tools and shortcuts for each. Choose as many as you like.",
+      "workPlaceholder": "Optional: a line about your work, so your assistants know your world",
+      "skip": "Skip",
+      "settingUp": "Setting things up",
+      "startInChat": "Start in chat"
+    },
+    "allset": {
+      "headline": "you're all set",
+      "sub": "Everything is wired and ready. Let's go.",
+      "go": "Let's go"
+    }
+  }
+}

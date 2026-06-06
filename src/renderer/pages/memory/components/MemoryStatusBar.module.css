@@ -1,0 +1,111 @@
+/**
+ * MemoryStatusBar - 32px bottom strip.
+ */
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  height: 32px;
+  border-top: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  font-size: 11px;
+  color: var(--color-text-3);
+  flex-shrink: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.left {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.right {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-3);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotLive {
+  background: var(--color-success-6, #16a34a);
+  box-shadow: 0 0 5px rgba(22, 163, 74, 0.5);
+}
+
+.dotOffline {
+  background: var(--color-text-4);
+}
+
+.sep {
+  color: var(--color-text-4);
+  margin: 0 2px;
+}
+
+.dropChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-3);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+.dropChip:hover {
+  color: var(--color-text-1);
+}
+
+.dropBadge {
+  display: inline-block;
+  padding: 0 4px;
+  background: var(--color-primary-light-1, rgba(var(--rgb-primary, 59 130 246) / 0.12));
+  border-radius: 8px;
+  color: var(--color-primary-6, #2563eb);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.kbd {
+  display: inline-block;
+  padding: 1px 4px;
+  background: var(--color-fill-2);
+  border: 1px solid var(--color-border-3);
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--color-text-2);
+  line-height: 1.4;
+}
+
+.kbdLabel {
+  color: var(--color-text-4);
+  font-size: 10.5px;
+}
+
+.kbdSep {
+  color: var(--color-text-4);
+  margin: 0 2px;
+}

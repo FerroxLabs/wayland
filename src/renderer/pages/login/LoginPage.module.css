@@ -1,0 +1,521 @@
+/* Wayland login page - Forge Suite dark cinematic
+ *
+ * Standalone styles (no theme tokens, since theme system may not be
+ * initialised before auth). Matches Direction C: deep black bg with
+ * subtle radial orange glow, dark card with hairline border, brand
+ * orange focus rings and submit button.
+ *
+ * Local CSS variables (--login-brand, --login-bg) are deliberately
+ * scoped to `.login-page` rather than promoted to global theme tokens.
+ * The login screen renders pre-auth, before the theme system is
+ * initialised, so it cannot rely on global tokens. Keeping the carve-out
+ * scoped here documents that constraint and avoids accidental coupling.
+ */
+
+.login-page {
+  --login-brand: #ff6b35;
+  --login-bg: #0a0a0a;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family:
+    'Inter Variable',
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background:
+    radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(255, 107, 53, 0.1), transparent 70%),
+    radial-gradient(ellipse 800px 400px at 80% 110%, rgba(255, 107, 53, 0.06), transparent 70%), var(--login-bg);
+  color: #f5f5f5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Applied imperatively via document.body.classList - must remain global */
+:global(body.login-page-active) {
+  overflow: hidden;
+}
+
+.login-page__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 380px;
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 16px 64px rgba(0, 0, 0, 0.5);
+  padding: 36px 30px 30px;
+  animation: login-slide-up 0.6s ease-out;
+}
+
+@keyframes login-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-page__lang-select-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 18px;
+}
+
+.login-page__lang-label {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.login-page__lang-select {
+  min-width: 140px;
+  padding: 6px 12px;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  background: rgba(22, 22, 22, 0.85);
+  backdrop-filter: blur(10px);
+  color: #f0f0f0;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.login-page__lang-select:hover,
+.login-page__lang-select:focus {
+  border-color: rgba(255, 107, 53, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+  outline: none;
+}
+
+.login-page__lang-select option {
+  color: #f0f0f0;
+  background: #161616;
+}
+
+.login-page__header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-page__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.login-page__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page__logo svg,
+.login-page__logo img {
+  width: 44px;
+  height: 44px;
+}
+
+.login-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.login-page__subtitle {
+  font-size: 13px;
+  color: #aaa;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.login-page__form {
+  margin-bottom: 24px;
+}
+
+.login-page__form-item {
+  margin-bottom: 18px;
+}
+
+.login-page__label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #e5e5e5;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+.login-page__input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-page__input-icon {
+  position: absolute;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  color: #777;
+  pointer-events: none;
+}
+
+.login-page__input {
+  width: 100%;
+  height: 44px;
+  padding: 10px 14px 10px 44px;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #f5f5f5;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+  /* Sit flush on the card - no separate gray box. The field is defined by its
+     border alone so the input reads as one cohesive piece with the card. */
+  background: transparent;
+}
+
+.login-page__input::placeholder {
+  color: #555;
+}
+
+.login-page__input:hover {
+  border-color: #3a3a3a;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.login-page__input:focus {
+  outline: none;
+  border-color: rgba(255, 107, 53, 0.5);
+  background: rgba(255, 107, 53, 0.05);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.14);
+}
+
+.login-page__toggle-password {
+  position: absolute;
+  right: 14px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #777;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page__toggle-password:hover {
+  color: var(--login-brand);
+}
+
+.login-page__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  margin-top: -4px;
+}
+
+/* Custom dark checkbox. A native checkbox renders an opaque white box when
+ * unchecked regardless of `accent-color` (which only tints the checked fill),
+ * so it reads as a bright square on the dark card. Reset the native appearance
+ * and draw our own dark box + brand-orange checked state with a white tick. */
+.login-page__checkbox input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  position: relative;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  background: rgba(22, 22, 22, 0.85);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.login-page__checkbox input[type='checkbox']:hover {
+  border-color: var(--login-brand);
+}
+
+.login-page__checkbox input[type='checkbox']:checked {
+  background: var(--login-brand);
+  border-color: var(--login-brand);
+}
+
+.login-page__checkbox input[type='checkbox']:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.login-page__checkbox input[type='checkbox']:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+}
+
+.login-page__checkbox label {
+  font-size: 13px;
+  color: #aaa;
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-page__submit {
+  width: 100%;
+  height: 46px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ff8255 0%, var(--login-brand) 100%);
+  border: 1px solid var(--login-brand);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow:
+    0 4px 12px rgba(255, 107, 53, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.login-page__submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 6px 18px rgba(255, 107, 53, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.login-page__submit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 6px rgba(255, 107, 53, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.login-page__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.login-page__spinner {
+  animation: login-spin 1s linear infinite;
+}
+
+@keyframes login-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.login-page__message {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  display: none;
+}
+
+.login-page__message--visible {
+  display: block;
+  animation: login-fade-in 0.3s ease-out;
+}
+
+@keyframes login-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-page__message--error {
+  background: rgba(248, 113, 113, 0.08);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.login-page__message--success {
+  background: rgba(52, 211, 153, 0.08);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.login-page__footer {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #1f1f1f;
+}
+
+.login-page__footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.login-page__footer-divider {
+  color: #2a2a2a;
+}
+
+@media (max-width: 600px) {
+  .login-page__card {
+    margin: 20px;
+    padding: 32px 24px;
+    border-radius: 14px;
+  }
+
+  .login-page__title {
+    font-size: 26px;
+  }
+
+  .login-page__subtitle {
+    font-size: 13px;
+  }
+
+  .login-page__logo svg,
+  .login-page__logo img {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Suppress Arco Input's internal chrome on the login page.
+ *
+ * Arco's `<Input>` renders three stacked layers that each carry their own
+ * border + background:
+ *   - .arco-input-wrapper           (outer wrapper - gets the user className)
+ *   - .arco-input-inner-wrapper     (intermediate, in some variants)
+ *   - .arco-input                   (the actual <input> element - has
+ *                                    `background: var(--color-fill-2)` +
+ *                                    `border: 1px solid transparent`, which
+ *                                    is what reads as the second border)
+ *
+ * Reset all three layers so only the outermost .login-page__input border
+ * + background shows. */
+/* The app ships a GLOBAL Arco fill-token background on .arco-input-inner-wrapper
+ * marked !important, and the Web UI renders pre-auth in Arco's LIGHT theme (where
+ * that token resolves to white). A plain (even more-specific) override loses to
+ * that !important, so the inner-wrapper reads as a bright white box on the dark
+ * card - the field's intended border-only "flush on card" look is destroyed.
+ * These overrides must therefore also be !important to win the cascade. */
+.login-page__input-wrapper :global(.arco-input-inner-wrapper),
+.login-page__input-wrapper :global(.arco-input-inner-wrapper:hover),
+.login-page__input-wrapper :global(.arco-input-inner-wrapper:focus-within),
+.login-page__input-wrapper :global(.arco-input-inner-wrapper.arco-input-inner-wrapper-focus) {
+  border: none !important;
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none !important;
+}
+.login-page__input-wrapper :global(.arco-input),
+.login-page__input-wrapper :global(.arco-input:hover),
+.login-page__input-wrapper :global(.arco-input:focus),
+.login-page__input-wrapper :global(.arco-input.arco-input-focus) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0;
+  border-radius: 0;
+  color: #f5f5f5;
+}
+.login-page__input-wrapper :global(.arco-input::placeholder) {
+  color: #555;
+}
+.login-page__input-wrapper :global(.arco-input-prefix) {
+  background: transparent;
+  border: none;
+  padding: 0 8px 0 0;
+  color: #777;
+  display: flex;
+  align-items: center;
+}
+.login-page__input-wrapper :global(.arco-input-suffix) {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #777;
+  display: flex;
+  align-items: center;
+}
+
+/* Language picker is an Arco <Select>, not a native <select>: the visible box is
+ * `.arco-select-view`, which (same as the inputs) inherits Arco's light-theme
+ * white background pre-auth. The `.login-page__lang-select` rules above land on
+ * the outer `.arco-select` wrapper and never reach this inner element, so it
+ * renders as a white box on the dark card. Force it dark to match the field
+ * styling. `!important` for the same global-`!important` cascade reason as the
+ * inputs. */
+.login-page__lang-select :global(.arco-select-view) {
+  background-color: rgba(22, 22, 22, 0.85) !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 8px;
+  color: #f0f0f0 !important;
+  box-shadow: none !important;
+}
+.login-page__lang-select :global(.arco-select-view-value),
+.login-page__lang-select :global(.arco-select-view-input) {
+  color: #f0f0f0 !important;
+}
+.login-page__lang-select :global(.arco-select-suffix),
+.login-page__lang-select :global(.arco-select-arrow-icon) {
+  color: #aaa !important;
+}

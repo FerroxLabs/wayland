@@ -1,0 +1,181 @@
+{
+  "title": "技能",
+  "subtitle": "管理並探索適合您助理的技能",
+  "search": {
+    "placeholder": "搜尋技能...",
+    "empty": "沒有符合您搜尋內容的技能",
+    "resultsCount": "{{count}} 個相符技能",
+    "emptyLibrary": "尚未載入任何技能 - 請嘗試匯入一個，或重新啟動以重新載入內建技能庫。"
+  },
+  "filters": {
+    "allSources": "全部來源",
+    "source": {
+      "wayland-library": "Wayland 函式庫",
+      "team": "團隊",
+      "user": "我的技能",
+      "imported": "已匯入",
+      "cli-discovered": "來自您的 CLI"
+    },
+    "verdict": {
+      "all": "全部",
+      "clean": "正常",
+      "review": "待審查",
+      "blocked": "已封鎖"
+    },
+    "category": {
+      "all": "全部分類"
+    }
+  },
+  "status": {
+    "scanned": "已掃描 - 未發現異常",
+    "review": "待審查",
+    "blocked": "已封鎖 - 已隔離",
+    "unscanned": "尚未掃描"
+  },
+  "actions": {
+    "pin": "固定至所有助理",
+    "unpin": "取消固定",
+    "enable": "啟用",
+    "disable": "停用",
+    "delete": "刪除",
+    "import": "匯入",
+    "build": "建立技能"
+  },
+  "threats": {
+    "credential-access": "憑證存取",
+    "network-exfiltration": "網路資料外洩",
+    "shell-execution": "Shell 執行",
+    "filesystem-write": "檔案系統寫入",
+    "instruction-override": "指令覆寫",
+    "obfuscation": "混淆",
+    "index-poisoning": "索引投毒"
+  },
+  "severity": {
+    "critical": "嚴重",
+    "medium": "中等",
+    "low": "低"
+  },
+  "import": {
+    "title": "匯入技能",
+    "source": {
+      "folder": "資料夾",
+      "git": "Git URL",
+      "zip": "ZIP 檔案",
+      "marketplace": "市集（即將推出）",
+      "singleSkillMd": "單一 SKILL.md"
+    },
+    "folder": {
+      "label": "技能資料夾",
+      "placeholder": "點選以選擇資料夾…",
+      "browse": "瀏覽"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP 檔案",
+      "placeholder": "點選以選擇 ZIP…",
+      "browse": "瀏覽"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md 檔案",
+      "placeholder": "點選以選擇 SKILL.md…",
+      "browse": "瀏覽"
+    },
+    "actions": {
+      "import": "匯入",
+      "importing": "匯入中…",
+      "importAllClean": "匯入所有無問題項目",
+      "reviewAndSelect": "檢閱並選取",
+      "cancel": "取消"
+    },
+    "scan": {
+      "title": "掃描結果",
+      "verdict": {
+        "clean": "無問題",
+        "review": "需檢閱",
+        "blocked": "已封鎖"
+      },
+      "noFindings": "未發現任何問題",
+      "finding": "{{count}} 項發現",
+      "finding_other": "{{count}} 項發現"
+    },
+    "error": {
+      "failed": "匯入失敗",
+      "invalidUrl": "請輸入有效的 https:// 或 git@ URL"
+    }
+  },
+  "builder": {
+    "title": "建立技能",
+    "tab": {
+      "write": "自己撰寫",
+      "describe": "描述需求"
+    },
+    "form": {
+      "name": {
+        "label": "名稱",
+        "placeholder": "如 my-skill"
+      },
+      "description": {
+        "label": "描述",
+        "placeholder": "這個技能做什麼？",
+        "hint": "包含使用場景和禁止場景，協助模型準確啟用。"
+      },
+      "category": {
+        "label": "分類",
+        "placeholder": "如 coding"
+      },
+      "tags": {
+        "label": "標籤",
+        "placeholder": "逗號分隔，如 git, review"
+      },
+      "body": {
+        "label": "SKILL.md 正文"
+      }
+    },
+    "describe": {
+      "label": "描述您的技能",
+      "placeholder": "用自然語言描述您的技能，我們將為您生成 SKILL.md…",
+      "generate": "生成",
+      "generating": "生成中…"
+    },
+    "actions": {
+      "save": "儲存技能",
+      "saving": "儲存中…",
+      "cancel": "取消",
+      "done": "完成"
+    },
+    "verdict": {
+      "clean": "技能 \"{{name}}\" 已成功儲存。",
+      "review": "技能 \"{{name}}\" 已儲存，但需要審核。",
+      "blocked": "技能 \"{{name}}\" 被 Skill Guard 攔截，未註冊。請編輯正文以移除標記內容。"
+    },
+    "error": {
+      "saveFailed": "儲存失敗",
+      "generateFailed": "生成失敗"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Wayland 載入時",
+    "metadata": "中繼資料",
+    "body": "主體",
+    "quarantined": "此技能已被隔離，無法載入。"
+  },
+  "stats": {
+    "total": "技能總數",
+    "pinned": "已釘選",
+    "flagged": "已標記",
+    "sources": "來源"
+  },
+  "sections": {
+    "sources": "來源",
+    "status": "狀態",
+    "categories": "分類"
+  },
+  "cliDiscovery": {
+    "title": "從已安裝的 CLI 工具鏡像技能",
+    "subtitle": "顯示來自 ~/.claude/skills、~/.codex/skills 和 ~/.gemini/skills 的技能，讓它們出現在你的技能頁面上。需手動啟用。需重新啟動才會生效。",
+    "restartNeeded": "- 請重新啟動應用程式以套用。"
+  }
+}

@@ -1,0 +1,206 @@
+.row {
+  margin-bottom: 22px;
+}
+
+.bar {
+  display: grid;
+  /* 5 columns × 2 rows = up to 10 cards visible, then the add chip wraps to
+     a third partial row. Picker-added assistants stay visible without
+     horizontal scroll. Sean's spec: two rows of five. */
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-flow: row;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 960px) {
+  .bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .bar {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+}
+
+.cardWrap {
+  position: relative;
+}
+
+.cardWrap.dragging {
+  z-index: 2;
+  opacity: 0.6;
+}
+
+.cardWrap :global(button[data-quicklaunch-id]) {
+  width: 100%;
+  height: 100%;
+}
+
+.controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.grip,
+.removeBtn {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 100ms ease;
+  pointer-events: none;
+}
+
+.cardWrap:hover .grip,
+.cardWrap:hover .removeBtn,
+.cardWrap:focus-within .grip,
+.cardWrap:focus-within .removeBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.grip {
+  top: 6px;
+  left: 6px;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-4);
+  cursor: grab;
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 4px;
+}
+
+.grip:active {
+  cursor: grabbing;
+}
+
+.grip:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.removeBtn {
+  top: 5px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-fill-4);
+  color: var(--color-text-2);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.removeBtn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  color: rgb(244, 67, 54);
+}
+
+.removeBtn:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.addChip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px 10px;
+  background: transparent;
+  border: 1px dashed var(--color-border-3);
+  border-radius: 10px;
+  cursor: pointer;
+  min-height: 86px;
+  color: var(--color-text-3);
+  font-family: inherit;
+  font-size: 11px;
+  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
+}
+
+.addChip:hover,
+.addChip.addOpen {
+  border-color: rgb(249, 115, 22);
+  color: rgb(249, 115, 22);
+  background: rgba(249, 115, 22, 0.04);
+}
+
+.addChip:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: 2px;
+}
+
+.addPlus {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 86px;
+  color: var(--color-text-3);
+  font-size: 12px;
+  border: 1px dashed var(--color-border-3);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+  gap: 8px;
+}
+
+.reset {
+  background: transparent;
+  border: none;
+  color: var(--color-text-3);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.reset:hover {
+  color: var(--color-text-1);
+  background: var(--color-fill-2);
+}
+
+.viewAll {
+  background: transparent;
+  border: none;
+  color: var(--color-text-3);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  margin-left: auto;
+}
+
+.viewAll:hover {
+  color: var(--color-text-1);
+  background: var(--color-fill-2);
+}

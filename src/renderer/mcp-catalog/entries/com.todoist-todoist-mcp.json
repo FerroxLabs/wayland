@@ -1,0 +1,41 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.todoist/todoist-mcp",
+  "title": "Todoist",
+  "description": "Tasks, projects, labels, filters, and reminders - Doist's official Todoist MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.todoist.com/help/articles/mcp",
+  "repository": { "url": "https://github.com/Doist/todoist-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://ai.todoist.net/mcp" }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["productivity", "tasks"],
+    "tags": ["todoist", "tasks", "todo"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 11,
+    "installRate": 0.46,
+    "iconUrl": "icons/todoist.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#e44332" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Todoist",
+      "providerSignupUrl": "https://todoist.com",
+      "scopes": [
+        { "name": "data:read_write", "plainLanguage": "Read and modify all your tasks and projects." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Tasks", "count": 6 },
+      { "label": "Projects", "count": 4 },
+      { "label": "Labels & Filters", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.todoist-todoist-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

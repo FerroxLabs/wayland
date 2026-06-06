@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.pagerduty/pagerduty-mcp",
+  "title": "PagerDuty",
+  "description": "Manage incidents, services, schedules, on-calls, and escalation policies in PagerDuty directly from your assistant.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/PagerDuty/pagerduty-mcp-server",
+  "repository": {
+    "url": "https://github.com/PagerDuty/pagerduty-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "pagerduty-mcp",
+      "version": "0.17.0",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "PAGERDUTY_USER_API_KEY",
+          "description": "User API token from your PagerDuty profile (My Profile → User Settings → Create API User Token).",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "incidents",
+      "ops"
+    ],
+    "tags": [
+      "pagerduty",
+      "incidents",
+      "oncall",
+      "alerting"
+    ],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 63,
+    "installRate": 0.1,
+    "iconUrl": "icons/pagerduty.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#06ac38"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "PagerDuty",
+      "providerSignupUrl": "https://www.pagerduty.com"
+    },
+    "toolGroups": [
+      {
+        "label": "Incidents",
+        "count": 4
+      },
+      {
+        "label": "Services",
+        "count": 2
+      },
+      {
+        "label": "Schedules",
+        "count": 2
+      },
+      {
+        "label": "Escalation Policies",
+        "count": 1
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.pagerduty-pagerduty-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

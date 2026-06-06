@@ -1,0 +1,47 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.chaindead/telegram-mcp",
+  "title": "Telegram",
+  "description": "Send and read messages across chats, channels, and groups using your Telegram user account.",
+  "version": "0.2.0",
+  "websiteUrl": "https://github.com/chaindead/telegram-mcp",
+  "repository": { "url": "https://github.com/chaindead/telegram-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@chaindead/telegram-mcp",
+      "version": "0.2.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "TG_APP_ID", "description": "App api_id from my.telegram.org.", "isRequired": true, "isSecret": false },
+        { "name": "TG_API_HASH", "description": "App api_hash from my.telegram.org.", "isRequired": true, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["communication"],
+    "tags": ["telegram", "chat", "messaging"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 21,
+    "installRate": 0.20,
+    "iconUrl": "icons/telegram.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#26a5e4" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Telegram",
+      "providerSignupUrl": "https://my.telegram.org"
+    },
+    "toolGroups": [
+      { "label": "Messages", "count": 5 },
+      { "label": "Chats", "count": 4 },
+      { "label": "Channels", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.chaindead-telegram-mcp.md", "estimatedMinutes": 5, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

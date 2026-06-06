@@ -1,0 +1,43 @@
+.card {
+  border: 1.5px dashed var(--color-border-3);
+  border-radius: 12px;
+  background: transparent;
+  padding: 14px;
+  min-height: 116px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--color-text-3);
+  cursor: pointer;
+  transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+  user-select: none;
+}
+
+.card:hover {
+  border-color: rgb(var(--primary-6));
+  color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px dashed var(--color-border-3);
+  margin-bottom: 4px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--color-text-4);
+}

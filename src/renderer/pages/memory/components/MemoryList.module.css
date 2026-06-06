@@ -1,0 +1,146 @@
+/**
+ * MemoryList - list pane with sticky header, virtual scroll body, sticky footer.
+ *
+ * Colors: semantic tokens only (no hardcoded hex).
+ */
+
+/* ---- Outer pane ---- */
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- Sticky header ---- */
+
+.header {
+  flex-shrink: 0;
+  padding: 12px 16px 10px;
+  background: var(--color-bg-2);
+  border-bottom: 1px solid var(--color-border-2);
+  backdrop-filter: blur(20px);
+  /* height approximately 80px via natural content size */
+}
+
+.searchWrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.searchInput {
+  width: 100%;
+  border-radius: 7px;
+}
+
+.searchKbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 10px;
+  background: var(--color-fill-2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--color-text-3);
+  border: 1px solid var(--color-border-2);
+}
+
+/* ---- Chip strip ---- */
+
+.chipStrip {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.chipStrip::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-fill-1);
+  color: var(--color-text-2);
+  font-size: 11.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition:
+    background 0.1s ease,
+    color 0.1s ease;
+  outline: none;
+}
+
+.chip:hover {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-primary-6, var(--color-primary));
+  outline-offset: 1px;
+}
+
+/* Active/selected chip: orange accent */
+.chip.chipActive {
+  background: var(--color-primary-light-1, rgba(255, 107, 53, 0.10));
+  border-color: var(--color-primary-6, var(--color-primary));
+  color: var(--color-primary-6, var(--color-primary));
+}
+
+/* ---- List body (flex-1) ---- */
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- Empty state ---- */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 13px;
+  color: var(--color-text-3);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---- Sticky footer ---- */
+
+.footer {
+  flex-shrink: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: var(--color-fill-1);
+  border-top: 1px solid var(--color-border-2);
+  font-size: 11.5px;
+  color: var(--color-text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.microsoft/markitdown",
+  "title": "Markitdown",
+  "description": "Convert PDFs, Office docs, images, audio, and HTML to clean Markdown for LLM ingestion. Microsoft's official local utility.",
+  "version": "0.0.1a4",
+  "websiteUrl": "https://github.com/microsoft/markitdown",
+  "repository": {
+    "url": "https://github.com/microsoft/markitdown",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "markitdown-mcp",
+      "version": "0.0.1a4",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": [
+      "files-and-docs",
+      "productivity",
+      "developer"
+    ],
+    "tags": [
+      "markdown",
+      "conversion",
+      "documents",
+      "microsoft"
+    ],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 49,
+    "installRate": 0.18,
+    "iconUrl": "icons/microsoft.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#0078d4"
+    },
+    "auth": {
+      "method": "none"
+    },
+    "toolGroups": [
+      {
+        "label": "Convert",
+        "count": 1
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.microsoft-markitdown.md",
+      "estimatedMinutes": 1,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

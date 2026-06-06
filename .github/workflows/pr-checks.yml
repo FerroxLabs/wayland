@@ -1,0 +1,507 @@
+name: 'PR Checks'
+
+# Consolidated PR-gate workflow for the Wayland fork.
+#
+# This file is the union of the legacy upstream `pr-checks.yml` and the
+# Wayland-fork `pr-gate.yml` (commit dc59d43e3). The two duplicated
+# tsc/lint/vitest/build steps across separate runners; they are now one
+# workflow.
+#
+# Job names ("Code Quality", "Unit Tests (<os>)", "Coverage Test",
+# "I18n Check", "Security Audit E2E", "Release Script Test") are
+# referenced by branch protection required-checks and by
+# `pr-checks-docs.yml` (the docs-only stub that mirrors required-check
+# names so docs-only PRs can satisfy the same set). DO NOT rename
+# without updating both branch-protection settings and pr-checks-docs.yml.
+#
+# Cross-platform PACKAGED builds (electron-builder, ~45min per platform)
+# were removed from PRs -- they now live in `build-matrix.yml`, gated on
+# the repo variable `CI_BUILD_MATRIX_ENABLED`. PRs still run a fast
+# unpackaged `electron-vite build` to catch compile errors.
+#
+# Required repo secrets / variables:
+#   secrets.CODECOV_TOKEN          -- optional, falls back to OIDC if unset
+#                                     (only used on FerroxLabs/wayland)
+#   vars.CI_BUILD_MATRIX_ENABLED   -- owned by build-matrix.yml, not used here
+#
+# Security: no untrusted PR/issue text is interpolated into any run: step.
+# env.PR_BASE_REF is set by ./.github/actions/checkout-pr from trusted
+# sources (github.base_ref or the PR's base.ref via gh api).
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to run checks on'
+        required: true
+        type: string
+      skip_build_test:
+        description: 'Skip the unpackaged build / e2e job'
+        type: boolean
+        required: false
+        default: false
+  pull_request:
+    types: [opened, synchronize, edited, closed, ready_for_review, reopened]
+    branches: [main, dev, 'feat/**', 'release/**']
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'design-mockups/**'
+      - '.planning/**'
+      - '.blackboard/**'
+      - '.vscode/**'
+      - '.github/ISSUE_TEMPLATE/**'
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+  checks: write
+  id-token: write
+
+env:
+  BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
+  # Wayland-core release stream does not exist yet (see commit 48d155826).
+  WCORE_SKIP: '1'
+  CI: 'true'
+  NODE_OPTIONS: '--max-old-space-size=8192'
+
+jobs:
+  # Cancel in-progress runs when PR is closed (merged or manually closed)
+  cancel-if-closed:
+    name: Cancel if PR closed
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "PR closed, cancelling in-progress runs via concurrency."
+
+  # Job 1: Code quality checks (TypeScript, Oxlint, Oxfmt via prek)
+  code-quality:
+    name: Code Quality
+    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve PR context
+        uses: ./.github/actions/checkout-pr
+        with:
+          pr_number: ${{ inputs.pr_number }}
+          github_token: ${{ github.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: true
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run postinstall
+        run: npm run postinstall || true
+
+      - name: Install prek
+        run: npm install -g @j178/prek
+
+      - name: Run prek checks
+        env:
+          PR_BASE_REF: ${{ env.PR_BASE_REF }}
+        run: prek run --from-ref "origin/$PR_BASE_REF" --to-ref HEAD
+
+  # Job 2: Unit tests across all platforms.
+  # NOTE: job name "Unit Tests (<os>)" is a required check; pr-checks-docs.yml
+  # mirrors these for docs-only PRs. Do not rename or collapse.
+  # Sharded worker jobs: the full vitest suite exceeds the 10-min job timeout on
+  # a single runner (native better-sqlite3 + timer-based channel-plugin tests),
+  # so split it across 4 file-shards per OS that each finish well under the cap.
+  # The required check names "Unit Tests (<os>)" are preserved by the aggregator
+  # jobs below (so branch protection + pr-checks-docs.yml need no changes).
+  unit-tests:
+    name: Unit Tests Shard (${{ matrix.os }} ${{ matrix.shard }}/4)
+    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    runs-on: ${{ matrix.os }}
+    # 20m headroom: windows-hosted runners are ~2.7x slower per shard than ubuntu
+    # (a quarter of the suite runs ~9.5m on windows vs ~3.5m on ubuntu). With the
+    # electron-log/renderer import-hang fixed, no shard should approach this - it
+    # only absorbs windows runner variance so a healthy ~9.5m shard can't tip over.
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-2022]
+        shard: [1, 2, 3, 4]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Resolve PR context
+        uses: ./.github/actions/checkout-pr
+        with:
+          pr_number: ${{ inputs.pr_number }}
+          github_token: ${{ github.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: true
+
+      - name: Disable Windows Defender (Windows only)
+        if: matrix.os == 'windows-2022'
+        shell: pwsh
+        run: |
+          Set-MpPreference -DisableRealtimeMonitoring $true
+          Add-MpPreference -ExclusionPath "${{ github.workspace }}"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run postinstall
+        run: npm run postinstall || true
+
+      - name: Run unit tests (vitest shard)
+        run: bunx vitest run --shard=${{ matrix.shard }}/4
+
+  # Aggregator jobs preserve the required-check names "Unit Tests (<os>)".
+  # Each waits on the full sharded matrix and fails if any shard (on any OS)
+  # failed, so a single failing unit test anywhere blocks the merge. GitHub's
+  # `needs.<job>.result` for a matrix job is success only when every cell
+  # succeeded.
+  unit-tests-ubuntu:
+    name: Unit Tests (ubuntu-latest)
+    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all unit-test shards passed
+        env:
+          SHARDS_RESULT: ${{ needs.unit-tests.result }}
+        run: |
+          if [ "$SHARDS_RESULT" != "success" ]; then
+            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+            exit 1
+          fi
+          echo "All unit-test shards passed."
+
+  unit-tests-macos:
+    name: Unit Tests (macos-14)
+    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all unit-test shards passed
+        env:
+          SHARDS_RESULT: ${{ needs.unit-tests.result }}
+        run: |
+          if [ "$SHARDS_RESULT" != "success" ]; then
+            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+            exit 1
+          fi
+          echo "All unit-test shards passed."
+
+  unit-tests-windows:
+    name: Unit Tests (windows-2022)
+    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all unit-test shards passed
+        env:
+          SHARDS_RESULT: ${{ needs.unit-tests.result }}
+        run: |
+          if [ "$SHARDS_RESULT" != "success" ]; then
+            echo "One or more unit-test shards did not pass (result: $SHARDS_RESULT)."
+            exit 1
+          fi
+          echo "All unit-test shards passed."
+
+  # Job 3: Coverage test (Linux only) + Codecov upload
+  coverage-tests:
+    name: Coverage Test
+    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    runs-on: ubuntu-latest
+    # The coverage run executes the whole suite WITH instrumentation, so it needs
+    # more than the 10-min unit-test cap. The test step is continue-on-error, so
+    # the job passes as long as it finishes (a timeout is its only red signal).
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Resolve PR context
+        uses: ./.github/actions/checkout-pr
+        with:
+          pr_number: ${{ inputs.pr_number }}
+          github_token: ${{ github.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: true
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run postinstall
+        run: npm run postinstall || true
+
+      - name: Run coverage tests
+        id: coverage
+        continue-on-error: true
+        run: bun run test:coverage
+
+      - name: Upload coverage to Codecov (Linux coverage only)
+        if: always() && hashFiles('coverage/lcov.info') != '' && github.repository == 'FerroxLabs/wayland'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
+          files: coverage/lcov.info
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Skip Codecov upload when preconditions are not met
+        if: always() && hashFiles('coverage/lcov.info') != '' && github.repository != 'FerroxLabs/wayland'
+        shell: bash
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          echo 'Skipping Codecov upload due to unmet preconditions.'
+          echo "Repository: $REPO"
+
+      - name: Coverage result summary
+        if: always()
+        shell: bash
+        env:
+          COVERAGE_OUTCOME: ${{ steps.coverage.outcome }}
+        run: |
+          if [ "$COVERAGE_OUTCOME" = "failure" ]; then
+            echo "::warning::Coverage tests failed (non-blocking). Check logs for failed test details."
+            echo "## Coverage check (non-blocking warning)" >> $GITHUB_STEP_SUMMARY
+            echo "Coverage command failed in this run. Please review test failures in logs." >> $GITHUB_STEP_SUMMARY
+            if [ -f coverage/lcov.info ]; then
+              echo "lcov.info exists, Codecov upload can still run." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "lcov.info not found, Codecov upload was skipped." >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "## Coverage check" >> $GITHUB_STEP_SUMMARY
+            echo "Coverage command passed." >> $GITHUB_STEP_SUMMARY
+            if [ -f coverage/lcov.info ]; then
+              echo "Uploaded Linux (ubuntu-latest) coverage to Codecov." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Coverage passed but lcov.info is missing; Codecov upload was skipped." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      - name: Upload coverage artifacts
+        if: always() && hashFiles('coverage/lcov.info') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: warn
+
+  # Job 4: I18n validation (warning-only)
+  i18n-check:
+    name: I18n Check
+    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: true
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run postinstall
+        run: npm run postinstall || true
+
+      - name: Run i18n validation (warning-only)
+        id: i18n
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/check-i18n.js 2>&1 | tee i18n-check.log
+
+      - name: Publish i18n summary
+        if: always()
+        shell: bash
+        run: |
+          echo "## i18n validation" >> $GITHUB_STEP_SUMMARY
+          if grep -q "warning" i18n-check.log; then
+            echo "Missing/incomplete translations found. Please review warnings below." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No i18n warnings detected." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>i18n log</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```text' >> $GITHUB_STEP_SUMMARY
+          cat i18n-check.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+  # Job 5: Fast unpackaged build + security-audit e2e spec.
+  # Merged from pr-gate.yml (commit dc59d43e3). The HEAVY cross-platform
+  # electron-builder packaging step that used to live in pr-checks.yml
+  # was removed -- it now lives in build-matrix.yml (push/cron + flag).
+  security-audit:
+    name: Security Audit E2E
+    if: github.event.action != 'closed' && github.event.pull_request.draft == false && inputs.skip_build_test != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Pinned to ../mise.toml (node = "24"). engines.node allows >=22 <25.
+          node-version: '24'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          # Pinned to ../mise.toml (bun = "1.3").
+          bun-version: '1.3'
+
+      - name: Cache Bun + node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: pr-checks-bun-${{ runner.os }}-${{ hashFiles('bun.lock', 'package.json') }}
+          restore-keys: |
+            pr-checks-bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Postinstall (CI uses prebuilt binaries; see scripts/postinstall.js)
+        run: bun run postinstall || true
+
+      - name: Typecheck
+        run: bunx tsc --noEmit
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Build (electron-vite, no packaging)
+        run: bunx electron-vite build
+
+      # The e2e spec launches the real Electron binary via _electron.launch().
+      # The restored node_modules cache has electron without a usable binary
+      # (path.txt missing / dist incomplete), and bun's --frozen-lockfile install
+      # doesn't re-run electron's download script for the already-present package.
+      # Official remedy: delete node_modules/electron and reinstall so bun re-runs
+      # electron's (trusted) install script. Then run install.js explicitly as a
+      # belt-and-suspenders, and verify require('electron') resolves so a bad
+      # install fails HERE (with `set -x` diagnostics) instead of mid-spec.
+      # electron's default CDN (github.com/electron/electron releases) truncates
+      # the binary zip on this runner, leaving a ~688KB partial dist with no
+      # path.txt. Use the npmmirror mirror, request remote checksums (so a partial
+      # is rejected, not silently accepted), and clear every cache so the download
+      # is genuinely fresh. Assert path.txt + the binary so a bad install fails HERE.
+      - name: Ensure Electron binary is installed
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+          electron_use_remote_checksums: '1'
+        run: |
+          set -ex
+          rm -rf node_modules/electron/dist node_modules/electron/path.txt ~/.cache/electron
+          force_no_cache=true node node_modules/electron/install.js
+          ls -la node_modules/electron/dist | head -12
+          test -s node_modules/electron/path.txt
+          node -e "const p=require('electron'); require('node:fs').accessSync(p); console.log('electron binary OK:', p)"
+
+      # This spec drives the BUILT Electron app via Playwright's _electron API
+      # (electronApp.evaluate / page.evaluate); it never uses Playwright's bundled
+      # chromium. `install --with-deps chromium` downloaded that unused ~170MB
+      # browser, and that CDN download stalled past the 30-min job cap on every
+      # run (the spec never even started). Install only the system libraries that
+      # Electron's chromium needs at runtime - no browser binary download.
+      - name: Install Playwright system deps (no browser download - Electron-only spec)
+        run: bunx playwright install-deps chromium
+
+      # This job does a fast UNPACKAGED electron-vite build (no electron-builder
+      # packaging). The e2e fixture defaults to PACKAGED mode in CI and looks for
+      # a packaged app under out/, which this job never produces. Force DEV mode
+      # so the spec launches the unpackaged build via `electron .`. The security
+      # properties under test (sandbox, contextIsolation, nodeIntegration:false,
+      # IPC handler registration, electron version) are identical in dev and
+      # packaged mode.
+      - name: Run security-audit e2e spec
+        env:
+          E2E_DEV: '1'
+        run: bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-checks-playwright-report
+          path: tests/e2e/report
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # Job 6: Test release scripts (fast, no build required)
+  release-script-test:
+    name: Release Script Test
+    if: github.event.action != 'closed' && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create mock build artifacts
+        shell: bash
+        run: bash scripts/create-mock-release-artifacts.sh build-artifacts
+
+      - name: Run prepare-release-assets script
+        shell: bash
+        run: bash scripts/prepare-release-assets.sh build-artifacts release-assets
+
+      - name: Validate script output
+        shell: bash
+        run: bash scripts/verify-release-assets.sh release-assets

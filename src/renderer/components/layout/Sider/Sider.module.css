@@ -1,0 +1,103 @@
+/* GPU-friendly: transform applies to the + SVG only (see Sider.tsx), not the padded row or icon frame */
+
+.newChatTrigger {
+  position: relative;
+}
+
+.newChatIcon {
+  transform: translateZ(0);
+  transition: transform 0.14s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.newChatTrigger:hover .newChatIcon {
+  transform: scale(0.92) translateZ(0);
+}
+
+.newChatTrigger:active .newChatIcon {
+  transform: scale(0.84) translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .newChatIcon {
+    transition: none;
+  }
+
+  .newChatTrigger:hover .newChatIcon,
+  .newChatTrigger:active .newChatIcon {
+    transform: translateZ(0);
+  }
+}
+
+/* Overlay-style scroll area: scrollbar takes zero layout width so icons in the
+   fixed top nav and the scrollable list stay on the same vertical center line.
+   Mimics macOS native overlay scrollbars. */
+.scrollArea {
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollArea::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Pinned sidebar row - reserve a dedicated 28px slot on the right for the
+   pushpin indicator so it never overlaps the row title. When the row is
+   hovered, the three-dot menu takes over that slot and the text reclaims
+   the gap (18px), matching non-pinned rows. */
+.pinnedTextSlot {
+  padding-right: 28px;
+}
+
+:global(.group):hover .pinnedTextSlot {
+  padding-right: 18px;
+}
+
+/* v0.6.2 W2a - three-zone grid (top pinned · scroll · footer pinned).
+   Top + scroll render as one continuous visual list (no divider). Footer is
+   broken out with darker bg + top border + upward shadow per SPEC §3.1. */
+.gridContainer {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.topZone {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px 6px 8px;
+  border-bottom: 1px solid var(--color-border-1);
+  margin-bottom: 6px;
+}
+
+.scrollZone {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px 4px 8px;
+}
+
+.footerZone {
+  background: var(--color-bg-2);
+  border-top: 1px solid var(--color-border-2);
+  box-shadow: 0 -8px 16px -8px rgba(0, 0, 0, 0.6);
+  position: relative;
+  z-index: 5;
+}
+
+/* Right-click chat context menu (Pin / Rename / Schedule / Export / Add to
+   project / Delete). Default Arco item height (~40px) makes the 6-item menu tall
+   enough to clip the last row (Delete) when opened near the viewport bottom.
+   Tighten the rows so the whole menu fits. */
+.ctxMenu {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.ctxMenu :global(.arco-menu-item) {
+  height: 32px;
+  line-height: 32px;
+  padding-top: 0;
+  padding-bottom: 0;
+}

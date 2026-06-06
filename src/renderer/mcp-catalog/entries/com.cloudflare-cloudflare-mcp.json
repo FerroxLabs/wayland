@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.cloudflare/cloudflare-mcp",
+  "title": "Cloudflare Suite",
+  "description": "Workers, Pages, DNS, R2, KV, D1, and Analytics - Cloudflare's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developers.cloudflare.com/agents/model-context-protocol",
+  "repository": { "url": "https://github.com/cloudflare/mcp-server-cloudflare", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.cloudflare.com" }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "devops", "infrastructure"],
+    "tags": ["cloudflare", "workers", "dns", "r2"],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 37,
+    "installRate": 0.21,
+    "iconUrl": "icons/cloudflare.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#f6821f" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Cloudflare",
+      "providerSignupUrl": "https://cloudflare.com",
+      "scopes": [
+        { "name": "account:read", "plainLanguage": "Read account and zone settings." },
+        { "name": "workers:write", "plainLanguage": "Deploy and manage Workers." },
+        { "name": "dns:write", "plainLanguage": "Manage DNS records." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Workers", "count": 5 },
+      { "label": "DNS", "count": 4 },
+      { "label": "R2 / KV / D1", "count": 6 },
+      { "label": "Analytics", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.cloudflare-cloudflare-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

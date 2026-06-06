@@ -1,0 +1,80 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.figma/figma-mcp",
+  "title": "Figma",
+  "description": "Read Figma design files, variables, components, and Dev Mode metadata. Figma's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developers.figma.com/docs/figma-mcp-server/",
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.figma.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "design",
+      "developer",
+      "productivity"
+    ],
+    "tags": [
+      "figma",
+      "design",
+      "dev-mode",
+      "ui"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 50,
+    "installRate": 0.22,
+    "iconUrl": "icons/figma.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#f24e1e"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Figma",
+      "providerSignupUrl": "https://www.figma.com/login",
+      "byoClient": {
+        "registrationUrl": "https://www.figma.com/developers/apps",
+        "requiresSecret": true,
+        "guide": "Figma's MCP server requires you to register your own OAuth integration in the Figma developer portal - their public DCR endpoint returns 403 (entitlement-gated). You must hold a **paid Dev seat or Full seat** on at least one Figma team for OAuth to succeed.\n\n**1.** Open **figma.com/developers/apps** and sign in. Click **Create new app**.\n\n**2.** Fill in:\n  - **App name**: any (e.g. *Wayland MCP*)\n  - **Website**: any (e.g. `https://localhost`)\n  - **Callback URL**: paste the URL Wayland shows below.\n\n**3.** Click **Save**. Figma displays your **Client ID** and **Client Secret** - copy both.\n\n**4.** Paste the Client ID and Secret below.\n\n**Heads up:** if your Figma account is on the free Starter plan, the OAuth handshake will fail at Figma's end with `Insufficient plan`. Upgrade to a paid Dev or Full seat first."
+      },
+      "scopes": [
+        {
+          "name": "mcp:connect",
+          "plainLanguage": "Connect Wayland to your Figma account so it can read design files and Dev Mode metadata."
+        }
+      ]
+    },
+    "toolGroups": [
+      {
+        "label": "Files",
+        "count": 4
+      },
+      {
+        "label": "Variables",
+        "count": 2
+      },
+      {
+        "label": "Components",
+        "count": 3
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.figma-figma-mcp.md",
+      "estimatedMinutes": 1,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

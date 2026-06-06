@@ -1,0 +1,294 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * First-run onboarding stepper (scan → focus → connect). Mirrors the shared
+ * app card affordance (project tiles / conversation cards): an elevated fill
+ * with a resting border that lights up to brand orange with a soft ring on
+ * hover, so every surface here feels native to the rest of Wayland.
+ */
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 4px 4px 2px;
+}
+
+/* Brand row - real logo + wordmark. */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.brandLogo {
+  width: 22px;
+  height: 22px;
+}
+.brandName {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-text-1);
+}
+
+/* Stepper progress dots. */
+.progress {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-fill-3);
+  transition: background 0.18s ease, width 0.18s ease;
+}
+.dotActive {
+  width: 18px;
+  border-radius: 4px;
+  background: rgb(var(--primary-6));
+}
+.dotDone {
+  background: rgb(var(--primary-6) / 0.45);
+}
+
+.headline {
+  font-size: 26px;
+  font-weight: 650;
+  line-height: 1.2;
+  color: var(--color-text-1);
+  margin: 0;
+}
+.headlinePunct {
+  color: rgb(var(--primary-6));
+}
+.sub {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-2);
+  margin: 0;
+  max-width: 64ch;
+}
+.sectionLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+
+/* Scan reveal - chips of what was detected, staggered fade-in. */
+.revealGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.revealChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-fill-1);
+  font-size: 13px;
+  color: var(--color-text-1);
+  opacity: 0;
+  transform: translateY(4px);
+  animation: revealIn 0.34s ease forwards;
+}
+.revealChipIcon {
+  display: inline-flex;
+  color: rgb(var(--primary-6));
+}
+@keyframes revealIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.revealEmpty {
+  font-size: 14px;
+  color: var(--color-text-3);
+}
+
+/* Focus personas - selectable chips. */
+.chipGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+.personaChip {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+.personaChip:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+}
+.personaChipSelected {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.45);
+}
+.personaGlyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--color-fill-2);
+  color: var(--color-text-2);
+  flex-shrink: 0;
+}
+.personaChipSelected .personaGlyph {
+  background: rgb(var(--primary-6) / 0.14);
+  color: rgb(var(--primary-6));
+}
+.personaLabel {
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--color-text-1);
+}
+.personaBlurb {
+  font-size: 12px;
+  color: var(--color-text-3);
+  line-height: 1.35;
+}
+.personaCheck {
+  margin-left: auto;
+  color: rgb(var(--primary-6));
+  flex-shrink: 0;
+}
+.matchHint {
+  font-size: 13px;
+  color: var(--color-text-2);
+  min-height: 20px;
+}
+.matchHint strong {
+  color: rgb(var(--primary-6));
+  font-weight: 600;
+}
+
+/* Connect doors. */
+.doorGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.door {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+.door:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+}
+.doorHero {
+  border-color: rgb(var(--primary-6) / 0.55);
+  background: linear-gradient(180deg, rgb(var(--primary-6) / 0.07), var(--color-bg-2));
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.3);
+}
+.doorHero:hover {
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.55);
+}
+.doorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: var(--color-fill-2);
+  color: var(--color-text-2);
+  flex-shrink: 0;
+}
+.doorHero .doorIcon {
+  background: rgb(var(--primary-6) / 0.16);
+  color: rgb(var(--primary-6));
+}
+.doorMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.doorTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.doorTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+.recommendedTag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgb(var(--primary-6));
+  background: rgb(var(--primary-6) / 0.12);
+  padding: 1px 7px;
+  border-radius: 5px;
+}
+.doorBody {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text-2);
+}
+.doorFoot {
+  font-size: 12px;
+  color: var(--color-text-3);
+  margin-top: 2px;
+}
+.doorArrow {
+  color: var(--color-text-3);
+  flex-shrink: 0;
+}
+.door:hover .doorArrow,
+.doorHero .doorArrow {
+  color: rgb(var(--primary-6));
+}
+.doorError {
+  font-size: 13px;
+  color: rgb(var(--danger-6, var(--warning-6)));
+  margin: 0;
+}
+
+/* Footer / ghost actions. */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+.ghost {
+  font-size: 13px;
+  color: var(--color-text-3);
+}

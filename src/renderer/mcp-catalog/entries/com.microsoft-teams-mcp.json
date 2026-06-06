@@ -1,0 +1,54 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.microsoft/teams-mcp",
+  "title": "Microsoft Teams",
+  "description": "Channel messages, chats, meetings, and presence via Microsoft Graph - community-maintained MCP server.",
+  "version": "0.9.0",
+  "websiteUrl": "https://github.com/floriscornel/teams-mcp",
+  "repository": { "url": "https://github.com/floriscornel/teams-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@floriscornel/teams-mcp",
+      "version": "0.9.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "TEAMS_CLIENT_ID", "description": "Azure AD app client ID.", "isRequired": true, "isSecret": false },
+        { "name": "TEAMS_TENANT_ID", "description": "Azure AD tenant ID (use 'common' for personal accounts).", "isRequired": true, "isSecret": false, "default": "common" }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["communication", "productivity"],
+    "tags": ["microsoft", "teams", "chat", "graph"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 19,
+    "installRate": 0.25,
+    "iconUrl": "icons/teams.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#4b53bc" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Microsoft Azure AD",
+      "providerSignupUrl": "https://portal.azure.com",
+      "scopes": [
+        { "name": "Chat.ReadWrite", "plainLanguage": "Read and write Teams chats." },
+        { "name": "ChannelMessage.Send", "plainLanguage": "Post messages in Teams channels." },
+        { "name": "Team.ReadBasic.All", "plainLanguage": "List the teams you belong to." },
+        { "name": "OnlineMeetings.ReadWrite", "plainLanguage": "Create and read Teams meetings." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Chats", "count": 6 },
+      { "label": "Channels", "count": 5 },
+      { "label": "Meetings", "count": 4 },
+      { "label": "Presence", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.microsoft-teams-mcp.md", "estimatedMinutes": 7, "stepCount": 4 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

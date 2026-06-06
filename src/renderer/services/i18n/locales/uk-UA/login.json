@@ -1,0 +1,25 @@
+{
+  "pageTitle": "Wayland - Вхід",
+  "brand": "Wayland",
+  "subtitle": "З поверненням, будь ласка, увійдіть у свій обліковий запис",
+  "username": "Ім'я користувача",
+  "usernamePlaceholder": "Введіть ім'я користувача",
+  "password": "Пароль",
+  "passwordPlaceholder": "Введіть пароль",
+  "rememberMe": "Запам'ятати мене",
+  "submit": "Увійти",
+  "submitting": "Вхід...",
+  "success": "Вхід успішний! Перенаправлення...",
+  "showPassword": "Показати пароль",
+  "hidePassword": "Приховати пароль",
+  "footerPrimary": "Brilliant today, smarter tomorrow",
+  "footerSecondary": "Perceives · Reasons · Adapts · Evolves",
+  "errors": {
+    "empty": "Будь ласка, введіть ім'я користувача та пароль",
+    "invalidCredentials": "Невірне ім'я користувача або пароль",
+    "tooManyAttempts": "Занадто багато спроб, будь ласка, спробуйте пізніше",
+    "networkError": "Помилка з'єднання, будь ласка, спробуйте ще раз",
+    "serverError": "Помилка сервера, будь ласка, спробуйте пізніше",
+    "unknown": "Помилка входу, будь ласка, спробуйте ще раз"
+  }
+}

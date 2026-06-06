@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.google/gcloud-mcp",
+  "title": "Google Cloud",
+  "description": "Projects, compute, Cloud Storage, BigQuery, and Cloud Run via Application Default Credentials.",
+  "version": "0.5.3",
+  "websiteUrl": "https://cloud.google.com/sdk/docs/mcp",
+  "repository": { "url": "https://github.com/GoogleCloudPlatform/gcloud-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@google-cloud/gcloud-mcp",
+      "version": "0.5.3",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "GOOGLE_APPLICATION_CREDENTIALS", "description": "Path to a service account JSON key file.", "isRequired": false, "isSecret": false },
+        { "name": "GCLOUD_PROJECT", "description": "Default Google Cloud project ID.", "isRequired": false, "isSecret": false }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "devops", "infrastructure"],
+    "tags": ["gcp", "google-cloud", "bigquery"],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 39,
+    "installRate": 0.17,
+    "iconUrl": "icons/gcloud.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#4285f4" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Google Cloud",
+      "providerSignupUrl": "https://console.cloud.google.com",
+      "scopes": [
+        { "name": "cloud-platform", "plainLanguage": "Full access to your selected Google Cloud projects." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Projects", "count": 3 },
+      { "label": "Compute", "count": 4 },
+      { "label": "Storage", "count": 4 },
+      { "label": "BigQuery", "count": 4 },
+      { "label": "Cloud Run", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.google-gcloud-mcp.md", "estimatedMinutes": 5, "stepCount": 4 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

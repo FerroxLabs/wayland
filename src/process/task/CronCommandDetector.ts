@@ -1,0 +1,211 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * Cron command types detected from agent message content
+ */
+export type CronCommand =
+  | { kind: 'create'; name: string; schedule: string; scheduleDescription: string; message: string }
+  | { kind: 'propose'; name: string; schedule: string; scheduleDescription: string; prompt: string }
+  | { kind: 'update'; jobId: string; name: string; schedule: string; scheduleDescription: string; message: string }
+  | { kind: 'list' };
+
+/**
+ * Remove markdown code blocks from content to avoid detecting commands in examples
+ * This prevents documentation examples like ```[CRON_LIST]``` from being executed
+ */
+function stripCodeBlocks(content: string): string {
+  // Remove fenced code blocks (```...```)
+  return content.replace(/```[\s\S]*?```/g, '');
+}
+
+/**
+ * Detect cron commands in message content
+ *
+ * Supported formats:
+ * - [CRON_CREATE]...[/CRON_CREATE] - Create a new scheduled task
+ * - [CRON_LIST] - List all scheduled tasks
+ * - [CRON_DELETE: task-id] - Delete a scheduled task
+ *
+ * NOTE: Commands inside markdown code blocks are ignored to prevent
+ * documentation examples from being executed.
+ *
+ * @param content - The text content to scan
+ * @returns Array of detected commands
+ */
+export function detectCronCommands(content: string): CronCommand[] {
+  if (!content || typeof content !== 'string') {
+    return [];
+  }
+
+  // Strip code blocks to avoid detecting commands in examples
+  const cleanContent = stripCodeBlocks(content);
+
+  const commands: CronCommand[] = [];
+
+  // Detect [CRON_CREATE]...[/CRON_CREATE]
+  const createMatches = cleanContent.matchAll(/\[CRON_CREATE\]\s*\n?([\s\S]*?)\[\/CRON_CREATE\]/gi);
+  for (const match of createMatches) {
+    const body = match[1];
+    const parsed = parseCronCreateBody(body);
+    if (parsed) {
+      commands.push({ kind: 'create', ...parsed });
+    }
+  }
+
+  // Fallback: Try to parse unclosed CRON_CREATE block (agent forgot closing tag)
+  if (commands.filter((c) => c.kind === 'create').length === 0) {
+    const hasOpenCreate = /\[CRON_CREATE\]/i.test(cleanContent);
+    const hasCloseCreate = /\[\/CRON_CREATE\]/i.test(cleanContent);
+    if (hasOpenCreate && !hasCloseCreate) {
+      // Try to extract content after [CRON_CREATE] until end or next command
+      const fallbackMatch = cleanContent.match(/\[CRON_CREATE\]\s*\n?([\s\S]*?)(?=\[CRON_(?:LIST|DELETE)|$)/i);
+      if (fallbackMatch) {
+        const body = fallbackMatch[1];
+        const parsed = parseCronCreateBody(body);
+        if (parsed) {
+          commands.push({ kind: 'create', ...parsed });
+        }
+      }
+    }
+  }
+
+  // v0.6.2.6 - Detect [CRON_PROPOSE]...[/CRON_PROPOSE]
+  // Same body shape as CREATE but renders a user-confirmation card instead
+  // of firing the cron immediately. The agent uses PROPOSE for any
+  // user-driven scheduling request; CREATE is reserved for the rare
+  // explicit "create now without asking" override case (per the rewritten
+  // cron skill SKILL.md in v0.6.2.6 W5).
+  const proposeMatches = cleanContent.matchAll(/\[CRON_PROPOSE\]\s*\n?([\s\S]*?)\[\/CRON_PROPOSE\]/gi);
+  for (const match of proposeMatches) {
+    const parsed = parseCronCreateBody(match[1]);
+    if (parsed) {
+      // Re-shape: PROPOSE uses `prompt` instead of `message` for clarity at
+      // the UI surface; same content semantics underneath.
+      commands.push({
+        kind: 'propose',
+        name: parsed.name,
+        schedule: parsed.schedule,
+        scheduleDescription: parsed.scheduleDescription,
+        prompt: parsed.message,
+      });
+    }
+  }
+
+  // Fallback: Try to parse unclosed CRON_PROPOSE block (agent forgot closing tag)
+  if (commands.filter((c) => c.kind === 'propose').length === 0) {
+    const hasOpen = /\[CRON_PROPOSE\]/i.test(cleanContent);
+    const hasClose = /\[\/CRON_PROPOSE\]/i.test(cleanContent);
+    if (hasOpen && !hasClose) {
+      const fallback = cleanContent.match(/\[CRON_PROPOSE\]\s*\n?([\s\S]*?)(?=\[CRON_(?:CREATE|LIST|DELETE|UPDATE)|$)/i);
+      if (fallback) {
+        const parsed = parseCronCreateBody(fallback[1]);
+        if (parsed) {
+          commands.push({
+            kind: 'propose',
+            name: parsed.name,
+            schedule: parsed.schedule,
+            scheduleDescription: parsed.scheduleDescription,
+            prompt: parsed.message,
+          });
+        }
+      }
+    }
+  }
+
+  // Detect [CRON_UPDATE: jobId]...[/CRON_UPDATE]
+  const updateMatches = cleanContent.matchAll(/\[CRON_UPDATE:\s*([^\]]+)\]\s*\n?([\s\S]*?)\[\/CRON_UPDATE\]/gi);
+  for (const match of updateMatches) {
+    const jobId = match[1].trim();
+    const body = match[2];
+    const parsed = parseCronCreateBody(body);
+    if (parsed && jobId) {
+      commands.push({ kind: 'update', jobId, ...parsed });
+    }
+  }
+
+  // Detect [CRON_LIST]
+  if (/\[CRON_LIST\]/i.test(cleanContent)) {
+    commands.push({ kind: 'list' });
+  }
+
+  return commands;
+}
+
+/**
+ * Parse the body of a CRON_CREATE block
+ *
+ * Expected format:
+ * name: Task name
+ * schedule: 0 9 * * MON
+ * schedule_description: Every Monday at 9:00 AM (optional, will auto-generate if missing)
+ * message: Message content (can be multi-line until next field or end)
+ */
+function parseCronCreateBody(
+  body: string
+): { name: string; schedule: string; scheduleDescription: string; message: string } | null {
+  if (!body) {
+    return null;
+  }
+
+  // Extract name
+  const nameMatch = body.match(/name:\s*(.+)/i);
+  const name = nameMatch?.[1]?.trim();
+
+  // Extract schedule (cron expression)
+  const scheduleMatch = body.match(/^schedule:\s*(.+)/im);
+  const schedule = scheduleMatch?.[1]?.trim();
+
+  // Extract schedule_description (human-readable) - required
+  const scheduleDescMatch = body.match(/schedule_description:\s*(.+)/i);
+  const scheduleDescription = scheduleDescMatch?.[1]?.trim();
+
+  // Extract message - everything after "message:" until end or next field
+  // Message can be multi-line
+  const messageMatch = body.match(/message:\s*([\s\S]*?)(?=\n(?:name|schedule|schedule_description):|$)/i);
+  let message = messageMatch?.[1]?.trim();
+
+  // If message ends with [/CRON_CREATE], strip it (should already be stripped, but just in case)
+  if (message) {
+    message = message.replace(/\[\/CRON_CREATE\]/gi, '').trim();
+  }
+
+  // Validate required fields
+  if (!name || !schedule || !scheduleDescription || !message) {
+    return null;
+  }
+
+  return { name, schedule, scheduleDescription, message };
+}
+
+/**
+ * Check if content contains any cron commands
+ * Useful for quick check before full parsing
+ */
+export function hasCronCommands(content: string): boolean {
+  if (!content || typeof content !== 'string') {
+    return false;
+  }
+  return /\[CRON_(?:CREATE|PROPOSE|UPDATE|LIST)/i.test(content);
+}
+
+/**
+ * Strip cron command blocks from content
+ * Used to create clean display version for UI
+ */
+export function stripCronCommands(content: string): string {
+  if (!content || typeof content !== 'string') {
+    return content;
+  }
+
+  return content
+    .replace(/\[CRON_CREATE\][\s\S]*?\[\/CRON_CREATE\]/gi, '')
+    .replace(/\[CRON_PROPOSE\][\s\S]*?\[\/CRON_PROPOSE\]/gi, '')
+    .replace(/\[CRON_UPDATE:[^\]]*\][\s\S]*?\[\/CRON_UPDATE\]/gi, '')
+    .replace(/\[CRON_LIST\]/gi, '')
+    .replace(/\n{3,}/g, '\n\n') // Collapse multiple newlines
+    .trim();
+}

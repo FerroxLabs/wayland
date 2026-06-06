@@ -1,0 +1,181 @@
+{
+  "title": "Beceriler",
+  "subtitle": "Asistanlarınız için becerileri yönetin ve keşfedin",
+  "search": {
+    "placeholder": "Beceri ara...",
+    "empty": "Aramanızla eşleşen beceri yok",
+    "resultsCount": "{{count}} eşleşen beceri",
+    "emptyLibrary": "Henüz yüklenmiş beceri yok - bir tane içe aktarmayı deneyin veya paketlenmiş kütüphaneyi yeniden yüklemek için uygulamayı yeniden başlatın."
+  },
+  "filters": {
+    "allSources": "Tüm kaynaklar",
+    "source": {
+      "wayland-library": "Wayland kitaplığı",
+      "team": "Ekip",
+      "user": "Becerilerim",
+      "imported": "İçe aktarılan",
+      "cli-discovered": "CLI'larınızdan"
+    },
+    "verdict": {
+      "all": "Tümü",
+      "clean": "Temiz",
+      "review": "İnceleme gerekiyor",
+      "blocked": "Engellendi"
+    },
+    "category": {
+      "all": "Tüm kategoriler"
+    }
+  },
+  "status": {
+    "scanned": "Tarandı - sorun tespit edilmedi",
+    "review": "İnceleme gerekiyor",
+    "blocked": "Engellendi - karantinaya alındı",
+    "unscanned": "Henüz taranmadı"
+  },
+  "actions": {
+    "pin": "Tüm asistanlara sabitle",
+    "unpin": "Sabitlemeyi kaldır",
+    "enable": "Etkinleştir",
+    "disable": "Devre dışı bırak",
+    "delete": "Sil",
+    "import": "İçe aktar",
+    "build": "Beceri oluştur"
+  },
+  "threats": {
+    "credential-access": "Kimlik bilgisi erişimi",
+    "network-exfiltration": "Ağ üzerinden veri sızıntısı",
+    "shell-execution": "Kabuk yürütme",
+    "filesystem-write": "Dosya sistemine yazma",
+    "instruction-override": "Talimat geçersiz kılma",
+    "obfuscation": "Gizleme",
+    "index-poisoning": "İndeks zehirleme"
+  },
+  "severity": {
+    "critical": "Kritik",
+    "medium": "Orta",
+    "low": "Düşük"
+  },
+  "import": {
+    "title": "Beceri içe aktar",
+    "source": {
+      "folder": "Klasör",
+      "git": "Git URL",
+      "zip": "ZIP dosyası",
+      "marketplace": "Market (yakında)",
+      "singleSkillMd": "Tek SKILL.md"
+    },
+    "folder": {
+      "label": "Beceri klasörü",
+      "placeholder": "Bir klasör seçmek için tıklayın…",
+      "browse": "Gözat"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP dosyası",
+      "placeholder": "Bir ZIP seçmek için tıklayın…",
+      "browse": "Gözat"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md dosyası",
+      "placeholder": "Bir SKILL.md seçmek için tıklayın…",
+      "browse": "Gözat"
+    },
+    "actions": {
+      "import": "İçe aktar",
+      "importing": "İçe aktarılıyor…",
+      "importAllClean": "Tüm temiz olanları içe aktar",
+      "reviewAndSelect": "İncele ve seç",
+      "cancel": "İptal"
+    },
+    "scan": {
+      "title": "Tarama sonuçları",
+      "verdict": {
+        "clean": "Temiz",
+        "review": "İnceleme gerekiyor",
+        "blocked": "Engellendi"
+      },
+      "noFindings": "Sorun bulunamadı",
+      "finding": "{{count}} bulgu",
+      "finding_other": "{{count}} bulgu"
+    },
+    "error": {
+      "failed": "İçe aktarma başarısız oldu",
+      "invalidUrl": "Geçerli bir https:// veya git@ URL girin"
+    }
+  },
+  "builder": {
+    "title": "Beceri oluştur",
+    "tab": {
+      "write": "Kendim yazarım",
+      "describe": "Açıkla"
+    },
+    "form": {
+      "name": {
+        "label": "Ad",
+        "placeholder": "ör. my-skill"
+      },
+      "description": {
+        "label": "Açıklama",
+        "placeholder": "Bu beceri ne yapar?",
+        "hint": "Modelin doğru etkinleştirmesi için kullanım ve kullanmama koşullarını belirtin."
+      },
+      "category": {
+        "label": "Kategori",
+        "placeholder": "ör. coding"
+      },
+      "tags": {
+        "label": "Etiketler",
+        "placeholder": "virgülle ayrılmış, ör. git, review"
+      },
+      "body": {
+        "label": "SKILL.md gövdesi"
+      }
+    },
+    "describe": {
+      "label": "Becerini açıkla",
+      "placeholder": "Becerini doğal dilde açıkla, sana bir SKILL.md taslağı oluşturalım…",
+      "generate": "Oluştur",
+      "generating": "Oluşturuluyor…"
+    },
+    "actions": {
+      "save": "Beceriyi kaydet",
+      "saving": "Kaydediliyor…",
+      "cancel": "İptal",
+      "done": "Tamam"
+    },
+    "verdict": {
+      "clean": "\"{{name}}\" becerisi başarıyla kaydedildi.",
+      "review": "\"{{name}}\" becerisi kaydedildi, ancak inceleme gerekiyor.",
+      "blocked": "\"{{name}}\" becerisi Skill Guard tarafından engellendi ve kaydedilmedi. İşaretli içeriği kaldırmak için gövdeyi düzenleyin."
+    },
+    "error": {
+      "saveFailed": "Kayıt başarısız",
+      "generateFailed": "Oluşturma başarısız"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Wayland bunu yüklediğinde",
+    "metadata": "Meta veri",
+    "body": "Gövde",
+    "quarantined": "Bu beceri karantinaya alındı ve yüklenemiyor."
+  },
+  "stats": {
+    "total": "Toplam beceri",
+    "pinned": "Sabitlenmiş",
+    "flagged": "İşaretlenmiş",
+    "sources": "Kaynaklar"
+  },
+  "sections": {
+    "sources": "Kaynaklar",
+    "status": "Durum",
+    "categories": "Kategoriler"
+  },
+  "cliDiscovery": {
+    "title": "Becerileri kurulu CLI araçlarından yansıt",
+    "subtitle": "~/.claude/skills, ~/.codex/skills ve ~/.gemini/skills içindeki becerileri Beceriler sayfanızda görünmeleri için ortaya çıkarın. İsteğe bağlıdır. Etkili olması için yeniden başlatma gerekir.",
+    "restartNeeded": "- uygulamak için uygulamayı yeniden başlatın."
+  }
+}

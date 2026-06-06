@@ -1,0 +1,1856 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { ensureDirectory, getDataPath } from '@process/utils';
+import type { ISqliteDriver } from './drivers/ISqliteDriver';
+import { createDriver } from './drivers/createDriver';
+import fs from 'fs';
+import path from 'path';
+import { runMigrations as executeMigrations } from './migrations';
+import { CURRENT_DB_VERSION, getDatabaseVersion, initSchema, setDatabaseVersion } from './schema';
+import type {
+  IConversationRow,
+  IMessageRow,
+  IPaginatedResult,
+  IProjectRow,
+  IQueryResult,
+  IUser,
+  TChatConversation,
+  TMessage,
+} from './types';
+import { conversationToRow, messageToRow, projectToRow, rowToConversation, rowToMessage, rowToProject } from './types';
+import type { IProject } from '@/common/types/project';
+import type { IMessageSearchItem, IMessageSearchResponse } from '@/common/types/database';
+import type {
+  IChannelPluginConfig,
+  IChannelUser,
+  IChannelSession,
+  IChannelPairingRequest,
+  IChannelUserRow,
+  IChannelSessionRow,
+  IChannelPairingCodeRow,
+  PluginType,
+  PluginStatus,
+} from '@process/channels/types';
+import type { ConversationSource, TProviderWithModel } from '@/common/config/storage';
+import type { RemoteAgentConfig, RemoteAgentStatus } from '@process/agent/remote';
+import { rowToChannelUser, rowToChannelSession, rowToPairingRequest } from '@process/channels/types';
+import {
+  encryptCredentials,
+  decryptCredentials,
+  encryptString,
+  decryptString,
+} from '@process/channels/utils/credentialCrypto';
+
+type IConversationMessageSearchRow = IConversationRow & {
+  message_id: string;
+  message_type: TMessage['type'];
+  message_content: string;
+  message_created_at: number;
+};
+
+const escapeLikePattern = (value: string): string => value.replace(/[\\%_]/g, (match) => `\\${match}`);
+
+const NATIVE_MODULE_LOAD_ERROR_PATTERNS = ['NODE_MODULE_VERSION', 'was compiled against', 'dlopen'];
+
+const DATABASE_CORRUPTION_PATTERNS = [
+  'SQLITE_CORRUPT',
+  'SQLITE_NOTADB',
+  'database disk image is malformed',
+  'file is not a database',
+  'malformed database schema',
+  'unsupported file format',
+];
+
+const isNativeModuleLoadError = (message: string): boolean => {
+  return NATIVE_MODULE_LOAD_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+};
+
+const isDatabaseCorruptionError = (message: string): boolean => {
+  const normalizedMessage = message.toLowerCase();
+  return DATABASE_CORRUPTION_PATTERNS.some((pattern) => normalizedMessage.includes(pattern.toLowerCase()));
+};
+
+const extractSearchPreviewText = (rawContent: string): string => {
+  const collectStrings = (value: unknown, bucket: string[]): void => {
+    if (typeof value === 'string') {
+      const normalized = value.trim();
+      if (normalized) {
+        bucket.push(normalized);
+      }
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => collectStrings(item, bucket));
+      return;
+    }
+
+    if (value && typeof value === 'object') {
+      Object.values(value).forEach((item) => collectStrings(item, bucket));
+    }
+  };
+
+  try {
+    const parsed = JSON.parse(rawContent);
+    const bucket: string[] = [];
+    collectStrings(parsed, bucket);
+    const previewText = bucket.join(' ').replace(/\s+/g, ' ').trim();
+    return previewText || rawContent;
+  } catch {
+    return rawContent.replace(/\s+/g, ' ').trim();
+  }
+};
+
+/**
+ * Main database class for Wayland
+ * Uses a pluggable ISqliteDriver for SQLite operations
+ */
+export class WaylandUIDatabase {
+  private db: ISqliteDriver;
+  private readonly defaultUserId = 'system_default_user';
+  private readonly systemPasswordPlaceholder = '';
+
+  private constructor(db: ISqliteDriver) {
+    this.db = db;
+  }
+
+  /**
+   * Create a new WaylandUIDatabase instance with corruption recovery.
+   * This is the only way to obtain an instance - the constructor is private.
+   */
+  static async create(dbPath: string): Promise<WaylandUIDatabase> {
+    const dir = path.dirname(dbPath);
+    ensureDirectory(dir);
+
+    // Attempt normal initialization
+    let failedDriver: ISqliteDriver | null = null;
+    try {
+      const driver = await createDriver(dbPath);
+      failedDriver = driver;
+      const instance = new WaylandUIDatabase(driver);
+      instance.initialize();
+      return instance;
+    } catch (error) {
+      // Close the driver opened during the failed attempt.
+      // On Windows, leaving it open locks the file and prevents recovery (EPERM).
+      if (failedDriver) {
+        try {
+          failedDriver.close();
+        } catch {
+          // ignore close errors during recovery
+        }
+        failedDriver = null;
+      }
+
+      // Distinguish driver-level errors (native module mismatch, missing .node file)
+      // from actual database corruption. Driver errors must NOT trigger recovery -
+      // replacing a healthy database because of a build tooling issue causes data loss.
+      const msg = error instanceof Error ? error.message : String(error);
+      if (isNativeModuleLoadError(msg)) {
+        console.error(
+          '[Database] Native module load error - will NOT attempt recovery (database is likely intact):',
+          msg
+        );
+        throw error;
+      }
+      if (!isDatabaseCorruptionError(msg)) {
+        console.error('[Database] Initialization failed - will NOT attempt recovery without a corruption signal:', msg);
+        throw error;
+      }
+      console.error('[Database] Failed to initialize due to corruption, attempting recovery...', error);
+    }
+
+    // Recovery: backup corrupted file and start fresh.
+    // IMPORTANT: also remove the WAL (-wal) and shared-memory (-shm) sidecar files.
+    // If they are left behind, SQLite will try to apply the stale WAL to the new
+    // empty database on the next open, which causes another initialization failure
+    // and triggers an infinite recovery loop.
+    if (fs.existsSync(dbPath)) {
+      const backupPath = `${dbPath}.backup.${Date.now()}`;
+      try {
+        fs.renameSync(dbPath, backupPath);
+        console.log(`[Database] Backed up corrupted database to: ${backupPath}`);
+      } catch {
+        try {
+          fs.unlinkSync(dbPath);
+          console.log('[Database] Deleted corrupted database file');
+        } catch (e2) {
+          throw new Error('Database is corrupted and cannot be recovered. Please manually delete: ' + dbPath, {
+            cause: e2,
+          });
+        }
+      }
+    }
+    // Remove stale WAL sidecar files so SQLite starts with a clean slate
+    for (const suffix of ['-wal', '-shm']) {
+      const sidecar = dbPath + suffix;
+      if (fs.existsSync(sidecar)) {
+        try {
+          fs.unlinkSync(sidecar);
+          console.log(`[Database] Removed stale WAL sidecar: ${sidecar}`);
+        } catch (e) {
+          console.warn(`[Database] Could not remove sidecar ${sidecar}:`, e);
+        }
+      }
+    }
+
+    // Retry with fresh file
+    const driver = await createDriver(dbPath);
+    const instance = new WaylandUIDatabase(driver);
+    instance.initialize();
+    return instance;
+  }
+
+  private initialize(): void {
+    try {
+      initSchema(this.db);
+
+      // Check and run migrations if needed
+      const currentVersion = getDatabaseVersion(this.db);
+      if (currentVersion < CURRENT_DB_VERSION) {
+        this.runMigrations(currentVersion, CURRENT_DB_VERSION);
+        setDatabaseVersion(this.db, CURRENT_DB_VERSION);
+      }
+
+      this.ensureSystemUser();
+    } catch (error) {
+      console.error('[Database] Initialization failed:', error);
+      throw error;
+    }
+  }
+
+  private runMigrations(from: number, to: number): void {
+    executeMigrations(this.db, from, to);
+  }
+
+  private ensureSystemUser(): void {
+    const now = Date.now();
+    this.db
+      .prepare(
+        `INSERT OR IGNORE INTO users (id, username, email, password_hash, avatar_path, created_at, updated_at, last_login, jwt_secret)
+         VALUES (?, ?, NULL, ?, NULL, ?, ?, NULL, NULL)`
+      )
+      .run(this.defaultUserId, this.defaultUserId, this.systemPasswordPlaceholder, now, now);
+  }
+
+  getSystemUser(): IUser | null {
+    const user = this.db.prepare('SELECT * FROM users WHERE id = ?').get(this.defaultUserId) as IUser | undefined;
+    return user ?? null;
+  }
+
+  setSystemUserCredentials(username: string, passwordHash: string): void {
+    const now = Date.now();
+    this.db
+      .prepare(
+        `UPDATE users
+         SET username = ?, password_hash = ?, updated_at = ?, created_at = COALESCE(created_at, ?)
+         WHERE id = ?`
+      )
+      .run(username, passwordHash, now, now, this.defaultUserId);
+  }
+
+  updateUserUsername(userId: string, username: string): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      this.db.prepare('UPDATE users SET username = ?, updated_at = ? WHERE id = ?').run(username, now, userId);
+      return {
+        success: true,
+        data: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        data: false,
+      };
+    }
+  }
+  /**
+   * Expose the underlying SQLite driver for repositories that need raw SQL access.
+   * Prefer using dedicated methods on WaylandUIDatabase where possible.
+   */
+  getDriver(): ISqliteDriver {
+    return this.db;
+  }
+
+  /**
+   * Close database connection
+   */
+  close(): void {
+    this.db.close();
+  }
+
+  /**
+   * ==================
+   * User operations
+   * ==================
+   */
+
+  /**
+   * Create a new user in the database
+   *
+   * @param username - Username (unique identifier)
+   * @param email - User email (optional)
+   * @param passwordHash - Hashed password (use bcrypt)
+   * @returns Query result with created user data
+   */
+  createUser(username: string, email: string | undefined, passwordHash: string): IQueryResult<IUser> {
+    try {
+      const userId = `user_${Date.now()}`;
+      const now = Date.now();
+
+      const stmt = this.db.prepare(`
+        INSERT INTO users (id, username, email, password_hash, avatar_path, created_at, updated_at, last_login)
+        VALUES (?, ?, ?, ?, NULL, ?, ?, NULL)
+      `);
+
+      stmt.run(userId, username, email ?? null, passwordHash, now, now);
+
+      return {
+        success: true,
+        data: {
+          id: userId,
+          username,
+          email,
+          password_hash: passwordHash,
+          created_at: now,
+          updated_at: now,
+          last_login: null,
+        },
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Get user by user ID
+   *
+   * @param userId - User ID to query
+   * @returns Query result with user data or error if not found
+   */
+  getUser(userId: string): IQueryResult<IUser> {
+    try {
+      const user = this.db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as IUser | undefined;
+
+      if (!user) {
+        return {
+          success: false,
+          error: 'User not found',
+        };
+      }
+
+      return {
+        success: true,
+        data: user,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Get user by username (used for authentication)
+   *
+   * @param username - Username to query
+   * @returns Query result with user data or null if not found
+   */
+  getUserByUsername(username: string): IQueryResult<IUser | null> {
+    try {
+      const user = this.db.prepare('SELECT * FROM users WHERE username = ?').get(username) as IUser | undefined;
+
+      return {
+        success: true,
+        data: user ?? null,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        data: null,
+      };
+    }
+  }
+
+  /**
+   * Get all users (excluding system default user)
+   *
+   * @returns Query result with array of all users ordered by creation time
+   */
+  getAllUsers(): IQueryResult<IUser[]> {
+    try {
+      const stmt = this.db.prepare('SELECT * FROM users ORDER BY created_at ASC');
+      const rows = stmt.all() as IUser[];
+
+      return {
+        success: true,
+        data: rows,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        data: [],
+      };
+    }
+  }
+
+  /**
+   * Get total count of users (excluding system default user)
+   *
+   * @returns Query result with user count
+   */
+  getUserCount(): IQueryResult<number> {
+    try {
+      const stmt = this.db.prepare('SELECT COUNT(*) as count FROM users');
+      const row = stmt.get() as { count: number };
+
+      return {
+        success: true,
+        data: row.count,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        data: 0,
+      };
+    }
+  }
+
+  /**
+   * Check if any users exist in the database
+   *
+   * @returns Query result with boolean indicating if users exist
+   */
+  hasUsers(): IQueryResult<boolean> {
+    try {
+      // Count only accounts with a non-empty password to ignore placeholder entries
+      const stmt = this.db.prepare(
+        `SELECT COUNT(*) as count FROM users WHERE password_hash IS NOT NULL AND TRIM(password_hash) != ''`
+      );
+      const row = stmt.get() as { count: number };
+      return {
+        success: true,
+        data: row.count > 0,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Update user's last login timestamp
+   *
+   * @param userId - User ID to update
+   * @returns Query result with success status
+   */
+  updateUserLastLogin(userId: string): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      this.db.prepare('UPDATE users SET last_login = ?, updated_at = ? WHERE id = ?').run(now, now, userId);
+      return {
+        success: true,
+        data: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        data: false,
+      };
+    }
+  }
+
+  /**
+   * Update user's password hash
+   *
+   * @param userId - User ID to update
+   * @param newPasswordHash - New hashed password (use bcrypt)
+   * @returns Query result with success status
+   */
+  updateUserPassword(userId: string, newPasswordHash: string): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      this.db
+        .prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?')
+        .run(newPasswordHash, now, userId);
+      return {
+        success: true,
+        data: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        data: false,
+      };
+    }
+  }
+
+  /**
+   * Update user's JWT secret
+   */
+  updateUserJwtSecret(userId: string, jwtSecret: string): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      this.db.prepare('UPDATE users SET jwt_secret = ?, updated_at = ? WHERE id = ?').run(jwtSecret, now, userId);
+      return {
+        success: true,
+        data: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+        data: false,
+      };
+    }
+  }
+
+  /**
+   * ==================
+   * Conversation operations
+   * ==================
+   */
+
+  createConversation(conversation: TChatConversation, userId?: string): IQueryResult<TChatConversation> {
+    try {
+      const row = conversationToRow(conversation, userId || this.defaultUserId);
+
+      const stmt = this.db.prepare(`
+        INSERT INTO conversations (id, user_id, name, type, extra, model, status, source, channel_chat_id, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      stmt.run(
+        row.id,
+        row.user_id,
+        row.name,
+        row.type,
+        row.extra,
+        row.model,
+        row.status,
+        row.source,
+        row.channel_chat_id ?? null,
+        row.created_at,
+        row.updated_at
+      );
+
+      return {
+        success: true,
+        data: conversation,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  getConversation(conversationId: string): IQueryResult<TChatConversation> {
+    try {
+      const row = this.db.prepare('SELECT * FROM conversations WHERE id = ?').get(conversationId) as
+        | IConversationRow
+        | undefined;
+
+      if (!row) {
+        return {
+          success: false,
+          error: 'Conversation not found',
+        };
+      }
+
+      return {
+        success: true,
+        data: rowToConversation(row),
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Find the latest channel conversation by source, chat ID, type, and optionally backend.
+   * Used for per-chat conversation isolation in channel platforms.
+   *
+   * For ACP conversations, `backend` distinguishes between claude, codebuddy, etc.
+   * (stored in `extra.backend` JSON field).
+   */
+  findChannelConversation(
+    source: ConversationSource,
+    channelChatId: string,
+    type: string,
+    backend?: string,
+    userId?: string
+  ): IQueryResult<TChatConversation | null> {
+    try {
+      const finalUserId = userId || this.defaultUserId;
+
+      let row: IConversationRow | undefined;
+      if (backend) {
+        row = this.db
+          .prepare(
+            `
+            SELECT * FROM conversations
+            WHERE user_id = ? AND source = ? AND channel_chat_id = ? AND type = ?
+              AND json_extract(extra, '$.backend') = ?
+            ORDER BY updated_at DESC
+            LIMIT 1
+          `
+          )
+          .get(finalUserId, source, channelChatId, type, backend) as IConversationRow | undefined;
+      } else {
+        row = this.db
+          .prepare(
+            `
+            SELECT * FROM conversations
+            WHERE user_id = ? AND source = ? AND channel_chat_id = ? AND type = ?
+            ORDER BY updated_at DESC
+            LIMIT 1
+          `
+          )
+          .get(finalUserId, source, channelChatId, type) as IConversationRow | undefined;
+      }
+
+      return {
+        success: true,
+        data: row ? rowToConversation(row) : null,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Batch-update the model field on channel conversations matching source + type.
+   * Used when channel settings change to propagate new model to existing conversations.
+   */
+  updateChannelConversationModel(
+    source: 'telegram' | 'lark' | 'dingtalk' | 'weixin' | 'wecom',
+    type: string,
+    model: TProviderWithModel,
+    userId?: string
+  ): IQueryResult<number> {
+    try {
+      const finalUserId = userId || this.defaultUserId;
+      const modelJson = JSON.stringify(model);
+      const now = Date.now();
+      const stmt = this.db.prepare(`
+        UPDATE conversations SET model = ?, updated_at = ?
+        WHERE user_id = ? AND source = ? AND type = ?
+      `);
+      const result = stmt.run(modelJson, now, finalUserId, source, type);
+      return { success: true, data: result.changes };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  getUserConversations(userId?: string, page = 0, pageSize = 50): IPaginatedResult<TChatConversation> {
+    try {
+      const finalUserId = userId || this.defaultUserId;
+
+      const countResult = this.db
+        .prepare('SELECT COUNT(*) as count FROM conversations WHERE user_id = ?')
+        .get(finalUserId) as {
+        count: number;
+      };
+
+      const rows = this.db
+        .prepare(
+          `
+            SELECT *
+            FROM conversations
+            WHERE user_id = ?
+            ORDER BY updated_at DESC LIMIT ?
+            OFFSET ?
+          `
+        )
+        .all(finalUserId, pageSize, page * pageSize) as IConversationRow[];
+
+      const data: TChatConversation[] = [];
+      for (const row of rows) {
+        try {
+          data.push(rowToConversation(row));
+        } catch (e) {
+          console.warn('[Database] Skipping conversation row with unknown type:', row.type, row.id);
+        }
+      }
+
+      return {
+        data,
+        total: countResult.count,
+        page,
+        pageSize,
+        hasMore: (page + 1) * pageSize < countResult.count,
+      };
+    } catch (error: any) {
+      console.error('[Database] Get conversations error:', error);
+      return {
+        data: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+      };
+    }
+  }
+
+  getConversationsByCronJobId(cronJobId: string): TChatConversation[] {
+    const rows = this.db
+      .prepare(`SELECT * FROM conversations WHERE json_extract(extra, '$.cronJobId') = ? ORDER BY created_at DESC`)
+      .all(cronJobId) as IConversationRow[];
+    const result: TChatConversation[] = [];
+    for (const row of rows) {
+      try {
+        result.push(rowToConversation(row));
+      } catch (e) {
+        console.warn('[Database] Skipping conversation row with unknown type:', row.type, row.id);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * v0.4.7.1 (ENGINE-3) - list conversations whose `extra.presetAssistantId`
+   * equals the given id, newest-first (by updated_at), capped at `limit`.
+   * Uses `json_extract` against the `extra` blob column, mirroring the
+   * pattern already proven in `getConversationsByCronJobId` above. Used by
+   * the Kickoff SignalCollector to find recent per-assistant threads
+   * without paginating the whole conversation table.
+   */
+  getConversationsByPresetAssistantId(presetAssistantId: string, limit = 20): TChatConversation[] {
+    const safeLimit = Math.max(1, Math.min(1000, Math.floor(limit)));
+    const rows = this.db
+      .prepare(
+        `SELECT * FROM conversations WHERE json_extract(extra, '$.presetAssistantId') = ? ORDER BY updated_at DESC LIMIT ?`
+      )
+      .all(presetAssistantId, safeLimit) as IConversationRow[];
+    const result: TChatConversation[] = [];
+    for (const row of rows) {
+      try {
+        result.push(rowToConversation(row));
+      } catch (e) {
+        console.warn('[Database] Skipping conversation row with unknown type:', row.type, row.id);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * List conversations belonging to a project, newest-first. Uses
+   * `json_extract(extra,'$.projectId')` - the same pattern as
+   * `getConversationsByCronJobId` / `getConversationsByPresetAssistantId`.
+   * A project is an umbrella; there is no execution lock, so this can return
+   * any number of concurrently-running conversations.
+   */
+  getConversationsByProjectId(projectId: string): TChatConversation[] {
+    const rows = this.db
+      .prepare(`SELECT * FROM conversations WHERE json_extract(extra, '$.projectId') = ? ORDER BY updated_at DESC`)
+      .all(projectId) as IConversationRow[];
+    const result: TChatConversation[] = [];
+    for (const row of rows) {
+      try {
+        result.push(rowToConversation(row));
+      } catch (e) {
+        console.warn('[Database] Skipping conversation row with unknown type:', row.type, row.id);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * ==================
+   * Project operations (umbrella scoping - migration_v43)
+   * ==================
+   */
+
+  createProject(project: IProject, userId?: string): IQueryResult<IProject> {
+    try {
+      const row = projectToRow(project, userId || this.defaultUserId);
+      const stmt = this.db.prepare(`
+        INSERT INTO projects (id, user_id, name, description, workspace, icon, icon_color, pinned, pinned_at, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      stmt.run(
+        row.id,
+        row.user_id,
+        row.name,
+        row.description ?? null,
+        row.workspace ?? null,
+        row.icon ?? null,
+        row.icon_color ?? null,
+        row.pinned,
+        row.pinned_at ?? null,
+        row.created_at,
+        row.updated_at
+      );
+      return { success: true, data: project };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  getProject(projectId: string): IQueryResult<IProject | null> {
+    try {
+      const row = this.db.prepare('SELECT * FROM projects WHERE id = ?').get(projectId) as IProjectRow | undefined;
+      return { success: true, data: row ? rowToProject(row) : null };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  listProjects(userId?: string): IQueryResult<IProject[]> {
+    try {
+      const finalUserId = userId || this.defaultUserId;
+      const rows = this.db
+        .prepare(
+          `SELECT * FROM projects WHERE user_id = ? ORDER BY pinned DESC, pinned_at DESC, updated_at DESC`
+        )
+        .all(finalUserId) as IProjectRow[];
+      return { success: true, data: rows.map(rowToProject) };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  updateProject(projectId: string, updates: Partial<IProject>): IQueryResult<boolean> {
+    try {
+      const existing = this.getProject(projectId);
+      if (!existing.success || !existing.data) {
+        return { success: false, error: 'Project not found' };
+      }
+      const merged: IProject = { ...existing.data, ...updates, modifyTime: Date.now() };
+      const row = projectToRow(merged, this.defaultUserId);
+      const stmt = this.db.prepare(`
+        UPDATE projects
+        SET name = ?, description = ?, workspace = ?, icon = ?, icon_color = ?, pinned = ?, pinned_at = ?, updated_at = ?
+        WHERE id = ?
+      `);
+      stmt.run(
+        row.name,
+        row.description ?? null,
+        row.workspace ?? null,
+        row.icon ?? null,
+        row.icon_color ?? null,
+        row.pinned,
+        row.pinned_at ?? null,
+        row.updated_at,
+        projectId
+      );
+      return { success: true, data: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Delete a project. First detaches every owned conversation by clearing its
+   * `extra.projectId` (json_set) so chats survive as standalone - deleting a
+   * project must never destroy a user's conversations. Then removes the row.
+   */
+  removeProject(projectId: string): IQueryResult<boolean> {
+    try {
+      const detach = this.db.transaction(() => {
+        this.db
+          .prepare(
+            `UPDATE conversations SET extra = json_remove(extra, '$.projectId') WHERE json_extract(extra, '$.projectId') = ?`
+          )
+          .run(projectId);
+        this.db.prepare('DELETE FROM projects WHERE id = ?').run(projectId);
+      });
+      detach();
+      return { success: true, data: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  updateConversation(conversationId: string, updates: Partial<TChatConversation>): IQueryResult<boolean> {
+    try {
+      const existing = this.getConversation(conversationId);
+      if (!existing.success || !existing.data) {
+        return {
+          success: false,
+          error: 'Conversation not found',
+        };
+      }
+
+      const updated = {
+        ...existing.data,
+        ...updates,
+        modifyTime: Date.now(),
+      } as TChatConversation;
+      const row = conversationToRow(updated, this.defaultUserId);
+
+      const stmt = this.db.prepare(`
+        UPDATE conversations
+        SET name       = ?,
+            extra      = ?,
+            model      = ?,
+            status     = ?,
+            updated_at = ?
+        WHERE id = ?
+      `);
+
+      stmt.run(row.name, row.extra, row.model, row.status, row.updated_at, conversationId);
+
+      return {
+        success: true,
+        data: true,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  deleteConversation(conversationId: string): IQueryResult<boolean> {
+    try {
+      const stmt = this.db.prepare('DELETE FROM conversations WHERE id = ?');
+      const result = stmt.run(conversationId);
+
+      return {
+        success: true,
+        data: result.changes > 0,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * ==================
+   * Message operations
+   * ==================
+   */
+
+  insertMessage(message: TMessage): IQueryResult<TMessage> {
+    try {
+      const row = messageToRow(message);
+
+      const stmt = this.db.prepare(`
+        INSERT INTO messages (id, conversation_id, msg_id, type, content, position, status, hidden, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      stmt.run(
+        row.id,
+        row.conversation_id,
+        row.msg_id,
+        row.type,
+        row.content,
+        row.position,
+        row.status,
+        row.hidden ?? 0,
+        row.created_at
+      );
+
+      return {
+        success: true,
+        data: message,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  getConversationMessages(conversationId: string, page = 0, pageSize = 100, order = 'ASC'): IPaginatedResult<TMessage> {
+    try {
+      const countResult = this.db
+        .prepare('SELECT COUNT(*) as count FROM messages WHERE conversation_id = ?')
+        .get(conversationId) as {
+        count: number;
+      };
+
+      const rows = this.db
+        .prepare(
+          `
+            SELECT *
+            FROM messages
+            WHERE conversation_id = ?
+            ORDER BY created_at ${order} LIMIT ?
+            OFFSET ?
+          `
+        )
+        .all(conversationId, pageSize, page * pageSize) as IMessageRow[];
+
+      return {
+        data: rows.map(rowToMessage),
+        total: countResult.count,
+        page,
+        pageSize,
+        hasMore: (page + 1) * pageSize < countResult.count,
+      };
+    } catch (error: any) {
+      console.error('[Database] Get messages error:', error);
+      return {
+        data: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+      };
+    }
+  }
+
+  searchConversationMessages(keyword: string, userId?: string, page = 0, pageSize = 20): IMessageSearchResponse {
+    const trimmedKeyword = keyword.trim();
+    if (!trimmedKeyword) {
+      return {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+      };
+    }
+
+    try {
+      const finalUserId = userId || this.defaultUserId;
+      const escapedKeyword = escapeLikePattern(trimmedKeyword);
+      const likePattern = `%${escapedKeyword}%`;
+
+      const countResult = this.db
+        .prepare(
+          `
+            SELECT COUNT(*) as count
+            FROM messages m
+            INNER JOIN conversations c ON c.id = m.conversation_id
+            WHERE c.user_id = ?
+              AND m.content LIKE ? ESCAPE '\\'
+          `
+        )
+        .get(finalUserId, likePattern) as { count: number };
+
+      const rows = this.db
+        .prepare(
+          `
+            SELECT
+              c.id,
+              c.user_id,
+              c.name,
+              c.type,
+              c.extra,
+              c.model,
+              c.status,
+              c.source,
+              c.channel_chat_id,
+              c.created_at,
+              c.updated_at,
+              m.id as message_id,
+              m.type as message_type,
+              m.content as message_content,
+              m.created_at as message_created_at
+            FROM messages m
+            INNER JOIN conversations c ON c.id = m.conversation_id
+            WHERE c.user_id = ?
+              AND m.content LIKE ? ESCAPE '\\'
+            ORDER BY m.created_at DESC
+            LIMIT ? OFFSET ?
+          `
+        )
+        .all(finalUserId, likePattern, pageSize, page * pageSize) as IConversationMessageSearchRow[];
+
+      const items: IMessageSearchItem[] = rows.map((row) => ({
+        conversation: rowToConversation(row),
+        messageId: row.message_id,
+        messageType: row.message_type,
+        messageCreatedAt: row.message_created_at,
+        previewText: extractSearchPreviewText(row.message_content),
+      }));
+
+      return {
+        items,
+        total: countResult.count,
+        page,
+        pageSize,
+        hasMore: (page + 1) * pageSize < countResult.count,
+      };
+    } catch (error: any) {
+      console.error('[Database] Search messages error:', error);
+      return {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+      };
+    }
+  }
+
+  /**
+   * Update a message in the database
+   * @param messageId - Message ID to update
+   * @param message - Updated message data
+   */
+  updateMessage(messageId: string, message: TMessage): IQueryResult<boolean> {
+    try {
+      const row = messageToRow(message);
+
+      const stmt = this.db.prepare(`
+        UPDATE messages
+        SET type     = ?,
+            content  = ?,
+            position = ?,
+            status   = ?
+        WHERE id = ?
+      `);
+
+      const result = stmt.run(row.type, row.content, row.position, row.status, messageId);
+
+      return {
+        success: true,
+        data: result.changes > 0,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  deleteMessage(messageId: string): IQueryResult<boolean> {
+    try {
+      const stmt = this.db.prepare('DELETE FROM messages WHERE id = ?');
+      const result = stmt.run(messageId);
+
+      return {
+        success: true,
+        data: result.changes > 0,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  deleteConversationMessages(conversationId: string): IQueryResult<number> {
+    try {
+      const stmt = this.db.prepare('DELETE FROM messages WHERE conversation_id = ?');
+      const result = stmt.run(conversationId);
+
+      return {
+        success: true,
+        data: result.changes,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Get message by msg_id and conversation_id
+   * Used for finding existing messages to update (e.g., streaming text accumulation)
+   */
+  getMessageByMsgId(conversationId: string, msgId: string, type: TMessage['type']): IQueryResult<TMessage | null> {
+    try {
+      const stmt = this.db.prepare(`
+        SELECT *
+        FROM messages
+        WHERE conversation_id = ?
+          AND msg_id = ?
+          AND type = ?
+        ORDER BY created_at DESC LIMIT 1
+      `);
+
+      const row = stmt.get(conversationId, msgId, type) as IMessageRow | undefined;
+
+      return {
+        success: true,
+        data: row ? rowToMessage(row) : null,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * ==================
+   * Channel Plugin operations
+   * ==================
+   */
+
+  /**
+   * Get all assistant plugins
+   */
+  getChannelPlugins(): IQueryResult<IChannelPluginConfig[]> {
+    try {
+      const rows = this.db.prepare('SELECT * FROM assistant_plugins ORDER BY created_at ASC').all() as Array<{
+        id: string;
+        type: string;
+        name: string;
+        enabled: number;
+        config: string;
+        status: string | null;
+        last_connected: number | null;
+        created_at: number;
+        updated_at: number;
+      }>;
+
+      const plugins: IChannelPluginConfig[] = rows.map((row) => {
+        const storedConfig = JSON.parse(row.config || '{}');
+        // Decrypt credentials when loading
+        const decryptedCredentials = decryptCredentials(storedConfig.credentials);
+
+        return {
+          id: row.id,
+          type: row.type as PluginType,
+          name: row.name,
+          enabled: row.enabled === 1,
+          credentials: decryptedCredentials,
+          config: storedConfig.config,
+          status: (row.status as PluginStatus) || 'stopped',
+          lastConnected: row.last_connected ?? undefined,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        };
+      });
+
+      return { success: true, data: plugins };
+    } catch (error: any) {
+      return { success: false, error: error.message, data: [] };
+    }
+  }
+
+  /**
+   * Get assistant plugin by ID
+   */
+  getChannelPlugin(pluginId: string): IQueryResult<IChannelPluginConfig | null> {
+    try {
+      const row = this.db.prepare('SELECT * FROM assistant_plugins WHERE id = ?').get(pluginId) as
+        | {
+            id: string;
+            type: string;
+            name: string;
+            enabled: number;
+            config: string;
+            status: string | null;
+            last_connected: number | null;
+            created_at: number;
+            updated_at: number;
+          }
+        | undefined;
+
+      if (!row) {
+        return { success: true, data: null };
+      }
+
+      const storedConfig = JSON.parse(row.config || '{}');
+      // Decrypt credentials when loading
+      const decryptedCredentials = decryptCredentials(storedConfig.credentials);
+
+      const plugin: IChannelPluginConfig = {
+        id: row.id,
+        type: row.type as PluginType,
+        name: row.name,
+        enabled: row.enabled === 1,
+        credentials: decryptedCredentials,
+        config: storedConfig.config,
+        status: (row.status as PluginStatus) || 'stopped',
+        lastConnected: row.last_connected ?? undefined,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      };
+
+      return { success: true, data: plugin };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Create or update assistant plugin
+   */
+  upsertChannelPlugin(plugin: IChannelPluginConfig): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      const stmt = this.db.prepare(`
+        INSERT INTO assistant_plugins (id, type, name, enabled, config, status, last_connected, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          type = excluded.type,
+          name = excluded.name,
+          enabled = excluded.enabled,
+          config = excluded.config,
+          status = excluded.status,
+          last_connected = excluded.last_connected,
+          updated_at = excluded.updated_at
+      `);
+
+      // Encrypt credentials before storing
+      const encryptedCredentials = encryptCredentials(plugin.credentials);
+
+      // Store both credentials and config in the config column
+      const storedConfig = {
+        credentials: encryptedCredentials,
+        config: plugin.config,
+      };
+
+      stmt.run(
+        plugin.id,
+        plugin.type,
+        plugin.name,
+        plugin.enabled ? 1 : 0,
+        JSON.stringify(storedConfig),
+        plugin.status,
+        plugin.lastConnected ?? null,
+        plugin.createdAt || now,
+        now
+      );
+
+      return { success: true, data: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Update assistant plugin status
+   */
+  updateChannelPluginStatus(pluginId: string, status: PluginStatus, lastConnected?: number): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      this.db
+        .prepare(
+          'UPDATE assistant_plugins SET status = ?, last_connected = COALESCE(?, last_connected), updated_at = ? WHERE id = ?'
+        )
+        .run(status, lastConnected ?? null, now, pluginId);
+      return { success: true, data: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Delete assistant plugin
+   */
+  deleteChannelPlugin(pluginId: string): IQueryResult<boolean> {
+    try {
+      const result = this.db.prepare('DELETE FROM assistant_plugins WHERE id = ?').run(pluginId);
+      return { success: true, data: result.changes > 0 };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * ==================
+   * Channel User operations
+   * ==================
+   */
+
+  /**
+   * Get all authorized assistant users
+   */
+  getChannelUsers(): IQueryResult<IChannelUser[]> {
+    try {
+      const rows = this.db
+        .prepare('SELECT * FROM assistant_users ORDER BY authorized_at DESC')
+        .all() as IChannelUserRow[];
+      return { success: true, data: rows.map(rowToChannelUser) };
+    } catch (error: any) {
+      return { success: false, error: error.message, data: [] };
+    }
+  }
+
+  /**
+   * Get assistant user by platform user ID
+   */
+  getChannelUserByPlatform(platformUserId: string, platformType: PluginType): IQueryResult<IChannelUser | null> {
+    try {
+      const row = this.db
+        .prepare('SELECT * FROM assistant_users WHERE platform_user_id = ? AND platform_type = ?')
+        .get(platformUserId, platformType) as IChannelUserRow | undefined;
+
+      return { success: true, data: row ? rowToChannelUser(row) : null };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Create assistant user (authorize)
+   */
+  createChannelUser(user: IChannelUser): IQueryResult<IChannelUser> {
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO assistant_users (id, platform_user_id, platform_type, display_name, authorized_at, last_active, session_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      stmt.run(
+        user.id,
+        user.platformUserId,
+        user.platformType,
+        user.displayName ?? null,
+        user.authorizedAt,
+        user.lastActive ?? null,
+        user.sessionId ?? null
+      );
+
+      return { success: true, data: user };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Update assistant user's last active time
+   */
+  updateChannelUserActivity(userId: string): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      this.db.prepare('UPDATE assistant_users SET last_active = ? WHERE id = ?').run(now, userId);
+      return { success: true, data: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Delete assistant user (revoke authorization)
+   */
+  deleteChannelUser(userId: string): IQueryResult<boolean> {
+    try {
+      const result = this.db.prepare('DELETE FROM assistant_users WHERE id = ?').run(userId);
+      return { success: true, data: result.changes > 0 };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * ==================
+   * Channel Session operations
+   * ==================
+   */
+
+  /**
+   * Get all active assistant sessions
+   */
+  getChannelSessions(): IQueryResult<IChannelSession[]> {
+    try {
+      const rows = this.db
+        .prepare('SELECT * FROM assistant_sessions ORDER BY last_activity DESC')
+        .all() as IChannelSessionRow[];
+      return { success: true, data: rows.map(rowToChannelSession) };
+    } catch (error: any) {
+      return { success: false, error: error.message, data: [] };
+    }
+  }
+
+  /**
+   * Get assistant session by user ID
+   */
+  getChannelSessionByUser(userId: string): IQueryResult<IChannelSession | null> {
+    try {
+      const row = this.db.prepare('SELECT * FROM assistant_sessions WHERE user_id = ?').get(userId) as
+        | IChannelSessionRow
+        | undefined;
+      return { success: true, data: row ? rowToChannelSession(row) : null };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Create or update assistant session
+   */
+  upsertChannelSession(session: IChannelSession): IQueryResult<boolean> {
+    try {
+      const now = Date.now();
+      const stmt = this.db.prepare(`
+        INSERT INTO assistant_sessions (id, user_id, agent_type, conversation_id, workspace, chat_id, created_at, last_activity)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          agent_type = excluded.agent_type,
+          conversation_id = excluded.conversation_id,
+          workspace = excluded.workspace,
+          chat_id = excluded.chat_id,
+          last_activity = excluded.last_activity
+      `);
+
+      stmt.run(
+        session.id,
+        session.userId,
+        session.agentType,
+        session.conversationId ?? null,
+        session.workspace ?? null,
+        session.chatId ?? null,
+        session.createdAt || now,
+        session.lastActivity || now
+      );
+
+      return { success: true, data: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Delete assistant session
+   */
+  deleteChannelSession(sessionId: string): IQueryResult<boolean> {
+    try {
+      const result = this.db.prepare('DELETE FROM assistant_sessions WHERE id = ?').run(sessionId);
+      return { success: true, data: result.changes > 0 };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * ==================
+   * Channel Pairing Code operations
+   * ==================
+   */
+
+  /**
+   * Get all pending pairing requests
+   */
+  getPendingPairingRequests(): IQueryResult<IChannelPairingRequest[]> {
+    try {
+      const now = Date.now();
+      const rows = this.db
+        .prepare(
+          "SELECT * FROM assistant_pairing_codes WHERE status = 'pending' AND expires_at > ? ORDER BY requested_at DESC"
+        )
+        .all(now) as IChannelPairingCodeRow[];
+      return { success: true, data: rows.map(rowToPairingRequest) };
+    } catch (error: any) {
+      return { success: false, error: error.message, data: [] };
+    }
+  }
+
+  /**
+   * Get pairing request by code
+   */
+  getPairingRequestByCode(code: string): IQueryResult<IChannelPairingRequest | null> {
+    try {
+      const row = this.db.prepare('SELECT * FROM assistant_pairing_codes WHERE code = ?').get(code) as
+        | IChannelPairingCodeRow
+        | undefined;
+      return { success: true, data: row ? rowToPairingRequest(row) : null };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Create pairing request
+   */
+  createPairingRequest(request: IChannelPairingRequest): IQueryResult<IChannelPairingRequest> {
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO assistant_pairing_codes (code, platform_user_id, platform_type, display_name, requested_at, expires_at, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      stmt.run(
+        request.code,
+        request.platformUserId,
+        request.platformType,
+        request.displayName ?? null,
+        request.requestedAt,
+        request.expiresAt,
+        request.status
+      );
+
+      return { success: true, data: request };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Update pairing request status
+   */
+  updatePairingRequestStatus(code: string, status: IChannelPairingRequest['status']): IQueryResult<boolean> {
+    try {
+      const result = this.db.prepare('UPDATE assistant_pairing_codes SET status = ? WHERE code = ?').run(status, code);
+      return { success: true, data: result.changes > 0 };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Delete expired pairing requests
+   */
+  cleanupExpiredPairingRequests(): IQueryResult<number> {
+    try {
+      const now = Date.now();
+      const result = this.db
+        .prepare("DELETE FROM assistant_pairing_codes WHERE expires_at < ? OR status != 'pending'")
+        .run(now);
+      return { success: true, data: result.changes };
+    } catch (error: any) {
+      return { success: false, error: error.message, data: 0 };
+    }
+  }
+
+  /**
+   * ==================
+   * Remote Agent operations
+   * ==================
+   */
+
+  getRemoteAgents(): RemoteAgentConfig[] {
+    try {
+      const rows = this.db.prepare('SELECT * FROM remote_agents ORDER BY created_at DESC').all() as Array<{
+        id: string;
+        name: string;
+        protocol: string;
+        url: string;
+        auth_type: string;
+        auth_token: string | null;
+        avatar: string | null;
+        description: string | null;
+        device_id: string | null;
+        device_public_key: string | null;
+        device_private_key: string | null;
+        device_token: string | null;
+        allow_insecure: number | null;
+        status: string | null;
+        last_connected_at: number | null;
+        created_at: number;
+        updated_at: number;
+      }>;
+
+      return rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        protocol: row.protocol as RemoteAgentConfig['protocol'],
+        url: row.url,
+        authType: row.auth_type as RemoteAgentConfig['authType'],
+        authToken: row.auth_token ? decryptString(row.auth_token) : undefined,
+        allowInsecure: !!row.allow_insecure,
+        avatar: row.avatar ?? undefined,
+        description: row.description ?? undefined,
+        deviceId: row.device_id ?? undefined,
+        devicePublicKey: row.device_public_key ? decryptString(row.device_public_key) : undefined,
+        devicePrivateKey: row.device_private_key ? decryptString(row.device_private_key) : undefined,
+        deviceToken: row.device_token ? decryptString(row.device_token) : undefined,
+        status: (row.status as RemoteAgentStatus) ?? 'unknown',
+        lastConnectedAt: row.last_connected_at ?? undefined,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      }));
+    } catch (error) {
+      console.error('[Database] getRemoteAgents error:', error);
+      return [];
+    }
+  }
+
+  getRemoteAgent(id: string): RemoteAgentConfig | null {
+    try {
+      const row = this.db.prepare('SELECT * FROM remote_agents WHERE id = ?').get(id) as
+        | {
+            id: string;
+            name: string;
+            protocol: string;
+            url: string;
+            auth_type: string;
+            auth_token: string | null;
+            avatar: string | null;
+            description: string | null;
+            device_id: string | null;
+            device_public_key: string | null;
+            device_private_key: string | null;
+            device_token: string | null;
+            allow_insecure: number | null;
+            status: string | null;
+            last_connected_at: number | null;
+            created_at: number;
+            updated_at: number;
+          }
+        | undefined;
+
+      if (!row) return null;
+
+      return {
+        id: row.id,
+        name: row.name,
+        protocol: row.protocol as RemoteAgentConfig['protocol'],
+        url: row.url,
+        authType: row.auth_type as RemoteAgentConfig['authType'],
+        authToken: row.auth_token ? decryptString(row.auth_token) : undefined,
+        allowInsecure: !!row.allow_insecure,
+        avatar: row.avatar ?? undefined,
+        description: row.description ?? undefined,
+        deviceId: row.device_id ?? undefined,
+        devicePublicKey: row.device_public_key ? decryptString(row.device_public_key) : undefined,
+        devicePrivateKey: row.device_private_key ? decryptString(row.device_private_key) : undefined,
+        deviceToken: row.device_token ? decryptString(row.device_token) : undefined,
+        status: (row.status as RemoteAgentStatus) ?? 'unknown',
+        lastConnectedAt: row.last_connected_at ?? undefined,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      };
+    } catch (error) {
+      console.error('[Database] getRemoteAgent error:', error);
+      return null;
+    }
+  }
+
+  createRemoteAgent(config: RemoteAgentConfig): IQueryResult<RemoteAgentConfig> {
+    try {
+      this.db
+        .prepare(
+          `INSERT INTO remote_agents (id, name, protocol, url, auth_type, auth_token, allow_insecure, avatar, description, device_id, device_public_key, device_private_key, device_token, status, last_connected_at, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+        .run(
+          config.id,
+          config.name,
+          config.protocol,
+          config.url,
+          config.authType,
+          config.authToken ? encryptString(config.authToken) : null,
+          config.allowInsecure ? 1 : 0,
+          config.avatar ?? null,
+          config.description ?? null,
+          config.deviceId ?? null,
+          config.devicePublicKey ? encryptString(config.devicePublicKey) : null,
+          config.devicePrivateKey ? encryptString(config.devicePrivateKey) : null,
+          config.deviceToken ? encryptString(config.deviceToken) : null,
+          config.status ?? 'unknown',
+          config.lastConnectedAt ?? null,
+          config.createdAt,
+          config.updatedAt
+        );
+      return { success: true, data: config };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  updateRemoteAgent(
+    id: string,
+    updates: Partial<{
+      name: string;
+      protocol: string;
+      url: string;
+      auth_type: string;
+      auth_token: string;
+      avatar: string;
+      description: string;
+      device_id: string;
+      device_public_key: string;
+      device_private_key: string;
+      device_token: string;
+      allow_insecure: number;
+      status: string;
+      last_connected_at: number;
+    }>
+  ): IQueryResult<boolean> {
+    const ENCRYPTED_FIELDS = new Set(['auth_token', 'device_public_key', 'device_private_key', 'device_token']);
+    try {
+      const sets: string[] = [];
+      const values: unknown[] = [];
+
+      for (const [key, value] of Object.entries(updates)) {
+        sets.push(`${key} = ?`);
+        values.push(ENCRYPTED_FIELDS.has(key) && typeof value === 'string' ? encryptString(value) : (value ?? null));
+      }
+
+      sets.push('updated_at = ?');
+      values.push(Date.now());
+      values.push(id);
+
+      this.db.prepare(`UPDATE remote_agents SET ${sets.join(', ')} WHERE id = ?`).run(...values);
+      return { success: true, data: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  deleteRemoteAgent(id: string): IQueryResult<boolean> {
+    try {
+      const result = this.db.prepare('DELETE FROM remote_agents WHERE id = ?').run(id);
+      return { success: true, data: result.changes > 0 };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Vacuum database to reclaim space
+   */
+  vacuum(): void {
+    this.db.exec('VACUUM');
+    console.log('[Database] Vacuum completed');
+  }
+}
+
+// Async singleton with Promise cache
+let dbInstancePromise: Promise<WaylandUIDatabase> | null = null;
+// Synchronous reference to the resolved instance - used for safe close on exit
+let dbResolved: WaylandUIDatabase | null = null;
+
+function resolveDbPath(): string {
+  return path.join(getDataPath(), 'wayland.db');
+}
+
+export function getDatabase(): Promise<WaylandUIDatabase> {
+  if (!dbInstancePromise) {
+    dbInstancePromise = WaylandUIDatabase.create(resolveDbPath()).then((db) => {
+      dbResolved = db;
+      return db;
+    });
+  }
+  return dbInstancePromise;
+}
+
+export function closeDatabase(): void {
+  // Close synchronously via the resolved reference so this is safe to call from
+  // process.on('exit') handlers (which cannot await Promises).
+  if (dbResolved) {
+    try {
+      dbResolved.close();
+    } catch {
+      // ignore errors during shutdown
+    }
+    dbResolved = null;
+  }
+  dbInstancePromise = null;
+}

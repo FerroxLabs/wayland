@@ -1,0 +1,43 @@
+{
+  "title": "Assistants",
+  "totalCount": "{{count}} assistants",
+  "siderEntry": "Assistants",
+  "emptyState": "No assistants match your filters.",
+  "card": {
+    "backendHint": "· Runs on {{backend}} · change ⌄",
+    "menuAria": "Open menu for {{name}}"
+  },
+  "buildMyOwn": {
+    "label": "Build my own",
+    "hint": "Start from a blank assistant",
+    "cta": "Build my own"
+  },
+  "group": {
+    "teams": "Teams",
+    "specialists": "Specialists",
+    "builtins": "Built-ins"
+  },
+  "filterRail": {
+    "aria": "Assistant filters",
+    "searchPlaceholder": "Search assistants",
+    "typeLabel": "Type",
+    "domainLabel": "Domain",
+    "reset": "Reset filters",
+    "type": {
+      "all": "All",
+      "team": "Teams",
+      "specialist": "Specialists",
+      "builtin": "Built-ins"
+    },
+    "domain": {
+      "all": "All",
+      "sell": "Sell",
+      "write": "Write",
+      "research": "Research",
+      "build": "Build",
+      "run": "Run",
+      "office": "Office",
+      "general": "General"
+    }
+  }
+}

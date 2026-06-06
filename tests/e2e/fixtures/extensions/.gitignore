@@ -1,0 +1,5 @@
+# Symlink to a waylandteams checkout - created automatically by fixtures.ts
+# on test launch. Resolves to WAYLAND_E2E_BUNDLE_PATH (CI) or
+# ~/dev/waylandteams (local sibling-repo convention). Machine-specific,
+# not committed.
+waylandteams-bundle

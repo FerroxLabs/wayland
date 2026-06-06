@@ -1,0 +1,44 @@
+{
+  "siderEntry": "Workflows",
+  "title": "Workflows",
+  "subtitle": "Schritt-für-Schritt-Rezepte, die du mit einem Klick starten oder zur automatischen Ausführung planen kannst. Wähle einen Workflow, wähle deine Engine, und der Agent führt dich Schritt für Schritt durch.",
+  "count": "{{count}} Workflow",
+  "count_other": "{{count}} Workflows",
+  "allCategories": "Alle Workflows",
+  "section": {
+    "featured": "Empfohlene Workflows",
+    "all": "Alle Workflows"
+  },
+  "actions": {
+    "launch": "Jetzt starten",
+    "schedule": "Planen",
+    "import": "Workflow importieren",
+    "build": "Workflow erstellen",
+    "runOn": "Ausführen auf"
+  },
+  "launchError": "Workflow konnte nicht gestartet werden: {{msg}}",
+  "picker": {
+    "noAgent": "Kein Backend ausgewählt"
+  },
+  "import": {
+    "placeholder": "Die Import-Anbindung folgt als Nächstes: Ordner / Git-URL / SKILL.md mit automatisch über Frontmatter erkanntem type:workflow, von Skill Guard gescannt und als source:imported registriert."
+  },
+  "build": {
+    "placeholder": "Der Workflow-Builder kommt als Nächstes: beschreibe ihn in einfacher Sprache → die KI entwirft eine SKILL.md mit aus der Live-Skill-Bibliothek abgeleiteter category + depends → prüfen + speichern."
+  },
+  "depends": {
+    "title": "Verwendet diese Skills",
+    "openSkill": "Auf der Skills-Seite öffnen"
+  },
+  "search": {
+    "placeholder": "Workflows durchsuchen…",
+    "empty": "Keine Workflows passen zu deiner Suche",
+    "emptyLibrary": "Noch keine Workflows geladen. Die mitgelieferte Bibliothek wird beim nächsten Neustart befüllt."
+  },
+  "whatHappens": "Was passiert beim Start",
+  "bodyFallback": "Der Agent lädt diesen Workflow als erste Anweisung und führt dich Schritt für Schritt hindurch. Du kannst ihn jederzeit unterbrechen oder die Richtung ändern.",
+  "noDescription": "Keine Beschreibung angegeben.",
+  "launch": {
+    "placeholder": "Die Start-Anbindung ist in Arbeit. Bald wählst du eine Engine (Wayland Core / Gemini / Claude / Codex), und der Workflow wird in einem neuen Chat als erste Anweisung des Agenten geladen."
+  }
+}

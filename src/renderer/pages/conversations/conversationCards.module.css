@@ -1,0 +1,112 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * Conversations browse surfaces. Mirrors the shared app card affordance
+ * (project tiles / specialist cards): an elevated fill with a resting border
+ * that lights up to brand orange with a soft ring on hover - so the
+ * "jump back in" cards and list rows feel native to the rest of the app.
+ */
+
+/* Resume ("jump back in") card - the elevated, hoverable tile. */
+.card {
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  background: var(--color-bg-2);
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+.card:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.4);
+}
+
+/* List row - lighter resting state (transparent) that fills + outlines on hover,
+ * so a long history stays calm but each row still feels like a target. */
+.row {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.row:hover {
+  background: var(--color-fill-1);
+  border-color: var(--color-border-2);
+}
+
+/* The "jump back in" rail - a responsive grid that always fits the available
+ * width with full cards (no horizontal scroll, no clipped card at any window
+ * size). Cards reflow to fewer columns as the window narrows. */
+.rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(218px, 1fr));
+  gap: 12px;
+}
+
+/* Small inline icon tile (backend / project glyph) shared by rows + cards. */
+.glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: var(--color-fill-2);
+}
+
+/* Project chip on a row's meta line. */
+.projectChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 160px;
+  padding: 1px 7px 1px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-fill-1);
+  color: var(--color-text-2);
+  font-size: 11px;
+  line-height: 18px;
+}
+
+/* Quick actions that fade in on row hover (star + ⋯). */
+.rowActions {
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+.row:hover .rowActions,
+.rowActions[data-open='true'] {
+  opacity: 1;
+}
+
+/* Iconic ghost button used for star / more. */
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+.iconBtn:hover {
+  background: var(--color-fill-3);
+  color: var(--color-text-1);
+}
+.iconBtnActive {
+  color: rgb(var(--primary-6));
+}
+
+/* Section header (Pinned / Today / Earlier …). */
+.sectionLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-text-3);
+  text-transform: uppercase;
+}

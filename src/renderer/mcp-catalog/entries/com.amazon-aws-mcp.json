@@ -1,0 +1,49 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.amazon/aws-mcp",
+  "title": "AWS",
+  "description": "Call any AWS CLI command (all services) and get natural-language command suggestions via AWS Labs' official MCP server.",
+  "version": "1.3.38",
+  "websiteUrl": "https://awslabs.github.io/mcp/",
+  "repository": { "url": "https://github.com/awslabs/mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "awslabs.aws-api-mcp-server",
+      "version": "1.3.38",
+      "runtimeHint": "uvx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "AWS_ACCESS_KEY_ID", "description": "IAM access key ID.", "isRequired": true, "isSecret": false },
+        { "name": "AWS_SECRET_ACCESS_KEY", "description": "IAM secret access key.", "isRequired": true, "isSecret": true },
+        { "name": "AWS_REGION", "description": "Default AWS region (e.g. us-east-1).", "isRequired": false, "default": "us-east-1" },
+        { "name": "AWS_SESSION_TOKEN", "description": "Session token (only required for temporary credentials).", "isRequired": false, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "devops", "infrastructure"],
+    "tags": ["aws", "cloud", "cli", "awslabs"],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 38,
+    "installRate": 0.20,
+    "iconUrl": "icons/aws.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#ff9900" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "AWS IAM",
+      "providerSignupUrl": "https://aws.amazon.com"
+    },
+    "toolGroups": [
+      { "label": "Call AWS CLI", "count": 1 },
+      { "label": "Suggest AWS commands", "count": 1 },
+      { "label": "Execution plan", "count": 1 }
+    ],
+    "setupGuide": { "path": "guides/com.amazon-aws-mcp.md", "estimatedMinutes": 4, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

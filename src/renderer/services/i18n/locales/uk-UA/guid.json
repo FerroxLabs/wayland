@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} недоступний, використовується {{fallback}} замість нього.",
+  "noAgentAvailable": "Головний Агент недоступний. Будь ласка, увійдіть у Google або встановіть Claude/Codex CLI. Перейти до налаштувань?",
+  "noAgentAvailableShort": "Головний Агент недоступний. Натисніть для налаштування.",
+  "agentTabAutoSwitch": "Модель не сумісна з Gemini, автоматичне переключення на {{fallback}}",
+  "autoSwitchToAgent": "Gemini не налаштовано, автоматичне переключення на {{agent}}",
+  "autoSwitchedAgent": "{{from}} недоступний, переключено на {{to}}",
+  "promptExamplesHint": "Спробуйте приклади промптів:",
+  "agentSwitcherLabel": "Агент",
+  "switchedToAgent": "Переключено на {{agent}}",
+  "hint": {
+    "search": "Натисніть {{key}} для пошуку",
+    "backend": "{{key}} для бекенду",
+    "newChat": "{{key}} для нового чату"
+  },
+  "scanning": {
+    "initialMessage": "Поточний Агент недоступний, пошук інших доступних агентів...",
+    "scanningMessage": "Сканування доступних локальних агентів...",
+    "connectingMessage": "Підключено успішно, зачекайте...",
+    "establishingConnection": "Встановлення з'єднання...",
+    "statusQueued": "У черзі",
+    "statusTesting": "Тестування затримки...",
+    "statusUnreachable": "Недосяжний",
+    "statusAvailable": "Доступний"
+  },
+  "newChat": {
+    "kickoff": {
+      "accept": "Так, починаймо",
+      "redirect": "Щось інше",
+      "dismissAria": "Сховати пропозицію",
+      "regionAria": "Запропоноване перше повідомлення"
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": ["Працюємо допізна", "Не спимо до ночі", "Засиділися"],
+        "morning": ["Доброго ранку", "Гарного ранку", "Час прокидатися"],
+        "afternoon": ["Доброго дня", "Гарного дня", "З поверненням"],
+        "evening": ["Доброго вечора", "Гарного вечора", "З поверненням"],
+        "night": ["Доброго вечора", "Гарного вечора", "Час відпочивати"]
+      }
+    },
+    "intent": {
+      "sell": "Продавати",
+      "write": "Писати",
+      "research": "Досліджувати",
+      "build": "Створювати",
+      "run": "Запускати"
+    },
+    "pillBar": {
+      "label": "Виберіть намір",
+      "pillLabel": "Намір: {{label}}"
+    },
+    "suggestionPanel": {
+      "label": "Початкові підказки: {{label}}",
+      "heading": "Почніть із «{{label}}»",
+      "close": "Закрити підказки"
+    },
+    "recents": {
+      "label": "Нещодавні розмови",
+      "heading": "Повернутися до роботи"
+    },
+    "voiceHint": "Натисніть мікрофон, щоб говорити"
+  }
+}

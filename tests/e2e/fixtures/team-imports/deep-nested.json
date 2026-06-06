@@ -1,0 +1,39 @@
+{
+  "version": "v1",
+  "id": "imported-deep-nested",
+  "name": "Deep Nested Team",
+  "leader": {
+    "id": "research"
+  },
+  "teammates": [
+    {
+      "id": "copy",
+      "name": "Copy Lead",
+      "prompt": "Depth-7 payload should trip the depth-6 guard. Hostile depth lives in the top-level array below - the array entry itself is depth 7."
+    }
+  ],
+  "capabilities": {
+    "canReadFiles": false,
+    "canWriteFiles": false,
+    "canSpawnAgents": false,
+    "canNetworkRequest": false,
+    "canCrossTeamMessage": false
+  },
+  "rituals": [
+    {
+      "name": "Daily standup",
+      "cadence": "daily",
+      "extra": {
+        "level2": {
+          "level3": {
+            "level4": {
+              "level5": {
+                "level6": "deep"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

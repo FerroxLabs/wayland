@@ -1,0 +1,42 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.bitbonsai/mcpvault",
+  "title": "Obsidian Vault",
+  "description": "Read, write, search, and back-link notes in any local Obsidian vault - no plugin required.",
+  "version": "0.11.0",
+  "websiteUrl": "https://github.com/bitbonsai/mcpvault",
+  "repository": { "url": "https://github.com/bitbonsai/mcpvault", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@bitbonsai/mcpvault",
+      "version": "0.11.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "OBSIDIAN_VAULT_PATH", "description": "Absolute path to your Obsidian vault folder.", "isRequired": true, "isSecret": false }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["knowledge", "files-and-docs"],
+    "tags": ["obsidian", "notes", "markdown", "vault"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 30,
+    "installRate": 0.21,
+    "iconUrl": "icons/obsidian.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#7c3aed" },
+    "auth": { "method": "none" },
+    "toolGroups": [
+      { "label": "Notes", "count": 5 },
+      { "label": "Search", "count": 3 },
+      { "label": "Links", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.bitbonsai-mcpvault.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

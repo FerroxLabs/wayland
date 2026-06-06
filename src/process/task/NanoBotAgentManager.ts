@@ -1,0 +1,182 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { NanobotAgent, type NanobotAgentConfig } from '@process/agent/nanobot';
+import { ipcBridge } from '@/common';
+import type { TMessage } from '@/common/chat/chatLib';
+import { transformMessage } from '@/common/chat/chatLib';
+import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import { uuid } from '@/common/utils';
+import { addMessage, addOrUpdateMessage } from '@process/utils/message';
+import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
+import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
+import BaseAgentManager from '@process/task/BaseAgentManager';
+import { IpcAgentEventEmitter } from '@process/task/IpcAgentEventEmitter';
+import { teamEventBus } from '@process/team/teamEventBus';
+
+export interface NanoBotAgentManagerData {
+  conversation_id: string;
+  workspace?: string;
+  customWorkspace?: boolean;
+  enabledSkills?: string[];
+  presetAssistantId?: string;
+  yoloMode?: boolean;
+}
+
+class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
+  agent!: NanobotAgent;
+  bootstrap: Promise<NanobotAgent>;
+
+  constructor(data: NanoBotAgentManagerData) {
+    super('nanobot', data, new IpcAgentEventEmitter(), false);
+    this.conversation_id = data.conversation_id;
+    this.workspace = data.workspace ?? '';
+
+    this.bootstrap = this.initAgent(data);
+    // Prevent unhandled promise rejection when agent fails to start.
+    // The error still propagates when sendMessage() awaits this.bootstrap.
+    this.bootstrap.catch(() => {});
+  }
+
+  private async initAgent(data: NanoBotAgentManagerData): Promise<NanobotAgent> {
+    const config: NanobotAgentConfig = {
+      id: data.conversation_id,
+      workingDir: data.workspace || process.cwd(),
+      onStreamEvent: (message) => this.handleStreamEvent(message),
+      onSignalEvent: (message) => this.handleSignalEvent(message),
+    };
+
+    this.agent = new NanobotAgent(config);
+
+    try {
+      await this.agent.start();
+      return this.agent;
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.emitErrorMessage(`Failed to start Nanobot agent: ${errorMsg}`);
+      throw error;
+    }
+  }
+
+  private handleStreamEvent(message: IResponseMessage): void {
+    const msg = { ...message, conversation_id: this.conversation_id };
+
+    // Persist messages to database
+    const tMessage = transformMessage(msg);
+    if (tMessage) {
+      if (msg.type === 'content' && msg.msg_id) {
+        addOrUpdateMessage(this.conversation_id, tMessage);
+      } else {
+        addMessage(this.conversation_id, tMessage);
+      }
+    }
+
+    // Emit to frontend via unified conversation stream
+    ipcBridge.conversation.responseStream.emit(msg);
+    // Only emit terminal events to team bus for agent lifecycle management
+    if (msg.type === 'finish' || msg.type === 'error') {
+      teamEventBus.emit('responseStream', msg);
+    }
+  }
+
+  private handleSignalEvent(message: IResponseMessage): void {
+    const msg = { ...message, conversation_id: this.conversation_id };
+
+    // Handle finish event
+    if (msg.type === 'finish') {
+      cronBusyGuard.setProcessing(this.conversation_id, false);
+      skillSuggestWatcher.onFinish(this.conversation_id);
+    }
+
+    // Emit signal events to frontend
+    ipcBridge.conversation.responseStream.emit(msg);
+    // Only emit terminal events to team bus for agent lifecycle management
+    if (msg.type === 'finish' || msg.type === 'error') {
+      teamEventBus.emit('responseStream', msg);
+    }
+  }
+
+  async sendMessage(data: { content: string; files?: string[]; msg_id?: string; hidden?: boolean; silent?: boolean }) {
+    cronBusyGuard.setProcessing(this.conversation_id, true);
+    try {
+      await this.bootstrap;
+
+      // Save user message to chat history (frontend handles display directly)
+      if (data.msg_id && data.content && !data.silent) {
+        const userMessage: TMessage = {
+          id: data.msg_id,
+          msg_id: data.msg_id,
+          type: 'text',
+          position: 'right',
+          conversation_id: this.conversation_id,
+          content: { content: data.content },
+          createdAt: Date.now(),
+          ...(data.hidden && { hidden: true }),
+        };
+        addMessage(this.conversation_id, userMessage);
+      }
+
+      // Fire-and-forget: nanobot CLI blocks until completion, so we must not
+      // await it here. The IPC response needs to return immediately so the
+      // frontend can display the user message. Response and finish events
+      // are emitted asynchronously via handleStreamEvent/handleSignalEvent.
+      this.agent.sendMessage({ content: data.content }).catch((error) => {
+        cronBusyGuard.setProcessing(this.conversation_id, false);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        this.emitErrorMessage(`Failed to send message: ${errorMsg}`);
+      });
+
+      return { success: true, data: null as null };
+    } catch (error) {
+      cronBusyGuard.setProcessing(this.conversation_id, false);
+
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.emitErrorMessage(`Failed to send message: ${errorMsg}`);
+      throw error;
+    }
+  }
+
+  private emitErrorMessage(error: string): void {
+    const message: IResponseMessage = {
+      type: 'error',
+      conversation_id: this.conversation_id,
+      msg_id: uuid(),
+      data: error,
+    };
+
+    const tMessage = transformMessage(message);
+    if (tMessage) {
+      addMessage(this.conversation_id, tMessage);
+    }
+
+    ipcBridge.conversation.responseStream.emit(message);
+    teamEventBus.emit('responseStream', message);
+  }
+
+  /**
+   * Nanobot does not support yoloMode dynamically.
+   */
+  async ensureYoloMode(): Promise<boolean> {
+    return false;
+  }
+
+  stop() {
+    return this.agent?.stop?.() ?? Promise.resolve();
+  }
+
+  kill(): Promise<void> {
+    try {
+      this.agent?.kill?.();
+    } catch {
+      // best-effort
+    }
+    // super.kill() is async (ForkTask M18); return its promise so callers
+    // (WorkerTaskManager.clear) can await child exit.
+    return Promise.resolve(super.kill());
+  }
+}
+
+export default NanoBotAgentManager;

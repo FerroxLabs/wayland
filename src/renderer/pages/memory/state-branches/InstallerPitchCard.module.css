@@ -1,0 +1,105 @@
+/**
+ * InstallerPitchCard -- persistence-led install pitch surface (Wave 4).
+ * Layout-only styles; typography, colors, and spacing tokens come from
+ * UnoCSS utility classes in the component to stay token-aligned.
+ */
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 32px 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 4px 0 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.checkIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: rgb(var(--primary-6));
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.settingsLink {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text-3);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.settingsLink:hover {
+  color: var(--color-text-2);
+}
+
+.installingRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 1024px) {
+  .center {
+    padding: 24px 16px;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    padding: 20px 16px;
+  }
+  .card {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding: 16px 12px;
+  }
+  .card {
+    gap: 14px;
+  }
+  .bullets {
+    gap: 10px;
+  }
+  .actions {
+    width: 100%;
+  }
+}

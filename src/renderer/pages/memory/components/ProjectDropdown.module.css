@@ -1,0 +1,106 @@
+/* ProjectDropdown */
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-2);
+  background: transparent;
+  font-size: 12px;
+  color: var(--color-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s, border-color 0.1s;
+  line-height: 1.5;
+}
+
+.trigger:hover {
+  background: var(--color-fill-2);
+  border-color: var(--color-border-1);
+}
+
+.triggerActive {
+  border-color: var(--color-primary-6, #FF7A45);
+  color: var(--color-text-1);
+}
+
+.arrow {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+
+.panel {
+  min-width: 220px;
+  max-width: 280px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.searchWrap {
+  padding: 8px 8px 4px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.menu {
+  max-height: 240px;
+  overflow-y: auto;
+  background: transparent;
+  border: none;
+}
+
+.allOption {
+  font-size: 12px;
+  color: var(--color-text-2);
+}
+
+.projectRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.projectName {
+  flex: 0 0 auto;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--color-text-1);
+}
+
+.barWrap {
+  flex: 1;
+  height: 4px;
+  background: var(--color-fill-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--color-primary-6, #FF7A45);
+  opacity: 0.6;
+  border-radius: 2px;
+  transition: width 0.2s;
+}
+
+.projectCount {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: var(--color-text-3);
+  text-align: right;
+  min-width: 28px;
+}
+
+.emptyLabel {
+  font-size: 12px;
+  color: var(--color-text-3);
+}

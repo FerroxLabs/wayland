@@ -1,0 +1,181 @@
+{
+  "title": "Skills",
+  "subtitle": "Manage and discover skills for your assistants",
+  "search": {
+    "placeholder": "Search skills...",
+    "empty": "No skills match your search",
+    "emptyLibrary": "No skills loaded yet - try importing one, or restart to reload the bundled library.",
+    "resultsCount": "{{count}} matching skills"
+  },
+  "stats": {
+    "total": "Total skills",
+    "pinned": "Pinned",
+    "flagged": "Flagged",
+    "sources": "Sources"
+  },
+  "sections": {
+    "sources": "Sources",
+    "status": "Status",
+    "categories": "Categories"
+  },
+  "filters": {
+    "allSources": "All sources",
+    "source": {
+      "wayland-library": "Wayland library",
+      "team": "Team",
+      "user": "My skills",
+      "imported": "Imported",
+      "cli-discovered": "From your CLIs"
+    },
+    "verdict": {
+      "all": "All",
+      "clean": "Clean",
+      "review": "Needs review",
+      "blocked": "Blocked"
+    },
+    "category": {
+      "all": "All categories"
+    }
+  },
+  "status": {
+    "scanned": "Scanned - no red flags found",
+    "review": "Needs review",
+    "blocked": "Blocked - quarantined",
+    "unscanned": "Not yet scanned"
+  },
+  "actions": {
+    "pin": "Pin to all assistants",
+    "unpin": "Unpin",
+    "enable": "Enable",
+    "disable": "Disable",
+    "delete": "Delete",
+    "import": "Import",
+    "build": "Build a skill"
+  },
+  "cliDiscovery": {
+    "title": "Mirror skills from installed CLI tools",
+    "subtitle": "Surface skills from ~/.claude/skills, ~/.codex/skills, and ~/.gemini/skills so they show up on your Skills page. Opt-in. Restart required to take effect.",
+    "restartNeeded": "- restart the app to apply."
+  },
+  "threats": {
+    "credential-access": "Credential access",
+    "network-exfiltration": "Network exfiltration",
+    "shell-execution": "Shell execution",
+    "filesystem-write": "Filesystem write",
+    "instruction-override": "Instruction override",
+    "obfuscation": "Obfuscation",
+    "index-poisoning": "Index poisoning"
+  },
+  "severity": {
+    "critical": "Critical",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "import": {
+    "title": "Import skill",
+    "source": {
+      "folder": "Folder",
+      "git": "Git URL",
+      "zip": "ZIP file",
+      "singleSkillMd": "Single SKILL.md",
+      "marketplace": "Marketplace (coming soon)"
+    },
+    "folder": {
+      "label": "Skill folder",
+      "placeholder": "Click to choose a folder…",
+      "browse": "Browse"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP file",
+      "placeholder": "Click to choose a ZIP…",
+      "browse": "Browse"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md file",
+      "placeholder": "Click to choose a SKILL.md…",
+      "browse": "Browse"
+    },
+    "actions": {
+      "import": "Import",
+      "importing": "Importing…",
+      "importAllClean": "Import all clean",
+      "reviewAndSelect": "Review and select",
+      "cancel": "Cancel"
+    },
+    "scan": {
+      "title": "Scan results",
+      "verdict": {
+        "clean": "Clean",
+        "review": "Needs review",
+        "blocked": "Blocked"
+      },
+      "noFindings": "No issues found",
+      "finding": "{{count}} finding",
+      "finding_other": "{{count}} findings"
+    },
+    "error": {
+      "failed": "Import failed",
+      "invalidUrl": "Enter a valid https:// or git@ URL"
+    }
+  },
+  "builder": {
+    "title": "Build a skill",
+    "tab": {
+      "write": "Write it myself",
+      "describe": "Describe it"
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "e.g. my-skill"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "What does this skill do?",
+        "hint": "Include Use-when and Do-NOT-use guidance so the model activates it accurately."
+      },
+      "category": {
+        "label": "Category",
+        "placeholder": "e.g. coding"
+      },
+      "tags": {
+        "label": "Tags",
+        "placeholder": "comma-separated, e.g. git, review"
+      },
+      "body": {
+        "label": "SKILL.md body"
+      }
+    },
+    "describe": {
+      "label": "Describe your skill",
+      "placeholder": "Describe your skill in plain language and we will draft a SKILL.md for you…",
+      "generate": "Generate",
+      "generating": "Generating…"
+    },
+    "actions": {
+      "save": "Save skill",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "done": "Done"
+    },
+    "verdict": {
+      "clean": "Skill \"{{name}}\" saved successfully.",
+      "review": "Skill \"{{name}}\" saved, but flagged for review.",
+      "blocked": "Skill \"{{name}}\" was blocked by Skill Guard and not registered. Edit the body to remove flagged content."
+    },
+    "error": {
+      "saveFailed": "Save failed",
+      "generateFailed": "Generation failed"
+    }
+  },
+  "detail": {
+    "whenLoaded": "When Wayland loads this",
+    "metadata": "Metadata",
+    "body": "Body",
+    "quarantined": "This skill is quarantined and cannot be loaded."
+  }
+}

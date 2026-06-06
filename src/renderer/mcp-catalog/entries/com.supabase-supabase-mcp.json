@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.supabase/supabase-mcp",
+  "title": "Supabase",
+  "description": "Projects, schema, tables, RLS, edge functions, and logs - Supabase's official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://supabase.com/docs/guides/getting-started/mcp",
+  "repository": { "url": "https://github.com/supabase-community/supabase-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.supabase.com/mcp" }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "data", "devops"],
+    "tags": ["supabase", "postgres", "auth"],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 36,
+    "installRate": 0.24,
+    "iconUrl": "icons/supabase.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#3ecf8e" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Supabase",
+      "providerSignupUrl": "https://supabase.com",
+      "scopes": [
+        { "name": "projects:read", "plainLanguage": "List your projects." },
+        { "name": "projects:write", "plainLanguage": "Create/update projects and schema." },
+        { "name": "logs:read", "plainLanguage": "Read project logs." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Projects", "count": 4 },
+      { "label": "Schema", "count": 5 },
+      { "label": "Edge Functions", "count": 4 },
+      { "label": "Logs", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.supabase-supabase-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

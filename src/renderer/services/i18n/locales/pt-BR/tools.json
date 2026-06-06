@@ -1,0 +1,69 @@
+{
+  "unknownFile": "Arquivo desconhecido",
+  "newFile": "Novo arquivo",
+  "deletedFile": "Arquivo excluído",
+  "modified": "Modificado",
+  "fileChanges": "Alterações de arquivo",
+  "shell": {
+    "displayName": "Comando shell",
+    "description": "Executar comandos shell"
+  },
+  "fileOps": {
+    "displayName": "Operações de arquivo",
+    "description": "Leitura, escrita e modificação de arquivos"
+  },
+  "webSearch": {
+    "displayName": "Busca na web",
+    "description": "Buscar conteúdo na web"
+  },
+  "mcp": {
+    "generic": {
+      "displayName": "Ferramenta MCP: {{toolName}}",
+      "description": "Chamada de ferramenta MCP: {{toolName}}"
+    }
+  },
+  "unknown": {
+    "displayName": "Ferramenta desconhecida",
+    "description": "Tipo de ferramenta desconhecido"
+  },
+  "status": {
+    "pending": "Pendente",
+    "executing": "Executando",
+    "success": "Sucesso",
+    "error": "Erro",
+    "canceled": "Cancelado"
+  },
+  "titles": {
+    "web_search_started": "Busca na web iniciada",
+    "web_search_completed": "Busca na web concluída",
+    "web_search": "Busca na web",
+    "applying_patch": "Aplicando patch",
+    "patch_applied": "Patch aplicado",
+    "file_patch": "Patch de arquivo",
+    "mcp_tool_starting": "Ferramenta MCP: {{toolName}} (iniciando)",
+    "mcp_tool": "Ferramenta MCP: {{toolName}}",
+    "execute_command": "Executar: {{command}}",
+    "command_output": "Saída do comando",
+    "command_completed": "Comando concluído",
+    "shell_command": "Comando shell"
+  },
+  "labels": {
+    "search_query": "Consulta de busca:",
+    "file_changes": "Alterações de arquivo:",
+    "tool_details": "Detalhes da ferramenta:",
+    "tool": "Ferramenta",
+    "arguments": "Argumentos:",
+    "result": "Resultado:",
+    "command": "Comando:",
+    "working_directory": "Diretório de trabalho:",
+    "exit_code": "Saída: {{code}}",
+    "duration": "Duração: {{seconds}}",
+    "auto_approved": "Aprovado automaticamente",
+    "manual_approval": "Aprovação manual"
+  },
+  "actions": {
+    "create": "criar",
+    "modify": "modificar",
+    "delete": "excluir"
+  }
+}

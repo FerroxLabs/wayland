@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.exa/exa-mcp",
+  "title": "Exa",
+  "description": "Neural web search optimized for AI agents - semantic search, similar-page discovery, and content retrieval.",
+  "version": "3.2.1",
+  "websiteUrl": "https://docs.exa.ai/reference/mcp",
+  "repository": { "url": "https://github.com/exa-labs/exa-mcp-server", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "exa-mcp-server",
+      "version": "3.2.1",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "EXA_API_KEY", "description": "API key from your Exa dashboard.", "isRequired": true, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["search", "research", "developer"],
+    "tags": ["exa", "search", "neural"],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 46,
+    "installRate": 0.20,
+    "iconUrl": "icons/exa.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#1a1a1a" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Exa",
+      "providerSignupUrl": "https://dashboard.exa.ai"
+    },
+    "toolGroups": [
+      { "label": "Search", "count": 2 },
+      { "label": "Similar", "count": 1 },
+      { "label": "Contents", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.exa-exa-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

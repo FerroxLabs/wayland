@@ -1,0 +1,37 @@
+{
+  "memory": "Memória",
+  "fluxRouter": {
+    "label": "Status do Flux",
+    "connect": {
+      "body": "Toda consulta está sendo roteada para um modelo de ponta. O Flux Router escolhe o modelo certo para cada requisição.",
+      "action": "Conectar Flux Router"
+    },
+    "install": {
+      "body": "Codex, Cursor e Claude Code ainda não estão roteados. O Flux Desktop conecta os três com um clique.",
+      "action": "Instalar Flux Desktop",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "O Ollama local processou {{pct}}% da semana passada. O Flux Router assume o restante quando seu hardware chega ao limite.",
+      "action": "Configurar fallback"
+    },
+    "wired": {
+      "body": "Últimas 100: H{{h}} · S{{s}} · O{{o}}",
+      "action": "Ver para onde foi cada interação"
+    }
+  },
+  "accordion": {
+    "scheduled": "Tarefas Agendadas",
+    "workflows": "Workflows",
+    "teams": "Equipes",
+    "recentChats": "Conversas Recentes",
+    "inFlight": "Em andamento",
+    "running": "Em execução",
+    "recentlyLaunched": "Iniciados recentemente",
+    "myTeams": "Minhas equipes",
+    "seeAllWorkflows": "Ver todos os workflows →",
+    "seeAllScheduled": "Ver todos os agendamentos →",
+    "seeAllChats": "Ver todas as conversas →",
+    "showMore": "Ver mais {{count}} →"
+  }
+}

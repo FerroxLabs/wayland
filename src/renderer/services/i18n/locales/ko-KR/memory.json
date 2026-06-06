@@ -1,0 +1,444 @@
+{
+  "page": {
+    "title": "메모리",
+    "subtitle": "모든 세션을 가로질러 유지되는 AI의 지식"
+  },
+  "pitch": {
+    "headline": "당신을 따라다니는 메모리",
+    "lede": "Wayland는 당신이 작업한 것, 결정한 것, 출시한 것을 기억합니다. 모든 어시스턴트가 컨텍스트를 공유하므로 다시 설명할 필요가 없습니다. Ferrox Labs가 개발한 오픈소스 메모리 엔진 IJFW이 구동합니다.",
+    "bullet1": "채팅, 프로젝트, CLI 전반에 걸쳐 유지됩니다",
+    "bullet2": "검색 가능하고, 내보내기 가능하며, 당신의 것입니다",
+    "bullet3": "설치 후 별도의 설정이 필요하지 않습니다",
+    "install_cta": "메모리 설치",
+    "enable_cta": "메모리 활성화",
+    "settings_link": "원하지 않으신가요? 설정에서 비활성화할 수 있습니다"
+  },
+  "setting_up": {
+    "title": "메모리를 설정하는 중",
+    "subtitle": "한 번만 백그라운드에서 진행됩니다. 작업을 계속하셔도 됩니다.",
+    "brand_line": "IJFW Memory by Ferrox Labs",
+    "taking_longer": "아직 설정 중입니다... 느린 연결에서는 최대 1분이 걸릴 수 있습니다.",
+    "help": "문제가 있나요? 설정에서 수동으로 다시 시도하세요."
+  },
+  "brand": {
+    "tagline": "IJFW Memory by Ferrox Labs",
+    "footer": "Powered by IJFW (오픈소스) by Ferrox Labs",
+    "github_link": "github.com/FerroxLabs/ijfw"
+  },
+  "installing": {
+    "title": "메모리 설치 중",
+    "subtitle": "약 1분 정도 걸립니다",
+    "version_label": "버전 {{version}} 설치 중",
+    "step_download": "npm에서 다운로드 중",
+    "step_extract": "파일 압축 해제 중",
+    "step_verify": "설치 검증 중",
+    "step_activate": "활성화 중"
+  },
+  "upgrading": {
+    "title": "메모리 업그레이드 중",
+    "subtitle": "다음 부팅을 위해 {{version}}을(를) 준비하고 있습니다",
+    "pending_message": "업그레이드가 준비되었습니다. Wayland를 재시작하면 활성화됩니다.",
+    "restart_now": "지금 재시작"
+  },
+  "failed": {
+    "title": "설치를 완료하지 못했습니다",
+    "retry": "재시도",
+    "details_toggle": "세부 정보 표시",
+    "details_hide": "세부 정보 숨기기",
+    "support_link": "도움말은 github.com/FerroxLabs/ijfw를 방문하세요"
+  },
+  "error": {
+    "spawn_error": "설치 프로그램을 시작할 수 없습니다. npm이 PATH에 있는지 확인하세요.",
+    "install_exit_nonzero": "설치가 오류로 종료되었습니다. 아래 세부 정보가 도움이 될 수 있습니다.",
+    "invalid_target_version": "레지스트리에서 가져온 버전 번호가 잘못되었습니다. 나중에 다시 시도하세요.",
+    "unsafe_ownership": "보류 중인 설치 폴더의 소유권이 안전하지 않아 거부되었습니다. 재설치하여 복구하세요.",
+    "stage_pending_failed": "새 설치를 준비할 수 없습니다. 디스크 공간을 확인한 후 다시 시도하세요.",
+    "stage_swap_failed": "새 설치로 전환할 수 없습니다. Wayland를 재시작하여 다시 시도하세요.",
+    "upgrade_failed_no_rollback": "업그레이드에 실패했고 이전 버전을 복원할 수 없습니다. 재설치하여 복구하세요.",
+    "upgrade_failed_rolled_back": "업그레이드에 실패했지만 이전 버전은 계속 동작합니다. 나중에 다시 시도하거나 세부 정보를 확인하세요.",
+    "rollback_also_failed": "새 버전과 롤백 모두 실패했습니다. 재설치하여 복구하세요.",
+    "mcp_crashed": "메모리가 충돌했습니다. Wayland를 재시작하여 복구하세요.",
+    "mcp_error": "메모리가 오류를 반환했습니다. 다시 시도하세요.",
+    "timeout": "메모리가 제 시간에 응답하지 않았습니다. 다시 시도하세요.",
+    "validation_failed": "해당 요청이 메모리가 기대하는 형식과 일치하지 않습니다.",
+    "unavailable": "메모리가 아직 실행되지 않습니다. 활성화하려면 설치하거나 재시작하세요.",
+    "opt_out": "메모리가 설정에서 비활성화되어 있습니다.",
+    "unknown": "문제가 발생했습니다. 다시 시도하세요."
+  },
+  "empty": {
+    "title": "메모리가 준비되었습니다",
+    "subtitle": "다음에 기억했으면 하는 것을 무엇이든 물어보세요",
+    "placeholder": "메모리가 당신에 대해 무엇을 알아야 할까요?",
+    "chip1": "우리가 출시하는 스택을 기억해 두세요",
+    "chip2": "인증에 대해 우리가 결정한 내용을 떠올려 보세요",
+    "chip3": "지난 배포에서 무엇이 망가졌나요",
+    "save_button": "메모리 저장",
+    "save_ok": "메모리를 저장했습니다",
+    "save_err": "메모리를 저장할 수 없습니다"
+  },
+  "panel": {
+    "header_breadcrumb": "메모리",
+    "subtitle": "IJFW Memory by Ferrox Labs",
+    "button_drop": "드롭",
+    "button_history": "기록",
+    "button_add": "메모리 추가",
+    "tab_home": "홈",
+    "tab_search": "검색",
+    "tab_wiki": "위키",
+    "tab_promotions": "프로모션",
+    "tab_drop": "드롭",
+    "tab_conflicts": "충돌",
+    "tab_cross_project": "프로젝트 간"
+  },
+  "degraded": {
+    "toast": "초기 설정 후 메모리가 활성화됩니다",
+    "banner": "메모리가 현재 저하 모드로 동작 중입니다. 채팅은 계속 작동하지만 보강 기능은 꺼져 있습니다"
+  },
+  "settings": {
+    "panel_title": "IJFW Memory (Ferrox Labs)",
+    "skip_label": "IJFW 자동 설정 건너뛰기",
+    "skip_description": "활성화하면 Wayland가 IJFW를 설치하거나 업그레이드하지 않습니다. 나중에 메모리 페이지를 통해 수동으로 설치할 수 있습니다.",
+    "manual_install_hint": "수동으로 설치하려면 터미널에서 `npx -y @ijfw/install@latest`를 실행하세요",
+    "about_title": "IJFW Memory",
+    "about_body": "Ferrox Labs가 개발한 오픈소스 영구 메모리 엔진입니다."
+  },
+  "prelude": {
+    "installing_notice": "IJFW를 설치하고 있습니다. 외부 CLI (Claude Code, Codex, Gemini CLI)는 설치 완료 후 인식됩니다.",
+    "disabled_notice": "IJFW가 Wayland 설정에서 비활성화되어 있습니다. 외부 CLI와 메모리를 공유하려면 다시 활성화하세요.",
+    "failed_notice": "IJFW 설치에 실패했습니다. Wayland의 메모리 페이지에서 다시 시도하세요."
+  },
+  "home": {
+    "wiki_title": "Wiki",
+    "wiki_empty": "아직 Wiki 항목이 없습니다",
+    "links_title": "최근 링크",
+    "links_empty": "아직 관계가 없습니다",
+    "promote_title": "승격 준비됨",
+    "promote_empty": "준비된 후보가 없습니다",
+    "promote_button": "승격",
+    "promote_success": "Wiki로 승격되었습니다"
+  },
+  "search": {
+    "placeholder": "메모리가 당신의 작업에 대해 아는 것을 무엇이든 물어보세요",
+    "examples_title": "다음 중 하나로 시작해 보세요:",
+    "example_1": "우리가 결정한 인증 스택은 무엇입니까?",
+    "example_2": "지난 배포에서 무엇이 깨졌습니까?",
+    "example_3": "cron 스케줄링은 어떤 어시스턴트가 처리합니까?",
+    "citation_stub": "인용 탐색 기능은 Wave 6에서 제공됩니다"
+  },
+  "promotions": {
+    "title": "Wiki 승격 대기 중",
+    "refresh": "새로 고침",
+    "empty": "대기 중인 항목이 없습니다. 새로운 사실은 승격 준비가 되면 여기에 표시됩니다.",
+    "promote": "승격",
+    "skip": "건너뛰기",
+    "preview": "미리보기",
+    "preview_hide": "숨기기",
+    "queued_at": "{{time}}에 대기열에 추가됨",
+    "promote_success": "Wiki로 승격되었습니다.",
+    "promote_error": "승격할 수 없습니다. 다시 시도하세요.",
+    "skip_success": "건너뛰었습니다.",
+    "skip_error": "건너뛸 수 없습니다. 다시 시도하세요."
+  },
+  "conflicts": {
+    "empty": "충돌이 감지되지 않았습니다. 메모리가 일관됩니다.",
+    "keep_this": "이것을 유지",
+    "resolve_success": "충돌이 해결되었습니다"
+  },
+  "wiki": {
+    "home": {
+      "title": "Wiki",
+      "conceptCount": "{{memories}}개의 메모리에서 {{count}}개의 개념 합성",
+      "viewList": "목록",
+      "viewGraph": "그래프",
+      "newConcept": "+ 새 개념",
+      "settings": "설정",
+      "search": {
+        "placeholder": "개념 검색…"
+      },
+      "columns": {
+        "byTopic": "주제별",
+        "updatedThisWeek": "이번 주 업데이트",
+        "emerging": "신흥 - 개념 페이지 생성 권장"
+      },
+      "mostReferenced": "가장 많이 참조됨",
+      "references": "참조",
+      "empty": "Wiki가 비어 있습니다. 메모리를 승격하거나 자동 동기화를 기다리세요.",
+      "status": {
+        "concepts": "{{count}}개 개념",
+        "memoriesSynthesized": "{{count}}개 메모리 합성됨",
+        "autoSync": "30분마다 자동 동기화",
+        "lastSync": "마지막 동기화 {{when}} 전"
+      },
+      "emergingLabel": "신흥"
+    },
+    "orphan": {
+      "references": "{{count}}개 참조",
+      "projects": "{{count}}개 프로젝트",
+      "projectsSingular": "{{count}}개 프로젝트",
+      "synthesize": "페이지 합성 →",
+      "noPageYet": "페이지 없음"
+    },
+    "concept": {
+      "synthesizedFrom": "{{count}}개 메모리에서 합성"
+    },
+    "detail": {
+      "back": "← Wiki",
+      "edit": "편집",
+      "updateFromSources": "소스에서 업데이트",
+      "settings": "설정",
+      "updatedAgo": "{{when}} 업데이트",
+      "synthesizedFromMem": "{{count}}개 메모리에서 합성",
+      "freshness": {
+        "fresh": "최신",
+        "stale": "오래됨",
+        "neverReviewed": "검토 안 됨"
+      },
+      "tldr": "요약",
+      "sources": "소스",
+      "linkedFrom": "링크 출처",
+      "relatedConcepts": "관련 개념",
+      "openMemory": "메모리 열기 →",
+      "showAll": "전체 {{count}}개 보기 ↓",
+      "hiddenSourcesOne": "소스 메모리 {{count}}개 더",
+      "hiddenSourcesOther": "소스 메모리 {{count}}개 더",
+      "autoSynthesized": "자동 합성",
+      "lastReviewedNever": "마지막 검토: 없음",
+      "lastSynthesized": "마지막 합성: {{when}}",
+      "markAsReviewed": "검토됨으로 표시",
+      "editThisPage": "이 페이지 편집",
+      "reSynthesizeFromSources": "소스에서 재합성",
+      "statusTotalConcepts": "총 {{count}}개 개념",
+      "statusNotReviewedYet": "아직 검토되지 않음",
+      "statusLastSync": "마지막 동기화 {{when}} 전",
+      "loading": "로딩 중…",
+      "notFound": "개념을 찾을 수 없습니다.",
+      "notFoundBack": "← Wiki로 돌아가기"
+    },
+    "list_empty": "아직 위키 항목이 없습니다. 메모리를 승격하여 시작하세요.",
+    "select_prompt": "내용을 보려면 항목을 선택하세요.",
+    "promote": "승격",
+    "export": "내보내기",
+    "share_readme": "README 공유",
+    "promote_ok": "위키로 승격되었습니다",
+    "promote_err": "항목을 승격하지 못했습니다",
+    "export_queued": "내보내기가 대기열에 추가되었습니다 -- 다운로드 기능은 곧 제공됩니다",
+    "export_err": "항목을 내보내지 못했습니다",
+    "share_ok": "README 공유가 대기열에 추가되었습니다",
+    "share_err": "README를 공유하지 못했습니다"
+  },
+  "crossProject": {
+    "scope_label_app": "검색 중: 모든 프로젝트 (앱 범위)",
+    "scope_label_project": "검색 중: {{project}} (프로젝트 범위)",
+    "search_placeholder": "프로젝트 전체에서 메모리 검색",
+    "search_button": "검색",
+    "toggle_label": "다른 프로젝트 포함",
+    "prompt_empty": "프로젝트 브레인에서 검색할 쿼리를 입력하세요.",
+    "results_empty": "검색 범위에서 일치하는 항목이 없습니다.",
+    "navigation_stub": "프로젝트 간 탐색은 Wave 6에서 제공됩니다"
+  },
+  "drop": {
+    "zone_title": "여기에 파일을 끌어다 놓으세요",
+    "zone_hint": "Markdown, 텍스트, JSON, YAML, CSV. 최대 50MB. 대기열 최대 20개 파일.",
+    "browse_button": "찾아보기",
+    "queue_title": "대기 중인 파일",
+    "queue_empty": "대기 중인 파일이 없습니다",
+    "quarantine_button": "격리",
+    "ingest_success": "{{name}}을(를) 대기열에 추가했습니다",
+    "quarantine_success": "{{name}}을(를) 격리했습니다",
+    "path_unavailable": "파일 경로를 읽을 수 없습니다. 대신 찾아보기 버튼을 사용하세요."
+  },
+  "archive": {
+    "topbar": {
+      "title": "메모리",
+      "subtitle": "IJFW · Ferrox Labs",
+      "streak_pill": "{{sessions}}회 세션 · 최장 {{longestDays}}일 연속",
+      "streak_empty": "아직 세션이 없습니다",
+      "import_btn": "가져오기…",
+      "settings_btn": "설정"
+    },
+    "stats": {
+      "memories": "메모리",
+      "banked": "절감액",
+      "decisions": "결정",
+      "wiki": "Wiki",
+      "sessions": "세션",
+      "projects": "프로젝트",
+      "delta_today": "오늘 {{count}}개",
+      "delta_week": "이번 주 {{count}}개",
+      "delta_none": "변화 없음",
+      "banked_tooltip": "추정 절감 추론 비용: 참조 × $0.15 + 결정 × $0.50 + Wiki × $2.00",
+      "no_data": "0"
+    },
+    "banner": {
+      "candidates_ready": "{{count}}개 후보가 자동 승격 준비 완료",
+      "threshold": "임계값 ≥ {{value}}",
+      "next_sweep": "{{time}} 후 자동 승격",
+      "last_dream": "마지막 정리: {{facts}}개 사실 · {{promoted}}개 승격 · {{ago}} 전",
+      "no_dream": "최근 정리 주기 없음",
+      "tune_btn": "조정",
+      "review_btn": "{{count}}개 검토 →",
+      "review_btn_zero": "검토"
+    },
+    "filters": {
+      "projects_title": "프로젝트",
+      "all_projects": "모든 프로젝트",
+      "this_project": "이 프로젝트",
+      "global": "전역",
+      "time_title": "기간",
+      "time_all": "전체",
+      "time_today": "오늘",
+      "time_7d": "7일",
+      "time_30d": "30일",
+      "time_custom": "사용자 정의…",
+      "tags_title": "태그",
+      "tags_clear": "태그 지우기",
+      "autopromo_title": "자동 승격",
+      "candidates_only": "승격 후보만 표시",
+      "hide_promoted": "이미 승격된 항목 숨기기",
+      "candidates_subline": "{{count}}개 준비 완료 · 임계값 ≥ {{value}}",
+      "section_collapse": "접기",
+      "section_expand": "펼치기"
+    },
+    "list": {
+      "search_placeholder": "메모리 검색…",
+      "search_kbd_hint": "/",
+      "chip_all": "전체",
+      "chip_decision": "결정",
+      "chip_pattern": "패턴",
+      "chip_session": "세션",
+      "chip_wiki": "Wiki",
+      "chip_observation": "관찰",
+      "chip_preference": "기본 설정",
+      "chip_count": "({{count}})",
+      "empty_title": "일치하는 항목 없음",
+      "empty_subtitle": "필터를 제거하거나 검색어를 지워 보세요.",
+      "empty_clear_btn": "필터 지우기",
+      "footer": "1–{{shown}}번째 표시 중 / 전체 {{total}}개 · 스크롤하여 더 보기",
+      "footer_all_loaded": "전체 {{total}}개 로드 완료",
+      "loading_more": "더 불러오는 중…"
+    },
+    "row": {
+      "used_pill": "이번 주 {{count}}회 사용",
+      "type_decision": "결정",
+      "type_pattern": "패턴",
+      "type_observation": "관찰",
+      "type_session": "세션",
+      "type_wiki": "Wiki",
+      "type_preference": "기본 설정"
+    },
+    "inspector": {
+      "empty_title": "메모리를 선택하여 검사하세요",
+      "kbd_navigate": "↑/↓ 탐색",
+      "kbd_select": "Enter 선택",
+      "kbd_close": "Esc 닫기",
+      "close_btn": "닫기",
+      "promote_btn": "Wiki로 승격",
+      "promote_disabled": "이미 승격됨 ✓",
+      "open_btn": "파일 열기",
+      "copy_btn": "복사",
+      "score_label": "승격 점수 {{score}}/100",
+      "score_threshold": "{{threshold}} 도달 시 자동 승격",
+      "score_help": "어떻게 계산되나요?",
+      "summary_title": "요약",
+      "why_title": "이유",
+      "why_empty": "\"이유\"가 기록되지 않았습니다",
+      "how_title": "적용 방법",
+      "how_empty": "\"적용 방법\"이 기록되지 않았습니다",
+      "derefs_title": "실제 사용 현황",
+      "derefs_subtitle": "이번 주 {{count}}회 사용",
+      "tags_title": "태그",
+      "source_label": "소스",
+      "source_copied": "소스 경로를 복사했습니다",
+      "promote_success": "Wiki로 승격되었습니다",
+      "promote_error": "승격할 수 없습니다. 다시 시도하세요.",
+      "score_tooltip": "+30 결정/패턴 · +10 크로스 프로젝트 참조당 · +5 역참조당 · +20 승격된 태그 · +15 최근성(30일에 걸쳐 선형 감소)"
+    },
+    "quickadd": {
+      "placeholder": "무엇이든 기록하세요…",
+      "scope_project": "프로젝트",
+      "scope_global": "전역",
+      "submit_btn": "기억하기 →",
+      "submitting": "저장 중…",
+      "success": "저장됨",
+      "error": "저장할 수 없습니다. 다시 시도하세요."
+    },
+    "statusbar": {
+      "brain_live": "브레인 활성화",
+      "brain_offline": "브레인 오프라인",
+      "cli_count": "{{count}}개 CLI",
+      "cli_count_none": "CLI가 감지되지 않았습니다",
+      "last_dream": "마지막 정리: {{facts}}개 사실 · {{promoted}}개 승격 · {{ago}} 전",
+      "no_dream": "첫 번째 정리를 기다리는 중",
+      "kbd_capture": "빠른 캡처",
+      "kbd_search": "검색",
+      "kbd_close": "검사 창 닫기",
+      "spend_today": "오늘 ${{usd}}"
+    },
+    "threshold_modal": {
+      "title": "자동 승격 조정",
+      "threshold_label": "승격 임계값",
+      "autopromo_label": "일정에 따라 자동 승격",
+      "autopromo_help": "활성화하면 임계값을 초과하고 10분 대기열을 통과한 후보가 자동으로 Wiki에 기록됩니다.",
+      "live_preview": "임계값 {{value}}에서 {{count}}개 후보",
+      "score_formula_title": "점수 계산식",
+      "formula_decision": "+30 결정 또는 패턴 유형인 경우",
+      "formula_refs": "+10 이 항목을 참조하는 프로젝트당",
+      "formula_referenced": "+5 역참조 히트당",
+      "formula_tag": "+20 결정, 패턴, 전역, 디자인 또는 아키텍처 태그가 있는 경우",
+      "formula_recency": "+15 저장된 지 24시간 미만인 경우(30일에 걸쳐 선형 감소)",
+      "save_btn": "저장",
+      "cancel_btn": "취소",
+      "save_success": "저장됨"
+    },
+    "errors": {
+      "load_failed": "메모리를 로드할 수 없습니다. {{reason}}",
+      "missing_api": "메모리 API가 아직 준비되지 않았습니다. 잠시 후 다시 시도하세요.",
+      "promote_failed": "승격할 수 없습니다. {{reason}}"
+    },
+    "import": {
+      "title": "메모리 가져오기",
+      "close": "가져오기 창 닫기",
+      "importing": "가져오는 중…",
+      "status": {
+        "ready": "준비됨",
+        "checking": "확인 중",
+        "importing": "가져오는 중",
+        "unavailable": "사용 불가",
+        "idle": "대기 중"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "~/.claude-mem/claude-mem.db에서 가져오려면 클릭하세요",
+        "count": "약 {{count}}개 항목 가져옴",
+        "btn": "가져오기",
+        "success": "{{count}}개 항목 가져옴 · 오류 {{errors}}개",
+        "error": "가져오기에 실패했습니다. 다시 시도하세요."
+      },
+      "obsidian": {
+        "title": "Obsidian 보관함",
+        "hint": "보관함을 검색하려면 클릭하세요",
+        "count": "약 {{count}}개 항목 가져옴",
+        "btn": "가져오기",
+        "success": "{{count}}개 항목 가져옴 · 오류 {{errors}}개",
+        "error": "Obsidian 가져오기에 실패했습니다. 다시 시도하세요."
+      },
+      "devScan": {
+        "title": "~/dev 검색",
+        "hint": "~/dev에서 IJFW 메모리 디렉터리를 검색합니다",
+        "count": "약 {{count}}개 항목 가져옴",
+        "btn": "가져오기",
+        "success": "{{projects}}개 프로젝트에서 {{count}}개 항목 가져옴",
+        "error": "Dev 검색 가져오기에 실패했습니다. 다시 시도하세요."
+      },
+      "dropFolder": {
+        "title": "폴더에 끌어다 놓기",
+        "hint": ".md / .txt / .json 파일을 ~/Documents/Wayland-Memory/에 끌어다 놓으세요",
+        "count": "{{count}}개 파일 처리됨",
+        "openBtn": "폴더 열기",
+        "processBtn": "지금 처리",
+        "success": "{{count}}개 파일 처리됨 · 오류 {{errors}}개",
+        "error": "처리에 실패했습니다. 다시 시도하세요."
+      }
+    }
+  }
+}

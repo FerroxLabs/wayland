@@ -1,0 +1,22 @@
+{
+  "version": "v1",
+  "id": "imported-invalid-skill-id",
+  "name": "Invalid Skill ID Attempt",
+  "leader": {
+    "id": "../../malicious"
+  },
+  "teammates": [
+    {
+      "id": "copy",
+      "name": "Copy Lead",
+      "prompt": "Draft on-brand copy."
+    }
+  ],
+  "capabilities": {
+    "canReadFiles": false,
+    "canWriteFiles": false,
+    "canSpawnAgents": false,
+    "canNetworkRequest": false,
+    "canCrossTeamMessage": false
+  }
+}

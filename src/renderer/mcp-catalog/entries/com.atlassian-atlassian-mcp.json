@@ -1,0 +1,45 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.atlassian/atlassian-mcp",
+  "title": "Atlassian (Jira + Confluence)",
+  "description": "Jira issues, sprints, and Confluence pages - Atlassian's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.atlassian.com/platform/remote-mcp-server",
+  "repository": { "url": "https://github.com/atlassian/atlassian-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.atlassian.com/v1/mcp/authv2" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["productivity", "tasks", "knowledge"],
+    "tags": ["jira", "confluence", "atlassian"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 16,
+    "installRate": 0.36,
+    "iconUrl": "icons/atlassian.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#2684ff" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Atlassian",
+      "providerSignupUrl": "https://www.atlassian.com",
+      "scopes": [
+        { "name": "read:jira-work", "plainLanguage": "Read issues, projects, and sprints." },
+        { "name": "write:jira-work", "plainLanguage": "Create and update Jira issues." },
+        { "name": "read:confluence-content.all", "plainLanguage": "Read Confluence pages and spaces." },
+        { "name": "write:confluence-content", "plainLanguage": "Create and update Confluence pages." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Jira Issues", "count": 10 },
+      { "label": "Sprints", "count": 4 },
+      { "label": "Confluence Pages", "count": 7 },
+      { "label": "Search", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.atlassian-atlassian-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

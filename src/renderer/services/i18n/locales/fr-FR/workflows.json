@@ -1,0 +1,44 @@
+{
+  "siderEntry": "Workflows",
+  "title": "Workflows",
+  "subtitle": "Des recettes pas à pas que vous pouvez lancer en un clic ou planifier pour qu'elles s'exécutent automatiquement. Choisissez un workflow, sélectionnez votre moteur, et l'agent vous guidera tout au long du processus.",
+  "count": "{{count}} workflow",
+  "count_other": "{{count}} workflows",
+  "allCategories": "Tous les workflows",
+  "section": {
+    "featured": "Workflows en vedette",
+    "all": "Tous les workflows"
+  },
+  "actions": {
+    "launch": "Lancer maintenant",
+    "schedule": "Planifier",
+    "import": "Importer un workflow",
+    "build": "Créer un workflow",
+    "runOn": "Exécuter sur"
+  },
+  "launchError": "Échec du lancement du workflow : {{msg}}",
+  "picker": {
+    "noAgent": "Aucun backend sélectionné"
+  },
+  "import": {
+    "placeholder": "Le câblage d'import arrive bientôt : dossier / URL git / SKILL.md avec type:workflow détecté automatiquement via le frontmatter, analysé par Skill Guard et enregistré comme source:imported."
+  },
+  "build": {
+    "placeholder": "Le générateur de workflows arrive bientôt : décrivez-le en langage clair → l'IA rédige un SKILL.md avec la catégorie + les dépendances déduites de la bibliothèque de skills en direct → vérifiez et enregistrez."
+  },
+  "depends": {
+    "title": "Utilise ces skills",
+    "openSkill": "Ouvrir dans la page Skills"
+  },
+  "search": {
+    "placeholder": "Rechercher des workflows…",
+    "empty": "Aucun workflow ne correspond à votre recherche",
+    "emptyLibrary": "Aucun workflow chargé pour le moment. La bibliothèque intégrée se remplira au prochain redémarrage."
+  },
+  "whatHappens": "Au lancement",
+  "bodyFallback": "L'agent charge ce workflow comme première directive et vous guide étape par étape. Vous pouvez interrompre ou changer de direction à tout moment.",
+  "noDescription": "Aucune description fournie.",
+  "launch": {
+    "placeholder": "Le câblage de lancement est en cours. Bientôt, vous choisirez un moteur (Wayland Core / Gemini / Claude / Codex), et le workflow se chargera comme première directive de l'agent dans une nouvelle conversation."
+  }
+}

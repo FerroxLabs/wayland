@@ -1,0 +1,7 @@
+{
+  "toast": {
+    "newModels_one": "新しいモデル {{count}} 件 · {{names}}",
+    "newModels_other": "新しいモデル {{count}} 件 · {{names}}",
+    "andMore": "他 {{count}} 件"
+  }
+}

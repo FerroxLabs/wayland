@@ -1,0 +1,76 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* WorkflowSurface - SPEC §5.8 composition root.
+ *
+ * Two-column layout: chat body (header + asks + caller's chat tape) on the
+ * left, ~280px rail on the right. The right column is replaced by the
+ * complete card when the session reaches terminal state. The root applies
+ * a faint amber tint when status === 'errored' (SPEC §5.8 + §11).
+ */
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background-color: var(--color-bg-1);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.headerSlot {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-base);
+  background-color: var(--color-bg-2);
+}
+
+.asks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 0;
+  flex-shrink: 0;
+}
+
+.children {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.right {
+  display: flex;
+  flex-shrink: 0;
+  min-height: 0;
+  width: 280px;
+  border-left: 1px solid var(--border-base);
+  background-color: var(--color-bg-2);
+}
+
+.errored {
+  background-color: color-mix(in srgb, var(--color-warning-light-1) 8%, transparent);
+}
+
+.errored .headerSlot {
+  background-color: color-mix(in srgb, var(--color-warning-light-1) 12%, var(--color-bg-2));
+}

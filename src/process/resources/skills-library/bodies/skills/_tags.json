@@ -1,0 +1,2325 @@
+{
+  "version": "1.0.0",
+  "description": "Controlled tag vocabulary for FoundrySkills discovery. Every tag that appears in any SKILL.md must exist in this file. Tags are the primary discovery mechanism -- they must use user vocabulary, not expert jargon.",
+  "expansion_process": "Submit a PR adding the new tag with aliases and category mapping. Tag must apply to at least 3 planned skills. Requires review.",
+  "tag_rules": {
+    "format": "kebab-case, 1-3 words",
+    "per_skill": "3-8 tags recommended",
+    "coverage": "Each tag should apply to 5-50 skills"
+  },
+  "tags": {
+    "python": {
+      "aliases": [
+        "py",
+        "python3"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Python programming language"
+    },
+    "javascript": {
+      "aliases": [
+        "js",
+        "node",
+        "nodejs",
+        "ecmascript"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "JavaScript programming language and Node.js runtime"
+    },
+    "typescript": {
+      "aliases": [
+        "ts"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "TypeScript programming language"
+    },
+    "rust": {
+      "aliases": [
+        "rs",
+        "rustlang"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Rust programming language"
+    },
+    "go": {
+      "aliases": [
+        "golang"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Go programming language"
+    },
+    "java": {
+      "aliases": [
+        "jvm"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Java programming language and JVM ecosystem"
+    },
+    "csharp": {
+      "aliases": [
+        "c-sharp",
+        "dotnet",
+        ".net"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "C# programming language and .NET framework"
+    },
+    "ruby": {
+      "aliases": [
+        "rb",
+        "rails"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Ruby programming language and Rails framework"
+    },
+    "php": {
+      "aliases": [
+        "laravel"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "PHP programming language"
+    },
+    "swift": {
+      "aliases": [
+        "ios-dev",
+        "swiftui"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Swift programming language for Apple platforms"
+    },
+    "kotlin": {
+      "aliases": [
+        "android-dev"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Kotlin programming language for JVM and Android"
+    },
+    "sql": {
+      "aliases": [
+        "database-queries",
+        "structured-query-language"
+      ],
+      "categories": [
+        "backend-systems",
+        "data-analysis"
+      ],
+      "description": "SQL database query language"
+    },
+    "shell-scripting": {
+      "aliases": [
+        "bash",
+        "terminal",
+        "command-line",
+        "cli"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Shell scripting and command-line automation"
+    },
+    "html-css": {
+      "aliases": [
+        "html",
+        "css",
+        "markup",
+        "stylesheets"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "HTML and CSS for web page structure and styling"
+    },
+    "dart": {
+      "aliases": [
+        "flutter"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Dart programming language and Flutter framework"
+    },
+    "web-development": {
+      "aliases": [
+        "web-dev",
+        "web",
+        "websites"
+      ],
+      "categories": [
+        "web-development"
+      ],
+      "description": "Building websites and web applications"
+    },
+    "backend": {
+      "aliases": [
+        "server-side",
+        "server"
+      ],
+      "categories": [
+        "backend-systems"
+      ],
+      "description": "Server-side application development"
+    },
+    "frontend": {
+      "aliases": [
+        "client-side",
+        "ui-development"
+      ],
+      "categories": [
+        "web-development"
+      ],
+      "description": "Client-side user interface development"
+    },
+    "devops": {
+      "aliases": [
+        "operations",
+        "infra",
+        "infrastructure"
+      ],
+      "categories": [
+        "devops-cloud"
+      ],
+      "description": "Development operations, CI/CD, and infrastructure"
+    },
+    "mobile": {
+      "aliases": [
+        "mobile-dev",
+        "app-dev",
+        "mobile-apps"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Mobile application development for iOS and Android"
+    },
+    "api-design": {
+      "aliases": [
+        "api",
+        "rest-api",
+        "graphql",
+        "endpoints"
+      ],
+      "categories": [
+        "backend-systems"
+      ],
+      "description": "Designing and building application programming interfaces"
+    },
+    "microservices": {
+      "aliases": [
+        "distributed-systems",
+        "service-oriented"
+      ],
+      "categories": [
+        "backend-systems"
+      ],
+      "description": "Microservice architecture and distributed system design"
+    },
+    "cloud": {
+      "aliases": [
+        "aws",
+        "azure",
+        "gcp",
+        "cloud-computing"
+      ],
+      "categories": [
+        "devops-cloud"
+      ],
+      "description": "Cloud platforms and cloud-native development"
+    },
+    "database": {
+      "aliases": [
+        "db",
+        "data-storage",
+        "nosql",
+        "relational-db"
+      ],
+      "categories": [
+        "backend-systems",
+        "data-analysis"
+      ],
+      "description": "Database design, management, and optimization"
+    },
+    "security": {
+      "aliases": [
+        "cybersecurity",
+        "appsec",
+        "infosec"
+      ],
+      "categories": [
+        "software-engineering",
+        "security"
+      ],
+      "description": "Application and infrastructure security"
+    },
+    "testing": {
+      "aliases": [
+        "unit-testing",
+        "test-automation",
+        "qa"
+      ],
+      "categories": [
+        "testing-quality"
+      ],
+      "description": "Software testing and quality assurance"
+    },
+    "ai-ml": {
+      "aliases": [
+        "artificial-intelligence",
+        "machine-learning",
+        "ml",
+        "ai"
+      ],
+      "categories": [
+        "ai-machine-learning",
+        "data-analysis"
+      ],
+      "description": "Artificial intelligence and machine learning engineering"
+    },
+    "data-science": {
+      "aliases": [
+        "data-analytics",
+        "analytics"
+      ],
+      "categories": [
+        "data-analysis",
+        "ai-machine-learning"
+      ],
+      "description": "Data science methodology and analytical workflows"
+    },
+    "deep-learning": {
+      "aliases": [
+        "neural-networks",
+        "dl"
+      ],
+      "categories": [
+        "ai-machine-learning"
+      ],
+      "description": "Deep learning and neural network architectures"
+    },
+    "writing": {
+      "aliases": [
+        "write",
+        "draft",
+        "compose"
+      ],
+      "categories": [
+        "writing"
+      ],
+      "description": "General writing and content creation"
+    },
+    "planning": {
+      "aliases": [
+        "plan",
+        "organize",
+        "schedule"
+      ],
+      "categories": [
+        "productivity",
+        "business-strategy"
+      ],
+      "description": "Planning, organizing, and scheduling activities"
+    },
+    "analysis": {
+      "aliases": [
+        "analyze",
+        "evaluate",
+        "assess"
+      ],
+      "categories": [
+        "data-analysis",
+        "business-strategy"
+      ],
+      "description": "Analyzing information and evaluating options"
+    },
+    "debugging": {
+      "aliases": [
+        "debug",
+        "troubleshoot",
+        "fix-bugs"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Finding and fixing software bugs"
+    },
+    "code-review": {
+      "aliases": [
+        "review-code",
+        "pull-request-review"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Reviewing code for quality, correctness, and best practices"
+    },
+    "refactoring": {
+      "aliases": [
+        "restructure",
+        "code-cleanup"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Improving code structure without changing behavior"
+    },
+    "documentation": {
+      "aliases": [
+        "docs",
+        "technical-docs",
+        "readme"
+      ],
+      "categories": [
+        "writing",
+        "software-engineering"
+      ],
+      "description": "Writing technical documentation and reference guides"
+    },
+    "design": {
+      "aliases": [
+        "visual-design",
+        "graphic-design"
+      ],
+      "categories": [
+        "design-creative"
+      ],
+      "description": "Visual and graphic design work"
+    },
+    "optimization": {
+      "aliases": [
+        "performance",
+        "speed",
+        "efficiency"
+      ],
+      "categories": [
+        "software-engineering",
+        "productivity"
+      ],
+      "description": "Optimizing for performance, speed, or efficiency"
+    },
+    "automation": {
+      "aliases": [
+        "automate",
+        "workflow-automation"
+      ],
+      "categories": [
+        "productivity",
+        "software-engineering"
+      ],
+      "description": "Automating repetitive tasks and workflows"
+    },
+    "research": {
+      "aliases": [
+        "investigate",
+        "study",
+        "explore"
+      ],
+      "categories": [
+        "data-analysis",
+        "education"
+      ],
+      "description": "Conducting research and gathering information"
+    },
+    "teaching": {
+      "aliases": [
+        "instruction",
+        "tutoring",
+        "educating"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Teaching, tutoring, and instructional design"
+    },
+    "budgeting": {
+      "aliases": [
+        "budget",
+        "budget-planning",
+        "spending-plan"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Creating and managing personal or household budgets"
+    },
+    "meal-planning": {
+      "aliases": [
+        "meal-prep",
+        "weekly-meals",
+        "menu-planning"
+      ],
+      "categories": [
+        "home-household"
+      ],
+      "description": "Planning meals, grocery lists, and meal preparation"
+    },
+    "workout-planning": {
+      "aliases": [
+        "exercise-plan",
+        "training-plan",
+        "fitness-plan"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Creating exercise and fitness training plans"
+    },
+    "interview-prep": {
+      "aliases": [
+        "interview-preparation",
+        "job-interview",
+        "mock-interview"
+      ],
+      "categories": [
+        "career-development"
+      ],
+      "description": "Preparing for job interviews and practice sessions"
+    },
+    "resume-writing": {
+      "aliases": [
+        "resume",
+        "cv",
+        "curriculum-vitae"
+      ],
+      "categories": [
+        "career-development"
+      ],
+      "description": "Writing and optimizing resumes and CVs"
+    },
+    "project-management": {
+      "aliases": [
+        "pm",
+        "project-planning"
+      ],
+      "categories": [
+        "business-strategy",
+        "productivity"
+      ],
+      "description": "Managing projects, timelines, and deliverables"
+    },
+    "decision-making": {
+      "aliases": [
+        "decisions",
+        "decision-framework",
+        "choosing"
+      ],
+      "categories": [
+        "productivity",
+        "business-strategy"
+      ],
+      "description": "Frameworks and methods for making better decisions"
+    },
+    "troubleshooting": {
+      "aliases": [
+        "problem-solving",
+        "diagnose",
+        "fix"
+      ],
+      "categories": [
+        "software-engineering",
+        "home-household"
+      ],
+      "description": "Diagnosing and resolving problems systematically"
+    },
+    "blog-post": {
+      "aliases": [
+        "blog",
+        "article",
+        "blog-writing"
+      ],
+      "categories": [
+        "writing"
+      ],
+      "description": "Writing blog posts and online articles"
+    },
+    "email": {
+      "aliases": [
+        "email-writing",
+        "professional-email",
+        "cold-email"
+      ],
+      "categories": [
+        "writing",
+        "business-strategy"
+      ],
+      "description": "Writing professional and personal emails"
+    },
+    "report": {
+      "aliases": [
+        "report-writing",
+        "status-report",
+        "business-report"
+      ],
+      "categories": [
+        "writing",
+        "business-strategy",
+        "data-analysis"
+      ],
+      "description": "Writing reports and status updates"
+    },
+    "proposal": {
+      "aliases": [
+        "business-proposal",
+        "project-proposal"
+      ],
+      "categories": [
+        "writing",
+        "business-strategy"
+      ],
+      "description": "Writing proposals for projects, business, or clients"
+    },
+    "presentation": {
+      "aliases": [
+        "slides",
+        "slide-deck",
+        "pitch-deck"
+      ],
+      "categories": [
+        "design-creative",
+        "business-strategy"
+      ],
+      "description": "Creating presentations and slide decks"
+    },
+    "social-media": {
+      "aliases": [
+        "social",
+        "social-media-content",
+        "social-posts"
+      ],
+      "categories": [
+        "writing",
+        "marketing-sales"
+      ],
+      "description": "Creating content for social media platforms"
+    },
+    "creative-writing": {
+      "aliases": [
+        "fiction",
+        "storytelling",
+        "narrative"
+      ],
+      "categories": [
+        "writing"
+      ],
+      "description": "Writing fiction, poetry, and creative narratives"
+    },
+    "technical-writing": {
+      "aliases": [
+        "tech-writing",
+        "tech-docs"
+      ],
+      "categories": [
+        "writing",
+        "software-engineering"
+      ],
+      "description": "Writing technical documentation and specifications"
+    },
+    "academic-writing": {
+      "aliases": [
+        "research-paper",
+        "thesis",
+        "scholarly-writing"
+      ],
+      "categories": [
+        "writing",
+        "education"
+      ],
+      "description": "Writing academic papers, theses, and research documents"
+    },
+    "marketing-copy": {
+      "aliases": [
+        "copywriting",
+        "ad-copy",
+        "sales-copy"
+      ],
+      "categories": [
+        "writing",
+        "marketing-sales"
+      ],
+      "description": "Writing marketing and advertising copy"
+    },
+    "personal-finance": {
+      "aliases": [
+        "money",
+        "financial",
+        "money-management"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Managing personal finances and money"
+    },
+    "investing": {
+      "aliases": [
+        "investments",
+        "portfolio",
+        "stocks"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Investment concepts, account types, and strategies"
+    },
+    "tax-planning": {
+      "aliases": [
+        "taxes",
+        "tax-deductions",
+        "tax-prep"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Tax preparation, deductions, and planning strategies"
+    },
+    "fitness": {
+      "aliases": [
+        "exercise",
+        "workout",
+        "training"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Physical fitness and exercise guidance"
+    },
+    "nutrition": {
+      "aliases": [
+        "diet",
+        "healthy-eating",
+        "macros"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Nutrition, dietary planning, and healthy eating"
+    },
+    "mental-wellness": {
+      "aliases": [
+        "mental-health",
+        "mindfulness",
+        "stress-relief",
+        "wellbeing"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Mental health, mindfulness, and emotional wellbeing"
+    },
+    "cooking": {
+      "aliases": [
+        "recipe",
+        "food",
+        "culinary"
+      ],
+      "categories": [
+        "home-household"
+      ],
+      "description": "Cooking techniques, recipes, and kitchen skills"
+    },
+    "home-maintenance": {
+      "aliases": [
+        "home-repair",
+        "diy-repair",
+        "appliance-fix"
+      ],
+      "categories": [
+        "home-household"
+      ],
+      "description": "Home repair, appliance maintenance, and upkeep"
+    },
+    "gardening": {
+      "aliases": [
+        "garden",
+        "plants",
+        "landscaping"
+      ],
+      "categories": [
+        "home-household"
+      ],
+      "description": "Garden planning, plant care, and landscaping"
+    },
+    "parenting": {
+      "aliases": [
+        "kids",
+        "children",
+        "child-rearing"
+      ],
+      "categories": [
+        "family-relationships"
+      ],
+      "description": "Parenting strategies, activities, and child development"
+    },
+    "relationships": {
+      "aliases": [
+        "relationship-advice",
+        "communication",
+        "couples"
+      ],
+      "categories": [
+        "family-relationships"
+      ],
+      "description": "Relationship communication and conflict resolution"
+    },
+    "career": {
+      "aliases": [
+        "job",
+        "employment",
+        "professional-growth"
+      ],
+      "categories": [
+        "career-development"
+      ],
+      "description": "Career planning, growth, and professional development"
+    },
+    "travel": {
+      "aliases": [
+        "trip",
+        "vacation",
+        "travel-planning"
+      ],
+      "categories": [
+        "travel-experiences"
+      ],
+      "description": "Travel planning, itineraries, and trip logistics"
+    },
+    "legal-literacy": {
+      "aliases": [
+        "legal",
+        "law",
+        "legal-basics"
+      ],
+      "categories": [
+        "legal-civic"
+      ],
+      "description": "Understanding legal concepts, rights, and processes"
+    },
+    "sustainability": {
+      "aliases": [
+        "eco-friendly",
+        "green-living",
+        "environmental"
+      ],
+      "categories": [
+        "sustainability"
+      ],
+      "description": "Sustainable living and environmental practices"
+    },
+    "best-practices": {
+      "aliases": [
+        "standards",
+        "guidelines",
+        "conventions"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Industry best practices and coding standards"
+    },
+    "design-patterns": {
+      "aliases": [
+        "patterns",
+        "software-patterns"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Software design patterns and architectural patterns"
+    },
+    "architecture": {
+      "aliases": [
+        "system-design",
+        "system-architecture"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Software and system architecture design"
+    },
+    "accessibility": {
+      "aliases": [
+        "a11y",
+        "wcag",
+        "inclusive-design"
+      ],
+      "categories": [
+        "web-development",
+        "design-creative"
+      ],
+      "description": "Accessibility standards and inclusive design"
+    },
+    "responsive-design": {
+      "aliases": [
+        "mobile-first",
+        "adaptive-design"
+      ],
+      "categories": [
+        "web-development",
+        "design-creative"
+      ],
+      "description": "Responsive and adaptive web design"
+    },
+    "seo": {
+      "aliases": [
+        "search-engine-optimization",
+        "search-ranking"
+      ],
+      "categories": [
+        "marketing-sales",
+        "writing"
+      ],
+      "description": "Search engine optimization for web content"
+    },
+    "agile": {
+      "aliases": [
+        "scrum",
+        "kanban",
+        "sprint"
+      ],
+      "categories": [
+        "business-strategy",
+        "software-engineering"
+      ],
+      "description": "Agile methodology, Scrum, and Kanban practices"
+    },
+    "tdd": {
+      "aliases": [
+        "test-driven-development",
+        "test-first"
+      ],
+      "categories": [
+        "testing-quality"
+      ],
+      "description": "Test-driven development methodology"
+    },
+    "ci-cd": {
+      "aliases": [
+        "continuous-integration",
+        "continuous-deployment",
+        "pipeline"
+      ],
+      "categories": [
+        "devops-cloud"
+      ],
+      "description": "Continuous integration and deployment pipelines"
+    },
+    "version-control": {
+      "aliases": [
+        "git",
+        "source-control",
+        "branching"
+      ],
+      "categories": [
+        "devops-cloud"
+      ],
+      "description": "Version control with Git and branching strategies"
+    },
+    "data-visualization": {
+      "aliases": [
+        "charts",
+        "graphs",
+        "dashboards",
+        "dataviz"
+      ],
+      "categories": [
+        "data-analysis",
+        "design-creative"
+      ],
+      "description": "Creating charts, dashboards, and visual data presentations"
+    },
+    "statistics": {
+      "aliases": [
+        "stats",
+        "statistical-analysis"
+      ],
+      "categories": [
+        "data-analysis"
+      ],
+      "description": "Statistical methods and data interpretation"
+    },
+    "frameworks": {
+      "aliases": [
+        "react",
+        "vue",
+        "angular",
+        "django",
+        "express"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Software frameworks and libraries"
+    },
+    "clean-code": {
+      "aliases": [
+        "readable-code",
+        "maintainable-code",
+        "code-quality"
+      ],
+      "categories": [
+        "software-engineering"
+      ],
+      "description": "Writing clean, readable, and maintainable code"
+    },
+    "beginner-friendly": {
+      "aliases": [
+        "intro",
+        "getting-started",
+        "basics"
+      ],
+      "categories": [
+        "education",
+        "software-engineering"
+      ],
+      "description": "Content suitable for beginners with no prior experience"
+    },
+    "advanced": {
+      "aliases": [
+        "expert",
+        "in-depth",
+        "deep-dive"
+      ],
+      "categories": [
+        "education",
+        "software-engineering"
+      ],
+      "description": "Advanced content for experienced practitioners"
+    },
+    "quick-reference": {
+      "aliases": [
+        "cheat-sheet",
+        "reference-card",
+        "lookup"
+      ],
+      "categories": [
+        "productivity",
+        "software-engineering"
+      ],
+      "description": "Quick-lookup references and cheat sheets"
+    },
+    "step-by-step": {
+      "aliases": [
+        "walkthrough",
+        "how-to",
+        "tutorial"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Step-by-step guided instructions"
+    },
+    "checklist": {
+      "aliases": [
+        "todo-list",
+        "check-list",
+        "verification-list"
+      ],
+      "categories": [
+        "productivity"
+      ],
+      "description": "Checklists and verification lists for processes"
+    },
+    "template": {
+      "aliases": [
+        "boilerplate",
+        "starter",
+        "scaffold"
+      ],
+      "categories": [
+        "productivity",
+        "writing"
+      ],
+      "description": "Templates and boilerplate starting points"
+    },
+    "guide": {
+      "aliases": [
+        "handbook",
+        "manual",
+        "reference-guide"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Comprehensive guides and handbooks"
+    },
+    "debt-management": {
+      "aliases": [
+        "debt-payoff",
+        "debt-reduction",
+        "credit"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Managing and paying off debt"
+    },
+    "retirement-planning": {
+      "aliases": [
+        "retirement",
+        "401k",
+        "ira",
+        "pension"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Retirement savings and planning strategies"
+    },
+    "home-buying": {
+      "aliases": [
+        "house-hunting",
+        "mortgage",
+        "real-estate"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Home buying process and mortgage guidance"
+    },
+    "insurance": {
+      "aliases": [
+        "health-insurance",
+        "life-insurance",
+        "coverage"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Insurance comparison and selection guidance"
+    },
+    "sleep": {
+      "aliases": [
+        "sleep-hygiene",
+        "insomnia",
+        "rest"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Sleep quality improvement and sleep hygiene"
+    },
+    "yoga": {
+      "aliases": [
+        "stretching",
+        "flexibility"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Yoga sequences and stretching routines"
+    },
+    "running": {
+      "aliases": [
+        "jogging",
+        "marathon-training",
+        "couch-to-5k"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Running training plans from beginner to marathon"
+    },
+    "safety": {
+      "aliases": [
+        "safe",
+        "risk",
+        "preparedness"
+      ],
+      "categories": [
+        "travel-experiences",
+        "hobbies-crafts"
+      ],
+      "description": "Safety practices, risk assessment, and preparedness planning"
+    },
+    "cleaning": {
+      "aliases": [
+        "house-cleaning",
+        "deep-clean",
+        "tidying"
+      ],
+      "categories": [
+        "home-household"
+      ],
+      "description": "Cleaning schedules, methods, and routines"
+    },
+    "pet-care": {
+      "aliases": [
+        "pets",
+        "dog-training",
+        "cat-care"
+      ],
+      "categories": [
+        "home-household"
+      ],
+      "description": "Pet care, training, and health management"
+    },
+    "decluttering": {
+      "aliases": [
+        "organizing",
+        "minimalism",
+        "konmari"
+      ],
+      "categories": [
+        "home-household",
+        "productivity"
+      ],
+      "description": "Decluttering methods and space organization"
+    },
+    "family-events": {
+      "aliases": [
+        "party-planning",
+        "celebrations",
+        "family-gathering"
+      ],
+      "categories": [
+        "family-relationships",
+        "travel-experiences"
+      ],
+      "description": "Planning family events, parties, and celebrations"
+    },
+    "elder-care": {
+      "aliases": [
+        "aging-parents",
+        "caregiving",
+        "senior-care"
+      ],
+      "categories": [
+        "family-relationships"
+      ],
+      "description": "Elder care planning and caregiver support"
+    },
+    "itinerary": {
+      "aliases": [
+        "trip-planning",
+        "travel-itinerary",
+        "vacation-plan"
+      ],
+      "categories": [
+        "travel-experiences"
+      ],
+      "description": "Creating travel itineraries and trip plans"
+    },
+    "packing": {
+      "aliases": [
+        "packing-list",
+        "travel-packing"
+      ],
+      "categories": [
+        "travel-experiences"
+      ],
+      "description": "Packing lists and travel preparation"
+    },
+    "event-planning": {
+      "aliases": [
+        "party",
+        "conference",
+        "gathering"
+      ],
+      "categories": [
+        "travel-experiences",
+        "family-relationships"
+      ],
+      "description": "Planning events, parties, and gatherings"
+    },
+    "contracts": {
+      "aliases": [
+        "lease",
+        "agreement",
+        "terms"
+      ],
+      "categories": [
+        "legal-civic"
+      ],
+      "description": "Understanding and reviewing contracts and agreements"
+    },
+    "estate-planning": {
+      "aliases": [
+        "will",
+        "trust",
+        "inheritance"
+      ],
+      "categories": [
+        "legal-civic",
+        "personal-finance"
+      ],
+      "description": "Estate planning, wills, and trusts"
+    },
+    "civic-engagement": {
+      "aliases": [
+        "voting",
+        "civic-duty",
+        "community"
+      ],
+      "categories": [
+        "legal-civic"
+      ],
+      "description": "Civic participation, voting, and community engagement"
+    },
+    "cover-letter": {
+      "aliases": [
+        "cover-letter-writing",
+        "application-letter"
+      ],
+      "categories": [
+        "career-development"
+      ],
+      "description": "Writing cover letters for job applications"
+    },
+    "salary-negotiation": {
+      "aliases": [
+        "negotiate-pay",
+        "compensation",
+        "raise"
+      ],
+      "categories": [
+        "career-development"
+      ],
+      "description": "Negotiating salary, raises, and compensation"
+    },
+    "savings": {
+      "aliases": [
+        "saving"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Saving money, building savings accounts, and savings strategies"
+    },
+    "freelancing": {
+      "aliases": [
+        "freelance",
+        "self-employed",
+        "gig-work",
+        "consulting"
+      ],
+      "categories": [
+        "career-development"
+      ],
+      "description": "Freelancing, consulting, and self-employment"
+    },
+    "linkedin": {
+      "aliases": [
+        "linkedin-profile",
+        "professional-network"
+      ],
+      "categories": [
+        "career-development",
+        "marketing-sales"
+      ],
+      "description": "LinkedIn profile optimization and professional networking"
+    },
+    "woodworking": {
+      "aliases": [
+        "carpentry",
+        "wood-craft"
+      ],
+      "categories": [
+        "hobbies-crafts"
+      ],
+      "description": "Woodworking projects and techniques"
+    },
+    "sewing": {
+      "aliases": [
+        "knitting",
+        "crochet",
+        "needlework"
+      ],
+      "categories": [
+        "hobbies-crafts"
+      ],
+      "description": "Sewing, knitting, and textile crafts"
+    },
+    "tabletop-rpg": {
+      "aliases": [
+        "dnd",
+        "dungeons-and-dragons",
+        "rpg",
+        "ttrpg"
+      ],
+      "categories": [
+        "hobbies-crafts"
+      ],
+      "description": "Tabletop RPG campaign design and game mastering"
+    },
+    "hiking": {
+      "aliases": [
+        "trails",
+        "trekking",
+        "backpacking"
+      ],
+      "categories": [
+        "hobbies-crafts"
+      ],
+      "description": "Hiking trail planning and outdoor trekking"
+    },
+    "board-games": {
+      "aliases": [
+        "tabletop-games",
+        "game-night"
+      ],
+      "categories": [
+        "hobbies-crafts"
+      ],
+      "description": "Board game selection and game night planning"
+    },
+    "expenses": {
+      "aliases": [
+        "spending",
+        "expense-tracking"
+      ],
+      "categories": [
+        "personal-finance"
+      ],
+      "description": "Tracking, categorizing, and managing personal expenses"
+    },
+    "energy-efficiency": {
+      "aliases": [
+        "energy-saving",
+        "energy-audit",
+        "power-saving"
+      ],
+      "categories": [
+        "sustainability"
+      ],
+      "description": "Home energy efficiency and conservation"
+    },
+    "waste-reduction": {
+      "aliases": [
+        "zero-waste",
+        "recycling",
+        "reduce-reuse"
+      ],
+      "categories": [
+        "sustainability"
+      ],
+      "description": "Reducing waste and improving recycling practices"
+    },
+    "composting": {
+      "aliases": [
+        "compost",
+        "organic-waste"
+      ],
+      "categories": [
+        "sustainability",
+        "home-household"
+      ],
+      "description": "Composting organic waste and soil enrichment"
+    },
+    "marketing": {
+      "aliases": [
+        "digital-marketing",
+        "marketing-strategy"
+      ],
+      "categories": [
+        "marketing-sales"
+      ],
+      "description": "Marketing strategy and campaign planning"
+    },
+    "sales": {
+      "aliases": [
+        "selling",
+        "sales-strategy",
+        "prospecting"
+      ],
+      "categories": [
+        "marketing-sales"
+      ],
+      "description": "Sales processes, prospecting, and closing"
+    },
+    "entrepreneurship": {
+      "aliases": [
+        "startup",
+        "founder",
+        "bootstrapping"
+      ],
+      "categories": [
+        "business-strategy"
+      ],
+      "description": "Starting and growing a business"
+    },
+    "strategy": {
+      "aliases": [
+        "business-strategy",
+        "strategic-planning"
+      ],
+      "categories": [
+        "business-strategy"
+      ],
+      "description": "Business strategy and strategic planning"
+    },
+    "spreadsheets": {
+      "aliases": [
+        "excel",
+        "google-sheets",
+        "formulas"
+      ],
+      "categories": [
+        "data-analysis",
+        "productivity"
+      ],
+      "description": "Spreadsheet formulas, functions, and data organization"
+    },
+    "language-learning": {
+      "aliases": [
+        "learn-language",
+        "foreign-language",
+        "vocabulary"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Learning new languages and building vocabulary"
+    },
+    "study-skills": {
+      "aliases": [
+        "studying",
+        "exam-prep",
+        "flashcards"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Study techniques, exam preparation, and retention"
+    },
+    "time-management": {
+      "aliases": [
+        "time-blocking",
+        "scheduling",
+        "prioritization"
+      ],
+      "categories": [
+        "productivity"
+      ],
+      "description": "Managing time, scheduling, and prioritization"
+    },
+    "goal-setting": {
+      "aliases": [
+        "goals",
+        "smart-goals",
+        "objectives"
+      ],
+      "categories": [
+        "productivity"
+      ],
+      "description": "Setting and tracking goals effectively"
+    },
+    "ai-image-generation": {
+      "aliases": [
+        "midjourney",
+        "dall-e",
+        "stable-diffusion",
+        "ai-art"
+      ],
+      "categories": [
+        "design-creative"
+      ],
+      "description": "AI image generation prompting and techniques"
+    },
+    "video-production": {
+      "aliases": [
+        "video-editing",
+        "filmmaking"
+      ],
+      "categories": [
+        "design-creative"
+      ],
+      "description": "Video production, editing, and publishing"
+    },
+    "podcast": {
+      "aliases": [
+        "podcasting",
+        "audio-content"
+      ],
+      "categories": [
+        "design-creative",
+        "marketing-sales"
+      ],
+      "description": "Podcast planning, production, and publishing"
+    },
+    "photography": {
+      "aliases": [
+        "photo",
+        "camera",
+        "photo-editing"
+      ],
+      "categories": [
+        "design-creative"
+      ],
+      "description": "Photography techniques and photo editing"
+    },
+    "branding": {
+      "aliases": [
+        "brand-identity",
+        "logo-design",
+        "brand-strategy"
+      ],
+      "categories": [
+        "design-creative",
+        "marketing-sales"
+      ],
+      "description": "Brand identity design and brand strategy"
+    },
+    "editing": {
+      "aliases": [
+        "proofreading",
+        "revision",
+        "copy-editing"
+      ],
+      "categories": [
+        "writing"
+      ],
+      "description": "Editing, proofreading, and text refinement"
+    },
+    "networking": {
+      "aliases": [
+        "professional-networking"
+      ],
+      "categories": [
+        "career-development"
+      ],
+      "description": "Building and maintaining professional networks and relationships"
+    },
+    "newsletter": {
+      "aliases": [
+        "email-newsletter",
+        "subscriber-content"
+      ],
+      "categories": [
+        "writing",
+        "marketing-sales"
+      ],
+      "description": "Writing and managing email newsletters"
+    },
+    "tenant-rights": {
+      "aliases": [
+        "renter-rights",
+        "landlord-tenant",
+        "housing-rights"
+      ],
+      "categories": [
+        "legal-civic"
+      ],
+      "description": "Understanding tenant and renter rights and obligations"
+    },
+    "sustainable-shopping": {
+      "aliases": [
+        "ethical-shopping",
+        "conscious-consumer",
+        "eco-shopping"
+      ],
+      "categories": [
+        "sustainability"
+      ],
+      "description": "Making sustainable and ethical purchasing decisions"
+    },
+    "content-marketing": {
+      "aliases": [
+        "content-strategy",
+        "content-creation"
+      ],
+      "categories": [
+        "writing",
+        "marketing-sales"
+      ],
+      "description": "Content marketing strategy and content creation for audience growth"
+    },
+    "business-writing": {
+      "aliases": [
+        "professional-writing",
+        "workplace-writing"
+      ],
+      "categories": [
+        "writing",
+        "business-strategy"
+      ],
+      "description": "Professional business documents including emails, memos, proposals, and reports"
+    },
+    "lesson-plan": {
+      "aliases": [
+        "teaching-plan",
+        "instructional-design"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Designing lesson plans and instructional materials for teaching"
+    },
+    "curriculum": {
+      "aliases": [
+        "course-design",
+        "learning-design"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Curriculum design and course structure planning"
+    },
+    "tutoring": {
+      "aliases": [
+        "tutoring-session",
+        "one-on-one"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "One-on-one tutoring and guided learning sessions"
+    },
+    "note-taking": {
+      "aliases": [
+        "notes",
+        "cornell-notes"
+      ],
+      "categories": [
+        "education",
+        "productivity"
+      ],
+      "description": "Note-taking methods and systems for learning retention"
+    },
+    "spaced-repetition": {
+      "aliases": [
+        "srs",
+        "anki",
+        "flashcards"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Spaced repetition systems for long-term memory retention"
+    },
+    "active-recall": {
+      "aliases": [
+        "retrieval-practice",
+        "self-testing"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Active recall and retrieval practice techniques for learning"
+    },
+    "personal-communication": {
+      "aliases": [
+        "personal-letter",
+        "personal-correspondence"
+      ],
+      "categories": [
+        "writing"
+      ],
+      "description": "Personal letters, thank-you notes, and private correspondence"
+    },
+    "self-care": {
+      "aliases": [
+        "wellness-routine",
+        "personal-wellness"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Self-care practices, routines, and personal wellness management"
+    },
+    "stress-management": {
+      "aliases": [
+        "stress-relief",
+        "stress-reduction",
+        "coping"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Stress management techniques and coping strategies"
+    },
+    "breathing": {
+      "aliases": [
+        "breathwork",
+        "breath-control",
+        "breathing-exercises"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Breathing techniques and breathwork for wellness"
+    },
+    "journaling": {
+      "aliases": [
+        "journal",
+        "diary",
+        "reflective-writing"
+      ],
+      "categories": [
+        "health-wellness",
+        "writing"
+      ],
+      "description": "Journaling practices for mental health, reflection, and self-awareness"
+    },
+    "habits": {
+      "aliases": [
+        "habit-building",
+        "habit-formation",
+        "behavior-change"
+      ],
+      "categories": [
+        "health-wellness",
+        "productivity"
+      ],
+      "description": "Habit building, tracking, and behavior change frameworks"
+    },
+    "health-wellness": {
+      "aliases": [
+        "wellness",
+        "well-being"
+      ],
+      "categories": [
+        "health-wellness",
+        "travel-experiences"
+      ],
+      "description": "Health and wellness considerations and practices"
+    },
+    "meditation": {
+      "aliases": [
+        "meditate",
+        "contemplation",
+        "mindfulness-practice"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Meditation and contemplative practices for mental wellness"
+    },
+    "emotional-health": {
+      "aliases": [
+        "emotional-wellness",
+        "emotional-intelligence",
+        "emotion-management"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Emotional health, regulation, and awareness skills"
+    },
+    "digital-wellness": {
+      "aliases": [
+        "screen-time",
+        "digital-detox",
+        "tech-balance"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Digital wellbeing, screen time management, and technology balance"
+    },
+    "youtube": {
+      "aliases": [
+        "yt",
+        "youtube-channel"
+      ],
+      "categories": [
+        "design-creative",
+        "marketing-sales"
+      ],
+      "description": "YouTube video creation, channel growth, and content strategy"
+    },
+    "red-teaming": {
+      "aliases": [
+        "red-team",
+        "adversarial-testing"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "Adversarial security testing from an attacker perspective"
+    },
+    "penetration-testing": {
+      "aliases": [
+        "pen-testing",
+        "pentest",
+        "ethical-hacking"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "Authorized simulated attacks to find security vulnerabilities"
+    },
+    "owasp": {
+      "aliases": [
+        "owasp-top-ten",
+        "owasp-top-10"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "OWASP security standards, top 10 vulnerabilities, and testing guides"
+    },
+    "vulnerability-analysis": {
+      "aliases": [
+        "vuln-assessment",
+        "vulnerability-scanning",
+        "cve"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "Identifying, classifying, and prioritizing security vulnerabilities"
+    },
+    "forensics": {
+      "aliases": [
+        "digital-forensics",
+        "incident-forensics",
+        "cyber-forensics"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "Digital evidence collection, analysis, and incident investigation"
+    },
+    "compliance": {
+      "aliases": [
+        "soc2",
+        "iso-27001",
+        "nist",
+        "regulatory"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "Security compliance frameworks, auditing, and regulatory requirements"
+    },
+    "supply-chain": {
+      "aliases": [
+        "supply-chain-security",
+        "dependency-security",
+        "sbom"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "Software supply chain security, dependency auditing, and SBOM management"
+    },
+    "threat-modeling": {
+      "aliases": [
+        "stride",
+        "attack-surface",
+        "threat-analysis"
+      ],
+      "categories": [
+        "security"
+      ],
+      "description": "Systematic identification and mitigation of security threats"
+    },
+    "cloud-security": {
+      "aliases": [
+        "cspm",
+        "cloud-posture",
+        "cloud-sec"
+      ],
+      "categories": [
+        "security",
+        "devops-cloud"
+      ],
+      "description": "Cloud infrastructure security posture, configuration, and monitoring"
+    },
+    "api-security": {
+      "aliases": [
+        "api-sec",
+        "api-protection"
+      ],
+      "categories": [
+        "security",
+        "backend-systems"
+      ],
+      "description": "API security testing, authentication, authorization, and protection"
+    },
+    "tiktok": {
+      "aliases": [
+        "tik-tok"
+      ],
+      "categories": [
+        "marketing-sales"
+      ],
+      "description": "TikTok content creation, growth strategies, and platform optimization"
+    },
+    "instagram": {
+      "aliases": [
+        "ig",
+        "insta"
+      ],
+      "categories": [
+        "marketing-sales"
+      ],
+      "description": "Instagram content strategy, growth, and platform-specific marketing"
+    },
+    "reddit": {
+      "aliases": [
+        "subreddit"
+      ],
+      "categories": [
+        "marketing-sales"
+      ],
+      "description": "Reddit marketing, community engagement, and platform strategy"
+    },
+    "app-store-optimization": {
+      "aliases": [
+        "aso",
+        "app-store-marketing"
+      ],
+      "categories": [
+        "marketing-sales"
+      ],
+      "description": "Mobile app store listing optimization for downloads and visibility"
+    },
+    "email-marketing": {
+      "aliases": [
+        "email-campaign",
+        "newsletter-marketing",
+        "drip-campaign"
+      ],
+      "categories": [
+        "marketing-sales",
+        "writing"
+      ],
+      "description": "Email marketing campaigns, list building, and subscriber engagement"
+    },
+    "multi-agent": {
+      "aliases": [
+        "multi-agent-system",
+        "agent-network",
+        "mas"
+      ],
+      "categories": [
+        "ai-machine-learning"
+      ],
+      "description": "Coordinating multiple AI agents in a system"
+    },
+    "orchestration": {
+      "aliases": [
+        "agent-orchestration",
+        "workflow-orchestration"
+      ],
+      "categories": [
+        "ai-machine-learning"
+      ],
+      "description": "Managing and coordinating complex multi-step agent workflows"
+    },
+    "agent-coordination": {
+      "aliases": [
+        "agent-handoff",
+        "agent-collaboration"
+      ],
+      "categories": [
+        "ai-machine-learning"
+      ],
+      "description": "Protocols and patterns for agents working together"
+    },
+    "handoff-protocol": {
+      "aliases": [
+        "agent-handoff-protocol",
+        "task-handoff"
+      ],
+      "categories": [
+        "ai-machine-learning"
+      ],
+      "description": "Structured protocols for transferring context between agents"
+    },
+    "quickstart": {
+      "aliases": [
+        "quick-start",
+        "getting-started"
+      ],
+      "categories": [
+        "software-engineering",
+        "web-development",
+        "backend-systems",
+        "devops-cloud",
+        "data-engineering",
+        "ai-machine-learning",
+        "testing-quality",
+        "writing",
+        "business-strategy",
+        "marketing-sales",
+        "education",
+        "data-analysis",
+        "productivity",
+        "design-creative",
+        "personal-finance",
+        "health-wellness",
+        "home-household",
+        "family-relationships",
+        "travel-experiences",
+        "legal-civic",
+        "career-development",
+        "hobbies-crafts",
+        "sustainability",
+        "security",
+        "creative-arts",
+        "game-development",
+        "emerging-tech"
+      ],
+      "description": "Quick-start guides and rapid-results skills for immediate application"
+    },
+    "assessment": {
+      "aliases": [
+        "self-assessment",
+        "evaluation"
+      ],
+      "categories": [
+        "software-engineering",
+        "web-development",
+        "backend-systems",
+        "devops-cloud",
+        "data-engineering",
+        "ai-machine-learning",
+        "testing-quality",
+        "writing",
+        "business-strategy",
+        "marketing-sales",
+        "education",
+        "data-analysis",
+        "productivity",
+        "design-creative",
+        "personal-finance",
+        "health-wellness",
+        "home-household",
+        "family-relationships",
+        "travel-experiences",
+        "legal-civic",
+        "career-development",
+        "hobbies-crafts",
+        "sustainability",
+        "security",
+        "creative-arts",
+        "game-development",
+        "emerging-tech"
+      ],
+      "description": "Self-assessment tools and evaluation frameworks for measuring competency and readiness"
+    },
+    "blockchain": {
+      "aliases": [
+        "web3",
+        "crypto"
+      ],
+      "categories": [
+        "emerging-tech"
+      ],
+      "description": "Blockchain technology, Web3, and cryptocurrency development"
+    },
+    "iot": {
+      "aliases": [
+        "internet-of-things",
+        "embedded"
+      ],
+      "categories": [
+        "emerging-tech"
+      ],
+      "description": "Internet of Things devices, embedded systems, and sensor networks"
+    },
+    "game-design": {
+      "aliases": [
+        "game-dev",
+        "gamedev"
+      ],
+      "categories": [
+        "game-development"
+      ],
+      "description": "Game design principles, mechanics, and development workflows"
+    },
+    "performing-arts": {
+      "aliases": [
+        "theater",
+        "dance",
+        "acting"
+      ],
+      "categories": [
+        "creative-arts"
+      ],
+      "description": "Performing arts including theater, dance, acting, and live performance"
+    },
+    "automotive": {
+      "aliases": [
+        "car-maintenance",
+        "vehicle"
+      ],
+      "categories": [
+        "home-household"
+      ],
+      "description": "Automotive maintenance, repair, and vehicle care"
+    },
+    "fashion": {
+      "aliases": [
+        "style",
+        "clothing"
+      ],
+      "categories": [
+        "design-creative"
+      ],
+      "description": "Fashion styling, wardrobe planning, and personal style development"
+    },
+    "neurodiversity": {
+      "aliases": [
+        "adhd",
+        "neurodivergent"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Neurodiversity-affirming strategies for ADHD, autism, dyslexia, and executive function"
+    },
+    "emergency-preparedness": {
+      "aliases": [
+        "disaster-prep",
+        "emergency-planning"
+      ],
+      "categories": [
+        "health-wellness"
+      ],
+      "description": "Emergency preparedness, disaster planning, and crisis readiness"
+    },
+    "restoration": {
+      "aliases": [
+        "vintage",
+        "repair"
+      ],
+      "categories": [
+        "hobbies-crafts"
+      ],
+      "description": "Restoration of furniture, electronics, vehicles, and vintage items"
+    },
+    "competitive-programming": {
+      "aliases": [
+        "coding-challenges",
+        "algorithms"
+      ],
+      "categories": [
+        "emerging-tech"
+      ],
+      "description": "Competitive programming, algorithmic problem solving, and coding challenges"
+    },
+    "digital-literacy": {
+      "aliases": [
+        "tech-basics",
+        "computer-skills"
+      ],
+      "categories": [
+        "education"
+      ],
+      "description": "Digital literacy, basic computer skills, and technology fundamentals"
+    },
+    "science-communication": {
+      "aliases": [
+        "science-writing",
+        "sci-comm"
+      ],
+      "categories": [
+        "writing"
+      ],
+      "description": "Science communication, science writing, and research dissemination"
+    },
+    "docker": {
+      "aliases": [
+        "containers",
+        "containerization"
+      ],
+      "categories": [
+        "devops-cloud",
+        "software-engineering"
+      ],
+      "description": "Docker containers, images, and containerization workflows"
+    },
+    "leadership": {
+      "aliases": [
+        "team-leadership",
+        "leading-teams"
+      ],
+      "categories": [
+        "business-strategy",
+        "career-development",
+        "education"
+      ],
+      "description": "Leadership skills, team management, and organizational leadership"
+    },
+    "management": {
+      "aliases": [
+        "team-management",
+        "people-management"
+      ],
+      "categories": [
+        "business-strategy",
+        "career-development",
+        "education"
+      ],
+      "description": "Management practices, team coordination, and organizational management"
+    },
+    "healthcare": {
+      "aliases": [
+        "health-care",
+        "medical"
+      ],
+      "categories": [
+        "health-wellness",
+        "business-strategy",
+        "writing",
+        "software-engineering",
+        "education"
+      ],
+      "description": "Healthcare industry skills including clinical, administrative, and health technology"
+    },
+    "tech-industry": {
+      "aliases": [
+        "technology-industry",
+        "tech-sector"
+      ],
+      "categories": [
+        "business-strategy",
+        "software-engineering",
+        "devops-cloud",
+        "marketing-sales",
+        "career-development",
+        "data-analysis",
+        "legal-civic"
+      ],
+      "description": "Technology industry-specific skills for startups, SaaS, and tech companies"
+    },
+    "creative-industry": {
+      "aliases": [
+        "creative-sector",
+        "arts-industry"
+      ],
+      "categories": [
+        "business-strategy",
+        "creative-arts",
+        "design-creative",
+        "writing",
+        "career-development"
+      ],
+      "description": "Creative industry skills for art, design, film, and music businesses"
+    },
+    "education-industry": {
+      "aliases": [
+        "education-sector",
+        "edtech"
+      ],
+      "categories": [
+        "education",
+        "family-relationships",
+        "business-strategy"
+      ],
+      "description": "Education industry skills for teaching, curriculum design, and educational technology"
+    }
+  }
+}

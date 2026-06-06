@@ -1,0 +1,37 @@
+{
+  "memory": "記憶",
+  "fluxRouter": {
+    "label": "Flux 狀態",
+    "connect": {
+      "body": "每個請求都在路由到旗艦模型。Flux Router 會為每個請求挑選合適的模型。",
+      "action": "連接 Flux Router"
+    },
+    "install": {
+      "body": "Codex、Cursor、Claude Code 尚未接入路由。Flux Desktop 一鍵即可連接三者。",
+      "action": "安裝 Flux Desktop",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "上週本機 Ollama 處理了 {{pct}}%。當硬體吃緊時，Flux Router 會接管其餘請求。",
+      "action": "設定回退"
+    },
+    "wired": {
+      "body": "最近 100：H{{h}} · S{{s}} · O{{o}}",
+      "action": "查看每個請求的去向"
+    }
+  },
+  "accordion": {
+    "scheduled": "定時任務",
+    "workflows": "工作流程",
+    "teams": "團隊",
+    "recentChats": "最近對話",
+    "inFlight": "進行中",
+    "running": "運行中",
+    "recentlyLaunched": "最近啟動",
+    "myTeams": "我的團隊",
+    "seeAllWorkflows": "查看所有工作流程 →",
+    "seeAllScheduled": "查看所有任務 →",
+    "seeAllChats": "查看所有對話 →",
+    "showMore": "再顯示 {{count}} 個 →"
+  }
+}

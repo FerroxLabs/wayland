@@ -1,0 +1,181 @@
+{
+  "title": "Skills",
+  "subtitle": "Gestiona y descubre skills para tus asistentes",
+  "search": {
+    "placeholder": "Buscar skills...",
+    "empty": "Ningún skill coincide con tu búsqueda",
+    "emptyLibrary": "Aún no se han cargado skills - prueba a importar uno o reinicia para recargar la biblioteca incluida.",
+    "resultsCount": "{{count}} skills coincidentes"
+  },
+  "stats": {
+    "total": "Skills totales",
+    "pinned": "Fijados",
+    "flagged": "Marcados",
+    "sources": "Fuentes"
+  },
+  "sections": {
+    "sources": "Fuentes",
+    "status": "Estado",
+    "categories": "Categorías"
+  },
+  "filters": {
+    "allSources": "Todas las fuentes",
+    "source": {
+      "wayland-library": "Biblioteca de Wayland",
+      "team": "Equipo",
+      "user": "Mis skills",
+      "imported": "Importados",
+      "cli-discovered": "De tus CLIs"
+    },
+    "verdict": {
+      "all": "Todos",
+      "clean": "Limpio",
+      "review": "Requiere revisión",
+      "blocked": "Bloqueado"
+    },
+    "category": {
+      "all": "Todas las categorías"
+    }
+  },
+  "status": {
+    "scanned": "Analizado - no se detectaron señales de alerta",
+    "review": "Requiere revisión",
+    "blocked": "Bloqueado - en cuarentena",
+    "unscanned": "Aún sin analizar"
+  },
+  "actions": {
+    "pin": "Fijar en todos los asistentes",
+    "unpin": "Quitar fijado",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "delete": "Eliminar",
+    "import": "Importar",
+    "build": "Crear un skill"
+  },
+  "cliDiscovery": {
+    "title": "Reflejar skills de las herramientas CLI instaladas",
+    "subtitle": "Muestra skills de ~/.claude/skills, ~/.codex/skills y ~/.gemini/skills para que aparezcan en tu página de Skills. Opcional. Requiere reiniciar para aplicar los cambios.",
+    "restartNeeded": "- reinicia la aplicación para aplicar."
+  },
+  "threats": {
+    "credential-access": "Acceso a credenciales",
+    "network-exfiltration": "Exfiltración por red",
+    "shell-execution": "Ejecución de shell",
+    "filesystem-write": "Escritura en el sistema de archivos",
+    "instruction-override": "Anulación de instrucciones",
+    "obfuscation": "Ofuscación",
+    "index-poisoning": "Envenenamiento de índice"
+  },
+  "severity": {
+    "critical": "Crítica",
+    "medium": "Media",
+    "low": "Baja"
+  },
+  "import": {
+    "title": "Importar skill",
+    "source": {
+      "folder": "Carpeta",
+      "git": "URL de Git",
+      "zip": "Archivo ZIP",
+      "singleSkillMd": "Un solo SKILL.md",
+      "marketplace": "Marketplace (próximamente)"
+    },
+    "folder": {
+      "label": "Carpeta del skill",
+      "placeholder": "Haz clic para elegir una carpeta…",
+      "browse": "Examinar"
+    },
+    "git": {
+      "label": "URL de Git",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "Archivo ZIP",
+      "placeholder": "Haz clic para elegir un ZIP…",
+      "browse": "Examinar"
+    },
+    "singleSkillMd": {
+      "label": "Archivo SKILL.md",
+      "placeholder": "Haz clic para elegir un SKILL.md…",
+      "browse": "Examinar"
+    },
+    "actions": {
+      "import": "Importar",
+      "importing": "Importando…",
+      "importAllClean": "Importar todos los limpios",
+      "reviewAndSelect": "Revisar y seleccionar",
+      "cancel": "Cancelar"
+    },
+    "scan": {
+      "title": "Resultados del análisis",
+      "verdict": {
+        "clean": "Limpio",
+        "review": "Requiere revisión",
+        "blocked": "Bloqueado"
+      },
+      "noFindings": "No se encontraron problemas",
+      "finding": "{{count}} hallazgo",
+      "finding_other": "{{count}} hallazgos"
+    },
+    "error": {
+      "failed": "La importación falló",
+      "invalidUrl": "Introduce una URL válida https:// o git@"
+    }
+  },
+  "builder": {
+    "title": "Crear un skill",
+    "tab": {
+      "write": "Escribirlo yo mismo",
+      "describe": "Describirlo"
+    },
+    "form": {
+      "name": {
+        "label": "Nombre",
+        "placeholder": "p. ej. my-skill"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "¿Qué hace este skill?",
+        "hint": "Incluye instrucciones de cuándo usarlo y cuándo NO usarlo para que el modelo lo active con precisión."
+      },
+      "category": {
+        "label": "Categoría",
+        "placeholder": "p. ej. coding"
+      },
+      "tags": {
+        "label": "Etiquetas",
+        "placeholder": "separadas por comas, p. ej. git, review"
+      },
+      "body": {
+        "label": "Cuerpo del SKILL.md"
+      }
+    },
+    "describe": {
+      "label": "Describe tu skill",
+      "placeholder": "Describe tu skill en lenguaje natural y redactaremos un SKILL.md por ti…",
+      "generate": "Generar",
+      "generating": "Generando…"
+    },
+    "actions": {
+      "save": "Guardar skill",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "done": "Listo"
+    },
+    "verdict": {
+      "clean": "El skill \"{{name}}\" se guardó correctamente.",
+      "review": "El skill \"{{name}}\" se guardó, pero quedó marcado para revisión.",
+      "blocked": "El skill \"{{name}}\" fue bloqueado por Skill Guard y no se registró. Edita el cuerpo para eliminar el contenido marcado."
+    },
+    "error": {
+      "saveFailed": "Error al guardar",
+      "generateFailed": "Error al generar"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Cuando Wayland carga esto",
+    "metadata": "Metadatos",
+    "body": "Cuerpo",
+    "quarantined": "Este skill está en cuarentena y no se puede cargar."
+  }
+}

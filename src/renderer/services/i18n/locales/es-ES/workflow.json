@@ -1,0 +1,27 @@
+{
+  "complete": {
+    "headline": "Flujo de trabajo completado",
+    "steps": "{{n}} pasos",
+    "tokens": "{{n}} tokens",
+    "outputsTitle": "Lo que se generó",
+    "save": "Guardar esta ejecución",
+    "runAgain": "Ejecutar de nuevo",
+    "nextTitle": "A continuación"
+  },
+  "rail": {
+    "inProgress": "en curso",
+    "errored": "requiere atención",
+    "skipped": "omitido",
+    "jumpToStep": "Ir al paso {{n}}: {{title}}",
+    "runningLabel": "Ejecutando… ({{elapsed}})",
+    "runAutonomouslyAria": "Ejecutar el paso {{n}} de forma autónoma",
+    "runAutonomously": "Ejecutar de forma autónoma",
+    "titleManual": "Pasos del flujo de trabajo · manual",
+    "titleAuto": "Pasos del flujo de trabajo · automático",
+    "confirmTitle": "¿Ejecutar el paso {{n}} de forma autónoma?",
+    "confirmOk": "Ejecutar de forma autónoma",
+    "confirmCancel": "Cancelar",
+    "confirmBody": "Wayland generará un trabajador autónomo para completar el paso {{n}} en segundo plano. Puedes seguir chateando en la sesión principal.",
+    "confirmEta": "Tiempo estimado: 4-8 minutos."
+  }
+}

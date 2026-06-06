@@ -1,0 +1,76 @@
+{
+  "sider": {
+    "title": "Equipos",
+    "createTeam": "Nuevo equipo",
+    "pin": "Fijar",
+    "unpin": "Dejar de fijar",
+    "rename": "Renombrar",
+    "delete": "Eliminar",
+    "renameTitle": "Renombrar equipo",
+    "renamePlaceholder": "Nombre del equipo",
+    "deleteConfirm": "¿Eliminar este equipo?",
+    "deleteConfirmContent": "Esta acción no se puede deshacer.",
+    "deleteConfirmTitle": "¿Eliminar equipo?",
+    "deleteConfirmBody": "Esto eliminará permanentemente {{teamName}} y su historial de conversaciones. Escribe \"delete\" abajo para confirmar.",
+    "deleteConfirmCta": "Eliminar equipo",
+    "deleteConfirmCancelCta": "Cancelar",
+    "deleteConfirmInputPlaceholder": "delete",
+    "deleteOk": "Eliminar",
+    "deleteCancel": "Cancelar",
+    "renameOk": "Guardar",
+    "renameCancel": "Cancelar",
+    "renameSuccess": "Equipo renombrado",
+    "deleteSuccess": "Equipo eliminado"
+  },
+  "newAgent": "Nuevo agente",
+  "noMessages": "Aún no hay mensajes.",
+  "agentNotConfigured": "El agente aún no está configurado.",
+  "sendBox": {
+    "placeholder": "Mensaje al agente coordinador..."
+  },
+  "create": {
+    "title": "Crear equipo",
+    "namePlaceholder": "Nombre del equipo",
+    "dispatchAgentPlaceholder": "Selecciona el líder del equipo",
+    "subAgentsPlaceholder": "Selecciona los subagentes",
+    "workspacePlaceholder": "Ruta del espacio de trabajo (opcional)",
+    "confirm": "Crear equipo",
+    "noSupportedAgents": "No hay agentes compatibles instalados",
+    "supportedAgentsHint": "Actualmente compatible con Claude y Codex. Pronto habrá más agentes.",
+    "leaderDesc": "Comprende tus objetivos y coordina a los agentes para completar las tareas",
+    "step": {
+      "dispatch": "Líder del equipo",
+      "subAgents": "Subagentes",
+      "workspace": "Espacio de trabajo"
+    },
+    "nameRequired": "Introduce un nombre para el equipo",
+    "leaderRequired": "Selecciona un líder del equipo",
+    "selectFolder": "Seleccionar carpeta",
+    "recentLabel": "Recientes",
+    "chooseDifferentFolder": "Elegir otra carpeta",
+    "error": "No se pudo crear el equipo"
+  },
+  "removeAgent": {
+    "confirmTitle": "Quitar miembro del equipo",
+    "confirmContent": "Este miembro está activo actualmente. ¿Forzar la eliminación?"
+  },
+  "emptyState": {
+    "subtitle": "Describe tu objetivo y pondré al equipo a trabajar en ello",
+    "suggestions": {
+      "debate": "Organiza un debate con agentes que defiendan distintas posturas",
+      "interview": "Planifica una entrevista en profundidad entre agentes",
+      "expert_review": "Haz que varios expertos analicen el mismo problema"
+    }
+  },
+  "errors": {
+    "loadFailed": {
+      "title": "No se pudo cargar este equipo",
+      "body": "Puede que se haya eliminado o que sus datos ya no estén disponibles. Vuelve a la biblioteca de Equipos para elegir otro equipo o crear uno nuevo.",
+      "backCta": "Volver a Equipos"
+    }
+  },
+  "agentBackendSwap": {
+    "success": "Backend del agente cambiado",
+    "error": "No se pudo cambiar el backend del agente"
+  }
+}

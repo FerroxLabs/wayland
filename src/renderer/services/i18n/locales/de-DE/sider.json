@@ -1,0 +1,37 @@
+{
+  "memory": "Speicher",
+  "fluxRouter": {
+    "label": "Flux-Status",
+    "connect": {
+      "body": "Jede Anfrage wird an ein Flaggschiff geleitet. Flux Router wählt für jede Anfrage das passende Modell.",
+      "action": "Flux Router verbinden"
+    },
+    "install": {
+      "body": "Codex, Cursor und Claude Code werden noch nicht geroutet. Flux Desktop verbindet alle drei mit einem Klick.",
+      "action": "Flux Desktop installieren",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "Lokales Ollama hat letzte Woche {{pct}}% übernommen. Flux Router fängt den Rest ab, wenn deine Hardware an ihre Grenzen stößt.",
+      "action": "Fallback konfigurieren"
+    },
+    "wired": {
+      "body": "Letzte 100: H{{h}} · S{{s}} · O{{o}}",
+      "action": "Sehen, wohin jeder Schritt ging"
+    }
+  },
+  "accordion": {
+    "scheduled": "Geplante Aufgaben",
+    "workflows": "Workflows",
+    "teams": "Teams",
+    "recentChats": "Letzte Chats",
+    "inFlight": "Laufend",
+    "running": "Aktiv",
+    "recentlyLaunched": "Kürzlich gestartet",
+    "myTeams": "Meine Teams",
+    "seeAllWorkflows": "Alle Workflows anzeigen →",
+    "seeAllScheduled": "Alle geplanten anzeigen →",
+    "seeAllChats": "Alle Chats anzeigen →",
+    "showMore": "{{count}} weitere anzeigen →"
+  }
+}

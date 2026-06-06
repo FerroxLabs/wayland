@@ -1,0 +1,41 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.microsoft/playwright-mcp",
+  "title": "Playwright",
+  "description": "Headless browser automation - click, type, navigate, screenshot, and assert. Powered by Playwright.",
+  "version": "0.0.75",
+  "websiteUrl": "https://github.com/microsoft/playwright-mcp",
+  "repository": { "url": "https://github.com/microsoft/playwright-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@playwright/mcp",
+      "version": "0.0.75",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": []
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "automation", "browser"],
+    "tags": ["playwright", "browser", "automation"],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 44,
+    "installRate": 0.33,
+    "iconUrl": "icons/playwright.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#2ead33" },
+    "auth": { "method": "none" },
+    "toolGroups": [
+      { "label": "Navigation", "count": 4 },
+      { "label": "Interaction", "count": 6 },
+      { "label": "Screenshots", "count": 2 },
+      { "label": "Assertions", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.microsoft-playwright-mcp.md", "estimatedMinutes": 1, "stepCount": 1 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

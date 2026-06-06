@@ -1,0 +1,276 @@
+/* Manage Provider page - mirrors prototype #screen-manage.
+   All colors use semantic tokens; the brand color is `var(--brand)`. */
+
+/* ---- Back link ---- */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.back :global(.arco-btn) {
+  padding: 4px 8px;
+  height: auto;
+  font-size: 13px;
+  color: var(--color-text-2);
+}
+
+.back :global(.arco-btn:hover) {
+  color: var(--color-text-1);
+}
+
+/* ---- Header ----
+   The provider identity (avatar + name + status badge) sits on the left;
+   the action cluster (Refresh / Re-key / Disconnect) is pushed to the right
+   by `.headerSpacer`. `gap` controls spacing between the identity items.
+   `row-gap` keeps a comfortable vertical rhythm when the row wraps. */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  row-gap: 12px;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--color-text-1);
+}
+
+/* ---- Connection status badge ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.badgeConnected {
+  background: var(--success-soft-bg);
+  color: var(--success);
+}
+
+.badgeTesting {
+  background: var(--brand-soft-bg);
+  color: var(--brand);
+}
+
+.badgeError {
+  background: var(--danger-soft-bg);
+  color: var(--danger);
+}
+
+.badgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.headerSpacer {
+  flex: 1;
+}
+
+/* The action cluster - Refresh / Re-key / Disconnect - sits on the right.
+   `gap: 10px` keeps clear separation between buttons; consistent button
+   sizing comes from passing `size='small'` in the tsx. */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ---- Status line ----
+   Subtitle under the provider name. Indented to clear the avatar so it
+   reads as a continuation of the name, not the page. */
+.statusLine {
+  font-size: 12.5px;
+  color: var(--color-text-2);
+  margin: 8px 0 2px 62px;
+  line-height: 1.5;
+}
+
+/* ---- Section heading ---- */
+.secLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 22px 2px 4px;
+}
+
+.secExplain {
+  font-size: 12.5px;
+  color: var(--color-text-2);
+  margin: 0 2px 11px;
+  line-height: 1.5;
+}
+
+/* ---- The model-list card ---- */
+.card {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.search {
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.search :global(.arco-input-inner-wrapper) {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* ---- States inside the card ---- */
+.cardState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.cardStateText {
+  font-size: 13px;
+  color: var(--color-text-2);
+  line-height: 1.5;
+}
+
+/* ---- List sub-headings ---- */
+.subHead {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 16px 18px 6px;
+}
+
+/* ---- Model rows ----
+   `padding: 12px 18px` gives every row clear breathing room (vertically
+   from siblings, horizontally from the card edge). The first row under a
+   sub-head loses its top border so the sub-head reads as part of the row,
+   not a separate cell. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--color-border-2);
+}
+
+.subHead + .row {
+  border-top: none;
+}
+
+/* Primary name. `min-width: 0` lets it shrink when usage tags + meta
+   compete for space - without it, the row overflows on narrow widths. */
+.modelName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  min-width: 0;
+}
+
+.rowOff .modelName,
+.rowOff .modelMeta {
+  opacity: 0.55;
+}
+
+/* ---- Role indicator ----
+   A tiny brand-coloured dot next to the model name marks the family's
+   flagship/previous role. Replaces the loud "MOST CAPABLE" / "RECOMMENDED"
+   badges so the usage tags carry the primary information. */
+.roleDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+
+.roleDotPrevious {
+  background: var(--color-text-3);
+}
+
+/* ---- Usage tag (chat / vision / reasoning / image / audio / ...) ----
+   Replaces the old `.recBadge` + `.capTag`. Each row carries 0..N of these,
+   derived in the assembler from models.dev modalities/capabilities. The
+   visual reads as a small, dense, monospace-ish chip. */
+.tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--color-fill-2);
+  color: var(--color-text-2);
+  border: 1px solid var(--color-border-3);
+  white-space: nowrap;
+}
+
+.tagPrimary {
+  background: var(--brand-soft-bg);
+  color: var(--brand);
+  border-color: var(--brand-soft-border);
+}
+
+/* ---- Per-row meta (context / cost) ----
+   Pushed to the right by `margin-left: auto`. `min-width: 0` on `.modelName`
+   plus this margin handles narrow widths cleanly - the meta is the second
+   thing to drop, after the tags wrap. */
+.modelMeta {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--color-text-2);
+  white-space: nowrap;
+}
+
+/* The toggle sits at the right edge. `margin-left: auto` on `.modelMeta`
+   pushes both the meta and the toggle right; this `margin-left` becomes a
+   plain gap when meta is absent. */
+.toggle {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* When `.modelMeta` is present, it takes the auto margin and the toggle
+   reverts to a plain gap. */
+.modelMeta + .toggle {
+  margin-left: 0;
+}

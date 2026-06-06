@@ -1,0 +1,43 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.vercel/vercel-mcp",
+  "title": "Vercel",
+  "description": "Deployments, projects, env vars, and logs - Vercel's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://vercel.com/docs/mcp",
+  "repository": { "url": "https://github.com/vercel/vercel-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.vercel.com" }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "devops"],
+    "tags": ["vercel", "deploy", "hosting"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 35,
+    "installRate": 0.27,
+    "iconUrl": "icons/vercel.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#000000" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Vercel",
+      "providerSignupUrl": "https://vercel.com",
+      "scopes": [
+        { "name": "read", "plainLanguage": "Read deployments, projects, and logs." },
+        { "name": "write", "plainLanguage": "Trigger deployments and update env vars." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Deployments", "count": 5 },
+      { "label": "Projects", "count": 4 },
+      { "label": "Env Vars", "count": 3 },
+      { "label": "Logs", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.vercel-vercel-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

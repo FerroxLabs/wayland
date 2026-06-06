@@ -1,0 +1,31 @@
+{
+  "modalTitle": "Actualización de software",
+  "checking": "Buscando actualizaciones...",
+  "checkFailed": "No se pudo buscar actualizaciones",
+  "upToDateTitle": "Estás al día",
+  "currentVersion": "Versión actual: {{version}}",
+  "availableTitle": "Actualización disponible",
+  "noReleaseNotes": "No se proporcionaron notas de la versión.",
+  "downloadingTitle": "Descargando actualización...",
+  "downloadButton": "Descargar",
+  "downloadAndInstall": "Descargar e instalar",
+  "downloadStartFailed": "No se pudo iniciar la descarga",
+  "downloadFailed": "Error en la descarga",
+  "noCompatibleAsset": "No se encontró ninguna descarga compatible con esta plataforma",
+  "noCompatibleAssetManual": "Ningún paquete coincide con la arquitectura actual de tu sistema. Descarga el instalador correcto desde Releases.",
+  "goToRelease": "Abrir Releases",
+  "downloadCompleteTitle": "Descarga completada",
+  "readyToInstall": "Listo para instalar",
+  "readyToInstallDesc": "La actualización se ha descargado. Haz clic en el botón de abajo para reiniciar e instalar la actualización.",
+  "installNow": "Instalar y reiniciar",
+  "autoUpdateMode": "Modo de actualización automática",
+  "showInFolder": "Mostrar en la carpeta",
+  "openFile": "Abrir archivo",
+  "errorTitle": "Error en la actualización",
+  "errors": {
+    "missingTag": "No se puede verificar esta actualización: falta la etiqueta de la versión. Actualiza desde la página de Releases.",
+    "metadataMissing": "No se encontraron los metadatos de actualización firmados (latest.yml) para esta versión. Se rechaza abrir un instalador no verificado.",
+    "assetNotInMetadata": "El archivo descargado \"{{name}}\" no figura en los metadatos de actualización firmados. Se rechaza abrir un instalador no verificado.",
+    "checksumMismatch": "La actualización descargada no superó la verificación de integridad (la suma de comprobación no coincide) y se descartó. No la ejecutes. Vuelve a intentarlo o descárgala desde la página de Releases."
+  }
+}

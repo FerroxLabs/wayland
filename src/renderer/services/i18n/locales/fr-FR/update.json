@@ -1,0 +1,31 @@
+{
+  "modalTitle": "Mise à jour du logiciel",
+  "checking": "Recherche de mises à jour...",
+  "checkFailed": "Échec de la recherche de mises à jour",
+  "upToDateTitle": "Vous êtes à jour",
+  "currentVersion": "Version actuelle : {{version}}",
+  "availableTitle": "Mise à jour disponible",
+  "noReleaseNotes": "Aucune note de version fournie.",
+  "downloadingTitle": "Téléchargement de la mise à jour...",
+  "downloadButton": "Télécharger",
+  "downloadAndInstall": "Télécharger et installer",
+  "downloadStartFailed": "Échec du démarrage du téléchargement",
+  "downloadFailed": "Échec du téléchargement",
+  "noCompatibleAsset": "Aucun téléchargement compatible trouvé pour cette plateforme",
+  "noCompatibleAssetManual": "Aucun paquet ne correspond à l'architecture actuelle de votre système. Veuillez télécharger le programme d'installation approprié depuis la page Releases.",
+  "goToRelease": "Ouvrir les Releases",
+  "downloadCompleteTitle": "Téléchargement terminé",
+  "readyToInstall": "Prêt à installer",
+  "readyToInstallDesc": "La mise à jour a été téléchargée. Cliquez sur le bouton ci-dessous pour redémarrer et installer la mise à jour.",
+  "installNow": "Installer et redémarrer",
+  "autoUpdateMode": "Mode de mise à jour automatique",
+  "showInFolder": "Afficher dans le dossier",
+  "openFile": "Ouvrir le fichier",
+  "errorTitle": "Échec de la mise à jour",
+  "errors": {
+    "missingTag": "Impossible de vérifier cette mise à jour : le tag de version est manquant. Veuillez effectuer la mise à jour depuis la page Releases.",
+    "metadataMissing": "Impossible de trouver les métadonnées de mise à jour signées (latest.yml) pour cette version. Refus d'ouvrir un programme d'installation non vérifié.",
+    "assetNotInMetadata": "Le fichier téléchargé « {{name}} » ne figure pas dans les métadonnées de mise à jour signées. Refus d'ouvrir un programme d'installation non vérifié.",
+    "checksumMismatch": "La mise à jour téléchargée a échoué à la vérification d'intégrité (somme de contrôle non concordante) et a été supprimée. Ne l'exécutez pas. Veuillez réessayer ou télécharger depuis la page Releases."
+  }
+}

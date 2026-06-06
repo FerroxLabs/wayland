@@ -1,0 +1,37 @@
+# Keep the build context minimal so `COPY . .` in the builder stage does not
+# pull vendored dependencies, build output, VCS history, or local scratch
+# files into the image. Each entry below is intentionally excluded.
+
+# Dependencies (reinstalled inside the image)
+node_modules
+**/node_modules
+
+# Build output / generated artifacts
+out
+dist
+dist-server
+**/*.tsbuildinfo
+
+# VCS and CI
+.git
+.gitignore
+.github
+
+# Planning, scratch and audit artifacts (never ship in the image)
+.planning
+.blackboard
+.ijfw
+
+# Runtime data and logs
+data
+*.log
+
+# Editor / OS cruft
+.DS_Store
+.vscode
+.idea
+
+# Env files (never bake secrets into the image)
+.env
+.env.*
+!.env.example

@@ -1,0 +1,450 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { ipcBridge } from '@/common';
+import type { TMessage } from '@/common/chat/chatLib';
+import { composeMessage } from '@/common/chat/chatLib';
+import { useCallback, useEffect, useRef } from 'react';
+import { createContext } from '@renderer/utils/ui/createContext';
+
+const [useMessageList, MessageListProvider, useUpdateMessageList] = createContext([] as TMessage[]);
+
+const [useChatKey, ChatKeyProvider] = createContext('');
+
+const beforeUpdateMessageListStack: Array<(list: TMessage[]) => TMessage[]> = [];
+
+// Message index cache type definitions
+interface MessageIndex {
+  msgIdIndex: Map<string, number>; // msg_id -> index
+  callIdIndex: Map<string, number>; // tool_call.callId -> index
+  toolCallIdIndex: Map<string, number>; // codex_tool_call.toolCallId / acp_tool_call.toolCallId -> index
+}
+
+// Use WeakMap to cache index, auto-cleanup when list is GC'd
+const indexCache = new WeakMap<TMessage[], MessageIndex>();
+
+// Build message index
+function buildMessageIndex(list: TMessage[]): MessageIndex {
+  const msgIdIndex = new Map<string, number>();
+  const callIdIndex = new Map<string, number>();
+  const toolCallIdIndex = new Map<string, number>();
+
+  for (let i = 0; i < list.length; i++) {
+    const msg = list[i];
+    if (msg.msg_id) msgIdIndex.set(msg.msg_id, i);
+    if (msg.type === 'tool_call' && msg.content?.callId) {
+      callIdIndex.set(msg.content.callId, i);
+    }
+    if (msg.type === 'codex_tool_call' && msg.content?.toolCallId) {
+      toolCallIdIndex.set(msg.content.toolCallId, i);
+    }
+    if (msg.type === 'acp_tool_call' && msg.content?.update?.toolCallId) {
+      toolCallIdIndex.set(msg.content.update.toolCallId, i);
+    }
+  }
+
+  return { msgIdIndex, callIdIndex, toolCallIdIndex };
+}
+
+// Get or build index with caching
+function getOrBuildIndex(list: TMessage[]): MessageIndex {
+  let cached = indexCache.get(list);
+  if (!cached) {
+    cached = buildMessageIndex(list);
+    indexCache.set(list, cached);
+  }
+  return cached;
+}
+
+// Index-optimized message compose function
+function composeMessageWithIndex(message: TMessage, list: TMessage[], index: MessageIndex): TMessage[] {
+  if (!message) return list || [];
+  if (!list?.length) {
+    // Update index when adding first message
+    if (message.msg_id) {
+      index.msgIdIndex.set(message.msg_id, 0);
+    }
+    return [message];
+  }
+
+  // For tool_group type, use original composeMessage (involves inner array matching)
+  // After composeMessage, the returned list may have different length/ordering,
+  // so we must invalidate the index to prevent stale lookups in subsequent calls.
+  if (message.type === 'tool_group') {
+    const result = composeMessage(message, list);
+    if (result !== list) {
+      // Rebuild index maps from the new list to keep them in sync
+      const rebuilt = buildMessageIndex(result);
+      index.msgIdIndex = rebuilt.msgIdIndex;
+      index.callIdIndex = rebuilt.callIdIndex;
+      index.toolCallIdIndex = rebuilt.toolCallIdIndex;
+    }
+    return result;
+  }
+
+  // tool_call: use callIdIndex for fast lookup
+  if (message.type === 'tool_call' && message.content?.callId) {
+    const existingIdx = index.callIdIndex.get(message.content.callId);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'tool_call') {
+        const newList = list.slice();
+        const merged = { ...existingMsg.content, ...message.content };
+        newList[existingIdx] = { ...existingMsg, content: merged };
+        return newList;
+      }
+    }
+    // Not found - add new message and update index
+    const newIdx = list.length;
+    index.callIdIndex.set(message.content.callId, newIdx);
+    if (message.msg_id) index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // codex_tool_call: use toolCallIdIndex for fast lookup
+  if (message.type === 'codex_tool_call' && message.content?.toolCallId) {
+    const existingIdx = index.toolCallIdIndex.get(message.content.toolCallId);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'codex_tool_call') {
+        const newList = list.slice();
+        const merged = { ...existingMsg.content, ...message.content };
+        newList[existingIdx] = { ...existingMsg, content: merged };
+        return newList;
+      }
+    }
+    // Not found - add new message and update index
+    const newIdx = list.length;
+    index.toolCallIdIndex.set(message.content.toolCallId, newIdx);
+    if (message.msg_id) index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // acp_tool_call: use toolCallIdIndex for fast lookup
+  //
+  // TODO(acp-rewrite): When AcpAgentV2 compat layer is removed, change the merge below
+  // to deep-merge content.update instead of shallow-spreading content. tool_call_update
+  // from the SDK is incremental (only changed fields), so a shallow spread loses the
+  // original title/kind/rawInput from the initial tool_call. Currently AcpAgentV2.mergeToolCall()
+  // handles this, but after migration it should be:
+  //   const mergedUpdate = { ...existingMsg.content.update, ...message.content.update };
+  //   const merged = { ...existingMsg.content, ...message.content, update: mergedUpdate };
+  if (message.type === 'acp_tool_call' && message.content?.update?.toolCallId) {
+    const existingIdx = index.toolCallIdIndex.get(message.content.update.toolCallId);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'acp_tool_call') {
+        const newList = list.slice();
+        const merged = { ...existingMsg.content, ...message.content };
+        newList[existingIdx] = { ...existingMsg, content: merged };
+        return newList;
+      }
+    }
+    // Not found - add new message and update index
+    const newIdx = list.length;
+    index.toolCallIdIndex.set(message.content.update.toolCallId, newIdx);
+    if (message.msg_id) index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // text message: use msgIdIndex for fast lookup (handles interleaved messages)
+  if (message.type === 'text' && message.msg_id) {
+    const existingIdx = index.msgIdIndex.get(message.msg_id);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'text') {
+        // User messages (right position) are complete - skip if already exists to prevent duplicates
+        if (message.position === 'right') {
+          return list;
+        }
+        // Complete teammate messages are not streaming chunks - skip if already exists
+        if ((message.content as { teammateMessage?: boolean })?.teammateMessage) {
+          return list;
+        }
+        // AI streaming messages (left position) - append chunks
+        const newList = list.slice();
+        newList[existingIdx] = {
+          ...existingMsg,
+          content: {
+            ...existingMsg.content,
+            content: existingMsg.content.content + message.content.content,
+          },
+        };
+        return newList;
+      }
+    }
+    // Not found in index, add as new message
+    const newIdx = list.length;
+    index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // thinking message: accumulate content chunks by msg_id (same logic as composeMessage)
+  if (message.type === 'thinking' && message.msg_id) {
+    const existingIdx = index.msgIdIndex.get(message.msg_id);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'thinking') {
+        const newList = list.slice();
+        if (message.content.status === 'done') {
+          // Keep accumulated content, update status and duration
+          newList[existingIdx] = {
+            ...existingMsg,
+            content: {
+              ...existingMsg.content,
+              status: 'done' as const,
+              duration: message.content.duration,
+            },
+          };
+        } else {
+          // Append content chunk
+          newList[existingIdx] = {
+            ...existingMsg,
+            content: {
+              ...existingMsg.content,
+              content: existingMsg.content.content + message.content.content,
+              subject: message.content.subject || existingMsg.content.subject,
+            },
+          };
+        }
+        return newList;
+      }
+    }
+    // First thinking message - add and index
+    const newIdx = list.length;
+    index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // sub_agent message: merge by parentCallId (stored as msg_id).
+  // Append body text; terminal status (done/failed) wins over 'running'.
+  if (message.type === 'sub_agent' && message.msg_id) {
+    const existingIdx = index.msgIdIndex.get(message.msg_id);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'sub_agent') {
+        const prev = existingMsg.content;
+        const next = message.content;
+        const mergedStatus =
+          next.status === 'done' || next.status === 'failed' ? next.status : prev.status;
+        const newList = list.slice();
+        newList[existingIdx] = {
+          ...existingMsg,
+          content: { ...prev, status: mergedStatus, body: prev.body + next.body },
+        };
+        return newList;
+      }
+    }
+    const newIdx = list.length;
+    index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // plan message: update content and move to end of list
+  if (message.type === 'plan' && message.msg_id) {
+    const existingIdx = index.msgIdIndex.get(message.msg_id);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      const newList = list.slice();
+      newList.splice(existingIdx, 1);
+      const updated = { ...existingMsg, ...message, content: message.content } as TMessage;
+      newList.push(updated);
+      // Rebuild index after splice
+      const rebuilt = buildMessageIndex(newList);
+      index.msgIdIndex = rebuilt.msgIdIndex;
+      index.callIdIndex = rebuilt.callIdIndex;
+      index.toolCallIdIndex = rebuilt.toolCallIdIndex;
+      return newList;
+    }
+    const newIdx = list.length;
+    index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // agent_status / tips and other msg_id-based messages:
+  // replace the existing item in place instead of appending duplicates.
+  if (message.msg_id) {
+    const existingIdx = index.msgIdIndex.get(message.msg_id);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      const newList = list.slice();
+      newList[existingIdx] = {
+        ...existingMsg,
+        ...message,
+        content: message.content,
+      } as TMessage;
+      return newList;
+    }
+  }
+
+  // Other types: fallback to last message check
+  const last = list[list.length - 1];
+  if (last.msg_id !== message.msg_id || last.type !== message.type) {
+    // Add new message and update index
+    const newIdx = list.length;
+    if (message.msg_id) index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // Merge other message types with same msg_id
+  const newList = list.slice();
+  const lastIdx = newList.length - 1;
+  newList[lastIdx] = { ...last, ...message };
+  return newList;
+}
+
+export const useAddOrUpdateMessage = () => {
+  const update = useUpdateMessageList();
+  const pendingRef = useRef<Array<{ message: TMessage; add: boolean }>>([]);
+  const rafRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flush = useCallback(() => {
+    rafRef.current = null;
+
+    const pending = pendingRef.current;
+    if (!pending.length) return;
+    pendingRef.current = [];
+    update((list) => {
+      // Get or build index for fast lookup (O(1) instead of O(n))
+      const index = getOrBuildIndex(list);
+      let newList = list;
+
+      for (const item of pending) {
+        if (item.add) {
+          // New message, update index
+          const msg = item.message;
+          const newIdx = newList.length;
+          if (msg.msg_id) index.msgIdIndex.set(msg.msg_id, newIdx);
+          if (msg.type === 'tool_call' && msg.content?.callId) {
+            index.callIdIndex.set(msg.content.callId, newIdx);
+          }
+          if (msg.type === 'codex_tool_call' && msg.content?.toolCallId) {
+            index.toolCallIdIndex.set(msg.content.toolCallId, newIdx);
+          }
+          if (msg.type === 'acp_tool_call' && msg.content?.update?.toolCallId) {
+            index.toolCallIdIndex.set(msg.content.update.toolCallId, newIdx);
+          }
+          newList = newList.concat(msg);
+        } else {
+          // Use index-optimized message compose
+          newList = composeMessageWithIndex(item.message, newList, index);
+        }
+
+        while (beforeUpdateMessageListStack.length) {
+          newList = beforeUpdateMessageListStack.shift()!(newList);
+        }
+      }
+      return newList;
+    });
+
+    rafRef.current = setTimeout(flush);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) {
+        clearTimeout(rafRef.current);
+      }
+    };
+  }, []);
+
+  return useCallback(
+    (message: TMessage, add = false) => {
+      pendingRef.current.push({ message, add });
+      if (rafRef.current === null) {
+        rafRef.current = setTimeout(flush);
+      }
+    },
+    [flush]
+  );
+};
+
+export const useRemoveMessageByMsgId = () => {
+  const update = useUpdateMessageList();
+
+  return useCallback(
+    (msgId: string) => {
+      update((list) => list.filter((message) => message.msg_id !== msgId));
+    },
+    [update]
+  );
+};
+
+export const useMessageLstCache = (key: string) => {
+  const update = useUpdateMessageList();
+  useEffect(() => {
+    if (!key) return;
+    void ipcBridge.database.getConversationMessages
+      .invoke({
+        conversation_id: key,
+        page: 0,
+        pageSize: 10000, // Load all messages (up to 10k per conversation)
+      })
+      .then((messages) => {
+        if (messages && Array.isArray(messages)) {
+          // Merge DB messages with any real-time streaming messages already in the list.
+          // This prevents a race condition where streaming messages (added via IPC before
+          // the DB load completes) could cause DB-only messages (e.g. cron user messages
+          // whose IPC event was emitted before the component mounted) to be lost.
+          // Use both msg_id and id for deduplication since DB messages and streaming
+          // messages share the same msg_id but may have different id values
+          // (streaming messages get new UUIDs from transformMessage).
+          update((currentList) => {
+            if (!currentList.length) return messages;
+            // Only keep streaming messages that belong to the current conversation
+            // to prevent messages from a previous conversation leaking into the new one
+            const sameConversation = currentList.filter((m) => m.conversation_id === key);
+            if (!sameConversation.length) return messages;
+            const dbIds = new Set(messages.map((m) => m.id));
+            const dbMsgIds = new Set(messages.map((m) => m.msg_id).filter(Boolean));
+
+            // Build a map of streaming messages by msg_id for content-length comparison.
+            // During streaming, the DB may have an older snapshot (due to 2000ms save debounce),
+            // so we keep whichever version has more content to avoid losing streamed data.
+            const streamingByMsgId = new Map<string, TMessage>();
+            for (const m of sameConversation) {
+              if (m.msg_id && m.type === 'text' && dbMsgIds.has(m.msg_id)) {
+                streamingByMsgId.set(m.msg_id, m);
+              }
+            }
+
+            // Replace DB messages with streaming versions when streaming has more content
+            const mergedMessages = messages.map((dbMsg) => {
+              if (!dbMsg.msg_id || dbMsg.type !== 'text') return dbMsg;
+              const streamMsg = streamingByMsgId.get(dbMsg.msg_id);
+              if (!streamMsg) return dbMsg;
+              const dbContent =
+                typeof dbMsg.content === 'object' && 'content' in dbMsg.content
+                  ? String((dbMsg.content as { content: unknown }).content)
+                  : '';
+              const streamContent =
+                typeof streamMsg.content === 'object' && 'content' in streamMsg.content
+                  ? String((streamMsg.content as { content: unknown }).content)
+                  : '';
+              return streamContent.length > dbContent.length ? streamMsg : dbMsg;
+            });
+
+            const streamingOnly = sameConversation.filter(
+              (m) => !dbIds.has(m.id) && !(m.msg_id && dbMsgIds.has(m.msg_id))
+            );
+            if (!streamingOnly.length && !streamingByMsgId.size) return messages;
+            return [...mergedMessages, ...streamingOnly];
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('[useMessageLstCache] Failed to load messages from database:', error);
+      });
+  }, [key]);
+};
+
+export const beforeUpdateMessageList = (fn: (list: TMessage[]) => TMessage[]) => {
+  beforeUpdateMessageListStack.push(fn);
+  return () => {
+    beforeUpdateMessageListStack.splice(beforeUpdateMessageListStack.indexOf(fn), 1);
+  };
+};
+export { ChatKeyProvider, MessageListProvider, useChatKey, useMessageList, useUpdateMessageList };

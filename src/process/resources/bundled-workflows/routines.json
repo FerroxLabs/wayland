@@ -1,0 +1,146 @@
+[
+  {
+    "id": "daily-launch-status",
+    "name": "Daily launch status",
+    "description": "Daily during an active launch: pull metrics, flag issues, draft the daily standup.",
+    "schedule": "0 9 * * *",
+    "timezone": "local",
+    "workflow": "wayland-launch-status-batch",
+    "inputs": {
+      "active_launch_path": "~/wayland/state/active-launch.yaml",
+      "data_dirs": "~/wayland/inbox/sales,~/wayland/inbox/ads,~/wayland/inbox/support"
+    }
+  },
+  {
+    "id": "weekly-listing-audit",
+    "name": "Weekly listing audit",
+    "description": "Wednesday morning: pick one listing, run a quick audit, save recommendations for the week's optimization sprint.",
+    "schedule": "0 10 * * 3",
+    "timezone": "local",
+    "workflow": "wayland-listing-audit-pick",
+    "inputs": {
+      "inventory_path": "~/wayland/commerce/inventory.csv",
+      "pick_strategy": "lowest_conversion"
+    }
+  },
+  {
+    "id": "weekly-content-batch",
+    "name": "Weekly content batch",
+    "description": "Sunday evening: process all content briefs in the inbox, produce voice-locked drafts and derivatives for Monday review.",
+    "schedule": "0 18 * * 0",
+    "timezone": "local",
+    "workflow": "wayland-content-batch-process",
+    "inputs": {
+      "briefs_dir": "~/wayland/inbox/content-briefs/",
+      "voice_profile_path": "~/wayland/voice-notes.md"
+    }
+  },
+  {
+    "id": "weekly-copy-review",
+    "name": "Weekly copy review",
+    "description": "Monday morning: run Bullshit Filter cleaning on any markdown drafts in the inbox, save cleaned versions for review.",
+    "schedule": "0 9 * * 1",
+    "timezone": "local",
+    "workflow": "wayland-bullshit-clean-batch",
+    "inputs": {
+      "copy_dir": "~/wayland/inbox/copy/",
+      "voice_profile_path": "~/wayland/voice-notes.md"
+    }
+  },
+  {
+    "id": "monday-cashflow",
+    "name": "Monday cashflow",
+    "description": "Monday morning: parse the bank CSVs in the inbox, output a red/yellow/green status memo.",
+    "schedule": "0 9 * * 1",
+    "timezone": "local",
+    "workflow": "wayland-cashflow-batch-review",
+    "inputs": {
+      "bank_csv_dir": "~/wayland/inbox/finance/bank/",
+      "forecast_path": "~/wayland/finance/active-forecast.md"
+    }
+  },
+  {
+    "id": "monthly-budget-variance",
+    "name": "Monthly budget variance",
+    "description": "Last day of the month: compare actuals to budget, flag overruns, draft a variance memo.",
+    "schedule": "0 17 L * *",
+    "timezone": "local",
+    "workflow": "wayland-budget-variance-check",
+    "inputs": {
+      "actuals_dir": "~/wayland/inbox/finance/",
+      "budget_path": "~/wayland/finance/active-budget.md"
+    }
+  },
+  {
+    "id": "weekly-competitor-watch",
+    "name": "Weekly competitor watch",
+    "description": "Wednesday morning: scan top competitors, flag changes, draft the weekly intel brief.",
+    "schedule": "0 11 * * 3",
+    "timezone": "local",
+    "workflow": "wayland-competitor-watch",
+    "inputs": {
+      "competitor_list_path": "~/wayland/marketing/competitors.yaml",
+      "last_scan_path": "~/wayland/outbox/marketing/last-competitor-scan.md"
+    }
+  },
+  {
+    "id": "friday-weekly-review",
+    "name": "Friday weekly review",
+    "description": "Friday afternoon: pull weekly metrics, draft the review for Monday standup.",
+    "schedule": "0 16 * * 5",
+    "timezone": "local",
+    "workflow": "business-ops-weekly-review",
+    "inputs": {
+      "data_dirs": "~/wayland/inbox/finance,~/wayland/inbox/sales,~/wayland/inbox/support",
+      "prior_review_path": "~/wayland/outbox/ops/last-weekly-review.md"
+    }
+  },
+  {
+    "id": "month-end-review",
+    "name": "Month-end review",
+    "description": "Last day of the month: pull monthly metrics, draft the monthly business review.",
+    "schedule": "0 17 L * *",
+    "timezone": "local",
+    "workflow": "business-ops-monthly-review",
+    "inputs": {
+      "data_dirs": "~/wayland/inbox/finance,~/wayland/inbox/sales,~/wayland/inbox/support",
+      "prior_review_path": "~/wayland/outbox/ops/last-monthly-review.md"
+    }
+  },
+  {
+    "id": "monthly-investor-update",
+    "name": "Monthly investor update",
+    "description": "Last day of the month: pull metrics, draft the monthly investor update for founder review.",
+    "schedule": "0 17 L * *",
+    "timezone": "local",
+    "workflow": "wayland-batch-investor-update",
+    "inputs": {
+      "data_dir": "~/wayland/inbox/monthly-data/",
+      "prior_update_path": "~/wayland/outbox/investor-updates/last.md"
+    }
+  },
+  {
+    "id": "friday-pipeline-review",
+    "name": "Friday pipeline review",
+    "description": "Friday afternoon: flag stuck deals, draft quick forensics on the top 3.",
+    "schedule": "0 16 * * 5",
+    "timezone": "local",
+    "workflow": "wayland-pipeline-batch-review",
+    "inputs": {
+      "pipeline_dir": "~/wayland/inbox/sales/",
+      "stuck_threshold_days": "14"
+    }
+  },
+  {
+    "id": "weekly-support-review",
+    "name": "Weekly support review",
+    "description": "Friday morning: pull weekly support metrics, SLA compliance check, pattern detection.",
+    "schedule": "0 11 * * 5",
+    "timezone": "local",
+    "workflow": "wayland-support-week-batch",
+    "inputs": {
+      "tickets_dir": "~/wayland/inbox/support/",
+      "sla_targets_path": "~/wayland/support/sla-targets.yaml"
+    }
+  }
+]

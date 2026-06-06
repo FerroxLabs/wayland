@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.gitlab/gitlab-mcp",
+  "title": "GitLab",
+  "description": "Projects, issues, merge requests, and pipelines - GitLab's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.gitlab.com/ee/user/mcp",
+  "repository": { "url": "https://gitlab.com/gitlab-org/gitlab-mcp", "source": "gitlab" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://gitlab.com/api/v4/mcp" }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "code"],
+    "tags": ["gitlab", "git", "code"],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 33,
+    "installRate": 0.18,
+    "iconUrl": "icons/gitlab.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#fc6d26" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "GitLab",
+      "providerSignupUrl": "https://gitlab.com",
+      "scopes": [
+        { "name": "api", "plainLanguage": "Full API access to your projects." },
+        { "name": "read_user", "plainLanguage": "See your basic profile." },
+        { "name": "read_repository", "plainLanguage": "Read repository contents." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Projects", "count": 5 },
+      { "label": "Issues", "count": 5 },
+      { "label": "Merge Requests", "count": 5 },
+      { "label": "Pipelines", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.gitlab-gitlab-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "complete": {
+    "headline": "Fluxo de trabalho concluído",
+    "steps": "{{n}} etapas",
+    "tokens": "{{n}} tokens",
+    "outputsTitle": "O que isto produziu",
+    "save": "Salvar esta execução",
+    "runAgain": "Executar novamente",
+    "nextTitle": "A seguir"
+  },
+  "rail": {
+    "inProgress": "em andamento",
+    "errored": "precisa de atenção",
+    "skipped": "ignorada",
+    "jumpToStep": "Ir para a etapa {{n}}: {{title}}",
+    "runningLabel": "Executando… ({{elapsed}})",
+    "runAutonomouslyAria": "Executar a etapa {{n}} de forma autônoma",
+    "runAutonomously": "Executar de forma autônoma",
+    "titleManual": "Etapas do fluxo de trabalho · manual",
+    "titleAuto": "Etapas do fluxo de trabalho · automatizado",
+    "confirmTitle": "Executar a etapa {{n}} de forma autônoma?",
+    "confirmOk": "Executar de forma autônoma",
+    "confirmCancel": "Cancelar",
+    "confirmBody": "O Wayland criará um trabalhador autônomo para concluir a etapa {{n}} em segundo plano. Você pode continuar conversando na sessão principal.",
+    "confirmEta": "Tempo estimado: 4-8 minutos."
+  }
+}

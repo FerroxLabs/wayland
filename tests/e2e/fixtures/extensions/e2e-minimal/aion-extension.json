@@ -1,0 +1,27 @@
+{
+  "$schema": "../../../../schemas/aion-extension-v1.json",
+  "name": "e2e-minimal",
+  "displayName": "E2E Minimal Extension",
+  "version": "1.0.0",
+  "description": "Minimal manifest used by tests/e2e/specs/extensions.e2e.ts to verify the extension iframe sandbox (commit f0923bdc9, P0 H2)",
+  "author": "Wayland E2E",
+  "engine": {
+    "wayland": "^1.0.0"
+  },
+  "permissions": {
+    "storage": false,
+    "network": false,
+    "shell": false,
+    "filesystem": "extension-only",
+    "events": false
+  },
+  "contributes": {
+    "settingsTabs": [
+      {
+        "id": "e2e-minimal-tab",
+        "title": "E2E Minimal",
+        "path": "ui/index.html"
+      }
+    ]
+  }
+}

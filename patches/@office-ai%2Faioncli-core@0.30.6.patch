@@ -1,0 +1,92 @@
+diff --git a/node_modules/@office-ai/aioncli-core/.bun-tag-a322f8e24a95bb08 b/.bun-tag-a322f8e24a95bb08
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/@office-ai/aioncli-core/.bun-tag-e430e8d9d3acdb6c b/.bun-tag-e430e8d9d3acdb6c
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/src/core/openaiContentGenerator.js b/dist/src/core/openaiContentGenerator.js
+index 2bdb1c5b9306902dabe47a5aedcf0e49bb954db6..80918bee2859cf26fc1b89e64794396b6e8a0d4d 100644
+--- a/dist/src/core/openaiContentGenerator.js
++++ b/dist/src/core/openaiContentGenerator.js
+@@ -644,6 +644,19 @@ export class OpenAIContentGenerator {
+                         result[key] = value;
+                     }
+                 }
++                else if (key === 'properties' && value && typeof value === 'object' && !Array.isArray(value)) {
++                    // `properties` is a name->subschema MAP, not a schema node. Recurse
++                    // each child schema, but never run the map itself through convertTypes:
++                    // its trailing "has properties -> add type:object" guard would inject a
++                    // bogus `"type":"object"` property when a tool has a field literally
++                    // named "properties" (e.g. Notion's notion-create-pages), producing an
++                    // invalid subschema and a `400 Invalid schema for function` from the API.
++                    const props = {};
++                    for (const [pName, pSchema] of Object.entries(value)) {
++                        props[pName] = convertTypes(pSchema);
++                    }
++                    result[key] = props;
++                }
+                 else if (typeof value === 'object') {
+                     result[key] = convertTypes(value);
+                 }
+@@ -1527,17 +1540,38 @@ export class OpenAIContentGenerator {
+         const modelName = this.model.toLowerCase();
+         const isKimiModel = modelName.includes('kimi-k2.5') ||
+             (modelName.includes('kimi') && modelName.includes('k2.5'));
+-        const isRestrictedModel = modelName.includes('gpt-5') ||
++        // OpenAI reasoning models — the gpt-5.x flagship family AND the o-series
++        // (o1/o3/o4, incl. -mini/-preview) — reject top_p, temperature!=1, the
++        // penalty knobs, logprobs and max_tokens; they accept only temperature=1
++        // and max_completion_tokens. The `\bo[134]\b` guard matches o1/o3/o4
++        // without catching gpt-4o (no word boundary before the trailing `o`).
++        const isReasoningModel = modelName.includes('gpt-5') ||
+             modelName.includes('gpt5') ||
++            /\bo[134]\b/.test(modelName);
++        const isRestrictedModel = isReasoningModel ||
+             modelName.includes('gpt-4o') ||
+             modelName.includes('gpt4o') ||
+             isKimiModel;
+         if (isRestrictedModel) {
+             params.temperature = 1.0;
+-            // Kimi K2.5 models enforce top_p=0.95
+             if (isKimiModel) {
++                // Kimi K2.5 models enforce top_p=0.95
+                 params.top_p = 0.95;
+             }
++            else if (isReasoningModel) {
++                // Strip the sampling params OpenAI reasoning models reject
++                // (`400 Unsupported parameter: 'top_p'`), and migrate any token cap
++                // to the parameter they do accept (max_completion_tokens).
++                delete params.top_p;
++                delete params.top_k;
++                delete params.frequency_penalty;
++                delete params.presence_penalty;
++                delete params.repetition_penalty;
++                if (params.max_tokens !== undefined && params.max_completion_tokens === undefined) {
++                    params.max_completion_tokens = params.max_tokens;
++                    delete params.max_tokens;
++                }
++            }
+         }
+         return params;
+     }
+diff --git a/package.json b/package.json
+index e9d3a992a9c3ffb35080509fbfff8224274e8d14..87b394208f6a9e1e73e855f6f1b85cc2b43e3e66 100644
+--- a/package.json
++++ b/package.json
+@@ -74,13 +74,13 @@
+     "node-fetch": "^3.3.2",
+     "open": "^10.1.2",
+     "openai": "^5.11.0",
+-    "picomatch": "^4.0.1",
++    "picomatch": "*",
+     "proper-lockfile": "^4.1.2",
+     "read-package-up": "^11.0.0",
+     "shell-quote": "^1.8.3",
+-    "simple-git": "^3.28.0",
++    "simple-git": "*",
+     "strip-ansi": "^7.1.0",
+-    "systeminformation": "^5.25.11",
++    "systeminformation": "*",
+     "tiktoken": "^1.0.22",
+     "tree-sitter-bash": "^0.25.0",
+     "undici": "^7.10.0",

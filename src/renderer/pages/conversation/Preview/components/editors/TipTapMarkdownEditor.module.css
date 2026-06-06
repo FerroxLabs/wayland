@@ -1,0 +1,457 @@
+/**
+ * Prose styles for the TipTap markdown WYSIWYG editor.
+ *
+ * The UnoCSS config in this repo does not include presetTypography, so
+ * @apply-style `prose` classes are unavailable. These rules deliver the
+ * minimum-viable typographic structure (headings, lists, tables, code,
+ * blockquote) inside the ProseMirror surface.
+ */
+
+.editor {
+  /* The editor sits inside an absolutely-positioned container with the
+     streaming badge floating above. The inner ProseMirror node is what
+     scrolls. */
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.editor :global(.ProseMirror) {
+  min-height: 100%;
+  /* Extra left padding leaves room for the drag-handle column. */
+  padding: 16px 20px 16px 52px;
+  outline: none;
+}
+
+/* Sticky top format toolbar */
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--bg-3);
+  backdrop-filter: blur(6px);
+}
+
+/* Drag handle + add-block side controls (portaled by extension-drag-handle) */
+.blockHandle {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  /* Nudge icons to align with the block's baseline */
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+/* Show the handle when the user hovers anywhere in the editor surface */
+.editor:hover .blockHandle {
+  opacity: 0.6;
+}
+
+.blockHandle:hover {
+  opacity: 1 !important;
+}
+
+.blockHandleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.blockHandleBtn:hover {
+  background: var(--bg-2);
+  color: var(--text-primary);
+}
+
+/* Drag grip: non-button so the native HTML5 drag listeners installed by
+   @tiptap/extension-drag-handle on the wrapper fire correctly. */
+.blockHandleGrip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: grab;
+  transition: background 100ms ease;
+  user-select: none;
+}
+
+.blockHandleGrip:hover {
+  background: var(--bg-2);
+  color: var(--text-primary);
+}
+
+.blockHandleGrip:active {
+  cursor: grabbing;
+  background: var(--bg-3);
+}
+
+/* Slash command popup (portaled to body) */
+.slashMenuPortal {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.slashMenu {
+  pointer-events: auto;
+  width: 280px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--bg-base);
+  border: 1px solid var(--bg-3);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.slashMenuEmpty {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.slashMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 0;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-size: 13px;
+  transition: background 100ms ease;
+}
+
+.slashMenuItem:hover,
+.slashMenuItemActive {
+  background: var(--bg-2);
+}
+
+.slashMenuItemIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: var(--bg-2);
+  color: var(--text-primary);
+}
+
+.slashMenuItemActive .slashMenuItemIcon {
+  background: var(--bg-3);
+  color: var(--primary);
+}
+
+.slashMenuItemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.slashMenuItemLabel {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.slashMenuItemDesc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Selection-aware floating bubble menu */
+.bubbleMenu {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: var(--bg-base);
+  border: 1px solid var(--bg-3);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* Placeholder hint on empty blocks (the current line only). */
+.editor :global(.ProseMirror p.is-empty::before),
+.editor :global(.ProseMirror h1.is-empty::before),
+.editor :global(.ProseMirror h2.is-empty::before),
+.editor :global(.ProseMirror h3.is-empty::before) {
+  color: var(--text-secondary);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.toolbarBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.toolbarBtn:hover:not(:disabled) {
+  background: var(--bg-2);
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.toolbarBtnActive {
+  background: var(--bg-2);
+  color: var(--primary);
+}
+
+.toolbarBtnActive:hover:not(:disabled) {
+  background: var(--bg-3);
+}
+
+.toolbarDivider {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: var(--bg-3);
+}
+
+.editor :global(.ProseMirror) > * + * {
+  margin-top: 0.85em;
+}
+
+.editor :global(.ProseMirror h1) {
+  font-size: 1.9em;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.2em;
+  margin-bottom: 0.3em;
+}
+
+.editor :global(.ProseMirror h2) {
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.1em;
+  margin-bottom: 0.3em;
+}
+
+.editor :global(.ProseMirror h3) {
+  font-size: 1.25em;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 1em;
+  margin-bottom: 0.25em;
+}
+
+.editor :global(.ProseMirror h4),
+.editor :global(.ProseMirror h5),
+.editor :global(.ProseMirror h6) {
+  font-size: 1.05em;
+  font-weight: 600;
+  margin-top: 0.9em;
+  margin-bottom: 0.25em;
+}
+
+.editor :global(.ProseMirror p) {
+  margin: 0;
+}
+
+.editor :global(.ProseMirror a) {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.editor :global(.ProseMirror strong) {
+  font-weight: 700;
+}
+
+.editor :global(.ProseMirror em) {
+  font-style: italic;
+}
+
+.editor :global(.ProseMirror code) {
+  background: var(--bg-2);
+  border: 1px solid var(--bg-3);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.editor :global(.ProseMirror pre) {
+  background: var(--bg-2);
+  border: 1px solid var(--bg-3);
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-family: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  font-size: 0.85em;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.editor :global(.ProseMirror pre code) {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+.editor :global(.ProseMirror blockquote) {
+  border-left: 3px solid var(--primary);
+  padding-left: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.editor :global(.ProseMirror ul),
+.editor :global(.ProseMirror ol) {
+  padding-left: 1.6em;
+  margin: 0;
+}
+
+.editor :global(.ProseMirror ul) {
+  list-style-type: disc;
+}
+
+.editor :global(.ProseMirror ol) {
+  list-style-type: decimal;
+}
+
+.editor :global(.ProseMirror li) {
+  margin: 0.25em 0;
+}
+
+.editor :global(.ProseMirror li > p) {
+  margin: 0;
+}
+
+.editor :global(.ProseMirror hr) {
+  border: 0;
+  border-top: 1px solid var(--bg-3);
+  margin: 1.5em 0;
+}
+
+/* Tables */
+.editor :global(.ProseMirror table) {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.editor :global(.ProseMirror table td),
+.editor :global(.ProseMirror table th) {
+  border: 1px solid var(--bg-3);
+  padding: 6px 10px;
+  vertical-align: top;
+  min-width: 1em;
+}
+
+.editor :global(.ProseMirror table th) {
+  background: var(--bg-2);
+  font-weight: 600;
+  text-align: left;
+}
+
+.editor :global(.ProseMirror table .selectedCell:after) {
+  background: rgba(56, 139, 253, 0.18);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.editor :global(.ProseMirror .tableWrapper) {
+  margin: 0;
+  overflow-x: auto;
+}
+
+/* Task lists */
+.editor :global(.ProseMirror ul[data-type='taskList']) {
+  list-style: none;
+  padding-left: 0;
+}
+
+.editor :global(.ProseMirror ul[data-type='taskList'] li) {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+
+.editor :global(.ProseMirror ul[data-type='taskList'] li > label) {
+  flex: 0 0 auto;
+  user-select: none;
+  margin-top: 0.25em;
+}
+
+.editor :global(.ProseMirror ul[data-type='taskList'] li > div) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Placeholder when read-only and empty (rare in our flow but harmless) */
+.editor :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  color: var(--text-secondary);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Selection - keep visible across light + dark themes */
+.editor :global(.ProseMirror)::selection,
+.editor :global(.ProseMirror) *::selection {
+  background: rgba(56, 139, 253, 0.25);
+}

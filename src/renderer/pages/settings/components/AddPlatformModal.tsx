@@ -1,0 +1,681 @@
+import { CloudCog, Loader2, Pencil, Search } from 'lucide-react';
+import type { IProvider } from '@/common/config/storage';
+import type { ProtocolDetectionResponse, ProtocolType } from '@/common/utils/protocolDetector';
+import { ipcBridge } from '@/common';
+import { uuid } from '@/common/utils';
+import { isGoogleApisHost } from '@/common/utils/urlValidation';
+import ModalHOC from '@/renderer/utils/ui/ModalHOC';
+import { Form, Input, Message, Select } from '@arco-design/web-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import useModeModeList from '@renderer/hooks/agent/useModeModeList';
+import useProtocolDetection from '@renderer/hooks/system/useProtocolDetection';
+import WaylandModal from '@/renderer/components/base/WaylandModal';
+import ApiKeyEditorModal from './ApiKeyEditorModal';
+import {
+  MODEL_PLATFORMS,
+  NEW_API_PROTOCOL_OPTIONS,
+  detectNewApiProtocol,
+  getPlatformByValue,
+  isCustomOption,
+  isGeminiPlatform,
+  isNewApiPlatform,
+  type PlatformConfig,
+} from '@/renderer/utils/model/modelPlatforms';
+import type { DeepLinkAddProviderDetail } from '@/renderer/hooks/system/useDeepLink';
+
+/**
+ * Protocol icon configurations
+ */
+const PROTOCOL_ICONS: Record<ProtocolType, { color: string; bgColor: string }> = {
+  openai: { color: '#10A37F', bgColor: 'rgba(16, 163, 127, 0.1)' },
+  gemini: { color: '#4285F4', bgColor: 'rgba(66, 133, 244, 0.1)' },
+  anthropic: { color: '#D97757', bgColor: 'rgba(217, 119, 87, 0.1)' },
+  unknown: { color: '#9CA3AF', bgColor: 'rgba(156, 163, 175, 0.1)' },
+};
+
+/**
+ * Get translated suggestion message
+ */
+const getSuggestionMessage = (
+  suggestion: ProtocolDetectionResponse['suggestion'],
+  t: (key: string, params?: Record<string, string>) => string
+): string => {
+  if (!suggestion) return '';
+
+  // Use i18n key for translation if available
+  if (suggestion.i18nKey) {
+    const translated = t(suggestion.i18nKey, suggestion.i18nParams);
+    // If translation result equals the key, translation failed, fallback to message
+    if (translated !== suggestion.i18nKey) {
+      return translated;
+    }
+  }
+
+  // Fallback to original message
+  return suggestion.message;
+};
+
+/**
+ * Protocol Detection Status Component
+ * Display protocol detection status, result, and suggestions
+ */
+interface ProtocolDetectionStatusProps {
+  /** Whether detecting */
+  isDetecting: boolean;
+  /** Detection result */
+  result: ProtocolDetectionResponse | null;
+  /** Currently selected platform */
+  currentPlatform?: string;
+  /** Switch platform callback */
+  onSwitchPlatform?: (platform: string) => void;
+}
+
+const ProtocolDetectionStatus: React.FC<ProtocolDetectionStatusProps> = ({
+  isDetecting,
+  result,
+  currentPlatform,
+  onSwitchPlatform,
+}) => {
+  const { t } = useTranslation();
+
+  // Detecting
+  if (isDetecting) {
+    return (
+      <div className='flex items-center gap-6px text-12px text-t-secondary py-4px'>
+        <Loader2 size={14} className='animate-spin' />
+        <span>{t('settings.protocolDetecting')}</span>
+      </div>
+    );
+  }
+
+  // No detection result
+  if (!result) {
+    return null;
+  }
+
+  const { protocol, success, suggestion, multiKeyResult } = result;
+  const iconConfig = PROTOCOL_ICONS[protocol] || PROTOCOL_ICONS.unknown;
+
+  // Detection successful
+  if (success && suggestion) {
+    const showSwitchButton =
+      suggestion.type === 'switch_platform' &&
+      suggestion.suggestedPlatform &&
+      suggestion.suggestedPlatform !== currentPlatform;
+
+    return (
+      <div className='flex flex-col gap-4px py-4px'>
+        <div className='flex items-start gap-8px text-12px'>
+          <div className='flex items-center gap-6px flex-1 min-w-0'>
+            <div
+              className='flex items-center justify-center w-16px h-16px rounded-4px shrink-0'
+              style={{
+                backgroundColor: iconConfig.bgColor,
+              }}
+            >
+              <span
+                className='text-10px font-medium'
+                style={{
+                  color: iconConfig.color,
+                }}
+              >
+                {protocol === 'openai' ? 'O' : protocol === 'gemini' ? 'G' : protocol === 'anthropic' ? 'A' : '?'}
+              </span>
+            </div>
+            <span className='text-t-secondary truncate'>{getSuggestionMessage(suggestion, t)}</span>
+          </div>
+
+          {showSwitchButton && onSwitchPlatform && (
+            <button
+              type='button'
+              className='shrink-0 px-8px py-2px rounded-4px text-11px font-medium transition-colors'
+              style={{
+                backgroundColor: iconConfig.bgColor,
+                color: iconConfig.color,
+              }}
+              onClick={() => onSwitchPlatform(suggestion.suggestedPlatform!)}
+            >
+              {t('settings.switchPlatform')}
+            </button>
+          )}
+        </div>
+
+        {/* Multi-key test result */}
+        {multiKeyResult && multiKeyResult.total > 1 && (
+          <div className='flex items-center gap-6px text-11px text-t-tertiary pl-22px'>
+            <span>
+              {multiKeyResult.invalid === 0
+                ? t('settings.multiKeyAllValid', { total: String(multiKeyResult.total) })
+                : multiKeyResult.valid === 0
+                  ? t('settings.multiKeyAllInvalid', { total: String(multiKeyResult.total) })
+                  : t('settings.multiKeyPartialValid', {
+                      valid: String(multiKeyResult.valid),
+                      invalid: String(multiKeyResult.invalid),
+                    })}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Detection failed
+  if (!success && result.error) {
+    return (
+      <div className='flex items-center gap-6px text-12px text-warning py-4px'>
+        <div className='flex items-center justify-center w-16px h-16px rounded-4px bg-warning/10 shrink-0'>
+          <span className='text-10px font-medium'>!</span>
+        </div>
+        <span className='truncate'>{suggestion ? getSuggestionMessage(suggestion, t) : result.error}</span>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+/**
+ * Provider Logo Component
+ */
+const ProviderLogo: React.FC<{ logo: string | null; name: string; size?: number }> = ({ logo, name, size = 20 }) => {
+  if (logo) {
+    return <img src={logo} alt={name} className='object-contain shrink-0' style={{ width: size, height: size }} />;
+  }
+  return <CloudCog size={size} className='text-t-secondary flex shrink-0' />;
+};
+
+/**
+ * Platform dropdown option renderer (first level)
+ *
+ * @param platform - Platform config
+ * @param t - Translation function
+ */
+const renderPlatformOption = (platform: PlatformConfig, t?: (key: string) => string) => {
+  // If i18nKey exists and t function is provided, use translated name; otherwise use original name
+  const displayName = platform.i18nKey && t ? t(platform.i18nKey) : platform.name;
+  return (
+    <div className='flex items-center gap-8px'>
+      <ProviderLogo logo={platform.logo} name={displayName} size={18} />
+      <span>{displayName}</span>
+    </div>
+  );
+};
+
+const AddPlatformModal = ModalHOC<{
+  onSubmit: (platform: IProvider) => void;
+  deepLinkData?: DeepLinkAddProviderDetail;
+}>(({ modalProps, onSubmit, modalCtrl, deepLinkData }) => {
+  const [message, messageContext] = Message.useMessage();
+  const { t } = useTranslation();
+  const [form] = Form.useForm();
+  const [apiKeyEditorVisible, setApiKeyEditorVisible] = useState(false);
+  // Track last detection input to avoid redundant detection
+  const [lastDetectionInput, setLastDetectionInput] = useState<{ baseUrl: string; apiKey: string } | null>(null);
+
+  const platformValue = Form.useWatch('platform', form);
+  const baseUrl = Form.useWatch('baseUrl', form);
+  const apiKey = Form.useWatch('apiKey', form);
+  const modelValue = Form.useWatch('model', form);
+  const bedrockAuthMethod = Form.useWatch('bedrockAuthMethod', form);
+  const _bedrockRegion = Form.useWatch('bedrockRegion', form);
+
+  // Get current selected platform config
+  const selectedPlatform = useMemo(() => getPlatformByValue(platformValue), [platformValue]);
+
+  const platform = selectedPlatform?.platform ?? 'gemini';
+  // Check if "Custom" option (no preset baseUrl)
+  const isCustom = isCustomOption(platformValue);
+  const isBedrock = platform === 'bedrock';
+  const isGemini = isGeminiPlatform(platform);
+  const isNewApi = isNewApiPlatform(platform);
+
+  // new-api per-model protocol selection state
+  const [modelProtocol, setModelProtocol] = useState<string>('openai');
+
+  // Auto-detect protocol when model changes (for new-api platforms)
+  useEffect(() => {
+    if (isNewApi && modelValue) {
+      setModelProtocol(detectNewApiProtocol(modelValue));
+    }
+  }, [modelValue, isNewApi]);
+
+  // Calculate actual baseUrl (prefer user input, fallback to platform preset)
+  const actualBaseUrl = useMemo(() => {
+    if (baseUrl) return baseUrl;
+    return selectedPlatform?.baseUrl || '';
+  }, [baseUrl, selectedPlatform?.baseUrl]);
+
+  // For Bedrock, don't pass bedrockConfig to avoid auto-refresh on input changes
+  // We'll build it dynamically in onFocus
+  const modelListState = useModeModeList(platform, actualBaseUrl, apiKey, true, undefined);
+
+  // Protocol detection hook
+  // Enable detection when:
+  // 1. Custom platform OR user entered a custom base URL (non-official, like local proxy)
+  // 2. Input values differ from last "accepted suggestion" (avoid redundant detection after platform switch)
+  const isNonOfficialBaseUrl = baseUrl && !isGoogleApisHost(baseUrl);
+  const shouldEnableDetection = isCustom || isNonOfficialBaseUrl;
+  // Only trigger detection when input changed since last accepted suggestion
+  const inputChangedSinceLastSwitch =
+    !lastDetectionInput || lastDetectionInput.baseUrl !== actualBaseUrl || lastDetectionInput.apiKey !== apiKey;
+  const protocolDetection = useProtocolDetection(
+    shouldEnableDetection && inputChangedSinceLastSwitch ? actualBaseUrl : '',
+    shouldEnableDetection && inputChangedSinceLastSwitch ? apiKey : '',
+    {
+      debounceMs: 1000,
+      autoDetect: true,
+      timeout: 10000,
+    }
+  );
+
+  // Whether to show detection result: enabled AND (has result or detecting) AND input changed since last switch
+  const shouldShowDetectionResult = shouldEnableDetection && inputChangedSinceLastSwitch;
+
+  // Handle platform switch suggestion
+  const handleSwitchPlatform = (suggestedPlatform: string) => {
+    const targetPlatform = MODEL_PLATFORMS.find((p) => p.value === suggestedPlatform || p.name === suggestedPlatform);
+    if (targetPlatform) {
+      form.setFieldValue('platform', targetPlatform.value);
+      form.setFieldValue('model', '');
+      protocolDetection.reset();
+      // Record current input to prevent redundant detection after switch
+      setLastDetectionInput({ baseUrl: actualBaseUrl, apiKey });
+      message.success(t('settings.platformSwitched', { platform: targetPlatform.name }));
+    }
+  };
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (modalProps.visible) {
+      form.resetFields();
+      form.setFieldValue('bedrockAuthMethod', 'accessKey');
+      form.setFieldValue('bedrockRegion', 'us-east-1');
+      protocolDetection.reset();
+      setLastDetectionInput(null); // Reset detection record
+      setModelProtocol('openai'); // Reset protocol selection
+
+      // Pre-fill from deep link data (wayland:// protocol)
+      if (deepLinkData?.baseUrl || deepLinkData?.apiKey) {
+        // Default to new-api platform for deep links (typical one-api/new-api usage)
+        form.setFieldValue('platform', deepLinkData.platform || 'new-api');
+        if (deepLinkData.baseUrl) form.setFieldValue('baseUrl', deepLinkData.baseUrl);
+        if (deepLinkData.apiKey) form.setFieldValue('apiKey', deepLinkData.apiKey);
+      } else {
+        form.setFieldValue('platform', 'gemini');
+      }
+    }
+  }, [modalProps.visible, deepLinkData]);
+
+  useEffect(() => {
+    if (platform?.includes('gemini')) {
+      void modelListState.mutate();
+    }
+  }, [platform]);
+
+  // Handle auto-fixed base_url
+  useEffect(() => {
+    if (modelListState.data?.fix_base_url) {
+      form.setFieldValue('baseUrl', modelListState.data.fix_base_url);
+      message.info(t('settings.baseUrlAutoFix', { base_url: modelListState.data.fix_base_url }));
+    }
+  }, [modelListState.data?.fix_base_url, form]);
+
+  const handleSubmit = () => {
+    form
+      .validate()
+      .then((values) => {
+        // If i18nKey exists use translated name, otherwise use platform name
+        const name = selectedPlatform?.i18nKey
+          ? t(selectedPlatform.i18nKey)
+          : (selectedPlatform?.name ?? values.platform);
+        const provider: IProvider = {
+          id: uuid(),
+          platform: selectedPlatform?.platform ?? 'custom',
+          name,
+          // Prefer user input baseUrl, fallback to platform preset
+          baseUrl: isBedrock ? '' : values.baseUrl || selectedPlatform?.baseUrl || '',
+          apiKey: isBedrock ? '' : values.apiKey,
+          model: [values.model],
+        };
+
+        // Add Bedrock configuration if platform is Bedrock
+        if (isBedrock) {
+          provider.bedrockConfig = {
+            authMethod: values.bedrockAuthMethod,
+            region: values.bedrockRegion,
+            ...(values.bedrockAuthMethod === 'accessKey'
+              ? {
+                  accessKeyId: values.bedrockAccessKeyId,
+                  secretAccessKey: values.bedrockSecretAccessKey,
+                }
+              : {
+                  profile: values.bedrockProfile,
+                }),
+          };
+        }
+
+        // new-api platform: save per-model protocol config
+        if (isNewApi && values.model) {
+          provider.modelProtocols = { [values.model]: modelProtocol };
+        }
+
+        onSubmit(provider);
+        modalCtrl.close();
+      })
+      .catch(() => {
+        // validation failed
+      });
+  };
+
+  return (
+    <WaylandModal
+      visible={modalProps.visible}
+      onCancel={modalCtrl.close}
+      header={{ title: t('settings.addModel'), showClose: true }}
+      style={{ width: 720, maxWidth: '92vw', borderRadius: 16 }}
+      contentStyle={{
+        background: 'var(--dialog-fill-0)',
+        borderRadius: 16,
+        padding: '20px 24px 16px',
+        overflow: 'auto',
+      }}
+      onOk={handleSubmit}
+      confirmLoading={modalProps.confirmLoading}
+      okText={t('common.confirm')}
+      cancelText={t('common.cancel')}
+    >
+      {messageContext}
+      <div className='pt-4px pb-12px'>
+        <Form form={form} layout='vertical' className='[&_.arco-form-item]:mb-12px [&_.arco-form-item:last-child]:mb-0'>
+          {/* Model Platform Selection (first level) */}
+          <Form.Item
+            initialValue='gemini'
+            label={t('settings.modelPlatform')}
+            field={'platform'}
+            required
+            rules={[{ required: true }]}
+          >
+            <Select
+              showSearch
+              filterOption={(inputValue, option) => {
+                const optionValue = (option as React.ReactElement<{ value?: string }>)?.props?.value;
+                const plat = MODEL_PLATFORMS.find((p) => p.value === optionValue);
+                return plat?.name.toLowerCase().includes(inputValue.toLowerCase()) ?? false;
+              }}
+              onChange={(value) => {
+                const plat = MODEL_PLATFORMS.find((p) => p.value === value);
+                if (plat) {
+                  form.setFieldValue('model', '');
+                }
+              }}
+              renderFormat={(option) => {
+                const optionValue = (option as { value?: string })?.value;
+                const plat = MODEL_PLATFORMS.find((p) => p.value === optionValue);
+                if (!plat) return optionValue;
+                return renderPlatformOption(plat, t);
+              }}
+            >
+              {MODEL_PLATFORMS.map((plat) => (
+                <Select.Option key={plat.value} value={plat.value}>
+                  {renderPlatformOption(plat, t)}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Base URL - for Custom, standard Gemini and New API */}
+          <Form.Item
+            hidden={isBedrock || (!isCustom && !isNewApi && platformValue !== 'gemini')}
+            label={t('settings.baseUrl')}
+            field={'baseUrl'}
+            required={isCustom || isNewApi}
+            rules={[{ required: isCustom || isNewApi }]}
+          >
+            <Input
+              placeholder={isNewApi ? 'https://your-newapi-instance.com' : selectedPlatform?.baseUrl || ''}
+              onBlur={() => {
+                void modelListState.mutate();
+              }}
+            />
+          </Form.Item>
+
+          {/* API Key */}
+          <Form.Item
+            hidden={isBedrock}
+            label={t('settings.apiKey')}
+            required={!isBedrock}
+            rules={[{ required: !isBedrock }]}
+            field={'apiKey'}
+            extra={
+              <div className='space-y-2px'>
+                <div className='text-11px text-t-secondary mt-2 leading-4'>{t('settings.multiApiKeyTip')}</div>
+                {/* Protocol detection status */}
+                {shouldShowDetectionResult && (
+                  <ProtocolDetectionStatus
+                    isDetecting={protocolDetection.isDetecting}
+                    result={protocolDetection.result}
+                    currentPlatform={platformValue}
+                    onSwitchPlatform={handleSwitchPlatform}
+                  />
+                )}
+              </div>
+            }
+          >
+            <Input
+              onBlur={() => {
+                void modelListState.mutate();
+              }}
+              suffix={
+                <Pencil
+                  size={16}
+                  className='cursor-pointer text-t-secondary hover:text-t-primary flex'
+                  onClick={() => setApiKeyEditorVisible(true)}
+                />
+              }
+            />
+          </Form.Item>
+
+          {/* AWS Bedrock Authentication Method */}
+          <Form.Item
+            hidden={!isBedrock}
+            label={t('settings.bedrock.authMethod')}
+            field={'bedrockAuthMethod'}
+            initialValue='accessKey'
+            required={isBedrock}
+            rules={[{ required: isBedrock }]}
+          >
+            <Select>
+              <Select.Option value='accessKey'>{t('settings.bedrock.authMethodAccessKey')}</Select.Option>
+              <Select.Option value='profile'>{t('settings.bedrock.authMethodProfile')}</Select.Option>
+            </Select>
+          </Form.Item>
+
+          {/* AWS Region */}
+          <Form.Item
+            hidden={!isBedrock}
+            label={t('settings.bedrock.region')}
+            field={'bedrockRegion'}
+            initialValue='us-east-1'
+            required={isBedrock}
+            rules={[{ required: isBedrock }]}
+            extra={t('settings.bedrock.regionHint')}
+          >
+            <Select showSearch>
+              <Select.Option value='us-east-1'>US East (N. Virginia)</Select.Option>
+              <Select.Option value='us-west-2'>US West (Oregon)</Select.Option>
+              <Select.Option value='eu-west-1'>Europe (Ireland)</Select.Option>
+              <Select.Option value='eu-central-1'>Europe (Frankfurt)</Select.Option>
+              <Select.Option value='ap-southeast-1'>Asia Pacific (Singapore)</Select.Option>
+              <Select.Option value='ap-northeast-1'>Asia Pacific (Tokyo)</Select.Option>
+              <Select.Option value='ap-southeast-2'>Asia Pacific (Sydney)</Select.Option>
+              <Select.Option value='ca-central-1'>Canada (Central)</Select.Option>
+            </Select>
+          </Form.Item>
+
+          {/* Access Key ID */}
+          <Form.Item
+            hidden={!isBedrock || bedrockAuthMethod !== 'accessKey'}
+            label={t('settings.bedrock.accessKeyId')}
+            field={'bedrockAccessKeyId'}
+            required={isBedrock && bedrockAuthMethod === 'accessKey'}
+            rules={[{ required: isBedrock && bedrockAuthMethod === 'accessKey' }]}
+          >
+            <Input.Password placeholder='AKIA...' visibilityToggle />
+          </Form.Item>
+
+          {/* Secret Access Key */}
+          <Form.Item
+            hidden={!isBedrock || bedrockAuthMethod !== 'accessKey'}
+            label={t('settings.bedrock.secretAccessKey')}
+            field={'bedrockSecretAccessKey'}
+            required={isBedrock && bedrockAuthMethod === 'accessKey'}
+            rules={[{ required: isBedrock && bedrockAuthMethod === 'accessKey' }]}
+          >
+            <Input.Password visibilityToggle />
+          </Form.Item>
+
+          {/* AWS Profile */}
+          <Form.Item
+            hidden={!isBedrock || bedrockAuthMethod !== 'profile'}
+            label={t('settings.bedrock.profile')}
+            field={'bedrockProfile'}
+            required={isBedrock && bedrockAuthMethod === 'profile'}
+            rules={[{ required: isBedrock && bedrockAuthMethod === 'profile' }]}
+            extra={t('settings.bedrock.profileHint')}
+          >
+            <Input placeholder='default' />
+          </Form.Item>
+
+          {/* Model Selection */}
+          <Form.Item
+            label={t('settings.modelName')}
+            field={'model'}
+            required
+            rules={[{ required: true }]}
+            validateStatus={modelListState.error ? 'error' : 'success'}
+            help={modelListState.error}
+          >
+            <Select
+              loading={modelListState.isLoading}
+              showSearch
+              allowCreate
+              suffixIcon={
+                <Search
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if ((isCustom || isNewApi) && !baseUrl) {
+                      message.warning(t('settings.pleaseEnterBaseUrl'));
+                      return;
+                    }
+                    // For Bedrock, build bedrockConfig from current form values and fetch models
+                    if (isBedrock) {
+                      const values = form.getFields();
+                      if (!values.bedrockAuthMethod || !values.bedrockRegion) {
+                        message.warning(t('settings.bedrock.fillRequiredFields'));
+                        return;
+                      }
+                      if (
+                        values.bedrockAuthMethod === 'accessKey' &&
+                        (!values.bedrockAccessKeyId || !values.bedrockSecretAccessKey)
+                      ) {
+                        message.warning(t('settings.bedrock.fillRequiredFields'));
+                        return;
+                      }
+                      if (values.bedrockAuthMethod === 'profile' && !values.bedrockProfile) {
+                        message.warning(t('settings.bedrock.fillRequiredFields'));
+                        return;
+                      }
+                      // Build bedrockConfig and fetch models manually
+                      const bedrockConfig = {
+                        authMethod: values.bedrockAuthMethod,
+                        region: values.bedrockRegion,
+                        ...(values.bedrockAuthMethod === 'accessKey'
+                          ? {
+                              accessKeyId: values.bedrockAccessKeyId,
+                              secretAccessKey: values.bedrockSecretAccessKey,
+                            }
+                          : {
+                              profile: values.bedrockProfile,
+                            }),
+                      };
+                      try {
+                        const res = await ipcBridge.mode.fetchModelList.invoke({
+                          platform,
+                          api_key: '',
+                          bedrockConfig,
+                        });
+                        if (res.success) {
+                          const models =
+                            res.data?.mode.map((v: any) => {
+                              if (typeof v === 'string') {
+                                return { label: v, value: v };
+                              } else {
+                                return { label: v.name, value: v.id };
+                              }
+                            }) || [];
+                          // Update the model list state manually
+                          void modelListState.mutate({ models }, false);
+                        } else {
+                          message.error(res.msg || 'Failed to fetch models');
+                        }
+                      } catch (error: any) {
+                        message.error(error.message || 'Failed to fetch models');
+                      }
+                      return;
+                    }
+                    // For Gemini, no apiKey check needed
+                    if (!isGemini && !apiKey) {
+                      message.warning(t('settings.pleaseEnterApiKey'));
+                      return;
+                    }
+                    void modelListState.mutate();
+                  }}
+                  size={16}
+                  className='cursor-pointer text-t-secondary hover:text-t-primary'
+                />
+              }
+              options={modelListState.data?.models || []}
+            />
+          </Form.Item>
+
+          {/* New API Protocol Selection */}
+          {isNewApi && (
+            <Form.Item
+              label={t('settings.modelProtocol')}
+              extra={<span className='text-11px text-t-secondary'>{t('settings.modelProtocolTip')}</span>}
+            >
+              <Select value={modelProtocol} onChange={setModelProtocol} options={NEW_API_PROTOCOL_OPTIONS} />
+            </Form.Item>
+          )}
+        </Form>
+      </div>
+
+      {/* API Key Editor Modal */}
+      <ApiKeyEditorModal
+        visible={apiKeyEditorVisible}
+        apiKeys={apiKey || ''}
+        onClose={() => setApiKeyEditorVisible(false)}
+        onSave={(keys) => {
+          form.setFieldValue('apiKey', keys);
+          void modelListState.mutate();
+        }}
+        onTestKey={async (key) => {
+          try {
+            const res = await ipcBridge.mode.fetchModelList.invoke({
+              base_url: actualBaseUrl,
+              api_key: key,
+              platform: selectedPlatform?.platform ?? 'custom',
+            });
+            // Strict check: success must be true and a model list must be returned
+            return res.success === true && Array.isArray(res.data?.mode) && res.data.mode.length > 0;
+          } catch {
+            return false;
+          }
+        }}
+      />
+    </WaylandModal>
+  );
+});
+
+export default AddPlatformModal;

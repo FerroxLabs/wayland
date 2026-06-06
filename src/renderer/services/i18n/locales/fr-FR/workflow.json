@@ -1,0 +1,27 @@
+{
+  "complete": {
+    "headline": "Workflow terminé",
+    "steps": "{{n}} étapes",
+    "tokens": "{{n}} tokens",
+    "outputsTitle": "Ce que cela a produit",
+    "save": "Enregistrer cette exécution",
+    "runAgain": "Relancer",
+    "nextTitle": "À suivre"
+  },
+  "rail": {
+    "inProgress": "en cours",
+    "errored": "nécessite une attention",
+    "skipped": "ignorée",
+    "jumpToStep": "Aller à l'étape {{n}} : {{title}}",
+    "runningLabel": "En cours… ({{elapsed}})",
+    "runAutonomouslyAria": "Exécuter l'étape {{n}} de façon autonome",
+    "runAutonomously": "Exécuter de façon autonome",
+    "titleManual": "Étapes du workflow · manuel",
+    "titleAuto": "Étapes du workflow · piloté automatiquement",
+    "confirmTitle": "Exécuter l'étape {{n}} de façon autonome ?",
+    "confirmOk": "Exécuter de façon autonome",
+    "confirmCancel": "Annuler",
+    "confirmBody": "Wayland va lancer un agent autonome pour terminer l'étape {{n}} en arrière-plan. Vous pouvez continuer à discuter dans la session principale.",
+    "confirmEta": "Durée estimée : 4 à 8 minutes."
+  }
+}

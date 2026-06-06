@@ -1,0 +1,86 @@
+/**
+ * OnboardingEmptyState - "you have memory; here's how to use it" surface.
+ * Layout-only styles; typography, colors, and spacing tokens come from
+ * UnoCSS utility classes in the component to stay token-aligned.
+ */
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 32px 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  border-radius: 999px;
+}
+
+.chipInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chipIcon {
+  color: rgb(var(--primary-6));
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+@media (max-width: 1024px) {
+  .center {
+    padding: 24px 16px;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    padding: 20px 16px;
+  }
+  .card {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding: 16px 12px;
+  }
+  .card {
+    gap: 12px;
+  }
+  .chips {
+    gap: 6px;
+  }
+  .actions {
+    justify-content: stretch;
+  }
+}

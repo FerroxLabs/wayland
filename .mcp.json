@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "electromcp": {
+      "command": "npx",
+      "args": ["-y", "electromcp"]
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.postman/postman-mcp",
+  "title": "Postman",
+  "description": "Connect AI agents to your Postman workspaces, collections, environments, and API specs for testing and automation.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/postmanlabs/postman-mcp-server",
+  "repository": {
+    "url": "https://github.com/postmanlabs/postman-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@postman/postman-mcp-server",
+      "version": "2.8.9",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "POSTMAN_API_KEY",
+          "description": "API key from your Postman account (Settings → API keys).",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "api-testing",
+      "developer"
+    ],
+    "tags": [
+      "postman",
+      "api",
+      "testing",
+      "collections"
+    ],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 64,
+    "installRate": 0.12,
+    "iconUrl": "icons/postman.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#ff6c37"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Postman",
+      "providerSignupUrl": "https://postman.co/settings/me/api-keys"
+    },
+    "toolGroups": [
+      {
+        "label": "Workspaces",
+        "count": 3
+      },
+      {
+        "label": "Collections",
+        "count": 5
+      },
+      {
+        "label": "Environments",
+        "count": 3
+      },
+      {
+        "label": "API Specs",
+        "count": 3
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.postman-postman-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

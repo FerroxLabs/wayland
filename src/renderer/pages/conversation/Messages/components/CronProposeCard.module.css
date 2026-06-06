@@ -1,0 +1,114 @@
+/**
+ * v0.6.2.6 - CronProposeCard styles.
+ *
+ * Inline confirmation card rendered when the agent emits [CRON_PROPOSE]
+ * in chat. Three lifecycle variants share the base shell:
+ *   - .pending  - accent border, action buttons live
+ *   - .accepted - emerald confirmation, "View task" link
+ *   - .cancelled - muted dismiss state
+ */
+
+.shell {
+  margin: 8px 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  color: var(--color-text-1);
+  max-width: 480px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.pending {
+  border-color: rgb(var(--primary-6));
+}
+
+.accepted {
+  border-color: rgb(var(--success-6));
+  background: rgba(var(--success-6), 0.06);
+}
+
+.cancelled {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  margin-bottom: 8px;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 4px 10px;
+  margin: 8px 0;
+}
+
+.body dt {
+  color: var(--color-text-3);
+  font-size: 12px;
+  margin: 0;
+}
+
+.body dd {
+  margin: 0;
+  color: var(--color-text-1);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.prompt {
+  max-height: 6.5em;
+  overflow-y: auto;
+}
+
+/**
+ * v0.6.2.6.1 (Gemini G-S-04) - clamp Name and Schedule fields to a single
+ * line with ellipsis so an agent emitting multi-line content with weird
+ * Unicode / box-drawing chars can't spoof the card layout (e.g. fake
+ * "SYSTEM WARNING" lines). Prompt stays multi-line because that's the
+ * useful body the user is approving.
+ */
+.singleLine {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.errorTag {
+  margin-left: 8px;
+}
+
+/**
+ * v0.6.2.6.1 (Codex C-P-03) - inline explanatory text when parseError set.
+ * Tag alone says "Schedule parse error" but doesn't tell the user how to
+ * fix it; this paragraph below the tag points them at the Edit button.
+ */
+.parseErrorHelp {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-3);
+  font-style: italic;
+}

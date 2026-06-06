@@ -1,0 +1,27 @@
+{
+  "name": "business-marketing",
+  "displayName": "Business Marketing",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "URL-ingesting marketing analysis: a verb-style orchestrator, a 5-dimension weighted website audit with parallel subagent fan-out, and a section-by-section live landing-page CRO teardown. Net-new skills for the waylandskills migration; the operator role (Director/CMO) ships in the standing 54-assistant bundle and is enriched separately.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "skills": [
+      {
+        "name": "market",
+        "description": "Top-level marketing orchestrator. Parses a verb (audit, copy, emails, social, ads, funnel, competitors, landing, launch, proposal, report, report-pdf, seo, brand) and routes to the matching sub-skill. Exposes composite flows like /market full-audit <url> (parallel deep dive across content, funnel, SEO, competitors, brand) and /market quick <url> (60-second snapshot).",
+        "file": "skills/market/SKILL.md"
+      },
+      {
+        "name": "market-audit",
+        "description": "Run a 5-dimension marketing audit on any business URL. Fans out content/messaging, conversion, SEO, competitive, and brand+strategy scoring in parallel via delegate_task, then aggregates a weighted overall score and prioritized action plan into a client-ready markdown report.",
+        "file": "skills/market-audit/SKILL.md"
+      },
+      {
+        "name": "market-landing",
+        "description": "Run a section-by-section CRO teardown on a single landing page. Scores hero, value prop, social proof, features, objections, CTA, and footer; audits forms, mobile, and page speed; outputs prioritized fixes (quick wins / strategic / long-term) and A/B test hypotheses to a client-ready markdown report.",
+        "file": "skills/market-landing/SKILL.md"
+      }
+    ]
+  }
+}

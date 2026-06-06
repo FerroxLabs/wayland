@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.zapier/zapier-mcp",
+  "title": "Zapier",
+  "description": "Trigger Zapier actions across 9,000+ apps from Wayland - Gmail, Slack, Salesforce, and the rest. Zapier's official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://zapier.com/mcp",
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.zapier.com/api/v1/connect"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "automation",
+      "productivity",
+      "communication"
+    ],
+    "tags": [
+      "zapier",
+      "automation",
+      "integrations",
+      "workflows"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 52,
+    "installRate": 0.2,
+    "iconUrl": "icons/zapier.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#ff4a00"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Zapier",
+      "providerSignupUrl": "https://zapier.com/sign-up",
+      "scopes": [
+        {
+          "name": "mcp:actions",
+          "plainLanguage": "Run the actions you've enabled in your Zapier MCP configuration."
+        }
+      ]
+    },
+    "toolGroups": [
+      {
+        "label": "Actions",
+        "count": 30
+      },
+      {
+        "label": "Search",
+        "count": 2
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.zapier-zapier-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

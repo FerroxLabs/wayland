@@ -1,0 +1,233 @@
+{
+  "siderEntry": "Projekte",
+  "list": {
+    "title": "Projekte",
+    "subtitle": "Fasse zusammengehörige Chats unter einem Dach zusammen",
+    "newButton": "Neues Projekt"
+  },
+  "empty": {
+    "title": "Noch keine Projekte",
+    "body": "Erstelle ein Projekt, um zusammengehörige Chats, ihren Workspace und ihr Wissen an einem Ort zu halten. Darin kann jedes Backend, Modell oder jeder Assistent laufen.",
+    "cta": "Erstelle dein erstes Projekt"
+  },
+  "card": {
+    "pin": "Anheften",
+    "unpin": "Lösen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "more": "Mehr",
+    "noDescription": "Noch keine Beschreibung",
+    "chatCount": "{{count}} Chats"
+  },
+  "modal": {
+    "createTitle": "Neues Projekt",
+    "editTitle": "Projekt bearbeiten",
+    "createButton": "Projekt erstellen",
+    "nameLabel": "Name",
+    "namePlaceholder": "z. B. Launch-Funnel",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Worum geht es in diesem Projekt? (optional)",
+    "workspaceLabel": "Workspace-Ordner",
+    "chooseFolder": "Ordner wählen",
+    "workspaceHint": "Optional. Chats in diesem Projekt starten hier, und es wird ein .wayland/-Wissensordner erstellt, damit alle Chats denselben Kontext teilen.",
+    "colorLabel": "Farbe"
+  },
+  "workspace": {
+    "loading": "Projekt wird geladen …",
+    "edit": "Bearbeiten",
+    "newChat": "Neuer Chat in diesem Projekt",
+    "tabChats": "Chats",
+    "tabFiles": "Dateien",
+    "tabKnowledge": "Wissen",
+    "knowledgeHint": "Wissensordner: {{path}}/.wayland",
+    "emptyTitle": "Noch keine Chats in diesem Projekt",
+    "emptyBody": "Starte einen Chat mit einem beliebigen Backend, Modell oder Assistenten. Er gehört zu diesem Projekt, und du kannst so viele gleichzeitig laufen lassen, wie du möchtest.",
+    "untitledChat": "Unbenannter Chat",
+    "removeChat": "Entfernen",
+    "tabReference": "Referenz",
+    "tabMemory": "Gedächtnis",
+    "setupDone": "Eingerichtet",
+    "setupTodo": "Einrichtung abschließen",
+    "settings": "Einstellungen"
+  },
+  "assign": {
+    "title": "Zum Projekt hinzufügen",
+    "empty": "Du hast noch keine Projekte. Erstelle unten eines.",
+    "newPlaceholder": "Name des neuen Projekts",
+    "createButton": "Erstellen"
+  },
+  "delete": {
+    "title": "Projekt löschen?",
+    "body": "„{{name}}“ löschen? Die Chats bleiben erhalten und werden lediglich aus dem Projekt entfernt.",
+    "confirm": "Projekt löschen"
+  },
+  "removeChat": {
+    "title": "Aus dem Projekt entfernen?",
+    "body": "Der Chat selbst bleibt erhalten; er wird nur von diesem Projekt getrennt.",
+    "confirm": "Entfernen"
+  },
+  "history": {
+    "addToProject": "Zum Projekt hinzufügen",
+    "removeFromProject": "Aus dem Projekt entfernen"
+  },
+  "composer": {
+    "newChatIn": "Neuer Chat in {{name}}"
+  },
+  "knowledge": {
+    "title": "Projektwissen",
+    "subtitle": "Wird mit jedem Chat in diesem Projekt geteilt. Änderungen gelten für neue Chats.",
+    "saving": "Wird gespeichert",
+    "saved": "Gespeichert",
+    "saveFailed": "Speichern fehlgeschlagen. Bitte versuche es erneut.",
+    "edit": "Bearbeiten",
+    "preview": "Vorschau",
+    "save": "Speichern",
+    "generate": "Generieren",
+    "summaryLabel": "Zusammenfassung",
+    "summaryPlaceholder": "Eine einzeilige Zusammenfassung (oder generiere eine).",
+    "bodyLabel": "Inhalt",
+    "previewEmpty": "Noch nichts zur Vorschau vorhanden.",
+    "summaryEmpty": "Füge zuerst etwas Inhalt hinzu und generiere dann eine Zusammenfassung.",
+    "summaryFailed": "Zusammenfassung konnte nicht generiert werden.",
+    "noModelHint": "Verbinde ein Modell mit einem API-Schlüssel, um Zusammenfassungen automatisch zu generieren.",
+    "context": {
+      "label": "Anweisungen",
+      "placeholder": "Hintergrund und Anweisungen, die jeder Chat in diesem Projekt kennen sollte.",
+      "emptyHint": "Noch keine Anweisungen. Klicke, um gemeinsamen Kontext für jeden Chat hinzuzufügen."
+    },
+    "rules": {
+      "label": "Regeln & Konventionen",
+      "placeholder": "Konventionen, die jeder Chat befolgen sollte (optional).",
+      "emptyHint": "Noch keine Regeln. Klicke, um Konventionen hinzuzufügen, die jeder Chat befolgen soll."
+    },
+    "decisions": {
+      "label": "Entscheidungen",
+      "placeholder": "In diesem Projekt getroffene Entscheidungen, damit Chats sie nicht erneut aufrollen (optional).",
+      "emptyHint": "Noch keine Entscheidungen erfasst. Klicke, um Entscheidungen für künftige Chats festzuhalten."
+    },
+    "reference": {
+      "label": "Referenzdateien",
+      "add": "Hinzufügen",
+      "dropHint": "Dateien hier ablegen oder zum Durchsuchen klicken",
+      "remove": "Datei entfernen"
+    },
+    "fileAdded": "{{count}} Datei hinzugefügt",
+    "fileAdded_other": "{{count}} Dateien hinzugefügt",
+    "fileAddFailed": "Die Dateien konnten nicht hinzugefügt werden.",
+    "fileRemoveFailed": "Die Datei konnte nicht entfernt werden.",
+    "noWorkspaceTitle": "Noch kein Workspace-Ordner",
+    "noWorkspaceBody": "Lege einen Workspace-Ordner für dieses Projekt fest, um gemeinsame Anweisungen, Regeln und Referenzdateien hinzuzufügen.",
+    "setWorkspace": "Workspace-Ordner festlegen"
+  },
+  "toast": {
+    "created": "Projekt erstellt",
+    "updated": "Projekt aktualisiert",
+    "deleted": "Projekt gelöscht",
+    "saveFailed": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    "deleteFailed": "Das Projekt konnte nicht gelöscht werden.",
+    "chatAdded": "Zum Projekt hinzugefügt",
+    "chatRemoved": "Aus dem Projekt entfernt"
+  },
+  "settings": {
+    "title": "Projekteinstellungen",
+    "general": "Allgemein",
+    "saved": "Einstellungen gespeichert",
+    "saveFailed": "Einstellungen konnten nicht gespeichert werden.",
+    "readyDone": "Projekt eingerichtet",
+    "readyTodo": "Anweisungen hinzufügen, um die Einrichtung abzuschließen",
+    "instructionsHint": "Wird in jeden Chat dieses Projekts eingefügt.",
+    "rulesHint": "Feste Vorgaben, die jeder Chat befolgen muss.",
+    "helpWrite": "Hilf mir, das zu schreiben",
+    "needWorkspace": "Lege zuerst einen Workspace-Ordner fest, um Anweisungen und Regeln zu schreiben."
+  },
+  "reference": {
+    "title": "Referenzdateien",
+    "subtitle": "Material, auf das die KI zurückgreifen kann – Specs, Markendokumente, Daten. Verfügbar für jeden Chat in diesem Projekt.",
+    "dropTitle": "Dateien hier ablegen",
+    "dropHint": "oder zum Durchsuchen klicken · PDF, Markdown, CSV, Bilder …"
+  },
+  "memory": {
+    "title": "Projektgedächtnis",
+    "subtitle": "Entscheidungen und Erkenntnisse für dieses Projekt. Werden mit jedem Chat geteilt, damit sie nicht erneut aufgerollt werden.",
+    "add": "Entscheidung hinzufügen",
+    "save": "Speichern",
+    "placeholder": "Was wurde entschieden und warum?",
+    "addFailed": "Die Entscheidung konnte nicht gespeichert werden.",
+    "emptyTitle": "Noch keine Entscheidungen",
+    "emptyBody": "Halte Entscheidungen fest, sobald du sie triffst. Sie fließen in jeden Chat dieses Projekts ein, damit nichts erneut aufgerollt wird.",
+    "ijfwTitle": "Von IJFW entdeckt",
+    "ijfwSubtitle": "IJFWs eigenes Projektgedächtnis, schreibgeschützt angezeigt. Füge alles Wichtige oben als Entscheidung hinzu.",
+    "ijfwBadge": "IJFW",
+    "ijfwReadonly": "Schreibgeschützt · von IJFW",
+    "ijfwJournal": "Aktivitätsprotokoll",
+    "ijfwHandoff": "Übergabe"
+  },
+  "wizard": {
+    "titleInstructions": "Anweisungs-Assistent",
+    "titleRules": "Regel-Assistent",
+    "subtitle": "Beantworte ein paar kurze Fragen. Ich entwerfe ein Best-Practice-Dokument, das du bearbeiten kannst.",
+    "step": {
+      "source": "Quelle",
+      "questions": "Fragen",
+      "draft": "Entwurf"
+    },
+    "source": {
+      "q": "Erzähl mir von diesem Projekt",
+      "hint": "Ein oder zwei Sätze, füge relevanten Text ein oder lade eine Datei hoch. Je mehr ich weiß, desto besser der Entwurf.",
+      "placeholder": "z. B. Ein Produkt-Launch-Funnel für die Masterclass – Broker-Ansprache, das P&L-Modell und der Replay-Funnel.",
+      "upload": "Datei hochladen",
+      "uploadHint": "PDF, Markdown, Text …"
+    },
+    "audience": {
+      "q": "Für wen ist dieses Projekt?",
+      "customers": "Kunden / Käufer",
+      "team": "Mein Team",
+      "me": "Nur ich",
+      "developers": "Entwickler",
+      "executives": "Führungskräfte",
+      "public": "Die Öffentlichkeit"
+    },
+    "constraints": {
+      "q": "Was sollte jeder Chat immer im Hinterkopf behalten?",
+      "onBrand": "Markenkonform bleiben",
+      "concise": "Kurz und knapp halten",
+      "citeSources": "Quellen angeben",
+      "noHype": "Kein Hype",
+      "matchStyle": "Bestehenden Stil treffen",
+      "factsLocked": "Festgelegte Fakten/Zahlen verwenden",
+      "placeholder": "Noch etwas? z. B. „Die festgelegte P&L niemals neu berechnen.“"
+    },
+    "draft": {
+      "q": "Hier ist ein Entwurf",
+      "modelNote": "Bestes verfügbares Modell",
+      "generating": "Wird entworfen …",
+      "noModel": "Verbinde ein Modell mit einem API-Schlüssel, um mit KI zu entwerfen.",
+      "failed": "Ein Entwurf konnte nicht generiert werden.",
+      "retry": "Erneut versuchen"
+    },
+    "back": "Zurück",
+    "continue": "Weiter",
+    "generate": "Entwurf generieren",
+    "regenerate": "Neu generieren",
+    "useDraft": "Diesen Entwurf verwenden"
+  },
+  "newWizard": {
+    "eyebrow": "Neues Projekt",
+    "basicsTitle": "Benenne dein Projekt",
+    "basicsSub": "Zwei schnelle Schritte zu einem arbeitsbereiten Projekt. Überspringe jederzeit.",
+    "instructionsTitle": "Lege deine Anweisungen fest",
+    "instructionsSub": "Optional – entwirf sie jetzt mit KI oder füge sie später hinzu.",
+    "whatLabel": "Worum geht es?",
+    "whatHint": "eine Zeile, hilft der KI",
+    "workspaceOptional": "optional, später hinzufügen",
+    "noModelTitle": "Kein Modell verbunden",
+    "noModelBody": "Verbinde später in den Einstellungen ein Modell, um Anweisungen mit KI zu entwerfen. Du kannst sie auch von Hand schreiben.",
+    "instructionsReady": "Anweisungen bereit",
+    "redo": "Mit dem Assistenten neu erstellen",
+    "instructionsPrompt": "Die meisten Projekte funktionieren besser mit einem kurzen Anweisungsdokument, das jeder Chat teilt. Möchtest du Hilfe beim Schreiben?",
+    "draftInstructions": "Anweisungen mit KI entwerfen",
+    "orSkipBelow": "oder unten überspringen – du kannst sie jederzeit hinzufügen",
+    "skip": "Erst mal überspringen und loslegen",
+    "create": "Projekt erstellen"
+  }
+}

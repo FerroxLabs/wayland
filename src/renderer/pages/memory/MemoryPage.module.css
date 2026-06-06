@@ -1,0 +1,41 @@
+/**
+ * Memory page - Wave 3 shell. The placeholder state branches render their
+ * own inset cards; this module only owns the page-level flex column. Wave 4
+ * will extend it once the real FullPanelShell ships its own surface chrome.
+ */
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--color-bg-1);
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) {
+  .page {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 12px;
+  }
+}

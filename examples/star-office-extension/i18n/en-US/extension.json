@@ -1,0 +1,9 @@
+{
+  "displayName": "Star Office Extension",
+  "description": "Star Office style activity visualization tab for all agents.",
+  "settingsTabs": {
+    "star-office": { "name": "Star Office" },
+    "wayland-home": { "name": "Wayland Home" },
+    "wayland-issues": { "name": "Wayland Issues" }
+  }
+}

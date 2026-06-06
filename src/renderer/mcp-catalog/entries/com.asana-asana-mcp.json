@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.asana/asana-mcp",
+  "title": "Asana",
+  "description": "Tasks, projects, sections, and goals - Asana's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developers.asana.com/docs/mcp",
+  "repository": { "url": "https://github.com/Asana/asana-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.asana.com" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["productivity", "tasks"],
+    "tags": ["asana", "tasks", "project-management"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 17,
+    "installRate": 0.34,
+    "iconUrl": "icons/asana.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#f06a6a" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Asana",
+      "providerSignupUrl": "https://asana.com",
+      "scopes": [
+        { "name": "default", "plainLanguage": "Read and write tasks and projects." },
+        { "name": "task:read", "plainLanguage": "See all tasks in your workspaces." },
+        { "name": "task:write", "plainLanguage": "Create, update, and complete tasks." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Tasks", "count": 7 },
+      { "label": "Projects", "count": 5 },
+      { "label": "Sections", "count": 3 },
+      { "label": "Goals", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.asana-asana-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

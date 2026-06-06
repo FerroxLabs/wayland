@@ -1,0 +1,77 @@
+/* TimeDropdown */
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-2);
+  background: transparent;
+  font-size: 12px;
+  color: var(--color-text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s, border-color 0.1s;
+  line-height: 1.5;
+}
+
+.trigger:hover {
+  background: var(--color-fill-2);
+  border-color: var(--color-border-1);
+}
+
+.triggerActive {
+  border-color: var(--color-primary-6, #FF7A45);
+  color: var(--color-text-1);
+}
+
+.arrow {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+
+.panel {
+  min-width: 160px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.menu {
+  background: transparent;
+  border: none;
+}
+
+.optLabel {
+  font-size: 12px;
+  color: var(--color-text-2);
+}
+
+.customWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid var(--color-border-2);
+}
+
+.applyBtn {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--color-primary-6, #FF7A45);
+  background: var(--color-primary-6, #FF7A45);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.1s;
+  align-self: flex-end;
+}
+
+.applyBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

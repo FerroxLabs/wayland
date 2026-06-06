@@ -1,0 +1,33 @@
+{
+  "version": "v1",
+  "id": "imported-sandboxed-marketing-pod",
+  "name": "Sandboxed Marketing Pod",
+  "leader": {
+    "id": "research",
+    "recommendBackend": "claude"
+  },
+  "teammates": [
+    {
+      "id": "copy",
+      "name": "Copy Lead",
+      "prompt": "Draft on-brand copy that matches the research findings.",
+      "recommendBackend": "claude"
+    },
+    {
+      "id": "mira",
+      "name": "Visual Lead",
+      "prompt": "Produce visual concepts that match the copy direction.",
+      "recommendBackend": "gemini"
+    }
+  ],
+  "rituals": [
+    { "name": "Weekly review", "cadence": "weekly" }
+  ],
+  "capabilities": {
+    "canReadFiles": false,
+    "canWriteFiles": false,
+    "canSpawnAgents": false,
+    "canNetworkRequest": false,
+    "canCrossTeamMessage": false
+  }
+}

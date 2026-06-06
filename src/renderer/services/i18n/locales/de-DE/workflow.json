@@ -1,0 +1,27 @@
+{
+  "complete": {
+    "headline": "Workflow abgeschlossen",
+    "steps": "{{n}} Schritte",
+    "tokens": "{{n}} Tokens",
+    "outputsTitle": "Das wurde erstellt",
+    "save": "Diesen Lauf speichern",
+    "runAgain": "Erneut ausführen",
+    "nextTitle": "Als Nächstes"
+  },
+  "rail": {
+    "inProgress": "in Bearbeitung",
+    "errored": "erfordert Aufmerksamkeit",
+    "skipped": "übersprungen",
+    "jumpToStep": "Zu Schritt {{n}} springen: {{title}}",
+    "runningLabel": "Läuft… ({{elapsed}})",
+    "runAutonomouslyAria": "Schritt {{n}} autonom ausführen",
+    "runAutonomously": "Autonom ausführen",
+    "titleManual": "Workflow-Schritte · manuell",
+    "titleAuto": "Workflow-Schritte · automatisch gesteuert",
+    "confirmTitle": "Schritt {{n}} autonom ausführen?",
+    "confirmOk": "Autonom ausführen",
+    "confirmCancel": "Abbrechen",
+    "confirmBody": "Wayland startet einen autonomen Worker, um Schritt {{n}} im Hintergrund abzuschließen. Du kannst in der Hauptsitzung weiterchatten.",
+    "confirmEta": "Voraussichtliche Dauer: 4–8 Minuten."
+  }
+}

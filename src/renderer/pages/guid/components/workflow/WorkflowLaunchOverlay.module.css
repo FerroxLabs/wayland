@@ -1,0 +1,75 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-1);
+  opacity: 1;
+  transition: opacity 250ms ease-out;
+  pointer-events: all;
+}
+
+.fadeOut {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 28px 32px;
+  border-radius: 14px;
+  background: var(--color-fill-2);
+  border: 1px solid var(--color-border-2);
+  min-width: 280px;
+  max-width: 420px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+.workflowName {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+
+.headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.detail {
+  font-size: 13px;
+  color: var(--color-text-2);
+}
+
+.ready {
+  color: rgb(74, 222, 128);
+  font-weight: 600;
+}
+
+.check {
+  color: rgb(74, 222, 128);
+  font-weight: 700;
+}
+
+.frameBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.crystaldba/postgres-mcp",
+  "title": "Postgres",
+  "description": "Run read-only SQL, inspect schemas, and explain query plans against any Postgres database.",
+  "version": "0.3.0",
+  "websiteUrl": "https://github.com/crystaldba/postgres-mcp",
+  "repository": { "url": "https://github.com/crystaldba/postgres-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "postgres-mcp",
+      "version": "0.3.0",
+      "runtimeHint": "uvx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "DATABASE_URI", "description": "Postgres connection string (postgres://user:pass@host:port/db).", "isRequired": true, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "data"],
+    "tags": ["postgres", "sql", "database"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 43,
+    "installRate": 0.22,
+    "iconUrl": "icons/postgres.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#336791" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Your Postgres server",
+      "providerSignupUrl": "https://www.postgresql.org"
+    },
+    "toolGroups": [
+      { "label": "Query", "count": 3 },
+      { "label": "Schema", "count": 4 },
+      { "label": "Plan", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.crystaldba-postgres-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

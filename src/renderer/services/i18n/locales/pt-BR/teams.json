@@ -1,0 +1,141 @@
+{
+  "title": "Equipes",
+  "totalCount": "{{count}} equipes",
+  "siderEntry": "Equipes",
+  "emptyState": "Nenhuma equipe disponível ainda.",
+  "standingBadge": "Permanente",
+  "teamLeader": "Líder da equipe",
+  "standing": {
+    "promoteCta": "Promover a permanente",
+    "promoteCtaTooltip": "Elegível: {{sessionsRemaining}} sessões ou {{daysRemaining}} dias restantes",
+    "modalTitle": "Promover a empresa permanente",
+    "modalDescription": "Empresas permanentes persistem entre sessões, aparecem na seção dedicada Permanentes da biblioteca e exibem um selo visual fixo.",
+    "optIn1": "Entendo que esta equipe será marcada como empresa permanente em todo o aplicativo.",
+    "optIn2": "Posso rebaixar esta equipe de volta para uma equipe comum a qualquer momento.",
+    "confirmButton": "Promover a permanente",
+    "cancelButton": "Cancelar",
+    "demoteAction": "Rebaixar",
+    "promoteSuccess": "Equipe promovida a permanente",
+    "promoteError": "Falha ao promover a equipe",
+    "demoteSuccess": "Equipe rebaixada para comum",
+    "demoteError": "Falha ao rebaixar a equipe"
+  },
+  "card": {
+    "rolesCount": "{{count}} funções"
+  },
+  "buildMyOwn": {
+    "label": "Criar minha própria equipe",
+    "hint": "Comece com uma equipe em branco",
+    "cta": "Criar minha própria equipe"
+  },
+  "group": {
+    "standing": "Empresas permanentes",
+    "standingHint": "{{count}} - organizações persistentes e ritualizadas que rodam continuamente",
+    "teams": "Equipes",
+    "teamsHint": "{{count}} - esquadrões pontuais para um resultado específico. Crie, entregue, dissolva.",
+    "startNew": "Iniciar uma nova equipe"
+  },
+  "launcher": {
+    "back": "Voltar para Equipes",
+    "preconfiguredTitle": "{{name}}",
+    "buildMyOwnTitle": "Montar uma equipe",
+    "buildMyOwnSubtitle": "Escolha um líder, adicione colegas e selecione os backends. Salve e reutilize como seu próprio modelo depois.",
+    "nameLabel": "Nome da equipe",
+    "namePlaceholder": "ex.: Sprint de Lançamento, Campanha de Renovação, Refresh de Marca Q1",
+    "nameRequired": "Informe um nome para a equipe",
+    "leaderRequired": "Escolha um líder",
+    "rosterTitle": "Elenco",
+    "rosterSubtitle": "Backends escolhidos por função",
+    "leaderRoleLabel": "Líder",
+    "teammateRoleLabel": "Colega de equipe",
+    "slotNameLabel": "Nome de exibição",
+    "slotNamePlaceholder": "Nome do slot (opcional)",
+    "addTeammate": "Adicionar colega",
+    "remove": "Remover",
+    "emptyRoster": "Nenhum colega de equipe ainda.",
+    "addSpecialists": "Adicionar especialistas",
+    "rosterTip": "Dica - deixar os colegas em branco torna esta uma equipe de líder solo.",
+    "pickLeader": "Escolha um especialista como líder da equipe…",
+    "leaderMissing": "Escolha um líder",
+    "launchCta": "Lançar equipe",
+    "launchingCta": "Lançando…",
+    "createTeamCta": "Criar equipe",
+    "cancelCta": "Cancelar",
+    "loadError": "Falha ao carregar esta equipe.",
+    "launchError": "Falha ao lançar a equipe.",
+    "specialistNotFound": "(especialista ausente)",
+    "backendPickerPlaceholder": "Backend",
+    "goalLabel": "Descreva o que você está fazendo - eu sugiro um elenco",
+    "goalPlaceholder": "ex.: Estamos lançando um funil de livro pago e precisamos de uma pequena equipe para entregá-lo em duas semanas.",
+    "suggestCta": "Sugerir",
+    "suggestSuccess": "Elenco sugerido",
+    "suggestFellBackToDefaults": "Escolhemos um elenco padrão (nenhuma palavra-chave do objetivo correspondeu)",
+    "suggestError": "Falha ao sugerir o elenco",
+    "pickerTitle": "Adicionar um colega de equipe",
+    "pickerSearch": "Buscar especialistas",
+    "pickerEmpty": "Nenhum especialista encontrado.",
+    "pickerCancel": "Cancelar"
+  },
+  "rightRail": {
+    "teammates": "Colegas de equipe",
+    "workspace": "Espaço de trabalho",
+    "workspaceLinked": "Navegue pelos arquivos no painel do espaço de trabalho →",
+    "workspaceEmpty": "Nenhum espaço de trabalho vinculado a esta equipe ainda.",
+    "rituals": "Rituais",
+    "ritualsEmpty": "Sem rituais - não é uma empresa permanente.",
+    "roleLeader": "líder",
+    "roleSpecialist": "especialista",
+    "addTeammate": "Adicionar colega",
+    "addTeammateSuccess": "Colega adicionado",
+    "addTeammateError": "Falha ao adicionar colega",
+    "restartAgent": "Reiniciar",
+    "restartAgentSuccess": "Reinício iniciado",
+    "restartAgentError": "Falha ao reiniciar o agente"
+  },
+  "activity": {
+    "tabLabel": "Atividade",
+    "empty": "Nenhuma atividade da equipe ainda."
+  },
+  "activeSidebar": {
+    "title": "Ativo",
+    "rollup": "{{tokens}} tokens · ~{{usd}} esta semana"
+  },
+  "import": {
+    "button": "Importar equipe",
+    "title": "Revisar recursos da equipe",
+    "intro": "Esta equipe declara os recursos a seguir. Conceda apenas aquilo em que você confia.",
+    "trustSelectedCta": "Confiar nos selecionados",
+    "trustSelectedCtaCountdown": "Confiar nos selecionados ({{seconds}}s)",
+    "sandboxCta": "Modo sandbox (sem recursos)",
+    "cancelCta": "Cancelar",
+    "missingSpecialists": "Especialistas ausentes: {{names}}. Instale-os primeiro ou use uma equipe diferente.",
+    "networkNotice": "O acesso à rede para equipes importadas está desativado no momento. Este recurso não pode ser concedido na v1.",
+    "success": "Equipe importada",
+    "error": "Falha ao importar a equipe",
+    "busyError": "Fila de importação cheia - tente novamente em alguns segundos",
+    "fileReadError": "Não foi possível ler o arquivo",
+    "cap": {
+      "canReadFiles": "Ler arquivos do espaço de trabalho",
+      "canReadFilesDesc": "Concede aos agentes desta equipe acesso de leitura aos arquivos dentro da sua pasta de espaço de trabalho. Os diretórios .env, .ssh e node_modules/.bin/.cache estão sempre bloqueados.",
+      "canWriteFiles": "Gravar arquivos do espaço de trabalho",
+      "canWriteFilesDesc": "Concede acesso de gravação + mkdir dentro do seu espaço de trabalho. Symlinks estão sempre bloqueados. Caminhos protegidos são sempre negados.",
+      "canSpawnAgents": "Criar novos colegas de equipe",
+      "canSpawnAgentsDesc": "Permite que o líder amplie o elenco em tempo de execução via team_spawn_agent.",
+      "canNetworkRequest": "Fazer requisições de rede",
+      "canNetworkRequestDesc": "Permite chamadas fetch/https.request a partir dos processos dos agentes.",
+      "canCrossTeamMessage": "Enviar mensagens para outras equipes",
+      "canCrossTeamMessageDesc": "Permite que team_send_message entregue mensagens a equipes fora desta."
+    }
+  },
+  "noResults": "Nenhuma equipe corresponde à sua pesquisa.",
+  "controls": {
+    "searchPlaceholder": "Pesquisar equipes",
+    "sortLabel": "Ordenar"
+  },
+  "sort": {
+    "default": "Padrão",
+    "name": "Nome (A-Z)",
+    "roles": "Mais funções",
+    "schedule": "Agenda"
+  }
+}

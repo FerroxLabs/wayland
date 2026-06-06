@@ -1,0 +1,43 @@
+{
+  "title": "Assistenten",
+  "totalCount": "{{count}} Assistenten",
+  "siderEntry": "Assistenten",
+  "emptyState": "Keine Assistenten entsprechen deinen Filtern.",
+  "card": {
+    "backendHint": "· Läuft auf {{backend}} · ändern ⌄",
+    "menuAria": "Menü für {{name}} öffnen"
+  },
+  "buildMyOwn": {
+    "label": "Eigenen erstellen",
+    "hint": "Mit einem leeren Assistenten beginnen",
+    "cta": "Eigenen erstellen"
+  },
+  "group": {
+    "teams": "Teams",
+    "specialists": "Spezialisten",
+    "builtins": "Integrierte"
+  },
+  "filterRail": {
+    "aria": "Assistenten-Filter",
+    "searchPlaceholder": "Assistenten suchen",
+    "typeLabel": "Typ",
+    "domainLabel": "Bereich",
+    "reset": "Filter zurücksetzen",
+    "type": {
+      "all": "Alle",
+      "team": "Teams",
+      "specialist": "Spezialisten",
+      "builtin": "Integrierte"
+    },
+    "domain": {
+      "all": "Alle",
+      "sell": "Verkauf",
+      "write": "Schreiben",
+      "research": "Recherche",
+      "build": "Erstellen",
+      "run": "Betrieb",
+      "office": "Büro",
+      "general": "Allgemein"
+    }
+  }
+}

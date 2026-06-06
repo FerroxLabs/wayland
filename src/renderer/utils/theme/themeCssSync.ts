@@ -1,0 +1,82 @@
+import { type ICssTheme } from '@/common/config/storage';
+
+/**
+ * Default theme ID - when this is the active theme, the resolved CSS is empty
+ * (the base wayland color scheme handles all styling).
+ */
+export const DEFAULT_THEME_ID = 'default-theme';
+
+export const CSS_SYNC_RECENT_UPDATE_WINDOW_MS = 2000;
+
+/**
+ * Extension themes cache.
+ * Populated by extension consumers when they load themes from main process.
+ * This avoids requiring async IPC calls in the sync resolution path.
+ */
+let extensionThemesCache: ICssTheme[] = [];
+
+/** Update the extension themes cache */
+export const setExtensionThemesCache = (themes: ICssTheme[]): void => {
+  extensionThemesCache = themes;
+};
+
+/** Get the current extension themes cache */
+export const getExtensionThemesCache = (): ICssTheme[] => extensionThemesCache;
+
+type ComputeCssSyncDecisionParams = {
+  savedCss: string;
+  activeThemeId: string;
+  savedThemes: ICssTheme[];
+  currentUiCss: string;
+  lastUiCssUpdateAt: number;
+  now?: number;
+};
+
+type ComputeCssSyncDecisionResult = {
+  shouldSkipApply: boolean;
+  shouldHealStorage: boolean;
+  effectiveCss: string;
+};
+
+export const resolveCssByActiveTheme = (activeThemeId: string, userThemes: ICssTheme[]): string => {
+  const allThemes = [...extensionThemesCache, ...(userThemes || [])];
+  const resolvedId = activeThemeId || DEFAULT_THEME_ID;
+  if (resolvedId === DEFAULT_THEME_ID) return '';
+  const match = allThemes.find((theme) => theme.id === resolvedId);
+  return match?.css || '';
+};
+
+export const computeCssSyncDecision = ({
+  savedCss,
+  activeThemeId,
+  savedThemes,
+  currentUiCss,
+  lastUiCssUpdateAt,
+  now = Date.now(),
+}: ComputeCssSyncDecisionParams): ComputeCssSyncDecisionResult => {
+  const normalizedSavedCss = savedCss || '';
+  const expectedCss = resolveCssByActiveTheme(activeThemeId || '', savedThemes || []);
+
+  if (Boolean(activeThemeId) && normalizedSavedCss !== expectedCss) {
+    return {
+      shouldSkipApply: false,
+      shouldHealStorage: true,
+      effectiveCss: expectedCss,
+    };
+  }
+
+  const recentUiUpdate = now - lastUiCssUpdateAt < CSS_SYNC_RECENT_UPDATE_WINDOW_MS;
+  if (recentUiUpdate && currentUiCss && normalizedSavedCss !== currentUiCss) {
+    return {
+      shouldSkipApply: true,
+      shouldHealStorage: false,
+      effectiveCss: currentUiCss,
+    };
+  }
+
+  return {
+    shouldSkipApply: false,
+    shouldHealStorage: false,
+    effectiveCss: normalizedSavedCss,
+  };
+};

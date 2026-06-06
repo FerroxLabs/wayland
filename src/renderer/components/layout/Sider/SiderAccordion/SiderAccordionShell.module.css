@@ -1,0 +1,86 @@
+/* v0.6.2.1 Fix D2/D3 - accordion headers read as section labels (small-caps,
+   tracking-wide, lighter color, 11px) so the duplication with TopZone nav
+   entries reads as hierarchy, not redundancy. The TopZone entry is the
+   "navigate / create" affordance; the accordion is the "what's running
+   right now" status surface. */
+.acc {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  /* v0.6.2.1 Fix D4 - flex-shrink:0 prevents the parent scrollZone from
+     squashing accordion children to fit, which previously triggered the
+     overflow:hidden clip and made body content collide with the next
+     section at default (non-fullscreen) window sizes. The scrollZone has
+     overflow-y:auto for real overflow; accordions keep their natural
+     content height. overflow:visible lets bodies overflow naturally so
+     getBoundingClientRect stays accurate and there is no clipping. */
+  flex-shrink: 0;
+  overflow: visible;
+  margin-bottom: 6px;
+}
+.acc:last-child {
+  margin-bottom: 0;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--color-text-3);
+  border-radius: 7px;
+  transition: background 0.12s, color 0.12s;
+}
+.header:hover {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+}
+.header:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: -2px;
+}
+.chev {
+  color: var(--color-text-4);
+  transition: transform 0.18s;
+  flex-shrink: 0;
+}
+.chevOpen {
+  transform: rotate(90deg);
+  color: var(--color-text-3);
+}
+.icon {
+  width: 14px;
+  flex-shrink: 0;
+  text-align: center;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+.badge {
+  background: var(--color-fill-3);
+  color: var(--color-text-2);
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 9.5px;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.4;
+}
+.badge.live {
+  background: rgb(var(--primary-6));
+  color: rgb(255 255 255);
+  box-shadow: 0 0 0 3px rgba(var(--primary-6), 0.18);
+}
+.body {
+  padding: 2px 0 6px 0;
+}

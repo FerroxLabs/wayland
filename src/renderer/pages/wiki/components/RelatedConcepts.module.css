@@ -1,0 +1,40 @@
+/**
+ * RelatedConcepts - pill chip row.
+ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+  outline: none;
+  user-select: none;
+}
+
+.chip:hover {
+  border-color: rgba(255, 122, 69, 0.35);
+  background: var(--orange-tint, rgba(255, 122, 69, 0.12));
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--orange, var(--color-primary-6, #ff7a45));
+  outline-offset: 2px;
+}

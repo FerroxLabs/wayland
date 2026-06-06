@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.sentry/sentry-mcp",
+  "title": "Sentry",
+  "description": "Issues, events, releases, and performance traces - Sentry's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.sentry.io/product/mcp",
+  "repository": { "url": "https://github.com/getsentry/sentry-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.sentry.dev" }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "observability"],
+    "tags": ["sentry", "errors", "monitoring"],
+    "maintainerType": "official",
+    "license": "BSL-1.1",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 40,
+    "installRate": 0.19,
+    "iconUrl": "icons/sentry.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#362d59" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Sentry",
+      "providerSignupUrl": "https://sentry.io",
+      "scopes": [
+        { "name": "project:read", "plainLanguage": "Read projects and issues." },
+        { "name": "event:read", "plainLanguage": "Read events and traces." },
+        { "name": "project:write", "plainLanguage": "Resolve issues and tag releases." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Issues", "count": 5 },
+      { "label": "Events", "count": 3 },
+      { "label": "Releases", "count": 3 },
+      { "label": "Performance", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.sentry-sentry-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

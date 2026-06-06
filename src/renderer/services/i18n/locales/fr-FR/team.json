@@ -1,0 +1,76 @@
+{
+  "sider": {
+    "title": "Équipes",
+    "createTeam": "Nouvelle équipe",
+    "pin": "Épingler",
+    "unpin": "Désépingler",
+    "rename": "Renommer",
+    "delete": "Supprimer",
+    "renameTitle": "Renommer l'équipe",
+    "renamePlaceholder": "Nom de l'équipe",
+    "deleteConfirm": "Supprimer cette équipe ?",
+    "deleteConfirmContent": "Cette action est irréversible.",
+    "deleteConfirmTitle": "Supprimer l'équipe ?",
+    "deleteConfirmBody": "Cela supprimera définitivement {{teamName}} et son historique de conversation. Saisissez « delete » ci-dessous pour confirmer.",
+    "deleteConfirmCta": "Supprimer l'équipe",
+    "deleteConfirmCancelCta": "Annuler",
+    "deleteConfirmInputPlaceholder": "delete",
+    "deleteOk": "Supprimer",
+    "deleteCancel": "Annuler",
+    "renameOk": "Enregistrer",
+    "renameCancel": "Annuler",
+    "renameSuccess": "Équipe renommée",
+    "deleteSuccess": "Équipe supprimée"
+  },
+  "newAgent": "Nouvel agent",
+  "noMessages": "Aucun message pour le moment.",
+  "agentNotConfigured": "Agent pas encore configuré.",
+  "sendBox": {
+    "placeholder": "Message à l'agent de répartition..."
+  },
+  "create": {
+    "title": "Créer une équipe",
+    "namePlaceholder": "Nom de l'équipe",
+    "dispatchAgentPlaceholder": "Sélectionner le chef d'équipe",
+    "subAgentsPlaceholder": "Sélectionner les sous-agents",
+    "workspacePlaceholder": "Chemin de l'espace de travail (facultatif)",
+    "confirm": "Créer une équipe",
+    "noSupportedAgents": "Aucun agent pris en charge installé",
+    "supportedAgentsHint": "Prend actuellement en charge Claude et Codex. D'autres agents arrivent bientôt.",
+    "leaderDesc": "Comprend vos objectifs et coordonne les agents pour accomplir les tâches",
+    "step": {
+      "dispatch": "Chef d'équipe",
+      "subAgents": "Sous-agents",
+      "workspace": "Espace de travail"
+    },
+    "nameRequired": "Veuillez saisir un nom d'équipe",
+    "leaderRequired": "Veuillez sélectionner un chef d'équipe",
+    "selectFolder": "Sélectionner un dossier",
+    "recentLabel": "Récents",
+    "chooseDifferentFolder": "Choisir un autre dossier",
+    "error": "Échec de la création de l'équipe"
+  },
+  "removeAgent": {
+    "confirmTitle": "Retirer le membre de l'équipe",
+    "confirmContent": "Ce membre est actuellement actif. Forcer le retrait ?"
+  },
+  "emptyState": {
+    "subtitle": "Décrivez votre objectif et je mettrai l'équipe au travail dessus",
+    "suggestions": {
+      "debate": "Organiser un débat entre des agents défendant des points de vue différents",
+      "interview": "Planifier un entretien approfondi entre agents",
+      "expert_review": "Faire analyser le même problème par plusieurs experts"
+    }
+  },
+  "errors": {
+    "loadFailed": {
+      "title": "Cette équipe n'a pas pu être chargée",
+      "body": "Elle a peut-être été supprimée ou ses données ne sont plus disponibles. Revenez à la bibliothèque d'équipes pour en choisir une autre ou en démarrer une nouvelle.",
+      "backCta": "Retour aux équipes"
+    }
+  },
+  "agentBackendSwap": {
+    "success": "Backend de l'agent modifié",
+    "error": "Échec de la modification du backend de l'agent"
+  }
+}

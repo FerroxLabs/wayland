@@ -1,0 +1,42 @@
+{
+  "sidebarLabel": "Mission Control",
+  "pageTitle": "Mission Control",
+  "description": "Every task and scheduled job across your teams, live in one place.",
+  "refresh": "Refresh",
+  "live": "Live",
+  "empty": "All quiet",
+  "emptyHint": "Team tasks and scheduled jobs appear here the moment they start.",
+  "status": {
+    "running": "Running",
+    "verifying": "Verifying",
+    "pending": "Pending",
+    "blocked": "Blocked",
+    "failed": "Failed",
+    "zombie": "Stalled",
+    "done": "Done",
+    "idle": "Idle"
+  },
+  "source": {
+    "team": "Team",
+    "cron": "Schedule"
+  },
+  "section": {
+    "attention": "Needs attention",
+    "active": "Active now",
+    "verifying": "Verifying",
+    "scheduled": "Scheduled",
+    "done": "Completed",
+    "idle": "Idle"
+  },
+  "meta": {
+    "blockedBy_one": "Blocked by {{count}} task",
+    "blockedBy_other": "Blocked by {{count}} tasks",
+    "nextRun": "Next run {{time}}",
+    "updated": "Updated {{time}}",
+    "heartbeat": "Heartbeat {{time}}",
+    "retries": "Retry {{used}}/{{total}}",
+    "verdictPass": "Verified",
+    "verdictFail": "Failed audit",
+    "needsHuman": "Needs review"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "memory": "Память",
+  "fluxRouter": {
+    "label": "Статус Flux",
+    "connect": {
+      "body": "Каждый запрос направляется во флагманскую модель. Flux Router подбирает подходящую модель для каждого запроса.",
+      "action": "Подключить Flux Router"
+    },
+    "install": {
+      "body": "Codex, Cursor, Claude Code ещё не маршрутизируются. Flux Desktop подключает все три в один клик.",
+      "action": "Установить Flux Desktop",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "На прошлой неделе локальная Ollama обработала {{pct}}%. Flux Router возьмёт на себя остальное, когда мощности не хватит.",
+      "action": "Настроить запасной вариант"
+    },
+    "wired": {
+      "body": "Последние 100: H{{h}} · S{{s}} · O{{o}}",
+      "action": "Посмотреть, куда ушёл каждый запрос"
+    }
+  },
+  "accordion": {
+    "scheduled": "Запланированные задачи",
+    "workflows": "Рабочие процессы",
+    "teams": "Команды",
+    "recentChats": "Недавние чаты",
+    "inFlight": "В работе",
+    "running": "Выполняется",
+    "recentlyLaunched": "Недавно запущенные",
+    "myTeams": "Мои команды",
+    "seeAllWorkflows": "Все рабочие процессы →",
+    "seeAllScheduled": "Все запланированные →",
+    "seeAllChats": "Все чаты →",
+    "showMore": "Показать ещё {{count}} →"
+  }
+}

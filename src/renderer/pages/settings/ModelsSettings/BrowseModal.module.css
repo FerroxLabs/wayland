@@ -1,0 +1,202 @@
+/* Browse-all-providers modal - mirrors prototype `#overlay-browse`.
+   All colors use semantic tokens - no white-on-white. Muted text is
+   `var(--color-text-2)` (WCAG AA ≥ 4.5:1). */
+
+.modal {
+  width: 560px;
+}
+
+/* Arco's default modal body padding is removed so the search bar and the
+   scrollable body can manage their own padding. */
+.modal :global(.arco-modal-content) {
+  padding: 0;
+}
+
+/* ---- Header ---- */
+.head {
+  padding: 20px 20px 0;
+}
+
+.back :global(.arco-btn) {
+  padding: 2px 4px;
+  height: auto;
+  margin-bottom: 6px;
+  color: var(--color-text-2);
+}
+
+.back :global(.arco-btn:hover) {
+  color: var(--color-text-1);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-1);
+}
+
+.sub {
+  font-size: 12.5px;
+  color: var(--color-text-2);
+  line-height: 1.5;
+  margin-top: 3px;
+}
+
+/* ---- Search ---- */
+.searchWrap {
+  padding: 14px 20px 4px;
+}
+
+/* ---- Scrollable provider body ---- */
+.body {
+  padding: 4px 20px 20px;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+
+.noMatch {
+  font-size: 13px;
+  color: var(--color-text-2);
+  text-align: center;
+  padding: 36px 0;
+  line-height: 1.5;
+}
+
+/* ---- Group label ---- */
+.groupLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 15px 2px 9px;
+}
+
+/* ---- Provider grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 10px;
+  padding: 10px 11px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  height: auto;
+  width: 100%;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.tile:hover {
+  border-color: var(--brand-soft-border);
+  background: var(--color-fill-1);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+/* Arco Button's inner span - the children flex naturally inside it. */
+.tile :global(.arco-btn-content) {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+}
+
+.tileAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tileName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  line-height: 1.2;
+}
+
+.tileSub {
+  font-size: 9.5px;
+  color: var(--color-text-2);
+  margin-top: 1px;
+}
+
+/* ---- Connected tag ---- */
+.connectedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: var(--success-soft-bg);
+  color: var(--success);
+}
+
+/* ---- Single-key form view ---- */
+.keyForm {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 20px 20px;
+}
+
+.keyLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 7px;
+}
+
+.keyError {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--danger-soft-bg);
+  border: 1px solid var(--danger-soft-border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--danger);
+  line-height: 1.45;
+}
+
+.keyError svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.keySubmit {
+  margin-top: 14px;
+}

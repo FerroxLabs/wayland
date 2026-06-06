@@ -1,0 +1,191 @@
+{
+  "brand": "Wayland",
+  "welcome": "欢迎使用 Wayland",
+  "footer": {
+    "manage": "检测仅运行一次。可随时在 设置 → 提供商 中更改。",
+    "noLockIn": "以上选项都不会把你锁定。",
+    "keysKeepWorking": "无论如何，你的密钥都会继续工作。Flux Router 位于其上，绝不挡在前面。",
+    "skip": "暂时跳过"
+  },
+  "connect": {
+    "title": "连接 Flux Router",
+    "subtitle": "粘贴你的 Flux Router 密钥。一把密钥，覆盖所有模型，按请求智能路由。",
+    "keyLabel": "Flux Router 密钥",
+    "keyPlaceholder": "sk-...",
+    "getKey": "在 fluxrouter.ai 获取密钥",
+    "submit": "连接",
+    "connecting": "连接中...",
+    "back": "返回",
+    "errorUnauthorized": "该密钥被拒绝。请检查后重试。",
+    "errorNoCredit": "该账户尚无余额。请在 fluxrouter.ai 充值后重试。",
+    "errorOffline": "无法连接 Flux Router。请检查网络后重试。",
+    "errorUnrecognized": "这看起来不像 Flux Router 密钥，应以 sk-flux- 开头。",
+    "errorNoModels": "已连接，但未返回任何模型。请稍后重试。",
+    "errorUnknown": "连接出错，请重试。",
+    "trust": "来自 Ferrox Labs，Wayland 背后的团队。"
+  },
+  "scenarioA": {
+    "greeting": "{{name}}，你已就绪",
+    "subGeneric": "你的工具已被检测到并处于活动状态。",
+    "sutherlandLede": "固定一个旗舰模型，它会回答一切，连不需要它的小事也是。",
+    "sutherlandBody": "我们推荐 Flux Router。它会在你已有的资源中为每个请求挑选合适的模型：你的订阅、本地 Ollama、你的 Anthropic 密钥。该用强的地方保持同等质量，不需要时用更轻的模型。你不再挑选，它来挑选，你只管写。",
+    "microTrust": "难题向上路由，绝不向下。下限由你在设置中决定。",
+    "primary": "设置 Flux Router",
+    "ghost": "在接下来的 10 轮中试用"
+  },
+  "scenarioB": {
+    "greeting": "欢迎使用 Wayland",
+    "sub": "选一种方式开始。其余的随时再加。",
+    "heroTag": "推荐",
+    "heroTitle": "Flux Router",
+    "heroBody": "一把密钥，覆盖所有模型。它为每个请求挑选合适的模型，让你不再猜测。花更少，做更多。",
+    "heroFoot": "按量付费 · 无订阅 · 无最低消费",
+    "heroCta": "连接 Flux Router",
+    "pasteKeyTitle": "粘贴提供商密钥",
+    "pasteKeyBody": "Anthropic、OpenAI、Google、DeepSeek、Moonshot 等等。我们的智能密钥识别器会自动判断它属于哪一家。",
+    "pasteKeyFoot": "保存前已测试",
+    "ollamaTitle": "安装 Ollama",
+    "ollamaBody": "在你的机器上运行本地模型。如果你有 GPU 且不希望任何数据离开本机，这是最佳选择。",
+    "ollamaFoot": "至少 16 GB 显存 · 打开 ollama.com"
+  },
+  "scenarioC": {
+    "greeting": "{{name}}，你的密钥正常工作",
+    "subGeneric": "已检测并处于活动状态。现在一切正常。Flux Router 按请求在你的多把密钥之间路由。你的密钥，你的账单。",
+    "sutherlandLede": "每把密钥都能用。我们仍建议把 Flux Router 放在它们之上，原因如下。",
+    "sutherlandBody": "现在每个请求都付旗舰价，连不需要的也一样。Flux Router 会在该用 Haiku 时用你的密钥跑 Haiku，该用 GPT-5 时用你的密钥跑 GPT-5。在不需要旗舰的问题上成本大约只有 1/20，需要时质量不变。",
+    "microTrust": "提示词直连提供商。Flux Router 只看到路由决策，不看消息正文。",
+    "primary": "在其上添加 Flux Router",
+    "ghost": "继续手动选择"
+  },
+  "scenarioD": {
+    "greeting": "{{name}}，运转得正欢",
+    "sub": "Flux Desktop 已上线。你的路由正通过 Flux Router 运行。",
+    "body": "每一轮都用对模型。难题向上路由，小事走更轻的模型。",
+    "primary": "开始对话",
+    "dismiss": "关闭"
+  },
+  "chips": {
+    "cli": "{{name}} · CLI",
+    "claudePro": "Claude Code · Pro",
+    "ollama": "Ollama · {{count}} 个本地模型",
+    "ollama_one": "Ollama · {{count}} 个本地模型",
+    "envKey": "{{name}} 密钥 · 环境变量",
+    "fluxRouter": "Flux Router · 已激活",
+    "fluxDesktop": "Flux Desktop · 守护进程 :7878"
+  },
+  "flow": {
+    "personas": {
+      "content": "Content & creative",
+      "sales": "Sales & growth",
+      "business": "Running a business",
+      "dev": "Building / dev",
+      "finance": "Finance & money",
+      "general": "A bit of everything"
+    },
+    "scanLines": {
+      "path": "Checking PATH…",
+      "env": "Reading environment keys…",
+      "models": "Pinging local models…",
+      "almost": "Almost there…"
+    },
+    "logoAlt": {
+      "wordmark": "Wayland"
+    },
+    "flux": {
+      "title": "Get the best answer. Pay the right price. And get it done faster.",
+      "body": "Flux Router is the #1 smart router - the only one that matches every prompt to its best-fit model across 40+ premium models. One key, one bill, the same quality you would get going direct.",
+      "cta": "Set up Flux Router →"
+    },
+    "key": {
+      "placeholder": "Paste a provider key, then press Enter",
+      "ariaConnect": "Connect key",
+      "detected": "{{label}} key detected, tested and added to your pool.",
+      "notRecognized": "That key wasn't recognized. Check it and try again.",
+      "needsFields": "That provider needs more than a key - finish setup in Settings → Models.",
+      "didNotConnect": "That key did not connect. Check it and try again."
+    },
+    "errors": {
+      "googleFailed": "Could not connect Google. Please try again.",
+      "geminiFailed": "Signed in with Google, but loading Gemini models failed. Please try again.",
+      "fluxFailed": "Flux did not finish connecting. Try again."
+    },
+    "quickstart": {
+      "headline": "First - what should I call you",
+      "sub": "So Wayland knows what to call you. Next we'll see what's already on your machine.",
+      "googleButton": "Continue with Google",
+      "freeNote": "Free with your Google account · basic Gemini limits · nothing to pay",
+      "changeLater": "You can change everything later.",
+      "skip": "Skip, I'll do this later →",
+      "namePlaceholder": "Your name",
+      "continue": "Continue"
+    },
+    "scan": {
+      "headlineCleanSlate": "Clean slate",
+      "headlineFoundNamed": "OK {{name}}, here's what we found and connected for you",
+      "headlineFound": "Here's what we found and connected for you",
+      "headlineScanningNamed": "Seeing what you already have, {{name}}",
+      "headlineScanning": "Seeing what you already have installed",
+      "subCleanSlate": "No tools, keys or local models found. Let us get you a model and you're in.",
+      "subFound": "Everything below is already on this machine. We wired up what we can.",
+      "subScanning": "A quick local look for tools, keys and models. Runs on your machine. Nothing leaves your device.",
+      "groupAgents": "Agents",
+      "groupModels": "Models",
+      "timeNote": "About 60 seconds, and most of it was the scan.",
+      "continue": "Continue"
+    },
+    "chips": {
+      "claudePro": "Claude Pro",
+      "envKey": "{{label}} key",
+      "ollama": "Ollama · {{count}} local",
+      "flux": "Flux Router",
+      "gemini": "Gemini · Google"
+    },
+    "outcome": {
+      "wiredHeadline": "you're all wired up",
+      "wired": "{{label}}, wired and tested. ",
+      "wiredSubTail": "Your best model is selected automatically, change anything in Settings.",
+      "failedNote": "{{label}} {{was}} found but could not be verified. You can re-add {{them}} in Settings.",
+      "failedWas": "was",
+      "failedWere": "were",
+      "failedIt": "it",
+      "failedThem": "them",
+      "addMore": "Got more? Add another key and we'll wire it in.",
+      "cliHeadline": "your tools are detected",
+      "cliSub": "Your installed tools are ready. We'll connect to one on your first message.",
+      "cliNote": "We can see they're installed, not whether they're signed in. If one isn't, we'll walk you through it in a single step. No broken first message.",
+      "readyHeadline": "you're all ready to go",
+      "readySub": "Gemini is live through your Google account. That's everything you need to start right now.",
+      "readyFluxBody": "Free Gemini gets you started. Flux is the upgrade: One key, one bill, 40+ premium models with the best-fit match on every prompt. Same quality you would get going direct.",
+      "readyPasteLabel": "Already have a provider key? Paste it and we'll detect it.",
+      "coldHeadline": "Let's get you a model",
+      "coldSubFailed": "We found {{label}} but couldn't verify {{them}}. Pick a working option below.",
+      "coldSub": "One choice and you're in. Add more anytime.",
+      "doorFluxTitle": "Flux Router",
+      "doorFluxRecommended": "Recommended",
+      "doorFluxBody": "One key, every model. The right tool for each job, smart-routed.",
+      "doorFluxFoot": "Free to start · no card · opens your browser",
+      "doorGoogleTitle": "Continue with Google",
+      "doorGoogleBody": "Free with your Google account. Gemini in your picker, and we'll greet you by name.",
+      "doorGoogleFoot": "Genuinely free · basic limits",
+      "doLater": "I'll do this later",
+      "editableLater": "Everything is editable later.",
+      "continue": "Continue",
+      "geminiKeyHint": "No key yet?",
+      "geminiKeyLink": "Get a free Gemini key →"
+    },
+    "interests": {
+      "headlineNamed": "What are you working on, {{name}}",
+      "headline": "What are you working on",
+      "sub": "Pick what fits. We load the right assistants, tools and shortcuts for each. Choose as many as you like.",
+      "workPlaceholder": "Optional: a line about your work, so your assistants know your world",
+      "skip": "Skip",
+      "settingUp": "Setting things up",
+      "startInChat": "Start in chat"
+    },
+    "allset": {
+      "headline": "you're all set",
+      "sub": "Everything is wired and ready. Let's go.",
+      "go": "Let's go"
+    }
+  }
+}

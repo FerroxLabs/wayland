@@ -1,0 +1,96 @@
+<!doctype html>
+<!--
+  Red-team fixture for redteam-extension.e2e.ts.
+
+  This page is INTENTIONALLY hostile in its *intent*: every script block tries
+  one specific sandbox-escape vector and writes the outcome to
+  `window.name === 'redteam-frame' ? top : window` via postMessage. None of the
+  attempts are working exploits - they rely on the iframe's sandbox attribute
+  being weaker than expected. If the iframe is loaded with `sandbox='allow-scripts'`
+  (per the H2 fix in f0923bdc9), every probe below MUST be blocked by the
+  browser's same-origin / unique-origin policy.
+
+  postMessage works across origins (that's the whole point of the API), so
+  the parent test can observe results.
+-->
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <title>redteam extension probe</title>
+  </head>
+  <body>
+    <div id='out'>red-team probe loaded</div>
+    <script>
+      // Helper: report result back to the parent (postMessage is allowed
+      // across origins even with sandbox='allow-scripts').
+      function report(probe, status, detail) {
+        try {
+          window.parent.postMessage(
+            { source: 'redteam-probe', probe: probe, status: status, detail: String(detail).slice(0, 200) },
+            '*'
+          );
+        } catch (e) {
+          // Even postMessage failing would be notable, but extremely unlikely.
+        }
+      }
+
+      // ── Probe 1: parent.document access (should throw on a sandboxed frame
+      // without allow-same-origin - the frame's origin is opaque/unique). ──
+      try {
+        // eslint-disable-next-line no-unused-vars
+        var doc = window.parent.document;
+        // If we got here, same-origin restriction did NOT engage.
+        report('parent-document', 'BYPASSED', 'parent.document was reachable');
+      } catch (err) {
+        report('parent-document', 'BLOCKED', err && err.message ? err.message : 'cross-origin');
+      }
+
+      // ── Probe 2: parent.postMessage - should succeed (postMessage is the
+      // designated cross-origin channel). This is a positive control. ──
+      try {
+        window.parent.postMessage({ source: 'redteam-probe', probe: 'postmessage', status: 'OK' }, '*');
+      } catch (err) {
+        report('postmessage', 'BLOCKED', err && err.message ? err.message : 'unexpected');
+      }
+
+      // ── Probe 3: top.location.href assignment (cross-origin nav).
+      // With a unique-origin sandbox, the frame cannot navigate `top`. ──
+      try {
+        // eslint-disable-next-line no-script-url
+        window.top.location.href = 'javascript:void(0)';
+        report('top-location', 'BYPASSED', 'top.location was writable');
+      } catch (err) {
+        report('top-location', 'BLOCKED', err && err.message ? err.message : 'cross-origin');
+      }
+
+      // ── Probe 4: document.domain set - historically a same-origin coercion
+      // trick. Sandboxed unique-origin frames must reject this. ──
+      try {
+        document.domain = 'localhost';
+        // Setting document.domain on a unique-origin frame throws SecurityError
+        // in compliant browsers. If we land here, log a soft bypass.
+        report('document-domain', 'BYPASSED', 'document.domain was writable: ' + document.domain);
+      } catch (err) {
+        report('document-domain', 'BLOCKED', err && err.message ? err.message : 'security-error');
+      }
+
+      // ── Probe 5: document.cookie read. Sandbox without allow-same-origin
+      // means cookies are not accessible. ──
+      try {
+        var c = document.cookie;
+        // Empty string is the safe outcome - the browser denied access by
+        // returning the empty string rather than throwing.
+        if (c && c.length > 0) {
+          report('document-cookie', 'BYPASSED', 'cookie read returned ' + c.length + ' chars');
+        } else {
+          report('document-cookie', 'BLOCKED', 'cookie read returned empty');
+        }
+      } catch (err) {
+        report('document-cookie', 'BLOCKED', err && err.message ? err.message : 'security-error');
+      }
+
+      // Final marker so the test knows all probes ran.
+      report('done', 'OK', 'all-probes-finished');
+    </script>
+  </body>
+</html>

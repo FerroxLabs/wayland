@@ -1,0 +1,34 @@
+# Gitleaks configuration for Wayland.
+#
+# Extends the default ruleset. The allowlist below covers values that a scan
+# flags but which were manually reviewed and confirmed NON-SECRET: documentation
+# placeholders, teaching examples in skill content, and dummy keys in unit-test
+# fixtures. Real provider credentials are never committed (keys live in the OS
+# keychain at runtime). Reviewed 2026-06-06 against the full pushable history.
+title = "Wayland gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Reviewed documentation placeholders, skill teaching examples, and unit-test dummy fixtures."
+
+# Literal placeholders / obviously-fake dummy values used in docs and tests.
+regexes = [
+  '''YOUR_API_KEY''',
+  '''claude-3-5-sonnet''',          # a model name, not a key
+  '''sk-proj-abc123''',             # test fixture dummy
+  '''test-fal-key-abc123''',        # test fixture dummy
+  '''T3BlbkFJabcdefghijklmnopqrst''',# test fixture dummy OpenAI key marker
+  '''\.valid\.sig''',               # test fixture dummy JWT signature
+]
+
+# Documentation and skill-content paths whose examples are intentional and
+# illustrative (curl snippets, secret-handling tutorials, API-doc samples).
+paths = [
+  '''src/process/resources/skills/moltbook/.*\.md''',
+  '''src/process/resources/assistant/moltbook/.*\.md''',
+  '''src/process/resources/skills-library/bodies/skills/security/application-secrets-security/SKILL\.md''',
+  '''src/process/resources/skills-library/bodies/skills/writing/api-documenter/SKILL\.md''',
+  '''src/process/resources/skills-library/bodies/skills/backend-systems/rest-api-design/SKILL\.md''',
+]

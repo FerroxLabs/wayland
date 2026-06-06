@@ -1,0 +1,141 @@
+{
+  "title": "Teams",
+  "totalCount": "{{count}} teams",
+  "siderEntry": "Teams",
+  "emptyState": "No teams available yet.",
+  "standingBadge": "Standing",
+  "teamLeader": "Team Leader",
+  "standing": {
+    "promoteCta": "Promote to Standing",
+    "promoteCtaTooltip": "Eligible: {{sessionsRemaining}} sessions or {{daysRemaining}} days remaining",
+    "modalTitle": "Promote to Standing Company",
+    "modalDescription": "Standing Companies persist across sessions, appear in the dedicated Standing section of the library, and carry a permanent visual badge.",
+    "optIn1": "I understand this team will be marked as a Standing Company across the app.",
+    "optIn2": "I can demote this team back to a regular team at any time.",
+    "confirmButton": "Promote to Standing",
+    "cancelButton": "Cancel",
+    "demoteAction": "Demote",
+    "promoteSuccess": "Team promoted to Standing",
+    "promoteError": "Failed to promote team",
+    "demoteSuccess": "Team demoted to regular",
+    "demoteError": "Failed to demote team"
+  },
+  "card": {
+    "rolesCount": "{{count}} roles"
+  },
+  "buildMyOwn": {
+    "label": "Build my own team",
+    "hint": "Start from a blank team",
+    "cta": "Build my own team"
+  },
+  "group": {
+    "standing": "Standing Companies",
+    "standingHint": "{{count}} - persistent, ritualized orgs that run continuously",
+    "teams": "Teams",
+    "teamsHint": "{{count}} - ad-hoc squads for a specific outcome. Spawn, ship, dissolve.",
+    "startNew": "Start a new team"
+  },
+  "launcher": {
+    "back": "Back to Teams",
+    "preconfiguredTitle": "{{name}}",
+    "buildMyOwnTitle": "Build a team",
+    "buildMyOwnSubtitle": "Pick a leader, add teammates, choose backends. Save and reuse as your own template later.",
+    "nameLabel": "Team name",
+    "namePlaceholder": "e.g. Launch Sprint, Renewal Push, Q1 Brand Refresh",
+    "nameRequired": "Please enter a team name",
+    "leaderRequired": "Please pick a leader",
+    "rosterTitle": "Roster",
+    "rosterSubtitle": "Backends chosen per role",
+    "leaderRoleLabel": "Leader",
+    "teammateRoleLabel": "Teammate",
+    "slotNameLabel": "Display name",
+    "slotNamePlaceholder": "Slot name (optional)",
+    "addTeammate": "Add teammate",
+    "remove": "Remove",
+    "emptyRoster": "No teammates yet.",
+    "addSpecialists": "Add specialists",
+    "rosterTip": "Tip - leaving teammates empty makes this a solo-leader team.",
+    "pickLeader": "Pick a specialist as team leader…",
+    "leaderMissing": "Pick a leader",
+    "launchCta": "Launch team",
+    "launchingCta": "Launching…",
+    "createTeamCta": "Create team",
+    "cancelCta": "Cancel",
+    "loadError": "Failed to load this team.",
+    "launchError": "Failed to launch the team.",
+    "specialistNotFound": "(missing specialist)",
+    "backendPickerPlaceholder": "Backend",
+    "goalLabel": "Describe what you're doing - I'll suggest a roster",
+    "goalPlaceholder": "e.g. We're launching a paid book funnel and need a small team to ship it in two weeks.",
+    "suggestCta": "Suggest",
+    "suggestSuccess": "Roster suggested",
+    "suggestFellBackToDefaults": "Picked a default roster (no goal keywords matched)",
+    "suggestError": "Failed to suggest roster",
+    "pickerTitle": "Add a teammate",
+    "pickerSearch": "Search specialists",
+    "pickerEmpty": "No specialists found.",
+    "pickerCancel": "Cancel"
+  },
+  "rightRail": {
+    "teammates": "Teammates",
+    "workspace": "Workspace",
+    "workspaceLinked": "Browse files in the workspace panel →",
+    "workspaceEmpty": "No workspace bound to this team yet.",
+    "rituals": "Rituals",
+    "ritualsEmpty": "No rituals - not a Standing Company.",
+    "roleLeader": "leader",
+    "roleSpecialist": "specialist",
+    "addTeammate": "Add teammate",
+    "addTeammateSuccess": "Teammate added",
+    "addTeammateError": "Failed to add teammate",
+    "restartAgent": "Restart",
+    "restartAgentSuccess": "Restart initiated",
+    "restartAgentError": "Failed to restart agent"
+  },
+  "activity": {
+    "tabLabel": "Activity",
+    "empty": "No team activity yet."
+  },
+  "activeSidebar": {
+    "title": "Active",
+    "rollup": "{{tokens}} tokens · ~{{usd}} this week"
+  },
+  "import": {
+    "button": "Import team",
+    "title": "Review team capabilities",
+    "intro": "This team declares the following capabilities. Grant only what you trust.",
+    "trustSelectedCta": "Trust selected",
+    "trustSelectedCtaCountdown": "Trust selected ({{seconds}}s)",
+    "sandboxCta": "Sandbox mode (no capabilities)",
+    "cancelCta": "Cancel",
+    "missingSpecialists": "Missing specialists: {{names}}. Install them first or use a different team.",
+    "networkNotice": "Network access for imported teams is currently disabled. This capability cannot be granted in v1.",
+    "success": "Team imported",
+    "error": "Failed to import team",
+    "busyError": "Import queue full - try again in a few seconds",
+    "fileReadError": "Could not read file",
+    "cap": {
+      "canReadFiles": "Read workspace files",
+      "canReadFilesDesc": "Grants this team's agents read access to files within your workspace folder. The .env, .ssh, and node_modules/.bin/.cache directories are always blocked.",
+      "canWriteFiles": "Write workspace files",
+      "canWriteFilesDesc": "Grants write + mkdir access within your workspace. Symlinks are always blocked. Protected paths always denied.",
+      "canSpawnAgents": "Spawn new teammates",
+      "canSpawnAgentsDesc": "Allows the leader to grow the roster at runtime via team_spawn_agent.",
+      "canNetworkRequest": "Make network requests",
+      "canNetworkRequestDesc": "Allows fetch/https.request calls from agent processes.",
+      "canCrossTeamMessage": "Send messages to other teams",
+      "canCrossTeamMessageDesc": "Allows team_send_message to deliver to teams outside this one."
+    }
+  },
+  "noResults": "No teams match your search.",
+  "controls": {
+    "searchPlaceholder": "Search teams",
+    "sortLabel": "Sort"
+  },
+  "sort": {
+    "default": "Default",
+    "name": "Name (A-Z)",
+    "roles": "Most roles",
+    "schedule": "Schedule"
+  }
+}

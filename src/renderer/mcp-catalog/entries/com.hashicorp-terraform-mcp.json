@@ -1,0 +1,92 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.hashicorp/terraform-mcp",
+  "title": "Terraform",
+  "description": "Browse the Terraform Registry, manage HCP Terraform workspaces, and explore providers and modules.",
+  "version": "0.5.2",
+  "websiteUrl": "https://developer.hashicorp.com/terraform/mcp-server",
+  "repository": {
+    "url": "https://github.com/hashicorp/terraform-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "hashicorp/terraform-mcp-server",
+      "version": "0.5.2",
+      "runtimeHint": "docker",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "TFE_TOKEN",
+          "description": "HCP Terraform / Terraform Enterprise API token for workspace and private registry tools.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "TFE_ADDRESS",
+          "description": "Terraform Enterprise endpoint. Defaults to https://app.terraform.io for HCP Terraform.",
+          "isRequired": false,
+          "isSecret": false,
+          "default": "https://app.terraform.io"
+        }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "infrastructure",
+      "devops",
+      "developer"
+    ],
+    "tags": [
+      "terraform",
+      "iac",
+      "hashicorp",
+      "registry"
+    ],
+    "maintainerType": "official",
+    "license": "MPL-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 59,
+    "installRate": 0.09,
+    "iconUrl": "icons/terraform.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#7b42bc"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "HCP Terraform",
+      "providerSignupUrl": "https://app.terraform.io/public/signup/account"
+    },
+    "toolGroups": [
+      {
+        "label": "Registry",
+        "count": 6
+      },
+      {
+        "label": "Workspaces",
+        "count": 5
+      },
+      {
+        "label": "Private Registry",
+        "count": 3
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.hashicorp-terraform-mcp.md",
+      "estimatedMinutes": 3,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

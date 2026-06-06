@@ -1,0 +1,43 @@
+{
+  "title": "Asistentes",
+  "totalCount": "{{count}} asistentes",
+  "siderEntry": "Asistentes",
+  "emptyState": "Ningún asistente coincide con tus filtros.",
+  "card": {
+    "backendHint": "· Se ejecuta en {{backend}} · cambiar ⌄",
+    "menuAria": "Abrir menú de {{name}}"
+  },
+  "buildMyOwn": {
+    "label": "Crear el mío",
+    "hint": "Empieza desde un asistente en blanco",
+    "cta": "Crear el mío"
+  },
+  "group": {
+    "teams": "Equipos",
+    "specialists": "Especialistas",
+    "builtins": "Integrados"
+  },
+  "filterRail": {
+    "aria": "Filtros de asistentes",
+    "searchPlaceholder": "Buscar asistentes",
+    "typeLabel": "Tipo",
+    "domainLabel": "Dominio",
+    "reset": "Restablecer filtros",
+    "type": {
+      "all": "Todos",
+      "team": "Equipos",
+      "specialist": "Especialistas",
+      "builtin": "Integrados"
+    },
+    "domain": {
+      "all": "Todos",
+      "sell": "Vender",
+      "write": "Escribir",
+      "research": "Investigar",
+      "build": "Crear",
+      "run": "Ejecutar",
+      "office": "Oficina",
+      "general": "General"
+    }
+  }
+}

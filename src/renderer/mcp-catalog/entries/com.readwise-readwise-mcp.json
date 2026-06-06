@@ -1,0 +1,42 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.readwise/readwise-mcp",
+  "title": "Readwise + Reader",
+  "description": "Highlights, books, articles, and your Reader inbox - Readwise's official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://readwise.io/api_deets",
+  "repository": { "url": "https://github.com/readwise/readwise-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.readwise.io" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["knowledge", "research"],
+    "tags": ["readwise", "reader", "highlights"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 31,
+    "installRate": 0.14,
+    "iconUrl": "icons/readwise.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#c63441" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Readwise",
+      "providerSignupUrl": "https://readwise.io",
+      "scopes": [
+        { "name": "read", "plainLanguage": "Read your highlights, books, and Reader items." },
+        { "name": "write", "plainLanguage": "Save highlights and articles to your library." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Highlights", "count": 4 },
+      { "label": "Books", "count": 3 },
+      { "label": "Reader", "count": 4 }
+    ],
+    "setupGuide": { "path": "guides/com.readwise-readwise-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

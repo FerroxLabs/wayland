@@ -1,0 +1,444 @@
+{
+  "page": {
+    "title": "Gedächtnis",
+    "subtitle": "Das dauerhafte Wissen deiner KI über jede Sitzung hinweg"
+  },
+  "pitch": {
+    "headline": "Gedächtnis, das dir folgt",
+    "lede": "Wayland merkt sich, woran du gearbeitet, was du entschieden und was du ausgeliefert hast. Jeder Assistent erhält den Kontext -- kein erneutes Erklären. Angetrieben von IJFW, einer Open-Source-Gedächtnis-Engine von Ferrox Labs.",
+    "bullet1": "Dauerhaft über Chats, Projekte und CLIs hinweg",
+    "bullet2": "Durchsuchbar, exportierbar, deins",
+    "bullet3": "Keine Einrichtung nach der Installation",
+    "install_cta": "Gedächtnis installieren",
+    "enable_cta": "Gedächtnis aktivieren",
+    "settings_link": "Nicht gewünscht? Du kannst es in den Einstellungen deaktivieren"
+  },
+  "setting_up": {
+    "title": "Gedächtnis wird eingerichtet",
+    "subtitle": "Das geschieht einmalig im Hintergrund. Du kannst weiterarbeiten.",
+    "brand_line": "IJFW Memory von Ferrox Labs",
+    "taking_longer": "Einrichtung läuft noch... bei langsamen Verbindungen kann dies bis zu einer Minute dauern.",
+    "help": "Probleme? Öffne die Einstellungen, um es manuell erneut zu versuchen."
+  },
+  "brand": {
+    "tagline": "IJFW Memory von Ferrox Labs",
+    "footer": "Angetrieben von IJFW (Open Source) von Ferrox Labs",
+    "github_link": "github.com/FerroxLabs/ijfw"
+  },
+  "installing": {
+    "title": "Gedächtnis wird installiert",
+    "subtitle": "Dies dauert etwa eine Minute",
+    "version_label": "Version {{version}} wird installiert",
+    "step_download": "Wird von npm heruntergeladen",
+    "step_extract": "Dateien werden entpackt",
+    "step_verify": "Installation wird überprüft",
+    "step_activate": "Wird aktiviert"
+  },
+  "upgrading": {
+    "title": "Gedächtnis wird aktualisiert",
+    "subtitle": "{{version}} wird für den nächsten Start vorbereitet",
+    "pending_message": "Aktualisierung bereit. Wird beim Neustart von Wayland aktiviert.",
+    "restart_now": "Jetzt neu starten"
+  },
+  "failed": {
+    "title": "Installation konnte nicht abgeschlossen werden",
+    "retry": "Erneut versuchen",
+    "details_toggle": "Details anzeigen",
+    "details_hide": "Details ausblenden",
+    "support_link": "Besuche github.com/FerroxLabs/ijfw für Hilfe"
+  },
+  "error": {
+    "spawn_error": "Der Installer konnte nicht gestartet werden. Stelle sicher, dass npm in deinem PATH liegt.",
+    "install_exit_nonzero": "Die Installation wurde mit einem Fehler beendet. Die Details unten können helfen.",
+    "invalid_target_version": "Ungültige Versionsnummer aus der Registry. Versuche es später erneut.",
+    "unsafe_ownership": "Der ausstehende Installationsordner hat unsichere Besitzrechte und wurde abgelehnt. Neuinstallation zur Wiederherstellung.",
+    "stage_pending_failed": "Die neue Installation konnte nicht vorbereitet werden. Prüfe den Speicherplatz und versuche es erneut.",
+    "stage_swap_failed": "Die neue Installation konnte nicht eingespielt werden. Starte Wayland neu, um es erneut zu versuchen.",
+    "upgrade_failed_no_rollback": "Die Aktualisierung schlug fehl und die vorherige Version konnte nicht wiederhergestellt werden. Neuinstallation zur Wiederherstellung.",
+    "upgrade_failed_rolled_back": "Die Aktualisierung schlug fehl, aber deine vorherige Version funktioniert weiterhin. Versuche es später erneut oder prüfe die Details.",
+    "rollback_also_failed": "Sowohl die neue Version als auch das Zurücksetzen schlugen fehl. Neuinstallation zur Wiederherstellung.",
+    "mcp_crashed": "Gedächtnis ist abgestürzt. Starte Wayland neu, um es wiederherzustellen.",
+    "mcp_error": "Gedächtnis hat einen Fehler zurückgegeben. Versuche es erneut.",
+    "timeout": "Gedächtnis hat nicht rechtzeitig geantwortet. Versuche es erneut.",
+    "validation_failed": "Diese Anfrage entsprach nicht dem, was Gedächtnis erwartet.",
+    "unavailable": "Gedächtnis läuft noch nicht. Installiere oder starte neu, um es zu aktivieren.",
+    "opt_out": "Gedächtnis ist in den Einstellungen deaktiviert.",
+    "unknown": "Etwas ist schiefgelaufen. Versuche es erneut."
+  },
+  "empty": {
+    "title": "Gedächtnis ist bereit",
+    "subtitle": "Frag es nach allem, woran es sich beim nächsten Mal erinnern soll",
+    "placeholder": "Was sollte Gedächtnis über dich wissen?",
+    "chip1": "Merke dir den Stack, mit dem wir ausliefern",
+    "chip2": "Ruf ab, was wir zur Authentifizierung entschieden haben",
+    "chip3": "Was beim letzten Deploy kaputtging",
+    "save_button": "Gedächtnis speichern",
+    "save_ok": "Gedächtnis gespeichert",
+    "save_err": "Gedächtnis konnte nicht gespeichert werden"
+  },
+  "panel": {
+    "header_breadcrumb": "Gedächtnis",
+    "subtitle": "IJFW Memory von Ferrox Labs",
+    "button_drop": "Ablegen",
+    "button_history": "Verlauf",
+    "button_add": "Gedächtnis hinzufügen",
+    "tab_home": "Start",
+    "tab_search": "Suche",
+    "tab_wiki": "Wiki",
+    "tab_promotions": "Beförderungen",
+    "tab_drop": "Ablegen",
+    "tab_conflicts": "Konflikte",
+    "tab_cross_project": "Projektübergreifend"
+  },
+  "degraded": {
+    "toast": "Gedächtnis wird nach der ersten Einrichtung aktiviert",
+    "banner": "Gedächtnis läuft derzeit im eingeschränkten Modus -- der Chat funktioniert weiterhin, aber die Anreicherung ist deaktiviert"
+  },
+  "settings": {
+    "panel_title": "IJFW Memory (Ferrox Labs)",
+    "skip_label": "Automatische IJFW-Einrichtung überspringen",
+    "skip_description": "Wenn aktiviert, installiert oder aktualisiert Wayland IJFW nicht. Du kannst es später manuell über die Gedächtnis-Seite installieren.",
+    "manual_install_hint": "Manuelle Installation: Führe `npx -y @ijfw/install@latest` in einem Terminal aus",
+    "about_title": "IJFW Memory",
+    "about_body": "Eine Open-Source-Engine für dauerhaftes Gedächtnis von Ferrox Labs."
+  },
+  "prelude": {
+    "installing_notice": "IJFW wird installiert. Externe CLIs (Claude Code, Codex, Gemini CLI) übernehmen es, sobald die Installation abgeschlossen ist.",
+    "disabled_notice": "IJFW ist in den Wayland-Einstellungen deaktiviert. Aktiviere es erneut, um das Gedächtnis mit externen CLIs zu teilen.",
+    "failed_notice": "IJFW-Installation fehlgeschlagen. Öffne die Gedächtnis-Seite in Wayland, um es erneut zu versuchen."
+  },
+  "home": {
+    "wiki_title": "Wiki",
+    "wiki_empty": "Noch keine Wiki-Einträge",
+    "links_title": "Aktuelle Verknüpfungen",
+    "links_empty": "Noch keine Beziehungen",
+    "promote_title": "Bereit zur Beförderung",
+    "promote_empty": "Keine Kandidaten bereit",
+    "promote_button": "Befördern",
+    "promote_success": "Ins Wiki befördert"
+  },
+  "search": {
+    "placeholder": "Frag nach allem, was das Gedächtnis über deine Arbeit weiß",
+    "examples_title": "Probiere eines davon aus, um zu starten:",
+    "example_1": "Auf welchen Auth-Stack haben wir uns festgelegt?",
+    "example_2": "Was ging beim letzten Deploy kaputt?",
+    "example_3": "Welcher Assistent kümmert sich um die Cron-Planung?",
+    "citation_stub": "Zitat-Navigation kommt in Welle 6"
+  },
+  "promotions": {
+    "title": "Ausstehende Beförderung ins Wiki",
+    "refresh": "Aktualisieren",
+    "empty": "Nichts in Wartestellung. Neue Fakten erscheinen hier, sobald sie zur Beförderung bereit sind.",
+    "promote": "Befördern",
+    "skip": "Überspringen",
+    "preview": "Vorschau",
+    "preview_hide": "Ausblenden",
+    "queued_at": "Eingereiht {{time}}",
+    "promote_success": "Ins Wiki befördert.",
+    "promote_error": "Dieser konnte nicht befördert werden. Versuche es erneut.",
+    "skip_success": "Übersprungen.",
+    "skip_error": "Dieser konnte nicht übersprungen werden. Versuche es erneut."
+  },
+  "conflicts": {
+    "empty": "Keine Konflikte erkannt. Das Gedächtnis ist konsistent.",
+    "keep_this": "Diesen behalten",
+    "resolve_success": "Konflikt gelöst"
+  },
+  "wiki": {
+    "list_empty": "Noch keine Wiki-Einträge. Befördere ein Gedächtnis, um zu starten.",
+    "select_prompt": "Wähle einen Eintrag, um seinen Inhalt anzuzeigen.",
+    "promote": "Befördern",
+    "export": "Exportieren",
+    "share_readme": "README teilen",
+    "promote_ok": "Ins Wiki befördert",
+    "promote_err": "Der Eintrag konnte nicht befördert werden",
+    "export_queued": "Export eingereiht -- Welle 6 verbindet den Download",
+    "export_err": "Der Eintrag konnte nicht exportiert werden",
+    "share_ok": "README-Freigabe eingereiht",
+    "share_err": "README konnte nicht geteilt werden",
+    "home": {
+      "title": "Wiki",
+      "conceptCount": "{{count}} Konzepte aus {{memories}} Gedächtnissen synthetisiert",
+      "viewList": "Liste",
+      "viewGraph": "Graph",
+      "newConcept": "+ Neues Konzept",
+      "settings": "Einstellungen",
+      "search": {
+        "placeholder": "Konzepte durchsuchen…"
+      },
+      "columns": {
+        "byTopic": "Nach Thema",
+        "updatedThisWeek": "Diese Woche aktualisiert",
+        "emerging": "Aufkommend - sollten Konzeptseiten werden"
+      },
+      "mostReferenced": "Am häufigsten referenziert",
+      "references": "Referenzen",
+      "empty": "Dein Wiki ist leer. Befördere ein Gedächtnis oder warte auf die automatische Synchronisierung.",
+      "status": {
+        "concepts": "{{count}} Konzepte",
+        "memoriesSynthesized": "{{count}} Gedächtnisse synthetisiert",
+        "autoSync": "automatische Synchronisierung alle 30 Min.",
+        "lastSync": "letzte Synchronisierung vor {{when}}"
+      },
+      "emergingLabel": "Aufkommend"
+    },
+    "orphan": {
+      "references": "{{count}} Referenzen",
+      "projects": "{{count}} Projekte",
+      "projectsSingular": "{{count}} Projekt",
+      "synthesize": "Seite synthetisieren →",
+      "noPageYet": "Noch keine Seite"
+    },
+    "concept": {
+      "synthesizedFrom": "Synthetisiert aus {{count}} Gedächtnissen"
+    },
+    "detail": {
+      "back": "← Wiki",
+      "edit": "Bearbeiten",
+      "updateFromSources": "Aus Quellen aktualisieren",
+      "settings": "Einstellungen",
+      "updatedAgo": "Aktualisiert {{when}}",
+      "synthesizedFromMem": "Synthetisiert aus {{count}} Gedächtnissen",
+      "freshness": {
+        "fresh": "Aktuell",
+        "stale": "Veraltet",
+        "neverReviewed": "Nie überprüft"
+      },
+      "tldr": "Kurzfassung",
+      "sources": "Quellen",
+      "linkedFrom": "Verlinkt von",
+      "relatedConcepts": "Verwandte Konzepte",
+      "openMemory": "Gedächtnis öffnen →",
+      "showAll": "Alle {{count}} anzeigen ↓",
+      "hiddenSourcesOne": "{{count}} weiteres Quell-Gedächtnis",
+      "hiddenSourcesOther": "{{count}} weitere Quell-Gedächtnisse",
+      "autoSynthesized": "Automatisch synthetisiert",
+      "lastReviewedNever": "zuletzt von dir überprüft: nie",
+      "lastSynthesized": "Zuletzt synthetisiert: {{when}}",
+      "markAsReviewed": "Als überprüft markieren",
+      "editThisPage": "Diese Seite bearbeiten",
+      "reSynthesizeFromSources": "Aus Quellen neu synthetisieren",
+      "statusTotalConcepts": "{{count}} Konzepte insgesamt",
+      "statusNotReviewedYet": "Noch nicht überprüft",
+      "statusLastSync": "letzte Synchronisierung vor {{when}}",
+      "loading": "Wird geladen…",
+      "notFound": "Konzept nicht gefunden.",
+      "notFoundBack": "← Zurück zum Wiki"
+    }
+  },
+  "crossProject": {
+    "scope_label_app": "Suche: Alle Projekte (App-Bereich)",
+    "scope_label_project": "Suche: {{project}} (Projektbereich)",
+    "search_placeholder": "Gedächtnisse projektübergreifend durchsuchen",
+    "search_button": "Suchen",
+    "toggle_label": "Andere Projekte einbeziehen",
+    "prompt_empty": "Gib eine Suchanfrage ein, um projektübergreifend zu suchen.",
+    "results_empty": "Keine Treffer im durchsuchten Bereich.",
+    "navigation_stub": "Projektübergreifende Navigation kommt in Welle 6"
+  },
+  "drop": {
+    "zone_title": "Dateien hier ablegen",
+    "zone_hint": "Markdown, Text, JSON, YAML, CSV. Max. 50 MB. Max. 20 Dateien in der Warteschlange.",
+    "browse_button": "Durchsuchen",
+    "queue_title": "Eingereihte Dateien",
+    "queue_empty": "Keine Dateien in der Warteschlange",
+    "quarantine_button": "Quarantäne",
+    "ingest_success": "{{name}} eingereiht",
+    "quarantine_success": "{{name}} in Quarantäne verschoben",
+    "path_unavailable": "Dateipfad konnte nicht gelesen werden. Verwende stattdessen die Schaltfläche „Durchsuchen“."
+  },
+  "archive": {
+    "topbar": {
+      "title": "Gedächtnis",
+      "subtitle": "IJFW · Ferrox Labs",
+      "streak_pill": "{{sessions}} Sitzungen · {{longestDays}} T längste Serie",
+      "streak_empty": "Noch keine Sitzungen",
+      "import_btn": "Importieren…",
+      "settings_btn": "Einstellungen"
+    },
+    "stats": {
+      "memories": "Gedächtnisse",
+      "banked": "Angespart",
+      "decisions": "Entscheidungen",
+      "wiki": "Wiki",
+      "sessions": "Sitzungen",
+      "projects": "Projekte",
+      "delta_today": "{{count}} heute",
+      "delta_week": "{{count}} diese Woche",
+      "delta_none": "keine Änderung",
+      "banked_tooltip": "Geschätzter eingesparter Inferenzwert: referenziert × 0,15 $ + Entscheidungen × 0,50 $ + Wiki × 2,00 $",
+      "no_data": "0"
+    },
+    "banner": {
+      "candidates_ready": "{{count}} Kandidaten bereit zur automatischen Beförderung",
+      "threshold": "Schwellenwert ≥ {{value}}",
+      "next_sweep": "automatische Beförderung in {{time}}",
+      "last_dream": "Letzter Traum: {{facts}} Fakten · {{promoted}} befördert · vor {{ago}}",
+      "no_dream": "Kein aktueller Traumzyklus",
+      "tune_btn": "Anpassen",
+      "review_btn": "{{count}} prüfen →",
+      "review_btn_zero": "Prüfen"
+    },
+    "filters": {
+      "projects_title": "Projekte",
+      "all_projects": "Alle Projekte",
+      "this_project": "Dieses Projekt",
+      "global": "Global",
+      "time_title": "Zeit",
+      "time_all": "Alle",
+      "time_today": "Heute",
+      "time_7d": "7 Tage",
+      "time_30d": "30 Tage",
+      "time_custom": "Benutzerdefiniert…",
+      "tags_title": "Tags",
+      "tags_clear": "Tags löschen",
+      "autopromo_title": "Automatische Beförderung",
+      "candidates_only": "Nur Beförderungskandidaten",
+      "hide_promoted": "Bereits beförderte ausblenden",
+      "candidates_subline": "{{count}} bereit · Schwellenwert ≥ {{value}}",
+      "section_collapse": "Einklappen",
+      "section_expand": "Ausklappen"
+    },
+    "list": {
+      "search_placeholder": "Gedächtnisse durchsuchen…",
+      "search_kbd_hint": "/",
+      "chip_all": "Alle",
+      "chip_decision": "Entscheidungen",
+      "chip_pattern": "Muster",
+      "chip_session": "Sitzungen",
+      "chip_wiki": "Wiki",
+      "chip_observation": "Beobachtungen",
+      "chip_preference": "Präferenzen",
+      "chip_count": "({{count}})",
+      "empty_title": "Keine Treffer",
+      "empty_subtitle": "Versuche, einen Filter zu entfernen oder die Suche zurückzusetzen.",
+      "empty_clear_btn": "Filter löschen",
+      "footer": "1–{{shown}} von {{total}} werden angezeigt · zum Weiterladen scrollen",
+      "footer_all_loaded": "Alle {{total}} geladen",
+      "loading_more": "Wird geladen…"
+    },
+    "row": {
+      "used_pill": "{{count}}× diese Woche verwendet",
+      "type_decision": "Entscheidung",
+      "type_pattern": "Muster",
+      "type_observation": "Beobachtung",
+      "type_session": "Sitzung",
+      "type_wiki": "Wiki",
+      "type_preference": "Präferenz"
+    },
+    "inspector": {
+      "empty_title": "Wähle ein Gedächtnis, um es zu untersuchen",
+      "kbd_navigate": "↑/↓ navigieren",
+      "kbd_select": "Enter auswählen",
+      "kbd_close": "Esc schließen",
+      "close_btn": "Schließen",
+      "promote_btn": "Ins Wiki befördern",
+      "promote_disabled": "Bereits befördert ✓",
+      "open_btn": "Datei öffnen",
+      "copy_btn": "Kopieren",
+      "score_label": "Beförderungswert {{score}}/100",
+      "score_threshold": "automatische Beförderung bei {{threshold}}",
+      "score_help": "Wie wird das berechnet?",
+      "summary_title": "Zusammenfassung",
+      "why_title": "Warum",
+      "why_empty": "Kein „Warum“ erfasst",
+      "how_title": "Anwendung",
+      "how_empty": "Kein „Anwendung“ erfasst",
+      "derefs_title": "In der Praxis verwendet",
+      "derefs_subtitle": "{{count}}× diese Woche verwendet",
+      "tags_title": "Tags",
+      "source_label": "Quelle",
+      "source_copied": "Quellpfad kopiert",
+      "promote_success": "Ins Wiki befördert",
+      "promote_error": "Beförderung fehlgeschlagen. Versuche es erneut.",
+      "score_tooltip": "+30 Entscheidung/Muster · +10 pro projektübergreifender Referenz · +5 pro Dereferenzierung · +20 Tag „befördert“ · +15 Aktualität (verfällt über 30 T)"
+    },
+    "quickadd": {
+      "placeholder": "Merke dir irgendetwas…",
+      "scope_project": "Projekt",
+      "scope_global": "global",
+      "submit_btn": "Merken →",
+      "submitting": "Wird gespeichert…",
+      "success": "Gespeichert",
+      "error": "Speichern fehlgeschlagen. Versuche es erneut."
+    },
+    "statusbar": {
+      "brain_live": "Gehirn live",
+      "brain_offline": "Gehirn offline",
+      "cli_count": "{{count}} CLIs",
+      "cli_count_none": "Keine CLIs erkannt",
+      "last_dream": "Letzter Traum: {{facts}} Fakten · {{promoted}} befördert · vor {{ago}}",
+      "no_dream": "Warten auf ersten Traum",
+      "kbd_capture": "Schnellerfassung",
+      "kbd_search": "Suche",
+      "kbd_close": "Inspektor schließen",
+      "spend_today": "{{usd}} $ heute"
+    },
+    "threshold_modal": {
+      "title": "Automatische Beförderung anpassen",
+      "threshold_label": "Beförderungsschwelle",
+      "autopromo_label": "Planmäßig automatisch befördern",
+      "autopromo_help": "Wenn aktiviert, werden Kandidaten, die den Schwellenwert überschreiten und die 10-minütige Warteschlange überstehen, automatisch ins Wiki geschrieben.",
+      "live_preview": "{{count}} Kandidaten bei Schwellenwert {{value}}",
+      "score_formula_title": "Bewertungsformel",
+      "formula_decision": "+30, wenn Typ Entscheidung oder Muster ist",
+      "formula_refs": "+10 pro Projekt, das diesen Eintrag referenziert",
+      "formula_referenced": "+5 pro Dereferenzierungstreffer",
+      "formula_tag": "+20, wenn mit Entscheidung, Muster, global, Design oder Architektur getaggt",
+      "formula_recency": "+15, wenn vor < 24 Std. gespeichert (verfällt linear über 30 Tage)",
+      "save_btn": "Speichern",
+      "cancel_btn": "Abbrechen",
+      "save_success": "Gespeichert"
+    },
+    "errors": {
+      "load_failed": "Gedächtnis konnte nicht geladen werden. {{reason}}",
+      "missing_api": "Gedächtnis-API ist noch nicht bereit. Versuche es gleich erneut.",
+      "promote_failed": "Beförderung fehlgeschlagen. {{reason}}"
+    },
+    "import": {
+      "title": "Gedächtnisse importieren",
+      "close": "Import-Leiste schließen",
+      "importing": "Wird importiert…",
+      "status": {
+        "ready": "bereit",
+        "checking": "wird geprüft",
+        "importing": "wird importiert",
+        "unavailable": "nicht verfügbar",
+        "idle": "inaktiv"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "Klicken, um aus ~/.claude-mem/claude-mem.db zu importieren",
+        "count": "~{{count}} Einträge importiert",
+        "btn": "Importieren",
+        "success": "{{count}} Einträge importiert · {{errors}} Fehler",
+        "error": "Import fehlgeschlagen. Versuche es erneut."
+      },
+      "obsidian": {
+        "title": "Obsidian-Vault",
+        "hint": "Klicken, um nach Vaults zu scannen",
+        "count": "~{{count}} Einträge importiert",
+        "btn": "Importieren",
+        "success": "{{count}} Einträge importiert · {{errors}} Fehler",
+        "error": "Obsidian-Import fehlgeschlagen. Versuche es erneut."
+      },
+      "devScan": {
+        "title": "~/dev-Scan",
+        "hint": "Scannt ~/dev nach IJFW-Gedächtnisverzeichnissen",
+        "count": "~{{count}} Einträge importiert",
+        "btn": "Importieren",
+        "success": "{{count}} Einträge aus {{projects}} Projekten importiert",
+        "error": "Dev-Scan-Import fehlgeschlagen. Versuche es erneut."
+      },
+      "dropFolder": {
+        "title": "Ablageordner",
+        "hint": "Lege .md- / .txt- / .json-Dateien in ~/Documents/Wayland-Memory/ ab",
+        "count": "{{count}} Dateien verarbeitet",
+        "openBtn": "Ordner öffnen",
+        "processBtn": "Jetzt verarbeiten",
+        "success": "{{count}} Dateien verarbeitet · {{errors}} Fehler",
+        "error": "Verarbeitung fehlgeschlagen. Versuche es erneut."
+      }
+    }
+  }
+}

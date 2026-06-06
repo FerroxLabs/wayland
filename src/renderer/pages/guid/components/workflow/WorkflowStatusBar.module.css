@@ -1,0 +1,80 @@
+/**
+ * WorkflowStatusBar - monospace strip pinned to the workflow rail bottom.
+ * Renders a thin, dense, terminal-feeling status line so the user can
+ * always see ⟨status · elapsed · ETA · tokens · spend⟩ at a glance.
+ *
+ * Source of truth: SPEC.md §5.4 (STR 1).
+ */
+
+.bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 12px;
+  background: var(--color-fill-1);
+  border-top: 1px solid var(--color-border-2);
+  color: var(--color-text-2);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.segmentIcon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-3);
+}
+
+.divider {
+  margin: 0 8px;
+  color: var(--color-text-4);
+  flex-shrink: 0;
+}
+
+/* Active status pulses the leading dot to signal "live" without being
+ * loud - opacity oscillates instead of color so it stays palette-neutral. */
+.statusDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success-6, rgb(82, 196, 26));
+  margin-right: 6px;
+}
+
+.statusDotActive {
+  animation: workflow-status-pulse 1.6s ease-in-out infinite;
+}
+
+.statusDotErrored {
+  background: var(--color-danger-6, rgb(245, 63, 63));
+}
+
+.statusDotComplete {
+  background: var(--color-success-6, rgb(82, 196, 26));
+}
+
+@keyframes workflow-status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.statusLabel {
+  text-transform: lowercase;
+  color: var(--color-text-1);
+  font-weight: 500;
+}

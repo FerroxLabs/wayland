@@ -1,0 +1,41 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.calendly/calendly-mcp",
+  "title": "Calendly",
+  "description": "List event types, scheduled events, and invitees - Calendly's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developer.calendly.com/docs/mcp",
+  "repository": { "url": "https://github.com/calendly/calendly-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.calendly.com" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["calendar", "productivity"],
+    "tags": ["calendly", "scheduling"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 24,
+    "installRate": 0.18,
+    "iconUrl": "icons/calendly.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#006bff" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Calendly",
+      "providerSignupUrl": "https://calendly.com",
+      "scopes": [
+        { "name": "default", "plainLanguage": "Read event types, scheduled events, and invitees." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Event Types", "count": 3 },
+      { "label": "Scheduled Events", "count": 4 },
+      { "label": "Invitees", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.calendly-calendly-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

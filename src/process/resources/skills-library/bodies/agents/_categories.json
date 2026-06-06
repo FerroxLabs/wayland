@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "description": "FoundrySkills agent profile category taxonomy. Agents are organized by professional domain. Each agent defines WHO the AI becomes -- persona, voice, tools, success metrics.",
+  "categories": {
+    "engineering": {
+      "label": "Engineering Agents",
+      "description": "Agents for software engineering tasks including code review, architecture, DevOps, security, QA, and performance",
+      "subcategories": [],
+      "expectedAgentCount": 8
+    },
+    "business": {
+      "label": "Business Agents",
+      "description": "Agents for business operations including product management, marketing, finance, legal compliance, and executive communication",
+      "subcategories": [],
+      "expectedAgentCount": 6
+    },
+    "operations": {
+      "label": "Operations Agents",
+      "description": "Agents for operational roles including data analysis, customer support, HR, and operations management",
+      "subcategories": [],
+      "expectedAgentCount": 4
+    },
+    "creative": {
+      "label": "Creative Agents",
+      "description": "Agents for creative roles including UX research, content strategy, and visual design",
+      "subcategories": [],
+      "expectedAgentCount": 3
+    },
+    "orchestration": {
+      "label": "Orchestration Agents",
+      "description": "Agents that coordinate other agents and manage multi-agent workflows, sprints, incidents, and research",
+      "subcategories": [],
+      "expectedAgentCount": 4
+    }
+  }
+}

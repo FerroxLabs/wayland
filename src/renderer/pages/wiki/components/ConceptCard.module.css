@@ -1,0 +1,123 @@
+/**
+ * ConceptCard - Updated this week column card.
+ */
+
+.card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: var(--surface, var(--color-bg-2, #16181b));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  user-select: none;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--orange, var(--color-primary-6, #ff7a45));
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.card:hover {
+  border-color: var(--border-2, var(--color-border-3, #2e3238));
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--orange, var(--color-primary-6, #ff7a45));
+  outline-offset: -2px;
+}
+
+.iconTile {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--orange-tint, rgba(255, 122, 69, 0.12));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+}
+
+.topicDesign {
+  color: var(--blue, #60a5fa);
+}
+
+.topicDecisions {
+  color: var(--yellow, #fbbf24);
+}
+
+.topicPatterns {
+  color: var(--purple, #a78bfa);
+}
+
+.topicProcess {
+  color: var(--green, #4ade80);
+}
+
+.topicBrand {
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1, var(--color-text-1, #e8e9ec));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.meta {
+  font-size: 11px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topicBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+}
+
+.age {
+  font-size: 11px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+}

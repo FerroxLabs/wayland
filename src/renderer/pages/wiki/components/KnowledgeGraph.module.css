@@ -1,0 +1,58 @@
+/**
+ * KnowledgeGraph - SVG force graph.
+ */
+
+.wrapper {
+  width: 100%;
+}
+
+.container {
+  width: 100%;
+  background: var(--surface, var(--color-bg-2, #16181b));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.svg {
+  width: 100%;
+  display: block;
+}
+
+.tooltip {
+  position: absolute;
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+  border: 1px solid var(--border-2, var(--color-border-3, #2e3238));
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--text-1, var(--color-text-1, #e8e9ec));
+  pointer-events: none;
+  z-index: 10;
+  max-width: 200px;
+  transform: translate(-50%, -120%);
+  white-space: nowrap;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}

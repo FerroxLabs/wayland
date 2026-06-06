@@ -1,0 +1,281 @@
+/* Models settings page - mirrors prototype #screen-models.
+   All colors use semantic tokens; the brand color is `var(--brand)`. */
+
+/* ---- Connect panel (the hero) ---- */
+.connectPanel {
+  background: var(--color-bg-2);
+  border: 1px solid var(--brand-soft-border);
+  border-radius: 14px;
+  padding: 20px;
+  background-image: linear-gradient(160deg, var(--brand-soft-bg) 0%, transparent 38%);
+}
+
+.connectTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  margin: 0 0 14px;
+}
+
+.keyLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 7px;
+}
+
+.keyRow {
+  display: flex;
+  gap: 8px;
+}
+
+.keyHint {
+  font-size: 11.5px;
+  color: var(--color-text-2);
+  margin-top: 7px;
+  min-height: 16px;
+  line-height: 1.4;
+}
+
+.keyHint b {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+/* ---- Detected-keys strip ---- */
+.detected {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  background: var(--color-fill-2);
+  border: 1px solid var(--color-border-3);
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 14px;
+}
+
+.detectedIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--brand-soft-bg);
+  color: var(--brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.detectedText {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--color-text-2);
+  line-height: 1.4;
+}
+
+.detectedText b {
+  color: var(--color-text-1);
+  font-weight: 600;
+}
+
+.detectedActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ---- Inline connect error ----
+   Uses Wayland's --danger token family (defined in both light and dark themes
+   via default-color-scheme.css). The Arco --color-danger-N variables are NOT
+   defined in this app's CSS pipeline, so referencing them caused color/bg to
+   fall through to inherited (black-on-dark - unreadable). */
+.connectError {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--danger-soft-bg);
+  border: 1px solid var(--danger-soft-border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--danger);
+  line-height: 1.45;
+}
+
+.connectError svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ---- "or" divider ---- */
+.orDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.orDivider::before,
+.orDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-2);
+}
+
+.orDivider span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---- Google button ---- */
+.googleBtn :global(.arco-btn) {
+  width: 100%;
+}
+
+/* ---- Browse link ---- */
+.browseLink {
+  margin-top: 13px;
+  text-align: center;
+}
+
+/* ---- Section label ---- */
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 22px 2px 10px;
+}
+
+/* ---- Loading row ---- */
+.loadingRow {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+/* ---- Connected rows ---- */
+.connectedList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 11px;
+  padding: 12px 14px;
+}
+
+.rowTesting {
+  border-color: var(--brand-soft-border);
+}
+
+.rowError {
+  border-color: var(--danger);
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rowName {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-1);
+}
+
+.rowVia {
+  font-size: 11.5px;
+  color: var(--color-text-2);
+  margin-top: 1px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.statusConnected {
+  color: var(--success);
+}
+
+.statusTesting {
+  color: var(--brand);
+}
+
+.statusError {
+  color: var(--danger);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border-2);
+}
+
+.count {
+  font-size: 12px;
+  color: var(--color-text-2);
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+/* ---- Empty state ---- */
+.emptyState {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+}
+
+.emptyNote {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--color-text-2);
+}
+
+.emptyNote svg {
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
+
+.emptyText {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.emptyText b {
+  color: var(--color-text-1);
+  font-weight: 600;
+}

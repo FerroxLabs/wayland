@@ -1,0 +1,444 @@
+{
+  "page": {
+    "title": "メモリ",
+    "subtitle": "セッションをまたいで持続する AI のナレッジ"
+  },
+  "pitch": {
+    "headline": "あなたについてくるメモリ",
+    "lede": "Wayland は、これまで取り組んだこと、決定したこと、リリースしたことを記憶しています。すべてのアシスタントが文脈を共有するため、説明し直す必要はありません。Ferrox Labs によるオープンソースのメモリエンジン IJFW を搭載しています。",
+    "bullet1": "チャット、プロジェクト、CLI をまたいで持続します",
+    "bullet2": "検索可能、エクスポート可能、あなたのものです",
+    "bullet3": "インストール後の設定は不要です",
+    "install_cta": "メモリをインストール",
+    "enable_cta": "メモリを有効化",
+    "settings_link": "不要な場合は設定から無効化できます"
+  },
+  "setting_up": {
+    "title": "メモリをセットアップ中",
+    "subtitle": "一度だけバックグラウンドで実行されます。作業はそのまま続けられます。",
+    "brand_line": "IJFW Memory by Ferrox Labs",
+    "taking_longer": "セットアップを続行中... 通信環境によっては最大 1 分ほどかかります。",
+    "help": "問題が起きましたか？ 設定画面から手動で再試行できます。"
+  },
+  "brand": {
+    "tagline": "IJFW Memory by Ferrox Labs",
+    "footer": "Powered by IJFW（オープンソース）by Ferrox Labs",
+    "github_link": "github.com/FerroxLabs/ijfw"
+  },
+  "installing": {
+    "title": "メモリをインストール中",
+    "subtitle": "1 分ほどで完了します",
+    "version_label": "バージョン {{version}} をインストール中",
+    "step_download": "npm からダウンロード中",
+    "step_extract": "ファイルを展開中",
+    "step_verify": "インストールを検証中",
+    "step_activate": "アクティブ化中"
+  },
+  "upgrading": {
+    "title": "メモリをアップグレード中",
+    "subtitle": "{{version}} を次回起動時のためにステージングしています",
+    "pending_message": "アップグレードの準備が完了しました。Wayland を再起動するとアクティブになります。",
+    "restart_now": "今すぐ再起動"
+  },
+  "failed": {
+    "title": "インストールを完了できませんでした",
+    "retry": "再試行",
+    "details_toggle": "詳細を表示",
+    "details_hide": "詳細を隠す",
+    "support_link": "サポートは github.com/FerroxLabs/ijfw をご覧ください"
+  },
+  "error": {
+    "spawn_error": "インストーラーを起動できませんでした。npm が PATH に含まれているか確認してください。",
+    "install_exit_nonzero": "インストールがエラーで終了しました。下記の詳細が参考になります。",
+    "invalid_target_version": "レジストリから取得したバージョン番号が無効です。しばらくしてから再試行してください。",
+    "unsafe_ownership": "保留中のインストールフォルダの所有権が安全でないため、拒否されました。再インストールして復旧してください。",
+    "stage_pending_failed": "新しいインストールをステージングできませんでした。ディスク容量を確認してから再試行してください。",
+    "stage_swap_failed": "新しいインストールへの切り替えができませんでした。Wayland を再起動して再試行してください。",
+    "upgrade_failed_no_rollback": "アップグレードに失敗し、以前のバージョンを復元できませんでした。再インストールして復旧してください。",
+    "upgrade_failed_rolled_back": "アップグレードに失敗しましたが、以前のバージョンは引き続き動作しています。後ほど再試行するか、詳細をご確認ください。",
+    "rollback_also_failed": "新しいバージョンとロールバックの両方が失敗しました。再インストールして復旧してください。",
+    "mcp_crashed": "メモリがクラッシュしました。Wayland を再起動して復旧してください。",
+    "mcp_error": "メモリがエラーを返しました。再試行してください。",
+    "timeout": "メモリが時間内に応答しませんでした。再試行してください。",
+    "validation_failed": "そのリクエストはメモリが想定する形式と一致しませんでした。",
+    "unavailable": "メモリはまだ実行されていません。インストールまたは再起動して有効化してください。",
+    "opt_out": "メモリは設定で無効化されています。",
+    "unknown": "問題が発生しました。再試行してください。"
+  },
+  "empty": {
+    "title": "メモリの準備ができました",
+    "subtitle": "次回も覚えておいてほしいことを何でも聞いてください",
+    "placeholder": "メモリに覚えさせたいことは何ですか？",
+    "chip1": "私たちが採用しているスタックを覚えておいて",
+    "chip2": "認証について決めたことを思い出して",
+    "chip3": "前回のデプロイで何が壊れたか",
+    "save_button": "メモリを保存",
+    "save_ok": "メモリを保存しました",
+    "save_err": "メモリを保存できませんでした"
+  },
+  "panel": {
+    "header_breadcrumb": "メモリ",
+    "subtitle": "IJFW Memory by Ferrox Labs",
+    "button_drop": "ドロップ",
+    "button_history": "履歴",
+    "button_add": "メモリを追加",
+    "tab_home": "ホーム",
+    "tab_search": "検索",
+    "tab_wiki": "Wiki",
+    "tab_promotions": "プロモーション",
+    "tab_drop": "ドロップ",
+    "tab_conflicts": "競合",
+    "tab_cross_project": "プロジェクト横断"
+  },
+  "degraded": {
+    "toast": "初回セットアップ後にメモリがアクティブになります",
+    "banner": "メモリは現在縮退モードで動作しています。チャットは引き続き利用できますが、補強機能はオフです"
+  },
+  "settings": {
+    "panel_title": "IJFW Memory（Ferrox Labs）",
+    "skip_label": "IJFW の自動セットアップをスキップ",
+    "skip_description": "有効にすると、Wayland は IJFW をインストールまたはアップグレードしません。後でメモリページから手動でインストールできます。",
+    "manual_install_hint": "手動でインストールするには、ターミナルで `npx -y @ijfw/install@latest` を実行してください",
+    "about_title": "IJFW Memory",
+    "about_body": "Ferrox Labs によるオープンソースの永続メモリエンジンです。"
+  },
+  "prelude": {
+    "installing_notice": "IJFW のインストールが進行中です。外部 CLI（Claude Code、Codex、Gemini CLI）はインストール完了後に連携します。",
+    "disabled_notice": "IJFW は Wayland の設定で無効化されています。外部 CLI とメモリを共有するには再度有効にしてください。",
+    "failed_notice": "IJFW のインストールに失敗しました。Wayland のメモリページから再試行してください。"
+  },
+  "home": {
+    "wiki_title": "Wiki",
+    "wiki_empty": "Wiki エントリはまだありません",
+    "links_title": "最近のリンク",
+    "links_empty": "リレーションはまだありません",
+    "promote_title": "プロモーション準備完了",
+    "promote_empty": "候補はまだありません",
+    "promote_button": "プロモート",
+    "promote_success": "Wiki にプロモートしました"
+  },
+  "search": {
+    "placeholder": "あなたの作業についてメモリが知っていることを尋ねてください",
+    "examples_title": "次のいずれかから始めてみてください:",
+    "example_1": "採用した認証スタックは何ですか？",
+    "example_2": "前回のデプロイで何が壊れましたか？",
+    "example_3": "cron スケジューリングを担当しているアシスタントはどれですか？",
+    "citation_stub": "引用ナビゲーションは Wave 6 で対応します"
+  },
+  "promotions": {
+    "title": "Wiki へのプロモーション待ち",
+    "refresh": "更新",
+    "empty": "待機中の項目はありません。新しい事実がプロモート可能になるとここに表示されます。",
+    "promote": "プロモート",
+    "skip": "スキップ",
+    "preview": "プレビュー",
+    "preview_hide": "隠す",
+    "queued_at": "キュー登録 {{time}}",
+    "promote_success": "Wiki にプロモートしました。",
+    "promote_error": "プロモートできませんでした。再試行してください。",
+    "skip_success": "スキップしました。",
+    "skip_error": "スキップできませんでした。再試行してください。"
+  },
+  "conflicts": {
+    "empty": "競合は検出されませんでした。メモリは整合しています。",
+    "keep_this": "これを残す",
+    "resolve_success": "競合を解決しました"
+  },
+  "wiki": {
+    "home": {
+      "title": "Wiki",
+      "conceptCount": "{{memories}} 件のメモリから {{count}} 件のコンセプトを合成",
+      "viewList": "リスト",
+      "viewGraph": "グラフ",
+      "newConcept": "+ 新しいコンセプト",
+      "settings": "設定",
+      "search": {
+        "placeholder": "コンセプトを検索…"
+      },
+      "columns": {
+        "byTopic": "トピック別",
+        "updatedThisWeek": "今週更新",
+        "emerging": "新興 - コンセプトページ化を推奨"
+      },
+      "mostReferenced": "最多参照",
+      "references": "件の参照",
+      "empty": "Wikiは空です。メモリを昇格するか、自動同期をお待ちください。",
+      "status": {
+        "concepts": "{{count}} 件のコンセプト",
+        "memoriesSynthesized": "{{count}} 件のメモリを合成済み",
+        "autoSync": "30分ごとに自動同期",
+        "lastSync": "最終同期 {{when}} 前"
+      },
+      "emergingLabel": "新興"
+    },
+    "orphan": {
+      "references": "{{count}} 件の参照",
+      "projects": "{{count}} 件のプロジェクト",
+      "projectsSingular": "{{count}} 件のプロジェクト",
+      "synthesize": "ページを合成 →",
+      "noPageYet": "ページなし"
+    },
+    "concept": {
+      "synthesizedFrom": "{{count}} 件のメモリから合成"
+    },
+    "detail": {
+      "back": "← Wiki",
+      "edit": "編集",
+      "updateFromSources": "ソースから更新",
+      "settings": "設定",
+      "updatedAgo": "{{when}} に更新",
+      "synthesizedFromMem": "{{count}} 件のメモリから合成",
+      "freshness": {
+        "fresh": "新鮮",
+        "stale": "古い",
+        "neverReviewed": "未レビュー"
+      },
+      "tldr": "要約",
+      "sources": "ソース",
+      "linkedFrom": "リンク元",
+      "relatedConcepts": "関連コンセプト",
+      "openMemory": "メモリを開く →",
+      "showAll": "すべて {{count}} 件を表示 ↓",
+      "hiddenSourcesOne": "あと {{count}} 件のソースメモリ",
+      "hiddenSourcesOther": "あと {{count}} 件のソースメモリ",
+      "autoSynthesized": "自動合成",
+      "lastReviewedNever": "最終レビュー：なし",
+      "lastSynthesized": "最終合成：{{when}}",
+      "markAsReviewed": "レビュー済みとしてマーク",
+      "editThisPage": "このページを編集",
+      "reSynthesizeFromSources": "ソースから再合成",
+      "statusTotalConcepts": "合計 {{count}} 件のコンセプト",
+      "statusNotReviewedYet": "未レビュー",
+      "statusLastSync": "最終同期 {{when}} 前",
+      "loading": "読み込み中…",
+      "notFound": "コンセプトが見つかりません。",
+      "notFoundBack": "← Wikiに戻る"
+    },
+    "list_empty": "ウィキの項目はまだありません。メモリをプロモートして始めましょう。",
+    "select_prompt": "項目を選択すると内容が表示されます。",
+    "promote": "プロモート",
+    "export": "エクスポート",
+    "share_readme": "READMEを共有",
+    "promote_ok": "ウィキにプロモートしました",
+    "promote_err": "項目をプロモートできませんでした",
+    "export_queued": "エクスポートを受け付けました。ダウンロード機能は近日公開予定です。",
+    "export_err": "項目をエクスポートできませんでした",
+    "share_ok": "READMEの共有を受け付けました",
+    "share_err": "READMEを共有できませんでした"
+  },
+  "crossProject": {
+    "scope_label_app": "検索範囲: すべてのプロジェクト (アプリ全体)",
+    "scope_label_project": "検索範囲: {{project}} (プロジェクト単位)",
+    "search_placeholder": "プロジェクトをまたいでメモリを検索",
+    "search_button": "検索",
+    "toggle_label": "他のプロジェクトを含める",
+    "prompt_empty": "プロジェクト横断で検索するクエリを入力してください。",
+    "results_empty": "対象範囲には一致がありません。",
+    "navigation_stub": "プロジェクト横断ナビゲーションは Wave 6 で対応します"
+  },
+  "drop": {
+    "zone_title": "ここにファイルをドロップ",
+    "zone_hint": "Markdown、テキスト、JSON、YAML、CSV。最大 50MB。キューは最大 20 ファイルまで。",
+    "browse_button": "参照",
+    "queue_title": "キュー内のファイル",
+    "queue_empty": "キュー内のファイルはありません",
+    "quarantine_button": "隔離",
+    "ingest_success": "{{name}} をキューに登録しました",
+    "quarantine_success": "{{name}} を隔離しました",
+    "path_unavailable": "ファイルパスを読み取れませんでした。代わりに参照ボタンを使ってください。"
+  },
+  "archive": {
+    "topbar": {
+      "title": "メモリ",
+      "subtitle": "IJFW · Ferrox Labs",
+      "streak_pill": "{{sessions}} セッション · 最長 {{longestDays}} 日連続",
+      "streak_empty": "まだセッションがありません",
+      "import_btn": "インポート…",
+      "settings_btn": "設定"
+    },
+    "stats": {
+      "memories": "メモリ",
+      "banked": "節約済み",
+      "decisions": "決定",
+      "wiki": "Wiki",
+      "sessions": "セッション",
+      "projects": "プロジェクト",
+      "delta_today": "今日 {{count}} 件",
+      "delta_week": "今週 {{count}} 件",
+      "delta_none": "変化なし",
+      "banked_tooltip": "推定節約推論コスト：参照数 × $0.15 + 決定数 × $0.50 + Wiki × $2.00",
+      "no_data": "0"
+    },
+    "banner": {
+      "candidates_ready": "{{count}} 件の候補が自動プロモート可能な状態です",
+      "threshold": "閾値 ≥ {{value}}",
+      "next_sweep": "{{time}} 後に自動プロモート",
+      "last_dream": "前回の整理：{{facts}} 件の事実 · {{promoted}} 件プロモート · {{ago}} 前",
+      "no_dream": "最近の整理サイクルなし",
+      "tune_btn": "調整",
+      "review_btn": "{{count}} 件をレビュー →",
+      "review_btn_zero": "レビュー"
+    },
+    "filters": {
+      "projects_title": "プロジェクト",
+      "all_projects": "すべてのプロジェクト",
+      "this_project": "このプロジェクト",
+      "global": "グローバル",
+      "time_title": "期間",
+      "time_all": "すべて",
+      "time_today": "今日",
+      "time_7d": "7 日間",
+      "time_30d": "30 日間",
+      "time_custom": "カスタム…",
+      "tags_title": "タグ",
+      "tags_clear": "タグをクリア",
+      "autopromo_title": "自動プロモート",
+      "candidates_only": "プロモート候補のみ表示",
+      "hide_promoted": "プロモート済みを非表示",
+      "candidates_subline": "{{count}} 件準備完了 · 閾値 ≥ {{value}}",
+      "section_collapse": "折りたたむ",
+      "section_expand": "展開する"
+    },
+    "list": {
+      "search_placeholder": "メモリを検索…",
+      "search_kbd_hint": "/",
+      "chip_all": "すべて",
+      "chip_decision": "決定",
+      "chip_pattern": "パターン",
+      "chip_session": "セッション",
+      "chip_wiki": "Wiki",
+      "chip_observation": "観察",
+      "chip_preference": "設定",
+      "chip_count": "({{count}})",
+      "empty_title": "一致なし",
+      "empty_subtitle": "フィルターを外すか、検索をクリアしてください。",
+      "empty_clear_btn": "フィルターをクリア",
+      "footer": "1–{{shown}} 件目を表示中（全 {{total}} 件）· スクロールで続きを表示",
+      "footer_all_loaded": "全 {{total}} 件を読み込み済み",
+      "loading_more": "読み込み中…"
+    },
+    "row": {
+      "used_pill": "今週 {{count}} 回使用",
+      "type_decision": "決定",
+      "type_pattern": "パターン",
+      "type_observation": "観察",
+      "type_session": "セッション",
+      "type_wiki": "Wiki",
+      "type_preference": "設定"
+    },
+    "inspector": {
+      "empty_title": "メモリを選択して詳細を確認",
+      "kbd_navigate": "↑/↓ で移動",
+      "kbd_select": "Enter で選択",
+      "kbd_close": "Esc で閉じる",
+      "close_btn": "閉じる",
+      "promote_btn": "Wiki にプロモート",
+      "promote_disabled": "プロモート済み ✓",
+      "open_btn": "ファイルを開く",
+      "copy_btn": "コピー",
+      "score_label": "プロモートスコア {{score}}/100",
+      "score_threshold": "{{threshold}} で自動プロモート",
+      "score_help": "スコアの計算方法は？",
+      "summary_title": "概要",
+      "why_title": "理由",
+      "why_empty": "「理由」が記録されていません",
+      "how_title": "適用方法",
+      "how_empty": "「適用方法」が記録されていません",
+      "derefs_title": "実際の使用状況",
+      "derefs_subtitle": "今週 {{count}} 回使用",
+      "tags_title": "タグ",
+      "source_label": "ソース",
+      "source_copied": "ソースパスをコピーしました",
+      "promote_success": "Wiki にプロモートしました",
+      "promote_error": "プロモートできませんでした。再試行してください。",
+      "score_tooltip": "+30 決定/パターン · +10 クロスプロジェクト参照ごと · +5 逆参照ごと · +20 プロモート済みタグ · +15 近期（30 日で線形減衰）"
+    },
+    "quickadd": {
+      "placeholder": "何でも記録…",
+      "scope_project": "プロジェクト",
+      "scope_global": "グローバル",
+      "submit_btn": "記録する →",
+      "submitting": "保存中…",
+      "success": "保存しました",
+      "error": "保存できませんでした。再試行してください。"
+    },
+    "statusbar": {
+      "brain_live": "ブレインオンライン",
+      "brain_offline": "ブレインオフライン",
+      "cli_count": "{{count}} 個の CLI",
+      "cli_count_none": "CLI が検出されていません",
+      "last_dream": "前回の整理：{{facts}} 件の事実 · {{promoted}} 件プロモート · {{ago}} 前",
+      "no_dream": "初回整理を待機中",
+      "kbd_capture": "クイックキャプチャ",
+      "kbd_search": "検索",
+      "kbd_close": "インスペクターを閉じる",
+      "spend_today": "本日 ${{usd}}"
+    },
+    "threshold_modal": {
+      "title": "自動プロモートを調整",
+      "threshold_label": "プロモート閾値",
+      "autopromo_label": "スケジュールで自動プロモート",
+      "autopromo_help": "オンにすると、閾値を超えて 10 分のキューを通過した候補が自動的に Wiki に書き込まれます。",
+      "live_preview": "閾値 {{value}} で {{count}} 件の候補",
+      "score_formula_title": "スコア計算式",
+      "formula_decision": "+30 タイプが決定またはパターンの場合",
+      "formula_refs": "+10 このエントリを参照するプロジェクトごと",
+      "formula_referenced": "+5 逆参照ヒットごと",
+      "formula_tag": "+20 決定・パターン・グローバル・デザイン・アーキテクチャのタグがある場合",
+      "formula_recency": "+15 保存から 24 時間未満（30 日で線形減衰）",
+      "save_btn": "保存",
+      "cancel_btn": "キャンセル",
+      "save_success": "保存しました"
+    },
+    "errors": {
+      "load_failed": "メモリを読み込めませんでした。{{reason}}",
+      "missing_api": "メモリ API がまだ準備できていません。しばらくしてから再試行してください。",
+      "promote_failed": "プロモートできませんでした。{{reason}}"
+    },
+    "import": {
+      "title": "メモリをインポート",
+      "close": "インポートドロワーを閉じる",
+      "importing": "インポート中…",
+      "status": {
+        "ready": "準備完了",
+        "checking": "確認中",
+        "importing": "インポート中",
+        "unavailable": "利用不可",
+        "idle": "待機中"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "クリックして ~/.claude-mem/claude-mem.db からインポート",
+        "count": "約 {{count}} 件のエントリをインポートしました",
+        "btn": "インポート",
+        "success": "{{count}} 件のエントリをインポートしました · {{errors}} 件のエラー",
+        "error": "インポートに失敗しました。もう一度お試しください。"
+      },
+      "obsidian": {
+        "title": "Obsidian ボールト",
+        "hint": "クリックしてボールトをスキャン",
+        "count": "約 {{count}} 件のエントリをインポートしました",
+        "btn": "インポート",
+        "success": "{{count}} 件のエントリをインポートしました · {{errors}} 件のエラー",
+        "error": "Obsidian のインポートに失敗しました。もう一度お試しください。"
+      },
+      "devScan": {
+        "title": "~/dev スキャン",
+        "hint": "~/dev をスキャンして IJFW メモリディレクトリを検索します",
+        "count": "約 {{count}} 件のエントリをインポートしました",
+        "btn": "インポート",
+        "success": "{{projects}} 件のプロジェクトから {{count}} 件のエントリをインポートしました",
+        "error": "Dev スキャンのインポートに失敗しました。もう一度お試しください。"
+      },
+      "dropFolder": {
+        "title": "ドロップフォルダ",
+        "hint": ".md / .txt / .json ファイルを ~/Documents/Wayland-Memory/ にドロップ",
+        "count": "{{count}} 件のファイルを処理しました",
+        "openBtn": "フォルダを開く",
+        "processBtn": "今すぐ処理",
+        "success": "{{count}} 件のファイルを処理しました · {{errors}} 件のエラー",
+        "error": "処理に失敗しました。もう一度お試しください。"
+      }
+    }
+  }
+}

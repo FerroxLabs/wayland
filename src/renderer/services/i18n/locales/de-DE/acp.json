@@ -1,0 +1,22 @@
+{
+  "auth": {
+    "failed": "{{backend}}-Authentifizierung fehlgeschlagen:\n\n{{error}}\n\nBitte überprüfe den Authentifizierungsstatus deines lokalen CLI-Tools",
+    "console_error": "Details zum ACP-Authentifizierungsfehler:",
+    "failed_confirm": "ACP-{{backend}}-Authentifizierung fehlgeschlagen:\n\n{{error}}\n\nMöchtest du jetzt zur Einstellungsseite wechseln, um die Konfiguration vorzunehmen?"
+  },
+  "sendbox": {
+    "placeholder": "Nachricht an {{backend}} senden..."
+  },
+  "status": {
+    "connecting": "Verbindung zu {{agent}} wird hergestellt...",
+    "connected": "Mit {{agent}} verbunden",
+    "authenticated": "Bei {{agent}} authentifiziert",
+    "session_active": "Aktive Sitzung mit {{agent}}",
+    "error": "Verbindungsfehler",
+    "unknown": "Unbekannter Status"
+  },
+  "config": {
+    "reasoning_effort": "Denkaufwand",
+    "default": "Standard"
+  }
+}

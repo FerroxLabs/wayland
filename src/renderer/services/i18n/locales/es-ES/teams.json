@@ -1,0 +1,141 @@
+{
+  "title": "Equipos",
+  "totalCount": "{{count}} equipos",
+  "siderEntry": "Equipos",
+  "emptyState": "Aún no hay equipos disponibles.",
+  "standingBadge": "Permanente",
+  "teamLeader": "Líder del equipo",
+  "standing": {
+    "promoteCta": "Promover a permanente",
+    "promoteCtaTooltip": "Elegible: quedan {{sessionsRemaining}} sesiones o {{daysRemaining}} días",
+    "modalTitle": "Promover a compañía permanente",
+    "modalDescription": "Las compañías permanentes persisten entre sesiones, aparecen en la sección Permanentes dedicada de la biblioteca y llevan una insignia visual permanente.",
+    "optIn1": "Entiendo que este equipo quedará marcado como compañía permanente en toda la aplicación.",
+    "optIn2": "Puedo degradar este equipo a un equipo normal en cualquier momento.",
+    "confirmButton": "Promover a permanente",
+    "cancelButton": "Cancelar",
+    "demoteAction": "Degradar",
+    "promoteSuccess": "Equipo promovido a permanente",
+    "promoteError": "No se pudo promover el equipo",
+    "demoteSuccess": "Equipo degradado a normal",
+    "demoteError": "No se pudo degradar el equipo"
+  },
+  "card": {
+    "rolesCount": "{{count}} roles"
+  },
+  "buildMyOwn": {
+    "label": "Crear mi propio equipo",
+    "hint": "Empieza desde un equipo en blanco",
+    "cta": "Crear mi propio equipo"
+  },
+  "group": {
+    "standing": "Compañías permanentes",
+    "standingHint": "{{count}} - organizaciones persistentes y ritualizadas que funcionan de forma continua",
+    "teams": "Equipos",
+    "teamsHint": "{{count}} - escuadrones puntuales para un objetivo concreto. Crea, entrega, disuelve.",
+    "startNew": "Crear un nuevo equipo"
+  },
+  "launcher": {
+    "back": "Volver a Equipos",
+    "preconfiguredTitle": "{{name}}",
+    "buildMyOwnTitle": "Crear un equipo",
+    "buildMyOwnSubtitle": "Elige un líder, añade compañeros y selecciona backends. Guárdalo y reutilízalo como tu propia plantilla más adelante.",
+    "nameLabel": "Nombre del equipo",
+    "namePlaceholder": "p. ej. Sprint de lanzamiento, Campaña de renovación, Renovación de marca Q1",
+    "nameRequired": "Introduce un nombre de equipo",
+    "leaderRequired": "Elige un líder",
+    "rosterTitle": "Plantilla",
+    "rosterSubtitle": "Backends elegidos por rol",
+    "leaderRoleLabel": "Líder",
+    "teammateRoleLabel": "Compañero",
+    "slotNameLabel": "Nombre visible",
+    "slotNamePlaceholder": "Nombre del puesto (opcional)",
+    "addTeammate": "Añadir compañero",
+    "remove": "Eliminar",
+    "emptyRoster": "Aún no hay compañeros.",
+    "addSpecialists": "Añadir especialistas",
+    "rosterTip": "Consejo - dejar la plantilla de compañeros vacía crea un equipo con líder en solitario.",
+    "pickLeader": "Elige un especialista como líder del equipo…",
+    "leaderMissing": "Elige un líder",
+    "launchCta": "Lanzar equipo",
+    "launchingCta": "Lanzando…",
+    "createTeamCta": "Crear equipo",
+    "cancelCta": "Cancelar",
+    "loadError": "No se pudo cargar este equipo.",
+    "launchError": "No se pudo lanzar el equipo.",
+    "specialistNotFound": "(especialista no encontrado)",
+    "backendPickerPlaceholder": "Backend",
+    "goalLabel": "Describe lo que estás haciendo y te sugeriré una plantilla",
+    "goalPlaceholder": "p. ej. Vamos a lanzar un embudo de libro de pago y necesitamos un equipo pequeño para entregarlo en dos semanas.",
+    "suggestCta": "Sugerir",
+    "suggestSuccess": "Plantilla sugerida",
+    "suggestFellBackToDefaults": "Se eligió una plantilla predeterminada (ninguna palabra clave del objetivo coincidió)",
+    "suggestError": "No se pudo sugerir la plantilla",
+    "pickerTitle": "Añadir un compañero",
+    "pickerSearch": "Buscar especialistas",
+    "pickerEmpty": "No se encontraron especialistas.",
+    "pickerCancel": "Cancelar"
+  },
+  "rightRail": {
+    "teammates": "Compañeros",
+    "workspace": "Espacio de trabajo",
+    "workspaceLinked": "Explora los archivos en el panel del espacio de trabajo →",
+    "workspaceEmpty": "Aún no hay ningún espacio de trabajo vinculado a este equipo.",
+    "rituals": "Rituales",
+    "ritualsEmpty": "Sin rituales - no es una compañía permanente.",
+    "roleLeader": "líder",
+    "roleSpecialist": "especialista",
+    "addTeammate": "Añadir compañero",
+    "addTeammateSuccess": "Compañero añadido",
+    "addTeammateError": "No se pudo añadir el compañero",
+    "restartAgent": "Reiniciar",
+    "restartAgentSuccess": "Reinicio iniciado",
+    "restartAgentError": "No se pudo reiniciar el agente"
+  },
+  "activity": {
+    "tabLabel": "Actividad",
+    "empty": "Aún no hay actividad del equipo."
+  },
+  "activeSidebar": {
+    "title": "Activos",
+    "rollup": "{{tokens}} tokens · ~{{usd}} esta semana"
+  },
+  "import": {
+    "button": "Importar equipo",
+    "title": "Revisar las capacidades del equipo",
+    "intro": "Este equipo declara las siguientes capacidades. Concede solo lo que consideres de confianza.",
+    "trustSelectedCta": "Confiar en lo seleccionado",
+    "trustSelectedCtaCountdown": "Confiar en lo seleccionado ({{seconds}}s)",
+    "sandboxCta": "Modo aislado (sin capacidades)",
+    "cancelCta": "Cancelar",
+    "missingSpecialists": "Faltan especialistas: {{names}}. Instálalos primero o usa un equipo diferente.",
+    "networkNotice": "El acceso a la red para los equipos importados está actualmente deshabilitado. Esta capacidad no se puede conceder en la v1.",
+    "success": "Equipo importado",
+    "error": "No se pudo importar el equipo",
+    "busyError": "Cola de importación llena - inténtalo de nuevo en unos segundos",
+    "fileReadError": "No se pudo leer el archivo",
+    "cap": {
+      "canReadFiles": "Leer archivos del espacio de trabajo",
+      "canReadFilesDesc": "Concede a los agentes de este equipo acceso de lectura a los archivos dentro de tu carpeta de espacio de trabajo. Los directorios .env, .ssh y node_modules/.bin/.cache siempre están bloqueados.",
+      "canWriteFiles": "Escribir archivos del espacio de trabajo",
+      "canWriteFilesDesc": "Concede acceso de escritura + mkdir dentro de tu espacio de trabajo. Los enlaces simbólicos siempre están bloqueados. Las rutas protegidas siempre se deniegan.",
+      "canSpawnAgents": "Crear nuevos compañeros",
+      "canSpawnAgentsDesc": "Permite al líder ampliar la plantilla en tiempo de ejecución mediante team_spawn_agent.",
+      "canNetworkRequest": "Realizar peticiones de red",
+      "canNetworkRequestDesc": "Permite llamadas fetch/https.request desde los procesos de los agentes.",
+      "canCrossTeamMessage": "Enviar mensajes a otros equipos",
+      "canCrossTeamMessageDesc": "Permite que team_send_message entregue mensajes a equipos fuera de este."
+    }
+  },
+  "noResults": "Ningún equipo coincide con tu búsqueda.",
+  "controls": {
+    "searchPlaceholder": "Buscar equipos",
+    "sortLabel": "Ordenar"
+  },
+  "sort": {
+    "default": "Predeterminado",
+    "name": "Nombre (A-Z)",
+    "roles": "Más roles",
+    "schedule": "Horario"
+  }
+}

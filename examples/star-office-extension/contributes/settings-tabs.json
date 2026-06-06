@@ -1,0 +1,26 @@
+[
+  {
+    "id": "star-office",
+    "name": "Star Office",
+    "entryPoint": "settings/star-office.html",
+    "icon": "assets/star-office-icon.svg",
+    "position": { "anchor": "display", "placement": "after" },
+    "order": 70
+  },
+  {
+    "id": "wayland-home",
+    "name": "Wayland Home",
+    "entryPoint": "https://getwayland.com/",
+    "icon": "assets/star-office-icon.svg",
+    "position": { "anchor": "display", "placement": "after" },
+    "order": 80
+  },
+  {
+    "id": "wayland-issues",
+    "name": "Wayland Issues",
+    "entryPoint": "https://github.com/Wayland/Wayland/issues",
+    "icon": "assets/star-office-icon.svg",
+    "position": { "anchor": "display", "placement": "after" },
+    "order": 81
+  }
+]

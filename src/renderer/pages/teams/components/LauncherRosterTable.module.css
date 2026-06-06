@@ -1,0 +1,184 @@
+/**
+ * LauncherRosterTable - roster table for the team launcher.
+ *
+ * Mirrors mockup §2: cards stacked vertically, each row a single line with
+ * avatar + name/role/desc + slot-name input + backend pill + remove button.
+ * Leader row gets a subtle accent border on the left to distinguish.
+ */
+.card {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cardTitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+
+.cardSubtitle {
+  font-size: 12px;
+  color: var(--color-text-4);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowLeader {
+  border-left: 2px solid rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.04);
+  padding-left: 10px;
+  margin-left: -12px;
+  border-radius: 8px 8px 0 0;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--color-fill-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* AssistantIconTile wrapper used for row avatars - overrides the default
+ * inner-svg sizing so emoji/text avatars (e.g. waylandteams specialists) sit
+ * centered without the 60% shrink applied to lucide glyphs. */
+.avatarTile {
+  flex-shrink: 0;
+}
+
+.avatarTile :global(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.avatarTile :global(span) {
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.identity {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nameLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.roleTag {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-4);
+}
+
+.leaderTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.14);
+  color: rgb(245, 158, 11);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.description {
+  font-size: 11.5px;
+  color: var(--color-text-3);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.controls {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slotInput {
+  width: 140px;
+}
+
+.removeBtn {
+  color: var(--color-text-3);
+}
+
+.emptyRow {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--color-text-3);
+  font-size: 12.5px;
+  border: 1px dashed var(--color-border-2);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.addBtn {
+  margin-top: 12px;
+}
+
+.tip {
+  font-size: 11px;
+  color: var(--color-text-4);
+  margin-top: 8px;
+}

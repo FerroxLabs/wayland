@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.brave/brave-search-mcp",
+  "title": "Brave Search",
+  "description": "Independent web search index - fast, private, and ad-free, powered by Brave's own crawler.",
+  "version": "2.1.0",
+  "websiteUrl": "https://brave.com/search/api/",
+  "repository": { "url": "https://github.com/brave/brave-search-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "brave-search-mcp",
+      "version": "2.1.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "BRAVE_API_KEY", "description": "API key from your Brave Search dashboard.", "isRequired": true, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["search", "research"],
+    "tags": ["search", "web", "brave", "research"],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 10,
+    "installRate": 0.52,
+    "iconUrl": "icons/brave.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#fb542b" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Brave Search",
+      "providerSignupUrl": "https://brave.com/search/api/"
+    },
+    "toolGroups": [
+      { "label": "Web Search", "count": 2 },
+      { "label": "News", "count": 1 },
+      { "label": "Local", "count": 1 }
+    ],
+    "setupGuide": { "path": "guides/com.brave-brave-search-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

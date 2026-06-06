@@ -1,0 +1,444 @@
+{
+  "page": {
+    "title": "記憶",
+    "subtitle": "貫穿每一次工作階段的 AI 持續知識"
+  },
+  "pitch": {
+    "headline": "跟著你走的記憶",
+    "lede": "Wayland 記得你做過什麼、決定過什麼、發佈過什麼。每位助手都能拿到這些脈絡 -- 不必再說明一次。由 Ferrox Labs 出品的開源記憶引擎 IJFW 提供支援。",
+    "bullet1": "在聊天、專案和命令列工具間持續保留",
+    "bullet2": "可搜尋、可匯出，完全屬於你",
+    "bullet3": "安裝後無需任何設定",
+    "install_cta": "安裝記憶",
+    "enable_cta": "啟用記憶",
+    "settings_link": "不想要？可以在設定中關閉"
+  },
+  "setting_up": {
+    "title": "正在設定記憶",
+    "subtitle": "只會發生一次，並在背景完成。你可以繼續工作。",
+    "brand_line": "IJFW Memory by Ferrox Labs",
+    "taking_longer": "仍在設定中... 網路較慢時最多可能需要一分鐘。",
+    "help": "遇到問題？前往設定手動重試。"
+  },
+  "brand": {
+    "tagline": "IJFW Memory by Ferrox Labs",
+    "footer": "由 IJFW（開源）提供支援，出品方：Ferrox Labs",
+    "github_link": "github.com/FerroxLabs/ijfw"
+  },
+  "installing": {
+    "title": "正在安裝記憶",
+    "subtitle": "大約需要一分鐘",
+    "version_label": "正在安裝版本 {{version}}",
+    "step_download": "正在從 npm 下載",
+    "step_extract": "正在解壓檔案",
+    "step_verify": "正在驗證安裝",
+    "step_activate": "正在啟用"
+  },
+  "upgrading": {
+    "title": "正在升級記憶",
+    "subtitle": "已為下次啟動準備 {{version}}",
+    "pending_message": "升級已就緒。Wayland 重新啟動後將生效。",
+    "restart_now": "立即重新啟動"
+  },
+  "failed": {
+    "title": "安裝未能完成",
+    "retry": "重試",
+    "details_toggle": "顯示詳情",
+    "details_hide": "隱藏詳情",
+    "support_link": "需要協助？請造訪 github.com/FerroxLabs/ijfw"
+  },
+  "error": {
+    "spawn_error": "無法啟動安裝程式。請確認 npm 在你的 PATH 中。",
+    "install_exit_nonzero": "安裝以錯誤結束。下方詳情可能有幫助。",
+    "invalid_target_version": "登錄回傳了無效的版本號。請稍後再試。",
+    "unsafe_ownership": "待安裝資料夾的擁有權不安全，已被拒絕。請重新安裝以還原。",
+    "stage_pending_failed": "無法暫存新安裝。請檢查磁碟空間後重試。",
+    "stage_swap_failed": "無法切換至新安裝。請重新啟動 Wayland 後重試。",
+    "upgrade_failed_no_rollback": "升級失敗，且無法還原至上一版本。請重新安裝以還原。",
+    "upgrade_failed_rolled_back": "升級失敗，但上一版本仍可正常運作。請稍後重試或查看詳細資訊。",
+    "rollback_also_failed": "新版本和還原皆失敗。請重新安裝以還原。",
+    "mcp_crashed": "記憶當機了。請重新啟動 Wayland 以還原。",
+    "mcp_error": "記憶回傳了錯誤。請重試。",
+    "timeout": "記憶未能及時回應。請重試。",
+    "validation_failed": "該請求不符合記憶期望的格式。",
+    "unavailable": "記憶尚未執行。請安裝或重新啟動以啟用。",
+    "opt_out": "記憶已在設定中關閉。",
+    "unknown": "發生錯誤。請重試。"
+  },
+  "empty": {
+    "title": "記憶已就緒",
+    "subtitle": "把你希望它下次還記得的事情告訴它",
+    "placeholder": "記憶應該知道關於你的什麼？",
+    "chip1": "記住我們發佈所用的技術堆疊",
+    "chip2": "回想我們關於驗證的決定",
+    "chip3": "上次部署中哪裡出問題了",
+    "save_button": "儲存記憶",
+    "save_ok": "已儲存記憶",
+    "save_err": "無法儲存記憶"
+  },
+  "panel": {
+    "header_breadcrumb": "記憶",
+    "subtitle": "IJFW Memory by Ferrox Labs",
+    "button_drop": "丟棄",
+    "button_history": "紀錄",
+    "button_add": "新增記憶",
+    "tab_home": "首頁",
+    "tab_search": "搜尋",
+    "tab_wiki": "百科",
+    "tab_promotions": "推廣",
+    "tab_drop": "丟棄",
+    "tab_conflicts": "衝突",
+    "tab_cross_project": "跨專案"
+  },
+  "degraded": {
+    "toast": "記憶將在首次設定完成後啟用",
+    "banner": "記憶目前處於降級模式 -- 聊天仍可使用，但增強功能已關閉"
+  },
+  "settings": {
+    "panel_title": "IJFW Memory（Ferrox Labs）",
+    "skip_label": "略過 IJFW 自動設定",
+    "skip_description": "啟用後，Wayland 將不會安裝或升級 IJFW。你之後可以透過記憶頁面手動安裝。",
+    "manual_install_hint": "手動安裝：在終端機中執行 `npx -y @ijfw/install@latest`",
+    "about_title": "IJFW Memory",
+    "about_body": "由 Ferrox Labs 出品的開源持久化記憶引擎。"
+  },
+  "prelude": {
+    "installing_notice": "IJFW 正在安裝。外部命令列工具（Claude Code、Codex、Gemini CLI）會在安裝完成後識別它。",
+    "disabled_notice": "IJFW 已在 Wayland 設定中關閉。請重新啟用以與外部命令列共享記憶。",
+    "failed_notice": "IJFW 安裝失敗。請在 Wayland 的記憶頁面重試。"
+  },
+  "home": {
+    "wiki_title": "Wiki",
+    "wiki_empty": "尚無 Wiki 條目",
+    "links_title": "最近的關聯",
+    "links_empty": "尚無關聯",
+    "promote_title": "可提升",
+    "promote_empty": "沒有可提升的候選",
+    "promote_button": "提升",
+    "promote_success": "已提升至 Wiki"
+  },
+  "search": {
+    "placeholder": "向記憶詢問任何關於你工作的內容",
+    "examples_title": "試試下面的一個開始:",
+    "example_1": "我們最後選定的驗證方案是什麼？",
+    "example_2": "上次部署裡出了什麼問題？",
+    "example_3": "哪個助理負責 cron 排程？",
+    "citation_stub": "引用導覽將於 Wave 6 支援"
+  },
+  "promotions": {
+    "title": "等待提升到 Wiki",
+    "refresh": "重新整理",
+    "empty": "目前沒有待處理項目。新事實準備好提升時會顯示在這裡。",
+    "promote": "提升",
+    "skip": "略過",
+    "preview": "預覽",
+    "preview_hide": "隱藏",
+    "queued_at": "{{time}} 加入佇列",
+    "promote_success": "已提升至 Wiki。",
+    "promote_error": "無法提升該條目。請重試。",
+    "skip_success": "已略過。",
+    "skip_error": "無法略過該條目。請重試。"
+  },
+  "conflicts": {
+    "empty": "未偵測到衝突。記憶保持一致。",
+    "keep_this": "保留這條",
+    "resolve_success": "衝突已解決"
+  },
+  "wiki": {
+    "home": {
+      "title": "Wiki",
+      "conceptCount": "{{count}} 個概念來自 {{memories}} 條記憶",
+      "viewList": "列表",
+      "viewGraph": "圖譜",
+      "newConcept": "+ 新概念",
+      "settings": "設定",
+      "search": {
+        "placeholder": "搜尋概念…"
+      },
+      "columns": {
+        "byTopic": "按主題",
+        "updatedThisWeek": "本週更新",
+        "emerging": "新興 - 應建立概念頁"
+      },
+      "mostReferenced": "最多引用",
+      "references": "次引用",
+      "empty": "Wiki 為空。升級一條記憶或等待自動同步。",
+      "status": {
+        "concepts": "{{count}} 個概念",
+        "memoriesSynthesized": "{{count}} 條記憶已合成",
+        "autoSync": "每 30 分鐘自動同步",
+        "lastSync": "上次同步 {{when}} 前"
+      },
+      "emergingLabel": "新興"
+    },
+    "orphan": {
+      "references": "{{count}} 次引用",
+      "projects": "{{count}} 個專案",
+      "projectsSingular": "{{count}} 個專案",
+      "synthesize": "合成頁面 →",
+      "noPageYet": "尚無頁面"
+    },
+    "concept": {
+      "synthesizedFrom": "來自 {{count}} 條記憶"
+    },
+    "detail": {
+      "back": "← Wiki",
+      "edit": "編輯",
+      "updateFromSources": "從來源更新",
+      "settings": "設定",
+      "updatedAgo": "更新於 {{when}}",
+      "synthesizedFromMem": "來自 {{count}} 條記憶",
+      "freshness": {
+        "fresh": "新鮮",
+        "stale": "已過時",
+        "neverReviewed": "從未審閱"
+      },
+      "tldr": "摘要",
+      "sources": "來源",
+      "linkedFrom": "被引用自",
+      "relatedConcepts": "相關概念",
+      "openMemory": "開啟記憶 →",
+      "showAll": "顯示全部 {{count}} 條 ↓",
+      "hiddenSourcesOne": "還有 {{count}} 條來源記憶",
+      "hiddenSourcesOther": "還有 {{count}} 條來源記憶",
+      "autoSynthesized": "自動合成",
+      "lastReviewedNever": "最後審閱：從未",
+      "lastSynthesized": "上次合成：{{when}}",
+      "markAsReviewed": "標記為已審閱",
+      "editThisPage": "編輯此頁",
+      "reSynthesizeFromSources": "從來源重新合成",
+      "statusTotalConcepts": "共 {{count}} 個概念",
+      "statusNotReviewedYet": "尚未審閱",
+      "statusLastSync": "上次同步 {{when}} 前",
+      "loading": "載入中…",
+      "notFound": "找不到該概念。",
+      "notFoundBack": "← 返回 Wiki"
+    },
+    "list_empty": "尚無 wiki 條目。請從提升記憶開始。",
+    "select_prompt": "選擇一個條目以檢視其內容。",
+    "promote": "提升",
+    "export": "匯出",
+    "share_readme": "分享 README",
+    "promote_ok": "已提升至 wiki",
+    "promote_err": "無法提升此條目",
+    "export_queued": "匯出已排入佇列 - 下載功能即將推出",
+    "export_err": "無法匯出此條目",
+    "share_ok": "README 分享已排入佇列",
+    "share_err": "無法分享 README"
+  },
+  "crossProject": {
+    "scope_label_app": "搜尋: 所有專案（應用範圍）",
+    "scope_label_project": "搜尋: {{project}}（專案範圍）",
+    "search_placeholder": "跨專案搜尋記憶",
+    "search_button": "搜尋",
+    "toggle_label": "包含其他專案",
+    "prompt_empty": "輸入查詢以跨專案記憶搜尋。",
+    "results_empty": "搜尋範圍內沒有符合項目。",
+    "navigation_stub": "跨專案導覽將於 Wave 6 支援"
+  },
+  "drop": {
+    "zone_title": "將檔案拖到這裡",
+    "zone_hint": "Markdown、文字、JSON、YAML、CSV。最大 50MB。佇列最多 20 個檔案。",
+    "browse_button": "瀏覽",
+    "queue_title": "佇列中的檔案",
+    "queue_empty": "佇列中沒有檔案",
+    "quarantine_button": "隔離",
+    "ingest_success": "已將 {{name}} 加入佇列",
+    "quarantine_success": "已隔離 {{name}}",
+    "path_unavailable": "無法讀取檔案路徑。請改用瀏覽按鈕。"
+  },
+  "archive": {
+    "topbar": {
+      "title": "記憶",
+      "subtitle": "IJFW · Ferrox Labs",
+      "streak_pill": "{{sessions}} 次工作階段 · 最長連續 {{longestDays}} 天",
+      "streak_empty": "尚無工作階段記錄",
+      "import_btn": "匯入…",
+      "settings_btn": "設定"
+    },
+    "stats": {
+      "memories": "記憶",
+      "banked": "已節省",
+      "decisions": "決策",
+      "wiki": "Wiki",
+      "sessions": "工作階段",
+      "projects": "專案",
+      "delta_today": "今天 {{count}} 條",
+      "delta_week": "本週 {{count}} 條",
+      "delta_none": "無變化",
+      "banked_tooltip": "預估節省的推論價值：引用次數 × $0.15 + 決策次數 × $0.50 + Wiki 條目 × $2.00",
+      "no_data": "0"
+    },
+    "banner": {
+      "candidates_ready": "{{count}} 個候選項已準備好自動升級",
+      "threshold": "閾值 ≥ {{value}}",
+      "next_sweep": "將在 {{time}} 後自動升級",
+      "last_dream": "上次整理：{{facts}} 條事實 · {{promoted}} 條已升級 · {{ago}} 前",
+      "no_dream": "最近沒有整理週期",
+      "tune_btn": "調整",
+      "review_btn": "審閱 {{count}} 條 →",
+      "review_btn_zero": "審閱"
+    },
+    "filters": {
+      "projects_title": "專案",
+      "all_projects": "所有專案",
+      "this_project": "本專案",
+      "global": "全域",
+      "time_title": "時間",
+      "time_all": "全部",
+      "time_today": "今天",
+      "time_7d": "7 天",
+      "time_30d": "30 天",
+      "time_custom": "自訂…",
+      "tags_title": "標籤",
+      "tags_clear": "清除標籤",
+      "autopromo_title": "自動升級",
+      "candidates_only": "僅顯示升級候選",
+      "hide_promoted": "隱藏已升級的條目",
+      "candidates_subline": "{{count}} 條已就緒 · 閾值 ≥ {{value}}",
+      "section_collapse": "收合",
+      "section_expand": "展開"
+    },
+    "list": {
+      "search_placeholder": "搜尋記憶…",
+      "search_kbd_hint": "/",
+      "chip_all": "全部",
+      "chip_decision": "決策",
+      "chip_pattern": "模式",
+      "chip_session": "工作階段",
+      "chip_wiki": "Wiki",
+      "chip_observation": "觀察",
+      "chip_preference": "偏好",
+      "chip_count": "({{count}})",
+      "empty_title": "無符合項目",
+      "empty_subtitle": "請嘗試移除過濾條件或清除搜尋。",
+      "empty_clear_btn": "清除過濾",
+      "footer": "顯示第 1–{{shown}} 條，共 {{total}} 條 · 捲動查看更多",
+      "footer_all_loaded": "已載入全部 {{total}} 條",
+      "loading_more": "載入更多…"
+    },
+    "row": {
+      "used_pill": "本週使用 {{count}} 次",
+      "type_decision": "決策",
+      "type_pattern": "模式",
+      "type_observation": "觀察",
+      "type_session": "工作階段",
+      "type_wiki": "Wiki",
+      "type_preference": "偏好"
+    },
+    "inspector": {
+      "empty_title": "選擇一條記憶以查看詳情",
+      "kbd_navigate": "↑/↓ 導覽",
+      "kbd_select": "Enter 選擇",
+      "kbd_close": "Esc 關閉",
+      "close_btn": "關閉",
+      "promote_btn": "升級至 Wiki",
+      "promote_disabled": "已升級 ✓",
+      "open_btn": "開啟檔案",
+      "copy_btn": "複製",
+      "score_label": "升級評分 {{score}}/100",
+      "score_threshold": "達到 {{threshold}} 自動升級",
+      "score_help": "這是如何計算的？",
+      "summary_title": "摘要",
+      "why_title": "原因",
+      "why_empty": "未記錄「原因」",
+      "how_title": "如何應用",
+      "how_empty": "未記錄「如何應用」",
+      "derefs_title": "實際使用情況",
+      "derefs_subtitle": "本週使用 {{count}} 次",
+      "tags_title": "標籤",
+      "source_label": "來源",
+      "source_copied": "已複製來源路徑",
+      "promote_success": "已升級至 Wiki",
+      "promote_error": "無法升級，請重試。",
+      "score_tooltip": "+30 決策/模式 · +10 每個跨專案引用 · +5 每次解引用 · +20 已升級標籤 · +15 近期（30 天內線性衰減）"
+    },
+    "quickadd": {
+      "placeholder": "記錄任何內容…",
+      "scope_project": "專案",
+      "scope_global": "全域",
+      "submit_btn": "記住 →",
+      "submitting": "儲存中…",
+      "success": "已儲存",
+      "error": "無法儲存，請重試。"
+    },
+    "statusbar": {
+      "brain_live": "記憶上線",
+      "brain_offline": "記憶離線",
+      "cli_count": "{{count}} 個 CLI",
+      "cli_count_none": "未偵測到 CLI",
+      "last_dream": "上次整理：{{facts}} 條事實 · {{promoted}} 條已升級 · {{ago}} 前",
+      "no_dream": "等待首次整理",
+      "kbd_capture": "快速記錄",
+      "kbd_search": "搜尋",
+      "kbd_close": "關閉檢視",
+      "spend_today": "今日花費 ${{usd}}"
+    },
+    "threshold_modal": {
+      "title": "調整自動升級",
+      "threshold_label": "升級閾值",
+      "autopromo_label": "依排程自動升級",
+      "autopromo_help": "開啟後，超過閾值且通過 10 分鐘等待佇列的候選項將自動寫入 Wiki。",
+      "live_preview": "閾值 {{value}} 下共有 {{count}} 個候選",
+      "score_formula_title": "評分公式",
+      "formula_decision": "+30 類型為決策或模式",
+      "formula_refs": "+10 每個引用該條目的專案",
+      "formula_referenced": "+5 每次解引用命中",
+      "formula_tag": "+20 標籤為決策、模式、全域、設計或架構",
+      "formula_recency": "+15 儲存時間不足 24 小時（30 天內線性衰減）",
+      "save_btn": "儲存",
+      "cancel_btn": "取消",
+      "save_success": "已儲存"
+    },
+    "errors": {
+      "load_failed": "無法載入記憶。{{reason}}",
+      "missing_api": "記憶 API 尚未就緒，請稍後再試。",
+      "promote_failed": "無法升級。{{reason}}"
+    },
+    "import": {
+      "title": "匯入記憶",
+      "close": "關閉匯入面板",
+      "importing": "匯入中…",
+      "status": {
+        "ready": "就緒",
+        "checking": "檢查中",
+        "importing": "匯入中",
+        "unavailable": "無法使用",
+        "idle": "閒置"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "點按以從 ~/.claude-mem/claude-mem.db 匯入",
+        "count": "已匯入約 {{count}} 筆項目",
+        "btn": "匯入",
+        "success": "已匯入 {{count}} 筆項目 · {{errors}} 個錯誤",
+        "error": "匯入失敗，請重試。"
+      },
+      "obsidian": {
+        "title": "Obsidian 知識庫",
+        "hint": "點按以掃描知識庫",
+        "count": "已匯入約 {{count}} 筆項目",
+        "btn": "匯入",
+        "success": "已匯入 {{count}} 筆項目 · {{errors}} 個錯誤",
+        "error": "Obsidian 匯入失敗，請重試。"
+      },
+      "devScan": {
+        "title": "~/dev 掃描",
+        "hint": "掃描 ~/dev 以尋找 IJFW 記憶目錄",
+        "count": "已匯入約 {{count}} 筆項目",
+        "btn": "匯入",
+        "success": "已從 {{projects}} 個專案匯入 {{count}} 筆項目",
+        "error": "Dev 掃描匯入失敗，請重試。"
+      },
+      "dropFolder": {
+        "title": "拖放資料夾",
+        "hint": "將 .md / .txt / .json 檔案拖放至 ~/Documents/Wayland-Memory/",
+        "count": "已處理 {{count}} 個檔案",
+        "openBtn": "開啟資料夾",
+        "processBtn": "立即處理",
+        "success": "已處理 {{count}} 個檔案 · {{errors}} 個錯誤",
+        "error": "處理失敗，請重試。"
+      }
+    }
+  }
+}

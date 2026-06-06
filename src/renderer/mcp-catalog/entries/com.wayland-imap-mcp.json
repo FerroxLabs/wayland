@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.wayland/imap-mcp",
+  "title": "Generic IMAP / SMTP",
+  "description": "Personal email via IMAP/SMTP - works with iCloud, Proton Bridge, Fastmail, and any standards-compliant mail host.",
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/FerroxLabs/waylandmcp/tree/main/packages/imap-mcp",
+  "repository": { "url": "https://github.com/FerroxLabs/waylandmcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "binary",
+      "identifier": "builtin-mcp-imap.mjs",
+      "version": "0.1.0",
+      "runtimeHint": "native",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "IMAP_HOST", "description": "IMAP server hostname (e.g. imap.fastmail.com).", "isRequired": true, "isSecret": false },
+        { "name": "IMAP_PORT", "description": "IMAP port - usually 993 for TLS.", "isRequired": false, "default": "993" },
+        { "name": "IMAP_USER", "description": "IMAP username (often your email address).", "isRequired": true, "isSecret": false },
+        { "name": "IMAP_PASSWORD", "description": "IMAP password or app-specific password.", "isRequired": true, "isSecret": true },
+        { "name": "SMTP_HOST", "description": "SMTP hostname for sending mail.", "isRequired": false, "isSecret": false },
+        { "name": "SMTP_PORT", "description": "SMTP port (usually 587 STARTTLS or 465 TLS).", "isRequired": false, "default": "587" }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["communication"],
+    "tags": ["imap", "smtp", "email", "icloud", "proton", "fastmail"],
+    "maintainerType": "wayland",
+    "license": "MIT",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 8,
+    "installRate": 0.34,
+    "iconUrl": "icons/email.svg",
+    "brand": { "logoBackground": "linear-gradient(135deg,#ff6b35 0%,#1a1a1a 100%)", "logoForeground": "#ffffff" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Your IMAP host",
+      "providerSignupUrl": "https://www.fastmail.com/help/clients/apppassword.html"
+    },
+    "toolGroups": [
+      { "label": "Mailbox", "count": 4 },
+      { "label": "Messages", "count": 6 },
+      { "label": "Send", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.wayland-imap-mcp.md", "estimatedMinutes": 3, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

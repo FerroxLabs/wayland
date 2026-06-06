@@ -1,0 +1,43 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.stripe/stripe-mcp",
+  "title": "Stripe",
+  "description": "Customers, payments, subscriptions, invoices, and refunds - Stripe's official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.stripe.com/mcp",
+  "repository": { "url": "https://github.com/stripe/stripe-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.stripe.com" }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["payments", "developer"],
+    "tags": ["stripe", "payments", "billing"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 34,
+    "installRate": 0.32,
+    "iconUrl": "icons/stripe.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#635bff" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Stripe",
+      "providerSignupUrl": "https://stripe.com",
+      "scopes": [
+        { "name": "read_only", "plainLanguage": "Read your Stripe account data." },
+        { "name": "read_write", "plainLanguage": "Create and modify Stripe objects." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Customers", "count": 4 },
+      { "label": "Payments", "count": 5 },
+      { "label": "Subscriptions", "count": 4 },
+      { "label": "Invoices", "count": 4 }
+    ],
+    "setupGuide": { "path": "guides/com.stripe-stripe-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "modalTitle": "Software-Update",
+  "checking": "Suche nach Updates...",
+  "checkFailed": "Suche nach Updates fehlgeschlagen",
+  "upToDateTitle": "Alles aktuell",
+  "currentVersion": "Aktuelle Version: {{version}}",
+  "availableTitle": "Update verfügbar",
+  "noReleaseNotes": "Keine Versionshinweise vorhanden.",
+  "downloadingTitle": "Update wird heruntergeladen...",
+  "downloadButton": "Herunterladen",
+  "downloadAndInstall": "Herunterladen & installieren",
+  "downloadStartFailed": "Download konnte nicht gestartet werden",
+  "downloadFailed": "Download fehlgeschlagen",
+  "noCompatibleAsset": "Kein kompatibler Download für diese Plattform gefunden",
+  "noCompatibleAssetManual": "Kein Paket passt zur Architektur deines aktuellen Systems. Bitte lade das richtige Installationsprogramm von Releases herunter.",
+  "goToRelease": "Releases öffnen",
+  "downloadCompleteTitle": "Download abgeschlossen",
+  "readyToInstall": "Bereit zur Installation",
+  "readyToInstallDesc": "Das Update wurde heruntergeladen. Klicke auf die Schaltfläche unten, um neu zu starten und das Update zu installieren.",
+  "installNow": "Installieren und neu starten",
+  "autoUpdateMode": "Modus für automatische Updates",
+  "showInFolder": "Im Ordner anzeigen",
+  "openFile": "Datei öffnen",
+  "errorTitle": "Update fehlgeschlagen",
+  "errors": {
+    "missingTag": "Dieses Update kann nicht verifiziert werden: Das Release-Tag fehlt. Bitte aktualisiere über die Releases-Seite.",
+    "metadataMissing": "Signierte Update-Metadaten (latest.yml) für dieses Release wurden nicht gefunden. Das Öffnen eines nicht verifizierten Installationsprogramms wird verweigert.",
+    "assetNotInMetadata": "Die heruntergeladene Datei \"{{name}}\" ist nicht in den signierten Update-Metadaten aufgeführt. Das Öffnen eines nicht verifizierten Installationsprogramms wird verweigert.",
+    "checksumMismatch": "Die Integritätsprüfung des heruntergeladenen Updates ist fehlgeschlagen (Prüfsummen-Abweichung) und es wurde verworfen. Führe es nicht aus. Bitte versuche es erneut oder lade es von der Releases-Seite herunter."
+  }
+}

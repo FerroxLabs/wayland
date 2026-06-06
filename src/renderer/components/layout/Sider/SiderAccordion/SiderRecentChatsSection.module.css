@@ -1,0 +1,52 @@
+/* v0.6.2.1 Fix D2 - matches the SiderAccordionShell section-label vocabulary
+   (small-caps · tracking-wide · 10px · text-text-3) so Recent Chats reads as
+   a section heading rather than a primary nav target. The chevron is absent
+   here on purpose - this section is labelled-but-not-collapsible per SPEC. */
+.section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+  /* See Fix D4 in SiderAccordionShell.module.css - scrollZone is a flex
+     column; sibling accordions need flex-shrink:0 too, and so does this
+     section, so the scrollZone's overflow-y:auto is what scrolls when
+     the combined content exceeds available height. */
+  flex-shrink: 0;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  color: var(--color-text-3);
+  /* No cursor:pointer, no role=button - this is a label, not an interactive header. */
+}
+.icon {
+  width: 14px;
+  flex-shrink: 0;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+.badge {
+  background: var(--color-fill-3);
+  color: var(--color-text-2);
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 9.5px;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.4;
+}
+.fallback {
+  min-height: 200px;
+}

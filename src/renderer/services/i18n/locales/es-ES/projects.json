@@ -1,0 +1,233 @@
+{
+  "siderEntry": "Proyectos",
+  "list": {
+    "title": "Proyectos",
+    "subtitle": "Agrupa chats relacionados bajo un mismo paraguas",
+    "newButton": "Nuevo proyecto"
+  },
+  "empty": {
+    "title": "Aún no hay proyectos",
+    "body": "Crea un proyecto para mantener juntos los chats relacionados, su espacio de trabajo y su conocimiento. Cualquier backend, modelo o asistente puede ejecutarse dentro.",
+    "cta": "Crea tu primer proyecto"
+  },
+  "card": {
+    "pin": "Fijar",
+    "unpin": "Dejar de fijar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "more": "Más",
+    "noDescription": "Aún sin descripción",
+    "chatCount": "{{count}} chats"
+  },
+  "modal": {
+    "createTitle": "Nuevo proyecto",
+    "editTitle": "Editar proyecto",
+    "createButton": "Crear proyecto",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "p. ej. Embudo de lanzamiento",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "¿De qué trata este proyecto? (opcional)",
+    "workspaceLabel": "Carpeta del espacio de trabajo",
+    "chooseFolder": "Elegir carpeta",
+    "workspaceHint": "Opcional. Los chats de este proyecto comienzan aquí, y se crea una carpeta de conocimiento .wayland/ para que todos los chats compartan el mismo contexto.",
+    "colorLabel": "Color"
+  },
+  "workspace": {
+    "loading": "Cargando proyecto...",
+    "edit": "Editar",
+    "newChat": "Nuevo chat en este proyecto",
+    "tabChats": "Chats",
+    "tabFiles": "Archivos",
+    "tabKnowledge": "Conocimiento",
+    "knowledgeHint": "Carpeta de conocimiento: {{path}}/.wayland",
+    "emptyTitle": "Aún no hay chats en este proyecto",
+    "emptyBody": "Inicia un chat con cualquier backend, modelo o asistente. Vivirá dentro de este proyecto, y puedes ejecutar tantos como quieras a la vez.",
+    "untitledChat": "Chat sin título",
+    "removeChat": "Quitar",
+    "tabReference": "Referencia",
+    "tabMemory": "Memoria",
+    "setupDone": "Configurado",
+    "setupTodo": "Terminar configuración",
+    "settings": "Ajustes"
+  },
+  "assign": {
+    "title": "Añadir al proyecto",
+    "empty": "Aún no tienes ningún proyecto. Crea uno abajo.",
+    "newPlaceholder": "Nombre del nuevo proyecto",
+    "createButton": "Crear"
+  },
+  "delete": {
+    "title": "¿Eliminar el proyecto?",
+    "body": "¿Eliminar \"{{name}}\"? Sus chats se conservan y simplemente se quitan del proyecto.",
+    "confirm": "Eliminar proyecto"
+  },
+  "removeChat": {
+    "title": "¿Quitar del proyecto?",
+    "body": "El chat se conserva; solo se desvincula de este proyecto.",
+    "confirm": "Quitar"
+  },
+  "history": {
+    "addToProject": "Añadir al proyecto",
+    "removeFromProject": "Quitar del proyecto"
+  },
+  "composer": {
+    "newChatIn": "Nuevo chat en {{name}}"
+  },
+  "knowledge": {
+    "title": "Conocimiento del proyecto",
+    "subtitle": "Compartido con todos los chats de este proyecto. Las ediciones se aplican a los chats nuevos.",
+    "saving": "Guardando",
+    "saved": "Guardado",
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "edit": "Editar",
+    "preview": "Vista previa",
+    "save": "Guardar",
+    "generate": "Generar",
+    "summaryLabel": "Resumen",
+    "summaryPlaceholder": "Un resumen de una línea (o genera uno).",
+    "bodyLabel": "Contenido",
+    "previewEmpty": "Aún no hay nada que previsualizar.",
+    "summaryEmpty": "Añade algo de contenido primero y luego genera un resumen.",
+    "summaryFailed": "No se pudo generar un resumen.",
+    "noModelHint": "Conecta un modelo con una clave de API para generar resúmenes automáticamente.",
+    "context": {
+      "label": "Instrucciones",
+      "placeholder": "Antecedentes e instrucciones que todos los chats de este proyecto deberían conocer.",
+      "emptyHint": "Aún sin instrucciones. Haz clic para añadir contexto compartido para cada chat."
+    },
+    "rules": {
+      "label": "Reglas y convenciones",
+      "placeholder": "Convenciones que todos los chats deberían seguir (opcional).",
+      "emptyHint": "Aún sin reglas. Haz clic para añadir convenciones que todos los chats deberían seguir."
+    },
+    "decisions": {
+      "label": "Decisiones",
+      "placeholder": "Decisiones tomadas en este proyecto, para que los chats no las vuelvan a debatir (opcional).",
+      "emptyHint": "Aún no hay decisiones registradas. Haz clic para registrar decisiones para futuros chats."
+    },
+    "reference": {
+      "label": "Archivos de referencia",
+      "add": "Añadir",
+      "dropHint": "Arrastra archivos aquí o haz clic para explorar",
+      "remove": "Quitar archivo"
+    },
+    "fileAdded": "Se añadió {{count}} archivo",
+    "fileAdded_other": "Se añadieron {{count}} archivos",
+    "fileAddFailed": "No se pudieron añadir los archivos.",
+    "fileRemoveFailed": "No se pudo quitar el archivo.",
+    "noWorkspaceTitle": "Aún no hay carpeta de espacio de trabajo",
+    "noWorkspaceBody": "Establece una carpeta de espacio de trabajo para este proyecto para añadir instrucciones, reglas y archivos de referencia compartidos.",
+    "setWorkspace": "Establecer carpeta del espacio de trabajo"
+  },
+  "toast": {
+    "created": "Proyecto creado",
+    "updated": "Proyecto actualizado",
+    "deleted": "Proyecto eliminado",
+    "saveFailed": "Algo salió mal. Inténtalo de nuevo.",
+    "deleteFailed": "No se pudo eliminar el proyecto.",
+    "chatAdded": "Añadido al proyecto",
+    "chatRemoved": "Quitado del proyecto"
+  },
+  "settings": {
+    "title": "Ajustes del proyecto",
+    "general": "General",
+    "saved": "Ajustes guardados",
+    "saveFailed": "No se pudieron guardar los ajustes.",
+    "readyDone": "Proyecto configurado",
+    "readyTodo": "Añade instrucciones para terminar la configuración",
+    "instructionsHint": "Se inyecta en todos los chats de este proyecto.",
+    "rulesHint": "Restricciones estrictas que todos los chats deben seguir.",
+    "helpWrite": "Ayúdame a escribir esto",
+    "needWorkspace": "Establece primero una carpeta de espacio de trabajo para escribir instrucciones y reglas."
+  },
+  "reference": {
+    "title": "Archivos de referencia",
+    "subtitle": "Material en el que la IA puede apoyarse: especificaciones, documentos de marca, datos. Disponible para todos los chats de este proyecto.",
+    "dropTitle": "Arrastra archivos aquí",
+    "dropHint": "o haz clic para explorar · PDF, Markdown, CSV, imágenes…"
+  },
+  "memory": {
+    "title": "Memoria del proyecto",
+    "subtitle": "Decisiones y lecciones de este proyecto. Compartidas con todos los chats para que no se vuelvan a debatir.",
+    "add": "Añadir decisión",
+    "save": "Guardar",
+    "placeholder": "¿Qué se decidió y por qué?",
+    "addFailed": "No se pudo guardar la decisión.",
+    "emptyTitle": "Aún no hay decisiones",
+    "emptyBody": "Registra las decisiones a medida que las tomes. Se trasladan a todos los chats de este proyecto para que nada se vuelva a debatir.",
+    "ijfwTitle": "Descubierto por IJFW",
+    "ijfwSubtitle": "La propia memoria de proyecto de IJFW, mostrada en solo lectura. Añade arriba como decisión cualquier cosa importante.",
+    "ijfwBadge": "IJFW",
+    "ijfwReadonly": "Solo lectura · de IJFW",
+    "ijfwJournal": "Registro de actividad",
+    "ijfwHandoff": "Traspaso"
+  },
+  "wizard": {
+    "titleInstructions": "Asistente de instrucciones",
+    "titleRules": "Asistente de reglas",
+    "subtitle": "Responde un par de preguntas rápidas. Redactaré un documento de buenas prácticas que podrás editar.",
+    "step": {
+      "source": "Fuente",
+      "questions": "Preguntas",
+      "draft": "Borrador"
+    },
+    "source": {
+      "q": "Cuéntame sobre este proyecto",
+      "hint": "Una o dos frases, pega texto relevante o sube un archivo. Cuanto más sepa, mejor será el borrador.",
+      "placeholder": "p. ej. Un embudo de lanzamiento de un producto para la masterclass: contacto con brókers, el modelo de pérdidas y ganancias y el embudo de repetición.",
+      "upload": "Subir archivo",
+      "uploadHint": "PDF, Markdown, texto…"
+    },
+    "audience": {
+      "q": "¿Para quién es este proyecto?",
+      "customers": "Clientes / compradores",
+      "team": "Mi equipo",
+      "me": "Solo yo",
+      "developers": "Desarrolladores",
+      "executives": "Ejecutivos",
+      "public": "El público"
+    },
+    "constraints": {
+      "q": "¿Qué debería tener siempre presente cada chat?",
+      "onBrand": "Mantener la identidad de marca",
+      "concise": "Ser conciso",
+      "citeSources": "Citar fuentes",
+      "noHype": "Sin exageraciones",
+      "matchStyle": "Coincidir con el estilo existente",
+      "factsLocked": "Usar datos/cifras bloqueados",
+      "placeholder": "¿Algo más? p. ej. 'Nunca recalcular el P&L bloqueado.'"
+    },
+    "draft": {
+      "q": "Aquí tienes un borrador",
+      "modelNote": "Mejor modelo disponible",
+      "generating": "Redactando…",
+      "noModel": "Conecta un modelo con una clave de API para redactar con IA.",
+      "failed": "No se pudo generar un borrador.",
+      "retry": "Inténtalo de nuevo"
+    },
+    "back": "Atrás",
+    "continue": "Continuar",
+    "generate": "Generar borrador",
+    "regenerate": "Regenerar",
+    "useDraft": "Usar este borrador"
+  },
+  "newWizard": {
+    "eyebrow": "Nuevo proyecto",
+    "basicsTitle": "Ponle nombre a tu proyecto",
+    "basicsSub": "Dos pasos rápidos para tener un proyecto listo para trabajar. Sáltalos cuando quieras.",
+    "instructionsTitle": "Define tus instrucciones",
+    "instructionsSub": "Opcional: redáctalas con IA ahora o añádelas más tarde.",
+    "whatLabel": "¿Qué es?",
+    "whatHint": "una línea, ayuda a la IA",
+    "workspaceOptional": "opcional, añádelo más tarde",
+    "noModelTitle": "Ningún modelo conectado",
+    "noModelBody": "Conecta un modelo más tarde en Ajustes para redactar instrucciones con IA. También puedes escribirlas a mano.",
+    "instructionsReady": "Instrucciones listas",
+    "redo": "Rehacer con el asistente",
+    "instructionsPrompt": "La mayoría de los proyectos funcionan mejor con un breve documento de instrucciones que todos los chats comparten. ¿Quieres ayuda para escribir uno?",
+    "draftInstructions": "Redactar instrucciones con IA",
+    "orSkipBelow": "o sáltalo abajo: puedes añadirlas en cualquier momento",
+    "skip": "Saltar por ahora, empezar ya",
+    "create": "Crear proyecto"
+  }
+}

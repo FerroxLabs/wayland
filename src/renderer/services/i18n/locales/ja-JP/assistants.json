@@ -1,0 +1,43 @@
+{
+  "title": "[TODO:translate] Assistants",
+  "totalCount": "[TODO:translate] {{count}} assistants",
+  "siderEntry": "[TODO:translate] Assistants",
+  "emptyState": "[TODO:translate] No assistants match your filters.",
+  "card": {
+    "backendHint": "[TODO:translate] · Runs on {{backend}} · change ⌄",
+    "menuAria": "[TODO:translate] Open menu for {{name}}"
+  },
+  "buildMyOwn": {
+    "label": "[TODO:translate] Build my own",
+    "hint": "[TODO:translate] Start from a blank assistant",
+    "cta": "[TODO:translate] + Build my own"
+  },
+  "group": {
+    "teams": "[TODO:translate] Teams",
+    "specialists": "[TODO:translate] Specialists",
+    "builtins": "[TODO:translate] Built-ins"
+  },
+  "filterRail": {
+    "aria": "[TODO:translate] Assistant filters",
+    "searchPlaceholder": "[TODO:translate] Search assistants",
+    "typeLabel": "[TODO:translate] Type",
+    "domainLabel": "[TODO:translate] Domain",
+    "reset": "[TODO:translate] Reset filters",
+    "type": {
+      "all": "[TODO:translate] All",
+      "team": "[TODO:translate] Teams",
+      "specialist": "[TODO:translate] Specialists",
+      "builtin": "[TODO:translate] Built-ins"
+    },
+    "domain": {
+      "all": "[TODO:translate] All",
+      "sell": "[TODO:translate] Sell",
+      "write": "[TODO:translate] Write",
+      "research": "[TODO:translate] Research",
+      "build": "[TODO:translate] Build",
+      "run": "[TODO:translate] Run",
+      "office": "[TODO:translate] Office",
+      "general": "[TODO:translate] General"
+    }
+  }
+}

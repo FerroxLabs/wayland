@@ -1,0 +1,387 @@
+/* Agents settings page - mirrors prototype #screen-agents.
+   A clean sibling of the Models page: same semantic-token ladder, same
+   card language. All colors use semantic tokens; the brand color is
+   `var(--brand)`. Agent brand colors are intentional literals passed inline. */
+
+/* ---- Section label (shared with the Models page) ---- */
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 6px 2px 0;
+}
+
+/* ---- Agent card ---- */
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+}
+
+/* Wayland Core - the hero card carries a soft brand wash. */
+.cardHero {
+  border-color: var(--brand-soft-border);
+  background-image: linear-gradient(150deg, var(--brand-soft-bg) 0%, transparent 44%);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 15px 18px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  /* Intentional literal: the robot-emoji fallback glyph reads white on any
+     agent brand wash; no semantic token maps to "always-white on art". */
+  color: #fff;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cardMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-1);
+}
+
+/* The plain-language model-scope sentence (spec §4.7). */
+.runs {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--brand);
+  margin-top: 3px;
+}
+
+.runsMuted {
+  color: var(--color-text-2);
+}
+
+/* Scope sentence + Flux status chip share one row. */
+.runsRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.runsRow .runs {
+  margin-top: 0;
+}
+
+/* ---- Flux compatibility chip ---- */
+.fluxChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+.fluxChipReady {
+  color: var(--success);
+  background: var(--success-soft-bg);
+}
+
+.fluxChipSetup {
+  color: rgb(var(--primary-6));
+  background: rgba(var(--primary-6), 0.12);
+}
+
+.fluxChipNative {
+  color: var(--color-text-3);
+  background: var(--color-fill-2);
+  cursor: default;
+}
+
+/* The opencode setup chip renders as a clickable Arco text button. Neutralise
+   the button's default height/padding so it matches the static chips above. */
+.fluxChipButton {
+  height: auto;
+  border: none;
+  cursor: pointer;
+}
+
+.fluxChipButton:hover {
+  background: rgba(var(--primary-6), 0.2);
+}
+
+/* ---- Flux setup modal ---- */
+.fluxSetupBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.fluxReport {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--color-fill-1);
+  border: 1px solid var(--color-border-2);
+}
+
+.fluxReportBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fluxReportLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-3);
+}
+
+.fluxReportList {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.desc {
+  font-size: 12px;
+  color: var(--color-text-2);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+/* ---- Status badge ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badgeActive {
+  background: var(--success-soft-bg);
+  color: var(--success);
+}
+
+.badgeDetected {
+  background: var(--color-fill-2);
+  color: var(--color-text-2);
+}
+
+.badgeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---- "More detected" tile grid ---- */
+.tileGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 9px;
+}
+
+@media (max-width: 900px) {
+  .tileGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .tileGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tile {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 10px;
+  padding: 11px 12px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.tileAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  /* Intentional literal - see `.avatar` above. */
+  color: #fff;
+}
+
+.tileAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tileText {
+  min-width: 0;
+}
+
+.tileName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.tileScopeRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 1px;
+}
+
+.tileScope {
+  font-size: 10px;
+  color: var(--color-text-2);
+}
+
+/* ---- Empty note ---- */
+.emptyNote {
+  font-size: 12.5px;
+  color: var(--color-text-2);
+  text-align: center;
+  padding: 20px 16px;
+}
+
+/* ---- Flux Router card (live status + route-through toggle) ---- */
+.flux {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  border: 1px solid var(--brand-soft-border);
+  border-radius: 14px;
+  padding: 15px 17px;
+  background: var(--brand-soft-bg);
+}
+
+.fluxIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: #fff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluxBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.fluxTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---- Live connection status pill ---- */
+.fluxStatusOn,
+.fluxStatusOff {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.fluxStatusOn {
+  color: var(--success);
+  background: var(--success-soft-bg);
+}
+
+.fluxStatusOff {
+  color: var(--color-text-2);
+  background: var(--color-fill-2);
+}
+
+.fluxStatusDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---- Route-through toggle row ---- */
+.fluxToggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 9px;
+}
+
+.fluxToggleLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.fluxDesc {
+  font-size: 12px;
+  color: var(--color-text-2);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+.fluxConnectBtn {
+  margin-top: 10px;
+}

@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} is unavailable, using {{fallback}} instead.",
+  "noAgentAvailable": "Kullanılabilir bir Ana Ajan yok. Lütfen Google'a giriş yapın veya Claude/Codex CLI kurun. Ayarlara gitmek ister misiniz?",
+  "noAgentAvailableShort": "No Main Agent available. Click to configure.",
+  "agentTabAutoSwitch": "Model not compatible with Gemini, auto-switched to {{fallback}}",
+  "autoSwitchToAgent": "Gemini is not configured, auto-switching to {{agent}}",
+  "autoSwitchedAgent": "{{from}} is not available, switched to {{to}}",
+  "promptExamplesHint": "Try example prompts:",
+  "agentSwitcherLabel": "Agent",
+  "switchedToAgent": "{{agent}} olarak değiştirildi",
+  "hint": {
+    "search": "Aramak için {{key}} tuşuna basın",
+    "backend": "Arka uç için {{key}}",
+    "newChat": "Yeni sohbet için {{key}}"
+  },
+  "scanning": {
+    "initialMessage": "Current Agent is unavailable, detecting other available agents...",
+    "scanningMessage": "Scanning local available agents...",
+    "connectingMessage": "Connected successfully, please wait...",
+    "establishingConnection": "Establishing connection...",
+    "statusQueued": "Queued",
+    "statusTesting": "Testing latency...",
+    "statusUnreachable": "Unreachable",
+    "statusAvailable": "Available"
+  },
+  "newChat": {
+    "kickoff": {
+      "accept": "Tamam, başlayalım",
+      "redirect": "Başka bir şey",
+      "dismissAria": "Öneriyi kapat",
+      "regionAria": "Önerilen ilk mesaj"
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": ["Geç saatlere kaldın", "Sabahın köründe çalışıyorsun", "Hâlâ ayaktasın"],
+        "morning": ["Günaydın", "Hayırlı sabahlar", "Güne merhaba"],
+        "afternoon": ["İyi günler", "Hayırlı günler", "Tekrar hoş geldin"],
+        "evening": ["İyi akşamlar", "Hayırlı akşamlar", "Tekrar hoş geldin"],
+        "night": ["İyi akşamlar", "Hayırlı akşamlar", "Günü kapatıyorsun"]
+      }
+    },
+    "intent": {
+      "sell": "Sat",
+      "write": "Yaz",
+      "research": "Araştır",
+      "build": "Oluştur",
+      "run": "Çalıştır"
+    },
+    "pillBar": {
+      "label": "Bir amaç seçin",
+      "pillLabel": "{{label}} amacı"
+    },
+    "suggestionPanel": {
+      "label": "{{label}} başlangıç istemleri",
+      "heading": "{{label}} ile başlayın",
+      "close": "Önerileri kapat"
+    },
+    "recents": {
+      "label": "Son sohbetler",
+      "heading": "Kaldığınız yerden devam edin"
+    },
+    "voiceHint": "Konuşmak için mikrofona tıklayın"
+  }
+}

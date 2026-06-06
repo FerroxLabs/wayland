@@ -1,0 +1,444 @@
+{
+  "page": {
+    "title": "Memoria",
+    "subtitle": "El conocimiento persistente de tu IA en cada sesión"
+  },
+  "pitch": {
+    "headline": "Una memoria que te acompaña",
+    "lede": "Wayland recuerda en qué has trabajado, qué has decidido y qué has publicado. Cada asistente recibe el contexto, sin tener que explicarlo todo de nuevo. Funciona con IJFW, un motor de memoria de código abierto de Ferrox Labs.",
+    "bullet1": "Persistente entre chats, proyectos y CLIs",
+    "bullet2": "Buscable, exportable, tuya",
+    "bullet3": "Sin configuración tras la instalación",
+    "install_cta": "Instalar Memoria",
+    "enable_cta": "Activar Memoria",
+    "settings_link": "¿No lo quieres? Puedes desactivarlo en Ajustes"
+  },
+  "setting_up": {
+    "title": "Configurando Memoria",
+    "subtitle": "Esto ocurre una sola vez, en segundo plano. Puedes seguir trabajando.",
+    "brand_line": "IJFW Memory de Ferrox Labs",
+    "taking_longer": "Aún configurando... esto puede tardar hasta un minuto en conexiones lentas.",
+    "help": "¿Problemas? Ve a Ajustes para reintentar manualmente."
+  },
+  "brand": {
+    "tagline": "IJFW Memory de Ferrox Labs",
+    "footer": "Funciona con IJFW (código abierto) de Ferrox Labs",
+    "github_link": "github.com/FerroxLabs/ijfw"
+  },
+  "installing": {
+    "title": "Instalando Memoria",
+    "subtitle": "Esto tarda alrededor de un minuto",
+    "version_label": "Instalando la versión {{version}}",
+    "step_download": "Descargando desde npm",
+    "step_extract": "Extrayendo archivos",
+    "step_verify": "Verificando la instalación",
+    "step_activate": "Activando"
+  },
+  "upgrading": {
+    "title": "Actualizando Memoria",
+    "subtitle": "Preparando {{version}} para el próximo arranque",
+    "pending_message": "Actualización lista. Se activará cuando Wayland se reinicie.",
+    "restart_now": "Reiniciar ahora"
+  },
+  "failed": {
+    "title": "No se pudo completar la instalación",
+    "retry": "Reintentar",
+    "details_toggle": "Mostrar detalles",
+    "details_hide": "Ocultar detalles",
+    "support_link": "Visita github.com/FerroxLabs/ijfw para obtener ayuda"
+  },
+  "error": {
+    "spawn_error": "No se pudo iniciar el instalador. Comprueba que npm está en tu PATH.",
+    "install_exit_nonzero": "La instalación finalizó con un error. Los detalles de abajo pueden ayudar.",
+    "invalid_target_version": "Número de versión no válido en el registro. Inténtalo de nuevo más tarde.",
+    "unsafe_ownership": "La carpeta de instalación pendiente tiene una propiedad insegura y fue rechazada. Reinstala para recuperarla.",
+    "stage_pending_failed": "No se pudo preparar la nueva instalación. Comprueba el espacio en disco e inténtalo de nuevo.",
+    "stage_swap_failed": "No se pudo aplicar la nueva instalación. Reinicia Wayland para reintentar.",
+    "upgrade_failed_no_rollback": "La actualización falló y no se pudo restaurar la versión anterior. Reinstala para recuperarla.",
+    "upgrade_failed_rolled_back": "La actualización falló, pero tu versión anterior sigue funcionando. Inténtalo de nuevo más tarde o revisa los detalles.",
+    "rollback_also_failed": "Tanto la nueva versión como la restauración fallaron. Reinstala para recuperarla.",
+    "mcp_crashed": "Memoria se bloqueó. Reinicia Wayland para recuperarla.",
+    "mcp_error": "Memoria devolvió un error. Inténtalo de nuevo.",
+    "timeout": "Memoria no respondió a tiempo. Inténtalo de nuevo.",
+    "validation_failed": "Esa solicitud no coincide con lo que Memoria espera.",
+    "unavailable": "Memoria aún no está en marcha. Instálala o reiníciala para activarla.",
+    "opt_out": "Memoria está desactivada en Ajustes.",
+    "unknown": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "empty": {
+    "title": "Memoria está lista",
+    "subtitle": "Pregúntale cualquier cosa que quieras que recuerde la próxima vez",
+    "placeholder": "¿Qué debería saber Memoria sobre ti?",
+    "chip1": "Recuerda el stack con el que publicamos",
+    "chip2": "Recuerda qué decidimos sobre la autenticación",
+    "chip3": "Qué falló en el último despliegue",
+    "save_button": "Guardar memoria",
+    "save_ok": "Memoria guardada",
+    "save_err": "No se pudo guardar la memoria"
+  },
+  "panel": {
+    "header_breadcrumb": "Memoria",
+    "subtitle": "IJFW Memory de Ferrox Labs",
+    "button_drop": "Soltar",
+    "button_history": "Historial",
+    "button_add": "Añadir memoria",
+    "tab_home": "Inicio",
+    "tab_search": "Buscar",
+    "tab_wiki": "Wiki",
+    "tab_promotions": "Promociones",
+    "tab_drop": "Soltar",
+    "tab_conflicts": "Conflictos",
+    "tab_cross_project": "Entre proyectos"
+  },
+  "degraded": {
+    "toast": "Memoria se activará tras la configuración inicial",
+    "banner": "Memoria está actualmente en modo degradado: el chat sigue funcionando, pero el enriquecimiento está desactivado"
+  },
+  "settings": {
+    "panel_title": "IJFW Memory (Ferrox Labs)",
+    "skip_label": "Omitir la configuración automática de IJFW",
+    "skip_description": "Cuando está activado, Wayland no instalará ni actualizará IJFW. Puedes instalarlo manualmente más tarde desde la página de Memoria.",
+    "manual_install_hint": "Para instalar manualmente: ejecuta `npx -y @ijfw/install@latest` en un terminal",
+    "about_title": "IJFW Memory",
+    "about_body": "Un motor de memoria persistente de código abierto de Ferrox Labs."
+  },
+  "prelude": {
+    "installing_notice": "IJFW se está instalando. Las CLIs externas (Claude Code, Codex, Gemini CLI) lo detectarán cuando finalice la instalación.",
+    "disabled_notice": "IJFW está desactivado en los Ajustes de Wayland. Vuelve a activarlo para compartir la memoria con las CLIs externas.",
+    "failed_notice": "La instalación de IJFW falló. Ve a la página de Memoria en Wayland para reintentar."
+  },
+  "home": {
+    "wiki_title": "Wiki",
+    "wiki_empty": "Aún no hay entradas en la wiki",
+    "links_title": "Enlaces recientes",
+    "links_empty": "Aún no hay relaciones",
+    "promote_title": "Listo para promover",
+    "promote_empty": "No hay candidatos listos",
+    "promote_button": "Promover",
+    "promote_success": "Promovido a la wiki"
+  },
+  "search": {
+    "placeholder": "Pregunta cualquier cosa que la memoria sepa sobre tu trabajo",
+    "examples_title": "Prueba con una de estas para empezar:",
+    "example_1": "¿Cuál es el stack de autenticación que elegimos?",
+    "example_2": "¿Qué falló en el último despliegue?",
+    "example_3": "¿Qué asistente gestiona la programación de cron?",
+    "citation_stub": "La navegación por citas llegará en la Wave 6"
+  },
+  "promotions": {
+    "title": "Pendiente de promoción a la wiki",
+    "refresh": "Actualizar",
+    "empty": "Nada en espera. Los nuevos datos aparecerán aquí cuando estén listos para promover.",
+    "promote": "Promover",
+    "skip": "Omitir",
+    "preview": "Vista previa",
+    "preview_hide": "Ocultar",
+    "queued_at": "En cola {{time}}",
+    "promote_success": "Promovido a la wiki.",
+    "promote_error": "No se pudo promover ese elemento. Inténtalo de nuevo.",
+    "skip_success": "Omitido.",
+    "skip_error": "No se pudo omitir ese elemento. Inténtalo de nuevo."
+  },
+  "conflicts": {
+    "empty": "No se detectaron conflictos. La memoria es coherente.",
+    "keep_this": "Conservar este",
+    "resolve_success": "Conflicto resuelto"
+  },
+  "wiki": {
+    "list_empty": "Aún no hay entradas en la wiki. Promueve una memoria para empezar.",
+    "select_prompt": "Selecciona una entrada para ver su contenido.",
+    "promote": "Promover",
+    "export": "Exportar",
+    "share_readme": "Compartir README",
+    "promote_ok": "Promovido a la wiki",
+    "promote_err": "No se pudo promover la entrada",
+    "export_queued": "Exportación en cola: la Wave 6 habilita la descarga",
+    "export_err": "No se pudo exportar la entrada",
+    "share_ok": "Compartir README en cola",
+    "share_err": "No se pudo compartir el README",
+    "home": {
+      "title": "Wiki",
+      "conceptCount": "{{count}} conceptos sintetizados a partir de {{memories}} memorias",
+      "viewList": "Lista",
+      "viewGraph": "Grafo",
+      "newConcept": "+ Nuevo concepto",
+      "settings": "Ajustes",
+      "search": {
+        "placeholder": "Buscar conceptos…"
+      },
+      "columns": {
+        "byTopic": "Por tema",
+        "updatedThisWeek": "Actualizados esta semana",
+        "emerging": "Emergentes: deberían ser páginas de concepto"
+      },
+      "mostReferenced": "Más referenciados",
+      "references": "referencias",
+      "empty": "Tu wiki está vacía. Promueve una memoria o espera la sincronización automática.",
+      "status": {
+        "concepts": "{{count}} conceptos",
+        "memoriesSynthesized": "{{count}} memorias sintetizadas",
+        "autoSync": "sincronización automática cada 30 min",
+        "lastSync": "última sincronización hace {{when}}"
+      },
+      "emergingLabel": "Emergente"
+    },
+    "orphan": {
+      "references": "{{count}} referencias",
+      "projects": "{{count}} proyectos",
+      "projectsSingular": "{{count}} proyecto",
+      "synthesize": "Sintetizar página →",
+      "noPageYet": "Aún no hay página"
+    },
+    "concept": {
+      "synthesizedFrom": "Sintetizado a partir de {{count}} memorias"
+    },
+    "detail": {
+      "back": "← Wiki",
+      "edit": "Editar",
+      "updateFromSources": "Actualizar desde las fuentes",
+      "settings": "Ajustes",
+      "updatedAgo": "Actualizado {{when}}",
+      "synthesizedFromMem": "Sintetizado a partir de {{count}} memorias",
+      "freshness": {
+        "fresh": "Reciente",
+        "stale": "Obsoleto",
+        "neverReviewed": "Nunca revisado"
+      },
+      "tldr": "Resumen",
+      "sources": "Fuentes",
+      "linkedFrom": "Enlazado desde",
+      "relatedConcepts": "Conceptos relacionados",
+      "openMemory": "Abrir memoria →",
+      "showAll": "Mostrar las {{count}} ↓",
+      "hiddenSourcesOne": "{{count}} memoria de origen más",
+      "hiddenSourcesOther": "{{count}} memorias de origen más",
+      "autoSynthesized": "Sintetizado automáticamente",
+      "lastReviewedNever": "última revisión por ti: nunca",
+      "lastSynthesized": "Última síntesis: {{when}}",
+      "markAsReviewed": "Marcar como revisado",
+      "editThisPage": "Editar esta página",
+      "reSynthesizeFromSources": "Volver a sintetizar desde las fuentes",
+      "statusTotalConcepts": "{{count}} conceptos en total",
+      "statusNotReviewedYet": "Aún no revisado",
+      "statusLastSync": "última sincronización hace {{when}}",
+      "loading": "Cargando…",
+      "notFound": "Concepto no encontrado.",
+      "notFoundBack": "← Volver a la Wiki"
+    }
+  },
+  "crossProject": {
+    "scope_label_app": "Buscando: Todos los proyectos (alcance de la app)",
+    "scope_label_project": "Buscando: {{project}} (alcance del proyecto)",
+    "search_placeholder": "Buscar memorias en todos los proyectos",
+    "search_button": "Buscar",
+    "toggle_label": "Incluir otros proyectos",
+    "prompt_empty": "Introduce una consulta para buscar entre los cerebros de los proyectos.",
+    "results_empty": "No hay coincidencias en el alcance buscado.",
+    "navigation_stub": "La navegación entre proyectos llegará en la Wave 6"
+  },
+  "drop": {
+    "zone_title": "Suelta los archivos aquí",
+    "zone_hint": "Markdown, texto, JSON, YAML, CSV. Máx. 50 MB. Máx. 20 archivos en cola.",
+    "browse_button": "Examinar",
+    "queue_title": "Archivos en cola",
+    "queue_empty": "No hay archivos en cola",
+    "quarantine_button": "Poner en cuarentena",
+    "ingest_success": "{{name}} en cola",
+    "quarantine_success": "{{name}} en cuarentena",
+    "path_unavailable": "No se pudo leer la ruta del archivo. Usa el botón Examinar en su lugar."
+  },
+  "archive": {
+    "topbar": {
+      "title": "Memoria",
+      "subtitle": "IJFW · Ferrox Labs",
+      "streak_pill": "{{sessions}} sesiones · racha más larga de {{longestDays}} d",
+      "streak_empty": "Aún no hay sesiones",
+      "import_btn": "Importar…",
+      "settings_btn": "Ajustes"
+    },
+    "stats": {
+      "memories": "Memorias",
+      "banked": "Acumulado",
+      "decisions": "Decisiones",
+      "wiki": "Wiki",
+      "sessions": "Sesiones",
+      "projects": "Proyectos",
+      "delta_today": "{{count}} hoy",
+      "delta_week": "{{count}} esta semana",
+      "delta_none": "sin cambios",
+      "banked_tooltip": "Valor estimado de inferencia ahorrado: referenciadas × 0,15 $ + decisiones × 0,50 $ + wiki × 2,00 $",
+      "no_data": "0"
+    },
+    "banner": {
+      "candidates_ready": "{{count}} candidatos listos para promoción automática",
+      "threshold": "umbral ≥ {{value}}",
+      "next_sweep": "promoción automática en {{time}}",
+      "last_dream": "Último ciclo de sueño: {{facts}} datos · {{promoted}} promovidos · hace {{ago}}",
+      "no_dream": "No hay ciclo de sueño reciente",
+      "tune_btn": "Ajustar",
+      "review_btn": "Revisar {{count}} →",
+      "review_btn_zero": "Revisar"
+    },
+    "filters": {
+      "projects_title": "Proyectos",
+      "all_projects": "Todos los proyectos",
+      "this_project": "Este proyecto",
+      "global": "Global",
+      "time_title": "Tiempo",
+      "time_all": "Todo",
+      "time_today": "Hoy",
+      "time_7d": "7 días",
+      "time_30d": "30 días",
+      "time_custom": "Personalizado…",
+      "tags_title": "Etiquetas",
+      "tags_clear": "Borrar etiquetas",
+      "autopromo_title": "Promoción automática",
+      "candidates_only": "Solo candidatos a promoción",
+      "hide_promoted": "Ocultar los ya promovidos",
+      "candidates_subline": "{{count}} listos · umbral ≥ {{value}}",
+      "section_collapse": "Contraer",
+      "section_expand": "Expandir"
+    },
+    "list": {
+      "search_placeholder": "Buscar memorias…",
+      "search_kbd_hint": "/",
+      "chip_all": "Todas",
+      "chip_decision": "Decisiones",
+      "chip_pattern": "Patrones",
+      "chip_session": "Sesiones",
+      "chip_wiki": "Wiki",
+      "chip_observation": "Observaciones",
+      "chip_preference": "Preferencias",
+      "chip_count": "({{count}})",
+      "empty_title": "Sin coincidencias",
+      "empty_subtitle": "Prueba a quitar un filtro o borrar la búsqueda.",
+      "empty_clear_btn": "Borrar filtros",
+      "footer": "Mostrando 1–{{shown}} de {{total}} · desplázate para ver más",
+      "footer_all_loaded": "Las {{total}} cargadas",
+      "loading_more": "Cargando más…"
+    },
+    "row": {
+      "used_pill": "Usada {{count}}× esta semana",
+      "type_decision": "Decisión",
+      "type_pattern": "Patrón",
+      "type_observation": "Observación",
+      "type_session": "Sesión",
+      "type_wiki": "Wiki",
+      "type_preference": "Preferencia"
+    },
+    "inspector": {
+      "empty_title": "Selecciona una memoria para inspeccionarla",
+      "kbd_navigate": "↑/↓ navegar",
+      "kbd_select": "Intro seleccionar",
+      "kbd_close": "Esc cerrar",
+      "close_btn": "Cerrar",
+      "promote_btn": "Promover a la wiki",
+      "promote_disabled": "Ya promovida ✓",
+      "open_btn": "Abrir archivo",
+      "copy_btn": "Copiar",
+      "score_label": "Puntuación de promoción {{score}}/100",
+      "score_threshold": "se promueve automáticamente en {{threshold}}",
+      "score_help": "¿Cómo se calcula esto?",
+      "summary_title": "Resumen",
+      "why_title": "Por qué",
+      "why_empty": "No se registró ningún \"Por qué\"",
+      "how_title": "Cómo aplicarlo",
+      "how_empty": "No se registró ningún \"Cómo aplicarlo\"",
+      "derefs_title": "Usada en la práctica",
+      "derefs_subtitle": "Usada {{count}}× esta semana",
+      "tags_title": "Etiquetas",
+      "source_label": "Fuente",
+      "source_copied": "Ruta de origen copiada",
+      "promote_success": "Promovida a la wiki",
+      "promote_error": "No se pudo promover. Inténtalo de nuevo.",
+      "score_tooltip": "+30 decisión/patrón · +10 por referencia entre proyectos · +5 por desreferencia · +20 etiqueta promovida · +15 actualidad (decae a lo largo de 30 d)"
+    },
+    "quickadd": {
+      "placeholder": "Recuerda cualquier cosa…",
+      "scope_project": "proyecto",
+      "scope_global": "global",
+      "submit_btn": "Recordar →",
+      "submitting": "Guardando…",
+      "success": "Guardado",
+      "error": "No se pudo guardar. Inténtalo de nuevo."
+    },
+    "statusbar": {
+      "brain_live": "Cerebro activo",
+      "brain_offline": "Cerebro desconectado",
+      "cli_count": "{{count}} CLIs",
+      "cli_count_none": "No se detectaron CLIs",
+      "last_dream": "Último ciclo de sueño: {{facts}} datos · {{promoted}} promovidos · hace {{ago}}",
+      "no_dream": "Esperando el primer ciclo de sueño",
+      "kbd_capture": "captura rápida",
+      "kbd_search": "buscar",
+      "kbd_close": "cerrar inspector",
+      "spend_today": "{{usd}} $ hoy"
+    },
+    "threshold_modal": {
+      "title": "Ajustar la promoción automática",
+      "threshold_label": "Umbral de promoción",
+      "autopromo_label": "Promover automáticamente según programación",
+      "autopromo_help": "Cuando está activado, los candidatos que superan el umbral y sobreviven a la cola de 10 min se escriben en la wiki automáticamente.",
+      "live_preview": "{{count}} candidatos en el umbral {{value}}",
+      "score_formula_title": "Fórmula de puntuación",
+      "formula_decision": "+30 si el tipo es decisión o patrón",
+      "formula_refs": "+10 por cada proyecto que referencia esta entrada",
+      "formula_referenced": "+5 por cada acierto de desreferencia",
+      "formula_tag": "+20 si está etiquetada como decisión, patrón, global, diseño o arquitectura",
+      "formula_recency": "+15 si se almacenó hace < 24 h (decae linealmente a lo largo de 30 días)",
+      "save_btn": "Guardar",
+      "cancel_btn": "Cancelar",
+      "save_success": "Guardado"
+    },
+    "errors": {
+      "load_failed": "No se pudo cargar la memoria. {{reason}}",
+      "missing_api": "La API de Memoria aún no está lista. Inténtalo de nuevo en un momento.",
+      "promote_failed": "No se pudo promover. {{reason}}"
+    },
+    "import": {
+      "title": "Importar memorias",
+      "close": "Cerrar el panel de importación",
+      "importing": "Importando…",
+      "status": {
+        "ready": "lista",
+        "checking": "comprobando",
+        "importing": "importando",
+        "unavailable": "no disponible",
+        "idle": "inactiva"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "Haz clic para importar desde ~/.claude-mem/claude-mem.db",
+        "count": "~{{count}} entradas importadas",
+        "btn": "Importar",
+        "success": "{{count}} entradas importadas · {{errors}} errores",
+        "error": "La importación falló. Inténtalo de nuevo."
+      },
+      "obsidian": {
+        "title": "Bóveda de Obsidian",
+        "hint": "Haz clic para buscar bóvedas",
+        "count": "~{{count}} entradas importadas",
+        "btn": "Importar",
+        "success": "{{count}} entradas importadas · {{errors}} errores",
+        "error": "La importación de Obsidian falló. Inténtalo de nuevo."
+      },
+      "devScan": {
+        "title": "Análisis de ~/dev",
+        "hint": "Analiza ~/dev en busca de directorios de memoria de IJFW",
+        "count": "~{{count}} entradas importadas",
+        "btn": "Importar",
+        "success": "{{count}} entradas importadas de {{projects}} proyectos",
+        "error": "El análisis de dev falló. Inténtalo de nuevo."
+      },
+      "dropFolder": {
+        "title": "Carpeta de arrastre",
+        "hint": "Suelta archivos .md / .txt / .json en ~/Documents/Wayland-Memory/",
+        "count": "{{count}} archivos procesados",
+        "openBtn": "Abrir carpeta",
+        "processBtn": "Procesar ahora",
+        "success": "{{count}} archivos procesados · {{errors}} errores",
+        "error": "El procesamiento falló. Inténtalo de nuevo."
+      }
+    }
+  }
+}

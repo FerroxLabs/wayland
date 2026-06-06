@@ -1,0 +1,31 @@
+{
+  "modalTitle": "Atualização de software",
+  "checking": "Verificando atualizações...",
+  "checkFailed": "Falha ao verificar atualizações",
+  "upToDateTitle": "Você está em dia",
+  "currentVersion": "Versão atual: {{version}}",
+  "availableTitle": "Atualização disponível",
+  "noReleaseNotes": "Nenhuma nota de versão fornecida.",
+  "downloadingTitle": "Baixando atualização...",
+  "downloadButton": "Baixar",
+  "downloadAndInstall": "Baixar e instalar",
+  "downloadStartFailed": "Falha ao iniciar o download",
+  "downloadFailed": "Falha no download",
+  "noCompatibleAsset": "Nenhum download compatível encontrado para esta plataforma",
+  "noCompatibleAssetManual": "Nenhum pacote corresponde à arquitetura atual do seu sistema. Baixe o instalador correto em Releases.",
+  "goToRelease": "Abrir Releases",
+  "downloadCompleteTitle": "Download concluído",
+  "readyToInstall": "Pronto para instalar",
+  "readyToInstallDesc": "A atualização foi baixada. Clique no botão abaixo para reiniciar e instalar a atualização.",
+  "installNow": "Instalar e reiniciar",
+  "autoUpdateMode": "Modo de atualização automática",
+  "showInFolder": "Mostrar na pasta",
+  "openFile": "Abrir arquivo",
+  "errorTitle": "Falha na atualização",
+  "errors": {
+    "missingTag": "Não é possível verificar esta atualização: a tag da versão está ausente. Atualize pela página de Releases.",
+    "metadataMissing": "Não foi possível encontrar os metadados de atualização assinados (latest.yml) para esta versão. Recusando-se a abrir um instalador não verificado.",
+    "assetNotInMetadata": "O arquivo baixado \"{{name}}\" não consta nos metadados de atualização assinados. Recusando-se a abrir um instalador não verificado.",
+    "checksumMismatch": "A atualização baixada falhou na verificação de integridade (checksum divergente) e foi descartada. Não a execute. Tente novamente ou baixe pela página de Releases."
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.softeria/ms-365-mcp-server",
+  "title": "Microsoft 365",
+  "description": "Outlook, Teams, OneDrive, Excel, To Do, OneNote, Calendar - all of Microsoft Graph in one MCP.",
+  "version": "0.113.0",
+  "websiteUrl": "https://github.com/Softeria/ms-365-mcp-server",
+  "repository": { "url": "https://github.com/Softeria/ms-365-mcp-server", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@softeria/ms-365-mcp-server",
+      "version": "0.113.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "MS365_CLIENT_ID", "description": "Azure AD app client ID.", "isRequired": true, "isSecret": false },
+        { "name": "MS365_TENANT_ID", "description": "Azure AD tenant ID (use 'common' for personal accounts).", "isRequired": true, "isSecret": false, "default": "common" },
+        { "name": "MS365_CLIENT_SECRET", "description": "Azure AD client secret.", "isRequired": false, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["communication", "files-and-docs", "calendar"],
+    "tags": ["outlook", "teams", "onedrive", "excel"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 6,
+    "installRate": 0.41,
+    "iconUrl": "icons/microsoft.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#00a4ef" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Microsoft Azure AD",
+      "providerSignupUrl": "https://portal.azure.com",
+      "scopes": [
+        { "name": "Mail.ReadWrite", "plainLanguage": "Read, send, archive mail." },
+        { "name": "Calendars.ReadWrite", "plainLanguage": "Read and write calendar events." },
+        { "name": "Files.ReadWrite", "plainLanguage": "Read and edit OneDrive files." },
+        { "name": "Chat.ReadWrite", "plainLanguage": "Read and write Teams messages." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Mail", "count": 15 },
+      { "label": "Calendar", "count": 10 },
+      { "label": "Files", "count": 12 },
+      { "label": "Excel", "count": 10 },
+      { "label": "Teams", "count": 8 },
+      { "label": "To Do", "count": 5 },
+      { "label": "OneNote", "count": 6 }
+    ],
+    "setupGuide": { "path": "guides/com.softeria-ms-365-mcp-server.md", "estimatedMinutes": 8, "stepCount": 4 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

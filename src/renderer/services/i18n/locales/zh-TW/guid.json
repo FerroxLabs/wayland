@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} is unavailable, using {{fallback}} instead.",
+  "noAgentAvailable": "目前沒有可用的主代理。請登入 Google 或安裝 Claude/Codex CLI。要前往設定嗎？",
+  "noAgentAvailableShort": "No Main Agent available. Click to configure.",
+  "agentTabAutoSwitch": "Model not compatible with Gemini, auto-switched to {{fallback}}",
+  "autoSwitchToAgent": "Gemini is not configured, auto-switching to {{agent}}",
+  "autoSwitchedAgent": "{{from}} is not available, switched to {{to}}",
+  "promptExamplesHint": "試試這些可點擊的案例提示詞：",
+  "agentSwitcherLabel": "Agent",
+  "switchedToAgent": "已切換到 {{agent}}",
+  "hint": {
+    "search": "按 {{key}} 搜尋",
+    "backend": "{{key}} 切換後端",
+    "newChat": "{{key}} 新建對話"
+  },
+  "scanning": {
+    "initialMessage": "Current Agent is unavailable, detecting other available agents...",
+    "scanningMessage": "Scanning local available agents...",
+    "connectingMessage": "Connected successfully, please wait...",
+    "establishingConnection": "Establishing connection...",
+    "statusQueued": "Queued",
+    "statusTesting": "Testing latency...",
+    "statusUnreachable": "Unreachable",
+    "statusAvailable": "Available"
+  },
+  "newChat": {
+    "kickoff": {
+      "accept": "好的，開始吧",
+      "redirect": "換一個",
+      "dismissAria": "關閉建議",
+      "regionAria": "建議的開場"
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}，{{name}}",
+      "labels": {
+        "lateNight": ["還在忙嗎", "熬夜中", "夜深了還沒睡"],
+        "morning": ["早安", "早安你好", "新的一天開始囉"],
+        "afternoon": ["午安", "午安你好", "歡迎回來"],
+        "evening": ["晚上好", "晚安你好", "歡迎回來"],
+        "night": ["晚上好", "晚安你好", "準備休息了嗎"]
+      }
+    },
+    "intent": {
+      "sell": "銷售",
+      "write": "撰寫",
+      "research": "研究",
+      "build": "建構",
+      "run": "執行"
+    },
+    "pillBar": {
+      "label": "選擇一個意圖",
+      "pillLabel": "{{label}}意圖"
+    },
+    "suggestionPanel": {
+      "label": "{{label}}起始提示",
+      "heading": "從{{label}}開始",
+      "close": "關閉建議"
+    },
+    "recents": {
+      "label": "最近的對話",
+      "heading": "繼續對話"
+    },
+    "voiceHint": "點擊麥克風開始說話"
+  }
+}

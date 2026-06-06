@@ -1,0 +1,92 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "co.elastic/elasticsearch-mcp",
+  "title": "Elasticsearch",
+  "description": "Query and analyze Elasticsearch indices with natural language through Elastic's official MCP server.",
+  "version": "0.3.1",
+  "websiteUrl": "https://www.elastic.co/search-labs/blog/model-context-protocol-elasticsearch",
+  "repository": {
+    "url": "https://github.com/elastic/mcp-server-elasticsearch",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@elastic/mcp-server-elasticsearch",
+      "version": "0.3.1",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "ES_URL",
+          "description": "Elasticsearch cluster URL (e.g. https://my-cluster.es.us-east-1.aws.elastic-cloud.com).",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "ES_API_KEY",
+          "description": "Elasticsearch API key with read access to the indices you want exposed.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "search",
+      "database",
+      "developer",
+      "data"
+    ],
+    "tags": [
+      "elasticsearch",
+      "search",
+      "elk",
+      "logs"
+    ],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 58,
+    "installRate": 0.11,
+    "iconUrl": "icons/elastic.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#005571"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Elastic",
+      "providerSignupUrl": "https://www.elastic.co/cloud/cloud-trial-overview"
+    },
+    "toolGroups": [
+      {
+        "label": "Search",
+        "count": 4
+      },
+      {
+        "label": "Indices",
+        "count": 3
+      },
+      {
+        "label": "Mappings",
+        "count": 2
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/co.elastic-elasticsearch-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

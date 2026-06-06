@@ -1,0 +1,44 @@
+{
+  "siderEntry": "Fluxos de trabalho",
+  "title": "Fluxos de trabalho",
+  "subtitle": "Receitas passo a passo que você pode iniciar com um clique ou agendar para rodar automaticamente. Escolha um fluxo de trabalho, selecione seu engine e o agente vai te conduzir por ele.",
+  "count": "{{count}} fluxo de trabalho",
+  "count_other": "{{count}} fluxos de trabalho",
+  "allCategories": "Todos os fluxos de trabalho",
+  "section": {
+    "featured": "Fluxos de trabalho em destaque",
+    "all": "Todos os fluxos de trabalho"
+  },
+  "actions": {
+    "launch": "Iniciar agora",
+    "schedule": "Agendar",
+    "import": "Importar fluxo de trabalho",
+    "build": "Criar um fluxo de trabalho",
+    "runOn": "Executar em"
+  },
+  "launchError": "Falha ao iniciar o fluxo de trabalho: {{msg}}",
+  "picker": {
+    "noAgent": "Nenhum backend selecionado"
+  },
+  "import": {
+    "placeholder": "A integração de importação chega em breve: pasta / URL do git / SKILL.md com type:workflow detectado automaticamente via frontmatter, examinado pelo Skill Guard e registrado como source:imported."
+  },
+  "build": {
+    "placeholder": "Construtor de fluxos de trabalho chega em breve: descreva em linguagem simples → a IA gera um SKILL.md com category + depends inferidos da biblioteca de skills ativa → revise + salve."
+  },
+  "depends": {
+    "title": "Usa estas skills",
+    "openSkill": "Abrir na página de Skills"
+  },
+  "search": {
+    "placeholder": "Buscar fluxos de trabalho…",
+    "empty": "Nenhum fluxo de trabalho corresponde à sua busca",
+    "emptyLibrary": "Nenhum fluxo de trabalho carregado ainda. A biblioteca incluída será preenchida na próxima reinicialização."
+  },
+  "whatHappens": "Quando você iniciar isto",
+  "bodyFallback": "O agente carrega este fluxo de trabalho como sua primeira diretriz e te conduz por ele passo a passo. Você pode interromper ou mudar de direção a qualquer momento.",
+  "noDescription": "Nenhuma descrição fornecida.",
+  "launch": {
+    "placeholder": "A integração de inicialização está a caminho. Em breve você poderá escolher um engine (Wayland Core / Gemini / Claude / Codex), e o fluxo de trabalho será carregado como a primeira diretriz do agente em um chat novo."
+  }
+}

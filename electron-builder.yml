@@ -1,0 +1,335 @@
+appId: com.ferroxlabs.wayland
+productName: Wayland
+executableName: Wayland
+copyright: Copyright © 2026 Trade Canyon
+
+protocols:
+  - name: Wayland Protocol
+    schemes:
+      - wayland
+
+asar:
+  smartUnpack: true
+
+directories:
+  output: out
+  buildResources: resources
+
+files:
+  # electron-vite build output (main process + preload + renderer)
+  - out/main/**/*
+  - out/preload/**/*
+  - out/renderer/**/*
+  # Static resources - use explicit directory inclusion to prevent resource loss
+  - public/**/*
+  - package.json
+  # Native modules and their runtime dependencies
+  - node_modules/better-sqlite3/**/*
+  - node_modules/bcrypt/**/*
+  - node_modules/node-pty/**/*
+  - node_modules/@mapbox/**/*
+  - node_modules/detect-libc/**/*
+  - node_modules/prebuild-install/**/*
+  - node_modules/node-gyp-build/**/*
+  - node_modules/bindings/**/*
+  # CLI dependencies (needed by nested jackspeak/glob)
+  - node_modules/@isaacs/cliui/**/*
+  - node_modules/ansi-regex/**/*
+  - node_modules/ansi-styles/**/*
+  - node_modules/strip-ansi/**/*
+  - node_modules/wrap-ansi/**/*
+  - node_modules/string-width/**/*
+  - node_modules/eastasianwidth/**/*
+  - node_modules/emoji-regex/**/*
+  # open library - needs to be external for Windows asar compatibility
+  - node_modules/open/**/*
+  - node_modules/default-browser/**/*
+  - node_modules/default-browser-id/**/*
+  - node_modules/run-applescript/**/*
+  - node_modules/bundle-name/**/*
+  # tree-sitter WASM dependencies
+  - node_modules/web-tree-sitter/**/*
+  - node_modules/tree-sitter-bash/**/*
+  # CRITICAL: Exclude ALL tree-sitter native binaries to prevent signing issues
+  - '!**/node_modules/tree-sitter-*/prebuilds/**'
+  - '!**/node_modules/tree-sitter-*/build/**'
+  - '!**/node_modules/tree-sitter-*/src/**'
+  - '!**/node_modules/tree-sitter-*/**/*.node'
+  - '!**/node_modules/tree-sitter-*/**/*.obj'
+  - '!**/node_modules/tree-sitter-*/**/*.o'
+  - '!**/node_modules/tree-sitter-*/**/*.cc'
+  - '!**/node_modules/tree-sitter-*/**/*.c'
+  # Exclude dev/test files
+  - '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}'
+  - '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}'
+  - '!**/node_modules/*/{*.test.js,*.spec.js,*.test.ts,*.spec.ts}'
+  - '!**/node_modules/*.d.ts'
+  - '!**/node_modules/.bin'
+  - '!**/node_modules/*/{docs,documentation,doc}'
+  # Exclude system files
+  - '!**/{.DS_Store,.git,.gitignore,.gitattributes}'
+  - '!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}'
+  - '!**/{appveyor.yml,.travis.yml,circle.yml}'
+  - '!**/{npm-debug.log,yarn.lock,.yarn-metadata.json,yarn-error.log}'
+  # Exclude large packages
+  - '!**/node_modules/{@img,@emnapi}/**'
+  - '!**/node_modules/@img/sharp-*/**'
+  - '!**/node_modules/@anthropic-ai/claude-code/vendor/**'
+  - '!**/node_modules/@anthropic-ai/claude-agent-sdk/vendor/**'
+  # Exclude JAR files and JNI libraries that cause notarization issues
+  - '!**/*.jar'
+  - '!**/*.jnilib'
+  # Exclude all vendor directories to prevent unsigned binaries
+  - '!**/node_modules/*/vendor/**'
+  - '!**/node_modules/@*/*/vendor/**'
+  # Re-include vendor dirs for native modules that need them (if any)
+  - 'node_modules/better-sqlite3/vendor/**'
+  - 'node_modules/bcrypt/vendor/**'
+  - 'node_modules/node-pty/vendor/**'
+  # Exclude vite source maps
+  - '!**/*.map'
+  # Exclude syntax highlighter languages (keep common ones)
+  - '!**/out/**/react-syntax-highlighter_languages_highlight_*'
+  - 'out/**/react-syntax-highlighter_languages_highlight_{javascript,typescript,python,java,cpp,c,html,css,json,xml,yaml,shell,bash,dockerfile,sql,markdown,go,rust,php}'
+  # Ensure vendor chunks from manual splitting are included
+  - 'out/renderer/**/vendor-*.js'
+  # Remap viteStaticCopy output (out/main/skills/, out/main/assistant/, out/main/static/)
+  # to root-level directories inside the asar, so runtime path resolution stays simple.
+  - from: out/main/skills
+    to: skills
+  - from: out/main/assistant
+    to: assistant
+  - from: out/main/static
+    to: static
+
+extraResources:
+  - from: public
+    to: .
+  - from: resources/app.png
+    to: app.png
+  - from: resources/bundled-bun
+    to: bundled-bun
+  # aionrs binary (pre-compiled per platform/arch)
+  - from: resources/bundled-wayland-core
+    to: bundled-wayland-core
+  - from: resources/hub
+    to: hub
+  # Bundled business-pack extensions (real aion-extension.json trees).
+  # Copied into <userData>/extensions/<pack>/ on first run by initStorage so
+  # ExtensionLoader discovers them via the 'appdata' scan source. Ships outside
+  # app.asar so on-disk paths are real for fs scanning + SKILL.md reads.
+  - from: resources/bundled-extensions
+    to: bundled-extensions
+  # Skills library + Wayland built-in workflows: shipped as real on-disk
+  # Resources so SkillLibrary can read them in packaged builds. The previous
+  # asarUnpack entries for these never worked: the source lives under
+  # src/process/resources/ and was never copied into the asar, so asarUnpack
+  # matched nothing. extraResources copies them straight to Contents/Resources.
+  - from: src/process/resources/skills-library
+    to: skills-library
+  - from: src/process/resources/bundled-workflows
+    to: bundled-workflows
+  # models.dev enrichment snapshot - offline floor for ModelsDevClient.
+  # Generated at build time by scripts/bundle-modelsdev.ts (prebuild hook).
+  - from: resources/modelsdev-snapshot.json
+    to: modelsdev-snapshot.json
+  # Bundled voice STT model (Whisper-tiny ONNX, ~43 MB). Ships in the
+  # installer so offline dictation works on a fresh install with zero
+  # download. Fetched at build time by scripts/prepareVoiceModel.js.
+  - from: resources/voice-models
+    to: voice-models
+  # WhatsApp bridge: ESM Node subprocess forked via child_process.fork.
+  # Must live outside app.asar so the path on disk is real and `fork()` works.
+  # postinstall installs the bridge's own node_modules/ so this copy is self-contained.
+  - from: src/process/channels/whatsapp-bridge
+    to: whatsapp-bridge
+    filter:
+      - '**/*'
+      - '!**/*.test.*'
+      - '!**/*.spec.*'
+  # signal-cli runtime: native binary spawned by SignalDaemon via child_process.spawn.
+  # Must live outside app.asar so the OS can execute it directly.
+  # Run `node scripts/install-signal-cli.mjs` to populate bin/ before packaging.
+  - from: src/process/channels/signal-cli-runtime
+    to: signal-cli-runtime
+    filter:
+      - '**/*'
+      - '!README.md'
+win:
+  target:
+    - nsis
+    #    - msi
+    - zip
+  icon: resources/app.ico # Use the checked-in Windows icon resource for executable metadata/icon patching
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  # Code signing (UPD-01). Signing engages only when the credential env is
+  # present, and is MANDATORY on release tags (see verifyUpdateCodeSignature
+  # below + the CI gate that must fail the build when these are empty on a tag).
+  #
+  # Subject-name signing drives signtool against an OV/EV certificate that has
+  # been imported into the Windows certificate store on the signing host (the
+  # same approach electron-builder documents for HSM-backed EV tokens, which
+  # cannot export a CSC_LINK .pfx). When WIN_CSC_SUBJECT_NAME is empty the
+  # macro resolves to '' and electron-builder skips signing - so unsigned dev
+  # builds still succeed, while release CI sets it and signs.
+  #
+  # Alternatively, electron-builder reads WIN_CSC_LINK + CSC_KEY_PASSWORD from
+  # the environment automatically for a .pfx-based OV cert; leaving those set
+  # also works without touching this file.
+  # Windows code signing is DISABLED until the OV/EV certificate is available
+  # (waiting on Microsoft). NOTE: electron-builder's `${env.WIN_CSC_SUBJECT_NAME}`
+  # macro does NOT collapse to '' when the env var is undefined - it stays
+  # literal, so signtool engages and fails with
+  #   ⨯ Cannot find certificate ${env.WIN_CSC_SUBJECT_NAME}
+  # With no signtoolOptions, electron-builder produces an unsigned (but valid)
+  # Windows build. RESTORE this block (nested under signtoolOptions for
+  # electron-builder 26) once the WIN_CSC_SUBJECT_NAME / WIN_PUBLISHER_NAME /
+  # WIN_TIMESTAMP_URL secrets exist, and flip verifyUpdateCodeSignature back on:
+  #   signtoolOptions:
+  #     certificateSubjectName: ${env.WIN_CSC_SUBJECT_NAME}
+  #     timeStampServer: ${env.WIN_TIMESTAMP_URL}
+  #     rfc3161TimeStampServer: ${env.WIN_TIMESTAMP_URL}
+  #     signingHashAlgorithms:
+  #       - sha256
+  #     publisherName:
+  #       - ${env.WIN_PUBLISHER_NAME}
+  # Unsigned builds can't satisfy an Authenticode check, so the Windows
+  # auto-update signature gate stays OFF until signing is restored above
+  # (Windows install still works; Windows auto-update lands with the cert).
+  verifyUpdateCodeSignature: false
+
+nsis:
+  oneClick: false
+  # UPD-04: install per-machine into a root/admin-writable Program Files
+  # location so the bundled engine binary cannot be swapped by an unprivileged
+  # process between launches (tamper-then-spawn). Tradeoff recorded in residual:
+  # the installer now elevates (UAC) and installs for all users instead of the
+  # current user only.
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  differentialPackage: false
+
+mac:
+  target:
+    - dmg
+    - zip
+  icon: resources/app.icns
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  category: public.app-category.productivity
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: entitlements.plist
+  entitlementsInherit: entitlements.plist
+
+dmg:
+  # Use UDZO format which is more reliable on CI
+  format: UDZO
+  # Disable internet-enabled DMG to avoid network issues
+  internetEnabled: false
+  # Simple window settings to avoid layout issues
+  window:
+    width: 540
+    height: 380
+  # Contents positioning
+  contents:
+    - x: 140
+      y: 180
+      type: file
+    - x: 400
+      y: 180
+      type: link
+      path: /Applications
+
+afterPack: scripts/afterPack.js
+afterSign: scripts/afterSign.js
+
+linux:
+  # XP-BUILD-LINUX-01: ship distro-agnostic AppImage + rpm alongside deb so
+  # Fedora/RHEL/openSUSE and non-Debian users get an installable artifact.
+  target:
+    - AppImage
+    - deb
+    - rpm
+  icon: resources/app.png
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  category: Utility
+  maintainer: wayland
+  vendor: wayland
+  synopsis: ${description}
+  description: ${description}
+  desktop:
+    entry:
+      Name: Wayland
+      Comment: ${description}
+      Icon: wayland
+      Categories: Office;Utility;
+      MimeType: x-scheme-handler/wayland;
+
+npmRebuild: false
+buildDependenciesFromSource: false
+nodeGypRebuild: false
+
+asarUnpack:
+  - '**/node_modules/better-sqlite3/**/*'
+  - '**/node_modules/bcrypt/**/*'
+  - '**/node_modules/node-pty/**/*'
+  - '**/node_modules/@mapbox/**/*'
+  - '**/node_modules/detect-libc/**/*'
+  - '**/node_modules/prebuild-install/**/*'
+  - '**/node_modules/node-gyp-build/**/*'
+  - '**/node_modules/bindings/**/*'
+  # open library and dependencies - needed for Windows asar compatibility
+  - '**/node_modules/open/**/*'
+  - '**/node_modules/default-browser/**/*'
+  - '**/node_modules/default-browser-id/**/*'
+  - '**/node_modules/run-applescript/**/*'
+  - '**/node_modules/bundle-name/**/*'
+  # tree-sitter WASM files need to be unpacked for fs.readFile access
+  - '**/node_modules/web-tree-sitter/**/*'
+  - '**/node_modules/tree-sitter-bash/**/*'
+  # skills/ and assistant/ no longer need asarUnpack:
+  # initStorage copies them from asar to config/builtin-skills/ and config/assistants/
+  # at startup, so all runtime reads go through the user directory, not asar.
+  # Builtin MCP server scripts must be unpacked so external node processes can execute them
+  - 'out/main/builtin-mcp-image-gen.js'
+  - 'out/main/builtin-mcp-search-skills.js'
+  - 'out/main/team-mcp-stdio.js'
+  - 'out/main/team-guide-mcp-stdio.js'
+  # Bundled @wayland MCP servers (ship with installer, no npm publish)
+  - 'out/main/builtin-mcp-apple.mjs'
+  - 'out/main/builtin-mcp-imap.mjs'
+  - 'out/main/builtin-mcp-news.mjs'
+  - 'out/main/builtin-mcp-cal-com.mjs'
+  # Apple MCP native EventKit bridge (macOS only - built by `swiftc`)
+  - 'out/main/eventkit-bridge'
+  # NOTE: skills-library + bundled-workflows now ship via extraResources
+  # (Contents/Resources/{skills-library,bundled-workflows}); the old asarUnpack
+  # entries here matched nothing (source is under src/process/resources, never
+  # in the asar) so they were removed.
+  # officecli (Office document generator used by Word/PPT/Excel/Morph/Academic
+  # assistants). The runtime/ folder holds the real platform binary that
+  # shellEnv.ts prepends to PATH for spawned subprocesses. Without unpacking,
+  # `which officecli` from a Claude-spawned bash never finds the binary.
+  # Cross-platform packaging (downloading the correct host binary on first run)
+  # is tracked as #234.
+  - '**/node_modules/officecli/**/*'
+
+# Compression level: normal for faster builds, maximum for smallest size
+# Note: electron-builder doesn't support YAML template syntax for env vars
+# The build script sets ELECTRON_BUILDER_COMPRESSION_LEVEL env var which takes precedence
+compression: normal
+removePackageScripts: true
+electronDownload:
+  cache: ${env.ELECTRON_CACHE}
+
+publish:
+  provider: github
+  owner: FerroxLabs
+  repo: wayland
+  publishAutoUpdate: true
+  releaseType: release

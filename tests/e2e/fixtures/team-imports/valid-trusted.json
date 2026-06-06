@@ -1,0 +1,39 @@
+{
+  "version": "v1",
+  "id": "imported-trusted-marketing-pod",
+  "name": "Trusted Marketing Pod",
+  "leader": {
+    "id": "research",
+    "recommendBackend": "claude"
+  },
+  "teammates": [
+    {
+      "id": "copy",
+      "name": "Copy Lead",
+      "prompt": "Draft on-brand copy that matches the research findings.",
+      "recommendBackend": "claude"
+    },
+    {
+      "id": "mira",
+      "name": "Visual Lead",
+      "prompt": "Produce visual concepts that match the copy direction.",
+      "recommendBackend": "gemini"
+    },
+    {
+      "id": "beacon",
+      "name": "Analytics Lead",
+      "prompt": "Instrument the funnel and report weekly metrics.",
+      "recommendBackend": "claude"
+    }
+  ],
+  "rituals": [
+    { "name": "Weekly review", "cadence": "weekly" }
+  ],
+  "capabilities": {
+    "canReadFiles": true,
+    "canWriteFiles": true,
+    "canSpawnAgents": true,
+    "canNetworkRequest": true,
+    "canCrossTeamMessage": true
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "toast": {
+    "newModels_one": "{{count}} 個新模型 · {{names}}",
+    "newModels_other": "{{count}} 個新模型 · {{names}}",
+    "andMore": "及其他 {{count}} 個"
+  }
+}

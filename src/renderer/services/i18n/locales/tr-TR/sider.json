@@ -1,0 +1,37 @@
+{
+  "memory": "Bellek",
+  "fluxRouter": {
+    "label": "Flux Durumu",
+    "connect": {
+      "body": "Her sorgu bir amiral gemisi modele yönlendiriliyor. Flux Router her istek için doğru modeli seçer.",
+      "action": "Flux Router'ı bağla"
+    },
+    "install": {
+      "body": "Codex, Cursor, Claude Code henüz yönlendirilmiyor. Flux Desktop üçünü tek tıklamayla bağlar.",
+      "action": "Flux Desktop'ı yükle",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "Yerel Ollama geçen hafta işlerin %{{pct}} kadarını yaptı. Donanımın yetmediği yerde gerisini Flux Router üstlenir.",
+      "action": "Yedeği yapılandır"
+    },
+    "wired": {
+      "body": "Son 100: H{{h}} · S{{s}} · O{{o}}",
+      "action": "Her turun nereye gittiğini gör"
+    }
+  },
+  "accordion": {
+    "scheduled": "Zamanlanmış görevler",
+    "workflows": "İş akışları",
+    "teams": "Ekipler",
+    "recentChats": "Son sohbetler",
+    "inFlight": "Devam ediyor",
+    "running": "Çalışıyor",
+    "recentlyLaunched": "Son başlatılanlar",
+    "myTeams": "Ekiplerim",
+    "seeAllWorkflows": "Tüm iş akışlarını gör →",
+    "seeAllScheduled": "Tüm zamanlanmışları gör →",
+    "seeAllChats": "Tüm sohbetleri gör →",
+    "showMore": "{{count}} tane daha göster →"
+  }
+}

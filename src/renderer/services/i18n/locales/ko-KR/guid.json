@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} is unavailable, using {{fallback}} instead.",
+  "noAgentAvailable": "사용 가능한 메인 에이전트가 없습니다. Google에 로그인하거나 Claude/Codex CLI를 설치해 주세요. 설정으로 이동하시겠습니까?",
+  "noAgentAvailableShort": "No Main Agent available. Click to configure.",
+  "agentTabAutoSwitch": "Model not compatible with Gemini, auto-switched to {{fallback}}",
+  "autoSwitchToAgent": "Gemini is not configured, auto-switching to {{agent}}",
+  "autoSwitchedAgent": "{{from}} is not available, switched to {{to}}",
+  "promptExamplesHint": "Try example prompts:",
+  "agentSwitcherLabel": "Agent",
+  "switchedToAgent": "{{agent}}으로 전환되었습니다",
+  "hint": {
+    "search": "{{key}}로 검색",
+    "backend": "{{key}} 백엔드 전환",
+    "newChat": "{{key}} 새 채팅"
+  },
+  "scanning": {
+    "initialMessage": "Current Agent is unavailable, detecting other available agents...",
+    "scanningMessage": "Scanning local available agents...",
+    "connectingMessage": "Connected successfully, please wait...",
+    "establishingConnection": "Establishing connection...",
+    "statusQueued": "Queued",
+    "statusTesting": "Testing latency...",
+    "statusUnreachable": "Unreachable",
+    "statusAvailable": "Available"
+  },
+  "newChat": {
+    "kickoff": {
+      "accept": "네, 시작해요",
+      "redirect": "다른 것",
+      "dismissAria": "제안 닫기",
+      "regionAria": "추천 시작 메시지"
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": ["늦게까지 일하시네요", "밤늦게까지 고생이 많으세요", "아직 안 주무셨네요"],
+        "morning": ["좋은 아침", "좋은 아침이에요", "상쾌한 아침이에요"],
+        "afternoon": ["안녕하세요", "좋은 오후예요", "다시 오셨네요"],
+        "evening": ["좋은 저녁", "좋은 저녁이에요", "다시 오셨네요"],
+        "night": ["좋은 저녁", "좋은 저녁이에요", "하루 마무리할 시간이네요"]
+      }
+    },
+    "intent": {
+      "sell": "판매",
+      "write": "작성",
+      "research": "조사",
+      "build": "구축",
+      "run": "실행"
+    },
+    "pillBar": {
+      "label": "용도 선택",
+      "pillLabel": "{{label}} 용도"
+    },
+    "suggestionPanel": {
+      "label": "{{label}} 시작 프롬프트",
+      "heading": "{{label}}(으)로 시작하기",
+      "close": "추천 닫기"
+    },
+    "recents": {
+      "label": "최근 대화",
+      "heading": "이어서 시작하기"
+    },
+    "voiceHint": "마이크를 클릭하여 말하세요"
+  }
+}

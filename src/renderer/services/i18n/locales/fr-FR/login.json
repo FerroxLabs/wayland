@@ -1,0 +1,25 @@
+{
+  "pageTitle": "Wayland - Connexion",
+  "brand": "Wayland",
+  "subtitle": "Bon retour, veuillez vous connecter à votre compte",
+  "username": "Nom d'utilisateur",
+  "usernamePlaceholder": "Saisissez votre nom d'utilisateur",
+  "password": "Mot de passe",
+  "passwordPlaceholder": "Saisissez votre mot de passe",
+  "rememberMe": "Se souvenir de moi",
+  "submit": "Se connecter",
+  "submitting": "Connexion en cours...",
+  "success": "Connexion réussie ! Redirection...",
+  "showPassword": "Afficher le mot de passe",
+  "hidePassword": "Masquer le mot de passe",
+  "footerPrimary": "Brillant aujourd'hui, plus intelligent demain",
+  "footerSecondary": "Perçoit · Raisonne · S'adapte · Évolue",
+  "errors": {
+    "empty": "Veuillez saisir votre nom d'utilisateur et votre mot de passe",
+    "invalidCredentials": "Nom d'utilisateur ou mot de passe incorrect",
+    "tooManyAttempts": "Trop de tentatives, veuillez réessayer plus tard",
+    "networkError": "Échec de la connexion, veuillez réessayer",
+    "serverError": "Erreur du serveur, veuillez réessayer plus tard",
+    "unknown": "Échec de la connexion, veuillez réessayer"
+  }
+}

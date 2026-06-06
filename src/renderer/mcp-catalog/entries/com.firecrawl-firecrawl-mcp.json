@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.firecrawl/firecrawl-mcp",
+  "title": "Firecrawl",
+  "description": "Crawl, scrape, and extract structured data from any website - turn URLs into clean Markdown.",
+  "version": "3.17.0",
+  "websiteUrl": "https://docs.firecrawl.dev/mcp",
+  "repository": { "url": "https://github.com/mendableai/firecrawl-mcp-server", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "firecrawl-mcp",
+      "version": "3.17.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "FIRECRAWL_API_KEY", "description": "API key from your Firecrawl dashboard.", "isRequired": true, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["search", "research", "developer"],
+    "tags": ["firecrawl", "scraping", "crawler"],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 47,
+    "installRate": 0.17,
+    "iconUrl": "icons/firecrawl.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#f56524" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Firecrawl",
+      "providerSignupUrl": "https://www.firecrawl.dev"
+    },
+    "toolGroups": [
+      { "label": "Scrape", "count": 2 },
+      { "label": "Crawl", "count": 2 },
+      { "label": "Extract", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.firecrawl-firecrawl-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

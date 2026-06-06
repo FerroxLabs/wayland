@@ -1,0 +1,37 @@
+{
+  "memory": "Mémoire",
+  "fluxRouter": {
+    "label": "Statut Flux",
+    "connect": {
+      "body": "Chaque requête est dirigée vers un modèle phare. Flux Router choisit le bon modèle pour chaque requête.",
+      "action": "Connecter Flux Router"
+    },
+    "install": {
+      "body": "Codex, Cursor et Claude Code ne sont pas encore routés. Flux Desktop les connecte tous les trois en un clic.",
+      "action": "Installer Flux Desktop",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "Ollama local a traité {{pct}} % la semaine dernière. Flux Router prend le relais quand votre matériel atteint ses limites.",
+      "action": "Configurer le repli"
+    },
+    "wired": {
+      "body": "100 derniers : H{{h}} · S{{s}} · O{{o}}",
+      "action": "Voir où chaque tour est passé"
+    }
+  },
+  "accordion": {
+    "scheduled": "Tâches planifiées",
+    "workflows": "Workflows",
+    "teams": "Équipes",
+    "recentChats": "Discussions récentes",
+    "inFlight": "En cours",
+    "running": "En exécution",
+    "recentlyLaunched": "Lancés récemment",
+    "myTeams": "Mes équipes",
+    "seeAllWorkflows": "Voir tous les workflows →",
+    "seeAllScheduled": "Voir toutes les tâches planifiées →",
+    "seeAllChats": "Voir toutes les discussions →",
+    "showMore": "Afficher {{count}} de plus →"
+  }
+}

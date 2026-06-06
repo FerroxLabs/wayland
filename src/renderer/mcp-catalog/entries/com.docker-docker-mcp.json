@@ -1,0 +1,38 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.docker/docker-mcp",
+  "title": "Docker",
+  "description": "Execute commands inside local Docker containers via the Docker socket - community MCP server.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/adamdude828/mcp-server-docker",
+  "repository": { "url": "https://github.com/adamdude828/mcp-server-docker", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "mcp-server-docker",
+      "version": "1.0.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": []
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "devops"],
+    "tags": ["docker", "containers"],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 48,
+    "installRate": 0.16,
+    "iconUrl": "icons/docker.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#2496ed" },
+    "auth": { "method": "none" },
+    "toolGroups": [
+      { "label": "Execute in container", "count": 1 }
+    ],
+    "setupGuide": { "path": "guides/com.docker-docker-mcp.md", "estimatedMinutes": 1, "stepCount": 1 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "title": "Équipes",
+  "totalCount": "{{count}} équipes",
+  "siderEntry": "Équipes",
+  "emptyState": "Aucune équipe disponible pour l'instant.",
+  "standingBadge": "Permanente",
+  "teamLeader": "Chef d'équipe",
+  "standing": {
+    "promoteCta": "Promouvoir en permanente",
+    "promoteCtaTooltip": "Éligible : {{sessionsRemaining}} sessions ou {{daysRemaining}} jours restants",
+    "modalTitle": "Promouvoir en compagnie permanente",
+    "modalDescription": "Les compagnies permanentes persistent d'une session à l'autre, apparaissent dans la section Permanentes dédiée de la bibliothèque et arborent un badge visuel permanent.",
+    "optIn1": "Je comprends que cette équipe sera marquée comme compagnie permanente dans toute l'application.",
+    "optIn2": "Je peux à tout moment rétrograder cette équipe en équipe ordinaire.",
+    "confirmButton": "Promouvoir en permanente",
+    "cancelButton": "Annuler",
+    "demoteAction": "Rétrograder",
+    "promoteSuccess": "Équipe promue en permanente",
+    "promoteError": "Échec de la promotion de l'équipe",
+    "demoteSuccess": "Équipe rétrogradée en ordinaire",
+    "demoteError": "Échec de la rétrogradation de l'équipe"
+  },
+  "card": {
+    "rolesCount": "{{count}} rôles"
+  },
+  "buildMyOwn": {
+    "label": "Créer ma propre équipe",
+    "hint": "Partir d'une équipe vierge",
+    "cta": "Créer ma propre équipe"
+  },
+  "group": {
+    "standing": "Compagnies permanentes",
+    "standingHint": "{{count}} - organisations persistantes et ritualisées qui tournent en continu",
+    "teams": "Équipes",
+    "teamsHint": "{{count}} - escouades ponctuelles pour un objectif précis. Lancer, livrer, dissoudre.",
+    "startNew": "Démarrer une nouvelle équipe"
+  },
+  "launcher": {
+    "back": "Retour aux équipes",
+    "preconfiguredTitle": "{{name}}",
+    "buildMyOwnTitle": "Composer une équipe",
+    "buildMyOwnSubtitle": "Choisissez un chef, ajoutez des coéquipiers, sélectionnez les backends. Enregistrez et réutilisez comme votre propre modèle plus tard.",
+    "nameLabel": "Nom de l'équipe",
+    "namePlaceholder": "ex. Sprint de lancement, Relance de renouvellement, Refonte de marque T1",
+    "nameRequired": "Veuillez saisir un nom d'équipe",
+    "leaderRequired": "Veuillez choisir un chef",
+    "rosterTitle": "Effectif",
+    "rosterSubtitle": "Backends choisis par rôle",
+    "leaderRoleLabel": "Chef",
+    "teammateRoleLabel": "Coéquipier",
+    "slotNameLabel": "Nom affiché",
+    "slotNamePlaceholder": "Nom du poste (facultatif)",
+    "addTeammate": "Ajouter un coéquipier",
+    "remove": "Retirer",
+    "emptyRoster": "Aucun coéquipier pour l'instant.",
+    "addSpecialists": "Ajouter des spécialistes",
+    "rosterTip": "Astuce - laisser les coéquipiers vides en fait une équipe à chef unique.",
+    "pickLeader": "Choisissez un spécialiste comme chef d'équipe…",
+    "leaderMissing": "Choisir un chef",
+    "launchCta": "Lancer l'équipe",
+    "launchingCta": "Lancement…",
+    "createTeamCta": "Créer l'équipe",
+    "cancelCta": "Annuler",
+    "loadError": "Échec du chargement de cette équipe.",
+    "launchError": "Échec du lancement de l'équipe.",
+    "specialistNotFound": "(spécialiste manquant)",
+    "backendPickerPlaceholder": "Backend",
+    "goalLabel": "Décrivez ce que vous faites - je vous suggérerai un effectif",
+    "goalPlaceholder": "ex. Nous lançons un tunnel de vente de livre payant et avons besoin d'une petite équipe pour le livrer en deux semaines.",
+    "suggestCta": "Suggérer",
+    "suggestSuccess": "Effectif suggéré",
+    "suggestFellBackToDefaults": "Effectif par défaut choisi (aucun mot-clé d'objectif correspondant)",
+    "suggestError": "Échec de la suggestion d'effectif",
+    "pickerTitle": "Ajouter un coéquipier",
+    "pickerSearch": "Rechercher des spécialistes",
+    "pickerEmpty": "Aucun spécialiste trouvé.",
+    "pickerCancel": "Annuler"
+  },
+  "rightRail": {
+    "teammates": "Coéquipiers",
+    "workspace": "Espace de travail",
+    "workspaceLinked": "Parcourir les fichiers dans le panneau de l'espace de travail →",
+    "workspaceEmpty": "Aucun espace de travail lié à cette équipe pour l'instant.",
+    "rituals": "Rituels",
+    "ritualsEmpty": "Aucun rituel - ce n'est pas une compagnie permanente.",
+    "roleLeader": "chef",
+    "roleSpecialist": "spécialiste",
+    "addTeammate": "Ajouter un coéquipier",
+    "addTeammateSuccess": "Coéquipier ajouté",
+    "addTeammateError": "Échec de l'ajout du coéquipier",
+    "restartAgent": "Redémarrer",
+    "restartAgentSuccess": "Redémarrage lancé",
+    "restartAgentError": "Échec du redémarrage de l'agent"
+  },
+  "activity": {
+    "tabLabel": "Activité",
+    "empty": "Aucune activité d'équipe pour l'instant."
+  },
+  "activeSidebar": {
+    "title": "Actives",
+    "rollup": "{{tokens}} tokens · ~{{usd}} cette semaine"
+  },
+  "import": {
+    "button": "Importer une équipe",
+    "title": "Examiner les capacités de l'équipe",
+    "intro": "Cette équipe déclare les capacités suivantes. N'accordez que ce en quoi vous avez confiance.",
+    "trustSelectedCta": "Approuver la sélection",
+    "trustSelectedCtaCountdown": "Approuver la sélection ({{seconds}}s)",
+    "sandboxCta": "Mode bac à sable (aucune capacité)",
+    "cancelCta": "Annuler",
+    "missingSpecialists": "Spécialistes manquants : {{names}}. Installez-les d'abord ou utilisez une autre équipe.",
+    "networkNotice": "L'accès réseau pour les équipes importées est actuellement désactivé. Cette capacité ne peut pas être accordée en v1.",
+    "success": "Équipe importée",
+    "error": "Échec de l'importation de l'équipe",
+    "busyError": "File d'importation pleine - réessayez dans quelques secondes",
+    "fileReadError": "Impossible de lire le fichier",
+    "cap": {
+      "canReadFiles": "Lire les fichiers de l'espace de travail",
+      "canReadFilesDesc": "Accorde aux agents de cette équipe un accès en lecture aux fichiers de votre dossier d'espace de travail. Les répertoires .env, .ssh et node_modules/.bin/.cache sont toujours bloqués.",
+      "canWriteFiles": "Écrire les fichiers de l'espace de travail",
+      "canWriteFilesDesc": "Accorde un accès en écriture + mkdir dans votre espace de travail. Les liens symboliques sont toujours bloqués. Les chemins protégés sont toujours refusés.",
+      "canSpawnAgents": "Créer de nouveaux coéquipiers",
+      "canSpawnAgentsDesc": "Permet au chef d'élargir l'effectif à l'exécution via team_spawn_agent.",
+      "canNetworkRequest": "Effectuer des requêtes réseau",
+      "canNetworkRequestDesc": "Autorise les appels fetch/https.request depuis les processus des agents.",
+      "canCrossTeamMessage": "Envoyer des messages à d'autres équipes",
+      "canCrossTeamMessageDesc": "Autorise team_send_message à délivrer à des équipes en dehors de celle-ci."
+    }
+  },
+  "noResults": "Aucune équipe ne correspond à votre recherche.",
+  "controls": {
+    "searchPlaceholder": "Rechercher des équipes",
+    "sortLabel": "Trier"
+  },
+  "sort": {
+    "default": "Par défaut",
+    "name": "Nom (A-Z)",
+    "roles": "Plus de rôles",
+    "schedule": "Planning"
+  }
+}

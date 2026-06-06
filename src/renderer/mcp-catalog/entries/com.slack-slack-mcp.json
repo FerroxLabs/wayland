@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.slack/slack-mcp",
+  "title": "Slack",
+  "description": "Search messages and threads, post replies, manage canvases, look up users - Slack's official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://slack.com/marketplace/mcp",
+  "repository": { "url": "https://github.com/slackapi/slack-mcp-server", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.slack.com" }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["communication", "productivity"],
+    "tags": ["slack", "chat", "team"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 3,
+    "installRate": 0.62,
+    "iconUrl": "icons/slack.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#4a154b" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Slack",
+      "providerSignupUrl": "https://slack.com",
+      "byoClient": {
+        "registrationUrl": "https://api.slack.com/apps",
+        "requiresSecret": true,
+        "guide": "Slack does not allow automatic OAuth app registration, so you create your own app once and Wayland reuses it.\n\n**1.** Open **api.slack.com/apps** and click **Create New App → From scratch**. Name it (e.g. *Wayland MCP*) and pick a workspace.\n\n**2.** In the app's left sidebar choose **OAuth & Permissions**.\n  - Under **Redirect URLs**, click **Add New Redirect URL** and paste the URL Wayland shows below. **Save URLs**.\n  - Under **User Token Scopes** add: `search:read`, `chat:write`, `users:read`, `channels:history`.\n\n**3.** Scroll up to **Basic Information**. Copy the **Client ID** and **Client Secret** and paste them below.\n\n**4.** Install the app to your workspace from **OAuth & Permissions → Install to Workspace** (only needed once per workspace)."
+      },
+      "scopes": [
+        { "name": "search:read", "plainLanguage": "Search messages and files." },
+        { "name": "chat:write", "plainLanguage": "Post messages on your behalf." },
+        { "name": "users:read", "plainLanguage": "Look up workspace users." },
+        { "name": "channels:history", "plainLanguage": "Read channel message history." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Messages", "count": 8 },
+      { "label": "Channels", "count": 5 },
+      { "label": "Canvases", "count": 4 },
+      { "label": "Users", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.slack-slack-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

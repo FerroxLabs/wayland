@@ -1,0 +1,153 @@
+/**
+ * TeamCard visual styles. Two variants:
+ *   - default: matches AssistantCard team-dot styling
+ *   - standing: purple gradient + Standing badge per mockup §1
+ */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px 10px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  background: var(--color-bg-2);
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  min-height: 104px;
+  text-align: left;
+  user-select: none;
+}
+
+.card:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.4);
+}
+
+.card:active {
+  transform: scale(0.99);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+:global([data-theme='dark']) .avatar img {
+  filter: invert(1) brightness(1.6);
+}
+
+.avatar span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  line-height: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.typeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-team);
+}
+
+.typeDotStanding {
+  background: var(--color-standing);
+}
+
+.description {
+  font-size: 12.5px;
+  color: var(--color-text-3);
+  line-height: 18px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta {
+  font-size: 11.5px;
+  color: var(--color-text-4);
+  line-height: 16px;
+}
+
+/* Standing Companies - same tier idiom as Featured workflows. Solid
+   Forge Orange border + shared --tier-bg surface. */
+.cardStanding {
+  background: var(--tier-bg);
+  border-color: rgb(var(--primary-6));
+  padding: 16px;
+  min-height: 132px;
+  border-radius: 14px;
+}
+
+.cardStanding:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--tier-bg-hover);
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.5);
+}
+
+.standingBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgb(var(--color-standing-rgb) / 0.14);
+  color: var(--color-standing);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.standingBadgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-standing);
+}

@@ -1,0 +1,435 @@
+/* Wayland Color Scheme - Forge Suite brand (Direction C)
+ *
+ * Two modes: light (root) and dark ([data-theme='dark']). Brand orange
+ * #ff6b35 is identical across modes by design; only the neutral ramp
+ * inverts.
+ *
+ * CRITICAL: This file overrides Arco Design's --primary-N and
+ * --arcoblue-N RGB triples so every Arco component (Button, Input,
+ * focus ring, Tag, Modal, etc.) automatically uses the brand orange
+ * instead of Arco's default blue/purple. That's what kills the purple
+ * haze around the chat box at the root rather than chasing it
+ * component by component.
+ */
+
+/* ============================================================
+   FOUNDATION TOKENS - mode-invariant (UI System v1, locked 2026-05-21)
+   Strict scales for spacing, radius, type, line-height, motion, shadow.
+   Tier-surface alias references --color-fill-1/2 (which DO vary per
+   mode) so it resolves correctly under both themes.
+   ============================================================ */
+:root {
+  /* Spacing - 9-step strict scale. No 7/13/18 - pick the nearest step. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 56px;
+
+  /* Radius - 6-step strict scale.
+     --radius-pill is reserved for compact toggle chips (agent/model
+     selectors). Never use it on primary CTAs. */
+  --radius-chip: 4px;
+  --radius-button: 8px;
+  --radius-card-inner: 10px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
+  --radius-pill: 9999px;
+
+  /* Type - 8-step scale */
+  --type-11: 11px;
+  --type-12: 12px;
+  --type-13: 13px;
+  --type-14: 14px;
+  --type-16: 16px;
+  --type-20: 20px;
+  --type-24: 24px;
+  --type-32: 32px;
+
+  /* Line heights */
+  --lh-tight: 1.2;
+  --lh-snug: 1.35;
+  --lh-normal: 1.5;
+  --lh-loose: 1.65;
+
+  /* Elevation - 3 shadows. Most surfaces lift via border, not shadow. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.42);
+  --shadow-3: 0 12px 36px rgba(0, 0, 0, 0.55);
+
+  /* Motion */
+  --motion-fast: 120ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* Tier surface - Featured workflows + Standing teams share one
+     visual idiom. Recipe pulls a faint orange-tinted neutral fill
+     halfway toward black so the tier reads as 'deeper than base'
+     while keeping the Forge Orange border as the headline accent. */
+  --tier-bg: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--color-fill-1) 88%, rgb(var(--primary-6)) 12%) 50%,
+    black 50%
+  );
+  --tier-bg-hover: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--color-fill-2) 84%, rgb(var(--primary-6)) 16%) 50%,
+    black 50%
+  );
+}
+
+/* ============================================================
+   LIGHT MODE (root / default)
+   Selectors include `body[arco-theme='light']` so our orange-tinted
+   overrides win against Arco's body-level rules (CSS variables
+   cascade by tree position - body is closer to consumers than :root).
+   ============================================================ */
+:root,
+[data-color-scheme='default'],
+body[arco-theme='light'] {
+  /* ---- Arco primary token override (the linchpin) ----
+     Arco resolves rgb()/rgba() against these triples. Changing
+     them re-tints the entire Arco theme to brand orange. */
+  --primary-1: 255, 230, 219;
+  --primary-2: 255, 208, 191;
+  --primary-3: 255, 179, 153;
+  --primary-4: 255, 150, 112;
+  --primary-5: 255, 130, 85;
+  --primary-6: 255, 107, 53;   /* brand */
+  --primary-7: 232, 90, 40;
+  --primary-8: 204, 85, 41;
+  --primary-9: 153, 64, 30;
+  --primary-10: 77, 32, 16;
+
+  /* Arco proxies --primary-N through --arcoblue-N internally - override
+     both so older components that still reference arcoblue resolve correctly. */
+  --arcoblue-1: 255, 230, 219;
+  --arcoblue-2: 255, 208, 191;
+  --arcoblue-3: 255, 179, 153;
+  --arcoblue-4: 255, 150, 112;
+  --arcoblue-5: 255, 130, 85;
+  --arcoblue-6: 255, 107, 53;
+  --arcoblue-7: 232, 90, 40;
+  --arcoblue-8: 204, 85, 41;
+  --arcoblue-9: 153, 64, 30;
+  --arcoblue-10: 77, 32, 16;
+
+  /* Explicit alpha-light variants - defensive; these would derive
+     from --primary-6 anyway, but pinning them prevents drift. */
+  --color-primary-light-1: rgba(255, 107, 53, 0.16);
+  --color-primary-light-2: rgba(255, 107, 53, 0.24);
+  --color-primary-light-3: rgba(255, 107, 53, 0.36);
+  --color-primary-light-4: rgba(255, 107, 53, 0.48);
+
+  /* ---- AOU palette (legacy token names; remapped to brand orange) ---- */
+  --aou-1: #ffe6db;
+  --aou-2: #ffd0bf;
+  --aou-3: #ffb399;
+  --aou-4: #ff6b35; /* used by sendbox send button - must be brand */
+  --aou-5: #ff8255;
+  --aou-6: #ff6b35;
+  --aou-7: #e85a28;
+  --aou-8: #cc5529;
+  --aou-9: #99401e;
+  --aou-10: #4d2010;
+
+  /* ---- Surfaces - light ---- */
+  --bg-base: #ffffff;
+  --bg-1: #f7f7f7;
+  --bg-2: #f0f0f0;
+  --bg-3: #e5e5e5;
+  --bg-4: #d4d4d4;
+  --bg-5: #b3b3b3;
+  --bg-6: #777777;
+  --bg-8: #4a4a4a;
+  --bg-9: #2a2a2a;
+  --bg-10: #0d0d0d;
+
+  --bg-tint: #fff5ef;      /* warm tint for user message bubbles */
+  --bg-elevated: #ffffff;
+  --bg-hover: #f0f0f0;
+  --bg-active: #e5e5e5;
+
+  /* ---- Text - light ---- */
+  --text-primary: #0d0d0d;
+  --text-secondary: #333333;
+  --text-disabled: #aaaaaa;
+  --text-muted: #777777;
+  --text-dim: #555555;
+  /* Input placeholders need higher contrast than --text-muted; tuned for WCAG AA on tinted input backgrounds. */
+  --text-placeholder: #6b6b6b;
+  /* Form inputs get a solid background + visible border so the field boundary is clearly perceivable. */
+  --input-bg: #ffffff;
+  --input-border: #d4d4d4;
+  --input-border-focus: var(--brand);
+
+  /* ---- Borders - light ---- */
+  --border-base: #d4d4d4;
+  --border-light: #e5e5e5;
+  --border-bright: #bfbfbf;
+  --border-mid: #999999;
+
+  /* ---- Brand - light ---- */
+  --brand: #ff6b35;
+  --brand-hover: #ff8255;
+  --brand-pressed: #cc5529;
+  --brand-light: #ffe6db;
+  --brand-soft-bg: rgba(255, 107, 53, 0.08);
+  --brand-soft-border: rgba(255, 107, 53, 0.28);
+  --brand-glow: 0 0 0 1px rgba(255, 107, 53, 0.6),
+    0 0 24px rgba(255, 107, 53, 0.14),
+    0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* ---- Semantic ---- */
+  --primary: #ff6b35;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #ff6b35;
+
+  --success-soft-bg: rgba(52, 211, 153, 0.10);
+  --success-soft-border: rgba(52, 211, 153, 0.30);
+  --warning-soft-bg: rgba(251, 191, 36, 0.10);
+  --warning-soft-border: rgba(251, 191, 36, 0.30);
+  --danger-soft-bg: rgba(248, 113, 113, 0.10);
+  --danger-soft-border: rgba(248, 113, 113, 0.30);
+
+  /* ---- Misc ---- */
+  --message-user-bg: var(--bg-tint);
+  --message-tips-bg: #fffaf5;
+  --workspace-btn-bg: #f5f5f5;
+  --fill: #f5f5f5;
+  --inverse: #0d0d0d;
+  --dialog-fill-0: #ffffff;
+  --text-0: #000000;
+  --text-white: #ffffff;
+  --fill-0: #ffffff;
+  --fill-white-to-black: #ffffff;
+  --border-special: var(--bg-3);
+  --color-guid-agent-bar: #fff5ef;
+
+  /* ---- Chat-redesign intent accents (RGB triples for rgb()/rgba() use) ----
+     Used by the new-chat starter to colour active intent pills and the
+     attribution dot on suggestion rows. Tuned against the light-mode neutral
+     ramp so any of the three reads as a soft accent next to the brand orange. */
+  --color-team: 99, 102, 241;       /* indigo-500 - extension-contributed assistants */
+  --color-specialist: 16, 185, 129; /* emerald-500 - narrow-domain specialists */
+  --color-builtin: 251, 146, 60;    /* warm-orange - first-party built-ins */
+
+  /* ---- Arco neutral ramp - light ----
+     Maps Arco's semantic neutral tokens onto Wayland's existing ramp so
+     components that reference these vars (settings panels, tabs, modals)
+     follow the Wayland theme toggle instead of falling back to Arco defaults.
+
+     text-1 = primary (strongest) → text-4 = disabled (faintest)
+     fill-1 = subtlest hover fill → fill-4 = strong fill
+     border-1 = subtlest separator → border-4 = strong outline
+     bg-1 = base surface (lowest) → bg-5 = highest elevation */
+  --color-text-1: var(--text-primary);      /* #0d0d0d - primary text */
+  --color-text-2: var(--text-secondary);    /* #333333 - secondary text */
+  --color-text-3: var(--text-muted);        /* #777777 - tertiary / placeholder */
+  --color-text-4: var(--text-disabled);     /* #aaaaaa - disabled text */
+
+  --color-fill-1: var(--bg-1);              /* #f7f7f7 - subtlest fill (hover bg) */
+  --color-fill-2: var(--bg-2);              /* #f0f0f0 - light fill */
+  --color-fill-3: var(--bg-3);              /* #e5e5e5 - medium fill */
+  --color-fill-4: var(--bg-4);              /* #d4d4d4 - strong fill */
+
+  --color-border-1: var(--border-light);    /* #e5e5e5 - subtlest separator */
+  --color-border-2: var(--border-base);     /* #d4d4d4 - standard border (most-used) */
+  --color-border-3: var(--border-bright);   /* #bfbfbf - stronger outline */
+  --color-border-4: var(--border-mid);      /* #999999 - strongest outline */
+
+  --color-bg-1: var(--bg-base);             /* #ffffff - base / page background */
+  --color-bg-2: var(--bg-1);               /* #f7f7f7 - first elevation (sidebar, panels) */
+  --color-bg-3: var(--bg-2);               /* #f0f0f0 - second elevation */
+  --color-bg-4: var(--bg-3);               /* #e5e5e5 - third elevation */
+  --color-bg-5: var(--bg-elevated);        /* #ffffff - highest elevation (popup, tooltip) */
+
+  /* Theme-adaptive filter for monochrome SVG icon avatars (extension packs
+     ship them as black-on-transparent). Light mode → no filter, the
+     black-on-light reads fine. Dark mode override sits in the dark block. */
+  --avatar-img-filter: none;
+}
+
+/* ============================================================
+   DARK MODE
+   `body[arco-theme='dark']` is required here - Arco defines its
+   dark theme variables on that selector, and they'd otherwise win
+   the cascade against any :root or :root[data-theme] selector.
+   ============================================================ */
+[data-color-scheme='default'][data-theme='dark'],
+body[arco-theme='dark'] {
+  /* Arco primary triples - identical across modes (orange is
+     the brand at any background lightness). */
+  --primary-1: 77, 32, 16;
+  --primary-2: 153, 64, 30;
+  --primary-3: 204, 85, 41;
+  --primary-4: 232, 90, 40;
+  --primary-5: 255, 107, 53;
+  --primary-6: 255, 107, 53;
+  --primary-7: 255, 130, 85;
+  --primary-8: 255, 150, 112;
+  --primary-9: 255, 179, 153;
+  --primary-10: 255, 230, 219;
+
+  --arcoblue-1: 77, 32, 16;
+  --arcoblue-2: 153, 64, 30;
+  --arcoblue-3: 204, 85, 41;
+  --arcoblue-4: 232, 90, 40;
+  --arcoblue-5: 255, 107, 53;
+  --arcoblue-6: 255, 107, 53;
+  --arcoblue-7: 255, 130, 85;
+  --arcoblue-8: 255, 150, 112;
+  --arcoblue-9: 255, 179, 153;
+  --arcoblue-10: 255, 230, 219;
+
+  --color-primary-light-1: rgba(255, 107, 53, 0.10);
+  --color-primary-light-2: rgba(255, 107, 53, 0.18);
+  --color-primary-light-3: rgba(255, 107, 53, 0.30);
+  --color-primary-light-4: rgba(255, 107, 53, 0.45);
+
+  /* AOU palette - dark mode (brand orange where the legacy purples lived) */
+  --aou-1: #161616;
+  --aou-2: #1c1c1c;
+  --aou-3: #222222;
+  --aou-4: #ff6b35; /* CRITICAL: sendbox send button = brand orange */
+  --aou-5: #ff8255;
+  --aou-6: #ff6b35;
+  --aou-7: #cc5529;
+  --aou-8: #99401e;
+  --aou-9: #66301a;
+  --aou-10: #4d2010;
+
+  /* Surfaces - dark (cinematic - deeper than #0d, per Direction C) */
+  /* Background surface ladder - dark mode.
+     Push 2 (then 3) iterations:
+       v1 (Bible strict):    --bg-1 = #0f  → cards invisible against #0a page
+       v2 (B per FINDINGS):  --bg-1 = #1a  → 16-step delta - still too subtle
+                                              at retina on dense tile grids
+       v3 (current):         --bg-1 = #222 → 24-step delta, clearly distinct
+     Still on the Bible's strict primitive scale (--p-grey-4 = #222222).
+     hover (--bg-2) goes to #2a (p-grey-5), deepest fill (--bg-3) to #353535
+     (p-grey-6). Border-base climbs to --p-grey-7 (#4d4d4d) so the hairline
+     edge is unambiguously legible against the bumped card surface. */
+  --bg-base: #0a0a0a;
+  --bg-1: #222222;
+  --bg-2: #2a2a2a;
+  --bg-3: #353535;
+  --bg-4: #222222;
+  --bg-5: #2a2a2a;
+  --bg-6: #4d4d4d;
+  --bg-8: #777777;
+  --bg-9: #c0c0c0;
+  --bg-10: #f5f5f5;
+
+  --bg-tint: #1a130f;      /* warm dark tint for user message bubbles */
+  --bg-elevated: #222222;
+  --bg-hover: #1a1a1a;
+  --bg-active: #262626;
+
+  /* Text - dark */
+  --text-primary: #f5f5f5;
+  --text-secondary: #c0c0c0;
+  --text-disabled: #555555;
+  --text-muted: #9a9a9a; /* bumped from #7a (4.2:1) to pass WCAG AA on bg-base */
+  --text-dim: #6b6b6b;
+  /* Input placeholders need higher contrast than --text-muted; tuned for WCAG AA on tinted input backgrounds. */
+  --text-placeholder: #b8b8b8;
+  /* Form inputs get a solid background + visible border so the field boundary is clearly perceivable. */
+  --input-bg: #1c1c1c;
+  --input-border: #383838;
+  --input-border-focus: var(--brand);
+
+  /* Borders - dark. Card surface bumped to #222 (Bible's --p-grey-4);
+     border climbs in lockstep to --p-grey-7 (#4d4d4d) so the edge stays
+     a confident 43-step delta from the card fill. Still strict-scale
+     Bible primitives (p-grey-6 / p-grey-7 / p-grey-8). */
+  --border-base: #4d4d4d;
+  --border-light: #353535;
+  --border-bright: #777777;
+  --border-mid: #4d4d4d;
+
+  /* Brand - dark (same orange across modes by design) */
+  --brand: #ff6b35;
+  --brand-hover: #ff8255;
+  --brand-pressed: #cc5529;
+  --brand-light: #1f1612;  /* warm tinted dark surface for brand-bg areas */
+  --brand-soft-bg: rgba(255, 107, 53, 0.06);
+  --brand-soft-border: rgba(255, 107, 53, 0.22);
+  --brand-glow: 0 0 0 1px rgba(255, 107, 53, 0.6),
+    0 0 24px rgba(255, 107, 53, 0.14),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* Semantic - same family as light */
+  --primary: #ff6b35;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #ff6b35;
+
+  --success-soft-bg: rgba(52, 211, 153, 0.08);
+  --success-soft-border: rgba(52, 211, 153, 0.24);
+  --warning-soft-bg: rgba(251, 191, 36, 0.08);
+  --warning-soft-border: rgba(251, 191, 36, 0.24);
+  --danger-soft-bg: rgba(248, 113, 113, 0.08);
+  --danger-soft-border: rgba(248, 113, 113, 0.24);
+
+  /* Misc */
+  --message-user-bg: var(--bg-tint);
+  --message-tips-bg: #111111;
+  --workspace-btn-bg: #161616;
+  --fill: #111111;
+  --inverse: #f5f5f5;
+  --dialog-fill-0: #161616;
+  --text-0: #f5f5f5;
+  --text-white: #ffffff;
+  --fill-0: rgba(255, 255, 255, 0.06);
+  --fill-white-to-black: #0a0a0a;
+  --border-special: #444444;
+  --color-guid-agent-bar: var(--bg-2);
+
+  /* Chat-redesign intent accents - dark mode (lighter triples so they read
+     against the cinematic neutral ramp). */
+  --color-team: 129, 140, 248;       /* indigo-400 */
+  --color-specialist: 52, 211, 153;  /* emerald-400 */
+  --color-builtin: 253, 186, 116;    /* warm-orange-300 */
+
+  /* ---- Arco neutral ramp - dark ----
+     Same slots as light; values inverted to match the dark Wayland ramp.
+
+     text-1 = primary (near-white) → text-4 = disabled (faintest grey)
+     fill-1 = subtlest fill → fill-4 = stronger fill (solid dark surfaces)
+     border-1 = subtlest separator → border-4 = strong outline
+     bg-1 = deepest surface → bg-5 = highest elevation */
+  --color-text-1: var(--text-primary);      /* #f5f5f5 - primary text */
+  --color-text-2: var(--text-secondary);    /* #c0c0c0 - secondary text */
+  --color-text-3: var(--text-muted);        /* #9a9a9a - tertiary / placeholder */
+  --color-text-4: var(--text-disabled);     /* #555555 - disabled text */
+
+  --color-fill-1: var(--bg-1);              /* #111111 - subtlest fill (hover bg) */
+  --color-fill-2: var(--bg-2);              /* #161616 - light fill */
+  --color-fill-3: var(--bg-3);              /* #1c1c1c - medium fill */
+  --color-fill-4: var(--bg-4);              /* #222222 - strong fill */
+
+  --color-border-1: var(--border-light);    /* #1f1f1f - subtlest separator */
+  --color-border-2: var(--border-base);     /* #2a2a2a - standard border (most-used) */
+  --color-border-3: var(--border-bright);   /* #353535 - stronger outline */
+  --color-border-4: var(--border-mid);      /* #353535 - strongest outline */
+
+  --color-bg-1: var(--bg-base);             /* #0a0a0a - deepest / page background */
+  --color-bg-2: var(--bg-1);               /* #111111 - first elevation (sidebar, panels) */
+  --color-bg-3: var(--bg-2);               /* #161616 - second elevation */
+  --color-bg-4: var(--bg-3);               /* #1c1c1c - third elevation */
+  --color-bg-5: var(--bg-elevated);        /* #222222 - highest elevation (popup, tooltip) */
+
+  /* Dark mode: monochrome black-on-transparent SVG icons need to flip to
+     near-white to read on dark surfaces. `brightness(0) invert(0.9)`
+     burns the source to pure black first (in case it was anti-aliased
+     to other grayscale values) then inverts to ~#e5e5e5 - same tone as
+     --color-text-2, matching emoji weight without going pure white. */
+  --avatar-img-filter: brightness(0) invert(0.9);
+}

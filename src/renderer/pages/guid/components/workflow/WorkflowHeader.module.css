@@ -1,0 +1,133 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  /* Sits flush at the top of the WorkflowSurface - no border-radius, no
+     full border. The surface paints its own background; we only need a
+     bottom divider so the header reads as a separate band. */
+  border-bottom: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleZone {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: 11px;
+  color: var(--color-text-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.live {
+  color: var(--color-success-light-4, #4ade80);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+
+.metaSep {
+  opacity: 0.5;
+}
+
+.ctrl {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.skillsToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  align-self: flex-start;
+}
+
+.skillsToggle:hover {
+  color: var(--color-text-2);
+  background: var(--color-fill-2);
+}
+
+.skillsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.skillChip {
+  font-size: 11px;
+  padding: 3px 9px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 999px;
+  color: var(--color-text-2);
+  background: var(--color-fill-1);
+  white-space: nowrap;
+}
+
+/* Errored state - amber tint */
+.errored {
+  border-color: var(--color-warning-light-3, rgba(251, 146, 60, 0.5));
+  background: var(--color-warning-light-1, rgba(251, 146, 60, 0.08));
+}
+
+/* Complete state - single-line collapsed summary */
+.complete {
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.completeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-1);
+}
+
+.completeIcon {
+  color: var(--color-success, #16a34a);
+  display: inline-flex;
+  align-items: center;
+}

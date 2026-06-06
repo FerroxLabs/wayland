@@ -1,0 +1,27 @@
+{
+  "complete": {
+    "headline": "Workflow Complete",
+    "steps": "{{n}} steps",
+    "tokens": "{{n}} tokens",
+    "outputsTitle": "What this produced",
+    "save": "Save this run",
+    "runAgain": "Run again",
+    "nextTitle": "Up next"
+  },
+  "rail": {
+    "inProgress": "in progress",
+    "errored": "needs attention",
+    "skipped": "skipped",
+    "jumpToStep": "Jump to step {{n}}: {{title}}",
+    "runningLabel": "Running… ({{elapsed}})",
+    "runAutonomouslyAria": "Run step {{n}} autonomously",
+    "runAutonomously": "Run autonomously",
+    "titleManual": "Workflow steps · manual",
+    "titleAuto": "Workflow steps · auto-driven",
+    "confirmTitle": "Run Step {{n}} autonomously?",
+    "confirmOk": "Run autonomously",
+    "confirmCancel": "Cancel",
+    "confirmBody": "Wayland will spawn an autonomous worker to complete Step {{n}} in the background. You can keep chatting on the main session.",
+    "confirmEta": "ETA: 4-8 minutes."
+  }
+}

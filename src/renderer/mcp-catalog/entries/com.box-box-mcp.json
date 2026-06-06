@@ -1,0 +1,96 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.box/box-mcp",
+  "title": "Box",
+  "description": "Files, folders, search, and Box AI - Box's official hosted MCP server with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developer.box.com/guides/box-mcp/setup",
+  "repository": {
+    "url": "https://github.com/box/box-mcp-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.box.com"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "files-and-docs",
+      "productivity",
+      "collaboration"
+    ],
+    "tags": [
+      "box",
+      "files",
+      "storage",
+      "enterprise"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 53,
+    "installRate": 0.12,
+    "iconUrl": "icons/box.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#0061d5"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Box",
+      "providerSignupUrl": "https://account.box.com/signup",
+      "byoClient": {
+        "registrationUrl": "https://app.box.com/developers/console",
+        "requiresSecret": true,
+        "guide": "Box does not allow automatic OAuth client registration on api.box.com. You create a Custom App once in the Box Developer Console and Wayland uses your credentials.\n\n**1.** Open **app.box.com/developers/console** and sign in. (Personal Box accounts work for testing; Enterprise plans may require admin approval.)\n\n**2.** Click **Create New App** → **Custom App** → **User Authentication (OAuth 2.0)**. Give it a name (e.g. *Wayland MCP*) and submit.\n\n**3.** In the **Configuration** tab:\n  - Under **OAuth 2.0 Redirect URIs**, add the URL Wayland shows below.\n  - Under **Application Scopes**, enable: **Read all files and folders stored in Box**, **Write all files and folders stored in Box**, **Manage AI**, and **Manage Doc Gen templates**.\n  - Click **Save Changes**.\n\n**4.** Copy **Client ID** and **Client Secret** from the **OAuth 2.0 Credentials** section and paste them below.\n\n**Note for Enterprise accounts:** if your admin has app authorization enabled, the app must be approved in **Admin Console → Apps → Custom Apps Manager** before the OAuth flow will succeed."
+      },
+      "scopes": [
+        {
+          "name": "root_readwrite",
+          "plainLanguage": "Read and write files and folders you select."
+        },
+        {
+          "name": "ai.readwrite",
+          "plainLanguage": "Use Box AI to summarize and analyze content."
+        },
+        {
+          "name": "docgen.readwrite",
+          "plainLanguage": "Generate documents with Box Doc Gen templates."
+        }
+      ]
+    },
+    "toolGroups": [
+      {
+        "label": "Files",
+        "count": 6
+      },
+      {
+        "label": "Folders",
+        "count": 4
+      },
+      {
+        "label": "Search",
+        "count": 2
+      },
+      {
+        "label": "Box AI",
+        "count": 3
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.box-box-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

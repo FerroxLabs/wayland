@@ -1,0 +1,72 @@
+.card {
+  /*
+   * v0.4.7.1 (D-L-5) - Removed `max-width: 560px` so the card matches the
+   * GuidInputCard width. The parent `.guidLayout` caps both elements;
+   * giving the card its own cap created a visual mismatch where the card
+   * was narrower than the input directly above it.
+   */
+  position: relative;
+  margin: 8px auto 0;
+  padding: 14px 18px 14px 18px;
+  border-radius: 14px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.dismissBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.dismissBtn:hover,
+.dismissBtn:focus-visible {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.body {
+  margin: 0 24px 12px 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.redirectBtn {
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.redirectBtn:hover,
+.redirectBtn:focus-visible {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  outline: none;
+}

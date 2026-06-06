@@ -1,0 +1,233 @@
+{
+  "siderEntry": "Projects",
+  "list": {
+    "title": "Projects",
+    "subtitle": "Group related chats under one umbrella",
+    "newButton": "New project"
+  },
+  "empty": {
+    "title": "No projects yet",
+    "body": "Create a project to keep related chats, their workspace and knowledge together. Any backend, model or assistant can run inside it.",
+    "cta": "Create your first project"
+  },
+  "card": {
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "edit": "Edit",
+    "delete": "Delete",
+    "more": "More",
+    "noDescription": "No description yet",
+    "chatCount": "{{count}} chats"
+  },
+  "modal": {
+    "createTitle": "New project",
+    "editTitle": "Edit project",
+    "createButton": "Create project",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Launch funnel",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What is this project about? (optional)",
+    "workspaceLabel": "Workspace folder",
+    "chooseFolder": "Choose folder",
+    "workspaceHint": "Optional. Chats in this project start here, and a .wayland/ knowledge folder is created so every chat shares the same context.",
+    "colorLabel": "Color"
+  },
+  "workspace": {
+    "loading": "Loading project...",
+    "edit": "Edit",
+    "newChat": "New chat in this project",
+    "tabChats": "Chats",
+    "tabFiles": "Files",
+    "tabKnowledge": "Knowledge",
+    "knowledgeHint": "Knowledge folder: {{path}}/.wayland",
+    "emptyTitle": "No chats in this project yet",
+    "emptyBody": "Start a chat with any backend, model or assistant. It will live under this project, and you can run as many as you like at once.",
+    "untitledChat": "Untitled chat",
+    "removeChat": "Remove",
+    "tabReference": "Reference",
+    "tabMemory": "Memory",
+    "setupDone": "Set up",
+    "setupTodo": "Finish setup",
+    "settings": "Settings"
+  },
+  "assign": {
+    "title": "Add to project",
+    "empty": "You don't have any projects yet. Create one below.",
+    "newPlaceholder": "New project name",
+    "createButton": "Create"
+  },
+  "delete": {
+    "title": "Delete project?",
+    "body": "Delete \"{{name}}\"? Its chats are kept and simply removed from the project.",
+    "confirm": "Delete project"
+  },
+  "removeChat": {
+    "title": "Remove from project?",
+    "body": "The chat itself is kept; it is just detached from this project.",
+    "confirm": "Remove"
+  },
+  "history": {
+    "addToProject": "Add to project",
+    "removeFromProject": "Remove from project"
+  },
+  "composer": {
+    "newChatIn": "New chat in {{name}}"
+  },
+  "knowledge": {
+    "title": "Project knowledge",
+    "subtitle": "Shared with every chat in this project. Edits apply to new chats.",
+    "saving": "Saving",
+    "saved": "Saved",
+    "saveFailed": "Could not save. Please try again.",
+    "edit": "Edit",
+    "preview": "Preview",
+    "save": "Save",
+    "generate": "Generate",
+    "summaryLabel": "Summary",
+    "summaryPlaceholder": "A one-line summary (or generate one).",
+    "bodyLabel": "Content",
+    "previewEmpty": "Nothing to preview yet.",
+    "summaryEmpty": "Add some content first, then generate a summary.",
+    "summaryFailed": "Could not generate a summary.",
+    "noModelHint": "Connect a model with an API key to auto-generate summaries.",
+    "context": {
+      "label": "Instructions",
+      "placeholder": "Background and instructions every chat in this project should know.",
+      "emptyHint": "No instructions yet. Click to add shared context for every chat."
+    },
+    "rules": {
+      "label": "Rules & conventions",
+      "placeholder": "Conventions every chat should follow (optional).",
+      "emptyHint": "No rules yet. Click to add conventions every chat should follow."
+    },
+    "decisions": {
+      "label": "Decisions",
+      "placeholder": "Decisions made in this project, so chats don't relitigate them (optional).",
+      "emptyHint": "No decisions logged yet. Click to record decisions for future chats."
+    },
+    "reference": {
+      "label": "Reference files",
+      "add": "Add",
+      "dropHint": "Drop files here, or click to browse",
+      "remove": "Remove file"
+    },
+    "fileAdded": "Added {{count}} file",
+    "fileAdded_other": "Added {{count}} files",
+    "fileAddFailed": "Could not add the files.",
+    "fileRemoveFailed": "Could not remove the file.",
+    "noWorkspaceTitle": "No workspace folder yet",
+    "noWorkspaceBody": "Set a workspace folder for this project to add shared instructions, rules and reference files.",
+    "setWorkspace": "Set workspace folder"
+  },
+  "toast": {
+    "created": "Project created",
+    "updated": "Project updated",
+    "deleted": "Project deleted",
+    "saveFailed": "Something went wrong. Please try again.",
+    "deleteFailed": "Could not delete the project.",
+    "chatAdded": "Added to project",
+    "chatRemoved": "Removed from project"
+  },
+  "settings": {
+    "title": "Project settings",
+    "general": "General",
+    "saved": "Settings saved",
+    "saveFailed": "Could not save settings.",
+    "readyDone": "Project set up",
+    "readyTodo": "Add instructions to finish setup",
+    "instructionsHint": "Injected into every chat in this project.",
+    "rulesHint": "Hard constraints every chat must follow.",
+    "helpWrite": "Help me write this",
+    "needWorkspace": "Set a workspace folder first to write instructions and rules."
+  },
+  "reference": {
+    "title": "Reference files",
+    "subtitle": "Material the AI can draw on - specs, brand docs, data. Available to every chat in this project.",
+    "dropTitle": "Drop files here",
+    "dropHint": "or click to browse · PDF, Markdown, CSV, images…"
+  },
+  "memory": {
+    "title": "Project memory",
+    "subtitle": "Decisions and lessons for this project. Shared with every chat so they don't get relitigated.",
+    "add": "Add decision",
+    "save": "Save",
+    "placeholder": "What was decided, and why?",
+    "addFailed": "Could not save the decision.",
+    "emptyTitle": "No decisions yet",
+    "emptyBody": "Record decisions as you make them. They ride into every chat in this project so nothing gets relitigated.",
+    "ijfwTitle": "Discovered by IJFW",
+    "ijfwSubtitle": "IJFW's own project memory, surfaced read-only. Add anything important as a decision above.",
+    "ijfwBadge": "IJFW",
+    "ijfwReadonly": "Read-only · from IJFW",
+    "ijfwJournal": "Activity log",
+    "ijfwHandoff": "Handoff"
+  },
+  "wizard": {
+    "titleInstructions": "Instructions wizard",
+    "titleRules": "Rules wizard",
+    "subtitle": "Answer a couple of quick questions. I'll draft a best-practice document you can edit.",
+    "step": {
+      "source": "Source",
+      "questions": "Questions",
+      "draft": "Draft"
+    },
+    "source": {
+      "q": "Tell me about this project",
+      "hint": "A sentence or two, paste relevant text, or upload a file. The more I know, the better the draft.",
+      "placeholder": "e.g. A product launch funnel for the masterclass - broker outreach, the P&L model, and the replay funnel.",
+      "upload": "Upload file",
+      "uploadHint": "PDF, Markdown, text…"
+    },
+    "audience": {
+      "q": "Who is this project for?",
+      "customers": "Customers / buyers",
+      "team": "My team",
+      "me": "Just me",
+      "developers": "Developers",
+      "executives": "Executives",
+      "public": "The public"
+    },
+    "constraints": {
+      "q": "What should every chat always keep in mind?",
+      "onBrand": "Stay on-brand",
+      "concise": "Keep it concise",
+      "citeSources": "Cite sources",
+      "noHype": "No hype",
+      "matchStyle": "Match existing style",
+      "factsLocked": "Use locked facts/numbers",
+      "placeholder": "Anything else? e.g. 'Never recompute the locked P&L.'"
+    },
+    "draft": {
+      "q": "Here's a draft",
+      "modelNote": "Best available model",
+      "generating": "Drafting…",
+      "noModel": "Connect a model with an API key to draft with AI.",
+      "failed": "Could not generate a draft.",
+      "retry": "Try again"
+    },
+    "back": "Back",
+    "continue": "Continue",
+    "generate": "Generate draft",
+    "regenerate": "Regenerate",
+    "useDraft": "Use this draft"
+  },
+  "newWizard": {
+    "eyebrow": "New project",
+    "basicsTitle": "Name your project",
+    "basicsSub": "Two quick steps to a project that's ready to work. Skip anytime.",
+    "instructionsTitle": "Set your instructions",
+    "instructionsSub": "Optional - draft them with AI now, or add them later.",
+    "whatLabel": "What is it?",
+    "whatHint": "one line, helps the AI",
+    "workspaceOptional": "optional, add later",
+    "noModelTitle": "No model connected",
+    "noModelBody": "Connect a model later in Settings to draft instructions with AI. You can still write them by hand.",
+    "instructionsReady": "Instructions ready",
+    "redo": "Redo with the wizard",
+    "instructionsPrompt": "Most projects work better with a short instructions doc that every chat shares. Want help writing one?",
+    "draftInstructions": "Draft instructions with AI",
+    "orSkipBelow": "or skip below - you can add them anytime",
+    "skip": "Skip for now, just get going",
+    "create": "Create project"
+  }
+}

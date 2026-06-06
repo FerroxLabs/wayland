@@ -1,0 +1,98 @@
+/**
+ * Three color tokens for the chat-redesign assistant taxonomy.
+ *
+ * Phase 2 of the chat-redesign owns the canonical --color-team /
+ * --color-specialist / --color-builtin definitions; until that branch lands
+ * in this worktree these :root fallbacks keep the library page paint without
+ * any hardcoded hex literals leaking into components. Once Phase 2 merges
+ * its definitions become the inherited cascade and these become harmless
+ * fallbacks (a :root variable can be redefined; the cascading definition
+ * wins).
+ */
+:root {
+  --color-team: rgb(var(--primary-6, 86, 124, 235));
+  --color-specialist: rgb(var(--success-6, 27, 168, 73));
+  --color-builtin: rgb(var(--warning-6, 246, 154, 33));
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--color-bg-1);
+}
+
+.layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scroll {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: var(--space-6) var(--space-7) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.emptyState {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-text-3);
+  font-size: 14px;
+}
+
+.launchpadSection {
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 16px 18px 8px;
+  background: var(--color-bg-2);
+}
+
+.launchpadHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.launchpadTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.launchpadHint {
+  font-size: 11.5px;
+  color: var(--color-text-3);
+}

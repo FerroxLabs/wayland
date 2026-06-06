@@ -1,0 +1,21 @@
+{
+  "name": "@wayland/whatsapp-bridge",
+  "version": "0.1.0",
+  "description": "WhatsApp bridge subprocess for Wayland - JSON-RPC over stdio with pluggable backends (Baileys, whatsapp-web.js, Meta Cloud API)",
+  "private": true,
+  "type": "module",
+  "main": "bridge.js",
+  "scripts": {
+    "start": "node bridge.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "github:WhiskeySockets/Baileys#01047debd81beb20da7b7779b08edcb06aa03770",
+    "axios": "^1.7.0",
+    "pino": "^9.0.0",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.26.0"
+  },
+  "overrides": {
+    "protobufjs": "^7.5.5"
+  }
+}

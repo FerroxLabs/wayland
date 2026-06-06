@@ -1,0 +1,181 @@
+{
+  "title": "Compétences",
+  "subtitle": "Gérez et découvrez des compétences pour vos assistants",
+  "search": {
+    "placeholder": "Rechercher des compétences...",
+    "empty": "Aucune compétence ne correspond à votre recherche",
+    "emptyLibrary": "Aucune compétence chargée pour l'instant - essayez d'en importer une, ou redémarrez pour recharger la bibliothèque intégrée.",
+    "resultsCount": "{{count}} compétences correspondantes"
+  },
+  "stats": {
+    "total": "Total des compétences",
+    "pinned": "Épinglées",
+    "flagged": "Signalées",
+    "sources": "Sources"
+  },
+  "sections": {
+    "sources": "Sources",
+    "status": "Statut",
+    "categories": "Catégories"
+  },
+  "filters": {
+    "allSources": "Toutes les sources",
+    "source": {
+      "wayland-library": "Bibliothèque Wayland",
+      "team": "Équipe",
+      "user": "Mes compétences",
+      "imported": "Importées",
+      "cli-discovered": "Depuis vos CLI"
+    },
+    "verdict": {
+      "all": "Toutes",
+      "clean": "Saines",
+      "review": "À examiner",
+      "blocked": "Bloquées"
+    },
+    "category": {
+      "all": "Toutes les catégories"
+    }
+  },
+  "status": {
+    "scanned": "Analysée - aucun signal d'alerte détecté",
+    "review": "À examiner",
+    "blocked": "Bloquée - mise en quarantaine",
+    "unscanned": "Pas encore analysée"
+  },
+  "actions": {
+    "pin": "Épingler à tous les assistants",
+    "unpin": "Désépingler",
+    "enable": "Activer",
+    "disable": "Désactiver",
+    "delete": "Supprimer",
+    "import": "Importer",
+    "build": "Créer une compétence"
+  },
+  "cliDiscovery": {
+    "title": "Refléter les compétences des outils CLI installés",
+    "subtitle": "Affichez les compétences de ~/.claude/skills, ~/.codex/skills et ~/.gemini/skills pour qu'elles apparaissent sur votre page Compétences. Sur option. Un redémarrage est requis pour prendre effet.",
+    "restartNeeded": "- redémarrez l'application pour appliquer."
+  },
+  "threats": {
+    "credential-access": "Accès aux identifiants",
+    "network-exfiltration": "Exfiltration réseau",
+    "shell-execution": "Exécution shell",
+    "filesystem-write": "Écriture sur le système de fichiers",
+    "instruction-override": "Remplacement d'instructions",
+    "obfuscation": "Obfuscation",
+    "index-poisoning": "Empoisonnement d'index"
+  },
+  "severity": {
+    "critical": "Critique",
+    "medium": "Moyenne",
+    "low": "Faible"
+  },
+  "import": {
+    "title": "Importer une compétence",
+    "source": {
+      "folder": "Dossier",
+      "git": "URL Git",
+      "zip": "Fichier ZIP",
+      "singleSkillMd": "SKILL.md unique",
+      "marketplace": "Marketplace (bientôt disponible)"
+    },
+    "folder": {
+      "label": "Dossier de compétence",
+      "placeholder": "Cliquez pour choisir un dossier…",
+      "browse": "Parcourir"
+    },
+    "git": {
+      "label": "URL Git",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "Fichier ZIP",
+      "placeholder": "Cliquez pour choisir un ZIP…",
+      "browse": "Parcourir"
+    },
+    "singleSkillMd": {
+      "label": "Fichier SKILL.md",
+      "placeholder": "Cliquez pour choisir un SKILL.md…",
+      "browse": "Parcourir"
+    },
+    "actions": {
+      "import": "Importer",
+      "importing": "Importation…",
+      "importAllClean": "Importer toutes les saines",
+      "reviewAndSelect": "Examiner et sélectionner",
+      "cancel": "Annuler"
+    },
+    "scan": {
+      "title": "Résultats de l'analyse",
+      "verdict": {
+        "clean": "Saine",
+        "review": "À examiner",
+        "blocked": "Bloquée"
+      },
+      "noFindings": "Aucun problème détecté",
+      "finding": "{{count}} résultat",
+      "finding_other": "{{count}} résultats"
+    },
+    "error": {
+      "failed": "Échec de l'importation",
+      "invalidUrl": "Saisissez une URL https:// ou git@ valide"
+    }
+  },
+  "builder": {
+    "title": "Créer une compétence",
+    "tab": {
+      "write": "L'écrire moi-même",
+      "describe": "La décrire"
+    },
+    "form": {
+      "name": {
+        "label": "Nom",
+        "placeholder": "ex. my-skill"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Que fait cette compétence ?",
+        "hint": "Incluez des indications Use-when et Do-NOT-use pour que le modèle l'active avec précision."
+      },
+      "category": {
+        "label": "Catégorie",
+        "placeholder": "ex. coding"
+      },
+      "tags": {
+        "label": "Étiquettes",
+        "placeholder": "séparées par des virgules, ex. git, review"
+      },
+      "body": {
+        "label": "Corps du SKILL.md"
+      }
+    },
+    "describe": {
+      "label": "Décrivez votre compétence",
+      "placeholder": "Décrivez votre compétence en langage clair et nous rédigerons un SKILL.md pour vous…",
+      "generate": "Générer",
+      "generating": "Génération…"
+    },
+    "actions": {
+      "save": "Enregistrer la compétence",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "done": "Terminé"
+    },
+    "verdict": {
+      "clean": "Compétence « {{name}} » enregistrée avec succès.",
+      "review": "Compétence « {{name}} » enregistrée, mais signalée pour examen.",
+      "blocked": "La compétence « {{name}} » a été bloquée par Skill Guard et n'a pas été enregistrée. Modifiez le corps pour supprimer le contenu signalé."
+    },
+    "error": {
+      "saveFailed": "Échec de l'enregistrement",
+      "generateFailed": "Échec de la génération"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Quand Wayland charge ceci",
+    "metadata": "Métadonnées",
+    "body": "Corps",
+    "quarantined": "Cette compétence est en quarantaine et ne peut pas être chargée."
+  }
+}

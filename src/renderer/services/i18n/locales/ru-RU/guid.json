@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} недоступен, используется {{fallback}}.",
+  "noAgentAvailable": "Нет доступного основного агента. Войдите в Google или установите Claude/Codex CLI. Перейти к настройкам?",
+  "noAgentAvailableShort": "Основной агент недоступен. Нажмите для настройки.",
+  "agentTabAutoSwitch": "Модель несовместима с Gemini, автоматическое переключение на {{fallback}}",
+  "autoSwitchToAgent": "Gemini не настроен, автоматическое переключение на {{agent}}",
+  "autoSwitchedAgent": "{{from}} недоступен, переключено на {{to}}",
+  "promptExamplesHint": "Попробуйте примеры промптов:",
+  "agentSwitcherLabel": "Агент",
+  "switchedToAgent": "Переключено на {{agent}}",
+  "hint": {
+    "search": "Нажмите {{key}} для поиска",
+    "backend": "{{key}} для бэкенда",
+    "newChat": "{{key}} для нового чата"
+  },
+  "scanning": {
+    "initialMessage": "Текущий агент недоступен, обнаружение других доступных агентов...",
+    "scanningMessage": "Сканирование локальных доступных агентов...",
+    "connectingMessage": "Успешно подключено, пожалуйста, подождите...",
+    "establishingConnection": "Установка подключения...",
+    "statusQueued": "В очереди",
+    "statusTesting": "Тестирование задержки...",
+    "statusUnreachable": "Недоступен",
+    "statusAvailable": "Доступен"
+  },
+  "newChat": {
+    "kickoff": {
+      "accept": "Да, начнём",
+      "redirect": "Что-то другое",
+      "dismissAria": "Скрыть предложение",
+      "regionAria": "Предложенное первое сообщение"
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": ["Работаем допоздна", "Полуночничаем", "Засиделись"],
+        "morning": ["Доброе утро", "С добрым утром", "Пора вставать"],
+        "afternoon": ["Добрый день", "Хорошего дня", "С возвращением"],
+        "evening": ["Добрый вечер", "Хорошего вечера", "С возвращением"],
+        "night": ["Добрый вечер", "Хорошего вечера", "Пора отдыхать"]
+      }
+    },
+    "intent": {
+      "sell": "Продажи",
+      "write": "Текст",
+      "research": "Исследование",
+      "build": "Создание",
+      "run": "Запуск"
+    },
+    "pillBar": {
+      "label": "Выберите цель",
+      "pillLabel": "Цель «{{label}}»"
+    },
+    "suggestionPanel": {
+      "label": "Стартовые подсказки для «{{label}}»",
+      "heading": "Начните с «{{label}}»",
+      "close": "Закрыть подсказки"
+    },
+    "recents": {
+      "label": "Недавние беседы",
+      "heading": "Вернуться к работе"
+    },
+    "voiceHint": "Нажмите на микрофон, чтобы говорить"
+  }
+}

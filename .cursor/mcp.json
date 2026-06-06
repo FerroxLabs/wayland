@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ijfw-memory": {
+      "command": "node",
+      "args": ["/tmp/wayland-cold.2ro497/.ijfw/mcp-server/src/server.js"],
+      "env": {
+        "PATH": "/opt/homebrew/Cellar/node/25.8.1_1/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+      }
+    }
+  }
+}

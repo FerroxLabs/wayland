@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} 不可用，已自动切换到 {{fallback}}。",
+  "noAgentAvailable": "没有可用的 Main Agent。请登录 Google 或安装 Claude/Codex CLI。是否前往设置？",
+  "noAgentAvailableShort": "没有可用的 Main Agent。点击配置。",
+  "agentTabAutoSwitch": "模型不兼容 Gemini，已自动切换到 {{fallback}}",
+  "autoSwitchToAgent": "Gemini 未配置，正在自动切换到 {{agent}}",
+  "autoSwitchedAgent": "{{from}} 不可用，已自动切换到 {{to}}",
+  "promptExamplesHint": "试试这些可点击的案例提示词：",
+  "agentSwitcherLabel": "Agent",
+  "switchedToAgent": "已切换到 {{agent}}",
+  "hint": {
+    "search": "按 {{key}} 搜索",
+    "backend": "{{key}} 切换后端",
+    "newChat": "{{key}} 新建对话"
+  },
+  "scanning": {
+    "initialMessage": "当前Agent不可用, 正在检测其他可用agent...",
+    "scanningMessage": "正在扫描本地可用agent...",
+    "connectingMessage": "已连接成功，请稍后...",
+    "establishingConnection": "正在建立连接...",
+    "statusQueued": "排队中",
+    "statusTesting": "正在测试延迟...",
+    "statusUnreachable": "不可达",
+    "statusAvailable": "可用"
+  },
+  "newChat": {
+    "kickoff": {
+      "accept": "好的，开始吧",
+      "redirect": "换一个",
+      "dismissAria": "关闭建议",
+      "regionAria": "建议的开场"
+    },
+    "greeting": {
+      "withName": "{{timeLabel}}，{{name}}",
+      "labels": {
+        "lateNight": ["还在忙呢", "挑灯夜战", "夜深了还没睡"],
+        "morning": ["早", "早上好", "新的一天开始啦"],
+        "afternoon": ["下午好", "午后好", "欢迎回来"],
+        "evening": ["傍晚好", "晚上好", "欢迎回来"],
+        "night": ["傍晚好", "晚上好", "准备休息啦"]
+      }
+    },
+    "intent": {
+      "sell": "销售",
+      "write": "写作",
+      "research": "调研",
+      "build": "构建",
+      "run": "运行"
+    },
+    "pillBar": {
+      "label": "选择一个意图",
+      "pillLabel": "{{label}}意图"
+    },
+    "suggestionPanel": {
+      "label": "{{label}}起始提示词",
+      "heading": "从{{label}}开始",
+      "close": "关闭建议"
+    },
+    "recents": {
+      "label": "近期对话",
+      "heading": "继续上次的对话"
+    },
+    "voiceHint": "点击麦克风开始说话"
+  }
+}

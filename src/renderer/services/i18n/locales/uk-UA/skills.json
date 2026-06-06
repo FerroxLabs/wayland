@@ -1,0 +1,181 @@
+{
+  "title": "Навички",
+  "subtitle": "Керуйте та відкривайте навички для своїх асистентів",
+  "search": {
+    "placeholder": "Пошук навичок...",
+    "empty": "Навички за вашим запитом не знайдено",
+    "resultsCount": "{{count}} відповідних навичок",
+    "emptyLibrary": "Навички ще не завантажено - спробуйте імпортувати одну або перезапустіть застосунок, щоб перезавантажити вбудовану бібліотеку."
+  },
+  "filters": {
+    "allSources": "Усі джерела",
+    "source": {
+      "wayland-library": "Бібліотека Wayland",
+      "team": "Команда",
+      "user": "Мої навички",
+      "imported": "Імпортовані",
+      "cli-discovered": "З ваших CLI"
+    },
+    "verdict": {
+      "all": "Усі",
+      "clean": "Без зауважень",
+      "review": "Потребує перевірки",
+      "blocked": "Заблоковано"
+    },
+    "category": {
+      "all": "Усі категорії"
+    }
+  },
+  "status": {
+    "scanned": "Перевірено - порушень не виявлено",
+    "review": "Потребує перевірки",
+    "blocked": "Заблоковано - поміщено в карантин",
+    "unscanned": "Ще не перевірено"
+  },
+  "actions": {
+    "pin": "Закріпити для всіх асистентів",
+    "unpin": "Відкріпити",
+    "enable": "Увімкнути",
+    "disable": "Вимкнути",
+    "delete": "Видалити",
+    "import": "Імпортувати",
+    "build": "Створити навичку"
+  },
+  "threats": {
+    "credential-access": "Доступ до облікових даних",
+    "network-exfiltration": "Мережевий витік даних",
+    "shell-execution": "Виконання команд оболонки",
+    "filesystem-write": "Запис у файлову систему",
+    "instruction-override": "Перевизначення інструкцій",
+    "obfuscation": "Обфускація",
+    "index-poisoning": "Отруєння індексу"
+  },
+  "severity": {
+    "critical": "Критичний",
+    "medium": "Середній",
+    "low": "Низький"
+  },
+  "import": {
+    "title": "Імпорт навички",
+    "source": {
+      "folder": "Папка",
+      "git": "Git URL",
+      "zip": "ZIP-файл",
+      "marketplace": "Маркетплейс (незабаром)",
+      "singleSkillMd": "Один файл SKILL.md"
+    },
+    "folder": {
+      "label": "Папка навички",
+      "placeholder": "Натисніть, щоб вибрати папку…",
+      "browse": "Огляд"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP-файл",
+      "placeholder": "Натисніть, щоб вибрати ZIP…",
+      "browse": "Огляд"
+    },
+    "singleSkillMd": {
+      "label": "Файл SKILL.md",
+      "placeholder": "Натисніть, щоб вибрати SKILL.md…",
+      "browse": "Огляд"
+    },
+    "actions": {
+      "import": "Імпортувати",
+      "importing": "Імпортування…",
+      "importAllClean": "Імпортувати всі безпечні",
+      "reviewAndSelect": "Переглянути й вибрати",
+      "cancel": "Скасувати"
+    },
+    "scan": {
+      "title": "Результати сканування",
+      "verdict": {
+        "clean": "Безпечно",
+        "review": "Потребує перевірки",
+        "blocked": "Заблоковано"
+      },
+      "noFindings": "Проблем не виявлено",
+      "finding": "{{count}} виявлення",
+      "finding_other": "{{count}} виявлень"
+    },
+    "error": {
+      "failed": "Не вдалося імпортувати",
+      "invalidUrl": "Введіть дійсну URL-адресу https:// або git@"
+    }
+  },
+  "builder": {
+    "title": "Створити навичку",
+    "tab": {
+      "write": "Написати самому",
+      "describe": "Описати"
+    },
+    "form": {
+      "name": {
+        "label": "Назва",
+        "placeholder": "наприклад, my-skill"
+      },
+      "description": {
+        "label": "Опис",
+        "placeholder": "Що робить цей навик?",
+        "hint": "Вкажіть умови використання та незастосування для точної активації моделлю."
+      },
+      "category": {
+        "label": "Категорія",
+        "placeholder": "наприклад, coding"
+      },
+      "tags": {
+        "label": "Теги",
+        "placeholder": "через кому, наприклад, git, review"
+      },
+      "body": {
+        "label": "Тіло SKILL.md"
+      }
+    },
+    "describe": {
+      "label": "Опишіть ваш навик",
+      "placeholder": "Опишіть навик природною мовою, і ми складемо SKILL.md…",
+      "generate": "Створити",
+      "generating": "Створення…"
+    },
+    "actions": {
+      "save": "Зберегти навик",
+      "saving": "Збереження…",
+      "cancel": "Скасувати",
+      "done": "Готово"
+    },
+    "verdict": {
+      "clean": "Навик \"{{name}}\" успішно збережено.",
+      "review": "Навик \"{{name}}\" збережено, але потребує перевірки.",
+      "blocked": "Навик \"{{name}}\" заблоковано Skill Guard і не зареєстровано. Відредагуйте тіло для видалення позначеного вмісту."
+    },
+    "error": {
+      "saveFailed": "Помилка збереження",
+      "generateFailed": "Помилка генерації"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Коли Wayland завантажує це",
+    "metadata": "Метадані",
+    "body": "Вміст",
+    "quarantined": "Цю навичку поміщено в карантин і вона не може бути завантажена."
+  },
+  "stats": {
+    "total": "Усього навичок",
+    "pinned": "Закріплені",
+    "flagged": "Позначені",
+    "sources": "Джерела"
+  },
+  "sections": {
+    "sources": "Джерела",
+    "status": "Статус",
+    "categories": "Категорії"
+  },
+  "cliDiscovery": {
+    "title": "Віддзеркалити навички зі встановлених інструментів CLI",
+    "subtitle": "Показуйте навички з ~/.claude/skills, ~/.codex/skills та ~/.gemini/skills, щоб вони з’являлися на сторінці навичок. За згодою. Щоб зміни набули чинності, потрібен перезапуск.",
+    "restartNeeded": "- перезапустіть застосунок, щоб застосувати."
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.upstash/context7-mcp",
+  "title": "Context7",
+  "description": "Up-to-date library and SDK docs (React, Next.js, Stripe, Supabase, and 9000+ others) for accurate code generation.",
+  "version": "1.0.0",
+  "websiteUrl": "https://context7.com/docs/mcp",
+  "repository": { "url": "https://github.com/upstash/context7", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.context7.com/mcp" }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "research"],
+    "tags": ["docs", "context7", "upstash"],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 41,
+    "installRate": 0.28,
+    "iconUrl": "icons/context7.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#1a1a1a" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Context7",
+      "providerSignupUrl": "https://context7.com"
+    },
+    "toolGroups": [
+      { "label": "Docs", "count": 2 },
+      { "label": "Library Search", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.upstash-context7-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

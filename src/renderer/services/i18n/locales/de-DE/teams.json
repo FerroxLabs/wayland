@@ -1,0 +1,141 @@
+{
+  "title": "Teams",
+  "totalCount": "{{count}} Teams",
+  "siderEntry": "Teams",
+  "emptyState": "Noch keine Teams verfügbar.",
+  "standingBadge": "Dauerhaft",
+  "teamLeader": "Teamleiter",
+  "standing": {
+    "promoteCta": "Zu dauerhaftem Team machen",
+    "promoteCtaTooltip": "Berechtigt: {{sessionsRemaining}} Sitzungen oder {{daysRemaining}} Tage verbleibend",
+    "modalTitle": "Zu dauerhaftem Unternehmen machen",
+    "modalDescription": "Dauerhafte Unternehmen bleiben über Sitzungen hinweg bestehen, erscheinen im eigenen Bereich „Dauerhaft“ der Bibliothek und tragen ein permanentes visuelles Abzeichen.",
+    "optIn1": "Mir ist klar, dass dieses Team in der gesamten App als dauerhaftes Unternehmen markiert wird.",
+    "optIn2": "Ich kann dieses Team jederzeit wieder zu einem regulären Team zurückstufen.",
+    "confirmButton": "Zu dauerhaftem Team machen",
+    "cancelButton": "Abbrechen",
+    "demoteAction": "Zurückstufen",
+    "promoteSuccess": "Team zu dauerhaftem Team gemacht",
+    "promoteError": "Hochstufen des Teams fehlgeschlagen",
+    "demoteSuccess": "Team auf regulär zurückgestuft",
+    "demoteError": "Zurückstufen des Teams fehlgeschlagen"
+  },
+  "card": {
+    "rolesCount": "{{count}} Rollen"
+  },
+  "buildMyOwn": {
+    "label": "Eigenes Team erstellen",
+    "hint": "Mit einem leeren Team beginnen",
+    "cta": "Eigenes Team erstellen"
+  },
+  "group": {
+    "standing": "Dauerhafte Unternehmen",
+    "standingHint": "{{count}} - dauerhafte, ritualisierte Organisationen, die fortlaufend arbeiten",
+    "teams": "Teams",
+    "teamsHint": "{{count}} - Ad-hoc-Trupps für ein bestimmtes Ergebnis. Erstellen, liefern, auflösen.",
+    "startNew": "Neues Team starten"
+  },
+  "launcher": {
+    "back": "Zurück zu Teams",
+    "preconfiguredTitle": "{{name}}",
+    "buildMyOwnTitle": "Team erstellen",
+    "buildMyOwnSubtitle": "Wähle einen Leiter, füge Teammitglieder hinzu, wähle Backends. Speichere und verwende es später als eigene Vorlage wieder.",
+    "nameLabel": "Teamname",
+    "namePlaceholder": "z. B. Launch-Sprint, Renewal-Push, Q1-Markenauffrischung",
+    "nameRequired": "Bitte gib einen Teamnamen ein",
+    "leaderRequired": "Bitte wähle einen Leiter",
+    "rosterTitle": "Aufstellung",
+    "rosterSubtitle": "Backends je Rolle gewählt",
+    "leaderRoleLabel": "Leiter",
+    "teammateRoleLabel": "Teammitglied",
+    "slotNameLabel": "Anzeigename",
+    "slotNamePlaceholder": "Slot-Name (optional)",
+    "addTeammate": "Teammitglied hinzufügen",
+    "remove": "Entfernen",
+    "emptyRoster": "Noch keine Teammitglieder.",
+    "addSpecialists": "Spezialisten hinzufügen",
+    "rosterTip": "Tipp - wenn keine Teammitglieder hinzugefügt werden, ist dies ein Team mit nur einem Leiter.",
+    "pickLeader": "Wähle einen Spezialisten als Teamleiter…",
+    "leaderMissing": "Wähle einen Leiter",
+    "launchCta": "Team starten",
+    "launchingCta": "Wird gestartet…",
+    "createTeamCta": "Team erstellen",
+    "cancelCta": "Abbrechen",
+    "loadError": "Laden dieses Teams fehlgeschlagen.",
+    "launchError": "Starten des Teams fehlgeschlagen.",
+    "specialistNotFound": "(Spezialist fehlt)",
+    "backendPickerPlaceholder": "Backend",
+    "goalLabel": "Beschreibe, was du vorhast - ich schlage eine Aufstellung vor",
+    "goalPlaceholder": "z. B. Wir starten einen kostenpflichtigen Buch-Funnel und brauchen ein kleines Team, das ihn in zwei Wochen liefert.",
+    "suggestCta": "Vorschlagen",
+    "suggestSuccess": "Aufstellung vorgeschlagen",
+    "suggestFellBackToDefaults": "Standardaufstellung gewählt (keine Ziel-Schlüsselwörter passten)",
+    "suggestError": "Vorschlagen der Aufstellung fehlgeschlagen",
+    "pickerTitle": "Teammitglied hinzufügen",
+    "pickerSearch": "Spezialisten suchen",
+    "pickerEmpty": "Keine Spezialisten gefunden.",
+    "pickerCancel": "Abbrechen"
+  },
+  "rightRail": {
+    "teammates": "Teammitglieder",
+    "workspace": "Arbeitsbereich",
+    "workspaceLinked": "Dateien im Arbeitsbereich-Panel durchsuchen →",
+    "workspaceEmpty": "Diesem Team ist noch kein Arbeitsbereich zugewiesen.",
+    "rituals": "Rituale",
+    "ritualsEmpty": "Keine Rituale - kein dauerhaftes Unternehmen.",
+    "roleLeader": "Leiter",
+    "roleSpecialist": "Spezialist",
+    "addTeammate": "Teammitglied hinzufügen",
+    "addTeammateSuccess": "Teammitglied hinzugefügt",
+    "addTeammateError": "Hinzufügen des Teammitglieds fehlgeschlagen",
+    "restartAgent": "Neu starten",
+    "restartAgentSuccess": "Neustart eingeleitet",
+    "restartAgentError": "Neustart des Agenten fehlgeschlagen"
+  },
+  "activity": {
+    "tabLabel": "Aktivität",
+    "empty": "Noch keine Teamaktivität."
+  },
+  "activeSidebar": {
+    "title": "Aktiv",
+    "rollup": "{{tokens}} Tokens · ~{{usd}} diese Woche"
+  },
+  "import": {
+    "button": "Team importieren",
+    "title": "Team-Funktionen prüfen",
+    "intro": "Dieses Team deklariert die folgenden Funktionen. Gewähre nur, was du als vertrauenswürdig einstufst.",
+    "trustSelectedCta": "Ausgewählte vertrauen",
+    "trustSelectedCtaCountdown": "Ausgewählte vertrauen ({{seconds}}s)",
+    "sandboxCta": "Sandbox-Modus (keine Funktionen)",
+    "cancelCta": "Abbrechen",
+    "missingSpecialists": "Fehlende Spezialisten: {{names}}. Installiere sie zuerst oder verwende ein anderes Team.",
+    "networkNotice": "Netzwerkzugriff für importierte Teams ist derzeit deaktiviert. Diese Funktion kann in v1 nicht gewährt werden.",
+    "success": "Team importiert",
+    "error": "Importieren des Teams fehlgeschlagen",
+    "busyError": "Import-Warteschlange voll - versuche es in ein paar Sekunden erneut",
+    "fileReadError": "Datei konnte nicht gelesen werden",
+    "cap": {
+      "canReadFiles": "Arbeitsbereichsdateien lesen",
+      "canReadFilesDesc": "Gewährt den Agenten dieses Teams Lesezugriff auf Dateien innerhalb deines Arbeitsbereichsordners. Die Verzeichnisse .env, .ssh und node_modules/.bin/.cache sind immer blockiert.",
+      "canWriteFiles": "Arbeitsbereichsdateien schreiben",
+      "canWriteFilesDesc": "Gewährt Schreib- und mkdir-Zugriff innerhalb deines Arbeitsbereichs. Symlinks sind immer blockiert. Geschützte Pfade werden immer verweigert.",
+      "canSpawnAgents": "Neue Teammitglieder erstellen",
+      "canSpawnAgentsDesc": "Erlaubt dem Leiter, die Aufstellung zur Laufzeit über team_spawn_agent zu erweitern.",
+      "canNetworkRequest": "Netzwerkanfragen stellen",
+      "canNetworkRequestDesc": "Erlaubt fetch-/https.request-Aufrufe aus Agentenprozessen.",
+      "canCrossTeamMessage": "Nachrichten an andere Teams senden",
+      "canCrossTeamMessageDesc": "Erlaubt team_send_message, an Teams außerhalb dieses Teams zuzustellen."
+    }
+  },
+  "noResults": "Keine Teams entsprechen deiner Suche.",
+  "controls": {
+    "searchPlaceholder": "Teams suchen",
+    "sortLabel": "Sortieren"
+  },
+  "sort": {
+    "default": "Standard",
+    "name": "Name (A-Z)",
+    "roles": "Meiste Rollen",
+    "schedule": "Zeitplan"
+  }
+}

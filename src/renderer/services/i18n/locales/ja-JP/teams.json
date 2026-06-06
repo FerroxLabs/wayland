@@ -1,0 +1,141 @@
+{
+  "title": "[TODO:translate] Teams",
+  "totalCount": "[TODO:translate] {{count}} teams",
+  "siderEntry": "[TODO:translate] Teams",
+  "emptyState": "[TODO:translate] No teams available yet.",
+  "standingBadge": "[TODO:translate] Standing",
+  "teamLeader": "[TODO:translate] Team Leader",
+  "standing": {
+    "promoteCta": "[TODO:translate] Promote to Standing",
+    "promoteCtaTooltip": "[TODO:translate] Eligible: {{sessionsRemaining}} sessions or {{daysRemaining}} days remaining",
+    "modalTitle": "[TODO:translate] Promote to Standing Company",
+    "modalDescription": "[TODO:translate] Standing Companies persist across sessions, appear in the dedicated Standing section of the library, and carry a permanent visual badge.",
+    "optIn1": "[TODO:translate] I understand this team will be marked as a Standing Company across the app.",
+    "optIn2": "[TODO:translate] I can demote this team back to a regular team at any time.",
+    "confirmButton": "[TODO:translate] Promote to Standing",
+    "cancelButton": "[TODO:translate] Cancel",
+    "demoteAction": "[TODO:translate] Demote",
+    "promoteSuccess": "[TODO:translate] Team promoted to Standing",
+    "promoteError": "[TODO:translate] Failed to promote team",
+    "demoteSuccess": "[TODO:translate] Team demoted to regular",
+    "demoteError": "[TODO:translate] Failed to demote team"
+  },
+  "card": {
+    "rolesCount": "[TODO:translate] {{count}} roles"
+  },
+  "buildMyOwn": {
+    "label": "[TODO:translate] Build my own team",
+    "hint": "[TODO:translate] Start from a blank team",
+    "cta": "[TODO:translate] Build my own team"
+  },
+  "group": {
+    "standing": "[TODO:translate] Standing Companies",
+    "standingHint": "[TODO:translate] {{count}} - persistent, ritualized orgs that run continuously",
+    "teams": "[TODO:translate] Teams",
+    "teamsHint": "[TODO:translate] {{count}} - ad-hoc squads for a specific outcome. Spawn, ship, dissolve.",
+    "startNew": "[TODO:translate] Start a new team"
+  },
+  "launcher": {
+    "back": "[TODO:translate] Back to Teams",
+    "preconfiguredTitle": "[TODO:translate] {{name}}",
+    "buildMyOwnTitle": "[TODO:translate] Build a team",
+    "buildMyOwnSubtitle": "[TODO:translate] Pick a leader, add teammates, choose backends. Save and reuse as your own template later.",
+    "nameLabel": "[TODO:translate] Team name",
+    "namePlaceholder": "[TODO:translate] e.g. Launch Sprint, Renewal Push, Q1 Brand Refresh",
+    "nameRequired": "[TODO:translate] Please enter a team name",
+    "leaderRequired": "[TODO:translate] Please pick a leader",
+    "rosterTitle": "[TODO:translate] Roster",
+    "rosterSubtitle": "[TODO:translate] Backends chosen per role",
+    "leaderRoleLabel": "[TODO:translate] Leader",
+    "teammateRoleLabel": "[TODO:translate] Teammate",
+    "slotNameLabel": "[TODO:translate] Display name",
+    "slotNamePlaceholder": "[TODO:translate] Slot name (optional)",
+    "addTeammate": "[TODO:translate] Add teammate",
+    "remove": "[TODO:translate] Remove",
+    "emptyRoster": "[TODO:translate] No teammates yet.",
+    "addSpecialists": "[TODO:translate] Add specialists",
+    "rosterTip": "[TODO:translate] Tip - leaving teammates empty makes this a solo-leader team.",
+    "pickLeader": "[TODO:translate] Pick a specialist as team leader…",
+    "leaderMissing": "[TODO:translate] Pick a leader",
+    "launchCta": "[TODO:translate] Launch team",
+    "launchingCta": "[TODO:translate] Launching…",
+    "createTeamCta": "[TODO:translate] Create team",
+    "cancelCta": "[TODO:translate] Cancel",
+    "loadError": "[TODO:translate] Failed to load this team.",
+    "launchError": "[TODO:translate] Failed to launch the team.",
+    "specialistNotFound": "[TODO:translate] (missing specialist)",
+    "backendPickerPlaceholder": "[TODO:translate] Backend",
+    "goalLabel": "[TODO:translate] Describe what you're doing - I'll suggest a roster",
+    "goalPlaceholder": "[TODO:translate] e.g. We're launching a paid book funnel and need a small team to ship it in two weeks.",
+    "suggestCta": "[TODO:translate] Suggest",
+    "suggestSuccess": "[TODO:translate] Roster suggested",
+    "suggestFellBackToDefaults": "[TODO:translate] Picked a default roster (no goal keywords matched)",
+    "suggestError": "[TODO:translate] Failed to suggest roster",
+    "pickerTitle": "[TODO:translate] Add a teammate",
+    "pickerSearch": "[TODO:translate] Search specialists",
+    "pickerEmpty": "[TODO:translate] No specialists found.",
+    "pickerCancel": "[TODO:translate] Cancel"
+  },
+  "rightRail": {
+    "teammates": "[TODO:translate] Teammates",
+    "workspace": "[TODO:translate] Workspace",
+    "workspaceLinked": "[TODO:translate] Browse files in the workspace panel →",
+    "workspaceEmpty": "[TODO:translate] No workspace bound to this team yet.",
+    "rituals": "[TODO:translate] Rituals",
+    "ritualsEmpty": "[TODO:translate] No rituals - not a Standing Company.",
+    "roleLeader": "[TODO:translate] leader",
+    "roleSpecialist": "[TODO:translate] specialist",
+    "addTeammate": "[TODO:translate] Add teammate",
+    "addTeammateSuccess": "[TODO:translate] Teammate added",
+    "addTeammateError": "[TODO:translate] Failed to add teammate",
+    "restartAgent": "[TODO:translate] Restart",
+    "restartAgentSuccess": "[TODO:translate] Restart initiated",
+    "restartAgentError": "[TODO:translate] Failed to restart agent"
+  },
+  "activity": {
+    "tabLabel": "[TODO:translate] Activity",
+    "empty": "[TODO:translate] No team activity yet."
+  },
+  "activeSidebar": {
+    "title": "[TODO:translate] Active",
+    "rollup": "[TODO:translate] {{tokens}} tokens · ~{{usd}} this week"
+  },
+  "import": {
+    "button": "[TODO:translate] Import team",
+    "title": "[TODO:translate] Review team capabilities",
+    "intro": "[TODO:translate] This team declares the following capabilities. Grant only what you trust.",
+    "trustSelectedCta": "[TODO:translate] Trust selected",
+    "trustSelectedCtaCountdown": "[TODO:translate] Trust selected ({{seconds}}s)",
+    "sandboxCta": "[TODO:translate] Sandbox mode (no capabilities)",
+    "cancelCta": "[TODO:translate] Cancel",
+    "missingSpecialists": "[TODO:translate] Missing specialists: {{names}}. Install them first or use a different team.",
+    "networkNotice": "[TODO:translate] Network access for imported teams is currently disabled. This capability cannot be granted in v1.",
+    "success": "[TODO:translate] Team imported",
+    "error": "[TODO:translate] Failed to import team",
+    "busyError": "[TODO:translate] Import queue full - try again in a few seconds",
+    "fileReadError": "[TODO:translate] Could not read file",
+    "cap": {
+      "canReadFiles": "[TODO:translate] Read workspace files",
+      "canReadFilesDesc": "[TODO:translate] Grants this team's agents read access to files within your workspace folder. The .env, .ssh, and node_modules/.bin/.cache directories are always blocked.",
+      "canWriteFiles": "[TODO:translate] Write workspace files",
+      "canWriteFilesDesc": "[TODO:translate] Grants write + mkdir access within your workspace. Symlinks are always blocked. Protected paths always denied.",
+      "canSpawnAgents": "[TODO:translate] Spawn new teammates",
+      "canSpawnAgentsDesc": "[TODO:translate] Allows the leader to grow the roster at runtime via team_spawn_agent.",
+      "canNetworkRequest": "[TODO:translate] Make network requests",
+      "canNetworkRequestDesc": "[TODO:translate] Allows fetch/https.request calls from agent processes.",
+      "canCrossTeamMessage": "[TODO:translate] Send messages to other teams",
+      "canCrossTeamMessageDesc": "[TODO:translate] Allows team_send_message to deliver to teams outside this one."
+    }
+  },
+  "noResults": "検索条件に一致するチームがありません。",
+  "controls": {
+    "searchPlaceholder": "チームを検索",
+    "sortLabel": "並び替え"
+  },
+  "sort": {
+    "default": "デフォルト",
+    "name": "名前 (A-Z)",
+    "roles": "ロールが多い順",
+    "schedule": "スケジュール"
+  }
+}

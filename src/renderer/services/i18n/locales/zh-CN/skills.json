@@ -1,0 +1,181 @@
+{
+  "title": "技能",
+  "subtitle": "管理并发现适合您助手的技能",
+  "search": {
+    "placeholder": "搜索技能...",
+    "empty": "没有与您搜索内容匹配的技能",
+    "resultsCount": "{{count}} 个匹配技能",
+    "emptyLibrary": "尚未加载任何技能 - 请尝试导入一个，或重启以重新加载内置技能库。"
+  },
+  "filters": {
+    "allSources": "全部来源",
+    "source": {
+      "wayland-library": "Wayland 库",
+      "team": "团队",
+      "user": "我的技能",
+      "imported": "已导入",
+      "cli-discovered": "来自您的 CLI"
+    },
+    "verdict": {
+      "all": "全部",
+      "clean": "正常",
+      "review": "待审查",
+      "blocked": "已封锁"
+    },
+    "category": {
+      "all": "全部分类"
+    }
+  },
+  "status": {
+    "scanned": "已扫描 - 未发现异常",
+    "review": "待审查",
+    "blocked": "已封锁 - 已隔离",
+    "unscanned": "尚未扫描"
+  },
+  "actions": {
+    "pin": "固定到所有助手",
+    "unpin": "取消固定",
+    "enable": "启用",
+    "disable": "禁用",
+    "delete": "删除",
+    "import": "导入",
+    "build": "创建技能"
+  },
+  "threats": {
+    "credential-access": "凭证访问",
+    "network-exfiltration": "网络数据外泄",
+    "shell-execution": "Shell 执行",
+    "filesystem-write": "文件系统写入",
+    "instruction-override": "指令覆盖",
+    "obfuscation": "混淆",
+    "index-poisoning": "索引投毒"
+  },
+  "severity": {
+    "critical": "严重",
+    "medium": "中等",
+    "low": "低"
+  },
+  "import": {
+    "title": "导入技能",
+    "source": {
+      "folder": "文件夹",
+      "git": "Git URL",
+      "zip": "ZIP 文件",
+      "marketplace": "市场（即将推出）",
+      "singleSkillMd": "单个 SKILL.md"
+    },
+    "folder": {
+      "label": "技能文件夹",
+      "placeholder": "点击选择文件夹…",
+      "browse": "浏览"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP 文件",
+      "placeholder": "点击选择 ZIP 文件…",
+      "browse": "浏览"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md 文件",
+      "placeholder": "点击选择 SKILL.md 文件…",
+      "browse": "浏览"
+    },
+    "actions": {
+      "import": "导入",
+      "importing": "正在导入…",
+      "importAllClean": "导入所有无问题项",
+      "reviewAndSelect": "审查并选择",
+      "cancel": "取消"
+    },
+    "scan": {
+      "title": "扫描结果",
+      "verdict": {
+        "clean": "无问题",
+        "review": "需要审查",
+        "blocked": "已拦截"
+      },
+      "noFindings": "未发现问题",
+      "finding": "{{count}} 项发现",
+      "finding_other": "{{count}} 项发现"
+    },
+    "error": {
+      "failed": "导入失败",
+      "invalidUrl": "请输入有效的 https:// 或 git@ URL"
+    }
+  },
+  "builder": {
+    "title": "创建技能",
+    "tab": {
+      "write": "自己编写",
+      "describe": "描述需求"
+    },
+    "form": {
+      "name": {
+        "label": "名称",
+        "placeholder": "如 my-skill"
+      },
+      "description": {
+        "label": "描述",
+        "placeholder": "这个技能做什么？",
+        "hint": "包含使用场景和禁止场景，帮助模型准确激活。"
+      },
+      "category": {
+        "label": "分类",
+        "placeholder": "如 coding"
+      },
+      "tags": {
+        "label": "标签",
+        "placeholder": "逗号分隔，如 git, review"
+      },
+      "body": {
+        "label": "SKILL.md 正文"
+      }
+    },
+    "describe": {
+      "label": "描述你的技能",
+      "placeholder": "用自然语言描述你的技能，我们将为你生成 SKILL.md…",
+      "generate": "生成",
+      "generating": "生成中…"
+    },
+    "actions": {
+      "save": "保存技能",
+      "saving": "保存中…",
+      "cancel": "取消",
+      "done": "完成"
+    },
+    "verdict": {
+      "clean": "技能 \"{{name}}\" 已成功保存。",
+      "review": "技能 \"{{name}}\" 已保存，但需要审核。",
+      "blocked": "技能 \"{{name}}\" 被 Skill Guard 拦截，未注册。请编辑正文以移除标记内容。"
+    },
+    "error": {
+      "saveFailed": "保存失败",
+      "generateFailed": "生成失败"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Wayland 加载时",
+    "metadata": "元数据",
+    "body": "主体",
+    "quarantined": "此技能已被隔离，无法加载。"
+  },
+  "stats": {
+    "total": "技能总数",
+    "pinned": "已置顶",
+    "flagged": "已标记",
+    "sources": "来源"
+  },
+  "sections": {
+    "sources": "来源",
+    "status": "状态",
+    "categories": "分类"
+  },
+  "cliDiscovery": {
+    "title": "从已安装的 CLI 工具镜像技能",
+    "subtitle": "呈现来自 ~/.claude/skills、~/.codex/skills 和 ~/.gemini/skills 的技能，使其显示在你的技能页面上。需手动开启。需重启后生效。",
+    "restartNeeded": "- 请重启应用以生效。"
+  }
+}

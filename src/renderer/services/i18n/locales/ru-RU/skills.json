@@ -1,0 +1,181 @@
+{
+  "title": "Навыки",
+  "subtitle": "Управляйте и открывайте навыки для своих ассистентов",
+  "search": {
+    "placeholder": "Поиск навыков...",
+    "empty": "Навыки по вашему запросу не найдены",
+    "resultsCount": "{{count}} совпадающих навыков",
+    "emptyLibrary": "Навыки ещё не загружены - попробуйте импортировать навык или перезапустите приложение, чтобы заново загрузить встроенную библиотеку."
+  },
+  "filters": {
+    "allSources": "Все источники",
+    "source": {
+      "wayland-library": "Библиотека Wayland",
+      "team": "Команда",
+      "user": "Мои навыки",
+      "imported": "Импортированные",
+      "cli-discovered": "Из ваших CLI"
+    },
+    "verdict": {
+      "all": "Все",
+      "clean": "Без замечаний",
+      "review": "Требует проверки",
+      "blocked": "Заблокирован"
+    },
+    "category": {
+      "all": "Все категории"
+    }
+  },
+  "status": {
+    "scanned": "Проверено - нарушений не обнаружено",
+    "review": "Требует проверки",
+    "blocked": "Заблокирован - помещён в карантин",
+    "unscanned": "Ещё не проверен"
+  },
+  "actions": {
+    "pin": "Закрепить для всех ассистентов",
+    "unpin": "Открепить",
+    "enable": "Включить",
+    "disable": "Отключить",
+    "delete": "Удалить",
+    "import": "Импортировать",
+    "build": "Создать навык"
+  },
+  "threats": {
+    "credential-access": "Доступ к учётным данным",
+    "network-exfiltration": "Сетевая утечка данных",
+    "shell-execution": "Выполнение команд оболочки",
+    "filesystem-write": "Запись в файловую систему",
+    "instruction-override": "Переопределение инструкций",
+    "obfuscation": "Обфускация",
+    "index-poisoning": "Отравление индекса"
+  },
+  "severity": {
+    "critical": "Критический",
+    "medium": "Средний",
+    "low": "Низкий"
+  },
+  "import": {
+    "title": "Импорт навыка",
+    "source": {
+      "folder": "Папка",
+      "git": "Git URL",
+      "zip": "ZIP-файл",
+      "marketplace": "Маркетплейс (скоро)",
+      "singleSkillMd": "Один файл SKILL.md"
+    },
+    "folder": {
+      "label": "Папка с навыком",
+      "placeholder": "Нажмите, чтобы выбрать папку…",
+      "browse": "Обзор"
+    },
+    "git": {
+      "label": "URL Git",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP-файл",
+      "placeholder": "Нажмите, чтобы выбрать ZIP…",
+      "browse": "Обзор"
+    },
+    "singleSkillMd": {
+      "label": "Файл SKILL.md",
+      "placeholder": "Нажмите, чтобы выбрать SKILL.md…",
+      "browse": "Обзор"
+    },
+    "actions": {
+      "import": "Импортировать",
+      "importing": "Импорт…",
+      "importAllClean": "Импортировать все безопасные",
+      "reviewAndSelect": "Просмотреть и выбрать",
+      "cancel": "Отмена"
+    },
+    "scan": {
+      "title": "Результаты проверки",
+      "verdict": {
+        "clean": "Безопасно",
+        "review": "Требует проверки",
+        "blocked": "Заблокировано"
+      },
+      "noFindings": "Проблем не обнаружено",
+      "finding": "{{count}} находка",
+      "finding_other": "{{count}} находок"
+    },
+    "error": {
+      "failed": "Не удалось импортировать",
+      "invalidUrl": "Введите корректный URL вида https:// или git@"
+    }
+  },
+  "builder": {
+    "title": "Создать навык",
+    "tab": {
+      "write": "Написать самому",
+      "describe": "Описать"
+    },
+    "form": {
+      "name": {
+        "label": "Название",
+        "placeholder": "например, my-skill"
+      },
+      "description": {
+        "label": "Описание",
+        "placeholder": "Что делает этот навык?",
+        "hint": "Укажите, когда использовать и когда не использовать, чтобы модель точно активировалась."
+      },
+      "category": {
+        "label": "Категория",
+        "placeholder": "например, coding"
+      },
+      "tags": {
+        "label": "Теги",
+        "placeholder": "через запятую, например, git, review"
+      },
+      "body": {
+        "label": "Тело SKILL.md"
+      }
+    },
+    "describe": {
+      "label": "Опишите ваш навык",
+      "placeholder": "Опишите навык на естественном языке, и мы создадим SKILL.md…",
+      "generate": "Создать",
+      "generating": "Создание…"
+    },
+    "actions": {
+      "save": "Сохранить навык",
+      "saving": "Сохранение…",
+      "cancel": "Отмена",
+      "done": "Готово"
+    },
+    "verdict": {
+      "clean": "Навык \"{{name}}\" успешно сохранён.",
+      "review": "Навык \"{{name}}\" сохранён, но требует проверки.",
+      "blocked": "Навык \"{{name}}\" заблокирован Skill Guard и не зарегистрирован. Отредактируйте тело для удаления отмеченного содержимого."
+    },
+    "error": {
+      "saveFailed": "Ошибка сохранения",
+      "generateFailed": "Ошибка генерации"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Когда Wayland загружает это",
+    "metadata": "Метаданные",
+    "body": "Содержимое",
+    "quarantined": "Этот навык помещён в карантин и не может быть загружен."
+  },
+  "stats": {
+    "total": "Всего навыков",
+    "pinned": "Закреплено",
+    "flagged": "Отмечено",
+    "sources": "Источники"
+  },
+  "sections": {
+    "sources": "Источники",
+    "status": "Статус",
+    "categories": "Категории"
+  },
+  "cliDiscovery": {
+    "title": "Отображать навыки из установленных CLI-инструментов",
+    "subtitle": "Показывать навыки из ~/.claude/skills, ~/.codex/skills и ~/.gemini/skills, чтобы они отображались на странице навыков. По выбору. Для применения требуется перезапуск.",
+    "restartNeeded": "- перезапустите приложение, чтобы применить."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "agentFallbackNotice": "{{original}} est indisponible, utilisation de {{fallback}} à la place.",
+  "noAgentAvailable": "Aucun agent principal n'est disponible. Veuillez vous connecter à Google ou installer le CLI Claude/Codex. Aller aux paramètres ?",
+  "noAgentAvailableShort": "Aucun agent principal disponible. Cliquez pour configurer.",
+  "agentTabAutoSwitch": "Modèle incompatible avec Gemini, basculement automatique vers {{fallback}}",
+  "autoSwitchToAgent": "Gemini n'est pas configuré, basculement automatique vers {{agent}}",
+  "autoSwitchedAgent": "{{from}} est indisponible, basculé vers {{to}}",
+  "promptExamplesHint": "Essayez des exemples de prompts :",
+  "agentSwitcherLabel": "Agent",
+  "switchedToAgent": "Basculé vers {{agent}}",
+  "hint": {
+    "search": "Appuyez sur {{key}} pour rechercher",
+    "backend": "{{key}} pour le backend",
+    "newChat": "{{key}} pour une nouvelle conversation"
+  },
+  "scanning": {
+    "initialMessage": "L'agent actuel est indisponible, détection des autres agents disponibles...",
+    "scanningMessage": "Recherche des agents disponibles localement...",
+    "connectingMessage": "Connexion réussie, veuillez patienter...",
+    "establishingConnection": "Établissement de la connexion...",
+    "statusQueued": "En file d'attente",
+    "statusTesting": "Test de latence...",
+    "statusUnreachable": "Inaccessible",
+    "statusAvailable": "Disponible"
+  },
+  "newChat": {
+    "greeting": {
+      "withName": "{{timeLabel}}, {{name}}",
+      "labels": {
+        "lateNight": ["Travail tardif", "Au boulot jusqu'au bout de la nuit", "Encore debout"],
+        "morning": ["Bonjour", "Bonne matinée", "Debout là-dedans"],
+        "afternoon": ["Bon après-midi", "Bel après-midi", "Bon retour"],
+        "evening": ["Bonsoir", "Belle soirée", "Bon retour"],
+        "night": ["Bonsoir", "Belle soirée", "On décompresse"]
+      }
+    },
+    "intent": {
+      "sell": "Vendre",
+      "write": "Rédiger",
+      "research": "Rechercher",
+      "build": "Créer",
+      "run": "Exécuter"
+    },
+    "pillBar": {
+      "label": "Choisissez une intention",
+      "pillLabel": "Intention {{label}}"
+    },
+    "suggestionPanel": {
+      "label": "Prompts de départ pour {{label}}",
+      "heading": "Commencer par {{label}}",
+      "close": "Fermer les suggestions"
+    },
+    "recents": {
+      "label": "Conversations récentes",
+      "heading": "Reprendre où vous en étiez"
+    },
+    "voiceHint": "Cliquez sur le micro pour parler",
+    "kickoff": {
+      "accept": "Oui, commençons",
+      "redirect": "Autre chose",
+      "dismissAria": "Ignorer la suggestion",
+      "regionAria": "Premier message suggéré"
+    }
+  }
+}

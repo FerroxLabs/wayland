@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>E2E Minimal Extension</title>
+  </head>
+  <body>
+    <div id="root">E2E minimal extension is loaded.</div>
+    <script>
+      // Attempt to reach parent storage / cookies - must fail under
+      // sandbox="allow-scripts" (no allow-same-origin). We emit the result
+      // back via postMessage so the spec can observe both branches.
+      var sameOriginReachable = false;
+      var parentDomReachable = false;
+      try {
+        // Reading parent.localStorage from an opaque-origin iframe should throw.
+        // We intentionally don't catch here; the try/catch wraps it.
+        void window.parent.document.cookie;
+        parentDomReachable = true;
+      } catch (_e) {
+        parentDomReachable = false;
+      }
+      try {
+        void window.parent.localStorage.length;
+        sameOriginReachable = true;
+      } catch (_e) {
+        sameOriginReachable = false;
+      }
+      try {
+        window.parent.postMessage(
+          { type: 'e2e-minimal:probe', sameOriginReachable: sameOriginReachable, parentDomReachable: parentDomReachable },
+          '*'
+        );
+      } catch (_e) {
+        // best-effort
+      }
+    </script>
+  </body>
+</html>

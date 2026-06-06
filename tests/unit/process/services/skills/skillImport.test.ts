@@ -1,0 +1,304 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import path from 'node:path';
+import { SkillImport, IMPORTED_DIR, type SkillImportIo, type ZipEntry } from '@process/services/skills/SkillImport';
+import { SkillGuard } from '@process/services/skills/SkillGuard';
+import { SkillQuarantine } from '@process/services/skills/SkillQuarantine';
+import { SkillLibrary } from '@process/services/skills/SkillLibrary';
+import type { SkillSecurityReport } from '@/common/types/skillTypes';
+
+// ---------------------------------------------------------------------------
+// Fake IO builder
+// ---------------------------------------------------------------------------
+
+type FakeIoOverrides = Partial<SkillImportIo>;
+
+const CLEAN_REPORT: SkillSecurityReport = {
+  verdict: 'clean',
+  findings: [],
+  scannedAt: 0,
+  scannerVersion: 1,
+  llmScanned: true,
+};
+
+const BLOCKED_REPORT: SkillSecurityReport = {
+  verdict: 'blocked',
+  findings: [
+    {
+      threat: 'shell-execution',
+      severity: 'critical',
+      message: 'destructive shell execution',
+      evidence: 'rm -rf /',
+      layer: 'regex',
+    },
+  ],
+  scannedAt: 0,
+  scannerVersion: 1,
+  llmScanned: true,
+};
+
+function makeFakeIo(overrides: FakeIoOverrides = {}): SkillImportIo {
+  return {
+    lstat: vi.fn(async (_p: string) => ({ isSymbolicLink: () => false, isDirectory: () => true })),
+    readdir: vi.fn(async (_p: string) => ['SKILL.md']),
+    readFile: vi.fn(async (_p: string) => Buffer.from('# Test Skill\n\nA harmless skill.')),
+    copyFile: vi.fn(async () => {}),
+    mkdir: vi.fn(async () => {}),
+    writeFile: vi.fn(async () => {}),
+    gitClone: vi.fn(async () => {}),
+    unzip: vi.fn(async () => [] as ZipEntry[]),
+    mkdtemp: vi.fn(async (prefix: string) => `/tmp/${prefix}abc`),
+    rmdir: vi.fn(async () => {}),
+    ...overrides,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Helpers to spy on SkillGuard and SkillQuarantine
+// ---------------------------------------------------------------------------
+
+beforeEach(() => {
+  SkillLibrary.resetInstance();
+  vi.restoreAllMocks();
+});
+
+// ---------------------------------------------------------------------------
+// importFolder - copy + symlink rejection
+// ---------------------------------------------------------------------------
+
+describe('SkillImport.importFolder', () => {
+  it('copies SKILL.md into IMPORTED_DIR/<basename> for a clean folder', async () => {
+    const scanSpy = vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    const result = await importer.importFolder('/home/user/my-skill');
+
+    // mkdir called for dest
+    expect(io.mkdir).toHaveBeenCalledWith(path.join(IMPORTED_DIR, 'my-skill'));
+    // copyFile called for SKILL.md
+    expect(io.copyFile).toHaveBeenCalledWith(
+      path.join('/home/user/my-skill', 'SKILL.md'),
+      path.join(IMPORTED_DIR, 'my-skill', 'SKILL.md')
+    );
+    expect(scanSpy).toHaveBeenCalledOnce();
+    expect(result.imported).toHaveLength(1);
+    expect(result.imported[0].name).toBe('my-skill');
+    expect(result.quarantined).toHaveLength(0);
+  });
+
+  it('throws when srcPath is a symlink', async () => {
+    const io = makeFakeIo({
+      lstat: vi.fn(async () => ({ isSymbolicLink: () => true, isDirectory: () => false })),
+    });
+    const importer = new SkillImport(io);
+
+    await expect(importer.importFolder('/evil/symlink-dir')).rejects.toThrow(/symlink/);
+  });
+
+  it('routes a blocked skill to SkillQuarantine.quarantine', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([BLOCKED_REPORT]);
+    const quarantineSpy = vi.spyOn(SkillQuarantine, 'quarantine').mockResolvedValue('/quarantine/dest');
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    const result = await importer.importFolder('/home/user/bad-skill');
+
+    expect(quarantineSpy).toHaveBeenCalledOnce();
+    expect(result.quarantined).toContain('bad-skill');
+    expect(result.imported).toHaveLength(0);
+  });
+
+  it('keeps a review-verdict skill in imported (not quarantined)', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([
+      { ...CLEAN_REPORT, verdict: 'review', findings: [{ threat: 'instruction-override', severity: 'medium', message: 'x', evidence: 'x', layer: 'regex' }] },
+    ]);
+    const quarantineSpy = vi.spyOn(SkillQuarantine, 'quarantine').mockResolvedValue('');
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    const result = await importer.importFolder('/home/user/review-skill');
+
+    expect(quarantineSpy).not.toHaveBeenCalled();
+    expect(result.imported).toHaveLength(1);
+    expect(result.quarantined).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// importGit - allowlist
+// ---------------------------------------------------------------------------
+
+describe('SkillImport.importGit', () => {
+  it('throws for file:// scheme', async () => {
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+    await expect(importer.importGit('file:///etc/passwd')).rejects.toThrow(/disallowed scheme/);
+  });
+
+  it('throws for http:// scheme', async () => {
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+    await expect(importer.importGit('http://github.com/user/repo')).rejects.toThrow(/disallowed scheme/);
+  });
+
+  it('accepts https:// and calls gitClone then folder import', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    await importer.importGit('https://github.com/user/my-skill');
+
+    expect(io.gitClone).toHaveBeenCalledOnce();
+    const [url] = (io.gitClone as ReturnType<typeof vi.fn>).mock.calls[0] as [string, string];
+    expect(url).toBe('https://github.com/user/my-skill');
+    expect(io.copyFile).toHaveBeenCalled();
+  });
+
+  it('accepts git@github.com: SSH form', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    await importer.importGit('git@github.com:user/repo.git');
+
+    expect(io.gitClone).toHaveBeenCalledOnce();
+  });
+
+  it('cleans up the tmp dir even when gitClone fails', async () => {
+    const io = makeFakeIo({
+      gitClone: vi.fn(async () => { throw new Error('network error'); }),
+    });
+    const importer = new SkillImport(io);
+
+    await expect(importer.importGit('https://github.com/user/repo')).rejects.toThrow('network error');
+    expect(io.rmdir).toHaveBeenCalledOnce();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// importZip - zip-slip, symlink, .md stripping, executable warning
+// ---------------------------------------------------------------------------
+
+describe('SkillImport.importZip', () => {
+  it('rejects a zip entry whose path escapes the extraction dir (zip-slip)', async () => {
+    const slipEntry: ZipEntry = {
+      path: '../../../etc/passwd',
+      isSymlink: false,
+      data: Buffer.from('root:x:0:0'),
+    };
+    const io = makeFakeIo({
+      unzip: vi.fn(async () => [slipEntry]),
+    });
+    const importer = new SkillImport(io);
+
+    await expect(importer.importZip('/uploads/evil.zip')).rejects.toThrow(/escapes extraction dir/);
+  });
+
+  it('rejects a zip entry that is a symlink', async () => {
+    const symlinkEntry: ZipEntry = {
+      path: 'SKILL.md',
+      isSymlink: true,
+      data: Buffer.from('# Skill'),
+    };
+    const io = makeFakeIo({
+      unzip: vi.fn(async () => [symlinkEntry]),
+    });
+    const importer = new SkillImport(io);
+
+    await expect(importer.importZip('/uploads/symlink.zip')).rejects.toThrow(/symlink entry/);
+  });
+
+  it('strips non-.md files - writeFile is only called for .md entries', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const entries: ZipEntry[] = [
+      { path: 'SKILL.md', isSymlink: false, data: Buffer.from('# Skill') },
+      { path: 'scripts/run.sh', isSymlink: false, data: Buffer.from('#!/bin/bash') },
+      { path: 'README.md', isSymlink: false, data: Buffer.from('# Readme') },
+    ];
+    const io = makeFakeIo({
+      unzip: vi.fn(async () => entries),
+    });
+    const importer = new SkillImport(io);
+
+    await importer.importZip('/uploads/skill.zip');
+
+    const writtenFiles = (io.writeFile as ReturnType<typeof vi.fn>).mock.calls.map(
+      ([p]: [string]) => path.basename(p)
+    );
+    expect(writtenFiles).toContain('SKILL.md');
+    expect(writtenFiles).toContain('README.md');
+    expect(writtenFiles).not.toContain('run.sh');
+  });
+
+  it('warns (does not reject) when SKILL.md body references relative executable paths', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const entries: ZipEntry[] = [
+      { path: 'SKILL.md', isSymlink: false, data: Buffer.from('Run ./scripts/setup.sh to install') },
+    ];
+    const io = makeFakeIo({
+      unzip: vi.fn(async () => entries),
+    });
+    const importer = new SkillImport(io);
+
+    const result = await importer.importZip('/uploads/skill.zip');
+
+    expect(result.warnings.length).toBeGreaterThan(0);
+    expect(result.warnings[0]).toMatch(/executable path/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Scan runs on imported skills and calls SkillQuarantine for blocked
+// ---------------------------------------------------------------------------
+
+describe('SkillImport - scan integration', () => {
+  it('calls SkillGuard.scan with llm: true for each import', async () => {
+    const scanSpy = vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    await importer.importFolder('/home/user/skill-a');
+
+    expect(scanSpy).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ name: 'skill-a' })]),
+      { llm: true }
+    );
+  });
+
+  it('calls SkillQuarantine.quarantine for blocked verdict with correct name and path', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([BLOCKED_REPORT]);
+    const quarantineSpy = vi.spyOn(SkillQuarantine, 'quarantine').mockResolvedValue('/quarantine/bad');
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    await importer.importFolder('/home/user/bad-skill');
+
+    expect(quarantineSpy).toHaveBeenCalledWith(
+      'bad-skill',
+      path.join(IMPORTED_DIR, 'bad-skill'),
+      undefined
+    );
+  });
+
+  it('registers a clean skill into SkillLibrary', async () => {
+    vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
+    const lib = SkillLibrary.getInstance({ readFile: async () => '[]' });
+    const registerSpy = vi.spyOn(lib, 'registerSource');
+    const io = makeFakeIo();
+    const importer = new SkillImport(io);
+
+    await importer.importFolder('/home/user/clean-skill');
+
+    expect(registerSpy).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'clean-skill', source: 'imported' }),
+      ])
+    );
+  });
+});

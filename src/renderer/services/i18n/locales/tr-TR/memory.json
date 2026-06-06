@@ -1,0 +1,444 @@
+{
+  "page": {
+    "title": "Bellek",
+    "subtitle": "Yapay zekanızın her oturum boyunca süregelen bilgisi"
+  },
+  "pitch": {
+    "headline": "Sizi takip eden bellek",
+    "lede": "Wayland; üzerinde çalıştığınız, karar verdiğiniz ve yayınladığınız şeyleri hatırlar. Her asistan bağlamı alır -- yeniden açıklamanıza gerek kalmaz. Ferrox Labs tarafından geliştirilen açık kaynaklı bellek motoru IJFW ile çalışır.",
+    "bullet1": "Sohbetler, projeler ve CLI'lar arasında kalıcı",
+    "bullet2": "Aranabilir, dışa aktarılabilir, size ait",
+    "bullet3": "Kurulumdan sonra sıfır ayar",
+    "install_cta": "Belleği yükle",
+    "enable_cta": "Belleği etkinleştir",
+    "settings_link": "İstemiyor musunuz? Ayarlar'dan devre dışı bırakabilirsiniz"
+  },
+  "setting_up": {
+    "title": "Bellek kuruluyor",
+    "subtitle": "Bu yalnızca bir kez, arka planda gerçekleşir. Çalışmaya devam edebilirsiniz.",
+    "brand_line": "IJFW Memory by Ferrox Labs",
+    "taking_longer": "Kurulum hâlâ sürüyor... yavaş bağlantılarda bir dakika kadar sürebilir.",
+    "help": "Sorun mu var? Ayarlar'dan elle yeniden deneyin."
+  },
+  "brand": {
+    "tagline": "IJFW Memory by Ferrox Labs",
+    "footer": "IJFW (açık kaynak) tarafından sağlanmıştır, Ferrox Labs",
+    "github_link": "github.com/FerroxLabs/ijfw"
+  },
+  "installing": {
+    "title": "Bellek yükleniyor",
+    "subtitle": "Bu yaklaşık bir dakika sürer",
+    "version_label": "{{version}} sürümü yükleniyor",
+    "step_download": "npm'den indiriliyor",
+    "step_extract": "Dosyalar çıkarılıyor",
+    "step_verify": "Kurulum doğrulanıyor",
+    "step_activate": "Etkinleştiriliyor"
+  },
+  "upgrading": {
+    "title": "Bellek yükseltiliyor",
+    "subtitle": "{{version}} sonraki başlatma için hazırlanıyor",
+    "pending_message": "Yükseltme hazır. Wayland yeniden başlatıldığında etkinleşecek.",
+    "restart_now": "Şimdi yeniden başlat"
+  },
+  "failed": {
+    "title": "Kurulum tamamlanamadı",
+    "retry": "Yeniden dene",
+    "details_toggle": "Ayrıntıları göster",
+    "details_hide": "Ayrıntıları gizle",
+    "support_link": "Yardım için github.com/FerroxLabs/ijfw adresini ziyaret edin"
+  },
+  "error": {
+    "spawn_error": "Yükleyici başlatılamadı. npm'in PATH'inizde olduğundan emin olun.",
+    "install_exit_nonzero": "Kurulum bir hatayla sonlandı. Aşağıdaki ayrıntılar yardımcı olabilir.",
+    "invalid_target_version": "Kayıt defterinden geçersiz bir sürüm numarası geldi. Daha sonra yeniden deneyin.",
+    "unsafe_ownership": "Bekleyen kurulum klasörünün sahipliği güvenli olmadığı için reddedildi. Kurtarmak için yeniden yükleyin.",
+    "stage_pending_failed": "Yeni kurulum hazırlanamadı. Disk alanını kontrol edip yeniden deneyin.",
+    "stage_swap_failed": "Yeni kuruluma geçilemedi. Yeniden denemek için Wayland'i yeniden başlatın.",
+    "upgrade_failed_no_rollback": "Yükseltme başarısız oldu ve önceki sürüm geri yüklenemedi. Kurtarmak için yeniden yükleyin.",
+    "upgrade_failed_rolled_back": "Yükseltme başarısız oldu ancak önceki sürümünüz çalışmaya devam ediyor. Daha sonra yeniden deneyin veya ayrıntılara bakın.",
+    "rollback_also_failed": "Hem yeni sürüm hem de geri alma başarısız oldu. Kurtarmak için yeniden yükleyin.",
+    "mcp_crashed": "Bellek çöktü. Kurtarmak için Wayland'i yeniden başlatın.",
+    "mcp_error": "Bellek bir hata döndürdü. Yeniden deneyin.",
+    "timeout": "Bellek zamanında yanıt vermedi. Yeniden deneyin.",
+    "validation_failed": "Bu istek, Belleğin beklediği biçime uymadı.",
+    "unavailable": "Bellek henüz çalışmıyor. Etkinleştirmek için kurun veya yeniden başlatın.",
+    "opt_out": "Bellek Ayarlar'da devre dışı.",
+    "unknown": "Bir şeyler ters gitti. Yeniden deneyin."
+  },
+  "empty": {
+    "title": "Bellek hazır",
+    "subtitle": "Bir sonraki seferde hatırlanmasını istediğiniz her şeyi sorun",
+    "placeholder": "Bellek sizin hakkınızda ne bilmeli?",
+    "chip1": "Yayınladığımız teknoloji yığınını hatırla",
+    "chip2": "Kimlik doğrulama konusunda neye karar verdiğimizi hatırlat",
+    "chip3": "Son dağıtımda ne bozuldu",
+    "save_button": "Belleği kaydet",
+    "save_ok": "Bellek kaydedildi",
+    "save_err": "Bellek kaydedilemedi"
+  },
+  "panel": {
+    "header_breadcrumb": "Bellek",
+    "subtitle": "IJFW Memory by Ferrox Labs",
+    "button_drop": "Bırak",
+    "button_history": "Geçmiş",
+    "button_add": "Bellek ekle",
+    "tab_home": "Ana sayfa",
+    "tab_search": "Ara",
+    "tab_wiki": "Wiki",
+    "tab_promotions": "Tanıtımlar",
+    "tab_drop": "Bırak",
+    "tab_conflicts": "Çakışmalar",
+    "tab_cross_project": "Projeler arası"
+  },
+  "degraded": {
+    "toast": "Bellek, ilk kurulumdan sonra etkinleşecek",
+    "banner": "Bellek şu anda düşük performans modunda -- sohbet çalışmaya devam ediyor ancak zenginleştirme kapalı"
+  },
+  "settings": {
+    "panel_title": "IJFW Memory (Ferrox Labs)",
+    "skip_label": "IJFW otomatik kurulumu atla",
+    "skip_description": "Etkin olduğunda Wayland, IJFW'yi yüklemez veya yükseltmez. Daha sonra Bellek sayfası üzerinden elle yükleyebilirsiniz.",
+    "manual_install_hint": "Elle yüklemek için bir terminalde `npx -y @ijfw/install@latest` komutunu çalıştırın",
+    "about_title": "IJFW Memory",
+    "about_body": "Ferrox Labs tarafından geliştirilen açık kaynaklı kalıcı bellek motoru."
+  },
+  "prelude": {
+    "installing_notice": "IJFW yükleniyor. Harici CLI'lar (Claude Code, Codex, Gemini CLI) kurulum tamamlandıktan sonra bunu algılayacak.",
+    "disabled_notice": "IJFW, Wayland Ayarları'nda devre dışı. Harici CLI'larla bellek paylaşmak için yeniden etkinleştirin.",
+    "failed_notice": "IJFW kurulumu başarısız oldu. Yeniden denemek için Wayland'deki Bellek sayfasını ziyaret edin."
+  },
+  "home": {
+    "wiki_title": "Wiki",
+    "wiki_empty": "Henüz wiki girdisi yok",
+    "links_title": "Son bağlantılar",
+    "links_empty": "Henüz ilişki yok",
+    "promote_title": "Yükseltmeye hazır",
+    "promote_empty": "Hazır aday yok",
+    "promote_button": "Yükselt",
+    "promote_success": "Wiki'ye yükseltildi"
+  },
+  "search": {
+    "placeholder": "Belleğin işiniz hakkında bildiği her şeyi sorun",
+    "examples_title": "Başlamak için şunlardan birini deneyin:",
+    "example_1": "Üzerinde anlaştığımız kimlik doğrulama yığını nedir?",
+    "example_2": "Son dağıtımda ne bozuldu?",
+    "example_3": "Cron zamanlamasını hangi asistan yönetiyor?",
+    "citation_stub": "Alıntı gezintisi Wave 6'da geliyor"
+  },
+  "promotions": {
+    "title": "Wiki'ye yükseltme bekliyor",
+    "refresh": "Yenile",
+    "empty": "Bekleyen bir şey yok. Yeni bilgiler yükseltmeye hazır olduğunda burada görünecek.",
+    "promote": "Yükselt",
+    "skip": "Atla",
+    "preview": "Önizle",
+    "preview_hide": "Gizle",
+    "queued_at": "Sıraya eklendi: {{time}}",
+    "promote_success": "Wiki'ye yükseltildi.",
+    "promote_error": "Bu öğe yükseltilemedi. Yeniden deneyin.",
+    "skip_success": "Atlandı.",
+    "skip_error": "Bu öğe atlanamadı. Yeniden deneyin."
+  },
+  "conflicts": {
+    "empty": "Çakışma algılanmadı. Bellek tutarlı.",
+    "keep_this": "Bunu sakla",
+    "resolve_success": "Çakışma çözüldü"
+  },
+  "wiki": {
+    "home": {
+      "title": "Wiki",
+      "conceptCount": "{{memories}} anıdan {{count}} kavram sentezlendi",
+      "viewList": "Liste",
+      "viewGraph": "Grafik",
+      "newConcept": "+ Yeni kavram",
+      "settings": "Ayarlar",
+      "search": {
+        "placeholder": "Kavram ara…"
+      },
+      "columns": {
+        "byTopic": "Konuya Göre",
+        "updatedThisWeek": "Bu hafta güncellendi",
+        "emerging": "Gelişen - kavram sayfası olmalı"
+      },
+      "mostReferenced": "En Çok Başvurulan",
+      "references": "başvuru",
+      "empty": "Wiki boş. Bir anıyı yükseltin veya otomatik senkronizasyonu bekleyin.",
+      "status": {
+        "concepts": "{{count}} kavram",
+        "memoriesSynthesized": "{{count}} anı sentezlendi",
+        "autoSync": "30 dakikada bir otomatik senkronizasyon",
+        "lastSync": "son senkronizasyon {{when}} önce"
+      },
+      "emergingLabel": "Gelişen"
+    },
+    "orphan": {
+      "references": "{{count}} başvuru",
+      "projects": "{{count}} proje",
+      "projectsSingular": "{{count}} proje",
+      "synthesize": "Sayfa sentezle →",
+      "noPageYet": "Henüz sayfa yok"
+    },
+    "concept": {
+      "synthesizedFrom": "{{count}} anıdan sentezlendi"
+    },
+    "detail": {
+      "back": "← Wiki",
+      "edit": "Düzenle",
+      "updateFromSources": "Kaynaklardan güncelle",
+      "settings": "Ayarlar",
+      "updatedAgo": "{{when}} güncellendi",
+      "synthesizedFromMem": "{{count}} anıdan sentezlendi",
+      "freshness": {
+        "fresh": "Taze",
+        "stale": "Bayat",
+        "neverReviewed": "Hiç incelenmedi"
+      },
+      "tldr": "Özet",
+      "sources": "Kaynaklar",
+      "linkedFrom": "Bağlantı kaynağı",
+      "relatedConcepts": "İlgili kavramlar",
+      "openMemory": "Anıyı aç →",
+      "showAll": "Tümünü göster {{count}} ↓",
+      "hiddenSourcesOne": "{{count}} kaynak anı daha",
+      "hiddenSourcesOther": "{{count}} kaynak anı daha",
+      "autoSynthesized": "Otomatik sentezlendi",
+      "lastReviewedNever": "Son inceleme: hiç",
+      "lastSynthesized": "Son sentez: {{when}}",
+      "markAsReviewed": "İncelendi olarak işaretle",
+      "editThisPage": "Bu sayfayı düzenle",
+      "reSynthesizeFromSources": "Kaynaklardan yeniden sentezle",
+      "statusTotalConcepts": "Toplam {{count}} kavram",
+      "statusNotReviewedYet": "Henüz incelenmedi",
+      "statusLastSync": "son senkronizasyon {{when}} önce",
+      "loading": "Yükleniyor…",
+      "notFound": "Kavram bulunamadı.",
+      "notFoundBack": "← Wiki'ye dön"
+    },
+    "list_empty": "Henüz wiki kaydı yok. Başlamak için bir anıyı yükseltin.",
+    "select_prompt": "İçeriğini görüntülemek için bir kayıt seçin.",
+    "promote": "Yükselt",
+    "export": "Dışa Aktar",
+    "share_readme": "README Paylaş",
+    "promote_ok": "Wiki'ye yükseltildi",
+    "promote_err": "Kayıt yükseltilemedi",
+    "export_queued": "Dışa aktarma sıraya alındı -- indirme özelliği yakında geliyor",
+    "export_err": "Kayıt dışa aktarılamadı",
+    "share_ok": "README paylaşımı sıraya alındı",
+    "share_err": "README paylaşılamadı"
+  },
+  "crossProject": {
+    "scope_label_app": "Arama kapsamı: tüm projeler (uygulama kapsamı)",
+    "scope_label_project": "Arama kapsamı: {{project}} (proje kapsamı)",
+    "search_placeholder": "Tüm projelerde bellekte ara",
+    "search_button": "Ara",
+    "toggle_label": "Diğer projeleri dahil et",
+    "prompt_empty": "Proje belleklerinde arama yapmak için bir sorgu girin.",
+    "results_empty": "Aranan kapsamda eşleşme yok.",
+    "navigation_stub": "Projeler arası gezinti Wave 6'da geliyor"
+  },
+  "drop": {
+    "zone_title": "Dosyaları buraya bırakın",
+    "zone_hint": "Markdown, metin, JSON, YAML, CSV. En fazla 50MB. Sırada en fazla 20 dosya.",
+    "browse_button": "Gözat",
+    "queue_title": "Sıradaki dosyalar",
+    "queue_empty": "Sırada dosya yok",
+    "quarantine_button": "Karantinaya al",
+    "ingest_success": "{{name}} sıraya eklendi",
+    "quarantine_success": "{{name}} karantinaya alındı",
+    "path_unavailable": "Dosya yolu okunamadı. Bunun yerine Gözat düğmesini kullanın."
+  },
+  "archive": {
+    "topbar": {
+      "title": "Bellek",
+      "subtitle": "IJFW · Ferrox Labs",
+      "streak_pill": "{{sessions}} oturum · en uzun {{longestDays}} günlük seri",
+      "streak_empty": "Henüz oturum yok",
+      "import_btn": "İçe aktar…",
+      "settings_btn": "Ayarlar"
+    },
+    "stats": {
+      "memories": "Anılar",
+      "banked": "Tasarruf",
+      "decisions": "Kararlar",
+      "wiki": "Wiki",
+      "sessions": "Oturumlar",
+      "projects": "Projeler",
+      "delta_today": "Bugün {{count}}",
+      "delta_week": "Bu hafta {{count}}",
+      "delta_none": "değişiklik yok",
+      "banked_tooltip": "Tahmini tasarruf edilen çıkarım değeri: referans × $0,15 + karar × $0,50 + wiki × $2,00",
+      "no_data": "0"
+    },
+    "banner": {
+      "candidates_ready": "{{count}} aday otomatik yükseltmeye hazır",
+      "threshold": "eşik ≥ {{value}}",
+      "next_sweep": "{{time}} içinde otomatik yükseltme",
+      "last_dream": "Son döngü: {{facts}} gerçek · {{promoted}} yükseltildi · {{ago}} önce",
+      "no_dream": "Son zamanlarda döngü yok",
+      "tune_btn": "Ayarla",
+      "review_btn": "{{count}} öğeyi incele →",
+      "review_btn_zero": "İncele"
+    },
+    "filters": {
+      "projects_title": "Projeler",
+      "all_projects": "Tüm projeler",
+      "this_project": "Bu proje",
+      "global": "Genel",
+      "time_title": "Zaman",
+      "time_all": "Tümü",
+      "time_today": "Bugün",
+      "time_7d": "7 gün",
+      "time_30d": "30 gün",
+      "time_custom": "Özel…",
+      "tags_title": "Etiketler",
+      "tags_clear": "Etiketleri temizle",
+      "autopromo_title": "Otomatik yükseltme",
+      "candidates_only": "Yalnızca yükseltme adayları",
+      "hide_promoted": "Zaten yükseltilenleri gizle",
+      "candidates_subline": "{{count}} hazır · eşik ≥ {{value}}",
+      "section_collapse": "Daralt",
+      "section_expand": "Genişlet"
+    },
+    "list": {
+      "search_placeholder": "Anılarda ara…",
+      "search_kbd_hint": "/",
+      "chip_all": "Tümü",
+      "chip_decision": "Kararlar",
+      "chip_pattern": "Kalıplar",
+      "chip_session": "Oturumlar",
+      "chip_wiki": "Wiki",
+      "chip_observation": "Gözlemler",
+      "chip_preference": "Tercihler",
+      "chip_count": "({{count}})",
+      "empty_title": "Eşleşme yok",
+      "empty_subtitle": "Bir filtre kaldırmayı veya aramayı temizlemeyi deneyin.",
+      "empty_clear_btn": "Filtreleri temizle",
+      "footer": "{{total}} öğenin 1–{{shown}} arası gösteriliyor · daha fazlası için kaydırın",
+      "footer_all_loaded": "{{total}} öğenin tamamı yüklendi",
+      "loading_more": "Daha fazla yükleniyor…"
+    },
+    "row": {
+      "used_pill": "Bu hafta {{count}} kez kullanıldı",
+      "type_decision": "Karar",
+      "type_pattern": "Kalıp",
+      "type_observation": "Gözlem",
+      "type_session": "Oturum",
+      "type_wiki": "Wiki",
+      "type_preference": "Tercih"
+    },
+    "inspector": {
+      "empty_title": "İncelemek için bir anı seçin",
+      "kbd_navigate": "↑/↓ gezin",
+      "kbd_select": "Enter seçin",
+      "kbd_close": "Esc kapatın",
+      "close_btn": "Kapat",
+      "promote_btn": "Wiki'ye yükselt",
+      "promote_disabled": "Zaten yükseltildi ✓",
+      "open_btn": "Dosyayı aç",
+      "copy_btn": "Kopyala",
+      "score_label": "Yükseltme puanı {{score}}/100",
+      "score_threshold": "{{threshold}} değerinde otomatik yükseltilir",
+      "score_help": "Bu nasıl hesaplanıyor?",
+      "summary_title": "Özet",
+      "why_title": "Neden",
+      "why_empty": "\"Neden\" kaydedilmemiş",
+      "how_title": "Nasıl uygulanır",
+      "how_empty": "\"Nasıl uygulanır\" kaydedilmemiş",
+      "derefs_title": "Gerçek dünyada kullanım",
+      "derefs_subtitle": "Bu hafta {{count}} kez kullanıldı",
+      "tags_title": "Etiketler",
+      "source_label": "Kaynak",
+      "source_copied": "Kaynak yolu kopyalandı",
+      "promote_success": "Wiki'ye yükseltildi",
+      "promote_error": "Yükseltilemedi. Yeniden deneyin.",
+      "score_tooltip": "+30 karar/kalıp · +10 proje çapraz referans başına · +5 geri referans başına · +20 yükseltilmiş etiket · +15 yakınlık (30 günde doğrusal azalır)"
+    },
+    "quickadd": {
+      "placeholder": "Her şeyi hatırla…",
+      "scope_project": "proje",
+      "scope_global": "genel",
+      "submit_btn": "Hatırla →",
+      "submitting": "Kaydediliyor…",
+      "success": "Kaydedildi",
+      "error": "Kaydedilemedi. Yeniden deneyin."
+    },
+    "statusbar": {
+      "brain_live": "Beyin aktif",
+      "brain_offline": "Beyin çevrimdışı",
+      "cli_count": "{{count}} CLI",
+      "cli_count_none": "CLI algılanmadı",
+      "last_dream": "Son döngü: {{facts}} gerçek · {{promoted}} yükseltildi · {{ago}} önce",
+      "no_dream": "İlk döngü bekleniyor",
+      "kbd_capture": "hızlı yakalama",
+      "kbd_search": "ara",
+      "kbd_close": "denetçiyi kapat",
+      "spend_today": "Bugün ${{usd}}"
+    },
+    "threshold_modal": {
+      "title": "Otomatik yükseltmeyi ayarla",
+      "threshold_label": "Yükseltme eşiği",
+      "autopromo_label": "Zamanlamaya göre otomatik yükselt",
+      "autopromo_help": "Açık olduğunda, eşiği aşan ve 10 dakikalık kuyruğu geçen adaylar otomatik olarak wiki'ye yazılır.",
+      "live_preview": "Eşik {{value}}'da {{count}} aday",
+      "score_formula_title": "Puan formülü",
+      "formula_decision": "+30 tür karar veya kalıpsa",
+      "formula_refs": "+10 bu girdiyi referans alan proje başına",
+      "formula_referenced": "+5 geri referans isabeti başına",
+      "formula_tag": "+20 karar, kalıp, genel, tasarım veya mimari etiketliyse",
+      "formula_recency": "+15 depolanma süresi 24 saatten azsa (30 günde doğrusal azalır)",
+      "save_btn": "Kaydet",
+      "cancel_btn": "İptal",
+      "save_success": "Kaydedildi"
+    },
+    "errors": {
+      "load_failed": "Bellek yüklenemedi. {{reason}}",
+      "missing_api": "Bellek API'si henüz hazır değil. Bir an sonra tekrar deneyin.",
+      "promote_failed": "Yükseltilemedi. {{reason}}"
+    },
+    "import": {
+      "title": "Anıları içe aktar",
+      "close": "İçe aktarma çekmecesini kapat",
+      "importing": "İçe aktarılıyor…",
+      "status": {
+        "ready": "hazır",
+        "checking": "denetleniyor",
+        "importing": "içe aktarılıyor",
+        "unavailable": "kullanılamıyor",
+        "idle": "boşta"
+      },
+      "claudeMem": {
+        "title": "claude-mem",
+        "hint": "~/.claude-mem/claude-mem.db konumundan içe aktarmak için tıklayın",
+        "count": "~{{count}} kayıt içe aktarıldı",
+        "btn": "İçe aktar",
+        "success": "{{count}} kayıt içe aktarıldı · {{errors}} hata",
+        "error": "İçe aktarma başarısız oldu. Tekrar deneyin."
+      },
+      "obsidian": {
+        "title": "Obsidian kasası",
+        "hint": "Kasaları taramak için tıklayın",
+        "count": "~{{count}} kayıt içe aktarıldı",
+        "btn": "İçe aktar",
+        "success": "{{count}} kayıt içe aktarıldı · {{errors}} hata",
+        "error": "Obsidian içe aktarma başarısız oldu. Tekrar deneyin."
+      },
+      "devScan": {
+        "title": "~/dev taraması",
+        "hint": "IJFW bellek dizinleri için ~/dev tarar",
+        "count": "~{{count}} kayıt içe aktarıldı",
+        "btn": "İçe aktar",
+        "success": "{{projects}} projeden {{count}} kayıt içe aktarıldı",
+        "error": "Dev taraması içe aktarma başarısız oldu. Tekrar deneyin."
+      },
+      "dropFolder": {
+        "title": "Klasöre bırak",
+        "hint": ".md / .txt / .json dosyalarını ~/Documents/Wayland-Memory/ içine bırakın",
+        "count": "{{count}} dosya işlendi",
+        "openBtn": "Klasörü aç",
+        "processBtn": "Şimdi işle",
+        "success": "{{count}} dosya işlendi · {{errors}} hata",
+        "error": "İşleme başarısız oldu. Tekrar deneyin."
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.wayland/apple-mcp",
+  "title": "Apple Ecosystem",
+  "description": "Notes, Reminders, Mail, Calendar, Maps, Photos via EventKit and AppleScript. macOS only.",
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/FerroxLabs/waylandmcp/tree/main/packages/apple-mcp",
+  "repository": { "url": "https://github.com/FerroxLabs/waylandmcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "binary",
+      "identifier": "builtin-mcp-apple.mjs",
+      "version": "0.1.0",
+      "runtimeHint": "native",
+      "transport": { "type": "stdio" },
+      "environmentVariables": []
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["personal", "communication", "calendar", "files-and-docs"],
+    "tags": ["apple", "notes", "reminders", "mail", "calendar", "maps", "photos"],
+    "maintainerType": "wayland",
+    "license": "MIT",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 2,
+    "installRate": 0.71,
+    "iconUrl": "icons/apple.svg",
+    "brand": { "logoBackground": "linear-gradient(135deg,#ff6b35 0%,#1a1a1a 100%)", "logoForeground": "#ffffff" },
+    "auth": { "method": "local-credentials", "providerName": "macOS Full Disk Access" },
+    "toolGroups": [
+      { "label": "Calendar", "count": 5 },
+      { "label": "Reminders", "count": 4 },
+      { "label": "Notes", "count": 4 },
+      { "label": "Mail", "count": 4 },
+      { "label": "Maps", "count": 3 },
+      { "label": "Photos", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.wayland-apple-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

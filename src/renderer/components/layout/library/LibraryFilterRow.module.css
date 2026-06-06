@@ -1,0 +1,43 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-card-inner);
+  font-size: var(--type-13);
+  color: var(--color-text-2);
+  cursor: pointer;
+  outline: none;
+  transition: background var(--motion-fast), color var(--motion-fast);
+}
+
+.row:hover {
+  background: var(--color-fill-1);
+  color: var(--color-text-1);
+}
+
+.row:focus-visible {
+  background: var(--color-fill-1);
+  box-shadow: 0 0 0 2px rgb(var(--primary-6) / 0.4);
+}
+
+.rowActive {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+  font-weight: 600;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  flex-shrink: 0;
+  font-size: var(--type-11);
+  color: var(--color-text-3);
+  font-weight: 400;
+}

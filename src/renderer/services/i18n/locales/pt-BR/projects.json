@@ -1,0 +1,233 @@
+{
+  "siderEntry": "Projetos",
+  "list": {
+    "title": "Projetos",
+    "subtitle": "Agrupe conversas relacionadas sob um mesmo guarda-chuva",
+    "newButton": "Novo projeto"
+  },
+  "empty": {
+    "title": "Nenhum projeto ainda",
+    "body": "Crie um projeto para manter juntas as conversas relacionadas, seu workspace e seu conhecimento. Qualquer backend, modelo ou assistente pode rodar dentro dele.",
+    "cta": "Crie seu primeiro projeto"
+  },
+  "card": {
+    "pin": "Fixar",
+    "unpin": "Desafixar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "more": "Mais",
+    "noDescription": "Sem descrição ainda",
+    "chatCount": "{{count}} conversas"
+  },
+  "modal": {
+    "createTitle": "Novo projeto",
+    "editTitle": "Editar projeto",
+    "createButton": "Criar projeto",
+    "nameLabel": "Nome",
+    "namePlaceholder": "ex.: Funil de lançamento",
+    "descriptionLabel": "Descrição",
+    "descriptionPlaceholder": "Sobre o que é este projeto? (opcional)",
+    "workspaceLabel": "Pasta do workspace",
+    "chooseFolder": "Escolher pasta",
+    "workspaceHint": "Opcional. As conversas deste projeto começam aqui, e uma pasta de conhecimento .wayland/ é criada para que todas as conversas compartilhem o mesmo contexto.",
+    "colorLabel": "Cor"
+  },
+  "workspace": {
+    "loading": "Carregando projeto...",
+    "edit": "Editar",
+    "newChat": "Nova conversa neste projeto",
+    "tabChats": "Conversas",
+    "tabFiles": "Arquivos",
+    "tabKnowledge": "Conhecimento",
+    "knowledgeHint": "Pasta de conhecimento: {{path}}/.wayland",
+    "emptyTitle": "Nenhuma conversa neste projeto ainda",
+    "emptyBody": "Inicie uma conversa com qualquer backend, modelo ou assistente. Ela ficará dentro deste projeto, e você pode rodar quantas quiser ao mesmo tempo.",
+    "untitledChat": "Conversa sem título",
+    "removeChat": "Remover",
+    "tabReference": "Referência",
+    "tabMemory": "Memória",
+    "setupDone": "Configurado",
+    "setupTodo": "Concluir configuração",
+    "settings": "Configurações"
+  },
+  "assign": {
+    "title": "Adicionar ao projeto",
+    "empty": "Você ainda não tem nenhum projeto. Crie um abaixo.",
+    "newPlaceholder": "Nome do novo projeto",
+    "createButton": "Criar"
+  },
+  "delete": {
+    "title": "Excluir projeto?",
+    "body": "Excluir \"{{name}}\"? Suas conversas são mantidas e apenas removidas do projeto.",
+    "confirm": "Excluir projeto"
+  },
+  "removeChat": {
+    "title": "Remover do projeto?",
+    "body": "A conversa em si é mantida; ela apenas é desvinculada deste projeto.",
+    "confirm": "Remover"
+  },
+  "history": {
+    "addToProject": "Adicionar ao projeto",
+    "removeFromProject": "Remover do projeto"
+  },
+  "composer": {
+    "newChatIn": "Nova conversa em {{name}}"
+  },
+  "knowledge": {
+    "title": "Conhecimento do projeto",
+    "subtitle": "Compartilhado com todas as conversas deste projeto. As edições valem para novas conversas.",
+    "saving": "Salvando",
+    "saved": "Salvo",
+    "saveFailed": "Não foi possível salvar. Tente novamente.",
+    "edit": "Editar",
+    "preview": "Pré-visualizar",
+    "save": "Salvar",
+    "generate": "Gerar",
+    "summaryLabel": "Resumo",
+    "summaryPlaceholder": "Um resumo de uma linha (ou gere um).",
+    "bodyLabel": "Conteúdo",
+    "previewEmpty": "Nada para pré-visualizar ainda.",
+    "summaryEmpty": "Adicione algum conteúdo primeiro e depois gere um resumo.",
+    "summaryFailed": "Não foi possível gerar um resumo.",
+    "noModelHint": "Conecte um modelo com uma chave de API para gerar resumos automaticamente.",
+    "context": {
+      "label": "Instruções",
+      "placeholder": "Contexto e instruções que toda conversa deste projeto deve conhecer.",
+      "emptyHint": "Nenhuma instrução ainda. Clique para adicionar contexto compartilhado para todas as conversas."
+    },
+    "rules": {
+      "label": "Regras e convenções",
+      "placeholder": "Convenções que toda conversa deve seguir (opcional).",
+      "emptyHint": "Nenhuma regra ainda. Clique para adicionar convenções que toda conversa deve seguir."
+    },
+    "decisions": {
+      "label": "Decisões",
+      "placeholder": "Decisões tomadas neste projeto, para que as conversas não as rediscutam (opcional).",
+      "emptyHint": "Nenhuma decisão registrada ainda. Clique para registrar decisões para conversas futuras."
+    },
+    "reference": {
+      "label": "Arquivos de referência",
+      "add": "Adicionar",
+      "dropHint": "Solte arquivos aqui ou clique para procurar",
+      "remove": "Remover arquivo"
+    },
+    "fileAdded": "{{count}} arquivo adicionado",
+    "fileAdded_other": "{{count}} arquivos adicionados",
+    "fileAddFailed": "Não foi possível adicionar os arquivos.",
+    "fileRemoveFailed": "Não foi possível remover o arquivo.",
+    "noWorkspaceTitle": "Nenhuma pasta de workspace ainda",
+    "noWorkspaceBody": "Defina uma pasta de workspace para este projeto para adicionar instruções, regras e arquivos de referência compartilhados.",
+    "setWorkspace": "Definir pasta do workspace"
+  },
+  "toast": {
+    "created": "Projeto criado",
+    "updated": "Projeto atualizado",
+    "deleted": "Projeto excluído",
+    "saveFailed": "Algo deu errado. Tente novamente.",
+    "deleteFailed": "Não foi possível excluir o projeto.",
+    "chatAdded": "Adicionado ao projeto",
+    "chatRemoved": "Removido do projeto"
+  },
+  "settings": {
+    "title": "Configurações do projeto",
+    "general": "Geral",
+    "saved": "Configurações salvas",
+    "saveFailed": "Não foi possível salvar as configurações.",
+    "readyDone": "Projeto configurado",
+    "readyTodo": "Adicione instruções para concluir a configuração",
+    "instructionsHint": "Injetadas em toda conversa deste projeto.",
+    "rulesHint": "Restrições rígidas que toda conversa deve seguir.",
+    "helpWrite": "Me ajude a escrever isto",
+    "needWorkspace": "Defina uma pasta de workspace primeiro para escrever instruções e regras."
+  },
+  "reference": {
+    "title": "Arquivos de referência",
+    "subtitle": "Material que a IA pode usar - especificações, documentos de marca, dados. Disponível para toda conversa deste projeto.",
+    "dropTitle": "Solte arquivos aqui",
+    "dropHint": "ou clique para procurar · PDF, Markdown, CSV, imagens…"
+  },
+  "memory": {
+    "title": "Memória do projeto",
+    "subtitle": "Decisões e aprendizados deste projeto. Compartilhados com toda conversa para que não sejam rediscutidos.",
+    "add": "Adicionar decisão",
+    "save": "Salvar",
+    "placeholder": "O que foi decidido e por quê?",
+    "addFailed": "Não foi possível salvar a decisão.",
+    "emptyTitle": "Nenhuma decisão ainda",
+    "emptyBody": "Registre as decisões à medida que as toma. Elas acompanham toda conversa deste projeto para que nada seja rediscutido.",
+    "ijfwTitle": "Descoberto pelo IJFW",
+    "ijfwSubtitle": "A própria memória de projeto do IJFW, exibida somente leitura. Adicione qualquer coisa importante como uma decisão acima.",
+    "ijfwBadge": "IJFW",
+    "ijfwReadonly": "Somente leitura · do IJFW",
+    "ijfwJournal": "Registro de atividades",
+    "ijfwHandoff": "Transferência"
+  },
+  "wizard": {
+    "titleInstructions": "Assistente de instruções",
+    "titleRules": "Assistente de regras",
+    "subtitle": "Responda algumas perguntas rápidas. Vou redigir um documento de boas práticas que você pode editar.",
+    "step": {
+      "source": "Origem",
+      "questions": "Perguntas",
+      "draft": "Rascunho"
+    },
+    "source": {
+      "q": "Conte-me sobre este projeto",
+      "hint": "Uma ou duas frases, cole um texto relevante ou envie um arquivo. Quanto mais eu souber, melhor o rascunho.",
+      "placeholder": "ex.: Um funil de lançamento de produto para a masterclass - prospecção de corretores, o modelo de P&L e o funil de replay.",
+      "upload": "Enviar arquivo",
+      "uploadHint": "PDF, Markdown, texto…"
+    },
+    "audience": {
+      "q": "Para quem é este projeto?",
+      "customers": "Clientes / compradores",
+      "team": "Minha equipe",
+      "me": "Só eu",
+      "developers": "Desenvolvedores",
+      "executives": "Executivos",
+      "public": "O público"
+    },
+    "constraints": {
+      "q": "O que toda conversa deve sempre ter em mente?",
+      "onBrand": "Manter-se fiel à marca",
+      "concise": "Ser conciso",
+      "citeSources": "Citar fontes",
+      "noHype": "Sem exageros",
+      "matchStyle": "Seguir o estilo existente",
+      "factsLocked": "Usar fatos/números travados",
+      "placeholder": "Mais alguma coisa? ex.: 'Nunca recalcule o P&L travado.'"
+    },
+    "draft": {
+      "q": "Aqui está um rascunho",
+      "modelNote": "Melhor modelo disponível",
+      "generating": "Redigindo…",
+      "noModel": "Conecte um modelo com uma chave de API para redigir com IA.",
+      "failed": "Não foi possível gerar um rascunho.",
+      "retry": "Tentar novamente"
+    },
+    "back": "Voltar",
+    "continue": "Continuar",
+    "generate": "Gerar rascunho",
+    "regenerate": "Gerar novamente",
+    "useDraft": "Usar este rascunho"
+  },
+  "newWizard": {
+    "eyebrow": "Novo projeto",
+    "basicsTitle": "Dê um nome ao seu projeto",
+    "basicsSub": "Dois passos rápidos para um projeto pronto para trabalhar. Pule a qualquer momento.",
+    "instructionsTitle": "Defina suas instruções",
+    "instructionsSub": "Opcional - redija-as com IA agora ou adicione-as depois.",
+    "whatLabel": "O que é?",
+    "whatHint": "uma linha, ajuda a IA",
+    "workspaceOptional": "opcional, adicione depois",
+    "noModelTitle": "Nenhum modelo conectado",
+    "noModelBody": "Conecte um modelo depois nas Configurações para redigir instruções com IA. Você ainda pode escrevê-las manualmente.",
+    "instructionsReady": "Instruções prontas",
+    "redo": "Refazer com o assistente",
+    "instructionsPrompt": "A maioria dos projetos funciona melhor com um breve documento de instruções compartilhado por todas as conversas. Quer ajuda para escrever um?",
+    "draftInstructions": "Redigir instruções com IA",
+    "orSkipBelow": "ou pule abaixo - você pode adicioná-las a qualquer momento",
+    "skip": "Pular por enquanto, só começar",
+    "create": "Criar projeto"
+  }
+}

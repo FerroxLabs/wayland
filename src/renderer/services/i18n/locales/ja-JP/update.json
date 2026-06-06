@@ -1,0 +1,31 @@
+{
+  "modalTitle": "ソフトウェア更新",
+  "checking": "更新を確認しています...",
+  "checkFailed": "更新の確認に失敗しました",
+  "upToDateTitle": "最新です",
+  "currentVersion": "現在のバージョン：{{version}}",
+  "availableTitle": "更新があります",
+  "noReleaseNotes": "リリースノートはありません。",
+  "downloadingTitle": "更新をダウンロードしています...",
+  "downloadButton": "ダウンロード",
+  "downloadAndInstall": "ダウンロードしてインストール",
+  "downloadStartFailed": "ダウンロードを開始できませんでした",
+  "downloadFailed": "ダウンロードに失敗しました",
+  "noCompatibleAsset": "このプラットフォームに対応するファイルが見つかりません",
+  "noCompatibleAssetManual": "現在のシステムアーキテクチャに対応するパッケージがありません。Release ページから手動でダウンロードしてください。",
+  "goToRelease": "Release を開く",
+  "downloadCompleteTitle": "ダウンロード完了",
+  "readyToInstall": "インストール準備完了",
+  "readyToInstallDesc": "更新のダウンロードが完了しました。下のボタンをクリックして再起動し、更新をインストールしてください。",
+  "installNow": "今すぐインストール",
+  "autoUpdateMode": "自動更新モード",
+  "showInFolder": "フォルダーで表示",
+  "openFile": "ファイルを開く",
+  "errorTitle": "更新に失敗しました",
+  "errors": {
+    "missingTag": "この更新を検証できません: リリースタグがありません。Releases ページから更新してください。",
+    "metadataMissing": "このリリースの署名付き更新メタデータ (latest.yml) が見つかりません。検証されていないインストーラーは開きません。",
+    "assetNotInMetadata": "ダウンロードしたファイル「{{name}}」は署名付き更新メタデータに記載されていません。検証されていないインストーラーは開きません。",
+    "checksumMismatch": "ダウンロードした更新は整合性検証 (チェックサム不一致) に失敗したため破棄されました。実行しないでください。再試行するか Releases ページからダウンロードしてください。"
+  }
+}

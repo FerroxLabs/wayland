@@ -1,0 +1,37 @@
+{
+  "memory": "메모리",
+  "fluxRouter": {
+    "label": "Flux 상태",
+    "connect": {
+      "body": "모든 쿼리가 플래그십으로 라우팅되고 있습니다. Flux Router가 요청마다 알맞은 모델을 선택합니다.",
+      "action": "Flux Router 연결"
+    },
+    "install": {
+      "body": "Codex, Cursor, Claude Code가 아직 라우팅되지 않았습니다. Flux Desktop이 세 가지를 한 번에 연결합니다.",
+      "action": "Flux Desktop 설치",
+      "sub": "fluxrouter.ai/downloads"
+    },
+    "ollama": {
+      "body": "지난주에 로컬 Ollama가 {{pct}}%를 처리했습니다. 하드웨어가 한계에 도달하면 Flux Router가 나머지를 처리합니다.",
+      "action": "폴백 구성"
+    },
+    "wired": {
+      "body": "최근 100: H{{h}} · S{{s}} · O{{o}}",
+      "action": "각 턴의 경로 보기"
+    }
+  },
+  "accordion": {
+    "scheduled": "예약된 작업",
+    "workflows": "워크플로",
+    "teams": "팀",
+    "recentChats": "최근 채팅",
+    "inFlight": "진행 중",
+    "running": "실행 중",
+    "recentlyLaunched": "최근 실행",
+    "myTeams": "내 팀",
+    "seeAllWorkflows": "모든 워크플로 보기 →",
+    "seeAllScheduled": "모든 예약 작업 보기 →",
+    "seeAllChats": "모든 채팅 보기 →",
+    "showMore": "{{count}}개 더 보기 →"
+  }
+}

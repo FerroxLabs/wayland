@@ -1,0 +1,9 @@
+{
+  "displayName": "Star Office 拡張",
+  "description": "すべてのエージェントのアクティビティを可視化するStar Officeスタイルのタブ。",
+  "settingsTabs": {
+    "star-office": { "name": "Star Office" },
+    "wayland-home": { "name": "Wayland ホーム" },
+    "wayland-issues": { "name": "Wayland 課題" }
+  }
+}

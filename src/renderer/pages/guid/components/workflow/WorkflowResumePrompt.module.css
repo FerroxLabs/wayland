@@ -1,0 +1,34 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-left: 3px solid var(--workflow-accent, var(--color-primary));
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+}
+
+.heading {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.subline {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}

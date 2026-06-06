@@ -1,0 +1,30 @@
+/**
+ * BacklinkChip - inline [[wikilink]] chip.
+ * Colors: semantic CSS vars only. No hardcoded hex.
+ */
+
+.chip {
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.12s;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  color: var(--orange-hover, #ff9a70);
+  text-decoration-style: solid;
+}
+
+.chipOrphan {
+  color: var(--color-text-3, var(--text-3, #6b6e76));
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  cursor: default;
+  font-weight: 400;
+}

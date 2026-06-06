@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "wayland-mcp-catalog/catalog.schema.json",
+  "title": "Wayland MCP Catalog Index",
+  "type": "object",
+  "required": ["version", "publishedAt", "entries"],
+  "properties": {
+    "version": { "type": "string" },
+    "publishedAt": { "type": "string", "format": "date-time" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "shortDescription", "iconUrl", "tier", "categories", "maintainerType", "entryUrl", "guideUrl"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "shortDescription": { "type": "string" },
+          "iconUrl": { "type": "string" },
+          "tier": { "enum": ["core", "worker", "builder"] },
+          "categories": { "type": "array", "items": { "type": "string" } },
+          "maintainerType": { "enum": ["official", "wayland", "community"] },
+          "verifiedByWayland": { "type": ["string", "null"] },
+          "popularityRank": { "type": "integer" },
+          "installRate": { "type": "number" },
+          "entryUrl": { "type": "string" },
+          "guideUrl": { "type": "string" }
+        }
+      }
+    }
+  }
+}

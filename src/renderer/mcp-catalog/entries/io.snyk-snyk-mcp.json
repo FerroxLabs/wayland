@@ -1,0 +1,95 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.snyk/snyk-mcp",
+  "title": "Snyk",
+  "description": "Scan for vulnerabilities in open-source dependencies, code, IaC, and container images via the Snyk CLI's built-in MCP server.",
+  "version": "1.0.0",
+  "websiteUrl": "https://snyk.io/articles/snyk-mcp-cheat-sheet/",
+  "repository": {
+    "url": "https://github.com/snyk/snyk",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "snyk",
+      "version": "1.1305.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SNYK_TOKEN",
+          "description": "API token from your Snyk account settings.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "SNYK_CFG_ORG",
+          "description": "Target Snyk organization ID (optional, for multi-org accounts).",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "security",
+      "developer"
+    ],
+    "tags": [
+      "snyk",
+      "security",
+      "vulnerabilities",
+      "sca",
+      "sast"
+    ],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 62,
+    "installRate": 0.14,
+    "iconUrl": "icons/snyk.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#4c4a73"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Snyk",
+      "providerSignupUrl": "https://app.snyk.io/account"
+    },
+    "toolGroups": [
+      {
+        "label": "Open Source Scan",
+        "count": 1
+      },
+      {
+        "label": "Code Scan",
+        "count": 1
+      },
+      {
+        "label": "IaC Scan",
+        "count": 1
+      },
+      {
+        "label": "Container Scan",
+        "count": 1
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/io.snyk-snyk-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}

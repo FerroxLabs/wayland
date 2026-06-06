@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://foundryskills.dev/schema/agent-profile.json",
+  "title": "FoundrySkills Agent Profile Schema",
+  "description": "Validates YAML frontmatter in agent profile SKILL.md files for the FoundrySkills library. Agent profiles define WHO the AI becomes -- persona, voice, tools, and success metrics.",
+  "type": "object",
+  "required": ["name", "description"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Agent profile identifier. Lowercase letters, numbers, and hyphens only. No leading, trailing, or consecutive hyphens. Must match the parent directory name exactly.",
+      "examples": ["code-reviewer", "product-manager", "devops-engineer"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 1024,
+      "description": "What this agent does AND when to activate it. Must include trigger phrases for agent discovery. Write in third person. Include 'Activate when...' and 'Do NOT activate when...' clauses for accurate matching.",
+      "examples": [
+        "Becomes a senior code reviewer who evaluates pull requests for correctness, security, performance, and maintainability. Activate when the user asks for code review, PR feedback, or code quality assessment. Do NOT activate for writing new code, debugging, or architecture design."
+      ]
+    },
+    "license": {
+      "type": "string",
+      "const": "Apache-2.0",
+      "description": "License for the agent profile. All FoundrySkills use Apache-2.0."
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["author", "version", "tags", "category"],
+      "description": "Agent profile extension fields. All values MUST be strings (the Agent Skills spec defines metadata as a string-to-string map).",
+      "properties": {
+        "author": {
+          "type": "string",
+          "const": "foundry-skills",
+          "description": "Agent profile author identifier. Always 'foundry-skills' for curated library agents."
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version string (MAJOR.MINOR.PATCH).",
+          "examples": ["1.0.0", "1.2.3", "2.0.0"]
+        },
+        "tags": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Space-delimited discovery tags. Tags are the primary discovery mechanism. Use 3-8 tags per agent profile. Must be a single string with spaces between tags.",
+          "examples": ["code-review pull-request quality security"]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "engineering",
+            "business",
+            "operations",
+            "creative",
+            "orchestration"
+          ],
+          "description": "Primary category from the 5-category agent taxonomy defined in agents/_categories.json. Determines the directory where the agent profile lives.",
+          "examples": ["engineering", "business", "orchestration"]
+        },
+        "model": {
+          "type": "string",
+          "enum": ["opus", "sonnet", "haiku"],
+          "description": "Suggested model tier for this agent. opus = complex reasoning, sonnet = balanced, haiku = fast/simple tasks."
+        },
+        "tools": {
+          "type": "string",
+          "description": "Space-delimited list of tools the agent should have access to.",
+          "examples": ["Read Write Bash", "Read Grep Glob"]
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["beginner", "intermediate", "advanced"],
+          "description": "Complexity level of the agent's domain expertise."
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "allowed-tools": {
+      "type": "string",
+      "description": "Space-delimited list of agent tool names this agent profile may invoke. From the Agent Skills spec.",
+      "examples": ["Read", "Read Write Bash", ""]
+    }
+  },
+  "additionalProperties": false
+}

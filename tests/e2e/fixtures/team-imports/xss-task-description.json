@@ -1,0 +1,22 @@
+{
+  "version": "v1",
+  "id": "imported-xss-task-description",
+  "name": "XSS Task Description Team",
+  "leader": {
+    "id": "research"
+  },
+  "teammates": [
+    {
+      "id": "copy",
+      "name": "Copy Lead",
+      "prompt": "<script>alert(1)</script> Task description with an inline <a href=\"javascript:void(0)\">click me</a> link. Sanitizer must strip both."
+    }
+  ],
+  "capabilities": {
+    "canReadFiles": false,
+    "canWriteFiles": false,
+    "canSpawnAgents": false,
+    "canNetworkRequest": false,
+    "canCrossTeamMessage": false
+  }
+}

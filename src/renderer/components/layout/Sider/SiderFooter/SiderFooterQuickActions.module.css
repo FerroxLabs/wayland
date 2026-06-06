@@ -1,0 +1,39 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 6px;
+  padding: 4px 10px 8px 10px;
+}
+
+.rowCollapsed {
+  display: none;
+}
+
+.btn {
+  flex: 1;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-text-3);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.btn:hover {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+}
+
+.btn:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: -2px;
+}
+
+.btn.btnRunning {
+  color: rgb(var(--success-6));
+}

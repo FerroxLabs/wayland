@@ -1,0 +1,25 @@
+{
+  "version": "v1",
+  "id": "imported-prototype-pollution",
+  "name": "Prototype Pollution Attempt",
+  "leader": {
+    "id": "research"
+  },
+  "teammates": [
+    {
+      "id": "copy",
+      "name": "Copy Lead",
+      "prompt": "Draft on-brand copy."
+    }
+  ],
+  "capabilities": {
+    "canReadFiles": false,
+    "canWriteFiles": false,
+    "canSpawnAgents": false,
+    "canNetworkRequest": false,
+    "canCrossTeamMessage": false
+  },
+  "__proto__": {
+    "polluted": true
+  }
+}

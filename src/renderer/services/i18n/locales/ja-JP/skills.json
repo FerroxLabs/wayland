@@ -1,0 +1,181 @@
+{
+  "title": "スキル",
+  "subtitle": "アシスタント用のスキルを管理・探索する",
+  "search": {
+    "placeholder": "スキルを検索...",
+    "empty": "検索に一致するスキルがありません",
+    "resultsCount": "{{count}} 件のスキルが一致",
+    "emptyLibrary": "スキルがまだ読み込まれていません。インポートするか、再起動してバンドルされたライブラリを再読み込みしてください。"
+  },
+  "filters": {
+    "allSources": "すべてのソース",
+    "source": {
+      "wayland-library": "Wayland ライブラリ",
+      "team": "チーム",
+      "user": "マイスキル",
+      "imported": "インポート済み",
+      "cli-discovered": "CLIから取得"
+    },
+    "verdict": {
+      "all": "すべて",
+      "clean": "正常",
+      "review": "要確認",
+      "blocked": "ブロック済み"
+    },
+    "category": {
+      "all": "すべてのカテゴリ"
+    }
+  },
+  "status": {
+    "scanned": "スキャン済み - 問題は検出されませんでした",
+    "review": "要確認",
+    "blocked": "ブロック済み - 隔離中",
+    "unscanned": "未スキャン"
+  },
+  "actions": {
+    "pin": "すべてのアシスタントにピン留め",
+    "unpin": "ピン留めを解除",
+    "enable": "有効化",
+    "disable": "無効化",
+    "delete": "削除",
+    "import": "インポート",
+    "build": "スキルを作成"
+  },
+  "threats": {
+    "credential-access": "認証情報へのアクセス",
+    "network-exfiltration": "ネットワーク経由の情報漏洩",
+    "shell-execution": "シェル実行",
+    "filesystem-write": "ファイルシステムへの書き込み",
+    "instruction-override": "指示の上書き",
+    "obfuscation": "難読化",
+    "index-poisoning": "インデックス汚染"
+  },
+  "severity": {
+    "critical": "重大",
+    "medium": "中",
+    "low": "低"
+  },
+  "import": {
+    "title": "スキルをインポート",
+    "source": {
+      "folder": "フォルダ",
+      "git": "Git URL",
+      "zip": "ZIPファイル",
+      "marketplace": "マーケットプレイス（近日公開）",
+      "singleSkillMd": "単一の SKILL.md"
+    },
+    "folder": {
+      "label": "スキルフォルダ",
+      "placeholder": "クリックしてフォルダを選択…",
+      "browse": "参照"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP ファイル",
+      "placeholder": "クリックして ZIP を選択…",
+      "browse": "参照"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md ファイル",
+      "placeholder": "クリックして SKILL.md を選択…",
+      "browse": "参照"
+    },
+    "actions": {
+      "import": "インポート",
+      "importing": "インポート中…",
+      "importAllClean": "問題のないものをすべてインポート",
+      "reviewAndSelect": "確認して選択",
+      "cancel": "キャンセル"
+    },
+    "scan": {
+      "title": "スキャン結果",
+      "verdict": {
+        "clean": "問題なし",
+        "review": "要確認",
+        "blocked": "ブロック済み"
+      },
+      "noFindings": "問題は見つかりませんでした",
+      "finding": "{{count}} 件の検出",
+      "finding_other": "{{count}} 件の検出"
+    },
+    "error": {
+      "failed": "インポートに失敗しました",
+      "invalidUrl": "有効な https:// または git@ の URL を入力してください"
+    }
+  },
+  "builder": {
+    "title": "スキルを作成",
+    "tab": {
+      "write": "自分で書く",
+      "describe": "説明する"
+    },
+    "form": {
+      "name": {
+        "label": "名前",
+        "placeholder": "例: my-skill"
+      },
+      "description": {
+        "label": "説明",
+        "placeholder": "このスキルは何をしますか？",
+        "hint": "Use-when と Do-NOT-use のガイダンスを含めるとモデルが正確に起動します。"
+      },
+      "category": {
+        "label": "カテゴリ",
+        "placeholder": "例: coding"
+      },
+      "tags": {
+        "label": "タグ",
+        "placeholder": "カンマ区切り、例: git, review"
+      },
+      "body": {
+        "label": "SKILL.md 本文"
+      }
+    },
+    "describe": {
+      "label": "スキルを説明する",
+      "placeholder": "自然言語でスキルを説明してください。SKILL.md を生成します…",
+      "generate": "生成",
+      "generating": "生成中…"
+    },
+    "actions": {
+      "save": "スキルを保存",
+      "saving": "保存中…",
+      "cancel": "キャンセル",
+      "done": "完了"
+    },
+    "verdict": {
+      "clean": "スキル \"{{name}}\" を保存しました。",
+      "review": "スキル \"{{name}}\" を保存しましたが、レビューが必要です。",
+      "blocked": "スキル \"{{name}}\" は Skill Guard によってブロックされ、登録されませんでした。本文のフラグ付きコンテンツを修正してください。"
+    },
+    "error": {
+      "saveFailed": "保存に失敗しました",
+      "generateFailed": "生成に失敗しました"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Waylandがこれを読み込むとき",
+    "metadata": "メタデータ",
+    "body": "本体",
+    "quarantined": "このスキルは隔離されており、読み込むことができません。"
+  },
+  "stats": {
+    "total": "スキル総数",
+    "pinned": "ピン留め済み",
+    "flagged": "フラグ付き",
+    "sources": "ソース"
+  },
+  "sections": {
+    "sources": "ソース",
+    "status": "ステータス",
+    "categories": "カテゴリ"
+  },
+  "cliDiscovery": {
+    "title": "インストール済みの CLI ツールからスキルをミラーリング",
+    "subtitle": "~/.claude/skills、~/.codex/skills、~/.gemini/skills のスキルを表示して、スキルページに表示します。オプトイン式です。反映には再起動が必要です。",
+    "restartNeeded": "- 反映するにはアプリを再起動してください。"
+  }
+}

@@ -1,0 +1,129 @@
+/**
+ * InstallFailedCard - Wave 4 install-failed surface.
+ * Layout-only styles; typography/color tokens live in UnoCSS utility classes
+ * on the component. Visual register matches InstallerPitchCard.module.css.
+ */
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 32px 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 12px;
+  background: var(--color-fill-2);
+  border: 1px solid rgba(var(--danger-6), 0.32);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.errorIcon {
+  flex-shrink: 0;
+  color: rgb(var(--danger-6));
+}
+
+.message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-text-2);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.detailsCollapse {
+  margin-top: 4px;
+}
+
+.detailsCollapse :global(.arco-collapse-item) {
+  border: none;
+  background: var(--color-fill-1);
+  border-radius: 8px;
+}
+
+.detailsCollapse :global(.arco-collapse-item-header) {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+.detailsCollapse :global(.arco-collapse-item-content-box) {
+  padding: 0 12px 12px;
+}
+
+.stderrPre {
+  margin: 0;
+  padding: 12px;
+  border-radius: 6px;
+  background: var(--color-fill-3);
+  color: var(--color-text-2);
+  font-family: var(--code-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow: auto;
+}
+
+@media (max-width: 1024px) {
+  .center {
+    padding: 24px 16px;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    padding: 20px 16px;
+  }
+  .card {
+    padding: 20px;
+    gap: 14px;
+  }
+  .message {
+    font-size: 13px;
+    line-height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding: 16px 12px;
+  }
+  .card {
+    padding: 16px;
+    gap: 12px;
+    border-radius: 10px;
+  }
+  .actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .stderrPre {
+    font-size: 11px;
+    line-height: 16px;
+    max-height: 200px;
+  }
+}

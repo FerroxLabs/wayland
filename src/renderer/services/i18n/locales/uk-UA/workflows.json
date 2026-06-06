@@ -1,0 +1,44 @@
+{
+  "siderEntry": "Workflows",
+  "title": "Workflows",
+  "subtitle": "Step-by-step recipes you can launch in one click or schedule to run automatically. Pick a workflow, choose your engine, and the agent will walk you through it.",
+  "count": "{{count}} workflow",
+  "count_other": "{{count}} workflows",
+  "allCategories": "All workflows",
+  "section": {
+    "featured": "Featured workflows",
+    "all": "All workflows"
+  },
+  "actions": {
+    "launch": "Launch now",
+    "schedule": "Schedule",
+    "import": "Import workflow",
+    "build": "Build a workflow",
+    "runOn": "Запустити на"
+  },
+  "import": {
+    "placeholder": "Import wiring lands next: folder / git URL / SKILL.md with type:workflow auto-detected via frontmatter, scanned by Skill Guard, and registered as source:imported."
+  },
+  "build": {
+    "placeholder": "Workflow builder coming next: describe it in plain language → AI drafts a SKILL.md with category + depends inferred from the live skill library → review + save."
+  },
+  "depends": {
+    "title": "Uses these skills",
+    "openSkill": "Open in Skills page"
+  },
+  "search": {
+    "placeholder": "Search workflows…",
+    "empty": "No workflows match your search",
+    "emptyLibrary": "No workflows loaded yet. The bundled library will populate at next restart."
+  },
+  "whatHappens": "When you launch this",
+  "bodyFallback": "The agent loads this workflow as its first directive and walks you through it step by step. You can interrupt or change direction at any point.",
+  "noDescription": "No description provided.",
+  "launch": {
+    "placeholder": "Launch wiring is in flight. Soon you will pick an engine (Wayland Core / Gemini / Claude / Codex), and the workflow will load as the agent's first directive in a fresh chat."
+  },
+  "launchError": "Не вдалося запустити робочий процес: {{msg}}",
+  "picker": {
+    "noAgent": "Бекенд не вибрано"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.google/chrome-devtools-mcp",
+  "title": "Chrome DevTools",
+  "description": "Live page inspection, console, network, performance, and Lighthouse audits via Chrome DevTools Protocol.",
+  "version": "1.1.1",
+  "websiteUrl": "https://developer.chrome.com/docs/devtools/mcp",
+  "repository": { "url": "https://github.com/GoogleChromeLabs/chrome-devtools-mcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "chrome-devtools-mcp",
+      "version": "1.1.1",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": []
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": ["developer", "browser"],
+    "tags": ["chrome", "devtools", "lighthouse"],
+    "maintainerType": "official",
+    "license": "Apache-2.0",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 45,
+    "installRate": 0.18,
+    "iconUrl": "icons/chrome.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#4285f4" },
+    "auth": { "method": "none" },
+    "toolGroups": [
+      { "label": "Navigation", "count": 3 },
+      { "label": "Console", "count": 3 },
+      { "label": "Network", "count": 3 },
+      { "label": "Performance", "count": 3 },
+      { "label": "Lighthouse", "count": 1 }
+    ],
+    "setupGuide": { "path": "guides/com.google-chrome-devtools-mcp.md", "estimatedMinutes": 1, "stepCount": 1 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

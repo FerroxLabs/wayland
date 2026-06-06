@@ -1,0 +1,69 @@
+{
+  "name": "business-funnels",
+  "displayName": "Business Funnels",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Direct-response funnel architecture: irresistible-offer construction, value/ascension ladders, lead magnets, tripwires, conviction and evergreen webinar funnels, and the full-campaign composite. Designs the selling system, not the page that sells it.",
+  "author": "Wayland Business Pack",
+  "contributes": {
+    "assistants": [
+      {
+        "id": "funnel-architect",
+        "name": "Funnel Architect",
+        "avatar": "icons/funnel-architect.svg",
+        "description": "Designs full-stack direct-response funnels from lead-magnet through backend, with offer architecture, ascension ladders, and ROI math. Thinks in cohorts, dollar-per-click, and lifetime value.",
+        "presetAgentType": "claude",
+        "category": "sell",
+        "kind": "specialist",
+        "contextFile": "agents/funnel-architect.md",
+        "models": ["inherit"],
+        "enabledSkills": [
+          "funnels",
+          "funnels-lead-magnet",
+          "funnels-tripwire",
+          "funnels-ascension-ladder",
+          "funnels-conviction-webinar",
+          "funnels-evergreen",
+          "funnels-build-campaign"
+        ]
+      }
+    ],
+    "skills": [
+      {
+        "name": "funnels",
+        "description": "Family router for direct-response funnel and offer architecture: irresistible-stack offer construction (Hormozi value equation, bonus stack, guarantee), value and ascension ladders, lead magnets, tripwires, conviction and evergreen webinar funnels, cart-cycle launches, high-ticket call sequences, story-drip and daily-pivot cadences, continuity, plus the full-campaign composite.",
+        "file": "skills/funnels/SKILL.md"
+      },
+      {
+        "name": "funnels-lead-magnet",
+        "description": "Design and select the lead magnet: pick the format (PDF, checklist, template, mini-course, quiz, calculator, discovery-call, sample-chapter), name it, structure it, and match per-type conversion benchmarks to audience awareness level.",
+        "file": "skills/funnels-lead-magnet/SKILL.md"
+      },
+      {
+        "name": "funnels-tripwire",
+        "description": "Design the tripwire offer: a 1-to-47-dollar entry product that converts a subscriber into a buyer. Sets price, format, immediate-value mechanic, OTO bridge to the core offer, and the buyer-ID effect that makes tripwire buyers far more likely to ascend.",
+        "file": "skills/funnels-tripwire/SKILL.md"
+      },
+      {
+        "name": "funnels-ascension-ladder",
+        "description": "Design a multi-rung product ladder from free lead-magnet through tripwire, core offer, premium tier, and continuity. Maps prices, pass-through targets, ascension triggers, and the bridge offer between each rung.",
+        "file": "skills/funnels-ascension-ladder/SKILL.md"
+      },
+      {
+        "name": "funnels-conviction-webinar",
+        "description": "Design the Conviction Webinar: a 4-stage high-ticket architecture (pre-frame, content, pitch, close) that converts cold-to-warm registrants into buyers of a 497-to-2997-dollar offer in a single 60-to-90-minute session.",
+        "file": "skills/funnels-conviction-webinar/SKILL.md"
+      },
+      {
+        "name": "funnels-evergreen",
+        "description": "Design an evergreen or auto-webinar funnel: registration cadence, simulated-live broadcast, offer page, and deadline-driven scarcity, with replay rotation and trust-preserving disclosure rules to scale a validated live webinar.",
+        "file": "skills/funnels-evergreen/SKILL.md"
+      },
+      {
+        "name": "funnels-build-campaign",
+        "description": "Subordinate composite that orchestrates the funnels family (offer, ladder, lead magnet, tripwire, sequence) and hands off to copy-authoring skills. Internal to the campaign-suite super-composite, or used directly when a power user wants only the architecture half.",
+        "file": "skills/funnels-build-campaign/SKILL.md"
+      }
+    ]
+  }
+}

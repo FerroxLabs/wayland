@@ -1,0 +1,42 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.raindrop/raindrop-mcp",
+  "title": "Raindrop",
+  "description": "Bookmarks, collections, and tags - Raindrop.io's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developer.raindrop.io",
+  "repository": { "url": "https://github.com/raindropio/raindrop-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://api.raindrop.io/rest/v2/ai/mcp" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["knowledge", "research"],
+    "tags": ["raindrop", "bookmarks"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 32,
+    "installRate": 0.10,
+    "iconUrl": "icons/raindrop.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#0b7ed8" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Raindrop",
+      "providerSignupUrl": "https://raindrop.io",
+      "scopes": [
+        { "name": "raindrop:read", "plainLanguage": "Read bookmarks and collections." },
+        { "name": "raindrop:write", "plainLanguage": "Save and edit bookmarks." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Bookmarks", "count": 5 },
+      { "label": "Collections", "count": 3 },
+      { "label": "Tags", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.raindrop-raindrop-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

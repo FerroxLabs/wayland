@@ -1,0 +1,43 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.clickup/clickup-mcp",
+  "title": "ClickUp",
+  "description": "Tasks, lists, docs, and goals - ClickUp's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://clickup.com/api/mcp",
+  "repository": { "url": "https://github.com/clickup/clickup-mcp", "source": "github" },
+  "packages": [],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://mcp.clickup.com" }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": ["productivity", "tasks"],
+    "tags": ["clickup", "tasks", "project-management"],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-05-12",
+    "popularityRank": 18,
+    "installRate": 0.27,
+    "iconUrl": "icons/clickup.svg",
+    "brand": { "logoBackground": "#ffffff", "logoForeground": "#7b68ee" },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "ClickUp",
+      "providerSignupUrl": "https://clickup.com",
+      "scopes": [
+        { "name": "read", "plainLanguage": "Read tasks, lists, and docs." },
+        { "name": "write", "plainLanguage": "Create and update tasks." }
+      ]
+    },
+    "toolGroups": [
+      { "label": "Tasks", "count": 8 },
+      { "label": "Lists", "count": 4 },
+      { "label": "Docs", "count": 3 },
+      { "label": "Goals", "count": 2 }
+    ],
+    "setupGuide": { "path": "guides/com.clickup-clickup-mcp.md", "estimatedMinutes": 1, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

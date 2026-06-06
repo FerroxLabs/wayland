@@ -1,0 +1,181 @@
+{
+  "title": "스킬",
+  "subtitle": "어시스턴트를 위한 스킬을 관리하고 탐색하세요",
+  "search": {
+    "placeholder": "스킬 검색...",
+    "empty": "검색 결과와 일치하는 스킬이 없습니다",
+    "resultsCount": "{{count}}개의 일치 스킬",
+    "emptyLibrary": "아직 로드된 스킬이 없습니다 - 하나를 가져오거나, 번들된 라이브러리를 다시 로드하려면 재시작하세요."
+  },
+  "filters": {
+    "allSources": "모든 소스",
+    "source": {
+      "wayland-library": "Wayland 라이브러리",
+      "team": "팀",
+      "user": "내 스킬",
+      "imported": "가져온 항목",
+      "cli-discovered": "CLI에서 검색됨"
+    },
+    "verdict": {
+      "all": "전체",
+      "clean": "정상",
+      "review": "검토 필요",
+      "blocked": "차단됨"
+    },
+    "category": {
+      "all": "모든 카테고리"
+    }
+  },
+  "status": {
+    "scanned": "검사 완료 - 위험 요소 없음",
+    "review": "검토 필요",
+    "blocked": "차단됨 - 격리됨",
+    "unscanned": "아직 검사되지 않음"
+  },
+  "actions": {
+    "pin": "모든 어시스턴트에 고정",
+    "unpin": "고정 해제",
+    "enable": "활성화",
+    "disable": "비활성화",
+    "delete": "삭제",
+    "import": "가져오기",
+    "build": "스킬 만들기"
+  },
+  "threats": {
+    "credential-access": "자격 증명 접근",
+    "network-exfiltration": "네트워크 데이터 유출",
+    "shell-execution": "셸 실행",
+    "filesystem-write": "파일 시스템 쓰기",
+    "instruction-override": "지시 재정의",
+    "obfuscation": "난독화",
+    "index-poisoning": "인덱스 오염"
+  },
+  "severity": {
+    "critical": "심각",
+    "medium": "중간",
+    "low": "낮음"
+  },
+  "import": {
+    "title": "스킬 가져오기",
+    "source": {
+      "folder": "폴더",
+      "git": "Git URL",
+      "zip": "ZIP 파일",
+      "marketplace": "마켓플레이스 (출시 예정)",
+      "singleSkillMd": "단일 SKILL.md"
+    },
+    "folder": {
+      "label": "스킬 폴더",
+      "placeholder": "클릭하여 폴더를 선택하세요…",
+      "browse": "찾아보기"
+    },
+    "git": {
+      "label": "Git URL",
+      "placeholder": "https://github.com/user/my-skill"
+    },
+    "zip": {
+      "label": "ZIP 파일",
+      "placeholder": "클릭하여 ZIP을 선택하세요…",
+      "browse": "찾아보기"
+    },
+    "singleSkillMd": {
+      "label": "SKILL.md 파일",
+      "placeholder": "클릭하여 SKILL.md를 선택하세요…",
+      "browse": "찾아보기"
+    },
+    "actions": {
+      "import": "가져오기",
+      "importing": "가져오는 중…",
+      "importAllClean": "정상 항목 모두 가져오기",
+      "reviewAndSelect": "검토 후 선택",
+      "cancel": "취소"
+    },
+    "scan": {
+      "title": "스캔 결과",
+      "verdict": {
+        "clean": "정상",
+        "review": "검토 필요",
+        "blocked": "차단됨"
+      },
+      "noFindings": "발견된 문제 없음",
+      "finding": "발견 항목 {{count}}건",
+      "finding_other": "발견 항목 {{count}}건"
+    },
+    "error": {
+      "failed": "가져오기 실패",
+      "invalidUrl": "유효한 https:// 또는 git@ URL을 입력하세요"
+    }
+  },
+  "builder": {
+    "title": "스킬 만들기",
+    "tab": {
+      "write": "직접 작성",
+      "describe": "설명하기"
+    },
+    "form": {
+      "name": {
+        "label": "이름",
+        "placeholder": "예: my-skill"
+      },
+      "description": {
+        "label": "설명",
+        "placeholder": "이 스킬은 무엇을 합니까?",
+        "hint": "Use-when 및 Do-NOT-use 가이드를 포함하면 모델이 정확하게 활성화됩니다."
+      },
+      "category": {
+        "label": "카테고리",
+        "placeholder": "예: coding"
+      },
+      "tags": {
+        "label": "태그",
+        "placeholder": "쉼표로 구분, 예: git, review"
+      },
+      "body": {
+        "label": "SKILL.md 본문"
+      }
+    },
+    "describe": {
+      "label": "스킬 설명",
+      "placeholder": "자연어로 스킬을 설명하면 SKILL.md 를 생성합니다…",
+      "generate": "생성",
+      "generating": "생성 중…"
+    },
+    "actions": {
+      "save": "스킬 저장",
+      "saving": "저장 중…",
+      "cancel": "취소",
+      "done": "완료"
+    },
+    "verdict": {
+      "clean": "스킬 \"{{name}}\" 이(가) 성공적으로 저장되었습니다.",
+      "review": "스킬 \"{{name}}\" 이(가) 저장되었지만 검토가 필요합니다.",
+      "blocked": "스킬 \"{{name}}\" 이(가) Skill Guard에 의해 차단되어 등록되지 않았습니다. 플래그된 내용을 수정하세요."
+    },
+    "error": {
+      "saveFailed": "저장 실패",
+      "generateFailed": "생성 실패"
+    }
+  },
+  "detail": {
+    "whenLoaded": "Wayland가 이것을 불러올 때",
+    "metadata": "메타데이터",
+    "body": "본문",
+    "quarantined": "이 스킬은 격리되어 불러올 수 없습니다."
+  },
+  "stats": {
+    "total": "전체 스킬",
+    "pinned": "고정됨",
+    "flagged": "플래그됨",
+    "sources": "소스"
+  },
+  "sections": {
+    "sources": "소스",
+    "status": "상태",
+    "categories": "카테고리"
+  },
+  "cliDiscovery": {
+    "title": "설치된 CLI 도구에서 스킬 미러링",
+    "subtitle": "~/.claude/skills, ~/.codex/skills, ~/.gemini/skills의 스킬을 노출하여 스킬 페이지에 표시합니다. 선택적으로 사용합니다. 적용하려면 재시작이 필요합니다.",
+    "restartNeeded": "- 적용하려면 앱을 재시작하세요."
+  }
+}

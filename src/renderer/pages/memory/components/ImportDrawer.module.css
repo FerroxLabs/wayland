@@ -1,0 +1,200 @@
+/**
+ * ImportDrawer - 480px push-content side drawer for import sources.
+ * Transition is on width only - push-content, NOT overlay/transform.
+ */
+
+.drawer {
+  width: 0;
+  overflow: hidden;
+  border-left: 1px solid transparent;
+  transition: width 0.22s ease, border-color 0.22s ease;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.drawerOpen {
+  width: 480px;
+  border-left-color: var(--color-border-2);
+}
+
+.inner {
+  width: 480px;
+  max-width: 480px;
+  min-width: 480px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.closeBtn {
+  flex-shrink: 0;
+}
+
+/* Body */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Source card */
+.card {
+  background: #16181b;
+  border: 1px solid #26292f;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Card top row */
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.iconTile {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 122, 69, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  flex: 1;
+}
+
+/* Status pills */
+.statusPill {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.pillReady {
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+}
+
+.pillChecking {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.pillUnavailable {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+/* Subline */
+.subline {
+  font-size: 12px;
+  color: var(--color-text-3);
+  margin: 0;
+}
+
+/* Vault sub-rows */
+.vaultList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaultRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--color-fill-2);
+  border: 1px solid var(--color-border-2);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.vaultRow:hover {
+  background: var(--color-fill-3);
+}
+
+.vaultRowSelected {
+  border-color: var(--color-primary-6, #165dff);
+  background: rgba(22, 93, 255, 0.06);
+}
+
+.vaultRadio {
+  flex-shrink: 0;
+  accent-color: var(--color-primary-6, #165dff);
+  cursor: pointer;
+}
+
+.vaultPath {
+  font-family: 'SF Mono', Menlo, Monaco, monospace;
+  font-size: 11px;
+  color: var(--color-text-2);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vaultMdCount {
+  font-size: 11px;
+  color: var(--color-text-3);
+  flex-shrink: 0;
+}
+
+/* Card bottom row */
+.cardBottomRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardBottomRow > :first-child {
+  flex: 1;
+}
+
+.dropPath {
+  font-family: 'SF Mono', Menlo, Monaco, monospace;
+  font-size: 11px;
+  color: var(--color-text-3);
+  margin: 0;
+}

@@ -1,0 +1,429 @@
+/**
+ * WikiDetailPage - concept detail page.
+ * Max-width 880px body, Notion-page feel.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: var(--bg, var(--color-bg-1, #0e0f11));
+  color: var(--text-1, var(--color-text-1, #e8e9ec));
+  font-size: 15px;
+  line-height: 1.7;
+  overflow: hidden;
+}
+
+/* ─── Topbar ─────────────────────────────────────────────── */
+
+.topbar {
+  height: 56px;
+  min-height: 56px;
+  background: var(--surface, var(--color-bg-2, #16181b));
+  border-bottom: 1px solid var(--border, var(--color-border-2, #26292f));
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.backLink:hover {
+  color: var(--text-2, var(--color-text-2, #a6a9b0));
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+}
+
+.logoDot {
+  width: 8px;
+  height: 8px;
+  background: var(--orange, var(--color-primary-6, #ff7a45));
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.breadcrumbSep {
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  font-size: 13px;
+}
+
+.breadcrumbTitle {
+  color: var(--text-2, var(--color-text-2, #a6a9b0));
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.topbarSpacer {
+  flex: 1;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editBtn {
+  color: var(--text-1, var(--color-text-1, #e8e9ec)) !important;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.updateBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 6px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.iconBtn:hover {
+  border-color: var(--border-2, var(--color-border-3, #2e3238));
+  color: var(--text-2, var(--color-text-2, #a6a9b0));
+}
+
+/* ─── Page layout ──────────────────────────────────────────── */
+
+.pageWrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 52px 40px 120px;
+  width: 100%;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ─── Meta header ────────────────────────────────────────────── */
+
+.pageMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.catBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: var(--orange-tint, rgba(255, 122, 69, 0.12));
+  border: 1px solid rgba(255, 122, 69, 0.2);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.metaSep {
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  font-size: 11px;
+}
+
+.metaText {
+  font-size: 12px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+}
+
+.freshnessBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.freshnessBadge:hover {
+  border-color: var(--orange, var(--color-primary-6, #ff7a45));
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+}
+
+.freshnessDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green, #4ade80);
+}
+
+/* ─── Page title ─────────────────────────────────────────────── */
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  color: var(--text-1, var(--color-text-1, #e8e9ec));
+  margin-bottom: 32px;
+}
+
+/* ─── TL;DR block ─────────────────────────────────────────────── */
+
+.tldrBlock {
+  background: var(--surface, var(--color-bg-2, #16181b));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-left: 3px solid var(--orange, var(--color-primary-6, #ff7a45));
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-bottom: 36px;
+}
+
+.tldrLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+  margin-bottom: 10px;
+}
+
+.tldrText {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-2, var(--color-text-2, #a6a9b0));
+}
+
+/* ─── Section rule ───────────────────────────────────────────── */
+
+.sectionRule {
+  border: none;
+  border-top: 1px solid var(--border, var(--color-border-2, #26292f));
+  margin: 36px 0;
+}
+
+/* ─── Section headings ──────────────────────────────────────── */
+
+.sectionHeading {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-1, var(--color-text-1, #e8e9ec));
+  margin: 36px 0 14px;
+  letter-spacing: -0.2px;
+}
+
+.sectionCount {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+}
+
+/* ─── Body prose ────────────────────────────────────────────── */
+
+.prose {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-2, var(--color-text-2, #a6a9b0));
+  max-width: 700px;
+  margin-bottom: 18px;
+}
+
+.prose p {
+  margin-bottom: 0;
+}
+
+/* ─── Linked from ───────────────────────────────────────────── */
+
+.linkedFromList {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 12px;
+}
+
+.linkedFromItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s;
+  text-decoration: none;
+}
+
+.linkedFromItem:hover {
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+}
+
+.linkedFromArrow {
+  font-size: 12px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+}
+
+.linkedFromName {
+  font-size: 14px;
+  color: var(--orange, var(--color-primary-6, #ff7a45));
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.emptyMsg {
+  font-size: 13px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  padding: 8px 0;
+  margin-top: 12px;
+}
+
+/* ─── Page footer ───────────────────────────────────────────── */
+
+.pageFooter {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border, var(--color-border-2, #26292f));
+}
+
+.pageFooterMeta {
+  font-size: 12px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  margin-bottom: 16px;
+  line-height: 1.8;
+}
+
+.filePath {
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: var(--text-2, var(--color-text-2, #a6a9b0));
+}
+
+.footerActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--surface, var(--color-bg-2, #16181b));
+  border: 1px solid var(--border, var(--color-border-2, #26292f));
+  border-radius: 6px;
+  color: var(--text-2, var(--color-text-2, #a6a9b0));
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.footerBtn:hover {
+  border-color: var(--border-2, var(--color-border-3, #2e3238));
+  color: var(--text-1, var(--color-text-1, #e8e9ec));
+  background: var(--surface-2, var(--color-bg-3, #1c1f23));
+}
+
+.footerBtnReviewed {
+  border-color: rgba(74, 222, 128, 0.3);
+  color: var(--green, #4ade80);
+}
+
+.footerBtnReviewed:hover {
+  background: rgba(74, 222, 128, 0.08);
+}
+
+/* ─── Status bar ────────────────────────────────────────────── */
+
+.statusBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: var(--surface, var(--color-bg-2, #16181b));
+  border-top: 1px solid var(--border, var(--color-border-2, #26292f));
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  z-index: 100;
+}
+
+.statusItem {
+  font-size: 11px;
+  color: var(--text-3, var(--color-text-3, #6b6e76));
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.statusNotReviewed {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--yellow, #fbbf24);
+  font-size: 11px;
+}
+
+.loadingState,
+.notFoundState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-3, #6b6e76);
+  font-size: 14px;
+}
+
+.notFoundState button {
+  color: var(--orange, #ff7a45);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.statusSep {
+  width: 1px;
+  height: 14px;
+  background: var(--border, var(--color-border-2, #26292f));
+}

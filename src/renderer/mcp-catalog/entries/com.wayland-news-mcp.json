@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.wayland/news-mcp",
+  "title": "News & RSS",
+  "description": "Unified search across NewsAPI, Hacker News, and any RSS or Atom feed - one MCP for staying current.",
+  "version": "0.1.0",
+  "websiteUrl": "https://github.com/FerroxLabs/waylandmcp/tree/main/packages/news-mcp",
+  "repository": { "url": "https://github.com/FerroxLabs/waylandmcp", "source": "github" },
+  "packages": [
+    {
+      "registryType": "binary",
+      "identifier": "builtin-mcp-news.mjs",
+      "version": "0.1.0",
+      "runtimeHint": "native",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "NEWSAPI_KEY", "description": "Optional newsapi.org key. Without it, only Hacker News + RSS work.", "isRequired": false, "isSecret": true }
+      ]
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": ["search", "news", "research"],
+    "tags": ["news", "rss", "hacker-news", "newsapi"],
+    "maintainerType": "wayland",
+    "license": "MIT",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 12,
+    "installRate": 0.28,
+    "iconUrl": "icons/news.svg",
+    "brand": { "logoBackground": "linear-gradient(135deg,#ff6b35 0%,#1a1a1a 100%)", "logoForeground": "#ffffff" },
+    "auth": {
+      "method": "api-key",
+      "providerName": "NewsAPI (optional)",
+      "providerSignupUrl": "https://newsapi.org/register"
+    },
+    "toolGroups": [
+      { "label": "News Search", "count": 3 },
+      { "label": "Hacker News", "count": 3 },
+      { "label": "RSS / Atom", "count": 3 }
+    ],
+    "setupGuide": { "path": "guides/com.wayland-news-mcp.md", "estimatedMinutes": 2, "stepCount": 2 },
+    "platforms": ["macos", "windows", "linux"],
+    "minWaylandVersion": "0.8.0"
+  }
+}

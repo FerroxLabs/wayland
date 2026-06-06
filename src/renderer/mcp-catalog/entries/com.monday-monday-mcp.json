@@ -1,0 +1,95 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.monday/monday-mcp",
+  "title": "monday.com",
+  "description": "Boards, items, columns, and workforms - monday.com's official hosted MCP with OAuth.",
+  "version": "1.0.0",
+  "websiteUrl": "https://monday.com/w/mcp",
+  "repository": {
+    "url": "https://github.com/mondaycom/mcp",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.monday.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "productivity",
+      "tasks",
+      "collaboration"
+    ],
+    "tags": [
+      "monday",
+      "boards",
+      "project-management",
+      "workflows"
+    ],
+    "maintainerType": "official",
+    "license": "MIT",
+    "verifiedAt": "2026-05-27",
+    "popularityRank": 54,
+    "installRate": 0.11,
+    "iconUrl": "icons/monday.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#ff3d57"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "monday.com",
+      "providerSignupUrl": "https://monday.com",
+      "scopes": [
+        {
+          "name": "boards:read",
+          "plainLanguage": "Read boards, items, and columns."
+        },
+        {
+          "name": "boards:write",
+          "plainLanguage": "Create and update boards and items."
+        },
+        {
+          "name": "users:read",
+          "plainLanguage": "Read user and team membership."
+        },
+        {
+          "name": "workspaces:read",
+          "plainLanguage": "Read workspace structure."
+        }
+      ]
+    },
+    "toolGroups": [
+      {
+        "label": "Items",
+        "count": 6
+      },
+      {
+        "label": "Boards",
+        "count": 5
+      },
+      {
+        "label": "Account",
+        "count": 1
+      },
+      {
+        "label": "WorkForms",
+        "count": 2
+      }
+    ],
+    "setupGuide": {
+      "path": "guides/com.monday-monday-mcp.md",
+      "estimatedMinutes": 1,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.8.0"
+  }
+}
