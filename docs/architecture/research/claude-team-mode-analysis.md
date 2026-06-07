@@ -1,6 +1,6 @@
 # Claude Code Team Mode Architecture Analysis and Aion Replication Decision Report
 
-**Date: 2026-03-31 | Based on real source code: `/Users/zhuqingyu/Downloads/extracted/src/`**
+**Date: 2026-03-31 | Based on real source code: `/Users/you/Downloads/extracted/src/`**
 
 ---
 

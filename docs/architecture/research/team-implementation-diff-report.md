@@ -1,7 +1,7 @@
 # Team Mode Implementation Diff Report
 
 > **Date**: 2026-03-31
-> **Subjects analyzed**: Current project (`/Users/zhuqingyu/project/teams`) vs Claude Code reference source (`/Users/zhuqingyu/Downloads/extracted`)
+> **Subjects analyzed**: Current project (`/Users/you/project/teams`) vs Claude Code reference source (`/Users/you/Downloads/extracted`)
 > **Method**: 3 developer agents performed independent analysis + 2 reviewer agents performed cross-adversarial verification
 > **Dimensions**: Architecture design, data model, message passing, agent lifecycle, permission system, task management, workspace isolation
 

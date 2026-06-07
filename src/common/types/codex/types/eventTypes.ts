@@ -124,7 +124,7 @@ export enum CodexAgentEventType {
       "type": "exec_command_begin",
       "call_id": "call_vufa8VWQV91WSWcc5BlFTsmQ",
       "command": [ "bash", "-lc", "ls -a" ],
-      "cwd": "/Users/pojian/Library/Application Support/Wayland/wayland/codex-temp-1758954404275",
+      "cwd": "/Users/you/Library/Application Support/Wayland/wayland/codex-temp-1758954404275",
       "parsed_cmd": [
         {
         "type": "list_files",
@@ -175,7 +175,7 @@ export enum CodexAgentEventType {
       "type": "exec_approval_request",
       "call_id": "call_W5qxMSKOP2eHaEq16QCtrhVS",
       "command": ["bash", "-lc", "echo '1231231' > hello.txt" ],
-      "cwd": "/Users/pojian/Library/Application Support/Wayland/wayland/codex-temp-1758954404275",
+      "cwd": "/Users/you/Library/Application Support/Wayland/wayland/codex-temp-1758954404275",
       "reason": "Need to create hello.txt with requested content per user instruction"
     }
    */
@@ -208,7 +208,7 @@ export enum CodexAgentEventType {
           "call_id": "call_3tChlyDszdHuQRQTWnuZ8Jvb",
           "auto_approved": false,
           "changes": {
-            "/Users/pojian/Library/Application Support/Wayland/wayland/codex-temp-1759144414815/note.txt": {
+            "/Users/you/Library/Application Support/Wayland/wayland/codex-temp-1759144414815/note.txt": {
             "add": {
               "content": "This file was created via apply_patch.\nValue: 100.\n"
             }
@@ -322,7 +322,7 @@ export enum CodexAgentEventType {
    * payload: {
       "type": "turn_diff",
       // eslint-disable-next-line max-len
-      "unified_diff": "diff --git a//Users/pojian/Library/Application Support/Wayland/wayland/codex-temp-1759197123355/freestyle.txt b//Users/pojian/Library/Application Support/Wayland/wayland/codex-temp-1759197123355/freestyle.txt\nnew file mode 100644\nindex 0000000000000000000000000000000000000000..151e31d7a6627e3fb0df2e49b3c0c179f96e46cc\n--- /dev/null\n+++ b//Users/pojian/Library/Application Support/Wayland/wayland/codex-temp-1759197123355/freestyle.txt\n@@ -0,0 +1,2 @@\n+This file was created via apply_patch.\n+Line two says hello.\n"
+      "unified_diff": "diff --git a//Users/you/Library/Application Support/Wayland/wayland/codex-temp-1759197123355/freestyle.txt b//Users/you/Library/Application Support/Wayland/wayland/codex-temp-1759197123355/freestyle.txt\nnew file mode 100644\nindex 0000000000000000000000000000000000000000..151e31d7a6627e3fb0df2e49b3c0c179f96e46cc\n--- /dev/null\n+++ b//Users/you/Library/Application Support/Wayland/wayland/codex-temp-1759197123355/freestyle.txt\n@@ -0,0 +1,2 @@\n+This file was created via apply_patch.\n+Line two says hello.\n"
     }
    */
   TURN_DIFF = 'turn_diff',

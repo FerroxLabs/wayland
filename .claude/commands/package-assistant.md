@@ -8,7 +8,7 @@ Convert an OfficeCLI skill into a fully wired Wayland assistant preset, or updat
 /package-assistant <skill-name> [assistant-id] [avatar]
 ```
 
-- `<skill-name>` - Name of the skill directory under `/Users/veryliu/Documents/GitHub/officecli/skills/` (e.g. `officecli-docx`, `officecli-pptx`, `officecli-xlsx`, `officecli-data-dashboard`)
+- `<skill-name>` - Name of the skill directory under `/Users/you/Documents/GitHub/officecli/skills/` (e.g. `officecli-docx`, `officecli-pptx`, `officecli-xlsx`, `officecli-data-dashboard`)
 - `[assistant-id]` - Optional. ID for the new assistant (defaults to `<skill-name>-creator`)
 - `[avatar]` - Optional. Emoji avatar (defaults to auto-selected based on skill type)
 
@@ -46,7 +46,7 @@ Before writing descriptions and prompts, **study the skill thoroughly**:
 
 1. **Read the full skill content**: SKILL.md, creating.md, editing.md - understand what it uniquely does
 2. **Identify differentiators**: What makes this skill different from other similar assistants already in wayland? The `descriptionI18n` must clearly communicate this so users can tell assistants apart at a glance
-3. **Mine iteration test results**: Check `/Users/veryliu/Documents/GitHub/officecli/iterations/` for test reports related to this skill:
+3. **Mine iteration test results**: Check `/Users/you/Documents/GitHub/officecli/iterations/` for test reports related to this skill:
    - Look for subdirectories matching the skill name (e.g. `data-dashboard/`, `xlsx/`, etc.) or related keywords
    - Find documents/prompts that scored highest or produced the best results
    - High-scoring test documents = prompts that are proven to produce good output → use these as `promptsI18n`
@@ -135,7 +135,7 @@ Add a new entry to `ASSISTANT_PRESETS` array in `wayland/src/common/config/prese
 
 **Prompt selection rules**:
 
-- First priority: High-scoring prompts from `/Users/veryliu/Documents/GitHub/officecli/iterations/`
+- First priority: High-scoring prompts from `/Users/you/Documents/GitHub/officecli/iterations/`
 - These are battle-tested prompts that are proven to produce good results with the skill
 - If no iteration data exists, write prompts that showcase the skill's unique strengths
 - Prompts should be diverse (different use cases) and practical (things real users would ask)
