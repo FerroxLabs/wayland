@@ -40,8 +40,20 @@ import { ANTHROPIC_VERSION, appendQuery, authStrategyFor } from './providerAuth'
 /** Per-request fetch timeout - a slow provider must not stall a connection test. */
 const FETCH_TIMEOUT_MS = 15_000;
 
-/** Credentials for a connection test: a single API key, or multi-field creds. */
-type TestCreds = { key: string } | { fields: Record<string, string> };
+/**
+ * Placeholder model for the custom-base chat fallback. It need not exist on the
+ * target: a "model not found" response still proves the credential
+ * authenticates (see `probeCustomChat`). A common id keeps a 1-token hit cheap
+ * on proxies that DO have it.
+ */
+const CUSTOM_PROBE_MODEL = 'gpt-3.5-turbo';
+
+/**
+ * Credentials for a connection test: a single API key (optionally with a custom
+ * `baseUrl` for `openai-compatible` / bring-your-own-endpoint providers), or
+ * multi-field cloud creds.
+ */
+type TestCreds = { key: string; baseUrl?: string } | { fields: Record<string, string> };
 
 /** The result of a connection test. */
 type TestResult = { ok: boolean; error?: ConnectError };
@@ -86,6 +98,18 @@ export class ConnectionTester {
    */
   async test(providerId: ProviderId, creds: TestCreds): Promise<TestResult> {
     const apiKey = extractKey(creds);
+    const baseUrl = 'baseUrl' in creds && typeof creds.baseUrl === 'string' ? creds.baseUrl.trim() : '';
+
+    // Custom-endpoint providers - `openai-compatible`, or any provider connected
+    // with an explicit `baseUrl` - are absent from the static `TEST_MODEL` /
+    // `PROVIDER_ENDPOINTS` maps, so they are probed against the user's OWN base
+    // URL. This is the only probe path that honors a caller-supplied base; a
+    // bare `openai-compatible` with no base falls back to the canonical OpenAI
+    // host. Before this branch existed, `openai-compatible` always returned
+    // `unknown` (no map entry), so the provider could never connect (GH #2).
+    if (apiKey && (baseUrl || providerId === 'openai-compatible')) {
+      return this.probeCustomBase(baseUrl || 'https://api.openai.com/v1', apiKey);
+    }
 
     const testModel = TEST_MODEL[providerId];
     if (testModel && apiKey) {
@@ -192,6 +216,63 @@ export class ConnectionTester {
     return { ok: true };
   }
 
+  // ─── Custom-base probe (openai-compatible / bring-your-own-endpoint) ─────────
+
+  /**
+   * Probe a custom OpenAI-compatible base URL. Built entirely from the user's
+   * base, since these providers are not in the static maps.
+   *
+   * Strategy: try the `/v1/models` auth check first (cheap, no tokens). A 200
+   * proves auth; 401/403 is a bad key; 402/billing is no-credit. If the models
+   * endpoint is simply missing - some proxies (e.g. the `ai.sumopod.com` case in
+   * GH #2) implement ONLY `/chat/completions` and 404 on `/models` - fall back
+   * to a 1-token chat completion, where even a model-not-found proves the key
+   * authenticates.
+   */
+  private async probeCustomBase(base: string, apiKey: string): Promise<TestResult> {
+    const auth = { kind: 'bearer' } as const;
+    let res: Response;
+    try {
+      res = await this.fetchWithTimeout(resolveCustomModelsEndpoint(base), {
+        method: 'GET',
+        headers: authHeaders(auth, apiKey),
+      });
+    } catch {
+      return { ok: false, error: 'offline' };
+    }
+    const body = await readBody(res);
+
+    if (res.status === 401 || res.status === 403) return { ok: false, error: 'unauthorized' };
+    if (res.ok) {
+      return modelsBodyIsEmpty(body) ? { ok: false, error: 'no-models' } : { ok: true };
+    }
+    if (res.status === 402 || mentionsBilling(body)) return { ok: false, error: 'no-credit' };
+
+    // The models endpoint is unavailable (404 / 400 / 405 / ...) but the key was
+    // not rejected - the endpoint may be chat-only. Fall back to a chat probe.
+    return this.probeCustomChat(base, apiKey);
+  }
+
+  /** 1-token chat completion against a custom base; model-not-found = auth OK. */
+  private async probeCustomChat(base: string, apiKey: string): Promise<TestResult> {
+    const auth = { kind: 'bearer' } as const;
+    let res: Response;
+    try {
+      res = await this.fetchWithTimeout(resolveCustomChatUrl(base), {
+        method: 'POST',
+        headers: authHeaders(auth, apiKey),
+        body: JSON.stringify({ model: CUSTOM_PROBE_MODEL, max_tokens: 1, messages: [{ role: 'user', content: 'Hi' }] }),
+      });
+    } catch {
+      return { ok: false, error: 'offline' };
+    }
+    const body = await readBody(res);
+    // A model-not-found means the credential authenticated against a chat-only
+    // proxy; auth is proven even though our placeholder model does not exist.
+    if (isModelNotFound(res.status, body)) return { ok: true };
+    return this.classifyResponse(res, body);
+  }
+
   // ─── fetch with timeout ─────────────────────────────────────────────────────
 
   /** `fetch` bounded by `FETCH_TIMEOUT_MS`; a timeout aborts and rejects. */
@@ -276,6 +357,29 @@ function chatCompletionsUrl(providerId: ProviderId): string {
     return `${modelsEndpoint.slice(0, -'/models'.length)}/chat/completions`;
   }
   return 'https://api.openai.com/v1/chat/completions';
+}
+
+/** True when a user base URL already ends in an API version segment, so the
+ * OpenAI-compatible path appends `/models` or `/chat/completions` directly
+ * rather than inserting a `/v1`. Matches `/v1`, `/v2`, `/v1beta`, `/openai`. */
+function baseHasVersionSegment(trimmedBase: string): boolean {
+  return /\/(v\d+(beta)?|openai)$/i.test(trimmedBase);
+}
+
+/**
+ * Resolve the `/models` endpoint for a custom OpenAI-compatible base URL,
+ * respecting an existing version segment. `https://ai.sumopod.com` ->
+ * `.../v1/models`; `https://host/v1` -> `https://host/v1/models`.
+ */
+function resolveCustomModelsEndpoint(base: string): string {
+  const trimmed = base.replace(/\/+$/, '');
+  return baseHasVersionSegment(trimmed) ? `${trimmed}/models` : `${trimmed}/v1/models`;
+}
+
+/** Resolve the `/chat/completions` endpoint for a custom base, same rules. */
+function resolveCustomChatUrl(base: string): string {
+  const trimmed = base.replace(/\/+$/, '');
+  return baseHasVersionSegment(trimmed) ? `${trimmed}/chat/completions` : `${trimmed}/v1/chat/completions`;
 }
 
 /** Auth + identification headers for a request, per the provider's scheme. */

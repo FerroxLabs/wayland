@@ -444,7 +444,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       // stay consistent (a `{ fields }` connect would otherwise pass the test
       // but build an empty catalog).
       if ('fields' in resolved) return { ok: false, error: 'unrecognized' };
-      const result = await connectionTester.test(providerId, resolved as { key: string });
+      const result = await connectionTester.test(providerId, resolved as { key: string; baseUrl?: string });
       if (!result.ok) return { ok: false, error: result.error ?? 'unknown' };
     }
 
@@ -557,7 +557,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // the two remaining variants.
         const result = await connectionTester.test(
           providerId,
-          creds as { key: string } | { fields: Record<string, string> }
+          creds as { key: string; baseUrl?: string } | { fields: Record<string, string> }
         );
         const state: ProviderConnState = result.ok ? 'connected' : 'error';
         repo.updateRegistryProviderState(providerId, state, result.ok ? undefined : result.error);
@@ -823,9 +823,13 @@ function hasRequiredCloudFields(providerId: ProviderId, fields: Record<string, s
  */
 function toTestCreds(
   stored: Record<string, unknown>
-): { key: string } | { fields: Record<string, string> } | { useGoogleAuth: true } {
+): { key: string; baseUrl?: string } | { fields: Record<string, string> } | { useGoogleAuth: true } {
   if (stored.useGoogleAuth === true) return { useGoogleAuth: true };
-  if (typeof stored.key === 'string') return { key: stored.key };
+  if (typeof stored.key === 'string') {
+    // Carry a stored custom `baseUrl` (openai-compatible) so re-testing a saved
+    // provider probes its real endpoint, not a static map miss.
+    return typeof stored.baseUrl === 'string' ? { key: stored.key, baseUrl: stored.baseUrl } : { key: stored.key };
+  }
   if (stored.fields && typeof stored.fields === 'object' && !Array.isArray(stored.fields)) {
     return { fields: stored.fields as Record<string, string> };
   }
@@ -1179,7 +1183,9 @@ export async function initModelRegistryIpc(): Promise<void> {
   // (WCoreModelSelector / GeminiModelSelector / AcpModelSelector /
   // EditModeModal / AddPlatformModal) still see new connections until they
   // are refactored. The bridge is a no-op for cloud + CLI-only providers.
-  ipcBridge.modelRegistry.connect.provider((payload) => connectModelRegistryProvider(payload.providerId, payload.creds));
+  ipcBridge.modelRegistry.connect.provider((payload) =>
+    connectModelRegistryProvider(payload.providerId, payload.creds)
+  );
   ipcBridge.modelRegistry.testConnection.provider((payload) => h.testConnection(payload));
   ipcBridge.modelRegistry.list.provider(() => h.list());
   ipcBridge.modelRegistry.getCatalog.provider((payload) => h.getCatalog(payload));
