@@ -86,7 +86,15 @@ The installer bundles the Wayland-Core engine for your platform, so a clean inst
 <details>
 <summary><b>macOS says Wayland cannot be opened?</b></summary>
 
-These builds are not notarized by Apple yet, so macOS blocks them on first launch. To open it, go to **System Settings, then Privacy and Security**, scroll down, and click **Open Anyway** next to the Wayland entry, then confirm with **Open**. On older macOS, right-click the app in Applications and choose **Open, then Open**. Notarization lands once the Apple Developer setup is in place.
+These builds are not notarized by Apple yet, so macOS blocks them on first launch. To open it, go to **System Settings, then Privacy and Security**, scroll down, and click **Open Anyway** next to the Wayland entry, then confirm with **Open**. On older macOS, right-click the app in Applications and choose **Open, then Open**.
+
+Prefer the Terminal? One command clears the quarantine flag:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Wayland.app
+```
+
+Notarization lands once the Apple Developer setup is in place, after which this step goes away.
 
 </details>
 
