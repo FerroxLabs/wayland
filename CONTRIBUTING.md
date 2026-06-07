@@ -26,6 +26,25 @@ is a one-click acknowledgement on your first PR.
 - Tests/typecheck must pass before review.
 - Don't add features beyond the issue/scope you're addressing.
 
+## Pull requests & review
+
+Every PR passes the same gate: a signed CLA, fully green CI (lint, format, typecheck,
+tests, i18n), and a maintainer merge — nothing auto-merges. Some areas are **maintainer-only**
+(the project's operating standards in `AGENTS.md`, license/CLA/trademark, security and support
+policy, CI/release workflows, and credential/security-boundary code). PRs that change those are
+declined with thanks; if you have a good idea for one of them, open an issue to discuss and a
+maintainer will carry it. Full policy: [docs/contributing/pr-governance.md](docs/contributing/pr-governance.md).
+
+We triage on a best-effort basis with no response-time promise — this is a self-managed
+open-source project. That's not unfriendly; it's honest.
+
+## Support & security
+
+All support runs through **GitHub** — open an issue or a discussion. **There is no support
+email.** For security vulnerabilities, use GitHub's **private vulnerability reporting** (the
+"Report a vulnerability" button under the repo's Security tab); please don't open a public
+issue for an exploitable report. See [docs/SECURITY.md](docs/SECURITY.md).
+
 ## Trademark
 
 "Wayland" and the Wayland marks are trademarks of Ferrox Labs. The AGPL covers

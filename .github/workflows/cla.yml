@@ -1,0 +1,40 @@
+name: CLA Assistant
+
+# Records each contributor's one-click agreement to docs/CLA.md on their first PR.
+# Signatures are stored in a dedicated `cla-signatures` branch.
+#
+# REQUIRED SETUP (one-time, by a maintainer):
+#   1. Create a fine-grained PAT with `contents: write` on this repo and add it
+#      as the repo secret CLA_SIGNATURES_TOKEN (see docs/contributing/pr-governance.md).
+#   2. The default GITHUB_TOKEN handles PR comments/status; the PAT persists the
+#      signatures file across the protected default branch.
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, closed, synchronize]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  cla:
+    runs-on: ubuntu-latest
+    steps:
+      - name: CLA Assistant
+        if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
+        uses: contributor-assistant/github-action@v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.CLA_SIGNATURES_TOKEN }}
+        with:
+          path-to-signatures: 'signatures/cla.json'
+          path-to-document: 'https://github.com/FerroxLabs/wayland/blob/main/docs/CLA.md'
+          branch: 'cla-signatures'
+          allowlist: 'FerroxLabs,dependabot[bot]'
+          custom-pr-sign-comment: 'I have read the CLA Document and I hereby sign the CLA'
+          custom-allsigned-prcomment: 'All contributors have signed the CLA. Thank you.'

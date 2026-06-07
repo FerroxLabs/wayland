@@ -1,0 +1,47 @@
+# CODEOWNERS — maintainer-only zones
+#
+# These paths require a review from the code owner before merge. Pair this file
+# with branch protection: Settings -> Branches -> main -> "Require review from
+# Code Owners" (see docs/contributing/pr-governance.md). External PRs touching
+# these paths are declined; good ideas are re-implemented by a maintainer.
+#
+# Owner: @FerroxLabs is the maintainer account. Swap to a @FerroxLabs/maintainers
+# team here if/when one is created.
+
+# --- Operating standards & agent rules (changed ONLY by maintainers) ---
+/AGENTS.md            @FerroxLabs
+/CLAUDE.md            @FerroxLabs
+/GEMINI.md            @FerroxLabs
+/.claude/             @FerroxLabs
+/docs/contributing/   @FerroxLabs
+
+# --- License, CLA, trademark, brand ---
+/LICENSE              @FerroxLabs
+/docs/CLA.md          @FerroxLabs
+/CLA.md               @FerroxLabs
+/NOTICE               @FerroxLabs
+/TRADEMARK.md         @FerroxLabs
+/.github/assets/      @FerroxLabs
+
+# --- Security & support policy ---
+/docs/SECURITY.md     @FerroxLabs
+/SECURITY.md          @FerroxLabs
+/CONTRIBUTING.md      @FerroxLabs
+
+# --- CI / release / supply chain / secrets ---
+/.github/workflows/   @FerroxLabs
+/.github/CODEOWNERS   @FerroxLabs
+/scripts/prepare-release-assets.sh  @FerroxLabs
+/scripts/prepareWaylandCore.js      @FerroxLabs
+/electron-builder*    @FerroxLabs
+
+# --- Release version / changelog ---
+/package.json         @FerroxLabs
+/CHANGELOG.md         @FerroxLabs
+
+# --- Security-boundary code (credentials, keychain, trust) ---
+/src/process/providers/storage/        @FerroxLabs
+/src/process/providers/sources/validateBaseUrl.ts  @FerroxLabs
+/src/process/services/autoUpdaterService.ts         @FerroxLabs
+/src/process/channels/webhook/         @FerroxLabs
+/src/preload.ts       @FerroxLabs
