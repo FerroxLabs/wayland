@@ -14,7 +14,7 @@ import { openExternalUrl } from '@renderer/utils/platform';
 import { useOnboardingDetection } from '@renderer/hooks/useOnboardingDetection';
 import type { SiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 
-const FLUX_DOWNLOADS_URL = 'https://fluxrouter.ai/downloads';
+const FLUX_DOWNLOADS_URL = 'https://fluxrouter.ai/download';
 
 /** Minimum routed turns before the data-driven states surface (per V4 mockup). */
 const MIN_TURNS_FOR_DATA = 10;

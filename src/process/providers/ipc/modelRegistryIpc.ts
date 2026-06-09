@@ -180,7 +180,8 @@ export type ModelRegistryDeps = {
   connectionTester: {
     test: (
       providerId: ProviderId,
-      creds: { key: string } | { fields: Record<string, string> }
+      creds: { key: string } | { fields: Record<string, string> },
+      customBaseUrl?: string
     ) => Promise<{ ok: boolean; error?: ConnectError }>;
   };
   modelsDevClient: { getRegistry: () => Promise<ModelsDevRegistry> };
@@ -523,7 +524,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       // stay consistent (a `{ fields }` connect would otherwise pass the test
       // but build an empty catalog).
       if ('fields' in resolved) return { ok: false, error: 'unrecognized' };
-      const result = await connectionTester.test(providerId, resolved as { key: string });
+      const result = await connectionTester.test(providerId, resolved as { key: string }, resolved.baseUrl);
       if (!result.ok) return { ok: false, error: result.error ?? 'unknown' };
     }
 
@@ -636,7 +637,8 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // the two remaining variants.
         const result = await connectionTester.test(
           providerId,
-          creds as { key: string } | { fields: Record<string, string> }
+          creds as { key: string } | { fields: Record<string, string> },
+          typeof stored.creds.baseUrl === 'string' ? stored.creds.baseUrl : undefined
         );
         const state: ProviderConnState = result.ok ? 'connected' : 'error';
         repo.updateRegistryProviderState(providerId, state, result.ok ? undefined : result.error);
@@ -744,7 +746,10 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           // 5): a row whose stored host is not loopback is treated like any
           // other custom provider (validated below), so the keyless+SSRF-exempt
           // allowance can never be hijacked onto a remote host.
-          if (providerId === OLLAMA_LOCAL_ID && isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')) {
+          if (
+            providerId === OLLAMA_LOCAL_ID &&
+            isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')
+          ) {
             const ollamaBefore = new Set(repo.getRegistryCatalog(providerId).map((m) => m.id));
             const outcome = await refreshOllamaLocal();
             if (outcome !== 'ok') {
@@ -825,11 +830,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       }
     },
 
-    async resolveForChatStart({
-      providerId,
-      modelId,
-      accountId,
-    }): Promise<IModelRegistryResolveForChatStartResult> {
+    async resolveForChatStart({ providerId, modelId, accountId }): Promise<IModelRegistryResolveForChatStartResult> {
       try {
         const provider = repo.getRegistryProvider(providerId);
         if (!provider) return { ok: false, error: 'not-connected' };
@@ -1334,7 +1335,7 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
       readValue: (d) => keyDiscovery.readValue(d),
     },
     connectionTester: {
-      test: (providerId, creds) => connectionTester.test(providerId, creds),
+      test: (providerId, creds, customBaseUrl?: string) => connectionTester.test(providerId, creds, customBaseUrl),
     },
     modelsDevClient: {
       getRegistry: () => modelsDevClient.getRegistry(),

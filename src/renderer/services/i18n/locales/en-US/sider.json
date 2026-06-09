@@ -9,7 +9,7 @@
     "install": {
       "body": "Codex, Cursor, Claude Code are not routed yet. Flux Desktop wires all three in one click.",
       "action": "Install Flux Desktop",
-      "sub": "fluxrouter.ai/downloads"
+      "sub": "fluxrouter.ai/download"
     },
     "ollama": {
       "body": "Local Ollama did {{pct}}% of last week. Flux Router catches the rest when your hardware taps out.",

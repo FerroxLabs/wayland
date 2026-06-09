@@ -262,7 +262,7 @@ describe('modelRegistry IPC - connect', () => {
     const result = await h.connect({ providerId: 'openai', creds: { key: 'sk-test' } });
 
     expect(result).toEqual({ ok: true });
-    expect(test).toHaveBeenCalledWith('openai', { key: 'sk-test' });
+    expect(test).toHaveBeenCalledWith('openai', { key: 'sk-test' }, undefined);
     expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
     expect(repo.getRegistryProviderCreds('openai')).toEqual({ status: 'ok', creds: { key: 'sk-test' } });
     expect(repo.getRegistryCatalog('openai').map((m) => m.id)).toEqual(['gpt-4o']);
@@ -287,7 +287,7 @@ describe('modelRegistry IPC - connect', () => {
     const result = await h.connect({ providerId: 'anthropic', creds: { useDiscovered: true } });
 
     expect(result).toEqual({ ok: true });
-    expect(test).toHaveBeenCalledWith('anthropic', { key: 'sk-ant-resolved' });
+    expect(test).toHaveBeenCalledWith('anthropic', { key: 'sk-ant-resolved' }, undefined);
   });
 
   it('fails with unrecognized when useDiscovered finds no key', async () => {
@@ -422,7 +422,7 @@ describe('modelRegistry IPC - testConnection', () => {
     const result = await h.testConnection({ providerId: 'openai' });
 
     expect(result).toEqual({ ok: true });
-    expect(test).toHaveBeenCalledWith('openai', { key: 'sk-stored' });
+    expect(test).toHaveBeenCalledWith('openai', { key: 'sk-stored' }, undefined);
     expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
   });
 
@@ -699,7 +699,7 @@ describe('modelRegistry IPC - rekey', () => {
     const result = await h.rekey({ providerId: 'openai', creds: { key: 'sk-new' } });
 
     expect(result).toEqual({ ok: true });
-    expect(test).toHaveBeenCalledWith('openai', { key: 'sk-new' });
+    expect(test).toHaveBeenCalledWith('openai', { key: 'sk-new' }, undefined);
     expect(repo.getRegistryProviderCreds('openai')).toEqual({ status: 'ok', creds: { key: 'sk-new' } });
     expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
   });

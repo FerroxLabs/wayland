@@ -9,7 +9,7 @@
     "install": {
       "body": "Codex、Cursor、Claude Code 尚未接入路由。Flux Desktop 一鍵即可連接三者。",
       "action": "安裝 Flux Desktop",
-      "sub": "fluxrouter.ai/downloads"
+      "sub": "fluxrouter.ai/download"
     },
     "ollama": {
       "body": "上週本機 Ollama 處理了 {{pct}}%。當硬體吃緊時，Flux Router 會接管其餘請求。",
