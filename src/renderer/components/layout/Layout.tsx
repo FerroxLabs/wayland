@@ -36,34 +36,35 @@ import { isElectronDesktop } from '@renderer/utils/platform';
 import { computeCssSyncDecision, resolveCssByActiveTheme } from '@renderer/utils/theme/themeCssSync';
 import '@renderer/styles/layout.css';
 
-const useDebug = () => {
-  const [count, setCount] = useState(0);
-  const timer = useRef<any>(null);
-  const onClick = () => {
+// DevTools escape hatch: the only way to open Chrome DevTools in a packaged
+// production build. Gated behind a modifier so a plain logo click never
+// triggers it. Hold Cmd/Ctrl and triple-click the logo within 1 second.
+const useDevToolsEscapeHatch = () => {
+  const count = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const registerModifierClick = useCallback(() => {
     const open = () => {
       ipcBridge.application.openDevTools.invoke().catch((error) => {
         console.error('Failed to open dev tools:', error);
       });
-      setCount(0);
+      count.current = 0;
     };
-    if (count >= 3) {
-      return open();
-    }
-    setCount((prev) => {
-      if (prev >= 2) {
-        open();
-        return 0;
-      }
-      return prev + 1;
-    });
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      clearTimeout(timer.current);
-      setCount(0);
-    }, 1000);
-  };
 
-  return { onClick };
+    if (count.current >= 2) {
+      if (timer.current) clearTimeout(timer.current);
+      open();
+      return;
+    }
+
+    count.current += 1;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      count.current = 0;
+    }, 1000);
+  }, []);
+
+  return { registerModifierClick };
 };
 
 const UpdateModal = React.lazy(() => import('@/renderer/components/settings/UpdateModal'));
@@ -102,13 +103,36 @@ const Layout: React.FC<{
   );
   const [customCss, setCustomCss] = useState<string>('');
   const [shouldMountUpdateModal, setShouldMountUpdateModal] = useState(false);
-  const { onClick } = useDebug();
+  const { registerModifierClick } = useDevToolsEscapeHatch();
   const { contextHolder: multiAgentContextHolder } = useMultiAgentDetection();
   const { contextHolder: directorySelectionContextHolder } = useDirectorySelection();
   useDeepLink();
   useNotificationClick();
   const navigate = useNavigate();
   useConversationShortcuts({ navigate });
+
+  // Logo click: plain click goes home; Cmd/Ctrl + triple-click opens DevTools.
+  const handleLogoClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (event.metaKey || event.ctrlKey) {
+        registerModifierClick();
+        return;
+      }
+      void navigate('/guid');
+    },
+    [navigate, registerModifierClick]
+  );
+
+  // Keyboard activation for the logo button: Enter/Space go home.
+  const handleLogoKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        void navigate('/guid');
+      }
+    },
+    [navigate]
+  );
 
   // --- ⌘K command palette (global) ---
   // Owned at the layout level so the keybind works on every authenticated
@@ -520,8 +544,13 @@ const Layout: React.FC<{
                       'radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.18), transparent 70%), var(--bg-2, #161616)',
                     border: '1px solid var(--border-mid, #353535)',
                     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                    cursor: 'pointer',
                   }}
-                  onClick={onClick}
+                  role='button'
+                  tabIndex={0}
+                  aria-label={t('common.brand')}
+                  onClick={handleLogoClick}
+                  onKeyDown={handleLogoKeyDown}
                 >
                   <svg
                     className={classNames({
