@@ -15,6 +15,7 @@ import {
   Radio,
   ScrollText,
   SlashSquare,
+  Stethoscope,
   Server,
   Sparkles,
   Zap,
@@ -75,6 +76,12 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       label: t('settings.sider.commands', { defaultValue: 'Slash Commands' }),
       icon: <SlashSquare size={16} />,
       path: 'commands',
+    },
+    doctor: {
+      id: 'doctor',
+      label: t('settings.sider.doctor', { defaultValue: 'Doctor' }),
+      icon: <Stethoscope size={16} />,
+      path: 'doctor',
     },
     skills: {
       id: 'skills',
