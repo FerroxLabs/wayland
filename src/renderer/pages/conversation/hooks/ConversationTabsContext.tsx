@@ -8,6 +8,7 @@ import type { TChatConversation } from '@/common/config/storage';
 import { STORAGE_KEYS } from '@/common/config/storageKeys';
 import { addEventListener } from '@/renderer/utils/emitter';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { reorderByIndex } from '../utils/tabReorder';
 
 /** Conversation Tab data structure */
 export interface ConversationTab {
@@ -46,6 +47,8 @@ export interface ConversationTabsContextValue {
   closeTabsToRight: (conversationId: string) => void;
   // Close all tabs except the specified one
   closeOtherTabs: (conversationId: string) => void;
+  // Reorder tabs by moving the tab at fromIndex to toIndex (view state only)
+  reorderTabs: (fromIndex: number, toIndex: number) => void;
   // Update tab name
   updateTabName: (conversationId: string, newName: string) => void;
 }
@@ -214,6 +217,10 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
     });
   }, []);
 
+  const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
+    setOpenTabs((prev) => reorderByIndex(prev, fromIndex, toIndex));
+  }, []);
+
   const updateTabName = useCallback((conversationId: string, newName: string) => {
     setOpenTabs((prev) =>
       prev.map((tab) => {
@@ -245,6 +252,7 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
         closeTabsToLeft,
         closeTabsToRight,
         closeOtherTabs,
+        reorderTabs,
         updateTabName,
       }}
     >

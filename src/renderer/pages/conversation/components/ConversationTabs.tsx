@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { closestCenter, DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { horizontalListSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Bot, Plus, X } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { CUSTOM_AVATAR_IMAGE_MAP } from '@/renderer/pages/guid/constants';
@@ -59,7 +63,9 @@ const ConversationTabView: React.FC<ConversationTabViewProps> = ({
         title={isMobile ? undefined : tabName}
       >
         <span className='text-15px whitespace-nowrap overflow-hidden text-ellipsis select-none flex-1'>{tabName}</span>
-        <X size={14} color={iconColors.secondary}
+        <X
+          size={14}
+          color={iconColors.secondary}
           className='shrink-0 transition-all duration-200 hover:fill-[rgb(var(--danger-6))]'
           onClick={(event) => {
             event.stopPropagation();
@@ -68,6 +74,27 @@ const ConversationTabView: React.FC<ConversationTabViewProps> = ({
         />
       </div>
     </Dropdown>
+  );
+};
+
+const SortableConversationTabView: React.FC<ConversationTabViewProps> = (props) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: props.tabId,
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    // Hide the source tab while it is being dragged (the DragOverlay renders the moving copy)
+    opacity: isDragging ? 0 : undefined,
+    position: 'relative',
+    zIndex: isDragging ? 1 : undefined,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className='h-full shrink-0' {...attributes} {...listeners}>
+      <ConversationTabView {...props} />
+    </div>
   );
 };
 
@@ -106,12 +133,17 @@ const ConversationTabs: React.FC = () => {
     closeTabsToLeft,
     closeTabsToRight,
     closeOtherTabs,
+    reorderTabs,
     openTab,
   } = useConversationTabs();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const [tabFadeState, setTabFadeState] = useState<TabFadeState>({ left: false, right: false });
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+
+  // PointerSensor with an 8px activation distance so a plain click still switches/closes a tab
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   const { cliAgents, presetAssistants, isLoading } = useConversationAgents();
   const defaultConversationName = t('conversation.welcome.newConversation');
@@ -188,6 +220,32 @@ const ConversationTabs: React.FC = () => {
     },
     [closeTab, openTabs.length, activeTabId, navigate]
   );
+
+  // Begin dragging a tab
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveDragId(String(event.active.id));
+  }, []);
+
+  // Finish dragging a tab: reorder by computing old/new index from active/over ids
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveDragId(null);
+
+      if (!over || active.id === over.id) return;
+
+      const oldIndex = openTabs.findIndex((tab) => tab.id === active.id);
+      const newIndex = openTabs.findIndex((tab) => tab.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      reorderTabs(oldIndex, newIndex);
+    },
+    [openTabs, reorderTabs]
+  );
+
+  const handleDragCancel = useCallback(() => {
+    setActiveDragId(null);
+  }, []);
 
   // Create a new conversation after selecting an agent/assistant from the dropdown
   const handleCreateConversation = useCallback(
@@ -372,28 +430,50 @@ const ConversationTabs: React.FC = () => {
   }
 
   const isDropdownDisabled = isLoading || (!cliAgents.length && !presetAssistants.length);
+  const isDragging = activeDragId !== null;
+  const draggingTab = isDragging ? openTabs.find((tab) => tab.id === activeDragId) : undefined;
 
   return (
     <div className='relative shrink-0 bg-2 min-h-40px'>
       <div className='relative flex items-center h-40px w-full border-t border-x border-solid border-[color:var(--border-base)]'>
-        {/* Tabs scroll area */}
-        <div
-          ref={tabsContainerRef}
-          className='flex items-center h-full flex-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden'
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
         >
-          {openTabs.map((tab) => (
-            <ConversationTabView
-              key={tab.id}
-              tabId={tab.id}
-              tabName={tab.name}
-              isActive={tab.id === activeTabId}
-              isMobile={isMobile}
-              contextMenu={getContextMenu(tab.id)}
-              onSwitch={handleSwitchTab}
-              onClose={handleCloseTab}
-            />
-          ))}
-        </div>
+          {/* Tabs scroll area - horizontal scroll is disabled mid-drag so the dragged tab tracks the pointer */}
+          <div
+            ref={tabsContainerRef}
+            className={`flex items-center h-full flex-1 overflow-y-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${isDragging ? 'overflow-x-hidden' : 'overflow-x-auto'}`}
+          >
+            <SortableContext items={openTabs.map((tab) => tab.id)} strategy={horizontalListSortingStrategy}>
+              {openTabs.map((tab) => (
+                <SortableConversationTabView
+                  key={tab.id}
+                  tabId={tab.id}
+                  tabName={tab.name}
+                  isActive={tab.id === activeTabId}
+                  isMobile={isMobile}
+                  contextMenu={getContextMenu(tab.id)}
+                  onSwitch={handleSwitchTab}
+                  onClose={handleCloseTab}
+                />
+              ))}
+            </SortableContext>
+          </div>
+
+          <DragOverlay>
+            {draggingTab ? (
+              <div className='flex items-center gap-8px px-12px h-40px max-w-240px bg-1 text-[color:var(--color-text-1)] font-medium border border-[color:var(--border-base)] shadow-lg'>
+                <span className='text-15px whitespace-nowrap overflow-hidden text-ellipsis select-none'>
+                  {draggingTab.name}
+                </span>
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
 
         {/* New conversation button - click to show agent dropdown */}
         <CreateConversationTrigger
