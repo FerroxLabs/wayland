@@ -25,6 +25,7 @@ const {
   startProvider,
   findActiveProvider,
   findAllActiveProvider,
+  findByIdProvider,
   resolveSkillsProvider,
   updateSessionStateProvider,
   dispatchAutonomousStepProvider,
@@ -35,6 +36,7 @@ const {
   startProvider: vi.fn(),
   findActiveProvider: vi.fn(),
   findAllActiveProvider: vi.fn(),
+  findByIdProvider: vi.fn(),
   resolveSkillsProvider: vi.fn(),
   updateSessionStateProvider: vi.fn(),
   dispatchAutonomousStepProvider: vi.fn(),
@@ -49,6 +51,7 @@ vi.mock('@/common', () => ({
       start: { provider: startProvider },
       findActive: { provider: findActiveProvider },
       findAllActive: { provider: findAllActiveProvider },
+      findById: { provider: findByIdProvider },
       resolveSkills: { provider: resolveSkillsProvider },
       updateSessionState: { provider: updateSessionStateProvider },
       dispatchAutonomousStep: { provider: dispatchAutonomousStepProvider },
@@ -99,6 +102,7 @@ function makeFakeService() {
     start: vi.fn(),
     findActive: vi.fn(),
     findAllActive: vi.fn(),
+    findById: vi.fn(),
     resolveSkills: vi.fn(),
     applyStepTransition: vi.fn(),
     appendAsk: vi.fn(),
@@ -122,6 +126,7 @@ describe('workflowBridge - handler routing', () => {
     startProvider.mockReset();
     findActiveProvider.mockReset();
     findAllActiveProvider.mockReset();
+    findByIdProvider.mockReset();
     resolveSkillsProvider.mockReset();
     updateSessionStateProvider.mockReset();
     dispatchAutonomousStepProvider.mockReset();
@@ -205,6 +210,19 @@ describe('workflowBridge - handler routing', () => {
 
     expect(svc.findAllActive).toHaveBeenCalledWith(5);
     expect(result).toEqual({ sessions });
+  });
+
+  it('routes workflow.findById to service.findById and wraps the session (returns it for any status)', async () => {
+    const svc = makeFakeService();
+    const session = makeFakeSession({ status: 'complete', run_mode: 'done' });
+    svc.findById.mockResolvedValue(session);
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string }, { session: WorkflowSession | null }>(findByIdProvider);
+    const result = await handler({ sessionId: 'sess-1' });
+
+    expect(svc.findById).toHaveBeenCalledWith('sess-1');
+    expect(result).toEqual({ session });
   });
 
   it('routes workflow.resolveSkills to service.resolveSkills with the slug list', async () => {

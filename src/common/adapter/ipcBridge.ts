@@ -2175,6 +2175,12 @@ export const workflow = {
     { sessions: Array<{ session: WorkflowSession; conversation_preview: string }> },
     { limit?: number }
   >('workflow.findAllActive'),
+  // 6.3.2 - Fetch a single session by id REGARDLESS of status. Unlike
+  // findAllActive (which filters to in-flight sessions), this returns
+  // completed/ended sessions too, so the renderer can re-sync a workflow
+  // surface when the main-side driver advances or completes a run. Backs the
+  // `sessionChanged` live-refresh in useWorkflowSession.
+  findById: buildProvider<{ session: WorkflowSession | null }, { sessionId: string }>('workflow.findById'),
   // 6.4 - Single mutation endpoint for renderer-driven state changes. Avoids
   // five separate IPC channels for step-status / ask / status transitions.
   updateSessionState: buildProvider<

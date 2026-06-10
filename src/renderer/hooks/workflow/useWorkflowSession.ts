@@ -127,6 +127,26 @@ export function useWorkflowSession(
     activeSessionIdRef.current = sessionId;
   }, [sessionId]);
 
+  // Re-fetch a SINGLE session by id regardless of status. Unlike `refresh`
+  // (findAllActive, which excludes completed/ended sessions), this resolves a
+  // run even after it has finished - the path the live-sync subscription and
+  // the initial mount need so a completed workflow shows its Complete card
+  // instead of a frozen mid-run snapshot.
+  const fetchById = useCallback(async () => {
+    if (!sessionId) return;
+    try {
+      const result = await ipcBridge.workflow.findById.invoke({ sessionId });
+      if (activeSessionIdRef.current !== sessionId) return;
+      if (result.session) {
+        setData(result.session);
+        setError(null);
+      }
+    } catch (err) {
+      if (activeSessionIdRef.current !== sessionId) return;
+      setError(toError(err));
+    }
+  }, [sessionId]);
+
   const refresh = useCallback(async () => {
     if (!sessionId) return;
     setLoading(true);
@@ -148,15 +168,44 @@ export function useWorkflowSession(
     }
   }, [sessionId]);
 
-  // Initial fetch when no seed is provided but a sessionId is present.
+  // Initial fetch when no seed is provided but a sessionId is present. Use the
+  // by-id path (not findAllActive) so re-opening an already-completed workflow
+  // hydrates its terminal state rather than coming back empty.
   useEffect(() => {
     if (!sessionId || initialSession) return;
-    void refresh();
+    setLoading(true);
+    void fetchById().finally(() => {
+      if (activeSessionIdRef.current === sessionId) setLoading(false);
+    });
     // initialSession is intentionally excluded: we only want to fetch when the
     // consumer mounts us without a seed. Subsequent re-renders should NOT
     // re-trigger a fetch just because the caller passes a new seed reference.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId, refresh]);
+  }, [sessionId, fetchById]);
+
+  // Live-sync. The main-process driver loop (parentTurnDriver -> continueRun)
+  // and the autonomous-step worker mutate the session SERVER-SIDE and emit
+  // `sessionChanged`. The renderer holds `data` locally and otherwise only
+  // updates it from its own mutation calls, so without this subscription a run
+  // advancing or completing under the driver would never reach the rail,
+  // header, or Complete card - the surface would freeze on the seed. Re-fetch by
+  // id on every change to THIS session (delete clears it). This is the renderer
+  // half of the auto-progression fix; the main half is the local-emitter
+  // fan-out in ConversationTurnCompletionService.
+  useEffect(() => {
+    if (!sessionId) return;
+    const unsubscribe = ipcBridge.workflow.sessionChanged.on((event) => {
+      if (event.session_id !== sessionId) return;
+      if (event.action === 'delete') {
+        if (activeSessionIdRef.current === sessionId) setData(null);
+        return;
+      }
+      void fetchById();
+    });
+    return () => {
+      unsubscribe?.();
+    };
+  }, [sessionId, fetchById]);
 
   const applyStepMarker = useCallback(
     async (

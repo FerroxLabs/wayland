@@ -158,6 +158,12 @@ export function registerWorkflowBridge(): void {
     return { sessions };
   });
 
+  ipcBridge.workflow.findById.provider(async (input) => {
+    const svc = requireService('findById');
+    const session = await svc.findById(input.sessionId);
+    return { session };
+  });
+
   ipcBridge.workflow.countActive.provider(async () => {
     const svc = requireService('countActive');
     return svc.countActive();
