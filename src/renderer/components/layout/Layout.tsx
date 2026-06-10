@@ -36,36 +36,6 @@ import { isElectronDesktop } from '@renderer/utils/platform';
 import { computeCssSyncDecision, resolveCssByActiveTheme } from '@renderer/utils/theme/themeCssSync';
 import '@renderer/styles/layout.css';
 
-const useDebug = () => {
-  const [count, setCount] = useState(0);
-  const timer = useRef<any>(null);
-  const onClick = () => {
-    const open = () => {
-      ipcBridge.application.openDevTools.invoke().catch((error) => {
-        console.error('Failed to open dev tools:', error);
-      });
-      setCount(0);
-    };
-    if (count >= 3) {
-      return open();
-    }
-    setCount((prev) => {
-      if (prev >= 2) {
-        open();
-        return 0;
-      }
-      return prev + 1;
-    });
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      clearTimeout(timer.current);
-      setCount(0);
-    }, 1000);
-  };
-
-  return { onClick };
-};
-
 const UpdateModal = React.lazy(() => import('@/renderer/components/settings/UpdateModal'));
 
 const DEFAULT_SIDER_WIDTH = 240;
@@ -102,13 +72,16 @@ const Layout: React.FC<{
   );
   const [customCss, setCustomCss] = useState<string>('');
   const [shouldMountUpdateModal, setShouldMountUpdateModal] = useState(false);
-  const { onClick } = useDebug();
   const { contextHolder: multiAgentContextHolder } = useMultiAgentDetection();
   const { contextHolder: directorySelectionContextHolder } = useDirectorySelection();
   useDeepLink();
   useNotificationClick();
   const navigate = useNavigate();
   useConversationShortcuts({ navigate });
+
+  const handleLogoClick = useCallback(() => {
+    void navigate('/guid');
+  }, [navigate]);
 
   // --- ⌘K command palette (global) ---
   // Owned at the layout level so the keybind works on every authenticated
@@ -521,7 +494,16 @@ const Layout: React.FC<{
                     border: '1px solid var(--border-mid, #353535)',
                     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                   }}
-                  onClick={onClick}
+                  role='button'
+                  tabIndex={0}
+                  aria-label={t('common.brand')}
+                  onClick={handleLogoClick}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleLogoClick();
+                    }
+                  }}
                 >
                   <svg
                     className={classNames({
