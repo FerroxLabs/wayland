@@ -21,7 +21,14 @@ export const isElectronDesktop = (): boolean => {
  * Check if running on macOS
  */
 export const isMacOS = (): boolean => {
-  return typeof navigator !== 'undefined' && /mac/i.test(navigator.userAgent);
+  if (typeof navigator === 'undefined') return false;
+  const userAgentDataPlatform = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform;
+  const platform = userAgentDataPlatform || navigator.platform || navigator.userAgent;
+  return /mac|iphone|ipad|ipod/i.test(platform);
+};
+
+export const formatModifierShortcut = (key: string): string => {
+  return isMacOS() ? `⌘${key}` : `Ctrl+${key}`;
 };
 
 /**

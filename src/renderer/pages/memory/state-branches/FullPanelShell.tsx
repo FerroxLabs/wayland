@@ -35,6 +35,7 @@ import { ipcBridge } from '@/common';
 import { memory as memoryBridge, ijfw as ijfwBridge } from '@/common/adapter/ipcBridge';
 import type { IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 import type { LastDream, ListFilter, MemoryType } from '@/common/types/memory';
+import { formatModifierShortcut } from '@/renderer/utils/platform';
 import { useTranslation } from 'react-i18next';
 import MemoryList from '../components/MemoryList';
 import RightDrawer from '../components/RightDrawer';
@@ -102,6 +103,7 @@ const DEFAULT_THRESHOLD = 90;
 
 const FullPanelShell: React.FC = () => {
   const { t } = useTranslation('memory');
+  const searchShortcut = formatModifierShortcut('K');
 
   const [filter, setFilter] = useState<ListFilter>(DEFAULT_FILTER);
   const [timeWindow, setTimeWindow] = useState<TimeWindow>('all');
@@ -451,7 +453,7 @@ const FullPanelShell: React.FC = () => {
             prefix={<Search size={14} />}
             suffix={
               <kbd className={styles.searchKbd} data-testid='memory-search-kbd'>
-                ⌘K
+                {searchShortcut}
               </kbd>
             }
             placeholder={t('archive.filter.searchPlaceholder', 'Search memories… (type:decision tag:design)')}

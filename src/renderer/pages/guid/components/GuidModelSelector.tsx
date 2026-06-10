@@ -23,6 +23,7 @@ import { iconColors } from '@/renderer/styles/colors';
 import FluxRouterMark from '@/renderer/components/icons/FluxRouterMark';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
 import { formatAcpModelDisplayLabel, getAcpModelSourceLabel } from '@/renderer/utils/model/modelSource';
+import { formatModifierShortcut } from '@/renderer/utils/platform';
 import type { AcpModelInfo } from '../types';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -707,6 +708,7 @@ export const ModelSelectorPanel: React.FC<ModelSelectorPanelProps> = ({
 }) => {
   const { t } = useTranslation();
   const [query, setQuery] = React.useState('');
+  const searchShortcut = formatModifierShortcut('K');
   // Wraps the search input - used to locate the underlying `<input>` for ⌘K
   // focus without depending on Arco's internal ref shape.
   const searchWrapRef = React.useRef<HTMLDivElement | null>(null);
@@ -915,7 +917,7 @@ export const ModelSelectorPanel: React.FC<ModelSelectorPanelProps> = ({
             size='small'
           />
         </div>
-        {!searching && <span className={styles.kbdHint}>⌘K</span>}
+        {!searching && <span className={styles.kbdHint}>{searchShortcut}</span>}
       </div>
 
       <div className={styles.scrollArea}>
