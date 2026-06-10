@@ -19,6 +19,14 @@
   "readyToInstallDesc": "Update has been downloaded. Click the button below to restart and install the update.",
   "installNow": "Install and restart",
   "autoUpdateMode": "Auto-update mode",
+  "ijfw": {
+    "availableTitle": "IJFW update available",
+    "pathIssueTitle": "IJFW command path needs attention",
+    "pathIssueBody": "IJFW is installed, but the ijfw command is not on PATH. Wayland can still use the local install.",
+    "updateButton": "Update IJFW",
+    "updateStarted": "IJFW update started. Restart Wayland after it stages the new version.",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "Show in folder",
   "openFile": "Open file",
   "errorTitle": "Update failed",

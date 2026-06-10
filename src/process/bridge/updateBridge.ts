@@ -21,6 +21,7 @@ import * as path from 'path';
 import yaml from 'js-yaml';
 import semver from 'semver';
 import { autoUpdaterService } from '../services/autoUpdaterService';
+import { ijfwSystemService } from '../services/ijfwSystemService';
 
 /** Lazily loads i18n to avoid pulling in initStorage chain at module load time */
 let _i18nCache: Promise<typeof import('../services/i18n')> | null = null;
@@ -66,6 +67,11 @@ const ALLOWED_DOWNLOAD_HOSTS = new Set<string>([
   'release-assets.githubusercontent.com',
 ]);
 const MAX_REDIRECTS = 8;
+
+const getIjfwCommandPath = (mcpServerPath?: string): string | undefined => {
+  if (!mcpServerPath) return undefined;
+  return path.join(path.dirname(mcpServerPath), 'mcp-server', 'bin', process.platform === 'win32' ? 'ijfw.cmd' : 'ijfw');
+};
 
 const isAllowedAssetName = (name: string) => {
   const ext = path.extname(name);
@@ -438,6 +444,46 @@ const mapRelease = (rel: GitHubReleaseApi): UpdateReleaseInfo | null => {
   };
 };
 
+const getIjfwUpdateStatus = async (): Promise<UpdateCheckResult['ijfw']> => {
+  try {
+    const [local, latest] = await Promise.all([
+      ijfwSystemService.detectLocalInstall(),
+      ijfwSystemService.getLatestPublished(),
+    ]);
+    const updateAvailable = Boolean(
+      local.installed &&
+        local.version &&
+        latest &&
+        semver.valid(local.version) &&
+        semver.valid(latest) &&
+        semver.lt(local.version, latest)
+    );
+    const commandPath = getIjfwCommandPath(local.mcpServerPath);
+
+    return {
+      installed: local.installed,
+      currentVersion: local.version,
+      latestVersion: latest,
+      updateAvailable,
+      offline: local.installed && !latest,
+      detectedVia: local.detectedVia,
+      cliOnPath: local.cliOnPath,
+      mcpServerPath: local.mcpServerPath,
+      commandPath,
+      pathHealthy: Boolean(local.cliOnPath),
+    };
+  } catch (err) {
+    return {
+      installed: false,
+      updateAvailable: false,
+      latestVersion: null,
+      detectedVia: 'none',
+      pathHealthy: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+};
+
 type DownloadState = {
   abortController: AbortController;
   filePath: string;
@@ -710,6 +756,7 @@ export function initUpdateBridge(): void {
         // If you want dev/prerelease updates to work reliably, CI must inject a prerelease semver into
         // `package.json#version` for dev builds (e.g. `1.7.2-dev.1234+sha.abcdef0`) so semver ordering holds.
         // We intentionally avoid heuristics based on tag strings when the app version is a stable semver.
+        const ijfw = await getIjfwUpdateStatus();
 
         const releases = await fetchGitHubReleases(repo);
         const candidates = releases
@@ -720,7 +767,7 @@ export function initUpdateBridge(): void {
 
         const currentSemver = semver.valid(currentVersion) || semver.coerce(currentVersion)?.version;
         if (!currentSemver) {
-          return { success: true, data: { currentVersion, updateAvailable: false } };
+          return { success: true, data: { currentVersion, updateAvailable: false, ijfw } };
         }
 
         const latest = candidates
@@ -728,7 +775,7 @@ export function initUpdateBridge(): void {
           .toSorted((a, b) => semver.rcompare(a.version, b.version))[0];
 
         if (!latest) {
-          return { success: true, data: { currentVersion, updateAvailable: false } };
+          return { success: true, data: { currentVersion, updateAvailable: false, ijfw } };
         }
 
         const updateAvailable = semver.gt(latest.version, currentSemver);
@@ -738,6 +785,7 @@ export function initUpdateBridge(): void {
             currentVersion,
             updateAvailable,
             latest,
+            ijfw,
           },
         };
       } catch (err: unknown) {

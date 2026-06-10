@@ -10,7 +10,12 @@ import { Button, Progress, Message } from '@arco-design/web-react';
 import { ipcBridge } from '@/common';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
 import MarkdownView from '@/renderer/components/Markdown';
-import type { UpdateDownloadProgressEvent, UpdateReleaseInfo, AutoUpdateStatus } from '@/common/update/updateTypes';
+import type {
+  UpdateDownloadProgressEvent,
+  UpdateReleaseInfo,
+  AutoUpdateStatus,
+  IjfwUpdateStatus,
+} from '@/common/update/updateTypes';
 import { useTranslation } from 'react-i18next';
 
 type UpdateStatus = 'checking' | 'upToDate' | 'available' | 'downloading' | 'downloaded' | 'success' | 'error';
@@ -28,6 +33,8 @@ const UpdateModal: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [downloadPath, setDownloadPath] = useState('');
   const [releasePageUrl, setReleasePageUrl] = useState('');
+  const [ijfwStatus, setIjfwStatus] = useState<IjfwUpdateStatus | null>(null);
+  const [ijfwActionPending, setIjfwActionPending] = useState(false);
   // Whether electron-updater auto-update is available (determined automatically, not user-controllable)
   const [autoUpdateAvailable, setAutoUpdateAvailable] = useState(false);
   const [autoUpdateInfo, setAutoUpdateInfo] = useState<{ version: string; releaseNotes?: string } | null>(null);
@@ -41,12 +48,17 @@ const UpdateModal: React.FC = () => {
     setErrorMsg('');
     setDownloadPath('');
     setReleasePageUrl('');
+    setIjfwStatus(null);
+    setIjfwActionPending(false);
     setAutoUpdateAvailable(false);
     setAutoUpdateInfo(null);
   };
 
   const includePrerelease = useMemo(() => localStorage.getItem('update.includePrerelease') === 'true', [visible]);
   const hasCompatibleManualAsset = Boolean(updateInfo?.recommendedAsset);
+  const hasIjfwUpdate = Boolean(ijfwStatus?.installed && ijfwStatus.updateAvailable);
+  const hasIjfwPathIssue = Boolean(ijfwStatus?.installed && !ijfwStatus.pathHealthy);
+  const hasWaylandUpdate = Boolean(updateInfo || autoUpdateInfo || autoUpdateAvailable);
 
   const openReleasePage = () => {
     if (!releasePageUrl) return;
@@ -82,6 +94,7 @@ const UpdateModal: React.FC = () => {
         throw new Error(res?.msg || t('update.checkFailed'));
       }
       setCurrentVersion(res.data?.currentVersion || '');
+      setIjfwStatus(res.data?.ijfw || null);
 
       if (autoUpdateOk) {
         // Auto-update available - use manual check data for display only
@@ -100,6 +113,13 @@ const UpdateModal: React.FC = () => {
         if (!res.data.latest.recommendedAsset) {
           setErrorMsg(t('update.noCompatibleAssetManual'));
         }
+        setStatus('available');
+        return;
+      }
+
+      if (res.data?.ijfw?.updateAvailable || (res.data?.ijfw?.installed && !res.data.ijfw.pathHealthy)) {
+        setUpdateInfo(res.data?.latest || null);
+        setReleasePageUrl(res.data?.latest?.htmlUrl || '');
         setStatus('available');
         return;
       }
@@ -166,6 +186,77 @@ const UpdateModal: React.FC = () => {
       console.error('Install failed:', err);
       Message.error(msg);
     }
+  };
+
+  const startIjfwUpdate = async () => {
+    setIjfwActionPending(true);
+    try {
+      const res = await ipcBridge.ijfw.triggerInstall.invoke();
+      if (!res?.ok) {
+        const detail = res && 'error' in res ? res.error : undefined;
+        throw new Error(detail || 'Failed to start IJFW update');
+      }
+      Message.success(
+        t('update.ijfw.updateStarted', {
+          defaultValue: 'IJFW update started. Restart Wayland after it stages the new version.',
+        })
+      );
+      void checkForUpdates();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      Message.error(msg);
+    } finally {
+      setIjfwActionPending(false);
+    }
+  };
+
+  const renderIjfwUpdatePanel = () => {
+    if (!ijfwStatus?.installed) return null;
+    if (!hasIjfwUpdate && !hasIjfwPathIssue) return null;
+
+    return (
+      <div className='mx-24px mt-12px px-14px py-12px rounded-8px bg-fill-1 border border-border-2'>
+        <div className='flex items-start justify-between gap-16px'>
+          <div className='min-w-0'>
+            <div className='text-13px font-600 text-t-primary'>
+              {hasIjfwUpdate
+                ? t('update.ijfw.availableTitle', { defaultValue: 'IJFW update available' })
+                : t('update.ijfw.pathIssueTitle', { defaultValue: 'IJFW command path needs attention' })}
+            </div>
+            <div className='text-12px text-t-tertiary mt-4px break-words'>
+              {hasIjfwUpdate
+                ? t('update.ijfw.versionLine', {
+                    defaultValue: 'IJFW {{current}} → {{latest}}',
+                    current: ijfwStatus.currentVersion || '-',
+                    latest: ijfwStatus.latestVersion || '-',
+                  })
+                : t('update.ijfw.pathIssueBody', {
+                    defaultValue:
+                      'IJFW is installed, but the ijfw command is not on PATH. Wayland can still use the local install.',
+                  })}
+            </div>
+            {ijfwStatus.commandPath && (
+              <code className='inline-block mt-6px max-w-full truncate text-11px text-t-tertiary'>
+                {ijfwStatus.commandPath}
+              </code>
+            )}
+          </div>
+          {hasIjfwUpdate && (
+            <Button
+              type='primary'
+              size='small'
+              loading={ijfwActionPending}
+              onClick={() => {
+                void startIjfwUpdate();
+              }}
+              className='!px-14px shrink-0'
+            >
+              {t('update.ijfw.updateButton', { defaultValue: 'Update IJFW' })}
+            </Button>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const formatSpeed = (bytesPerSecond: number) => {
@@ -312,6 +403,7 @@ const UpdateModal: React.FC = () => {
             <div className='text-13px text-t-tertiary'>
               {t('update.currentVersion', { version: currentVersion || '-' })}
             </div>
+            {renderIjfwUpdatePanel()}
           </div>
         );
 
@@ -325,17 +417,44 @@ const UpdateModal: React.FC = () => {
                   <Download size={20} color='rgb(var(--primary-6))' />
                 </div>
                 <div>
-                  <div className='text-15px font-600 text-t-primary'>{t('update.availableTitle')}</div>
+                  <div className='text-15px font-600 text-t-primary'>
+                    {hasWaylandUpdate
+                      ? t('update.availableTitle')
+                      : t('update.ijfw.availableTitle', { defaultValue: 'IJFW update available' })}
+                  </div>
                   <div className='text-12px text-t-tertiary mt-2px'>
-                    {currentVersion} →{' '}
-                    <span className='text-[rgb(var(--primary-6))] font-500'>
-                      {updateInfo?.version || autoUpdateInfo?.version}
-                    </span>
+                    {hasWaylandUpdate ? (
+                      <>
+                        {currentVersion} →{' '}
+                        <span className='text-[rgb(var(--primary-6))] font-500'>
+                          {updateInfo?.version || autoUpdateInfo?.version}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        IJFW {ijfwStatus?.currentVersion || '-'} →{' '}
+                        <span className='text-[rgb(var(--primary-6))] font-500'>
+                          {ijfwStatus?.latestVersion || '-'}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
               <div className='flex items-center gap-12px'>
-                {!hasCompatibleManualAsset && !autoUpdateAvailable && releasePageUrl ? (
+                {!hasWaylandUpdate && hasIjfwUpdate ? (
+                  <Button
+                    type='primary'
+                    size='small'
+                    loading={ijfwActionPending}
+                    onClick={() => {
+                      void startIjfwUpdate();
+                    }}
+                    className='!px-16px'
+                  >
+                    {t('update.ijfw.updateButton', { defaultValue: 'Update IJFW' })}
+                  </Button>
+                ) : !hasCompatibleManualAsset && !autoUpdateAvailable && releasePageUrl ? (
                   <Button type='primary' size='small' onClick={openReleasePage} className='!px-16px'>
                     {t('update.goToRelease')}
                   </Button>
@@ -351,7 +470,9 @@ const UpdateModal: React.FC = () => {
               </div>
             </div>
 
-            {!hasCompatibleManualAsset && !autoUpdateAvailable && (
+            {renderIjfwUpdatePanel()}
+
+            {hasWaylandUpdate && !hasCompatibleManualAsset && !autoUpdateAvailable && (
               <div className='mx-24px mt-12px px-12px py-10px text-12px rounded-8px bg-[rgb(var(--warning-6))]/10 text-[rgb(var(--warning-6))]'>
                 {t('update.noCompatibleAssetManual')}
               </div>
