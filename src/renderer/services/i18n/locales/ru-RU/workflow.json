@@ -75,7 +75,7 @@
   },
   "needsInput": {
     "title": "Wayland needs your input",
-    "sub": "It is waiting on you to continue. Answer here and the run picks up where it left off.",
+    "sub": "Type your answer in the message box below and the run picks up where it left off.",
     "placeholder": "Type your answer to continue…",
     "send": "Send answer"
   }

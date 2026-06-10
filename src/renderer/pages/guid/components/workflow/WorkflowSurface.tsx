@@ -144,6 +144,26 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
     !currentStepTerminal &&
     idleStable;
 
+  // There is exactly ONE input - the conversation composer at the bottom. When
+  // the run needs the user, jump them to it: scroll the end of the question
+  // into view and focus the composer. The blue notice points here; clicking it
+  // does the same. No second input, so the user is never asked "which box?".
+  const composerHostRef = useRef<HTMLDivElement>(null);
+  const focusComposer = useCallback(() => {
+    const root = composerHostRef.current;
+    if (!root) return;
+    const panels = root.querySelectorAll('section[data-step]');
+    const lastPanel = panels[panels.length - 1];
+    if (lastPanel) lastPanel.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    const textarea = root.querySelector('.sendbox-panel textarea');
+    if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+  }, []);
+  useEffect(() => {
+    if (!needsInput) return;
+    const id = window.setTimeout(focusComposer, 160);
+    return () => window.clearTimeout(id);
+  }, [needsInput, focusComposer]);
+
   // Thread step titles + the live session + the needs-input flag into the
   // view-mode context so the WorkflowTranscript (mounted deep inside the chat
   // tree) can render the step-panel surface and the blue "Needs you" treatment.
@@ -461,9 +481,13 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
                     onGoBack={handleGoBack}
                   />
                 )}
-                <div className={styles.children}>
+                <div
+                  className={styles.children}
+                  ref={composerHostRef}
+                  data-needsinput={needsInput ? 'true' : undefined}
+                >
                   {needsInput ? (
-                    <WorkflowNeedsInputCard conversationId={data.conversation_id} />
+                    <WorkflowNeedsInputCard onActivate={focusComposer} />
                   ) : (
                     data.run_mode === 'running' && (
                       <QueuedSteeringChip

@@ -67,6 +67,13 @@
   overflow: hidden;
 }
 
+/* When the run is waiting on the user, highlight the ONE composer in blue so it
+   is obvious where to type (paired with the blue "Needs you" notice + auto-focus). */
+.children[data-needsinput='true'] :global(.sendbox-panel) {
+  border-color: var(--color-link-6, #3b82f6) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-link-6, #3b82f6) 22%, transparent) !important;
+}
+
 /* Continue affordance for an `awaiting_input` step-mode run (Phase 2c). A
  * non-blocking banner above the chat tape; the user reviews the just-completed
  * step, then clicks Continue to resume the driver loop. */

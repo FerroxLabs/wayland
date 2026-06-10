@@ -3,34 +3,49 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * The blue "Needs you" beat. Blue (not the orange working accent) so the state
- * change is unmistakable at a glance.
+ * The blue "Needs you" notice. Blue (not the orange working accent) so the
+ * state change is unmistakable. It is a notice, not an input - clicking it
+ * jumps to the composer at the bottom (the one place you type).
  */
 
 .card {
   --needs-blue: var(--color-link-6, #3b82f6);
-  --needs-blue-soft: color-mix(in srgb, var(--needs-blue) 12%, transparent);
-  --needs-blue-line: color-mix(in srgb, var(--needs-blue) 45%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 11px;
   max-width: 800px;
   width: 100%;
   margin: 0 auto 10px;
-  border: 1px solid var(--needs-blue-line);
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--needs-blue) 45%, transparent);
   border-radius: 12px;
-  background: var(--needs-blue-soft);
-  padding: 13px 15px;
+  background: color-mix(in srgb, var(--needs-blue) 12%, transparent);
+  padding: 12px 15px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--needs-blue) 10%, transparent);
+  transition: background 120ms ease, border-color 120ms ease;
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.card:hover {
+  background: color-mix(in srgb, var(--needs-blue) 18%, transparent);
+  border-color: color-mix(in srgb, var(--needs-blue) 60%, transparent);
 }
 
 .icon {
   display: inline-flex;
   align-items: center;
+  flex: none;
   color: var(--needs-blue);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .title {
@@ -40,58 +55,25 @@
 }
 
 .sub {
-  margin: 4px 0 11px 24px;
   font-size: 12.5px;
   color: var(--color-text-3);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
-.inputRow {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.input {
-  flex: 1;
-  min-width: 0;
-  resize: none;
-  max-height: 160px;
-  border: 1px solid var(--needs-blue-line);
-  border-radius: 10px;
-  background: var(--color-bg-1);
-  color: var(--color-text-1);
-  font: inherit;
-  font-size: 13.5px;
-  line-height: 1.5;
-  padding: 9px 12px;
-  outline: none;
-}
-
-.input:focus {
-  border-color: var(--needs-blue);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--needs-blue) 22%, transparent);
-}
-
-.send {
+.cue {
+  display: inline-flex;
+  align-items: center;
   flex: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: none;
-  display: grid;
-  place-items: center;
-  background: var(--needs-blue);
-  color: #fff;
-  cursor: pointer;
-  transition: opacity 120ms ease;
+  color: var(--needs-blue);
+  animation: needs-bounce 1.4s ease-in-out infinite;
 }
 
-.send:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-.send:not(:disabled):hover {
-  opacity: 0.88;
+@keyframes needs-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
 }
