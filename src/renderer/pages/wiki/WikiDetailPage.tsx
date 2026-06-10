@@ -28,6 +28,7 @@ export type WikiDetailPageProps = {
   slug: string;
   onBack?: () => void;
   onNavigate?: (slug: string) => void;
+  onSettings?: () => void;
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -95,6 +96,7 @@ export function WikiDetailPageRoute(): React.ReactElement {
       slug={slug}
       onBack={() => navigate('/wiki')}
       onNavigate={(s) => navigate(`/wiki/${s}`)}
+      onSettings={() => navigate('/settings/ijfw')}
     />
   );
 }
@@ -105,6 +107,7 @@ export function WikiDetailPage({
   slug,
   onBack,
   onNavigate,
+  onSettings,
 }: WikiDetailPageProps): React.ReactElement {
   const { t } = useTranslation('memory');
   const [concept, setConcept] = useState<WikiConcept | null>(null);
@@ -238,7 +241,12 @@ export function WikiDetailPage({
           <Button className={styles.updateBtn} size='small'>
             {t('wiki.detail.updateFromSources', 'Update from sources')}
           </Button>
-          <button className={styles.iconBtn} title={t('wiki.detail.settings', 'Settings')} aria-label={t('wiki.detail.settings', 'Settings')}>
+          <button
+            className={styles.iconBtn}
+            title={t('wiki.detail.settings', 'Settings')}
+            aria-label={t('wiki.detail.settings', 'Settings')}
+            onClick={onSettings}
+          >
             <Settings size={14} />
           </button>
         </div>
