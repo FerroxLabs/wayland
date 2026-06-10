@@ -1940,6 +1940,10 @@
       "badgeFlagship": "Flaggschiff",
       "badgePreview": "Vorschau",
       "badgeLegacy": "Legacy"
+    },
+    "headless": {
+      "title": "Anbieter werden auf dem Server konfiguriert",
+      "body": "Dies ist eine Remote-Sitzung, daher koennen hier keine Schluessel eingegeben werden. Anbieter werden ueber Umgebungsvariablen oder `wayland setup` auf dem Server konfiguriert. Ihre konfigurierten Anbieter und deren Modelle erscheinen nach der Aktualisierung unten."
     }
   },
   "mcpPage": {

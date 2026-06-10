@@ -13,6 +13,7 @@ import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageS
 import SettingsPageWrapper from '@renderer/pages/settings/components/SettingsPageWrapper';
 import { ModelRegistryProvider, useModelRegistry, useRefreshState } from '@renderer/hooks/useModelRegistry';
 import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
+import { isElectronDesktop } from '@renderer/utils/platform';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
@@ -97,6 +98,13 @@ const ModelsSettingsInner: React.FC = () => {
   const { providers, loading, error, connect, detectKeys, refreshAll } = useModelRegistry();
   const refreshState = useRefreshState();
 
+  // In a remote/WebUI (headless) session the bridge denylist blocks
+  // `modelRegistry.connect` / `detectKeys` (they would return a decrypted key to
+  // a remote caller), so the key-entry and connect controls can never succeed.
+  // Rather than let them spin forever, replace them with operator guidance and
+  // keep only the read-only list + refresh path (which remains remote-allowed).
+  const headless = !isElectronDesktop();
+
   // Local in-flight flag for the header button (the click owns the spinner;
   // the scheduler-driven `refreshState.refreshing` covers background runs).
   const [refreshingNow, setRefreshingNow] = useState(false);
@@ -177,6 +185,9 @@ const ModelsSettingsInner: React.FC = () => {
   // Auto-discover keys already on the machine (spec §4.4). Surfaced as the
   // consent strip - never used silently.
   useEffect(() => {
+    // `detectKeys` is denied to remote callers - skip the call entirely in a
+    // headless session so the strip stays empty instead of erroring.
+    if (headless) return;
     let cancelled = false;
     void (async () => {
       try {
@@ -190,7 +201,7 @@ const ModelsSettingsInner: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [detectKeys]);
+  }, [detectKeys, headless]);
 
   // Wave 3 Fix 12 - consume any pending deep-link payload on mount. A
   // `wayland://add-provider?platform=...&apiKey=...` URL fires from the OS
@@ -332,7 +343,10 @@ const ModelsSettingsInner: React.FC = () => {
     }
   }, [managedProviderId, managedProvider, loading]);
 
-  const showEmptyState = !loading && providers.length === 0 && visibleDetected.length === 0;
+  // In headless mode the operator-guidance notice already explains the empty
+  // state, so the connect-oriented EmptyState would be redundant and misleading
+  // (it nudges toward connect controls that are denied remotely).
+  const showEmptyState = !headless && !loading && providers.length === 0 && visibleDetected.length === 0;
 
   if (managedProvider) {
     // ManageProvider carries its own back-link + header, so wrap in the
@@ -374,16 +388,25 @@ const ModelsSettingsInner: React.FC = () => {
       breadcrumb={[{ label: t('settings.modelsPage.crumbAiModels') }, { label: t('settings.modelsPage.title') }]}
       actions={headerActions}
     >
-      <FluxRouterHero connected={fluxConnected} onConnectKey={connectFluxKey} />
+      {headless ? (
+        <div className={styles.headlessNotice}>
+          <p className={styles.headlessNoticeTitle}>{t('settings.modelsPage.headless.title')}</p>
+          <p className={styles.headlessNoticeBody}>{t('settings.modelsPage.headless.body')}</p>
+        </div>
+      ) : (
+        <>
+          <FluxRouterHero connected={fluxConnected} onConnectKey={connectFluxKey} />
 
-      <ConnectPanel
-        detectedKeys={visibleDetected}
-        onConnectKey={connectKey}
-        onUseDetected={useDetected}
-        onIgnoreDetected={ignoreDetected}
-        onBrowse={handleBrowse}
-        deepLinkSeedNonce={panelSeedNonce}
-      />
+          <ConnectPanel
+            detectedKeys={visibleDetected}
+            onConnectKey={connectKey}
+            onUseDetected={useDetected}
+            onIgnoreDetected={ignoreDetected}
+            onBrowse={handleBrowse}
+            deepLinkSeedNonce={panelSeedNonce}
+          />
+        </>
+      )}
 
       {error && (
         <div className={styles.connectError} role='alert'>

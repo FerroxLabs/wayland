@@ -1958,6 +1958,10 @@
       "badgeFlagship": "flagship",
       "badgePreview": "preview",
       "badgeLegacy": "legacy"
+    },
+    "headless": {
+      "title": "Providers are configured on the server",
+      "body": "This is a remote session, so keys cannot be entered here. Providers are configured via environment variables or `wayland setup` on the server. Your configured providers and their models appear below once refreshed."
     }
   },
   "mcpPage": {

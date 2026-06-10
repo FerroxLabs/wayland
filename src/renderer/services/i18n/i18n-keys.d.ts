@@ -3068,6 +3068,8 @@ export type I18nKey =
   | 'settings.modelsPage.flux.recommended'
   | 'settings.modelsPage.flux.routing'
   | 'settings.modelsPage.flux.trust'
+  | 'settings.modelsPage.headless.body'
+  | 'settings.modelsPage.headless.title'
   | 'settings.modelsPage.homePicker.badgeFlagship'
   | 'settings.modelsPage.homePicker.badgeLegacy'
   | 'settings.modelsPage.homePicker.badgePreview'

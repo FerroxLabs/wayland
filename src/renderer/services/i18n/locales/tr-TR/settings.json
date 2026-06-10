@@ -1917,6 +1917,10 @@
       "label": "Otomatik yenileme",
       "hint": "Arka planda yeni modelleri kontrol eder ve listeni güncel tutar.",
       "saveFailed": "Otomatik yenileme ayarı kaydedilemedi."
+    },
+    "headless": {
+      "title": "Saglayicilar sunucuda yapilandirilir",
+      "body": "Bu uzak bir oturumdur, bu nedenle anahtarlar buraya girilemez. Saglayicilar ortam degiskenleri veya sunucudaki `wayland setup` ile yapilandirilir. Yapilandirilmis saglayicilariniz ve modelleri yenileme sonrasinda asagida gorunur."
     }
   },
   "mcpPage": {

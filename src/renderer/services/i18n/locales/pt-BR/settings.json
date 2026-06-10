@@ -1940,6 +1940,10 @@
       "badgeFlagship": "topo de linha",
       "badgePreview": "prévia",
       "badgeLegacy": "legado"
+    },
+    "headless": {
+      "title": "Os provedores sao configurados no servidor",
+      "body": "Esta e uma sessao remota, entao as chaves nao podem ser inseridas aqui. Os provedores sao configurados por variaveis de ambiente ou `wayland setup` no servidor. Seus provedores configurados e seus modelos aparecem abaixo apos a atualizacao."
     }
   },
   "mcpPage": {

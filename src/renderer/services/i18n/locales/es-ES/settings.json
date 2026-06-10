@@ -1940,6 +1940,10 @@
       "badgeFlagship": "insignia",
       "badgePreview": "vista previa",
       "badgeLegacy": "heredado"
+    },
+    "headless": {
+      "title": "Los proveedores se configuran en el servidor",
+      "body": "Esta es una sesion remota, por lo que las claves no se pueden introducir aqui. Los proveedores se configuran mediante variables de entorno o `wayland setup` en el servidor. Tus proveedores configurados y sus modelos apareceran abajo tras actualizar."
     }
   },
   "mcpPage": {

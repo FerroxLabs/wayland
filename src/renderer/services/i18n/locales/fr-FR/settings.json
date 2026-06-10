@@ -1940,6 +1940,10 @@
       "badgeFlagship": "phare",
       "badgePreview": "préversion",
       "badgeLegacy": "ancien"
+    },
+    "headless": {
+      "title": "Les fournisseurs sont configures sur le serveur",
+      "body": "Ceci est une session distante, les cles ne peuvent donc pas etre saisies ici. Les fournisseurs sont configures via des variables d'environnement ou `wayland setup` sur le serveur. Vos fournisseurs configures et leurs modeles apparaissent ci-dessous apres actualisation."
     }
   },
   "mcpPage": {
