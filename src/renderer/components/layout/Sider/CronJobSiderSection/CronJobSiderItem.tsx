@@ -298,7 +298,7 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
       {/* Header - arrow toggles expand, text navigates to detail */}
       <div
         className={classNames(
-          'flex items-center gap-8px h-32px px-8px rd-8px transition-colors min-w-0',
+          'flex items-center gap-8px h-28px px-8px rd-8px transition-colors min-w-0',
           pathname === `/scheduled/${job.id}` ? 'bg-[rgba(var(--primary-6),0.12)]' : 'hover:bg-fill-3 active:bg-fill-4'
         )}
       >

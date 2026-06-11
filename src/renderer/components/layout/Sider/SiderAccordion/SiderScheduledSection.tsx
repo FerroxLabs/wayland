@@ -48,12 +48,12 @@ export const SiderScheduledSection: React.FC<SiderScheduledSectionProps> = ({ co
     return (
       <button
         type='button'
-        className='w-full h-32px flex items-center justify-center rd-7px bg-transparent border-none cursor-pointer hover:bg-fill-2 text-text-2 hover:text-text-1 relative'
+        className='w-full h-28px flex items-center justify-center rd-7px bg-transparent border-none cursor-pointer hover:bg-fill-2 text-text-2 hover:text-text-1 relative'
         onClick={() => onNavigate('/scheduled')}
         aria-label={t('sider.accordion.scheduled')}
         title={t('sider.accordion.scheduled')}
       >
-        <Clock size={18} />
+        <Clock size={16} />
         <span className='absolute top-6px right-6px w-6px h-6px rounded-full bg-fill-3' aria-hidden />
       </button>
     );

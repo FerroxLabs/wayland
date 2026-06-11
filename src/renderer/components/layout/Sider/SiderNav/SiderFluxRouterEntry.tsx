@@ -190,13 +190,13 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
       <Tooltip {...siderTooltipProps} content={tooltipContent} position='right'>
         <div
           className={classNames(
-            'w-full h-32px flex items-center justify-center cursor-pointer transition-colors rd-8px text-t-primary relative',
+            'w-full h-28px flex items-center justify-center cursor-pointer transition-colors rd-8px text-t-primary relative',
             'hover:bg-fill-3 active:bg-fill-4'
           )}
           onClick={handleClick}
           data-testid='sider-flux-router-entry'
         >
-          <FluxRouterMark size={18} color='currentColor' className='block leading-none shrink-0' />
+          <FluxRouterMark size={16} color='currentColor' className='block leading-none shrink-0' />
           <span
             style={{
               position: 'absolute',
@@ -230,7 +230,7 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
         onClick={handleClick}
         data-testid='sider-flux-router-entry'
       >
-        <FluxRouterMark size={18} color='currentColor' className='block leading-none shrink-0' />
+        <FluxRouterMark size={16} color='currentColor' className='block leading-none shrink-0' />
         <span className='collapsed-hidden text-t-secondary text-13px leading-20px'>{action} →</span>
       </div>
     );

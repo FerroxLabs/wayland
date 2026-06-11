@@ -65,7 +65,7 @@
 .topZone {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   padding: 0 8px 4px 8px;
   border-bottom: 1px solid var(--color-border-1);
   margin-bottom: 4px;

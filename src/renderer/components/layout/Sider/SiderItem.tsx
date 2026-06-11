@@ -55,7 +55,7 @@ const SiderItem: React.FC<SiderItemProps> = ({
     >
       <div
         className={classNames(
-          'h-32px rd-8px flex items-center gap-8px px-8px cursor-pointer relative overflow-hidden shrink-0 group min-w-0 transition-colors',
+          'h-28px rd-8px flex items-center gap-8px px-8px cursor-pointer relative overflow-hidden shrink-0 group min-w-0 transition-colors',
           {
             'hover:bg-[rgba(var(--primary-6),0.14)]': true,
           }

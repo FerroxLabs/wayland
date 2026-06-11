@@ -112,14 +112,14 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({
       <Tooltip {...siderTooltipProps} content={label} position='right'>
         <div
           className={classNames(
-            'w-full h-32px flex items-center justify-center cursor-pointer transition-colors rd-8px text-t-primary relative',
+            'w-full h-28px flex items-center justify-center cursor-pointer transition-colors rd-8px text-t-primary relative',
             isActive ? 'bg-[rgba(var(--primary-6),0.12)] text-primary' : 'hover:bg-fill-3 active:bg-fill-4'
           )}
           onClick={toggleExpanded}
           data-testid='sider-memory-entry'
         >
           <Brain
-            size={18}
+            size={16}
             className='block leading-none shrink-0'
             style={{ lineHeight: 0 }}
           />
@@ -147,7 +147,7 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({
       {/* Parent row */}
       <div
         className={classNames(
-          'box-border h-32px w-full flex items-center justify-start gap-8px px-8px rd-0.5rem cursor-pointer shrink-0 transition-all text-t-primary',
+          'box-border h-28px w-full flex items-center justify-start gap-8px px-8px rd-0.5rem cursor-pointer shrink-0 transition-all text-t-primary',
           isMobile && 'sider-action-btn-mobile',
           isOnMemoryOrWiki && !isArchiveActive && !isWikiActive
             ? 'bg-[rgba(var(--primary-6),0.12)] text-primary'
@@ -158,7 +158,7 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({
         aria-expanded={expanded}
       >
         <span className='w-20px h-20px flex items-center justify-center shrink-0 relative'>
-          <Brain size={18} className='block leading-none' style={{ lineHeight: 0 }} />
+          <Brain size={16} className='block leading-none' style={{ lineHeight: 0 }} />
           {orphanCount > 0 && (
             <span
               style={{
