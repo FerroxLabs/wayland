@@ -447,6 +447,12 @@
     line-height: 24px !important;
   }
 
+  /* Lift the composer above the phone home indicator / gesture bar. No-op on
+     devices without a safe-area inset (resolves to 0px). */
+  .sendbox-panel {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   .speech-input-feedback {
     grid-template-columns: clamp(56px, 20vw, 92px) auto;
     gap: 8px;
