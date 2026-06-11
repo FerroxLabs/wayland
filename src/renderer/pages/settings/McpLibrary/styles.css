@@ -156,6 +156,15 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
+
+/* Phones: collapse the fixed-count grids to a single column so they don't
+   overflow a ~411px viewport. */
+@media (max-width: 767px) {
+  .mcp-rec-grid,
+  .mcp-status-strip {
+    grid-template-columns: 1fr;
+  }
+}
 .mcp-rec-card-wrap {
   position: relative;
 }

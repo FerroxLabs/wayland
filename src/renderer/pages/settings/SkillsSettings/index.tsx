@@ -8,6 +8,7 @@ import { Button, Input, Switch } from '@arco-design/web-react';
 import { Download, Sparkles } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useSearchParams } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import { ipcBridge } from '@/common';
@@ -23,6 +24,7 @@ import './SkillsSettings.module.css';
 
 const SkillsSettings: React.FC = () => {
   const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
+  const isMobile = useLayoutContext()?.isMobile ?? false;
 
   const [entries, setEntries] = useState<SkillIndexEntry[]>([]);
   const [stats, setStats] = useState<SkillStats | null>(null);
@@ -180,12 +182,12 @@ const SkillsSettings: React.FC = () => {
         </div>
       ) : null}
 
-      <div className='flex items-center gap-10px'>
+      <div className='flex items-center gap-10px flex-wrap'>
         <Input.Search
           placeholder={t('search.placeholder')}
           value={query}
           onChange={(v) => setQuery(v)}
-          style={{ flex: 1, maxWidth: 'unset' }}
+          style={isMobile ? { flex: '1 1 100%', maxWidth: 'unset' } : { flex: 1, maxWidth: 'unset' }}
           allowClear
         />
         <Button
@@ -254,7 +256,7 @@ const SkillsSettings: React.FC = () => {
       />
 
       <div
-        className='skills-shell rd-12px overflow-hidden flex'
+        className={isMobile ? 'skills-shell rd-12px overflow-hidden flex flex-col' : 'skills-shell rd-12px overflow-hidden flex'}
         style={{
           background: 'var(--color-bg-2)',
           border: '1px solid var(--color-border-2)',

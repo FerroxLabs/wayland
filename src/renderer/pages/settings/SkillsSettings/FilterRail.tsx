@@ -6,6 +6,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import type { SkillIndexEntry, SkillSource, SkillVerdict } from '@/common/types/skillTypes';
 import { SOURCE_LABEL } from './SkillRow';
 import { toDisplayName } from './displayName';
@@ -47,6 +48,7 @@ const FilterRail: React.FC<Props> = ({
   onCategoriesChange,
 }) => {
   const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
+  const isMobile = useLayoutContext()?.isMobile ?? false;
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   // Counts per source / verdict / category, computed once per entries change.
@@ -82,8 +84,8 @@ const FilterRail: React.FC<Props> = ({
 
   return (
     <div
-      className='flex flex-col gap-18px py-16px px-14px shrink-0'
-      style={{ width: 200, borderRight: '1px solid var(--color-border-1)' }}
+      className={isMobile ? 'flex flex-col gap-18px py-16px px-14px w-full' : 'flex flex-col gap-18px py-16px px-14px shrink-0'}
+      style={isMobile ? { borderBottom: '1px solid var(--color-border-1)' } : { width: 200, borderRight: '1px solid var(--color-border-1)' }}
     >
       {/* SOURCES */}
       <FilterGroup label={t('sections.sources', 'Sources')}>

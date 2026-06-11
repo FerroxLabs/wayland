@@ -162,6 +162,10 @@
   .layout-sider {
     /* Fixed positioning from top */
     top: 0 !important;
+    /* Floating drawer: drop the hard right-edge seam for a soft shadow so it
+       reads as an overlay above the content, not a split pane. */
+    border-right: none !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.32) !important;
     /* dvh automatically accounts for browser chrome on mobile */
     height: 100vh !important;
     height: 100dvh !important;

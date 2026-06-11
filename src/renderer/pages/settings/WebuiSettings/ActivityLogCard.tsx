@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Spin } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { webui } from '@/common/adapter/ipcBridge';
+import { invokeWithTimeout } from '@/renderer/utils/invokeWithTimeout';
 
 type ActivityEvent = {
   id: string;
@@ -40,7 +41,8 @@ const ActivityLogCard: React.FC = () => {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await webui.activityLog.invoke({});
+      // Race a timeout so the card clears even if the web bridge never returns.
+      const result = await invokeWithTimeout(webui.activityLog.invoke({}), 3000, { success: false as const });
       if (result.success && result.data) {
         setEvents(result.data.events as ActivityEvent[]);
       }

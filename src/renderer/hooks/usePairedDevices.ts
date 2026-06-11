@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { webui } from '@/common/adapter/ipcBridge';
+import { invokeWithTimeout } from '@/renderer/utils/invokeWithTimeout';
 
 type PairedDevice = {
   id: string;
@@ -24,7 +25,11 @@ export function usePairedDevices(): UsePairedDevicesResult {
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await webui.listPairedDevices.invoke();
+      // Race a timeout so the card clears its spinner even if the web bridge
+      // never round-trips (headless / phone session).
+      const result = await invokeWithTimeout(webui.listPairedDevices.invoke(), 3000, {
+        success: false as const,
+      });
       if (result.success && result.data) {
         setDevices(result.data.devices);
       }

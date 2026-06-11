@@ -9,6 +9,12 @@
     -ms-overflow-style: none;
     padding-bottom: 10px;
     margin-bottom: 12px;
+    /* Snap + a right-edge fade so the last pill never reads as truncated and it
+       signals "scroll for more". */
+    scroll-padding-inline: 16px;
+    scroll-snap-type: x proximity;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
   }
 
   .settings-mobile-top-nav::-webkit-scrollbar {
@@ -16,6 +22,7 @@
   }
 
   .settings-mobile-top-nav__item {
+    scroll-snap-align: start;
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
@@ -46,5 +53,27 @@
   .settings-mobile-top-nav__label {
     white-space: nowrap;
     font-weight: 500;
+  }
+}
+
+/* Stack Arco horizontal Form rows (label above control) on phones so short
+   labels stop gluing to their control and long labels stop wrapping vertically.
+   Applied to forms tagged `wayland-stack-form-mobile`. */
+@media (max-width: 767px) {
+  .wayland-stack-form-mobile .arco-form-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wayland-stack-form-mobile .arco-form-label-item {
+    width: 100% !important;
+    flex: none !important;
+    text-align: left !important;
+    margin-bottom: 4px;
+  }
+
+  .wayland-stack-form-mobile .arco-form-item-wrapper {
+    width: 100% !important;
+    flex: none !important;
   }
 }

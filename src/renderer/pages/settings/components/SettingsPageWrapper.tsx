@@ -169,7 +169,7 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
 
 const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, className, contentClassName }) => {
   const layout = useLayoutContext();
-  const isMobile = layout?.isMobile ?? false;
+  const isMobile = (layout?.isMobile ?? false) || (typeof window !== 'undefined' && window.innerWidth < 768);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -257,7 +257,10 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
     className
   );
 
-  const contentClass = classNames('settings-page-content mx-auto w-full', contentClassName || 'md:max-w-[1120px]');
+  const contentClass = classNames(
+    'settings-page-content w-full',
+    isMobile ? 'max-w-full' : classNames('mx-auto', contentClassName || 'md:max-w-[1120px]')
+  );
 
   return (
     <SettingsViewModeProvider value='page'>

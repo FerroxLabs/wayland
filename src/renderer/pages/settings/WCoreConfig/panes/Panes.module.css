@@ -85,6 +85,11 @@
   gap: 12px;
   margin-bottom: 28px;
 }
+@media (max-width: 767px) {
+  .statusStrip {
+    grid-template-columns: 1fr;
+  }
+}
 .statusCard {
   border: 1px solid var(--wc-hairline);
   border-radius: var(--wc-r-md);

@@ -53,7 +53,16 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
 
   return (
     <div className='shrink-0 sider-footer mt-auto pt-4px pb-8px'>
-      <div className={classNames('flex', collapsed ? 'flex-col gap-2px' : 'items-center gap-2px')}>
+      <div
+        className={classNames(
+          'flex',
+          collapsed ? 'flex-col gap-2px' : 'items-center gap-2px',
+          // On a phone the single row (Settings + Logout + 3 action icons) runs
+          // out of width and truncates "Settings" to "Setti...". Stack so each
+          // item gets the full drawer width.
+          isMobile && !collapsed && '!flex-col !items-stretch'
+        )}
+      >
         <Tooltip {...siderTooltipProps} content={isSettings ? t('common.back') : t('common.settings')} position='right'>
           <div
             onClick={onSettingsClick}

@@ -311,7 +311,7 @@ export const TextToSpeechSettingsSection: React.FC<{
 
       <Divider className='mt-0px mb-20px' />
 
-      <Form layout='horizontal' labelAlign='left' className='space-y-12px'>
+      <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.textToSpeechProvider')}>
           <div className='flex items-center gap-8px'>
             <WaylandSelect value={config.provider} onChange={handleProviderChange} className='flex-1'>
@@ -486,7 +486,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 
       <Divider className='mt-0px mb-20px' />
 
-      <Form layout='horizontal' labelAlign='left' className='space-y-12px'>
+      <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.speechToTextProvider')}>
           <WaylandSelect value={config.provider} onChange={handleProviderChange}>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>
@@ -504,8 +504,8 @@ export const SpeechToTextSettingsSection: React.FC<{
         {config.provider === 'openai' ? (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>
-              <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex items-center justify-between gap-12px'>
-                <div>
+              <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
+                <div className='min-w-0'>
                   <div className='text-13px font-medium text-t-primary'>
                     {t('settings.voiceProviderKeyDeferTitle', 'Configure your OpenAI key in Providers')}
                   </div>
@@ -516,7 +516,7 @@ export const SpeechToTextSettingsSection: React.FC<{
                     )}
                   </div>
                 </div>
-                <Button size='small' className='' onClick={handleOpenProvidersPage}>
+                <Button size='small' className='w-full sm:w-auto shrink-0' onClick={handleOpenProvidersPage}>
                   {t('settings.voiceProviderKeyDeferCTA', 'Open Providers →')}
                 </Button>
               </div>
@@ -903,7 +903,7 @@ const ToolsModalContent: React.FC = () => {
 
             <Divider className='mt-0px mb-20px' />
 
-            <Form layout='horizontal' labelAlign='left' className='space-y-12px'>
+            <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
               <Form.Item label={t('settings.imageGenerationModel')}>
                 {imageGenerationModelList.length > 0 ? (
                   <WaylandSelect

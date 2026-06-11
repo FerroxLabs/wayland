@@ -80,10 +80,8 @@ const DESKTOP_COLLAPSED_WIDTH = 64;
 const NARROW_RAIL_MAX_WIDTH = 1024;
 const SIDER_DRAG_SNAP_THRESHOLD = Math.round((DEFAULT_SIDER_WIDTH + DESKTOP_COLLAPSED_WIDTH) / 2);
 const SIDER_DRAG_HYSTERESIS = 6;
-// Overlay drawer width. Kept compact (Claude-style ~290px) rather than a big
-// fraction of the viewport - on a narrow desktop window 0.67*width ran ~420px,
-// which read as airy and oversized. A phone still gets a usable >=256px drawer.
-const MOBILE_SIDER_WIDTH_RATIO = 0.78;
+// Overlay drawer width. Kept compact (Claude-style ~300px) and always leaving a
+// content peek on the right so it reads as a floating drawer, not a split pane.
 const MOBILE_SIDER_MIN_WIDTH = 256;
 const MOBILE_SIDER_MAX_WIDTH = 300;
 
@@ -464,10 +462,9 @@ const Layout: React.FC<{
   }, [navigate]);
 
   const siderWidth = isMobile
-    ? Math.max(
-        MOBILE_SIDER_MIN_WIDTH,
-        Math.min(MOBILE_SIDER_MAX_WIDTH, Math.round(viewportWidth * MOBILE_SIDER_WIDTH_RATIO))
-      )
+    ? // Floating drawer: cap at 300px but always leave a >=56px content peek on
+      // the right so it reads as an overlay, not a full split-pane wall.
+      Math.max(MOBILE_SIDER_MIN_WIDTH, Math.min(MOBILE_SIDER_MAX_WIDTH, viewportWidth - 56))
     : DEFAULT_SIDER_WIDTH;
   useEffect(() => {
     collapsedRef.current = collapsed;
@@ -563,7 +560,7 @@ const Layout: React.FC<{
           <Titlebar workspaceAvailable={workspaceAvailable} />
           {/* Mobile left sider backdrop */}
           {isMobile && !collapsed && (
-            <div className='fixed inset-0 bg-black/30 z-90' onClick={() => setCollapsed(true)} aria-hidden='true' />
+            <div className='fixed inset-0 bg-black/50 z-90' onClick={() => setCollapsed(true)} aria-hidden='true' />
           )}
 
           <ArcoLayout className={'size-full layout flex-1 min-h-0'}>
