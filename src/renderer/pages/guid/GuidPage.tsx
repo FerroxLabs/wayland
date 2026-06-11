@@ -9,7 +9,7 @@ import { ipcBridge } from '@/common';
 import { resolveLocaleKey } from '@/common/utils';
 
 import { useInputFocusRing } from '@/renderer/hooks/chat/useInputFocusRing';
-import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
+import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { isImageAvatar } from '@/renderer/utils/avatar';
 import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
 import { useConversationTabs } from '@/renderer/pages/conversation/hooks/ConversationTabsContext';
@@ -17,6 +17,7 @@ import { CUSTOM_AVATAR_IMAGE_MAP } from './constants';
 import AssistantIconTile, { categoryToPaletteKey, type PaletteKey } from './components/AssistantIconTile';
 import AssistantSelectionArea from './components/AssistantSelectionArea';
 import Greeting from './components/newChatStarter/Greeting';
+import NoModelCtaCard from './components/newChatStarter/NoModelCtaCard';
 import KickoffCard from './components/newChatStarter/KickoffCard';
 import IntentPillBar from './components/newChatStarter/IntentPillBar';
 import IntentSuggestionPanel from './components/newChatStarter/IntentSuggestionPanel';
@@ -69,6 +70,12 @@ const GuidPage: React.FC = () => {
 
   const localeKey = resolveLocaleKey(i18n.language);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
+  // #52: when running as the headless web server (remote), the Models page is
+  // read-only, so the no-model CTA guides to Flux / server-side config rather
+  // than local key entry. Reuses the app's existing desktop-vs-web detection
+  // (isElectronDesktop) - the same flag GuidActionRow uses for `isWebUI`.
+  const isWebServer = !isElectronDesktop();
 
   // W3 (v0.6.2) - discoverability HomeHintBar visibility counter. Persisted in
   // localStorage so it auto-hides after the user's 5th chat across sessions.
@@ -863,6 +870,7 @@ const GuidPage: React.FC = () => {
       hidePresetTag
       loading={guidInput.loading}
       isButtonDisabled={send.isButtonDisabled}
+      noModelConfigured={send.noModelConfigured}
       speechInputNode={
         <SpeechInputButton variant='prominent' locale={i18n.language} onTranscript={handleSpeechTranscript} />
       }
@@ -1073,6 +1081,16 @@ const GuidPage: React.FC = () => {
           ) : null}
 
           {!showPresetHero ? <Greeting displayName={greetingDisplayName} /> : null}
+
+          {/* #52: persistent inline CTA when no usable model is configured
+              (fresh install, or a cloud install where onboarding was skipped).
+              Sits below the greeting and above the composer. The same predicate
+              drives the disabled Send button so they never diverge. On the
+              headless web server the Models page is read-only, so the copy
+              points at Flux / server-side config (isWebServer branch). */}
+          {send.noModelConfigured ? (
+            <NoModelCtaCard isRemote={isWebServer} onSetup={() => navigate('/settings/models')} />
+          ) : null}
 
           <GuidInputCard
             input={guidInput.input}

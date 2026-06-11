@@ -94,6 +94,15 @@ export type GuidSendResult = {
    */
   sendMessageHandler: (opts?: { onSent?: () => void }) => void;
   isButtonDisabled: boolean;
+  /**
+   * True when no usable model is configured for the current agent. This is the
+   * exact predicate the send handler uses to reject a send with the
+   * `conversation.noModelConfigured` warning (Gemini works with a connected
+   * Google account, so `isGoogleAuth` counts as usable). Shared so the
+   * new-chat CTA card and the disabled Send button stay in lockstep with the
+   * send-time validation instead of duplicating the check.
+   */
+  noModelConfigured: boolean;
 };
 
 /**
@@ -561,10 +570,18 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     setDir,
   ]);
 
+  // No usable model configured. Mirrors the send-time validation: every send
+  // path rejects with `conversation.noModelConfigured` when `currentModel` is
+  // missing, except the Gemini path which also accepts a connected Google
+  // account (`isGoogleAuth`). Drives both the new-chat CTA card and the
+  // disabled Send button so they never diverge from the actual gate.
+  const noModelConfigured = !currentModel && !isGoogleAuth;
+
   // Calculate button disabled state
   const isButtonDisabled =
     loading ||
     !input.trim() ||
+    noModelConfigured ||
     ((((!selectedAgent || selectedAgent === 'gemini') && !isPresetAgent) ||
       (isPresetAgent && currentEffectiveAgentInfo.agentType === 'gemini' && currentEffectiveAgentInfo.isAvailable)) &&
       !currentModel &&
@@ -574,5 +591,6 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     handleSend,
     sendMessageHandler,
     isButtonDisabled,
+    noModelConfigured,
   };
 };

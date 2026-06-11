@@ -60,6 +60,11 @@ type GuidActionRowProps = {
   // Send button
   loading: boolean;
   isButtonDisabled: boolean;
+  /**
+   * No usable model is configured. When true the Send button is disabled and a
+   * tooltip explains why; the user can still type and explore.
+   */
+  noModelConfigured: boolean;
   speechInputNode?: React.ReactNode;
   onSend: () => void;
 };
@@ -90,6 +95,7 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
   hidePresetTag = false,
   loading,
   isButtonDisabled,
+  noModelConfigured,
   speechInputNode,
   onSend,
 }) => {
@@ -311,19 +317,29 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
       </div>
       <div className={styles.actionSubmit}>
         {speechInputNode}
-        <Button
-          shape='circle'
-          type='primary'
-          loading={loading}
-          disabled={isButtonDisabled}
-          className='send-button-custom'
-          style={{
-            backgroundColor: isButtonDisabled ? undefined : '#000000',
-            borderColor: isButtonDisabled ? undefined : '#000000',
-          }}
-          icon={<ArrowUp size={14} color='white' strokeWidth={5} />}
-          onClick={onSend}
-        />
+        <Tooltip
+          content={noModelConfigured ? t('conversation.noModelCta.sendTooltip') : undefined}
+          disabled={!noModelConfigured}
+        >
+          {/* The span receives hover even while the Button is disabled
+              (Arco sets pointer-events:none on a disabled button), so the
+              no-model tooltip still surfaces. */}
+          <span className='inline-flex'>
+            <Button
+              shape='circle'
+              type='primary'
+              loading={loading}
+              disabled={isButtonDisabled}
+              className='send-button-custom'
+              style={{
+                backgroundColor: isButtonDisabled ? undefined : '#000000',
+                borderColor: isButtonDisabled ? undefined : '#000000',
+              }}
+              icon={<ArrowUp size={14} color='white' strokeWidth={5} />}
+              onClick={onSend}
+            />
+          </span>
+        </Tooltip>
       </div>
     </div>
   );
