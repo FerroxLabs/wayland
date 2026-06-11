@@ -69,7 +69,7 @@ import { CatalogAssembler, MODELS_DEV_PROVIDER_KEY } from '../catalog/CatalogAss
 import { Curator } from '../catalog/Curator';
 import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/providerCatalogStore';
 import type { CatalogProviderEntry } from '../catalog/catalogProvider';
-import { FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
 import { injectFluxVirtualModels } from '../catalog/fluxVirtualModels';
 import { ConnectionTester } from '../detection/ConnectionTester';
 import { KeyDiscovery } from '../detection/KeyDiscovery';
@@ -1295,8 +1295,15 @@ export function mergeSpawnSecrets<T extends TProviderWithModel>(model: T, secret
  * each get their own key with no shared global state in this path.
  */
 export async function hydrateModelForSpawn<T extends TProviderWithModel>(model: T): Promise<T> {
+  // Flux bindings mirror into legacy model.config with a generated uuid id, not
+  // the registry providerId, so a providerId=model.id lookup misses and the Flux
+  // base URL (https://api.fluxrouter.ai/v1) is never applied. The engine then
+  // falls back to api.openai.com with the Flux key + an unknown model and the
+  // turn hangs with no response. Resolve Flux by its canonical provider id so
+  // the registry supplies the correct base URL and key. See the flux-auto bug.
+  const providerId = isFluxModelId(model.useModel) ? FLUX_PROVIDER_ID : model.id;
   const secrets = await resolveModelSecretsForSpawn({
-    providerId: model.id,
+    providerId,
     accountId: model.accountId ?? DEFAULT_ACCOUNT_ID,
     modelId: model.useModel,
   });
