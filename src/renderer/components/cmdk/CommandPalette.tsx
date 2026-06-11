@@ -86,7 +86,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
   onFillPrompt,
 }) => {
   const { t } = useTranslation();
-  const { assistants, recents, prompts, actions } = useCommandPaletteSources();
+  const { assistants, recents, prompts, actions = [] } = useCommandPaletteSources();
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Maps for O(1) lookup in the unified selection handler. Recomputed only
@@ -111,7 +111,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   const actionById = useMemo(() => {
     const m = new Map<string, PaletteAction>();
-    for (const a of actions) m.set(a.id, a);
+    for (const a of actions ?? []) m.set(a.id, a);
     return m;
   }, [actions]);
 
