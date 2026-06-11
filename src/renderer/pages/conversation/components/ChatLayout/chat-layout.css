@@ -46,6 +46,31 @@
   }
 }
 
+/* Header model selector: a quiet ghost pill that only reveals its surface on
+   hover (Claude-style), instead of Arco's default bordered secondary button.
+   Keeps a transparent 1px border so the box never shifts on hover. */
+.header-model-btn,
+.header-model-btn:focus,
+.header-model-btn:focus-visible {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  color: var(--text-secondary) !important;
+  font-size: 13px !important;
+  height: 30px !important;
+  border-radius: 9999px !important;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease !important;
+}
+
+.header-model-btn:hover,
+.header-model-btn:active {
+  background: var(--color-fill-2) !important;
+  border-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
 /* Workspace open button dropdown styles */
 .workspace-open-dropdown {
   background-color: var(--color-bg-2);

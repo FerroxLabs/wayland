@@ -42,11 +42,10 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
         className={`flex items-center ${isMobile ? 'justify-start' : 'justify-center'}`}
         style={{
           marginBottom: 20,
-          padding: '6px',
-          borderRadius: '30px',
+          padding: '5px 8px',
+          borderRadius: '9999px',
           backgroundColor: 'var(--color-fill-2)',
-          border: '1px solid var(--color-border-2)',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+          border: '1px solid var(--color-border-1)',
           transition: 'background-color 0.35s ease',
           width: isMobile ? '100%' : 'fit-content',
           maxWidth: '100%',
@@ -57,14 +56,14 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
           overflowY: 'hidden',
           scrollSnapType: isMobile ? 'x proximity' : undefined,
           WebkitOverflowScrolling: 'touch',
-          gap: isMobile ? 6 : 4,
+          gap: isMobile ? 6 : 2,
           flexWrap: 'nowrap',
           color: 'var(--text-primary)',
         }}
       >
         {availableAgents
           .filter((agent) => !agent.isPreset)
-          .map((agent, index) => {
+          .map((agent) => {
             const isSelected = selectedAgentKey === getAgentKey(agent);
             const LucideIconComponent = getLucideIcon(agent.avatar);
             const extensionAvatar = LucideIconComponent
@@ -87,7 +86,6 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
 
             return (
               <React.Fragment key={getAgentKey(agent)}>
-                {!isMobile && index > 0 && <div className='text-16px lh-1 p-2px select-none opacity-30'>|</div>}
                 <div
                   data-agent-pill='true'
                   data-agent-key={getAgentKey(agent)}
@@ -137,7 +135,7 @@ const AgentPillBar: React.FC<AgentPillBarProps> = ({
               </React.Fragment>
             );
           })}
-        {!isMobile && <div className='text-16px lh-1 p-2px select-none opacity-30'>|</div>}
+        <div className='w-1px h-16px mx-4px self-center' style={{ backgroundColor: 'var(--color-border-2)', opacity: 0.5 }} />
         <Tooltip content={t('settings.agentManagement.discoverMoreAgents', { defaultValue: 'Discover more agents' })}>
           <div
             className='flex items-center justify-center cursor-pointer p-4px opacity-60 hover:opacity-100 self-center'
