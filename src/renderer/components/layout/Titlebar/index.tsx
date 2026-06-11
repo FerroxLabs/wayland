@@ -4,8 +4,6 @@ import {
   ArrowLeftCircle,
   ChevronLeft,
   ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
   Plus,
@@ -322,15 +320,9 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
             onClick={handleSiderToggle}
             aria-label={siderTooltip}
           >
-            {layout?.isMobile ? (
-              layout?.siderCollapsed ? (
-                <PanelLeftOpen size={iconSize} />
-              ) : (
-                <PanelLeftClose size={iconSize} />
-              )
-            ) : (
-              <SidebarIcon size={iconSize} strokeWidth={desktopIconStroke} />
-            )}
+            {/* Same sidebar glyph + size at every width - the toggle should not
+                swap icon or grow on a narrow window. */}
+            <SidebarIcon size={18} strokeWidth={2.5} />
           </button>
         )}
         {showHistoryNav && (
