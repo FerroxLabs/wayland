@@ -138,7 +138,7 @@ const XGrokButton: React.FC = () => {
   return (
     <div className='w-full flex flex-col gap-8px'>
       {showConnected ? (
-        <div className='w-full flex items-center gap-8px min-h-40px px-14px py-6px rd-2px bg-[var(--color-fill-2)] border border-[var(--color-border-2)] text-14px text-[var(--color-text-2)]'>
+        <div className='w-full box-border flex items-center gap-8px min-h-40px px-14px py-6px rd-2px bg-[var(--color-fill-2)] border border-[var(--color-border-2)] text-14px text-[var(--color-text-2)]'>
           <XMark />
           <span className='whitespace-nowrap'>{t('settings.modelsPage.connect.xaiConnected')}</span>
           <Check size={15} className='shrink-0 text-[var(--color-success-6,#00b42a)]' aria-hidden='true' />
@@ -153,7 +153,7 @@ const XGrokButton: React.FC = () => {
         </Button>
       )}
       {awaitingCode && (
-        <div className='flex flex-col gap-8px p-10px rd-8px bg-[var(--color-fill-2)] border border-[var(--color-border-2)]'>
+        <div className='box-border flex flex-col gap-8px p-10px rd-8px bg-[var(--color-fill-2)] border border-[var(--color-border-2)]'>
           <div className='flex items-center gap-8px text-12px leading-18px text-[var(--color-text-2)]'>
             <Spin size={14} />
             <span>
