@@ -3,7 +3,7 @@
    `var(--color-text-2)` (WCAG AA ≥ 4.5:1). */
 
 .modal {
-  width: 560px;
+  width: min(620px, 94vw);
 }
 
 /* Arco's default modal body padding is removed so the search bar and the
@@ -61,6 +61,101 @@
   line-height: 1.5;
 }
 
+/* ---- Featured Flux Router card (hero, top of the grid) ----
+   Compact in-modal mirror of FluxRouterHero: single orange accent via
+   `var(--brand)`, all semantic tokens. */
+.featured {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  text-align: left;
+  height: auto;
+  background: var(--color-bg-2);
+  border: 1px solid var(--brand-soft-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  background-image: linear-gradient(135deg, var(--brand-soft-bg) 0%, transparent 60%);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.featured:hover {
+  border-color: var(--brand);
+}
+
+.featured:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.featured :global(.arco-btn-content) {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+}
+
+.featuredGlyph {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #141414;
+}
+
+.featuredText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.featuredTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.featuredName {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-1);
+}
+
+.featuredTag {
+  display: inline-block;
+  background: var(--brand);
+  color: var(--text-white);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.featuredSub {
+  font-size: 12px;
+  color: var(--color-text-2);
+  line-height: 1.4;
+  margin-top: 3px;
+  white-space: normal;
+}
+
+.featuredConnected {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* ---- Group label ---- */
 .groupLabel {
   font-size: 10.5px;
@@ -74,7 +169,7 @@
 /* ---- Provider grid ---- */
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 8px;
 }
 
@@ -137,6 +232,10 @@
   font-weight: 600;
   color: var(--color-text-1);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .tileSub {

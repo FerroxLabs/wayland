@@ -1889,6 +1889,7 @@
       "noMatch": "No providers match \"{{query}}\"",
       "back": "All providers",
       "connected": "Connected",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "Connect {{provider}}",
       "cloudTag": "credential form",
       "group": {

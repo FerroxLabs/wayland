@@ -122,7 +122,11 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider }) => 
   const filteredGroups = useMemo(() => {
     const q = query.trim().toLowerCase();
     return PROVIDER_GROUP_ORDER.map((group) => {
-      const items = providersInGroup(group).filter((p) => !q || p.displayName.toLowerCase().includes(q));
+      // Flux Router is rendered as the featured hero at the top of the grid,
+      // so exclude it from the grouped tiles to avoid duplicating / burying it.
+      const items = providersInGroup(group).filter(
+        (p) => p.id !== 'flux-router' && (!q || p.displayName.toLowerCase().includes(q))
+      );
       return { group, items };
     }).filter((g) => g.items.length > 0);
   }, [query]);
@@ -356,6 +360,36 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider }) => 
             />
           </div>
           <div className={styles.body}>
+            {/* Featured Flux Router - Wayland's own first-party router, top and
+                center. Picking it routes to the same single-key connect view as
+                the old flux-router tile (handlePick), so no new connect flow. */}
+            <Button
+              type='text'
+              className={styles.featured}
+              data-provider='flux-router'
+              data-testid='browse-featured-flux'
+              onClick={() => handlePick(providerMeta('flux-router'))}
+              aria-label={t('settings.modelsPage.browse.connectAria', {
+                provider: t('settings.modelsPage.flux.name'),
+              })}
+            >
+              <span className={styles.featuredGlyph} aria-hidden>
+                <FluxRouterMark size={20} />
+              </span>
+              <span className={styles.featuredText}>
+                <span className={styles.featuredTitleRow}>
+                  <span className={styles.featuredName}>{t('settings.modelsPage.flux.name')}</span>
+                  <span className={styles.featuredTag}>{t('settings.modelsPage.flux.recommended')}</span>
+                </span>
+                <span className={styles.featuredSub}>{t('settings.modelsPage.browse.featuredFluxTagline')}</span>
+              </span>
+              {connectedIds.has('flux-router') && (
+                <span className={`${styles.connectedTag} ${styles.featuredConnected}`}>
+                  <Check size={10} aria-hidden='true' />
+                  {t('settings.modelsPage.browse.connected')}
+                </span>
+              )}
+            </Button>
             {filteredGroups.length === 0 && (
               <div className={styles.noMatch}>{t('settings.modelsPage.browse.noMatch', { query: query.trim() })}</div>
             )}

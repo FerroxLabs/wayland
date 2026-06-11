@@ -1871,6 +1871,7 @@
       "noMatch": "Ningún proveedor coincide con «{{query}}»",
       "back": "Todos los proveedores",
       "connected": "Conectado",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "Conectar {{provider}}",
       "cloudTag": "formulario de credenciales",
       "group": {

@@ -1838,6 +1838,7 @@
       "noMatch": "沒有符合「{{query}}」的供應商",
       "back": "所有供應商",
       "connected": "已連接",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "連接 {{provider}}",
       "cloudTag": "憑證表單",
       "group": {

@@ -1836,6 +1836,7 @@
       "noMatch": "“{{query}}” ile eşleşen sağlayıcı yok",
       "back": "Tüm sağlayıcılar",
       "connected": "Bağlı",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "{{provider}} bağla",
       "cloudTag": "kimlik bilgisi formu",
       "group": {

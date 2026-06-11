@@ -1837,6 +1837,7 @@
       "noMatch": "没有匹配 “{{query}}” 的提供商",
       "back": "所有提供商",
       "connected": "已连接",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "连接 {{provider}}",
       "cloudTag": "凭据表单",
       "group": {

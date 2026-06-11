@@ -1838,6 +1838,7 @@
       "noMatch": "“{{query}}”와 일치하는 제공업체가 없습니다",
       "back": "모든 제공업체",
       "connected": "연결됨",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "{{provider}} 연결",
       "cloudTag": "자격 증명 양식",
       "group": {

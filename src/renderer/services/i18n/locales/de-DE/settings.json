@@ -1871,6 +1871,7 @@
       "noMatch": "Keine Anbieter entsprechen „{{query}}“",
       "back": "Alle Anbieter",
       "connected": "Verbunden",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "{{provider}} verbinden",
       "cloudTag": "Anmeldedatenformular",
       "group": {

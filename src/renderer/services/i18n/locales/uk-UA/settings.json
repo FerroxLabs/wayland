@@ -1803,6 +1803,7 @@
       "noMatch": "Немає провайдерів, що відповідають «{{query}}»",
       "back": "Усі провайдери",
       "connected": "Підключено",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "Підключити {{provider}}",
       "cloudTag": "форма облікових даних",
       "group": {

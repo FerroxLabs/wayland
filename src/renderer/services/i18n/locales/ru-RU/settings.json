@@ -1838,6 +1838,7 @@
       "noMatch": "Нет провайдеров, соответствующих «{{query}}»",
       "back": "Все провайдеры",
       "connected": "Подключено",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "Подключить {{provider}}",
       "cloudTag": "форма учётных данных",
       "group": {

@@ -3018,6 +3018,7 @@ export type I18nKey =
   | 'settings.modelsPage.browse.errorUnauthorized'
   | 'settings.modelsPage.browse.errorUnknown'
   | 'settings.modelsPage.browse.errorUnrecognized'
+  | 'settings.modelsPage.browse.featuredFluxTagline'
   | 'settings.modelsPage.browse.group.chinese'
   | 'settings.modelsPage.browse.group.cloud'
   | 'settings.modelsPage.browse.group.frontier'

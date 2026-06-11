@@ -1838,6 +1838,7 @@
       "noMatch": "「{{query}}」に一致するプロバイダーがありません",
       "back": "すべてのプロバイダー",
       "connected": "接続済み",
+      "featuredFluxTagline": "Flux Router - routed per request across 40+ models",
       "connectAria": "{{provider}} に接続",
       "cloudTag": "認証フォーム",
       "group": {
