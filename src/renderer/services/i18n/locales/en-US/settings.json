@@ -101,6 +101,7 @@
   "assistantNoMatch": "No assistants match the current filters.",
   "assistantCreated": "Assistant created",
   "assistantNameRequired": "Name is required",
+  "assistantSaveNoTarget": "No assistant selected to save",
   "assistantPromptRequired": "Prompt is required",
   "assistantPromptHint": "Enter rules for this assistant. Note: Gemini currently only supports rules.",
   "assistantRules": "Rules",

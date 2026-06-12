@@ -12,7 +12,7 @@ import type {
   PendingSkill,
   SkillInfo,
 } from '@/renderer/pages/settings/AssistantSettings/types';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type UseAssistantEditorParams = {
@@ -94,8 +94,14 @@ export const useAssistantEditor = ({
     [localeKey]
   );
 
+  // The assistant currently open in the editor. `activeAssistant` (derived from
+  // the list hook) can be stale or null when editing from a GUID/custom-agent
+  // path before the list catches up; this ref is the reliable save target.
+  const editingAssistantRef = useRef<AssistantListItem | null>(null);
+
   const handleEdit = async (assistant: AssistantListItem) => {
     setIsCreating(false);
+    editingAssistantRef.current = assistant;
     setActiveAssistantId(assistant.id);
     setEditName(assistant.name || '');
     setEditDescription(assistant.description || '');
@@ -305,11 +311,17 @@ export const useAssistantEditor = ({
         await loadAssistants();
         message.success(t('common.createSuccess', { defaultValue: 'Created successfully' }));
       } else {
-        // Update existing assistant
-        if (!activeAssistant) return;
+        // Update existing assistant. Prefer the live list value, but fall back to
+        // the assistant captured when the editor opened so a stale/missing
+        // `activeAssistant` no longer makes Save a silent no-op (#31).
+        const target = activeAssistant ?? editingAssistantRef.current;
+        if (!target) {
+          message.error(t('settings.assistantSaveNoTarget', { defaultValue: 'No assistant selected to save' }));
+          return;
+        }
 
         const updatedAgent: AcpBackendConfig = {
-          ...activeAssistant,
+          ...target,
           name: editName,
           description: editDescription,
           avatar: editAvatar,
@@ -322,13 +334,19 @@ export const useAssistantEditor = ({
         // Save rule file (if changed)
         if (editContext.trim()) {
           await ipcBridge.fs.writeAssistantRule.invoke({
-            assistantId: activeAssistant.id,
+            assistantId: target.id,
             locale: localeKey,
             content: editContext,
           });
         }
 
-        const updatedAgents = agents.map((agent) => (agent.id === activeAssistant.id ? updatedAgent : agent));
+        // Upsert: update in place if present, otherwise append. A custom/GUID
+        // agent that wasn't in the loaded list would otherwise be dropped by a
+        // map() that matches nothing.
+        const exists = agents.some((agent) => agent.id === target.id);
+        const updatedAgents = exists
+          ? agents.map((agent) => (agent.id === target.id ? updatedAgent : agent))
+          : [...agents, updatedAgent];
         await ConfigStorage.set('assistants', updatedAgents);
         await loadAssistants();
         message.success(t('common.saveSuccess', { defaultValue: 'Saved successfully' }));

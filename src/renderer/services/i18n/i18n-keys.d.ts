@@ -2072,6 +2072,7 @@ export type I18nKey =
   | 'settings.assistantRules'
   | 'settings.assistantRulesHint'
   | 'settings.assistantRulesPlaceholder'
+  | 'settings.assistantSaveNoTarget'
   | 'settings.assistantSectionDisabled'
   | 'settings.assistantSectionEnabled'
   | 'settings.assistantSkills'
