@@ -214,7 +214,7 @@ export const useGuidAgentSelection = ({
   // Fetch remote agents from DB and merge into available agents
   const { data: remoteAgentsData } = useSWR('remote-agents.list', () => ipcBridge.remoteAgent.list.invoke());
 
-  useEffect(() => {
+ useEffect(() => {
     if (!availableAgentsData) return;
     const remoteAsAvailable: AvailableAgent[] = (remoteAgentsData || []).map((ra) => ({
       backend: 'remote',
@@ -222,7 +222,23 @@ export const useGuidAgentSelection = ({
       customAgentId: ra.id,
       avatar: ra.avatar,
     }));
-    setAvailableAgents([...availableAgentsData, ...remoteAsAvailable]);
+    const next = [...availableAgentsData, ...remoteAsAvailable];
+    setAvailableAgents((prev) => {
+      if (
+        prev &&
+        prev.length === next.length &&
+        prev.every(
+          (p, i) =>
+            p.backend === next[i].backend &&
+            p.customAgentId === next[i].customAgentId &&
+            p.name === next[i].name &&
+            p.avatar === next[i].avatar
+        )
+      ) {
+        return prev;
+      }
+      return next;
+    });
   }, [availableAgentsData, remoteAgentsData]);
 
   // Track whether the resetAssistant flag has been consumed so it only fires once
