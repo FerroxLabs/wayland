@@ -147,6 +147,11 @@ export function initProjectBridge(): void {
     // payload so the renderer can patch that single row instead of re-listing.
     const count = (await projectService.getProjectConversations(projectId)).length;
     ipcBridge.project.changed.emit({ id: projectId, count });
+    ipcBridge.conversation.listChanged.emit({
+      conversationId,
+      action: 'updated',
+      source: 'project-assignment',
+    });
   });
 
   ipcBridge.project.removeConversation.provider(async ({ conversationId }) => {
@@ -156,6 +161,11 @@ export function initProjectBridge(): void {
     // (unchanged behavior). assignConversation above carries the targeted payload
     // since it already knows the destination projectId (PERF-IPC-01).
     ipcBridge.project.changed.emit(undefined);
+    ipcBridge.conversation.listChanged.emit({
+      conversationId,
+      action: 'updated',
+      source: 'project-assignment',
+    });
   });
 
   ipcBridge.project.readKnowledge.provider(async ({ id }) => {

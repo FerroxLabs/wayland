@@ -38,10 +38,10 @@ export const SiderRecentChatsSection: React.FC<SiderRecentChatsSectionProps> = (
           .then((list) => {
             if (!alive) return;
             if (Array.isArray(list)) {
-              // Match WorkspaceGroupedHistory's visible-set filter: drop health-checks and team-attached.
+              // Match WorkspaceGroupedHistory's visible-set filter: drop health-checks and scoped chats.
               const visible = list.filter((conv) => {
-                const extra = conv.extra as { isHealthCheck?: boolean; teamId?: string } | undefined;
-                return extra?.isHealthCheck !== true && !extra?.teamId;
+                const extra = conv.extra as { isHealthCheck?: boolean; teamId?: string; projectId?: string } | undefined;
+                return extra?.isHealthCheck !== true && !extra?.teamId && !extra?.projectId;
               });
               setCount(visible.length);
             } else {

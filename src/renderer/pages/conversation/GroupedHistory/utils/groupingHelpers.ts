@@ -89,18 +89,18 @@ export const groupConversationsByWorkspace = (
   ];
 };
 
-/** Check whether a conversation belongs to a team (should be hidden from sidebar). */
-const isTeamConversation = (conversation: TChatConversation): boolean => {
-  const extra = conversation.extra as { teamId?: string } | undefined;
-  return Boolean(extra?.teamId);
+/** Check whether a conversation belongs to a scoped surface (should be hidden from global sidebar). */
+const isScopedConversation = (conversation: TChatConversation): boolean => {
+  const extra = conversation.extra as { teamId?: string; projectId?: string } | undefined;
+  return Boolean(extra?.teamId || extra?.projectId);
 };
 
 export const buildGroupedHistory = (
   conversations: TChatConversation[],
   t: (key: string) => string
 ): GroupedHistoryResult => {
-  // Filter out team-owned conversations; they are only visible via the Teams panel
-  const visibleConversations = conversations.filter((conv) => !isTeamConversation(conv));
+  // Filter out scoped conversations; they are only visible via their owning surface.
+  const visibleConversations = conversations.filter((conv) => !isScopedConversation(conv));
 
   const pinnedConversations = visibleConversations
     .filter((conversation) => isConversationPinned(conversation))
