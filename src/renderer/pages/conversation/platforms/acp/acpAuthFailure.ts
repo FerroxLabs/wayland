@@ -140,6 +140,7 @@ function buildRemedy(backend: string, runtimeOverrides?: Partial<AcpAuthRemedy>)
     cliLoginCmd: 'cliLoginCmd' in override ? override.cliLoginCmd : `${backend} login`,
     fluxRoutable: override.fluxRoutable ?? false,
     explainerKey: override.explainerKey,
+    genericProviderKey: override.genericProviderKey,
     ...runtimeOverrides,
   };
   // A backend already routed through Flux cannot be fixed by routing through
