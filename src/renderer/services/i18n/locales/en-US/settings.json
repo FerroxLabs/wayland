@@ -1834,7 +1834,7 @@
       "statusLine": "{{via}} · {{count}} models in catalog · updates automatically",
       "sectionLabel": "This provider's models",
       "sectionExplain": "Recommended models are on by default. Toggle which ones show up in your model pickers, or search this provider's full catalog to enable more.",
-      "sectionExplainFlux": "Flux routes every message to the best-fit model across dozens of frontier and specialist models. Pick a routing tier (Auto, Reasoning, Standard, or Fast), or pin a specific model to use it directly.",
+      "sectionExplainFlux": "The right model for every task, with smart routing and cost optimization — one key, every model. Pick a routing tier and Flux sends each message to the best fit: Auto (smart automatic routing, picks the best model per task), Reasoning (routes to top reasoning models), Standard (balanced quality and cost), or Fast (fast and cheap). Or pin a specific model to use it directly. Start free with a $1 credit, then pay as you go or pick a plan.",
       "searchPlaceholder": "Search this provider's models…",
       "loading": "Loading this provider's catalog…",
       "loadError": "Couldn't load this provider's models. Try again.",
