@@ -165,7 +165,10 @@ test('Install click calls handleAddMcpServer with library source + libraryEntryI
     expect.objectContaining({
       source: 'library',
       libraryEntryId: BRAVE_ENTRY_ID,
-      name: BRAVE_ENTRY_ID,
+      // The catalog id carries a reverse-DNS slash; entryToServerData sanitizes
+      // it to the agent-config-safe form (the slash would fail validateMcpServer).
+      // libraryEntryId keeps the canonical slug for dedup/matching.
+      name: BRAVE_ENTRY_ID.replace(/[^A-Za-z0-9_.-]/g, '-'),
       enabled: false,
       transport: expect.objectContaining({
         type: 'stdio',
