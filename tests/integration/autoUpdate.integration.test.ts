@@ -78,6 +78,15 @@ describe('Auto-Update IPC Bridge Integration', () => {
   beforeEach(async () => {
     vi.resetModules();
     vi.clearAllMocks();
+    // vi.resetModules() drops the platform-services singleton that
+    // vitest.setup.ts registered globally, so the next dynamic import of the
+    // bridge re-runs module-load-time platform calls (AcpDetector ->
+    // initStorage -> getConfigPath -> getPlatformServices) with nothing
+    // registered and throws. Re-register after the reset (same pattern as
+    // tests/unit/fsBridge.skills.test.ts).
+    const { registerPlatformServices } = await import('@/common/platform');
+    const { NodePlatformServices } = await import('@/common/platform/NodePlatformServices');
+    registerPlatformServices(new NodePlatformServices());
   });
 
   afterEach(() => {
