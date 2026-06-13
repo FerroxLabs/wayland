@@ -996,6 +996,7 @@ export type I18nKey =
   | 'mcpLibrary.detail.toolsHeading'
   | 'mcpLibrary.detail.toolsLocked'
   | 'mcpLibrary.detail.transport'
+  | 'mcpLibrary.detail.updateKey'
   | 'mcpLibrary.detail.whatItDoes'
   | 'mcpLibrary.install.button'
   | 'mcpLibrary.install.connectFailed'

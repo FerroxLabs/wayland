@@ -470,15 +470,37 @@ export function DetailPage() {
   const activeTab: Tab = tab ?? (!isReady && guide ? 'setup-guide' : 'overview');
 
   // The connect action(s) the guide already exposes via a step button. Many
-  // catalog guides forgot it (18 api-key entries lack 'api-key-save'; HubSpot /
-  // Xero lack 'oauth-flow'), which would leave a token box with no way to
-  // connect. When it's missing, the Setup tab renders a fallback connect bar so
-  // every connector has a working connect button regardless of guide quality.
+  // catalog guides forgot it (21 entries ship a token input with no save
+  // action), which would leave a key box with no way to connect.
   const guideActions = guide?.steps.flatMap((s) => (s.primaryAction ? [s.primaryAction.action] : [])) ?? [];
+
+  // Does any guide step collect a token/credential via an input field?
+  const hasTokenInputs = guide?.steps.some((s) => s.inputs && s.inputs.length > 0) ?? false;
+
+  // Synthesized save button rendered DIRECTLY UNDER a token input whose guide
+  // step forgot its own primaryAction. This is the "if there's a key box, there's
+  // a save button" guarantee - it works whether the connector is freshly
+  // installed OR already connected (so the key can be updated in place;
+  // handleAddMcpServer matches by name and re-tests). OAuth connectors are
+  // excluded: their connect button is the sign-in card/bar, not a token field.
+  const stepFallbackAction = !isOauth
+    ? {
+        action: 'api-key-save',
+        label: isReady
+          ? t('mcpLibrary.detail.updateKey', 'Update key')
+          : t('mcpLibrary.detail.saveConnect', 'Save & connect'),
+        pending: installing,
+        pendingLabel: t('mcpLibrary.detail.connecting', 'Connecting…'),
+      }
+    : undefined;
+
+  // Bottom connect bar now only covers connectors with NO token input to host an
+  // inline button: OAuth sign-in, and keyless api-key (e.g. Context7). The
+  // api-key/local-credentials WITH inputs case is handled in-step above.
   const showFallbackConnect =
     !isReady &&
     ((isOauth && !guideActions.includes('oauth-flow')) ||
-      (isApiKey && !guideActions.includes('api-key-save')));
+      (isApiKey && !hasTokenInputs && !guideActions.includes('api-key-save')));
 
   // Live UI status (running / warn / error / stopped) drives the 3 action-card
   // states. "stopped" splits further: a disabled server reads as "Off".
@@ -892,6 +914,7 @@ export function DetailPage() {
                   onEnvChange={(name, value) => setEnv((prev) => ({ ...prev, [name]: value }))}
                   onPrimary={(action) => void onPrimary(action)}
                   completedStepIds={completedStepIds}
+                  fallbackAction={stepFallbackAction}
                 />
               ) : (
                 <p className={styles.locked}>

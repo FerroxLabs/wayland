@@ -13,6 +13,16 @@ interface Props {
   onPrimary: (action: string) => void;
   /** Step ids the parent has determined are complete (e.g. install done, OAuth authorized). */
   completedStepIds?: ReadonlySet<string>;
+  /**
+   * Synthesized save action for any step that has token `inputs` but whose
+   * catalog guide forgot to wire its own `primaryAction`. Co-locating the button
+   * directly under the input guarantees "if there's a key box, there's a save
+   * button" for every connector - regardless of guide quality (21 catalog guides
+   * shipped an input with no save action) and regardless of connected state (so
+   * the key can be updated). Omitted for OAuth connectors, whose connect button
+   * lives in the action card / sign-in bar, not under a token field.
+   */
+  fallbackAction?: { action: string; label: string; pending?: boolean; pendingLabel?: string };
 }
 
 function StepCard({
@@ -22,7 +32,12 @@ function StepCard({
   onEnvChange,
   onPrimary,
   completedStepIds,
+  fallbackAction,
 }: Props & { step: SetupStep; idx: number }) {
+  const hasInputs = !!step.inputs && step.inputs.length > 0;
+  // Render the synthesized save button only when this step actually collects a
+  // value and the guide didn't already supply its own primaryAction button.
+  const showFallback = hasInputs && !step.primaryAction && !!fallbackAction;
   const done = !!step.autoCompletedByInstall || (completedStepIds?.has(step.id) ?? false);
   return (
     <div
@@ -75,6 +90,17 @@ function StepCard({
             onClick={() => onPrimary(step.primaryAction!.action)}
           >
             {step.primaryAction.label}
+          </button>
+        )}
+        {showFallback && (
+          <button
+            className={styles.stepPrimary}
+            onClick={() => onPrimary(fallbackAction!.action)}
+            disabled={fallbackAction!.pending}
+          >
+            {fallbackAction!.pending
+              ? (fallbackAction!.pendingLabel ?? fallbackAction!.label)
+              : fallbackAction!.label}
           </button>
         )}
       </div>

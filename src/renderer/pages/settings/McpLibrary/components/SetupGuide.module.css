@@ -161,6 +161,11 @@
   background: rgb(var(--primary-5));
 }
 
+.stepPrimary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .openLink {
   margin-top: 8px;
   display: inline-flex;

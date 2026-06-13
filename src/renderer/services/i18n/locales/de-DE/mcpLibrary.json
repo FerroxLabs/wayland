@@ -113,6 +113,7 @@
     "addToken": "Add token",
     "connecting": "Connecting…",
     "saveConnect": "Save & connect",
+    "updateKey": "Schlüssel aktualisieren",
     "signInWith": "Sign in with {{provider}}",
     "saveConnectHint": "Paste your key above, then connect."
   },
