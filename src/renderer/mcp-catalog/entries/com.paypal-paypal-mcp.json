@@ -13,7 +13,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.paypal.com/http"
+      "url": "https://mcp.paypal.com/mcp"
     }
   ],
   "x-wayland": {

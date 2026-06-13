@@ -6,7 +6,7 @@ steps:
     title: "Connect to the hosted MCP server"
     autoCompletedByInstall: true
     body: |
-      Wayland connects to the hosted MCP at `https://mcp.paypal.com/http` - nothing runs locally.
+      Wayland connects to the hosted MCP at `https://mcp.paypal.com/mcp` - nothing runs locally.
   - id: oauth
     title: "Sign in with PayPal"
     primaryAction: { label: "Sign in with PayPal", action: "oauth-flow" }

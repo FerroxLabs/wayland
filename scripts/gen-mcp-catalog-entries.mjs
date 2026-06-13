@@ -196,7 +196,7 @@ const DATA = [
   { id: 'com.paypal/paypal-mcp', title: 'PayPal', tier: 'worker', cats: ['payments', 'sales'], tags: ['paypal', 'payments', 'invoices'], maint: 'official', brand: '#003087',
     desc: 'Create and manage invoices, transactions, subscriptions, disputes, and orders - PayPal’s official hosted MCP.',
     web: 'https://docs.paypal.ai/developer/tools/ai/mcp-quickstart', repo: 'https://docs.paypal.ai/developer/tools/ai/mcp-quickstart',
-    transport: 'remote', rtype: 'streamable-http', url: 'https://mcp.paypal.com/http', auth: 'oauth', provider: 'PayPal', signup: 'https://www.paypal.com' },
+    transport: 'remote', rtype: 'streamable-http', url: 'https://mcp.paypal.com/mcp', auth: 'oauth', provider: 'PayPal', signup: 'https://www.paypal.com' },
   { id: 'com.squareup/square-mcp', title: 'Square', tier: 'worker', cats: ['payments', 'sales'], tags: ['square', 'payments', 'pos'], maint: 'official', brand: '#000000',
     desc: 'Payments, customers, inventory, bookings, and catalog across the full Square API - Square’s official hosted MCP.',
     web: 'https://github.com/square/square-mcp-server', repo: 'https://github.com/square/square-mcp-server',
