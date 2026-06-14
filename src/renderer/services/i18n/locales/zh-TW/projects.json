@@ -126,7 +126,8 @@
     "fileRemoveFailed": "Could not remove the file.",
     "noWorkspaceTitle": "No workspace folder yet",
     "noWorkspaceBody": "Set a workspace folder for this project to add shared instructions, rules and reference files.",
-    "setWorkspace": "Set workspace folder"
+    "setWorkspace": "Set workspace folder",
+    "fileTooLarge": "That file is too large (max 25 MB per file)."
   },
   "settings": {
     "title": "Project settings",

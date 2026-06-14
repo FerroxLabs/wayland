@@ -117,7 +117,8 @@
     "fileRemoveFailed": "Impossible de retirer le fichier.",
     "noWorkspaceTitle": "Aucun dossier d'espace de travail pour l'instant",
     "noWorkspaceBody": "Définissez un dossier d'espace de travail pour ce projet afin d'ajouter des instructions, des règles et des fichiers de référence partagés.",
-    "setWorkspace": "Définir le dossier de l'espace de travail"
+    "setWorkspace": "Définir le dossier de l'espace de travail",
+    "fileTooLarge": "That file is too large (max 25 MB per file)."
   },
   "toast": {
     "created": "Projet créé",

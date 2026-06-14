@@ -356,6 +356,51 @@ export async function addProjectReference(workspace: string, sourcePaths: string
   return listProjectReference(workspace);
 }
 
+/**
+ * Write uploaded reference files (already-read bytes) into `.wayland/reference/`.
+ * Returns the resulting file list. Used by the WebUI browser-upload path (#55),
+ * where the user has no host filesystem to drag from and the bytes arrive over
+ * an authenticated multipart upload instead of a renderer-supplied path.
+ *
+ * Unlike `addProjectReference`, there is no source path to confine - the bytes
+ * are the payload, not a pointer to a file on disk - so the source-path gates
+ * (confinePath / approved-directory / symlink) do not apply. The write is kept
+ * contained the same way `removeProjectReference` is: the destination filename
+ * is reduced to its basename so it can never escape the reference dir, and the
+ * per-call count and per-file size are capped exactly as the copy path is.
+ */
+export async function saveProjectReferenceUploads(
+  workspace: string,
+  files: Array<{ name: string; data: Buffer }>
+): Promise<ReferenceFile[]> {
+  if (!workspace || !workspace.trim()) throw new Error('Project has no workspace folder');
+  const dir = path.join(knowledgeRoot(workspace), REFERENCE_DIR);
+  await fs.mkdir(dir, { recursive: true });
+
+  const accepted = files.slice(0, MAX_REFERENCE_FILES);
+  if (files.length > MAX_REFERENCE_FILES) {
+    console.warn(`[projectKnowledge] reference upload capped at ${MAX_REFERENCE_FILES} files (got ${files.length})`);
+  }
+
+  for (const file of accepted) {
+    try {
+      if (file.data.byteLength > MAX_REFERENCE_FILE_BYTES) {
+        console.warn(`[projectKnowledge] refusing oversized reference upload (${file.data.byteLength} bytes):`, file.name);
+        continue;
+      }
+      // basename only - an uploaded name like `../../etc/x` can never escape the
+      // reference dir (same containment as removeProjectReference).
+      const safeName = path.basename(file.name);
+      if (!safeName || safeName === '.' || safeName === '..') continue;
+      const dest = await uniqueDest(dir, safeName);
+      await fs.writeFile(dest, file.data);
+    } catch (err) {
+      console.warn('[projectKnowledge] failed to write reference upload:', file.name, err);
+    }
+  }
+  return listProjectReference(workspace);
+}
+
 /** Remove one reference file by its basename (path-traversal guarded). */
 export async function removeProjectReference(workspace: string, name: string): Promise<ReferenceFile[]> {
   if (!workspace || !workspace.trim()) throw new Error('Project has no workspace folder');

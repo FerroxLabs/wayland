@@ -117,7 +117,8 @@
     "fileRemoveFailed": "Die Datei konnte nicht entfernt werden.",
     "noWorkspaceTitle": "Noch kein Workspace-Ordner",
     "noWorkspaceBody": "Lege einen Workspace-Ordner für dieses Projekt fest, um gemeinsame Anweisungen, Regeln und Referenzdateien hinzuzufügen.",
-    "setWorkspace": "Workspace-Ordner festlegen"
+    "setWorkspace": "Workspace-Ordner festlegen",
+    "fileTooLarge": "That file is too large (max 25 MB per file)."
   },
   "toast": {
     "created": "Projekt erstellt",

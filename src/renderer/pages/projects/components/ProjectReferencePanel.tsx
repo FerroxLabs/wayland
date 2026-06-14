@@ -7,9 +7,11 @@
 import { ipcBridge } from '@/common';
 import { Button, Message } from '@arco-design/web-react';
 import { FileText, FolderOpen, Paperclip, X } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkspaceDragImport } from '@/renderer/pages/conversation/Workspace/hooks/useWorkspaceDragImport';
+import { isElectronDesktop } from '@/renderer/utils/platform';
+import { uploadProjectReferencesViaHttp } from '@/renderer/services/FileService';
 import styles from './projectCards.module.css';
 
 type ReferenceFile = { name: string; path: string; size: number };
@@ -33,6 +35,8 @@ const ProjectReferencePanel: React.FC<{
   const { t } = useTranslation();
   const [refs, setRefs] = useState<ReferenceFile[]>([]);
   const [loading, setLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const isDesktop = isElectronDesktop();
 
   const load = useCallback(async () => {
     if (!hasWorkspace) {
@@ -76,10 +80,37 @@ const ProjectReferencePanel: React.FC<{
     conversationId: `project-reference-${projectId}`,
   });
 
+  // Desktop has a host file dialog that returns paths. A browser (remote WebUI)
+  // does not, so it picks File objects and uploads their bytes over HTTP (#55).
   const browse = useCallback(async () => {
+    if (!isDesktop) {
+      fileInputRef.current?.click();
+      return;
+    }
     const paths = await ipcBridge.dialog.showOpen.invoke({ properties: ['openFile', 'multiSelections'] });
     if (paths && paths.length > 0) await onFilesDropped(paths.map((p) => ({ path: p, name: p })));
-  }, [onFilesDropped]);
+  }, [isDesktop, onFilesDropped]);
+
+  const onBrowserFilesPicked = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const picked = event.target.files ? Array.from(event.target.files) : [];
+      // Reset so picking the same file again still fires onChange.
+      event.target.value = '';
+      if (picked.length === 0) return;
+      try {
+        const updated = await uploadProjectReferencesViaHttp(projectId, picked);
+        setRefs(Array.isArray(updated) ? updated : []);
+        Message.success(t('projects.knowledge.fileAdded', { count: picked.length }));
+      } catch (err) {
+        if (err instanceof Error && err.message === 'FILE_TOO_LARGE') {
+          Message.error(t('projects.knowledge.fileTooLarge'));
+        } else {
+          Message.error(t('projects.knowledge.fileAddFailed'));
+        }
+      }
+    },
+    [projectId, t]
+  );
 
   const removeRef = useCallback(
     async (name: string) => {
@@ -114,6 +145,15 @@ const ProjectReferencePanel: React.FC<{
 
   return (
     <div className='flex flex-col gap-16px max-w-820px mx-auto'>
+      {!isDesktop && (
+        <input
+          ref={fileInputRef}
+          type='file'
+          multiple
+          className='hidden'
+          onChange={(e) => void onBrowserFilesPicked(e)}
+        />
+      )}
       <div className='flex items-center justify-between'>
         <div className='flex flex-col gap-2px'>
           <div className='text-15px font-700 text-t-primary'>{t('projects.reference.title')}</div>

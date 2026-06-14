@@ -117,7 +117,8 @@
     "fileRemoveFailed": "No se pudo quitar el archivo.",
     "noWorkspaceTitle": "Aún no hay carpeta de espacio de trabajo",
     "noWorkspaceBody": "Establece una carpeta de espacio de trabajo para este proyecto para añadir instrucciones, reglas y archivos de referencia compartidos.",
-    "setWorkspace": "Establecer carpeta del espacio de trabajo"
+    "setWorkspace": "Establecer carpeta del espacio de trabajo",
+    "fileTooLarge": "That file is too large (max 25 MB per file)."
   },
   "toast": {
     "created": "Proyecto creado",

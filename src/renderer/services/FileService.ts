@@ -81,6 +81,66 @@ export async function uploadFileViaHttp(
     xhr.send(formData);
   });
 }
+/** Reference file as returned by the project reference list. */
+export type ProjectReferenceFile = { name: string; path: string; size: number };
+
+/**
+ * Upload reference files to a project via HTTP multipart (WebUI/browser mode).
+ * A browser has no host file dialog, so the bytes are posted to the server,
+ * which writes them into the project's `.wayland/reference/` dir and returns the
+ * updated reference list. Mirrors {@link uploadFileViaHttp}'s CSRF + XHR handling.
+ */
+export async function uploadProjectReferencesViaHttp(
+  projectId: string,
+  files: File[]
+): Promise<ProjectReferenceFile[]> {
+  return new Promise<ProjectReferenceFile[]>((resolve, reject) => {
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+      reject(new Error('CSRF token not available - please refresh login'));
+      return;
+    }
+
+    const formData = new FormData();
+    // tiny-csrf only reads req.body._csrf on multipart uploads (the header is
+    // ignored once busboy/multer parses the body), so append it to the form.
+    formData.append('_csrf', csrfToken);
+    for (const file of files) {
+      formData.append('files', file);
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/api/project/${encodeURIComponent(projectId)}/reference`);
+    xhr.withCredentials = true;
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 413) {
+        reject(new Error('FILE_TOO_LARGE'));
+        return;
+      }
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
+        return;
+      }
+      try {
+        const result = JSON.parse(xhr.responseText) as { success: boolean; data?: ProjectReferenceFile[] };
+        if (!result.success || !result.data) {
+          reject(new Error('Upload failed: server returned unsuccessful response'));
+        } else {
+          resolve(result.data);
+        }
+      } catch {
+        reject(new Error('Upload failed: invalid server response'));
+      }
+    });
+
+    xhr.addEventListener('error', () => reject(new Error('Upload failed: network error')));
+    xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
+
+    xhr.send(formData);
+  });
+}
+
 // Simple formatBytes implementation moved from deleted updateConfig
 function formatBytes(bytes: number, decimals = 2): string {
   if (bytes === 0) return '0 Bytes';

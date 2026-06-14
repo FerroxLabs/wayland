@@ -20,6 +20,8 @@ import { SpeechToTextService } from '@process/bridge/services/SpeechToTextServic
 import { isActivePreviewPort } from '@process/bridge/pptPreviewBridge';
 import { isActiveOfficeWatchPort } from '@process/bridge/officeWatchBridge';
 import { WAYLAND_TIMESTAMP_SEPARATOR } from '@/common/config/constants';
+import { saveProjectReferenceUploads } from '@process/services/projectKnowledge/knowledge';
+import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import directoryApi from '../directoryApi';
 import { apiRateLimiter } from '../middleware/security';
 import { registerWeixinLoginRoutes } from './weixinLoginRoutes';
@@ -36,6 +38,18 @@ const MAX_AUDIO_SIZE = 30 * 1024 * 1024;
 const uploadAudio = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_AUDIO_SIZE },
+});
+
+/**
+ * Project reference upload (#55): memory storage so each file's bytes are
+ * handed straight to saveProjectReferenceUploads. Caps mirror the desktop
+ * drag/copy path (MAX_REFERENCE_FILES = 50, MAX_REFERENCE_FILE_BYTES = 25MB).
+ */
+const MAX_REFERENCE_UPLOAD_FILES = 50;
+const MAX_REFERENCE_UPLOAD_BYTES = 25 * 1024 * 1024;
+const uploadReference = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_REFERENCE_UPLOAD_BYTES, files: MAX_REFERENCE_UPLOAD_FILES },
 });
 
 /**
@@ -381,6 +395,69 @@ export function registerApiRoutes(app: Express): void {
         res.status(500).json({
           success: false,
           msg: error instanceof Error ? error.message : 'Failed to upload file',
+        });
+      }
+    }
+  );
+
+  /**
+   * Project reference upload
+   * POST /api/project/:id/reference
+   * WebUI/browser path for adding reference files to a project (#55). A browser
+   * has no host file dialog, so instead of returning paths (the desktop
+   * `dialog.showOpen` flow), it posts the file bytes here. The bytes are written
+   * directly into the project's `.wayland/reference/` dir (basename-contained,
+   * size/count capped), then the updated list is returned.
+   */
+  app.post(
+    '/api/project/:id/reference',
+    apiRateLimiter,
+    validateApiAccess,
+    (req: Request, res: Response, next: NextFunction) => {
+      uploadReference.array('files', MAX_REFERENCE_UPLOAD_FILES)(req, res, (err: unknown) => {
+        if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'LIMIT_FILE_SIZE') {
+          res.status(413).json({
+            success: false,
+            msg: `Reference file too large (max ${MAX_REFERENCE_UPLOAD_BYTES / 1024 / 1024}MB)`,
+          });
+          return;
+        }
+        if (err) {
+          next(err);
+          return;
+        }
+        next();
+      });
+    },
+    async (req: Request, res: Response) => {
+      try {
+        const projectId = typeof req.params.id === 'string' ? req.params.id : '';
+        const files = Array.isArray(req.files) ? (req.files as Express.Multer.File[]) : [];
+        if (!projectId) {
+          res.status(400).json({ success: false, msg: 'Missing project id' });
+          return;
+        }
+        if (files.length === 0) {
+          res.status(400).json({ success: false, msg: 'No files uploaded' });
+          return;
+        }
+
+        const project = await projectServiceSingleton.getProject(projectId);
+        if (!project?.workspace) {
+          res.status(404).json({ success: false, msg: 'Project has no workspace folder' });
+          return;
+        }
+
+        const updated = await saveProjectReferenceUploads(
+          project.workspace,
+          files.map((f) => ({ name: sanitizeFileName(f.originalname), data: f.buffer }))
+        );
+        res.json({ success: true, data: updated });
+      } catch (error) {
+        console.error('[API] Project reference upload error:', error);
+        res.status(500).json({
+          success: false,
+          msg: error instanceof Error ? error.message : 'Failed to upload reference files',
         });
       }
     }
