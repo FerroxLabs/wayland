@@ -4,6 +4,7 @@ import { AlertTriangle, ChevronLeft, RefreshCw as RefreshIcon } from 'lucide-rea
 import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
 import type { ConnectError, CuratedModel, UsageTag } from '@process/providers/types';
+import { FLUX_MODEL_IDS, FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import { providerMeta } from './providerCatalog';
@@ -121,8 +122,25 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
     return models.filter((m) => m.displayName.toLowerCase().includes(q));
   }, [models, query]);
 
-  const recommended = useMemo(() => filtered.filter((m) => m.recommended), [filtered]);
-  const rest = useMemo(() => filtered.filter((m) => !m.recommended), [filtered]);
+  // Flux is a router: its four routing tiers (Auto / Reasoning / Standard /
+  // Fast) are the headline picks and must sit at the top in picker order, with
+  // the pinned + image models below - not scattered by the generic
+  // `recommended` flag (which only tags Auto + Fast). Other providers keep the
+  // curated `recommended` split.
+  const isFluxRouter = provider.providerId === FLUX_PROVIDER_ID;
+  const fluxTierOrder = useMemo(() => new Map(FLUX_MODEL_IDS.map((id, i) => [id as string, i])), []);
+  const recommended = useMemo(() => {
+    if (isFluxRouter) {
+      return filtered
+        .filter((m) => fluxTierOrder.has(m.id))
+        .toSorted((a, b) => (fluxTierOrder.get(a.id) ?? 0) - (fluxTierOrder.get(b.id) ?? 0));
+    }
+    return filtered.filter((m) => m.recommended);
+  }, [filtered, isFluxRouter, fluxTierOrder]);
+  const rest = useMemo(() => {
+    if (isFluxRouter) return filtered.filter((m) => !fluxTierOrder.has(m.id));
+    return filtered.filter((m) => !m.recommended);
+  }, [filtered, isFluxRouter, fluxTierOrder]);
 
   // ---- Per-row meta (context window + cost) ------------------------------
   const modelMeta = useCallback(
@@ -275,7 +293,7 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   const isXai = provider.providerId === 'xai';
   // Flux is a router (tiers across many models), not a vendor catalog, so its
   // models-section explainer is Flux-specific rather than the shared copy.
-  const isFlux = provider.providerId === 'flux-router';
+  const isFlux = isFluxRouter;
 
   // ---- Header status -----------------------------------------------------
   const viaSuffix = VIA_KEY[provider.connectedVia];
