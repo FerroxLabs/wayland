@@ -5,7 +5,7 @@
  */
 
 import { ChevronDown } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DndContext } from '@dnd-kit/core';
@@ -67,10 +67,14 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
 
   const [expanded, setExpanded] = useState(false);
 
+  // Auto-expand ONLY on the transition into the active route (false -> true), not
+  // for the whole time the route stays active - otherwise collapsing the row via
+  // the chevron while still viewing this job/conversation would never stick.
+  const wasActiveRef = useRef(false);
   useEffect(() => {
-    if (isActiveChild || isActiveDetail) {
-      setExpanded(true);
-    }
+    const active = isActiveChild || isActiveDetail;
+    if (active && !wasActiveRef.current) setExpanded(true);
+    wasActiveRef.current = active;
   }, [isActiveChild, isActiveDetail]);
 
   // --- ConversationRow action state ---
