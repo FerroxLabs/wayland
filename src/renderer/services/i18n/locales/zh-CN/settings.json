@@ -2326,9 +2326,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "工具密钥只能在桌面应用中更改。",
-      "desktopOnlyNote": "你正在使用网页界面。工具密钥存储在桌面应用中，只能在桌面应用中添加或更改。"
+      }
     },
     "tools": {
       "subtitle": "引擎始终可以使用每个工具。这些开关只决定工具是自动运行还是先征求批准，并不会关闭工具。只有 Script 和 RepoMap 才是真正的开/关开关。需要凭据的工具会直接链接到设置处。",

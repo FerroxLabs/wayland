@@ -2326,9 +2326,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "Las claves de herramientas solo se pueden cambiar en la app de escritorio.",
-      "desktopOnlyNote": "Estás en la interfaz web. Las claves de herramientas se guardan en la app de escritorio y solo pueden añadirse o cambiarse allí."
+      }
     },
     "tools": {
       "subtitle": "Cada herramienta está siempre disponible para el motor. Estos interruptores definen si una herramienta se ejecuta sola o pide aprobación primero; no las desactivan. Solo Script y RepoMap son verdaderos interruptores de encendido/apagado. Las herramientas que necesitan credencial enlazan directamente a su ajuste.",

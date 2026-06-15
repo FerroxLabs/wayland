@@ -2326,9 +2326,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "Tool-Schlüssel können nur in der Desktop-App geändert werden.",
-      "desktopOnlyNote": "Sie nutzen die Web-Oberfläche. Tool-Schlüssel werden in der Desktop-App gespeichert und können nur dort hinzugefügt oder geändert werden."
+      }
     },
     "tools": {
       "subtitle": "Jedes Tool ist für die Engine immer verfügbar. Diese Schalter legen nur fest, ob ein Tool automatisch läuft oder zuerst um Freigabe bittet - sie schalten Tools nicht ab. Nur Script und RepoMap sind echte An/Aus-Schalter. Tools, die einen Zugang brauchen, verlinken direkt zur Einstellung.",

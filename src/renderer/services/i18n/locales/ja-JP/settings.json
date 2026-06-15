@@ -2327,9 +2327,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "ツールキーはデスクトップアプリでのみ変更できます。",
-      "desktopOnlyNote": "Web UI を表示しています。ツールキーはデスクトップアプリに保存され、そこでのみ追加・変更できます。"
+      }
     },
     "tools": {
       "subtitle": "すべてのツールは常にエンジンで利用できます。これらのスイッチは、ツールを自動実行するか、先に承認を求めるかを設定するだけで、ツールをオフにはしません。本当のオン/オフは Script と RepoMap だけです。認証情報が必要なツールは設定場所へ直接リンクします。",

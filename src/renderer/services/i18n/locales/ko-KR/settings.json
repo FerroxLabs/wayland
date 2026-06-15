@@ -2327,9 +2327,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "도구 키는 데스크톱 앱에서만 변경할 수 있습니다.",
-      "desktopOnlyNote": "웹 UI를 보고 있습니다. 도구 키는 데스크톱 앱에 저장되며 거기에서만 추가하거나 변경할 수 있습니다."
+      }
     },
     "tools": {
       "subtitle": "모든 도구는 엔진에서 항상 사용할 수 있습니다. 이 스위치는 도구를 자동 실행할지 먼저 승인을 받을지 설정할 뿐, 도구를 끄지는 않습니다. 진짜 켜기/끄기는 Script와 RepoMap뿐입니다. 자격 증명이 필요한 도구는 설정 위치로 바로 연결됩니다.",

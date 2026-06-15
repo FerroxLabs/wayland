@@ -2346,9 +2346,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "Tool keys can only be changed in the desktop app.",
-      "desktopOnlyNote": "You are viewing the web UI. Tool keys are stored in the desktop app and can only be added or changed there."
+      }
     },
     "tools": {
       "subtitle": "Every tool is always available to the engine. These switches set whether a tool auto-runs or asks for approval first - they do not turn tools off. Script and RepoMap are the only real on/off gates. Tools that need a credential link straight to where you set it.",

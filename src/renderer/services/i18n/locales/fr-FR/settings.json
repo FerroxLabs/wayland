@@ -2326,9 +2326,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "Les clés des outils ne peuvent être modifiées que dans l’application de bureau.",
-      "desktopOnlyNote": "Vous utilisez l’interface web. Les clés des outils sont stockées dans l’application de bureau et ne peuvent être ajoutées ou modifiées que là-bas."
+      }
     },
     "tools": {
       "subtitle": "Chaque outil reste toujours disponible pour le moteur. Ces commutateurs définissent si un outil s’exécute automatiquement ou demande une approbation d’abord ; ils ne désactivent pas les outils. Seuls Script et RepoMap sont de vrais interrupteurs marche/arrêt. Les outils nécessitant un identifiant renvoient directement à son réglage.",

@@ -2325,9 +2325,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "Araç anahtarları yalnızca masaüstü uygulamasında değiştirilebilir.",
-      "desktopOnlyNote": "Web arayüzünü görüntülüyorsunuz. Araç anahtarları masaüstü uygulamasında saklanır ve yalnızca orada eklenebilir veya değiştirilebilir."
+      }
     },
     "tools": {
       "subtitle": "Her araç motor için her zaman kullanılabilir. Bu anahtarlar yalnızca bir aracın otomatik mi çalışacağını yoksa önce onay mı isteyeceğini belirler; araçları kapatmaz. Gerçek aç/kapat yalnızca Script ve RepoMap içindir. Kimlik bilgisi gereken araçlar doğrudan ayarına bağlanır.",

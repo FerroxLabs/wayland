@@ -10,6 +10,7 @@ import { Message, Typography } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { isElectronDesktop } from '@renderer/utils/platform';
+import { deleteToolKeyHttp, setToolKeyHttp } from '@renderer/services/ToolKeyService';
 import ToolKeyCard from '../components/ToolKeyCard';
 import styles from './Panes.module.css';
 
@@ -133,10 +134,12 @@ const BACKEND_GROUPS: readonly BackendGroup[] = [
 const ServicesKeysPane: React.FC = () => {
   const { t } = useTranslation();
   const [presence, setPresence] = useState<Record<string, boolean>>({});
-  // Tool-key writes go through a desktop-only encrypted store; the remote
-  // WebUI bridge denies them, so an invoke from the browser is dropped with
-  // no response frame and the Save button looks like it did nothing (#90).
-  // Guard the write paths so the browser gets a clear message instead.
+  // On desktop, tool-key writes go through Electron IPC (`wcoreToolKeys.*`). In a
+  // remote WebUI that IPC is denied (it mutates credential material a remote
+  // caller must not reach), so writes go through the write-only + status HTTP
+  // route instead (remote-secure-config W1.B). The presence list read
+  // (`wcoreToolKeys.list`) is presence-only and stays remote-allowed, so the
+  // pane is now usable from a phone.
   const desktop = isElectronDesktop();
 
   const refresh = useCallback(async (): Promise<void> => {
@@ -150,16 +153,8 @@ const ServicesKeysPane: React.FC = () => {
 
   const handleSave = useCallback(
     async (id: string, key: string): Promise<void> => {
-      if (!desktop) {
-        Message.warning(
-          t('settings.wcoreConfig.services.desktopOnly', {
-            defaultValue: 'Tool keys can only be changed in the desktop app.',
-          })
-        );
-        return;
-      }
-      const result = await ipcBridge.wcoreToolKeys.set.invoke({ id, key });
-      if (result.ok) {
+      const ok = desktop ? (await ipcBridge.wcoreToolKeys.set.invoke({ id, key })).ok : await setToolKeyHttp(id, key);
+      if (ok) {
         await refresh();
       } else {
         Message.error(t('settings.wcoreConfig.services.saveFailed', { defaultValue: 'Could not save the key.' }));
@@ -170,18 +165,10 @@ const ServicesKeysPane: React.FC = () => {
 
   const handleRemove = useCallback(
     async (id: string): Promise<void> => {
-      if (!desktop) {
-        Message.warning(
-          t('settings.wcoreConfig.services.desktopOnly', {
-            defaultValue: 'Tool keys can only be changed in the desktop app.',
-          })
-        );
-        return;
-      }
-      const result = await ipcBridge.wcoreToolKeys.delete.invoke({ id });
-      if (result.ok) await refresh();
+      const ok = desktop ? (await ipcBridge.wcoreToolKeys.delete.invoke({ id })).ok : await deleteToolKeyHttp(id);
+      if (ok) await refresh();
     },
-    [desktop, refresh, t]
+    [desktop, refresh]
   );
 
   return (
@@ -197,18 +184,6 @@ const ServicesKeysPane: React.FC = () => {
           })}
         </p>
       </div>
-
-      {!desktop && (
-        <div className='flex items-start gap-10px p-16px rd-12px bg-2 border border-solid border-warning-6'>
-          <ShieldCheck size={18} className='text-warning shrink-0 mt-2px' />
-          <Typography.Text type='secondary' className='text-12px'>
-            {t('settings.wcoreConfig.services.desktopOnlyNote', {
-              defaultValue:
-                'You are viewing the web UI. Tool keys are stored in the desktop app and can only be added or changed there.',
-            })}
-          </Typography.Text>
-        </div>
-      )}
 
       {BACKEND_GROUPS.map((group) => (
         <div key={group.id} className='flex flex-col gap-12px'>

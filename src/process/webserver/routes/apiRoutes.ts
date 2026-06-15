@@ -28,6 +28,7 @@ import { registerWeixinLoginRoutes } from './weixinLoginRoutes';
 import { registerWecomChannelRoutes } from './wecomChannelRoutes';
 import { registerStorageRoutes } from './storageRoutes';
 import { registerProviderKeyRoutes } from './providerKeyRoutes';
+import { registerToolKeyRoutes } from './toolKeyRoutes';
 
 /** Temp directory used by multer disk storage - validated at runtime to prevent path traversal */
 const MULTER_TEMP_DIR = os.tmpdir();
@@ -733,6 +734,11 @@ export function registerApiRoutes(app: Express): void {
   // Provider API-key entry from a remote WebUI client (remote-secure-config
   // W1.A): write-only CONFIG-WRITE route, returns { state, modelCount } only.
   registerProviderKeyRoutes(app, validateApiAccess);
+
+  // Tool / service API-key entry from a remote WebUI client
+  // (remote-secure-config W1.B): write-only CONFIG-WRITE routes, return
+  // { hasKey } only (Brave, Tavily, Exa, ElevenLabs, FAL, Hugging Face, ...).
+  registerToolKeyRoutes(app, validateApiAccess);
 
   /**
    * Generic API endpoint

@@ -2327,9 +2327,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "工具金鑰只能在桌面應用程式中變更。",
-      "desktopOnlyNote": "你正在使用網頁介面。工具金鑰儲存在桌面應用程式中，只能在桌面應用程式中新增或變更。"
+      }
     },
     "tools": {
       "subtitle": "引擎始終可以使用每個工具。這些開關只決定工具是自動執行還是先徵求核准，並不會關閉工具。只有 Script 和 RepoMap 才是真正的開/關開關。需要憑證的工具會直接連結到設定處。",

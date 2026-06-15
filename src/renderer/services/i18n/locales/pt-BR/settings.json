@@ -2326,9 +2326,7 @@
       },
       "huggingface": {
         "desc": "FLUX and open image models via Hugging Face."
-      },
-      "desktopOnly": "As chaves de ferramentas só podem ser alteradas no app de desktop.",
-      "desktopOnlyNote": "Você está na interface web. As chaves de ferramentas são armazenadas no app de desktop e só podem ser adicionadas ou alteradas lá."
+      }
     },
     "tools": {
       "subtitle": "Cada ferramenta fica sempre disponível para o motor. Estes botões definem se a ferramenta executa sozinha ou pede aprovação primeiro; não as desligam. Só Script e RepoMap são verdadeiros liga/desliga. Ferramentas que precisam de credencial levam direto ao ajuste.",

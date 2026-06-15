@@ -3920,8 +3920,6 @@ export type I18nKey =
   | 'settings.wcoreConfig.services.connected'
   | 'settings.wcoreConfig.services.ddgBody'
   | 'settings.wcoreConfig.services.ddgTitle'
-  | 'settings.wcoreConfig.services.desktopOnly'
-  | 'settings.wcoreConfig.services.desktopOnlyNote'
   | 'settings.wcoreConfig.services.elevenlabs.desc'
   | 'settings.wcoreConfig.services.exa.desc'
   | 'settings.wcoreConfig.services.fal.desc'
