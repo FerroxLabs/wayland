@@ -20,6 +20,8 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  /* Breathing room so the LIVE / Refresh controls don't crowd the stat tiles. */
+  margin-bottom: 18px;
 }
 .live {
   display: inline-flex;
