@@ -176,11 +176,26 @@ export type GuidModelSelectionResult = {
  */
 export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): GuidModelSelectionResult => {
   const { geminiModeOptions, isGoogleAuth } = useGeminiGoogleAuthModels();
-  const { data: modelConfig } = useSWR('model.config.welcome', () => {
+  const { data: modelConfig, mutate: mutateModelConfig } = useSWR('model.config.welcome', () => {
     return ipcBridge.mode.getModelConfig.invoke().then((data) => {
       return (data || []).filter((platform) => !!platform.model.length);
     });
   });
+
+  // Revalidate the home picker's `model.config` view whenever the model
+  // registry's catalog changes (connect / rekey / refresh all emit
+  // `modelRegistry.listChanged`). The first-run onboarding overlay connects
+  // Flux Router as a Modal mounted ON TOP of this already-mounted home page, so
+  // dismissing it never remounts the page — without this subscription the SWR
+  // cache stays on its empty cold-start snapshot, `currentModel` never
+  // resolves, and the brand-new user's first send is silently dropped by the
+  // wcore "no model configured" guard (issue #108). Mirrors the same
+  // revalidation `useModelProviderList` already does for `model.config.shared`.
+  useEffect(() => {
+    return ipcBridge.modelRegistry.listChanged.on(() => {
+      void mutateModelConfig();
+    });
+  }, [mutateModelConfig]);
 
   const geminiModelValues = useMemo(() => geminiModeOptions.map((option) => option.value), [geminiModeOptions]);
 

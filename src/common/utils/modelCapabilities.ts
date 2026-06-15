@@ -8,18 +8,36 @@ import type { IProvider, ModelType } from '@/common/config/storage';
 import { isFluxModelId } from '@/common/config/flux';
 
 /**
+ * Matches FLUX image-diffusion models (`flux-dev`, `flux-schnell`, `flux-pro`,
+ * `flux.1`, `flux-2-pro`, `flux-kontext`, …) WITHOUT catching Flux Router's
+ * chat-routing tiers (`flux-auto`, `flux-fast`, `flux-balanced`,
+ * `flux-reasoning`). A bare `flux` token excluded the Router's chat models from
+ * the primary model picker, so a brand-new user whose only provider is Flux
+ * Router got an empty model list and their first send was silently dropped
+ * (issue #108). Image variants always carry a digit (version) or a known image
+ * suffix; the Router tiers never do.
+ */
+const FLUX_IMAGE_MODEL = /flux(?:[.-]?\d|-(?:dev|schnell|pro|kontext|realism|lora))/i;
+
+/**
  * Capability matching regex patterns
  */
 export const CAPABILITY_PATTERNS: Record<ModelType, RegExp> = {
   text: /gpt|claude|gemini|qwen|llama|mistral|deepseek/i,
   vision: /4o|claude-3|gemini-.*-pro|gemini-.*-flash|gemini-2\.0|qwen-vl|llava|vision/i,
   function_calling: /gpt-4|claude-3|gemini|qwen|deepseek/i,
-  image_generation: /flux|diffusion|stabilityai|sd-|dall|cogview|janus|midjourney|mj-|imagen/i,
+  image_generation: new RegExp(
+    `${FLUX_IMAGE_MODEL.source}|diffusion|stabilityai|sd-|dall|cogview|janus|midjourney|mj-|imagen`,
+    'i'
+  ),
   web_search: /search|perplexity/i,
   reasoning: /o1-|reasoning|think/i,
   embedding: /(?:^text-|embed|bge-|e5-|LLM2Vec|retrieval|uae-|gte-|jina-clip|jina-embeddings|voyage-)/i,
   rerank: /(?:rerank|re-rank|re-ranker|re-ranking|retrieval|retriever)/i,
-  excludeFromPrimary: /dall-e|flux|stable-diffusion|midjourney|flash-image|image|embed|rerank/i,
+  excludeFromPrimary: new RegExp(
+    `dall-e|${FLUX_IMAGE_MODEL.source}|stable-diffusion|midjourney|flash-image|image|embed|rerank`,
+    'i'
+  ),
 };
 
 /**
@@ -27,7 +45,7 @@ export const CAPABILITY_PATTERNS: Record<ModelType, RegExp> = {
  */
 export const CAPABILITY_EXCLUSIONS: Record<ModelType, RegExp[]> = {
   text: [],
-  vision: [/embed|rerank|dall-e|flux|stable-diffusion/i],
+  vision: [new RegExp(`embed|rerank|dall-e|${FLUX_IMAGE_MODEL.source}|stable-diffusion`, 'i')],
   function_calling: [
     /aqa(?:-[\w-]+)?/i,
     /imagen(?:-[\w-]+)?/i,
