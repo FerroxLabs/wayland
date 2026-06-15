@@ -3,16 +3,16 @@ import type { Express, Request, RequestHandler, Response } from 'express';
 
 // The route calls the shared in-process constitution helpers. Hoist stateful
 // stubs so we can assert against them.
-const { mockWrite, mockReset, mockWriteSpecialist, mockDeleteSpecialist, mockRead, mockAppendAudit } = vi.hoisted(
-  () => ({
+const { mockWrite, mockReset, mockWriteSpecialist, mockDeleteSpecialist, mockRead, mockAppendAudit, mockRequireDestructive } =
+  vi.hoisted(() => ({
     mockWrite: vi.fn((content: string) => content.length <= 100),
     mockReset: vi.fn(() => '# Default Constitution\n'),
     mockWriteSpecialist: vi.fn((id: string, _content: string) => id !== 'bad-id'),
     mockDeleteSpecialist: vi.fn((id: string) => id !== 'missing'),
     mockRead: vi.fn(() => '# Current Constitution\n'),
     mockAppendAudit: vi.fn(),
-  })
-);
+    mockRequireDestructive: vi.fn(),
+  }));
 
 vi.mock('@process/bridge/constitutionBridge', () => ({
   writeConstitution: mockWrite,
@@ -21,6 +21,15 @@ vi.mock('@process/bridge/constitutionBridge', () => ({
   deleteConstitutionSpecialist: mockDeleteSpecialist,
   readConstitution: mockRead,
 }));
+// Constitution writes are AGENT-AUTHORITY -> requireDestructive (operator +
+// step-up). The guard's own security matrix (public/operator/stepup/lockout) is
+// covered by configWriteGuards.test.ts; here we control it to test the route's
+// wiring (calls the gate, bails on deny, mutates + audits on allow). Keep the
+// real requireSecureConfigWrite (reset stays config-write) + redactSecrets.
+vi.mock('@process/webserver/routes/configWriteGuards', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return { ...actual, requireDestructive: mockRequireDestructive };
+});
 vi.mock('../../../src/process/webserver/audit/auditLog', () => ({
   appendAudit: mockAppendAudit,
 }));
@@ -85,6 +94,10 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     mockRead.mockClear();
     mockAppendAudit.mockReset();
     mockAppendAudit.mockResolvedValue(true);
+    // Default: the destructive gate ALLOWS (operator + valid step-up). Individual
+    // deny tests override with a refusal that writes the 403/401 itself.
+    mockRequireDestructive.mockReset();
+    mockRequireDestructive.mockResolvedValue(true);
     delete process.env.WAYLAND_HTTPS;
     delete process.env.SERVER_BASE_URL;
     process.env.NODE_ENV = 'test';
@@ -123,26 +136,30 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     });
   });
 
-  it('write refuses a plain-HTTP write from the public internet (403, before persisting)', async () => {
-    const res = makeRes();
-    await captureHandlers().post['/api/constitution/write'](
-      makeReq({ body: { content: '# rules' }, peer: '203.0.113.5', secure: false }),
-      res
-    );
-    expect(res._status).toBe(403);
-    expect(JSON.stringify(res._json)).toMatch(/HTTPS required/i);
-    expect(mockWrite).not.toHaveBeenCalled();
-  });
-
-  it('write allows a public-internet write over HTTPS (network-tier-agnostic)', async () => {
-    process.env.WAYLAND_HTTPS = 'true';
+  it('write is DESTRUCTIVE: when the gate refuses (non-operator / no step-up), nothing is written', async () => {
+    // The Constitution rewrites the agent's brain, so it is gated at the
+    // destructive bar - a stolen public-internet session must not reach it.
+    mockRequireDestructive.mockImplementation(async (_req: Request, res: Response) => {
+      (res as unknown as { status: (c: number) => Response }).status(403);
+      (res as unknown as { json: (b: unknown) => Response }).json({ success: false, msg: 'trusted local network required' });
+      return false;
+    });
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write'](
       makeReq({ body: { content: '# rules' }, peer: '203.0.113.5', secure: true }),
       res
     );
-    expect(mockWrite).toHaveBeenCalled();
-    expect(res._json).toMatchObject({ success: true });
+    expect(res._status).toBe(403);
+    expect(mockWrite).not.toHaveBeenCalled();
+  });
+
+  it('write passes the step-up password through to the destructive gate', async () => {
+    await captureHandlers().post['/api/constitution/write'](
+      makeReq({ body: { content: '# rules', password: 'hunter2' }, userId: 'u1' }),
+      makeRes()
+    );
+    expect(mockRequireDestructive).toHaveBeenCalledTimes(1);
+    expect(mockRequireDestructive.mock.calls[0][2]).toBe('hunter2');
   });
 
   it('write rejects a missing content (400) without persisting', async () => {
@@ -223,7 +240,12 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({ action: 'constitution.deleteSpecialist', target: 'copy' });
   });
 
-  it('delete-specialist refuses a plain-HTTP write from the public internet (403)', async () => {
+  it('delete-specialist is DESTRUCTIVE: when the gate refuses, nothing is deleted', async () => {
+    mockRequireDestructive.mockImplementation(async (_req: Request, res: Response) => {
+      (res as unknown as { status: (c: number) => Response }).status(403);
+      (res as unknown as { json: (b: unknown) => Response }).json({ success: false });
+      return false;
+    });
     const res = makeRes();
     await captureHandlers().post['/api/constitution/delete-specialist'](
       makeReq({ body: { id: 'copy' }, peer: '203.0.113.5', secure: false }),

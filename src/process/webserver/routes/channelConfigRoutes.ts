@@ -37,7 +37,7 @@
 
 import { type Express, type Request, type RequestHandler, type Response } from 'express';
 import { apiRateLimiter } from '../middleware/security';
-import { redactSecrets, requireSecureConfigWrite } from './configWriteGuards';
+import { redactSecrets, requireDestructive, requireSecureConfigWrite } from './configWriteGuards';
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
 import { getChannelManager } from '@process/channels/core/ChannelManager';
@@ -275,11 +275,16 @@ export function registerChannelConfigRoutes(app: Express, validateApiAccess: Req
     }
   );
 
-  // POST /api/channels/approve-pairing { code }
+  // POST /api/channels/approve-pairing { code, password }
   // Write-only: approves a pending pairing and returns { ok } only - never the
   // pairing code or any minted session material.
   app.post('/api/channels/approve-pairing', apiRateLimiter, validateApiAccess, async (req: Request, res: Response) => {
-    if (!requireSecureConfigWrite(req, res)) return;
+    // AGENT-AUTHORITY, not plain config-write: approval enrolls a NEW external
+    // identity as an authorized channel principal that can then drive the agent
+    // (channel messages flow with auto-approve). A stolen remote session must not
+    // be able to enrol an attacker's own chat account as a persistent, session-
+    // independent command channel. DESTRUCTIVE bar: operator-network + step-up.
+    if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
 
     const code = bodyString(req.body?.code).trim();
     if (!code) {

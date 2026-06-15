@@ -11,6 +11,7 @@ const {
   mockTokenStore,
   mockProcessConfigSet,
   mockAppendAudit,
+  mockRequireDestructive,
 } = vi.hoisted(() => ({
   mockEnablePlugin: vi.fn(async (pluginId: string) =>
     pluginId === 'bad_plugin' ? { success: false, error: 'nope' } : { success: true }
@@ -35,6 +36,7 @@ const {
   },
   mockProcessConfigSet: vi.fn(async () => undefined),
   mockAppendAudit: vi.fn(),
+  mockRequireDestructive: vi.fn(),
 }));
 
 vi.mock('@process/channels/core/ChannelManager', () => ({
@@ -59,6 +61,14 @@ vi.mock('../../../src/process/webserver/audit/auditLog', () => ({
 vi.mock('../../../src/process/webserver/middleware/security', () => ({
   apiRateLimiter: ((_req: Request, _res: Response, next: () => void) => next()) as RequestHandler,
 }));
+// approve-pairing enrols a new agent-driving principal -> AGENT-AUTHORITY,
+// gated at requireDestructive (operator + step-up). The guard's full matrix is
+// covered by configWriteGuards.test.ts; control it here to test the route's
+// wiring. Other channel routes keep the real requireSecureConfigWrite.
+vi.mock('@process/webserver/routes/configWriteGuards', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return { ...actual, requireDestructive: mockRequireDestructive };
+});
 
 import { registerChannelConfigRoutes } from '@process/webserver/routes/channelConfigRoutes';
 
@@ -117,6 +127,8 @@ describe('channel config routes (W3.E write-only channel config)', () => {
     mockProcessConfigSet.mockClear();
     mockAppendAudit.mockReset();
     mockAppendAudit.mockResolvedValue(true);
+    mockRequireDestructive.mockReset();
+    mockRequireDestructive.mockResolvedValue(true);
     delete process.env.WAYLAND_HTTPS;
     delete process.env.SERVER_BASE_URL;
     process.env.NODE_ENV = 'test';
@@ -341,7 +353,14 @@ describe('channel config routes (W3.E write-only channel config)', () => {
     expect(mockApprovePairing).not.toHaveBeenCalled();
   });
 
-  it('approve-pairing refuses a plain-HTTP write from the public internet (403)', async () => {
+  it('approve-pairing is DESTRUCTIVE: when the gate refuses, no pairing is enrolled', async () => {
+    // Enrolling a new external command principal must not be reachable from a
+    // stolen public-internet session - it is gated at operator + step-up.
+    mockRequireDestructive.mockImplementation(async (_req: Request, res: Response) => {
+      (res as unknown as { status: (c: number) => Response }).status(403);
+      (res as unknown as { json: (b: unknown) => Response }).json({ success: false });
+      return false;
+    });
     const res = makeRes();
     await captureHandlers()['/api/channels/approve-pairing'](
       makeReq({ body: { code: 'ABC123' }, peer: '203.0.113.5', secure: false }),
@@ -349,5 +368,14 @@ describe('channel config routes (W3.E write-only channel config)', () => {
     );
     expect(res._status).toBe(403);
     expect(mockApprovePairing).not.toHaveBeenCalled();
+  });
+
+  it('approve-pairing passes the step-up password through to the destructive gate', async () => {
+    await captureHandlers()['/api/channels/approve-pairing'](
+      makeReq({ body: { code: 'ABC123', password: 'hunter2' }, userId: 'u1' }),
+      makeRes()
+    );
+    expect(mockRequireDestructive).toHaveBeenCalledTimes(1);
+    expect(mockRequireDestructive.mock.calls[0][2]).toBe('hunter2');
   });
 });

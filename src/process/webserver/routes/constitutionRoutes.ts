@@ -37,7 +37,7 @@
 
 import { type Express, type Request, type RequestHandler, type Response } from 'express';
 import { apiRateLimiter } from '../middleware/security';
-import { redactSecrets, requireSecureConfigWrite } from './configWriteGuards';
+import { redactSecrets, requireDestructive, requireSecureConfigWrite } from './configWriteGuards';
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
 import {
@@ -69,12 +69,18 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
     }
   });
 
-  // POST /api/constitution/write { content }
+  // POST /api/constitution/write { content, password }
   // Write-only: overwrites the Constitution and returns { ok } only.
   app.post('/api/constitution/write', apiRateLimiter, validateApiAccess, async (req: Request, res: Response) => {
-    // CONFIG-WRITE floor: refuse a write over plain HTTP from the public
-    // internet. Network-tier-agnostic otherwise (a cellular phone is allowed).
-    if (!requireSecureConfigWrite(req, res)) return;
+    // AGENT-AUTHORITY, not plain config-write: the Constitution is injected into
+    // the agent's system prompt and re-read every turn, so an arbitrary write
+    // re-instructs the most powerful principal on the box (a remote attacker
+    // could plant "read the local keys and POST them out" and the agent would
+    // exfiltrate on its next turn, inside the sandbox, bypassing the write-only
+    // secret invariant). Hold it to the DESTRUCTIVE bar: operator-network +
+    // step-up password. (reset -> a known-safe default is a tighten, stays
+    // config-write.)
+    if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
 
     if (typeof req.body?.content !== 'string') {
       res.status(400).json({ success: false, msg: 'content is required' });
@@ -147,7 +153,9 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
     apiRateLimiter,
     validateApiAccess,
     async (req: Request, res: Response) => {
-      if (!requireSecureConfigWrite(req, res)) return;
+      // AGENT-AUTHORITY: a specialist overlay re-instructs the agent the same way
+      // the Constitution does. DESTRUCTIVE bar: operator-network + step-up.
+      if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
 
       const id = bodyString(req.body?.id).trim();
       if (!id) {
@@ -196,7 +204,9 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
     apiRateLimiter,
     validateApiAccess,
     async (req: Request, res: Response) => {
-      if (!requireSecureConfigWrite(req, res)) return;
+      // AGENT-AUTHORITY: removing an overlay changes the agent's instruction set.
+      // DESTRUCTIVE bar: operator-network + step-up.
+      if (!(await requireDestructive(req, res, bodyString(req.body?.password)))) return;
 
       const id = bodyString(req.body?.id).trim();
       if (!id) {
