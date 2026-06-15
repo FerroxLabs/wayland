@@ -9,7 +9,7 @@ import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TChatConversation, TokenUsageData } from '@/common/config/storage';
 import type { ThoughtData } from '@/renderer/components/chat/ThoughtDisplay';
-import { useAddOrUpdateMessage } from '@/renderer/pages/conversation/Messages/hooks';
+import { useAddOrUpdateMessage, useClearErrorTips } from '@/renderer/pages/conversation/Messages/hooks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type TokenUsage = {
@@ -28,6 +28,7 @@ export const useWCoreMessage = (
   const onConfigChanged = options?.onConfigChanged;
   const onConfigChangedRef = useRef(onConfigChanged);
   const addOrUpdateMessage = useAddOrUpdateMessage();
+  const clearErrorTips = useClearErrorTips();
   const [streamRunning, setStreamRunning] = useState(false);
   const [hasActiveTools, setHasActiveTools] = useState(false);
   const [waitingResponse, setWaitingResponse] = useState(false);
@@ -164,6 +165,13 @@ export const useWCoreMessage = (
             setStreamRunning(false);
             setWaitingResponse(false);
             setThought({ subject: '', description: '' });
+            // A turn that produced output and then finished should not keep a
+            // mid-turn transient error banner (e.g. wcore's non-fatal
+            // "Cache full miss: TtlExpiry"). Genuinely fatal errors end the turn
+            // with no content, so they are preserved. (#101)
+            if (hasContentInTurnRef.current) {
+              clearErrorTips();
+            }
           }
           break;
         case 'tool_group':
@@ -251,7 +259,7 @@ export const useWCoreMessage = (
       }
     });
     // Note: hasActiveTools and streamRunning are accessed via refs to avoid re-subscription
-  }, [conversation_id, addOrUpdateMessage, onError]);
+  }, [conversation_id, addOrUpdateMessage, onError, clearErrorTips]);
 
   useEffect(() => {
     let cancelled = false;

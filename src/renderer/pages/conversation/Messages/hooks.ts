@@ -373,6 +373,33 @@ export const useRemoveMessageByMsgId = () => {
   );
 };
 
+/**
+ * Drop transient error tips from the live list. Some engine `error` events are
+ * non-fatal diagnostics (e.g. wcore's "Cache full miss: TtlExpiry") emitted
+ * mid-turn while the turn keeps streaming and ultimately completes. Those would
+ * otherwise leave a stale error banner above an otherwise successful turn.
+ * Called on stream finish so a completed turn does not carry a dead error.
+ */
+export const useClearErrorTips = () => {
+  const update = useUpdateMessageList();
+
+  return useCallback(() => {
+    // useAddOrUpdateMessage batches stream events into a setTimeout-driven flush,
+    // so error/content messages from the just-finished turn may still be queued
+    // when `finish` fires. Defer the clear by one macrotask so it runs after that
+    // flush has committed the turn's messages; otherwise it would filter a list
+    // that does not yet contain the error tip, which the flush then re-adds.
+    setTimeout(() => {
+      update((list) => {
+        const next = list.filter((message) => !(message.type === 'tips' && message.content?.type === 'error'));
+        // Preserve referential identity when nothing changed so React skips the
+        // re-render (the common case: turns finish without an error tip).
+        return next.length === list.length ? list : next;
+      });
+    });
+  }, [update]);
+};
+
 export const useMessageLstCache = (key: string) => {
   const update = useUpdateMessageList();
   useEffect(() => {
