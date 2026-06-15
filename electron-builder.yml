@@ -120,6 +120,13 @@ extraResources:
   # app.asar so on-disk paths are real for fs scanning + SKILL.md reads.
   - from: resources/bundled-extensions
     to: bundled-extensions
+  # Native built-in catalog (waylandteams: 28 specialists + 60 teams + icons +
+  # skills + context bodies). Unlike bundled-extensions, this is NEVER copied to
+  # userData - ExtensionLoader scans it straight from Resources via the dedicated
+  # 'builtin' scan source, flagged so it cannot be removed. Ships outside app.asar
+  # so context/icon/skill paths are real for fs scanning + wayland-asset:// reads.
+  - from: resources/builtin-extensions
+    to: builtin-extensions
   # Skills library + Wayland built-in workflows: shipped as real on-disk
   # Resources so SkillLibrary can read them in packaged builds. The previous
   # asarUnpack entries for these never worked: the source lives under

@@ -1,5 +1,5 @@
 {
-  "$schema": "../../schemas/aion-extension-v1.json",
+  "$schema": "../../../schemas/aion-extension-v1.json",
   "name": "waylandteams-specialist-bundle",
   "displayName": "Wayland Teams",
   "version": "1.0.0",

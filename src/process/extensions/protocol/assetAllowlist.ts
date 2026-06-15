@@ -24,6 +24,7 @@ import * as path from 'path';
 import {
   EXTENSION_MANIFEST_FILE,
   getAppDataExtensionsDir,
+  getBuiltinExtensionsDir,
   getEnvExtensionsDirs,
   getHubResourcesDir,
   getUserExtensionsDir,
@@ -54,6 +55,9 @@ export function buildAssetAllowlist(): string[] {
   for (const envDir of getEnvExtensionsDirs()) push(envDir);
   push(getUserExtensionsDir());
   push(getAppDataExtensionsDir());
+  // Native built-in extensions (waylandteams catalog) - icons resolve under
+  // <resources>/builtin-extensions/<ext>/icons and are served via wayland-asset://.
+  push(getBuiltinExtensionsDir());
   push(getHubResourcesDir());
   // Bundled voice STT model - the renderer's transformers.js worker fetches
   // the Whisper-tiny ONNX files through wayland-asset://.

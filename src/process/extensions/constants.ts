@@ -91,6 +91,21 @@ export type ExtensionScanSource = { dir: string; source: ExtensionSource };
  *
  * E2E test mode (`WAYLAND_E2E_TEST=1`) only scans env dirs for hermetic runs.
  */
+/**
+ * Path to the bundled built-in extensions directory. This is the parent dir
+ * scanned for native, shipped-with-the-app extensions (currently the
+ * waylandteams catalog of specialists + teams). Packaged:
+ * <resourcesPath>/builtin-extensions. Dev: <cwd>/resources/builtin-extensions.
+ * Its assets are reached through wayland-asset:// so this dir is also added to
+ * the asset allowlist (see buildAssetAllowlist).
+ */
+export function getBuiltinExtensionsDir(): string {
+  const resourcesPath = getPlatformServices().paths.isPackaged()
+    ? process.resourcesPath
+    : path.join(process.cwd(), 'resources');
+  return path.join(resourcesPath, 'builtin-extensions');
+}
+
 export function getExtensionScanSources(): ExtensionScanSource[] {
   const sources: ExtensionScanSource[] = [];
   const seen = new Set<string>();
@@ -117,6 +132,13 @@ export function getExtensionScanSources(): ExtensionScanSource[] {
     if (appDataDir !== userDir) {
       push(appDataDir, 'appdata');
     }
+
+    // Native built-in catalog (waylandteams). Lowest priority: ExtensionLoader
+    // name-dedups across sources keeping the first occurrence, so a dev symlink
+    // or any higher-priority copy with the same extension name overrides this
+    // built-in. Loaded straight from Resources and never copied into userData -
+    // it ships as a non-removable native, not a user-installable plugin.
+    push(getBuiltinExtensionsDir(), 'builtin');
   }
 
   return sources;
