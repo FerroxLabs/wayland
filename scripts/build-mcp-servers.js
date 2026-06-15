@@ -63,26 +63,42 @@ async function bundleWaylandMcp(pkgName, outName, opts = {}) {
     return;
   }
 
-  await esbuild.build({
-    bundle: true,
-    platform: 'node',
-    format: 'esm',
-    external: ['electron'],
-    loader: { '.wasm': 'empty' },
-    entryPoints: [path.join(src, 'src', 'index.ts')],
-    outfile: path.join(OUT_MAIN, outName),
-    nodePaths: [path.join(src, 'node_modules')],
-    // ESM-format bundles need a working `require` for inner CJS deps that
-    // dynamically pull node builtins (e.g. rss-parser → http). Without the
-    // banner, esbuild emits a stub that throws "Dynamic require not
-    // supported." `createRequire` makes those require() calls resolve at
-    // runtime against Node's real module system.
-    banner: {
-      js:
-        "import { createRequire as __wayland_createRequire } from 'module';\n" +
-        'const require = __wayland_createRequire(import.meta.url);',
-    },
-  });
+  // These sibling packages are OPTIONAL ship-with-installer extras (already
+  // skipped when their source is absent). A bundle failure of one - e.g. a
+  // transitive dep whose nested node_modules copy is incomplete on a given
+  // runner (an @opentelemetry/core ESM submodule failed to resolve on
+  // windows-x64) - must NOT take the entire app release down with it. Skip the
+  // one server loudly and let the core builtins + the other extras ship. The
+  // first-party core servers in main() still hard-fail (they must build
+  // everywhere); only these optional extras degrade to a skip.
+  try {
+    await esbuild.build({
+      bundle: true,
+      platform: 'node',
+      format: 'esm',
+      external: ['electron'],
+      loader: { '.wasm': 'empty' },
+      entryPoints: [path.join(src, 'src', 'index.ts')],
+      outfile: path.join(OUT_MAIN, outName),
+      nodePaths: [path.join(src, 'node_modules')],
+      // ESM-format bundles need a working `require` for inner CJS deps that
+      // dynamically pull node builtins (e.g. rss-parser → http). Without the
+      // banner, esbuild emits a stub that throws "Dynamic require not
+      // supported." `createRequire` makes those require() calls resolve at
+      // runtime against Node's real module system.
+      banner: {
+        js:
+          "import { createRequire as __wayland_createRequire } from 'module';\n" +
+          'const require = __wayland_createRequire(import.meta.url);',
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `::warning::[build-mcp-servers] optional @wayland/${pkgName} failed to bundle and was SKIPPED (the builtin will be unavailable in this build): ${message.split('\n')[0]}`,
+    );
+    return;
+  }
 
   if (opts.onSuccess) await opts.onSuccess(src);
 }
