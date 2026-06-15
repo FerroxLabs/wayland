@@ -14,6 +14,7 @@ import SettingsPageWrapper from '@renderer/pages/settings/components/SettingsPag
 import { ModelRegistryProvider, useModelRegistry, useRefreshState } from '@renderer/hooks/useModelRegistry';
 import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
 import { isElectronDesktop } from '@renderer/utils/platform';
+import { connectProviderHttp } from '@renderer/services/ProviderKeyService';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
@@ -95,7 +96,7 @@ export function getPendingDeepLinkSeed(): { apiKey?: string; baseUrl?: string } 
  */
 const ModelsSettingsInner: React.FC = () => {
   const { t } = useTranslation();
-  const { providers, loading, error, connect, detectKeys, refreshAll } = useModelRegistry();
+  const { providers, loading, error, connect, detectKeys, refreshAll, reload } = useModelRegistry();
   const refreshState = useRefreshState();
 
   // In a remote/WebUI (headless) session the bridge denylist blocks
@@ -262,10 +263,35 @@ const ModelsSettingsInner: React.FC = () => {
     [detectedKeys, ignoredKeys, connectedProviderIds]
   );
 
-  const connectKey = useCallback((providerId: ProviderId, key: string) => connect(providerId, { key }), [connect]);
+  // In a headless/remote (WebUI) session the `modelRegistry.connect` IPC is
+  // denied (it returns a decrypted key to a remote caller), so the pasted key
+  // goes through the write-only `/api/providers/connect` HTTP route instead
+  // (remote-secure-config W1.A). It returns status only; on success we reload
+  // the read-only registry list (which IS remote-allowed) so the new row shows.
+  const connectKey = useCallback(
+    async (providerId: ProviderId, key: string) => {
+      if (headless) {
+        const res = await connectProviderHttp(providerId, key);
+        if (res.ok) await reload();
+        return res;
+      }
+      return connect(providerId, { key });
+    },
+    [headless, connect, reload]
+  );
 
   // Flux Router is the recommended provider - connect it from the hero.
-  const connectFluxKey = useCallback((key: string) => connect('flux-router', { key }), [connect]);
+  const connectFluxKey = useCallback(
+    async (key: string) => {
+      if (headless) {
+        const res = await connectProviderHttp('flux-router', key);
+        if (res.ok) await reload();
+        return res;
+      }
+      return connect('flux-router', { key });
+    },
+    [headless, connect, reload]
+  );
 
   // Whether `flux-router` is already a connected provider - drives the hero's
   // reinforcement-vs-recommendation state. Read straight from the registry list
@@ -343,9 +369,9 @@ const ModelsSettingsInner: React.FC = () => {
     }
   }, [managedProviderId, managedProvider, loading]);
 
-  // In headless mode the operator-guidance notice already explains the empty
-  // state, so the connect-oriented EmptyState would be redundant and misleading
-  // (it nudges toward connect controls that are denied remotely).
+  // The ConnectPanel hero is always shown (in headless it posts to the
+  // write-only `/api/providers/connect` route - W1.A), so the separate
+  // connect-oriented EmptyState would be redundant on a first-run remote page.
   const showEmptyState = !headless && !loading && providers.length === 0 && visibleDetected.length === 0;
 
   if (managedProvider) {
@@ -388,28 +414,27 @@ const ModelsSettingsInner: React.FC = () => {
       breadcrumb={[{ label: t('settings.modelsPage.crumbAiModels') }, { label: t('settings.modelsPage.title') }]}
       actions={headerActions}
     >
-      {headless ? (
+      <FluxRouterHero connected={fluxConnected} onConnectKey={connectFluxKey} />
+
+      <ConnectPanel
+        detectedKeys={visibleDetected}
+        onConnectKey={connectKey}
+        onUseDetected={useDetected}
+        onIgnoreDetected={ignoreDetected}
+        onBrowse={handleBrowse}
+        deepLinkSeedNonce={panelSeedNonce}
+      />
+
+      {/* In a headless/remote session keys are planted via the write-only
+          `/api/providers/connect` route above; the local-endpoint env-var
+          path stays as a documented fallback for self-hosted local models. */}
+      {headless && (
         <div className={styles.headlessNotice}>
-          <p className={styles.headlessNoticeTitle}>{t('settings.modelsPage.headless.title')}</p>
-          <p className={styles.headlessNoticeBody}>{t('settings.modelsPage.headless.body')}</p>
           <p className={styles.headlessNoticeBody}>{t('settings.modelsPage.headless.localEndpoint')}</p>
           <p className={styles.headlessNoticeBody}>
             <code>OPENAI_API_KEY=local OPENAI_BASE_URL=http://127.0.0.1:8000/v1</code>
           </p>
         </div>
-      ) : (
-        <>
-          <FluxRouterHero connected={fluxConnected} onConnectKey={connectFluxKey} />
-
-          <ConnectPanel
-            detectedKeys={visibleDetected}
-            onConnectKey={connectKey}
-            onUseDetected={useDetected}
-            onIgnoreDetected={ignoreDetected}
-            onBrowse={handleBrowse}
-            deepLinkSeedNonce={panelSeedNonce}
-          />
-        </>
       )}
 
       {error && (

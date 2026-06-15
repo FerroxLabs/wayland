@@ -1836,6 +1836,24 @@ export async function connectModelRegistryProvider(
 }
 
 /**
+ * Read the NON-SECRET registry view for a single provider (state + model count
+ * + connectedVia), or `null` when the provider is not in the registry.
+ *
+ * Exposed for the remote secret-write routes (remote-secure-config W1): after a
+ * write-only connect they return `{ state, modelCount }` as status only - never
+ * the key. Reuses the same `list()` projection the read-only Models page uses,
+ * so the status is sourced from exactly one place. Returns `null` if called
+ * before `initModelRegistryIpc` has captured the production handlers.
+ */
+export async function getModelRegistryProviderView(
+  providerId: ProviderId
+): Promise<IModelRegistryProviderView | null> {
+  if (!_handlers) return null;
+  const list = await _handlers.list();
+  return list.find((p) => p.providerId === providerId) ?? null;
+}
+
+/**
  * Register a ChatGPT subscription connected via OAuth (`chatgpt-subscription`).
  *
  * This provider CANNOT go through `connectModelRegistryProvider`: a ChatGPT

@@ -27,6 +27,7 @@ import { apiRateLimiter } from '../middleware/security';
 import { registerWeixinLoginRoutes } from './weixinLoginRoutes';
 import { registerWecomChannelRoutes } from './wecomChannelRoutes';
 import { registerStorageRoutes } from './storageRoutes';
+import { registerProviderKeyRoutes } from './providerKeyRoutes';
 
 /** Temp directory used by multer disk storage - validated at runtime to prevent path traversal */
 const MULTER_TEMP_DIR = os.tmpdir();
@@ -728,6 +729,10 @@ export function registerApiRoutes(app: Express): void {
   // Storage actions for the remote WebUI (#83): paths/clear/export for any
   // authed session; restore gated on operator provenance + step-up password.
   registerStorageRoutes(app, validateApiAccess);
+
+  // Provider API-key entry from a remote WebUI client (remote-secure-config
+  // W1.A): write-only CONFIG-WRITE route, returns { state, modelCount } only.
+  registerProviderKeyRoutes(app, validateApiAccess);
 
   /**
    * Generic API endpoint
