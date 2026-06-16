@@ -254,11 +254,33 @@ describe('useGuidSend', () => {
       expect(result.current.isButtonDisabled).toBe(false);
     });
 
-    it('is true when no model is configured even with content', () => {
-      const deps = makeDeps({ input: 'hello', currentModel: undefined, isGoogleAuth: false });
+    it('is true when no model is configured on a model-gated backend (wcore)', () => {
+      const deps = makeDeps({
+        input: 'hello',
+        selectedAgent: 'wcore',
+        currentEffectiveAgentInfo: { agentType: 'wcore', isAvailable: true },
+        currentModel: undefined,
+        isGoogleAuth: false,
+      });
       const { result } = renderHook(() => useGuidSend(deps));
       expect(result.current.isButtonDisabled).toBe(true);
       expect(result.current.noModelConfigured).toBe(true);
+    });
+
+    it('is false for an ACP/CLI agent with no model (#119 - Claude Code)', () => {
+      // ACP/CLI agents spawn their own model and the send path never rejects on
+      // a missing one, so the no-model gate must not disable the Send button.
+      const deps = makeDeps({
+        input: 'hello',
+        selectedAgent: 'claude',
+        isPresetAgent: false,
+        currentEffectiveAgentInfo: { agentType: 'claude', isAvailable: true },
+        currentModel: undefined,
+        isGoogleAuth: false,
+      });
+      const { result } = renderHook(() => useGuidSend(deps));
+      expect(result.current.noModelConfigured).toBe(false);
+      expect(result.current.isButtonDisabled).toBe(false);
     });
   });
 

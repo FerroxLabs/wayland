@@ -589,12 +589,17 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     setDir,
   ]);
 
-  // No usable model configured. Mirrors the send-time validation: every send
-  // path rejects with `conversation.noModelConfigured` when `currentModel` is
-  // missing, except the Gemini path which also accepts a connected Google
-  // account (`isGoogleAuth`). Drives both the new-chat CTA card and the
-  // disabled Send button so they never diverge from the actual gate.
-  const noModelConfigured = !currentModel && !isGoogleAuth;
+  // No usable model configured. Mirrors the send-time validation: only the
+  // model-backed backends actually reject on a missing model - the Gemini path
+  // (unless a Google account is connected, `isGoogleAuth`) and the Wayland Core
+  // path. ACP/CLI agents (Claude Code, Codex, custom adapters) spawn their own
+  // model and send fine without one, so a missing model must NOT gate their
+  // Send button or show the no-model CTA (#119 - the button was dead for Claude
+  // Code while Enter, which skips this gate, worked). Drives both the new-chat
+  // CTA card and the disabled Send button so they never diverge from the gate.
+  const effectiveBackend = isPresetAgent ? currentEffectiveAgentInfo.agentType : selectedAgent;
+  const modelGatedBackend = !effectiveBackend || effectiveBackend === 'gemini' || effectiveBackend === 'wcore';
+  const noModelConfigured = modelGatedBackend && !currentModel && !isGoogleAuth;
 
   // Calculate button disabled state
   const isButtonDisabled =
