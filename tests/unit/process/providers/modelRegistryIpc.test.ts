@@ -40,6 +40,7 @@ import {
   createModelRegistryHandlers,
   CloudRegistrySource,
   resolveSpawnSecretsFromRepo,
+  _warmOllamaRuntimeModelForTests,
 } from '@process/providers/ipc/modelRegistryIpc';
 import type { ModelRegistryDeps, SpawnHandle } from '@process/providers/ipc/modelRegistryIpc';
 
@@ -54,7 +55,30 @@ describe('CloudRegistrySource - google-auth Gemini catalog (zero-models regressi
     } as never;
     const src = new CloudRegistrySource('google-gemini' as never, registry);
     const models = await src.listModels();
-    expect(models.map((m) => m.id).sort()).toEqual(['gemini-2.5-pro', 'gemini-flash-latest']);
+    expect(models.map((m) => m.id).toSorted()).toEqual(['gemini-2.5-pro', 'gemini-flash-latest']);
+  });
+});
+
+describe('Ollama runtime warm helper', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('disables streaming so the warm response can be parsed as one JSON object', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ done: true, done_reason: 'load' }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(_warmOllamaRuntimeModelForTests('qwen3-coder:30b')).resolves.toEqual({ ok: true, loaded: true });
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body).toMatchObject({
+      model: 'qwen3-coder:30b',
+      keep_alive: '10m',
+      stream: false,
+    });
   });
 });
 import type { CatalogModel, ProviderId } from '@process/providers/types';

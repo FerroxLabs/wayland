@@ -956,12 +956,15 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
     async warmOllamaModel({ modelId }): Promise<IOllamaWarmResult> {
       try {
-        if (!modelId || typeof modelId !== 'string') return { ok: false, loaded: false, error: 'Model id is required.' };
-        return (await deps.ollamaRuntime?.warmModel(modelId)) ?? {
-          ok: false,
-          loaded: false,
-          error: 'Ollama runtime integration is unavailable.',
-        };
+        if (!modelId || typeof modelId !== 'string')
+          return { ok: false, loaded: false, error: 'Model id is required.' };
+        return (
+          (await deps.ollamaRuntime?.warmModel(modelId)) ?? {
+            ok: false,
+            loaded: false,
+            error: 'Ollama runtime integration is unavailable.',
+          }
+        );
       } catch (error) {
         return {
           ok: false,
@@ -1504,7 +1507,7 @@ async function warmOllamaRuntimeModel(modelId: string, baseUrl = OLLAMA_LOCAL_BA
     const res = await fetch(`${normalizeOllamaApiBaseUrl(baseUrl)}/api/generate`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ model: modelId, keep_alive: '10m' }),
+      body: JSON.stringify({ model: modelId, keep_alive: '10m', stream: false }),
       signal: controller.signal,
     });
     if (!res.ok) return { ok: false, loaded: false, error: `Ollama warm request returned HTTP ${res.status}.` };
@@ -1951,4 +1954,8 @@ export async function connectModelRegistryProvider(
  */
 export async function _runStartupMigrationForTests(repo: ProviderRepository): Promise<void> {
   await runStartupMigration(repo);
+}
+
+export async function _warmOllamaRuntimeModelForTests(modelId: string, baseUrl?: string): Promise<IOllamaWarmResult> {
+  return warmOllamaRuntimeModel(modelId, baseUrl);
 }
