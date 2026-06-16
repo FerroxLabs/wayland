@@ -46,6 +46,8 @@ import type {
   IModelRegistryConnectResult,
   IModelRegistryCreds,
   IModelRegistryDetectedKey,
+  IOllamaRuntimeState,
+  IOllamaWarmResult,
   IModelRegistryProviderView,
   IModelRegistryRefreshState,
   IModelRegistryRefreshSummary,
@@ -210,6 +212,10 @@ export type ModelRegistryDeps = {
    * catalog untouched rather than emptying it.
    */
   probeOllama?: () => Promise<OllamaProbe>;
+  ollamaRuntime?: {
+    getState: () => Promise<IOllamaRuntimeState>;
+    warmModel: (modelId: string) => Promise<IOllamaWarmResult>;
+  };
 };
 
 /** The fixed native provider id for the local Ollama daemon. */
@@ -265,6 +271,8 @@ export type ModelRegistryHandlers = {
    * emitted once. Returns the genuinely-new model ids for the toast.
    */
   refreshAllOnce: () => Promise<IModelRegistryRefreshSummary>;
+  getOllamaRuntimeState: () => Promise<IOllamaRuntimeState>;
+  warmOllamaModel: (p: { modelId: string }) => Promise<IOllamaWarmResult>;
 };
 
 // ─── Handler factory ──────────────────────────────────────────────────────────
@@ -933,6 +941,35 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         return [];
       }
     },
+
+    async getOllamaRuntimeState(): Promise<IOllamaRuntimeState> {
+      try {
+        return (await deps.ollamaRuntime?.getState()) ?? { reachable: false, models: {} };
+      } catch (error) {
+        return {
+          reachable: false,
+          models: {},
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
+    },
+
+    async warmOllamaModel({ modelId }): Promise<IOllamaWarmResult> {
+      try {
+        if (!modelId || typeof modelId !== 'string') return { ok: false, loaded: false, error: 'Model id is required.' };
+        return (await deps.ollamaRuntime?.warmModel(modelId)) ?? {
+          ok: false,
+          loaded: false,
+          error: 'Ollama runtime integration is unavailable.',
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          loaded: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
+    },
   };
 }
 
@@ -1366,6 +1403,23 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
     // to `{ running:false }`, which the refresh path treats as "leave the
     // existing catalog untouched" rather than wiping it.
     probeOllama: () => probeOllamaDaemon(),
+    ollamaRuntime: {
+      getState: () => readOllamaRuntimeState(OLLAMA_LOCAL_BASE_URL),
+      warmModel: async (modelId: string) => {
+        const provider = _repo?.getRegistryProvider(OLLAMA_LOCAL_ID);
+        if (!provider) return { ok: false, loaded: false, error: 'Ollama is not connected.' };
+        const stored = _repo?.getRegistryProviderCreds(OLLAMA_LOCAL_ID);
+        if (stored?.status !== 'ok') return { ok: false, loaded: false, error: 'Ollama credentials are unavailable.' };
+        const configuredBaseUrl =
+          typeof stored.creds.baseUrl === 'string' && stored.creds.baseUrl.trim().length > 0
+            ? stored.creds.baseUrl.trim()
+            : OLLAMA_LOCAL_BASE_URL;
+        if (!isLoopbackBaseUrl(configuredBaseUrl)) {
+          return { ok: false, loaded: false, error: 'Refusing to warm a non-loopback Ollama endpoint.' };
+        }
+        return warmOllamaRuntimeModel(modelId, configuredBaseUrl);
+      },
+    },
   };
 }
 
@@ -1391,6 +1445,81 @@ async function probeOllamaDaemon(): Promise<OllamaProbe> {
     return { running: true, models };
   } catch {
     return { running: false, models: [] };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function normalizeOllamaApiBaseUrl(baseUrl?: string): string {
+  const raw = typeof baseUrl === 'string' && baseUrl.trim().length > 0 ? baseUrl.trim() : OLLAMA_LOCAL_BASE_URL;
+  return raw.replace(/\/v1\/?$/, '');
+}
+
+async function readOllamaRuntimeState(baseUrl = OLLAMA_LOCAL_BASE_URL): Promise<IOllamaRuntimeState> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2000);
+  try {
+    const res = await fetch(`${normalizeOllamaApiBaseUrl(baseUrl)}/api/ps`, { signal: controller.signal });
+    if (!res.ok) {
+      return { reachable: false, models: {}, error: `Ollama runtime returned HTTP ${res.status}.` };
+    }
+    const body = (await res.json()) as unknown;
+    const rawModels = body && typeof body === 'object' ? (body as { models?: unknown }).models : undefined;
+    if (!Array.isArray(rawModels)) return { reachable: true, models: {} };
+    const models: IOllamaRuntimeState['models'] = {};
+    for (const entry of rawModels) {
+      if (!entry || typeof entry !== 'object') continue;
+      const row = entry as {
+        model?: unknown;
+        name?: unknown;
+        expires_at?: unknown;
+        size_vram?: unknown;
+        context_length?: unknown;
+      };
+      const modelId = typeof row.model === 'string' ? row.model : typeof row.name === 'string' ? row.name : '';
+      if (!modelId) continue;
+      models[modelId] = {
+        loaded: true,
+        ...(typeof row.expires_at === 'string' ? { expiresAt: row.expires_at } : {}),
+        ...(typeof row.size_vram === 'number' ? { sizeVram: row.size_vram } : {}),
+        ...(typeof row.context_length === 'number' ? { contextLength: row.context_length } : {}),
+      };
+    }
+    return { reachable: true, models };
+  } catch (error) {
+    return {
+      reachable: false,
+      models: {},
+      error: error instanceof Error ? error.message : String(error),
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function warmOllamaRuntimeModel(modelId: string, baseUrl = OLLAMA_LOCAL_BASE_URL): Promise<IOllamaWarmResult> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(`${normalizeOllamaApiBaseUrl(baseUrl)}/api/generate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ model: modelId, keep_alive: '10m' }),
+      signal: controller.signal,
+    });
+    if (!res.ok) return { ok: false, loaded: false, error: `Ollama warm request returned HTTP ${res.status}.` };
+    const body = (await res.json()) as unknown;
+    const doneReason =
+      body && typeof body === 'object' && typeof (body as { done_reason?: unknown }).done_reason === 'string'
+        ? (body as { done_reason: string }).done_reason
+        : undefined;
+    return { ok: true, loaded: doneReason === 'load' || doneReason === 'stop' || doneReason === undefined };
+  } catch (error) {
+    return {
+      ok: false,
+      loaded: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
   } finally {
     clearTimeout(timer);
   }
@@ -1506,6 +1635,8 @@ export async function initModelRegistryIpc(): Promise<void> {
   });
   ipcBridge.modelRegistry.curatedForAgent.provider((payload) => h.curatedForAgent(payload));
   ipcBridge.modelRegistry.resolveForChatStart.provider((payload) => h.resolveForChatStart(payload));
+  ipcBridge.modelRegistry.getOllamaRuntimeState.provider(() => h.getOllamaRuntimeState());
+  ipcBridge.modelRegistry.warmOllamaModel.provider((payload) => h.warmOllamaModel(payload));
 
   // ── Provider catalog (T3.3): the ~100 connectable catalog PROVIDERS ─────────
   // A separate concept from the per-provider model registry above. The vendored

@@ -5,6 +5,7 @@
  */
 
 import type { IProvider, TProviderWithModel } from '@/common/config/storage';
+import { ipcBridge } from '@/common';
 import { useModelProviderList } from '@/renderer/hooks/agent/useModelProviderList';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -14,6 +15,8 @@ export type WCoreModelSelection = {
   getAvailableModels: (provider: IProvider) => string[];
   handleSelectModel: (provider: IProvider, modelName: string) => Promise<void>;
   getDisplayModelName: (modelName?: string) => string;
+  warmingModelId: string | null;
+  runtimeRefreshNonce: number;
 };
 
 export type UseAionrsModelSelectionOptions = {
@@ -26,6 +29,8 @@ export const useWCoreModelSelection = ({
   onSelectModel,
 }: UseAionrsModelSelectionOptions): WCoreModelSelection => {
   const [currentModel, setCurrentModel] = useState<TProviderWithModel | undefined>(initialModel);
+  const [warmingModelId, setWarmingModelId] = useState<string | null>(null);
+  const [runtimeRefreshNonce, setRuntimeRefreshNonce] = useState(0);
 
   useEffect(() => {
     setCurrentModel(initialModel);
@@ -48,6 +53,19 @@ export const useWCoreModelSelection = ({
       const ok = await onSelectModel(provider, modelName);
       if (ok) {
         setCurrentModel(selected);
+        setRuntimeRefreshNonce((n) => n + 1);
+        if (provider.id === 'ollama-local') {
+          setWarmingModelId(modelName);
+          void ipcBridge.modelRegistry
+            .warmOllamaModel.invoke({ modelId: modelName })
+            .catch((error) => {
+              console.warn('[WCoreModelSelection] Failed to warm Ollama model:', error);
+            })
+            .finally(() => {
+              setWarmingModelId((current) => (current === modelName ? null : current));
+              setRuntimeRefreshNonce((n) => n + 1);
+            });
+        }
       }
     },
     [onSelectModel]
@@ -69,5 +87,7 @@ export const useWCoreModelSelection = ({
     getAvailableModels,
     handleSelectModel,
     getDisplayModelName,
+    warmingModelId,
+    runtimeRefreshNonce,
   };
 };

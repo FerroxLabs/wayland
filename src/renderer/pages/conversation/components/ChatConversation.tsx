@@ -52,6 +52,8 @@ const WORKFLOW_WCORE_MODEL_SELECTION: WCoreModelSelection = {
   getAvailableModels: () => [],
   handleSelectModel: async () => {},
   getDisplayModelName: () => '',
+  warmingModelId: null,
+  runtimeRefreshNonce: 0,
 };
 
 const WORKFLOW_GEMINI_MODEL_SELECTION: GeminiModelSelection = {

@@ -195,6 +195,8 @@ type Fakes = {
   getRegistry: ReturnType<typeof vi.fn>;
   apiListModels: ReturnType<typeof vi.fn>;
   cliListModels: ReturnType<typeof vi.fn>;
+  getOllamaState: ReturnType<typeof vi.fn>;
+  warmOllamaModel: ReturnType<typeof vi.fn>;
 };
 
 function makeFakes(over: Partial<{ apiModels: unknown; testResult: unknown }> = {}): Fakes {
@@ -206,6 +208,8 @@ function makeFakes(over: Partial<{ apiModels: unknown; testResult: unknown }> = 
   const getRegistry = vi.fn().mockResolvedValue({});
   const apiListModels = vi.fn().mockResolvedValue(over.apiModels ?? [{ id: 'gpt-4o', providerId: 'openai' }]);
   const cliListModels = vi.fn().mockResolvedValue([{ id: 'gpt-5-codex', providerId: 'openai' }]);
+  const getOllamaState = vi.fn().mockResolvedValue({ reachable: true, models: {} });
+  const warmOllamaModel = vi.fn().mockResolvedValue({ ok: true, loaded: true });
 
   const deps: ModelRegistryDeps = {
     repo: repo as unknown as ModelRegistryDeps['repo'],
@@ -220,6 +224,10 @@ function makeFakes(over: Partial<{ apiModels: unknown; testResult: unknown }> = 
       underlyingProviderId: agentKey === 'codex' ? 'openai' : agentKey === 'claude' ? 'anthropic' : 'google-gemini',
       listModels: cliListModels,
     }),
+    ollamaRuntime: {
+      getState: getOllamaState,
+      warmModel: warmOllamaModel,
+    },
   };
 
   return {
@@ -231,6 +239,8 @@ function makeFakes(over: Partial<{ apiModels: unknown; testResult: unknown }> = 
     getRegistry,
     apiListModels,
     cliListModels,
+    getOllamaState,
+    warmOllamaModel,
   };
 }
 
@@ -251,6 +261,31 @@ describe('modelRegistry IPC - detectKeys', () => {
     const h = createModelRegistryHandlers(deps);
 
     expect(await h.detectKeys()).toEqual([]);
+  });
+});
+
+describe('modelRegistry IPC - Ollama runtime helpers', () => {
+  it('returns live Ollama runtime state from the injected runtime adapter', async () => {
+    const { deps, getOllamaState } = makeFakes();
+    getOllamaState.mockResolvedValue({
+      reachable: true,
+      models: { 'qwen3-coder:30b': { loaded: true, contextLength: 262144 } },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    await expect(h.getOllamaRuntimeState()).resolves.toEqual({
+      reachable: true,
+      models: { 'qwen3-coder:30b': { loaded: true, contextLength: 262144 } },
+    });
+  });
+
+  it('forwards warm requests to the injected Ollama runtime adapter', async () => {
+    const { deps, warmOllamaModel } = makeFakes();
+    warmOllamaModel.mockResolvedValue({ ok: true, loaded: true });
+    const h = createModelRegistryHandlers(deps);
+
+    await expect(h.warmOllamaModel({ modelId: 'qwen3-coder:30b' })).resolves.toEqual({ ok: true, loaded: true });
+    expect(warmOllamaModel).toHaveBeenCalledWith('qwen3-coder:30b');
   });
 });
 

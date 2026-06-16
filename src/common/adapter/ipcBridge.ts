@@ -1797,6 +1797,28 @@ export type IModelRegistryRefreshState = {
   refreshing: boolean;
 };
 
+/** Live runtime state for locally-connected Ollama models. */
+export type IOllamaRuntimeState = {
+  reachable: boolean;
+  models: Record<
+    string,
+    {
+      loaded: boolean;
+      expiresAt?: string;
+      sizeVram?: number;
+      contextLength?: number;
+    }
+  >;
+  error?: string;
+};
+
+/** Result of asking the local Ollama daemon to warm a model into memory. */
+export type IOllamaWarmResult = {
+  ok: boolean;
+  loaded: boolean;
+  error?: string;
+};
+
 export const modelRegistry = {
   // Auto-discover provider keys from the environment / credential stores.
   detectKeys: buildProvider<IModelRegistryDetectedKey[], void>('modelRegistry.detectKeys'),
@@ -1843,6 +1865,12 @@ export const modelRegistry = {
   refreshAll: buildProvider<IModelRegistryRefreshSummary, { reason?: 'manual' }>('modelRegistry.refreshAll'),
   // Current freshness + in-flight state for the Models settings header.
   getRefreshState: buildProvider<IModelRegistryRefreshState, void>('modelRegistry.getRefreshState'),
+  // Live runtime state for the local Ollama daemon (`/api/ps`), separate from
+  // the persisted installed-model catalog (`/api/tags` / registry mirror).
+  getOllamaRuntimeState: buildProvider<IOllamaRuntimeState, void>('modelRegistry.getOllamaRuntimeState'),
+  // Ask the native Ollama daemon to warm a model into memory so the next chat
+  // turn can avoid a cold-start load penalty.
+  warmOllamaModel: buildProvider<IOllamaWarmResult, { modelId: string }>('modelRegistry.warmOllamaModel'),
   // The auto-refresh toggle (persisted `models.autoRefresh`, default on).
   getAutoRefresh: buildProvider<boolean, void>('modelRegistry.getAutoRefresh'),
   setAutoRefresh: buildProvider<{ ok: boolean }, { value: boolean }>('modelRegistry.setAutoRefresh'),
