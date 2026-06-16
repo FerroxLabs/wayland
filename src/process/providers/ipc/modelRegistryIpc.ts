@@ -1615,7 +1615,7 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.toggleModel.provider(async (payload) => {
     const result = await h.toggleModel(payload);
     if (result.ok && _repo) {
-      void mirrorConnectOrRekey(_repo, payload.providerId);
+      await mirrorConnectOrRekey(_repo, payload.providerId);
       ipcBridge.modelRegistry.listChanged.emit();
     }
     return result;
