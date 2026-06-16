@@ -211,7 +211,7 @@ export type ModelRegistryDeps = {
    * `initModelRegistryIpc`. A `null`/unreachable result must leave the existing
    * catalog untouched rather than emptying it.
    */
-  probeOllama?: () => Promise<OllamaProbe>;
+  probeOllama?: (baseUrl?: string) => Promise<OllamaProbe>;
   ollamaRuntime?: {
     getState: () => Promise<IOllamaRuntimeState>;
     warmModel: (modelId: string) => Promise<IOllamaWarmResult>;
@@ -419,11 +419,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * `autoRegisterOllamaInRepo` preserves a user-changed `state` (e.g. disabled)
    * and only refreshes the catalog for an already-registered provider.
    */
-  async function refreshOllamaLocal(): Promise<'ok' | 'unreachable' | 'failed'> {
+  async function refreshOllamaLocal(baseUrl: string): Promise<'ok' | 'unreachable' | 'failed'> {
     if (!deps.probeOllama) return 'unreachable';
     let probe: OllamaProbe;
     try {
-      probe = await deps.probeOllama();
+      probe = await deps.probeOllama(baseUrl);
     } catch {
       return 'unreachable';
     }
@@ -716,12 +716,10 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // generic catalog builder would assemble zero sources and replace the
         // saved model list with `[]`. Re-probe the local daemon instead, and
         // leave the existing catalog untouched if the daemon is unreachable.
-        const storedBaseUrl = stored.creds.baseUrl;
-        if (
-          providerId === OLLAMA_LOCAL_ID &&
-          isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')
-        ) {
-          return { ok: (await refreshOllamaLocal()) === 'ok' };
+        if (providerId === OLLAMA_LOCAL_ID) {
+          const configuredBaseUrl = configuredOllamaBaseUrl(repo);
+          if (configuredBaseUrl.ok === false) return { ok: false };
+          return { ok: (await refreshOllamaLocal(configuredBaseUrl.baseUrl)) === 'ok' };
         }
 
         const creds = toTestCreds(stored.creds);
@@ -767,12 +765,14 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           // 5): a row whose stored host is not loopback is treated like any
           // other custom provider (validated below), so the keyless+SSRF-exempt
           // allowance can never be hijacked onto a remote host.
-          if (
-            providerId === OLLAMA_LOCAL_ID &&
-            isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')
-          ) {
+          if (providerId === OLLAMA_LOCAL_ID) {
+            const configuredBaseUrl = configuredOllamaBaseUrl(repo);
+            if (configuredBaseUrl.ok === false) {
+              failed.push(providerId);
+              continue;
+            }
             const ollamaBefore = new Set(repo.getRegistryCatalog(providerId).map((m) => m.id));
-            const outcome = await refreshOllamaLocal();
+            const outcome = await refreshOllamaLocal(configuredBaseUrl.baseUrl);
             if (outcome !== 'ok') {
               failed.push(providerId);
               continue;
@@ -1405,7 +1405,7 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
     // `buildAndPersistCatalog` (Finding 1). A down/unreachable daemon resolves
     // to `{ running:false }`, which the refresh path treats as "leave the
     // existing catalog untouched" rather than wiping it.
-    probeOllama: () => probeOllamaDaemon(),
+    probeOllama: (baseUrl) => probeOllamaDaemon(baseUrl),
     ollamaRuntime: {
       getState: () => {
         const configuredBaseUrl = configuredOllamaBaseUrl(_repo);
@@ -1424,7 +1424,7 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
 }
 
 function configuredOllamaBaseUrl(
-  repo?: ProviderRepository
+  repo?: Pick<ProviderRepository, 'getRegistryProvider' | 'getRegistryProviderCreds'>
 ): { ok: true; baseUrl: string } | { ok: false; error: string } {
   const provider = repo?.getRegistryProvider(OLLAMA_LOCAL_ID);
   if (!provider) return { ok: false, error: 'Ollama is not connected.' };
@@ -1446,11 +1446,11 @@ function configuredOllamaBaseUrl(
  * `{ running:false, models:[] }`. Never throws. Mirror of `detect.probeOllama`
  * but kept here to avoid a `detect -> modelRegistryIpc` import cycle.
  */
-async function probeOllamaDaemon(): Promise<OllamaProbe> {
+async function probeOllamaDaemon(baseUrl = OLLAMA_LOCAL_BASE_URL): Promise<OllamaProbe> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2000);
   try {
-    const res = await fetch(`${OLLAMA_LOCAL_BASE_URL.replace(/\/v1$/, '')}/api/tags`, { signal: controller.signal });
+    const res = await fetch(`${normalizeOllamaApiBaseUrl(baseUrl)}/api/tags`, { signal: controller.signal });
     if (!res.ok) return { running: false, models: [] };
     const body = (await res.json()) as unknown;
     if (!body || typeof body !== 'object') return { running: false, models: [] };

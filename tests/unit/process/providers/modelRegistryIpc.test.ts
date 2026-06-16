@@ -768,8 +768,28 @@ describe('modelRegistry IPC - refresh', () => {
     const result = await h.refresh({ providerId: 'ollama-local' });
 
     expect(result).toEqual({ ok: true });
+    expect(deps.probeOllama).toHaveBeenCalledWith('http://127.0.0.1:11434/v1');
     expect(apiListModels).not.toHaveBeenCalled();
     expect(repo.getRegistryCatalog('ollama-local').map((m) => m.id)).toEqual(['llama3:latest', 'mistral:latest']);
+  });
+
+  it('uses the default loopback URL when refreshing ollama-local with no stored baseUrl', async () => {
+    const { deps, repo, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'connected',
+      creds: { key: '' },
+    });
+    deps.probeOllama = vi.fn().mockResolvedValue({ running: true, models: ['llama3:latest'] });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.refresh({ providerId: 'ollama-local' });
+
+    expect(result).toEqual({ ok: true });
+    expect(deps.probeOllama).toHaveBeenCalledWith('http://127.0.0.1:11434/v1');
+    expect(apiListModels).not.toHaveBeenCalled();
+    expect(repo.getRegistryCatalog('ollama-local').map((m) => m.id)).toEqual(['llama3:latest']);
   });
 });
 
@@ -1666,7 +1686,7 @@ describe('modelRegistry IPC - refreshAllOnce SSRF gate (ollama-local exemption)'
     const h = createModelRegistryHandlers(deps);
     const summary = await h.refreshAllOnce();
 
-    expect(probeOllama).toHaveBeenCalledTimes(1);
+    expect(probeOllama).toHaveBeenCalledWith('http://127.0.0.1:11434/v1');
     expect(summary.succeeded).toContain('ollama-local');
     // Catalog refreshed from the live probe (not wiped to empty).
     expect(repo.getRegistryCatalog('ollama-local').map((m) => m.id)).toEqual(['llama3:latest']);
