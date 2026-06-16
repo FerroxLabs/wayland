@@ -222,6 +222,7 @@ export type ModelRegistryDeps = {
 const OLLAMA_LOCAL_ID: ProviderId = 'ollama-local';
 /** The hardcoded loopback OpenAI-compatible endpoint the local Ollama provider is pinned to. */
 const OLLAMA_LOCAL_BASE_URL = 'http://127.0.0.1:11434/v1';
+const OLLAMA_WARM_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
  * True only when `baseUrl` parses and its host is a LOOPBACK literal
@@ -1516,7 +1517,9 @@ async function readOllamaRuntimeState(baseUrl = OLLAMA_LOCAL_BASE_URL): Promise<
 
 async function warmOllamaRuntimeModel(modelId: string, baseUrl = OLLAMA_LOCAL_BASE_URL): Promise<IOllamaWarmResult> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
+  // Cold-starting large local models can take minutes; keep the UI in Warming
+  // rather than racing the daemon and reporting a false failure.
+  const timer = setTimeout(() => controller.abort(), OLLAMA_WARM_TIMEOUT_MS);
   try {
     const res = await fetch(`${normalizeOllamaApiBaseUrl(baseUrl)}/api/generate`, {
       method: 'POST',
