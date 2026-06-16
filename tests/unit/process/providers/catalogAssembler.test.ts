@@ -13,8 +13,13 @@ import type { RawModel } from '@process/providers/types';
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 /** A `CatalogSource` that returns a fixed `RawModel[]`. */
-function fixedSource(kind: CatalogSource['kind'], providerId: string, models: RawModel[]): CatalogSource {
-  return { kind, providerId, listModels: async () => models };
+function fixedSource(
+  kind: CatalogSource['kind'],
+  providerId: string,
+  models: RawModel[],
+  baseUrl?: string
+): CatalogSource {
+  return { kind, providerId, ...(baseUrl ? { baseUrl } : {}), listModels: async () => models };
 }
 
 /** A `CatalogSource` whose `listModels()` rejects. */
@@ -208,16 +213,36 @@ describe('CatalogAssembler', () => {
   });
 
   it('drops unsupported vision models from local OpenAI-compatible catalogs', async () => {
-    const source = fixedSource('api', 'openai-compatible', [
-      { id: 'qwen3-coder:30b', providerId: 'openai-compatible' },
-      { id: 'llama3.2-vision:11b', providerId: 'openai-compatible' },
-      { id: 'qwen2.5vl:7b', providerId: 'openai-compatible' },
-      { id: 'foo-vlm-7b', providerId: 'openai-compatible' },
-      { id: 'llava:latest', providerId: 'openai-compatible' },
-    ]);
+    const source = fixedSource(
+      'api',
+      'openai-compatible',
+      [
+        { id: 'qwen3-coder:30b', providerId: 'openai-compatible' },
+        { id: 'llama3.2-vision:11b', providerId: 'openai-compatible' },
+        { id: 'qwen2.5vl:7b', providerId: 'openai-compatible' },
+        { id: 'foo-vlm-7b', providerId: 'openai-compatible' },
+        { id: 'llava:latest', providerId: 'openai-compatible' },
+      ],
+      'http://127.0.0.1:1234/v1'
+    );
     const { models: catalog } = await assembler.assemble([source], buildRegistry());
 
     expect(catalog.map((m) => m.id)).toEqual(['qwen3-coder:30b']);
+  });
+
+  it('keeps vision models from remote OpenAI-compatible catalogs', async () => {
+    const source = fixedSource(
+      'api',
+      'openai-compatible',
+      [
+        { id: 'qwen3-coder:30b', providerId: 'openai-compatible' },
+        { id: 'llama3.2-vision:11b', providerId: 'openai-compatible' },
+      ],
+      'https://remote.example.com/v1'
+    );
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
+
+    expect(catalog.map((m) => m.id)).toEqual(['qwen3-coder:30b', 'llama3.2-vision:11b']);
   });
 
   it('does not borrow a colliding model id from another provider', async () => {

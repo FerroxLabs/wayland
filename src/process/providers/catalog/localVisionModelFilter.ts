@@ -6,8 +6,6 @@
 
 import type { ProviderId } from '../types';
 
-const LOCAL_MODEL_PROVIDERS = new Set<ProviderId>(['ollama-local', 'openai-compatible']);
-
 const VISION_MODEL_PATTERNS: RegExp[] = [
   /(?:^|[-_.:/])vision(?:$|[-_.:/])/i,
   /(?:^|[-_.:/])vlm?(?:$|[-_.:/])/i,
@@ -25,7 +23,11 @@ const VISION_MODEL_PATTERNS: RegExp[] = [
   /qwen[\w.-]*vl/i,
 ];
 
-export function isUnsupportedLocalVisionModel(providerId: ProviderId, modelId: string): boolean {
-  if (!LOCAL_MODEL_PROVIDERS.has(providerId)) return false;
+export function isUnsupportedLocalVisionModel(
+  providerId: ProviderId,
+  modelId: string,
+  isLocalEndpoint = false
+): boolean {
+  if (providerId !== 'ollama-local' && !(providerId === 'openai-compatible' && isLocalEndpoint)) return false;
   return VISION_MODEL_PATTERNS.some((pattern) => pattern.test(modelId));
 }

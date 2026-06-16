@@ -69,12 +69,12 @@ export class ApiProviderSource implements CatalogSource {
    * through `refresh`. Wave 3 Fix 10 - without this, every refresh on a
    * custom-base provider silently re-targets the canonical default.
    */
-  private readonly customBaseUrl: string | undefined;
+  readonly baseUrl: string | undefined;
 
   constructor(providerId: ProviderId, apiKey: string, customBaseUrl?: string) {
     this.providerId = providerId;
     this.apiKey = apiKey;
-    this.customBaseUrl =
+    this.baseUrl =
       typeof customBaseUrl === 'string' && customBaseUrl.trim().length > 0 ? customBaseUrl.trim() : undefined;
   }
 
@@ -132,13 +132,13 @@ export class ApiProviderSource implements CatalogSource {
    * segment. Falls back to the canonical `PROVIDER_ENDPOINTS` entry otherwise.
    */
   private resolveEndpoint(): string | undefined {
-    if (!this.customBaseUrl) return PROVIDER_ENDPOINTS[this.providerId];
+    if (!this.baseUrl) return PROVIDER_ENDPOINTS[this.providerId];
 
     // Anthropic + Gemini have non-standard `/v1/models` paths but the auth
     // module already encodes the per-provider differences; we just need to
     // append `/models` on the user's base. The base usually ends in `/v1`,
     // but some users save without it - handle both.
-    const base = this.customBaseUrl.replace(/\/+$/, '');
+    const base = this.baseUrl.replace(/\/+$/, '');
     if (this.providerId === 'google-gemini') {
       // Gemini uses `/v1beta/models?key=...`; if the user's base already
       // includes /v1beta, append `/models`; else append `/v1beta/models`.

@@ -35,6 +35,7 @@ import type { ModelsDevModel, ModelsDevRegistry } from '../enrichment/modelsDevS
 import type { CatalogModel, ModelKind, ProviderId, RawModel, UsageTag } from '../types';
 import { ModelDisplayNames } from './ModelDisplayNames';
 import { isUnsupportedLocalVisionModel } from './localVisionModelFilter';
+import { isLocalBaseUrl } from '@/common/utils/urlValidation';
 
 /**
  * Maps our `ProviderId` to the provider key models.dev uses in its registry.
@@ -103,7 +104,8 @@ export class CatalogAssembler {
 
     const models: CatalogModel[] = [];
     let sourceErrors = 0;
-    for (const result of settled) {
+    for (let sourceIndex = 0; sourceIndex < settled.length; sourceIndex++) {
+      const result = settled[sourceIndex];
       // A rejected source contributes nothing - degrade per-source, never
       // abort - but the failure is reported so the caller can tell a degraded
       // empty result apart from a genuinely empty one.
@@ -111,8 +113,11 @@ export class CatalogAssembler {
         sourceErrors++;
         continue;
       }
+      const isLocalOpenAICompatibleSource =
+        result.value.some((raw) => raw.providerId === 'openai-compatible') &&
+        isLocalBaseUrl(sources[sourceIndex]?.baseUrl);
       for (const raw of result.value) {
-        if (isUnsupportedLocalVisionModel(raw.providerId, raw.id)) continue;
+        if (isUnsupportedLocalVisionModel(raw.providerId, raw.id, isLocalOpenAICompatibleSource)) continue;
         models.push(this.toCatalogModel(raw, registry));
       }
     }

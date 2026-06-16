@@ -29,5 +29,6 @@ import type { RawModel } from '../types';
 export type CatalogSource = {
   readonly kind: 'api' | 'wcore' | 'cli';
   readonly providerId: string;
+  readonly baseUrl?: string;
   listModels(): Promise<RawModel[]>;
 };
