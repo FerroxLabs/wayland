@@ -12,7 +12,7 @@
  * one-shot hidden begin send.
  */
 
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -155,6 +155,12 @@ vi.mock('@/renderer/pages/guid/components/workflow/WorkflowClarifyCard', () => (
         onClick={() => (props.onStart as (note: string) => void)('')}
       >
         Start
+      </button>
+      <button
+        data-testid='mock-clarify-start-with-note'
+        onClick={() => (props.onStart as (note: string) => void)('use the spec in ./feature-1')}
+      >
+        Start with note
       </button>
     </div>
   ),
@@ -615,6 +621,33 @@ describe('WorkflowSurface', () => {
     };
     expect(msgPayload.conversation_id).toBe('conv-1');
     expect(msgPayload.input).toContain('automate-business-workflows');
+  });
+
+  it('#121: sends the optional context note as a SECOND message AFTER begin (not racing begin_sent_at)', async () => {
+    const session = buildSession({ begin_sent_at: null });
+    const markBeginSent = vi.fn().mockImplementation(async (at: number) => ({ ...session, begin_sent_at: at }));
+    hookOverrides.data = session;
+    hookOverrides.markBeginSent = markBeginSent;
+    render(
+      <WorkflowSurface sessionId='sess-1' initialSession={session}>
+        <div data-testid='caller-children'>chat-tape</div>
+      </WorkflowSurface>
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('mock-overlay-complete'));
+    });
+    // Start WITH a context note - the note must follow the begin send, not race it.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('mock-clarify-start-with-note'));
+    });
+
+    await waitFor(() => expect(sendMessageMock).toHaveBeenCalledTimes(2));
+    const first = sendMessageMock.mock.calls[0][0] as { input: string };
+    const second = sendMessageMock.mock.calls[1][0] as { input: string };
+    // Order matters: begin first (so the session is active), note second.
+    expect(first.input).toContain('automate-business-workflows');
+    expect(second.input).toBe('use the spec in ./feature-1');
   });
 
   it('session with begin_sent_at already set: neither markBeginSent nor sendMessage fires on mount', async () => {

@@ -363,11 +363,33 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
         // (Confirmed needed: conversation layer does NOT dedup by msg_id,
         // so deterministic msg_id alone wouldn't stop the duplicate.)
         if (updated.begin_sent_at !== at) return;
-        return ipcBridge.conversation.sendMessage.invoke({
-          input: `begin ${workflowName}`,
-          msg_id: buildBeginMessageId(sessionDataId),
-          conversation_id: conversationId,
-        });
+        return ipcBridge.conversation.sendMessage
+          .invoke({
+            input: `begin ${workflowName}`,
+            msg_id: buildBeginMessageId(sessionDataId),
+            conversation_id: conversationId,
+          })
+          .then(() => {
+            // #121: send the optional context note as a SECOND message only
+            // AFTER the begin send is accepted. `sendMessage` resolves once the
+            // agent session is active, so the note no longer races the session
+            // bootstrap into a "cannot send in prompting state" rejection (which
+            // dropped the note and left the agent hunting for context).
+            // Best-effort: a failure is logged, never fatal.
+            const note = contextNoteRef.current;
+            if (!note || noteSentRef.current) return;
+            noteSentRef.current = true;
+            contextNoteRef.current = '';
+            return ipcBridge.conversation.sendMessage
+              .invoke({
+                input: note,
+                msg_id: `workflow-clarify-note-${sessionDataId}-${at}`,
+                conversation_id: conversationId,
+              })
+              .catch((err: unknown) => {
+                console.warn('[WorkflowSurface] clarify note send failed:', err);
+              });
+          });
       })
       .catch((err: unknown) => {
         // Roll back the in-flight guard so the user can retry by reloading
@@ -378,27 +400,6 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
         console.warn('[WorkflowSurface] begin send failed:', err);
       });
   }, [launched, clarified, data, session]);
-
-  // Send the optional context note as the first user message once the begin
-  // send has landed (begin_sent_at transitions from null to non-null).
-  // Best-effort: failure is logged but does not block the run.
-  useEffect(() => {
-    if (data?.begin_sent_at == null) return;
-    if (!contextNoteRef.current) return;
-    if (noteSentRef.current) return;
-    noteSentRef.current = true;
-    const note = contextNoteRef.current;
-    contextNoteRef.current = '';
-    void ipcBridge.conversation.sendMessage
-      .invoke({
-        input: note,
-        msg_id: `workflow-clarify-note-${sessionId}-${Date.now()}`,
-        conversation_id: data.conversation_id,
-      })
-      .catch((err: unknown) => {
-        console.warn('[WorkflowSurface] clarify note send failed:', err);
-      });
-  }, [data?.begin_sent_at, data?.conversation_id, sessionId]);
 
   if (!data) {
     return null;
