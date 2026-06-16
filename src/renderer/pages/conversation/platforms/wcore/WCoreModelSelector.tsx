@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { WCoreModelSelection } from './useWCoreModelSelection';
+import { registryProviderIdFor, type WCoreModelSelection } from './useWCoreModelSelection';
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
@@ -42,6 +42,14 @@ function getModelStatusView(args: {
       };
     }
     if (!ollamaRuntimeState?.reachable) {
+      if (!ollamaRuntimeState) {
+        return {
+          status: 'unknown',
+          color: 'bg-gray-400',
+          label: 'Checking',
+          tooltip: 'Wayland is checking the local Ollama runtime.',
+        };
+      }
       return {
         status: 'unhealthy',
         color: 'bg-red-500',
@@ -95,7 +103,9 @@ const WCoreModelSelector: React.FC<{
     });
   }, [mutateModelConfig]);
 
-  const hasOllamaProvider = Boolean(selection?.providers.some((provider) => provider.id === 'ollama-local'));
+  const hasOllamaProvider = Boolean(
+    selection?.providers.some((provider) => registryProviderIdFor(provider) === 'ollama-local')
+  );
   const { data: ollamaRuntimeState, mutate: mutateOllamaRuntimeState } = useSWR<IOllamaRuntimeState | null>(
     hasOllamaProvider ? 'modelRegistry.ollama.runtime' : null,
     () => ipcBridge.modelRegistry.getOllamaRuntimeState.invoke()
@@ -104,14 +114,20 @@ const WCoreModelSelector: React.FC<{
   useEffect(() => {
     if (!hasOllamaProvider) return;
     void mutateOllamaRuntimeState();
-  }, [hasOllamaProvider, mutateOllamaRuntimeState, selection?.currentModel?.id, selection?.currentModel?.useModel, selection?.runtimeRefreshNonce]);
+  }, [
+    hasOllamaProvider,
+    mutateOllamaRuntimeState,
+    selection?.currentModel?.id,
+    selection?.currentModel?.useModel,
+    selection?.runtimeRefreshNonce,
+  ]);
 
   const currentModel = selection?.currentModel;
   const currentModelHealth = useMemo(() => {
     if (!currentModel || !modelConfig) return { status: 'unknown', color: 'bg-gray-400' } as ModelStatusView;
     const matchedProvider = modelConfig.find((p) => p.id === currentModel.id);
     return getModelStatusView({
-      providerId: currentModel.id,
+      providerId: registryProviderIdFor(currentModel),
       modelName: currentModel.useModel,
       modelHealthStatus: matchedProvider?.modelHealth?.[currentModel.useModel]?.status || 'unknown',
       ollamaRuntimeState: ollamaRuntimeState ?? undefined,
@@ -162,8 +178,9 @@ const WCoreModelSelector: React.FC<{
               <Menu.ItemGroup title={provider.name} key={provider.id}>
                 {models.map((modelName) => {
                   const matchedProvider = modelConfig?.find((p) => p.id === provider.id);
+                  const providerRegistryId = registryProviderIdFor(provider);
                   const statusView = getModelStatusView({
-                    providerId: provider.id,
+                    providerId: providerRegistryId,
                     modelName,
                     modelHealthStatus: matchedProvider?.modelHealth?.[modelName]?.status || 'unknown',
                     ollamaRuntimeState: ollamaRuntimeState ?? undefined,
@@ -210,7 +227,9 @@ const WCoreModelSelector: React.FC<{
             <div className={`w-6px h-6px rounded-full shrink-0 ${currentModelHealth.color}`} />
           )}
           <span className={compact ? 'block truncate' : undefined}>{label}</span>
-          {!compact && currentModelHealth.label && <span className='text-12px opacity-60 shrink-0'>{currentModelHealth.label}</span>}
+          {!compact && currentModelHealth.label && (
+            <span className='text-12px opacity-60 shrink-0'>{currentModelHealth.label}</span>
+          )}
         </span>
       </Button>
     </Dropdown>

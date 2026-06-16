@@ -1407,23 +1407,37 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
     // existing catalog untouched" rather than wiping it.
     probeOllama: () => probeOllamaDaemon(),
     ollamaRuntime: {
-      getState: () => readOllamaRuntimeState(OLLAMA_LOCAL_BASE_URL),
-      warmModel: async (modelId: string) => {
-        const provider = _repo?.getRegistryProvider(OLLAMA_LOCAL_ID);
-        if (!provider) return { ok: false, loaded: false, error: 'Ollama is not connected.' };
-        const stored = _repo?.getRegistryProviderCreds(OLLAMA_LOCAL_ID);
-        if (stored?.status !== 'ok') return { ok: false, loaded: false, error: 'Ollama credentials are unavailable.' };
-        const configuredBaseUrl =
-          typeof stored.creds.baseUrl === 'string' && stored.creds.baseUrl.trim().length > 0
-            ? stored.creds.baseUrl.trim()
-            : OLLAMA_LOCAL_BASE_URL;
-        if (!isLoopbackBaseUrl(configuredBaseUrl)) {
-          return { ok: false, loaded: false, error: 'Refusing to warm a non-loopback Ollama endpoint.' };
+      getState: () => {
+        const configuredBaseUrl = configuredOllamaBaseUrl(_repo);
+        if (configuredBaseUrl.ok === false) {
+          return Promise.resolve({ reachable: false, models: {}, error: configuredBaseUrl.error });
         }
-        return warmOllamaRuntimeModel(modelId, configuredBaseUrl);
+        return readOllamaRuntimeState(configuredBaseUrl.baseUrl);
+      },
+      warmModel: async (modelId: string) => {
+        const configuredBaseUrl = configuredOllamaBaseUrl(_repo);
+        if (configuredBaseUrl.ok === false) return { ok: false, loaded: false, error: configuredBaseUrl.error };
+        return warmOllamaRuntimeModel(modelId, configuredBaseUrl.baseUrl);
       },
     },
   };
+}
+
+function configuredOllamaBaseUrl(
+  repo?: ProviderRepository
+): { ok: true; baseUrl: string } | { ok: false; error: string } {
+  const provider = repo?.getRegistryProvider(OLLAMA_LOCAL_ID);
+  if (!provider) return { ok: false, error: 'Ollama is not connected.' };
+  const stored = repo?.getRegistryProviderCreds(OLLAMA_LOCAL_ID);
+  if (stored?.status !== 'ok') return { ok: false, error: 'Ollama credentials are unavailable.' };
+  const configuredBaseUrl =
+    typeof stored.creds.baseUrl === 'string' && stored.creds.baseUrl.trim().length > 0
+      ? stored.creds.baseUrl.trim()
+      : OLLAMA_LOCAL_BASE_URL;
+  if (!isLoopbackBaseUrl(configuredBaseUrl)) {
+    return { ok: false, error: 'Refusing to use a non-loopback Ollama endpoint.' };
+  }
+  return { ok: true, baseUrl: configuredBaseUrl };
 }
 
 /**
@@ -1512,11 +1526,21 @@ async function warmOllamaRuntimeModel(modelId: string, baseUrl = OLLAMA_LOCAL_BA
     });
     if (!res.ok) return { ok: false, loaded: false, error: `Ollama warm request returned HTTP ${res.status}.` };
     const body = parseOllamaGenerateResponse(await res.text());
+    if (!body || typeof body !== 'object') {
+      return { ok: false, loaded: false, error: 'Ollama warm response was empty or malformed.' };
+    }
     const doneReason =
-      body && typeof body === 'object' && typeof (body as { done_reason?: unknown }).done_reason === 'string'
+      typeof (body as { done_reason?: unknown }).done_reason === 'string'
         ? (body as { done_reason: string }).done_reason
         : undefined;
-    return { ok: true, loaded: doneReason === 'load' || doneReason === 'stop' || doneReason === undefined };
+    const loaded = doneReason === 'load' || doneReason === 'stop';
+    return loaded
+      ? { ok: true, loaded: true }
+      : {
+          ok: false,
+          loaded: false,
+          error: doneReason ? `Ollama warm ended with "${doneReason}".` : 'Ollama warm response did not confirm load.',
+        };
   } catch (error) {
     return {
       ok: false,

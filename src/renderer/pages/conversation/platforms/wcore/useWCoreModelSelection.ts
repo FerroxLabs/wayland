@@ -24,6 +24,16 @@ export type UseAionrsModelSelectionOptions = {
   onSelectModel: (provider: IProvider, modelName: string) => Promise<boolean>;
 };
 
+export function registryProviderIdFor(provider?: Pick<IProvider, 'id' | 'platform'>): string | undefined {
+  if (!provider) return undefined;
+  const tag = (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+  if (typeof tag === 'string' && tag.startsWith('v2:')) {
+    const providerId = tag.slice('v2:'.length);
+    if (providerId) return providerId;
+  }
+  return provider.id;
+}
+
 export const useWCoreModelSelection = ({
   initialModel,
   onSelectModel,
@@ -54,10 +64,10 @@ export const useWCoreModelSelection = ({
       if (ok) {
         setCurrentModel(selected);
         setRuntimeRefreshNonce((n) => n + 1);
-        if (provider.id === 'ollama-local') {
+        if (registryProviderIdFor(provider) === 'ollama-local') {
           setWarmingModelId(modelName);
-          void ipcBridge.modelRegistry
-            .warmOllamaModel.invoke({ modelId: modelName })
+          void ipcBridge.modelRegistry.warmOllamaModel
+            .invoke({ modelId: modelName })
             .catch((error) => {
               console.warn('[WCoreModelSelection] Failed to warm Ollama model:', error);
             })

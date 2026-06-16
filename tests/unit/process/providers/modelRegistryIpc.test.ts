@@ -96,6 +96,22 @@ describe('Ollama runtime warm helper', () => {
 
     await expect(_warmOllamaRuntimeModelForTests('qwen3-coder:30b')).resolves.toEqual({ ok: true, loaded: true });
   });
+
+  it('does not report warm success for an empty or malformed Ollama response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () => '',
+      })
+    );
+
+    await expect(_warmOllamaRuntimeModelForTests('qwen3-coder:30b')).resolves.toEqual({
+      ok: false,
+      loaded: false,
+      error: 'Ollama warm response was empty or malformed.',
+    });
+  });
 });
 import type { CatalogModel, ProviderId } from '@process/providers/types';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
