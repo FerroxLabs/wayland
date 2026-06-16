@@ -207,6 +207,18 @@ describe('CatalogAssembler', () => {
     expect(catalog[0].costInPerM).toBeUndefined();
   });
 
+  it('drops unsupported vision models from local OpenAI-compatible catalogs', async () => {
+    const source = fixedSource('api', 'openai-compatible', [
+      { id: 'qwen3-coder:30b', providerId: 'openai-compatible' },
+      { id: 'llama3.2-vision:11b', providerId: 'openai-compatible' },
+      { id: 'qwen2.5vl:7b', providerId: 'openai-compatible' },
+      { id: 'llava:latest', providerId: 'openai-compatible' },
+    ]);
+    const { models: catalog } = await assembler.assemble([source], buildRegistry());
+
+    expect(catalog.map((m) => m.id)).toEqual(['qwen3-coder:30b']);
+  });
+
   it('does not borrow a colliding model id from another provider', async () => {
     // Both `openai` and `anthropic` could carry an id; enrichment is scoped to
     // the model's OWN provider entry only. `gpt-image-1` lives under `openai`

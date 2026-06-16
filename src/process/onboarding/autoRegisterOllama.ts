@@ -27,6 +27,7 @@
  */
 
 import type { CatalogModel, ProviderId } from '@process/providers/types';
+import { isUnsupportedLocalVisionModel } from '@process/providers/catalog/localVisionModelFilter';
 
 /** The fixed native provider id for the local Ollama daemon. */
 const OLLAMA_LOCAL_ID: ProviderId = 'ollama-local';
@@ -63,11 +64,7 @@ function inferOllamaKind(name: string): CatalogModel['kind'] {
 
 function inferOllamaTags(name: string, kind: CatalogModel['kind']): CatalogModel['tags'] {
   if (kind === 'embedding') return ['embeddings'];
-
-  const id = name.toLowerCase();
-  const tags: CatalogModel['tags'] = ['chat'];
-  if (id.includes('vision') || id.includes('vl')) tags.push('vision');
-  return tags;
+  return ['chat'];
 }
 
 /**
@@ -114,7 +111,9 @@ export function autoRegisterOllamaInRepo(repo: OllamaRegistryRepo, probe: Ollama
   try {
     if (!probe.running) return { action: 'skipped' };
 
-    const models = normalizeModelNames(probe.models).map(toCatalogModel);
+    const models = normalizeModelNames(probe.models)
+      .filter((name) => !isUnsupportedLocalVisionModel(OLLAMA_LOCAL_ID, name))
+      .map(toCatalogModel);
     const existing = repo.getRegistryProvider(OLLAMA_LOCAL_ID);
 
     if (existing) {

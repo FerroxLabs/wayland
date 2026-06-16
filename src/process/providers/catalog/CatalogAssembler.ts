@@ -34,6 +34,7 @@ import type { CatalogSource } from '../sources/CatalogSource';
 import type { ModelsDevModel, ModelsDevRegistry } from '../enrichment/modelsDevSchema';
 import type { CatalogModel, ModelKind, ProviderId, RawModel, UsageTag } from '../types';
 import { ModelDisplayNames } from './ModelDisplayNames';
+import { isUnsupportedLocalVisionModel } from './localVisionModelFilter';
 
 /**
  * Maps our `ProviderId` to the provider key models.dev uses in its registry.
@@ -111,6 +112,7 @@ export class CatalogAssembler {
         continue;
       }
       for (const raw of result.value) {
+        if (isUnsupportedLocalVisionModel(raw.providerId, raw.id)) continue;
         models.push(this.toCatalogModel(raw, registry));
       }
     }

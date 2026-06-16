@@ -91,21 +91,18 @@ describe('autoRegisterOllamaInRepo', () => {
     expect(repo.catalogs.get('ollama-local')?.map((m) => m.id)).toEqual(['llama3:latest', 'phi3:mini']);
   });
 
-  it('classifies embedding and vision models so non-chat Ollama entries do not masquerade as chat', () => {
+  it('keeps embedding models but drops unsupported vision models from the Ollama catalog', () => {
     const repo = makeRepo();
     autoRegisterOllamaInRepo(repo, {
       running: true,
-      models: ['nomic-embed-text:latest', 'llama3.2-vision:11b', 'qwen3-coder:30b'],
+      models: ['nomic-embed-text:latest', 'llama3.2-vision:11b', 'qwen2.5vl:7b', 'qwen3-coder:30b'],
     });
 
     const catalog = repo.catalogs.get('ollama-local') ?? [];
+    expect(catalog.map((m) => m.id)).toEqual(['nomic-embed-text:latest', 'qwen3-coder:30b']);
     expect(catalog.find((m) => m.id === 'nomic-embed-text:latest')).toMatchObject({
       kind: 'embedding',
       tags: ['embeddings'],
-    });
-    expect(catalog.find((m) => m.id === 'llama3.2-vision:11b')).toMatchObject({
-      kind: 'text',
-      tags: ['chat', 'vision'],
     });
     expect(catalog.find((m) => m.id === 'qwen3-coder:30b')).toMatchObject({
       kind: 'text',
