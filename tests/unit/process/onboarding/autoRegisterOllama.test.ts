@@ -95,7 +95,7 @@ describe('autoRegisterOllamaInRepo', () => {
     const repo = makeRepo();
     autoRegisterOllamaInRepo(repo, {
       running: true,
-      models: ['nomic-embed-text:latest', 'llama3.2-vision:11b', 'qwen2.5vl:7b', 'qwen3-coder:30b'],
+      models: ['nomic-embed-text:latest', 'llama3.2-vision:11b', 'qwen2.5vl:7b', 'foo-vlm-7b', 'qwen3-coder:30b'],
     });
 
     const catalog = repo.catalogs.get('ollama-local') ?? [];

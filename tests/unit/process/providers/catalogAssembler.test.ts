@@ -212,6 +212,7 @@ describe('CatalogAssembler', () => {
       { id: 'qwen3-coder:30b', providerId: 'openai-compatible' },
       { id: 'llama3.2-vision:11b', providerId: 'openai-compatible' },
       { id: 'qwen2.5vl:7b', providerId: 'openai-compatible' },
+      { id: 'foo-vlm-7b', providerId: 'openai-compatible' },
       { id: 'llava:latest', providerId: 'openai-compatible' },
     ]);
     const { models: catalog } = await assembler.assemble([source], buildRegistry());

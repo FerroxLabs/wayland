@@ -10,7 +10,7 @@ const LOCAL_MODEL_PROVIDERS = new Set<ProviderId>(['ollama-local', 'openai-compa
 
 const VISION_MODEL_PATTERNS: RegExp[] = [
   /(?:^|[-_.:/])vision(?:$|[-_.:/])/i,
-  /(?:^|[-_.:/])vl(?:$|[-_.:/])/i,
+  /(?:^|[-_.:/])vlm?(?:$|[-_.:/])/i,
   /llava/i,
   /bakllava/i,
   /moondream/i,
