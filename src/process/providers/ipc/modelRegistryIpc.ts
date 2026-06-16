@@ -1511,7 +1511,7 @@ async function warmOllamaRuntimeModel(modelId: string, baseUrl = OLLAMA_LOCAL_BA
       signal: controller.signal,
     });
     if (!res.ok) return { ok: false, loaded: false, error: `Ollama warm request returned HTTP ${res.status}.` };
-    const body = (await res.json()) as unknown;
+    const body = parseOllamaGenerateResponse(await res.text());
     const doneReason =
       body && typeof body === 'object' && typeof (body as { done_reason?: unknown }).done_reason === 'string'
         ? (body as { done_reason: string }).done_reason
@@ -1525,6 +1525,26 @@ async function warmOllamaRuntimeModel(modelId: string, baseUrl = OLLAMA_LOCAL_BA
     };
   } finally {
     clearTimeout(timer);
+  }
+}
+
+function parseOllamaGenerateResponse(text: string): unknown {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // Ollama streams NDJSON by default. `stream: false` should return one JSON
+    // object, but tolerate streamed/proxied responses and use the final event.
+    const lines = trimmed.split(/\r?\n/).filter(Boolean);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      try {
+        return JSON.parse(lines[i]);
+      } catch {
+        // Keep walking backward until we find a parseable event.
+      }
+    }
+    return null;
   }
 }
 

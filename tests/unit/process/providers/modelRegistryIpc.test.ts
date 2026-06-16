@@ -67,7 +67,7 @@ describe('Ollama runtime warm helper', () => {
   it('disables streaming so the warm response can be parsed as one JSON object', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ done: true, done_reason: 'load' }),
+      text: async () => JSON.stringify({ done: true, done_reason: 'load' }),
     });
     vi.stubGlobal('fetch', fetchMock);
 
@@ -79,6 +79,22 @@ describe('Ollama runtime warm helper', () => {
       keep_alive: '10m',
       stream: false,
     });
+  });
+
+  it('tolerates an NDJSON warm response if Ollama or a proxy streams anyway', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () =>
+          [
+            JSON.stringify({ response: '', done: false }),
+            JSON.stringify({ response: '', done: true, done_reason: 'load' }),
+          ].join('\n'),
+      })
+    );
+
+    await expect(_warmOllamaRuntimeModelForTests('qwen3-coder:30b')).resolves.toEqual({ ok: true, loaded: true });
   });
 });
 import type { CatalogModel, ProviderId } from '@process/providers/types';
