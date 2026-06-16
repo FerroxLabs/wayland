@@ -99,6 +99,16 @@ describe('buildSpawnConfig - catalog provider dispatch (T3.5)', () => {
     expect(hasBaseUrl(args)).toBe(true);
   });
 
+  it('injects a harmless sentinel key for keyless local openai-compatible backends', () => {
+    const model = makeNativeModel('openai-compatible', '');
+    model.baseUrl = 'http://127.0.0.1:11434/v1';
+    const { args, env } = buildSpawnConfig(model, OPTS);
+
+    expect(providerArg(args)).toBe('openai');
+    expect(env.OPENAI_API_KEY).toBe('local');
+    expect(hasBaseUrl(args)).toBe(true);
+  });
+
   it('does not leak a prior catalog scoped key when switching to a keyless native provider (RES-4 ghost key)', () => {
     // First spawn: catalog provider sets NOVITA_API_KEY.
     const first = buildSpawnConfig(makeCatalogModel('novita-ai', 'sk-x'), OPTS);

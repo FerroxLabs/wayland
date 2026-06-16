@@ -661,6 +661,25 @@ describe('modelRegistry IPC - refresh', () => {
     expect(result).toEqual({ ok: false });
     expect(repo.getRegistryProvider('openai')?.state).toBe('error');
   });
+
+  it('re-probes keyless ollama-local instead of replacing its catalog with an empty list', async () => {
+    const { deps, repo, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'connected',
+      creds: { key: '', baseUrl: 'http://127.0.0.1:11434/v1' },
+    });
+    repo.replaceRegistryCatalog('ollama-local', [catalogModel({ id: 'old-model', providerId: 'ollama-local' })]);
+    deps.probeOllama = vi.fn().mockResolvedValue({ running: true, models: ['llama3:latest', 'mistral:latest'] });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.refresh({ providerId: 'ollama-local' });
+
+    expect(result).toEqual({ ok: true });
+    expect(apiListModels).not.toHaveBeenCalled();
+    expect(repo.getRegistryCatalog('ollama-local').map((m) => m.id)).toEqual(['llama3:latest', 'mistral:latest']);
+  });
 });
 
 describe('modelRegistry IPC - disconnect', () => {

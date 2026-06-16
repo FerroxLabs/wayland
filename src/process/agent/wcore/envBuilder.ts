@@ -5,7 +5,7 @@
  */
 
 import type { TProviderWithModel } from '@/common/config/storage';
-import { isOpenAIHost } from '@/common/utils/urlValidation';
+import { isLocalBaseUrl, isOpenAIHost } from '@/common/utils/urlValidation';
 import { loadBaselineProviderCatalog } from '@process/providers/catalog/providerCatalogStore';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 
@@ -117,6 +117,13 @@ function mapProvider(model: TProviderWithModel): WCoreProvider {
 }
 
 const GEMINI_OPENAI_COMPAT_PATH = '/v1beta/openai';
+/**
+ * wayland-core currently refuses to start an OpenAI-protocol session without a
+ * non-empty key, even when the target is a local keyless daemon like Ollama.
+ * For loopback/private base URLs only, inject a harmless sentinel so the engine
+ * can bootstrap; the local backend ignores the bearer token.
+ */
+const LOCAL_OPENAI_COMPAT_API_KEY = 'local';
 
 /**
  * Default `--max-tokens` budget for reasoning-tier models when the caller
@@ -277,8 +284,12 @@ export function buildSpawnConfig(
       break;
 
     case 'openai': {
-      if (model.apiKey) env.OPENAI_API_KEY = model.apiKey;
       const baseUrl = resolveOpenAIBaseUrl(model);
+      if (model.apiKey) {
+        env.OPENAI_API_KEY = model.apiKey;
+      } else if (isLocalBaseUrl(baseUrl)) {
+        env.OPENAI_API_KEY = LOCAL_OPENAI_COMPAT_API_KEY;
+      }
       if (baseUrl) args.push('--base-url', stripTrailingV1(baseUrl));
       break;
     }

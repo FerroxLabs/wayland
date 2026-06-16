@@ -703,6 +703,19 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         }
         // `not-found` - nothing to refresh.
         if (stored.status !== 'ok') return { ok: false };
+
+        // `ollama-local` is intentionally keyless. Refreshing it through the
+        // generic catalog builder would assemble zero sources and replace the
+        // saved model list with `[]`. Re-probe the local daemon instead, and
+        // leave the existing catalog untouched if the daemon is unreachable.
+        const storedBaseUrl = stored.creds.baseUrl;
+        if (
+          providerId === OLLAMA_LOCAL_ID &&
+          isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')
+        ) {
+          return { ok: (await refreshOllamaLocal()) === 'ok' };
+        }
+
         const creds = toTestCreds(stored.creds);
         const built = await buildAndPersistCatalog(providerId, creds);
         return { ok: built.ok };

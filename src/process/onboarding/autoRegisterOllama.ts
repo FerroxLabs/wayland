@@ -55,19 +55,35 @@ export type AutoRegisterOutcome =
   | { action: 'refreshed'; models: number }
   | { action: 'skipped' };
 
+function inferOllamaKind(name: string): CatalogModel['kind'] {
+  const id = name.toLowerCase();
+  if (id.includes('embed') || id.includes('embedding')) return 'embedding';
+  return 'text';
+}
+
+function inferOllamaTags(name: string, kind: CatalogModel['kind']): CatalogModel['tags'] {
+  if (kind === 'embedding') return ['embeddings'];
+
+  const id = name.toLowerCase();
+  const tags: CatalogModel['tags'] = ['chat'];
+  if (id.includes('vision') || id.includes('vl')) tags.push('vision');
+  return tags;
+}
+
 /**
  * Build a minimal `CatalogModel` for a model name reported by `/api/tags`. The
  * name is the id verbatim (e.g. `llama3:latest`); no enrichment is fabricated.
  */
 function toCatalogModel(name: string): CatalogModel {
+  const kind = inferOllamaKind(name);
   return {
     id: name,
     providerId: OLLAMA_LOCAL_ID,
     displayName: name,
     family: name.split(':')[0] || name,
-    kind: 'text',
+    kind,
     enriched: false,
-    tags: ['chat'],
+    tags: inferOllamaTags(name, kind),
   };
 }
 
