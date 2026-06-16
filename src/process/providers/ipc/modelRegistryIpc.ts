@@ -1612,7 +1612,14 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.testConnection.provider((payload) => h.testConnection(payload));
   ipcBridge.modelRegistry.list.provider(() => h.list());
   ipcBridge.modelRegistry.getCatalog.provider((payload) => h.getCatalog(payload));
-  ipcBridge.modelRegistry.toggleModel.provider((payload) => h.toggleModel(payload));
+  ipcBridge.modelRegistry.toggleModel.provider(async (payload) => {
+    const result = await h.toggleModel(payload);
+    if (result.ok && _repo) {
+      void mirrorConnectOrRekey(_repo, payload.providerId);
+      ipcBridge.modelRegistry.listChanged.emit();
+    }
+    return result;
+  });
   ipcBridge.modelRegistry.refresh.provider(async (payload) => {
     const result = await h.refresh(payload);
     if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);
