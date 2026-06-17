@@ -58,6 +58,21 @@ type LauncherState = {
 };
 
 const SPECIALIST_PREFIX = 'ext-';
+const BUILTIN_PREFIX = 'builtin-';
+
+/**
+ * Candidate stored assistant ids for a raw team/specialist id taken from a URL
+ * param or a launcher's `_teammates` list. Native catalog records are stored as
+ * `builtin-<slug>`, custom user records as `ext-<slug>`, while the URL/teammate
+ * value may carry the full id OR a bare slug. Match the id as-is first, then try
+ * each prefix. The previous code assumed a single `ext-` prefix, which
+ * double-prefixed `builtin-` teams (`ext-builtin-...`) so EVERY native team
+ * failed to load ("Failed to load this team.").
+ */
+function idCandidates(raw: string): string[] {
+  if (raw.startsWith(SPECIALIST_PREFIX) || raw.startsWith(BUILTIN_PREFIX)) return [raw];
+  return [raw, `${BUILTIN_PREFIX}${raw}`, `${SPECIALIST_PREFIX}${raw}`];
+}
 
 const TeamLauncherPage: React.FC = () => {
   const { t } = useTranslation();
@@ -81,13 +96,12 @@ const TeamLauncherPage: React.FC = () => {
 
   const launcher = useMemo<AssistantListItem | null>(() => {
     if (!teamId) return null;
-    // TeamsLibraryPage navigates with the already-prefixed assistant id
-    // (`/teams/${team.id}/launch` where team.id is `ext-<slug>`). Older
-    // call sites may pass the bare slug. Accept both shapes - never
-    // double-prefix - so the launcher resolves in either flow. Mirrors
-    // the teammate-id normalization a few lines down.
-    const launcherId = teamId.startsWith(SPECIALIST_PREFIX) ? teamId : `${SPECIALIST_PREFIX}${teamId}`;
-    return assistants.find((a) => a.id === launcherId && a._kind === 'team') ?? null;
+    // TeamsLibraryPage navigates with the assistant's real stored id
+    // (`/teams/${team.id}/launch`), which is `builtin-<slug>` for native teams
+    // and `ext-<slug>` for custom ones; older call sites may pass a bare slug.
+    // Match across all id shapes so the launcher resolves in every flow.
+    const candidates = idCandidates(teamId);
+    return assistants.find((a) => a._kind === 'team' && candidates.includes(a.id)) ?? null;
   }, [assistants, teamId]);
 
   // Hydrate initial state from URL params + bundle.
@@ -101,16 +115,18 @@ const TeamLauncherPage: React.FC = () => {
     const launcherName =
       launcher.nameI18n?.[localeKey] || launcher.nameI18n?.['en-US'] || launcher.name || teamId || '';
     const teammateIds = launcher._teammates ?? [];
-    const resolvedIds = teammateIds.map((rawId) =>
-      rawId.startsWith(SPECIALIST_PREFIX) ? rawId : `${SPECIALIST_PREFIX}${rawId}`
-    );
 
     let leader: RosterEntry | null = null;
     const teammates: RosterEntry[] = [];
-    for (const id of resolvedIds) {
-      const spec = specialistsById.get(id);
+    for (const rawId of teammateIds) {
+      // Native team rosters list teammates by bare slug; the stored specialist
+      // id is `builtin-<slug>`. Resolve across id shapes (same fix as the
+      // launcher lookup) so built-in teammates bind to their real specialist.
+      const candidates = idCandidates(rawId);
+      const spec = candidates.map((c) => specialistsById.get(c)).find(Boolean);
+      const specialistId = spec?.id ?? (rawId.startsWith(SPECIALIST_PREFIX) ? rawId : `${SPECIALIST_PREFIX}${rawId}`);
       const backend = recommend(spec?.presetAgentType);
-      const entry: RosterEntry = { specialistId: id, backend, slotName: '' };
+      const entry: RosterEntry = { specialistId, backend, slotName: '' };
       if (!leader) leader = entry;
       else teammates.push(entry);
     }
