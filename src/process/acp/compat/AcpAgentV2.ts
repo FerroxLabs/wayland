@@ -39,6 +39,7 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { spawn } from 'node:child_process';
 import { McpConfig } from '../session/McpConfig';
+import type { IMcpServer } from '@/common/config/storage';
 
 /**
  * Temporary: backend-specific CLI login arguments.
@@ -195,8 +196,26 @@ export class AcpAgentV2 {
     const rawMcpServers = await ProcessConfig.get('mcp.config');
     if (Array.isArray(rawMcpServers) && rawMcpServers.length > 0) {
       const cachedInit = await ProcessConfig.get('acp.cachedInitializeResult');
-      const caps = cachedInit?.[this.agentConfig.agentBackend]?.capabilities?.mcpCapabilities;
-      const userServers = McpConfig.fromStorageConfig(rawMcpServers, caps);
+      const rawCaps = cachedInit?.[this.agentConfig.agentBackend]?.capabilities?.mcpCapabilities;
+      // Enable http/sse so hosted OAuth connectors (e.g. Notion) reach the
+      // session - agents advertise http:false by default, which dropped every
+      // hosted MCP and left it uncallable in chat. An agent that can't use an
+      // http session server simply ignores it.
+      const caps = { stdio: rawCaps?.stdio ?? true, http: true, sse: true };
+      // Attach the CURRENT (refreshed) OAuth bearer so the session connects with
+      // a live token rather than the stale one baked into the CLI/engine config
+      // at sync time (the "401 invalid token" / silently-dropped-connector cause).
+      // Dynamic import: pulling McpService at module-init would create an OAuth
+      // init cycle (HybridTokenStorage TDZ); deferring it to call-time avoids that.
+      // On failure fall back to the stored headers (no worse than before).
+      let freshened = rawMcpServers as IMcpServer[];
+      try {
+        const { mcpService } = await import('@process/services/mcpServices/McpService');
+        freshened = await mcpService.attachOAuthTokens(freshened);
+      } catch (err) {
+        console.warn('[AcpAgentV2] attachOAuthTokens failed; using stored MCP headers:', err);
+      }
+      const userServers = McpConfig.fromStorageConfig(freshened, caps);
       if (userServers.length > 0) {
         (this.agentConfig as { mcpServers?: McpServer[] }).mcpServers = [
           ...(this.agentConfig.mcpServers || []),

@@ -45,13 +45,25 @@ describe('McpService.attachOAuthTokens (#MCP-oauth: reuse Wayland token, no engi
     expect(out.transport.headers).toBeUndefined();
   });
 
-  it('does not overwrite an existing BYO Authorization header', async () => {
-    getValidToken.mockResolvedValue('tok-should-not-be-used');
+  it('refreshes a stale baked Authorization header with the current OAuth token', async () => {
+    // A connector bakes its bearer into the record at connect time; once it
+    // expires, the fresh token must win or the session keeps sending the dead
+    // one (401 / endless re-authorize loop).
+    getValidToken.mockResolvedValue('fresh-tok');
+    const [out] = (await attach(svc, [
+      httpServer('notion', { Authorization: 'Bearer stale-tok', 'X-Keep': 'yes' }),
+    ])) as Array<{ transport: { headers: Record<string, string> } }>;
+    expect(out.transport.headers.Authorization).toBe('Bearer fresh-tok');
+    // Non-auth headers are preserved.
+    expect(out.transport.headers['X-Keep']).toBe('yes');
+  });
+
+  it('preserves a user-provided Authorization header when no OAuth token is stored (BYO)', async () => {
+    getValidToken.mockResolvedValue(null);
     const [out] = (await attach(svc, [httpServer('byo', { Authorization: 'Bearer byo-key' })])) as Array<{
       transport: { headers: Record<string, string> };
     }>;
     expect(out.transport.headers.Authorization).toBe('Bearer byo-key');
-    expect(getValidToken).not.toHaveBeenCalled();
   });
 
   it('does not mutate the original server object', async () => {

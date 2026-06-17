@@ -245,7 +245,13 @@ export class McpService {
     // Use the first available agent to test the connection; the test logic in the base class is generic
     const firstAgent = this.agents.values().next().value;
     if (firstAgent) {
-      return await firstAgent.testMcpConnection(server);
+      // Reuse Wayland's stored OAuth bearer for the test, exactly like
+      // syncMcpToAgents does. Without it, an already-authorized hosted server
+      // (Notion/Canva/...) 401s here, reports needsAuth, and the stored status
+      // never advances to 'connected' - so the Library UI shows "Not connected"
+      // even though every agent CLI has the server connected.
+      const authedServer = await this.attachOAuthToken(server);
+      return await firstAgent.testMcpConnection(authedServer);
     }
     return {
       success: false,
@@ -339,29 +345,51 @@ export class McpService {
    * already carry an explicit Authorization header (BYO), are returned
    * unchanged. The original server objects are never mutated.
    */
-  private async attachOAuthTokens(servers: IMcpServer[]): Promise<IMcpServer[]> {
-    return Promise.all(
-      servers.map(async (server) => {
-        const transport = server.transport;
-        if (
-          transport.type !== 'http' &&
-          transport.type !== 'sse' &&
-          transport.type !== 'streamable_http'
-        ) {
-          return server;
-        }
-        const headers = transport.headers ?? {};
-        if (Object.keys(headers).some((k) => k.toLowerCase() === 'authorization')) {
-          return server;
-        }
-        const token = await mcpOAuthService.getValidToken(server).catch((): string | null => null);
-        if (!token) return server;
-        return {
-          ...server,
-          transport: { ...transport, headers: { ...headers, Authorization: `Bearer ${token}` } },
-        };
-      })
+  /**
+   * Public: return the servers with each one's CURRENT (refreshed) OAuth bearer
+   * attached to its transport headers. Used by the ACP session builder to pass a
+   * live-tokened hosted MCP into `session/new`, so the chat connects with a fresh
+   * token instead of the stale one baked into a CLI/engine config at sync time.
+   */
+  attachOAuthTokens(servers: IMcpServer[]): Promise<IMcpServer[]> {
+    return Promise.all(servers.map((server) => this.attachOAuthToken(server)));
+  }
+
+  /**
+   * Single-server variant of {@link attachOAuthTokens}. Returns the server with
+   * the stored OAuth bearer attached when one is held and no explicit
+   * Authorization header is already present; otherwise returns it unchanged.
+   * Never mutates the input.
+   */
+  private async attachOAuthToken(server: IMcpServer): Promise<IMcpServer> {
+    const transport = server.transport;
+    if (
+      transport.type !== 'http' &&
+      transport.type !== 'sse' &&
+      transport.type !== 'streamable_http'
+    ) {
+      return server;
+    }
+    const headers = transport.headers ?? {};
+    // Prefer a FRESH OAuth token from Wayland's token store over any Authorization
+    // header already baked into the record. The connect flow persists the bearer
+    // into the server's transport; once it expires, leaving it in place both masks
+    // the refresh (we'd skip getValidToken) and keeps sending the dead token, which
+    // the server rejects as invalid_token - the endless "sign in again" loop. Since
+    // getValidToken refreshes an expired token, this keeps the bearer current. Only
+    // when there is NO stored OAuth token do we respect a user-supplied (BYO)
+    // Authorization header as-is. The original server object is never mutated.
+    const token = await mcpOAuthService.getValidToken(server).catch((): string | null => null);
+    if (!token) {
+      return server;
+    }
+    const nonAuthHeaders = Object.fromEntries(
+      Object.entries(headers).filter(([k]) => k.toLowerCase() !== 'authorization')
     );
+    return {
+      ...server,
+      transport: { ...transport, headers: { ...nonAuthHeaders, Authorization: `Bearer ${token}` } },
+    };
   }
 
   /**

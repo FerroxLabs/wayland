@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Message, Switch, Modal } from '@arco-design/web-react';
@@ -175,6 +175,21 @@ export function DetailPage() {
     }
     return done;
   }, [guide, installedServer, oauthStatus]);
+
+  // Probe the open connector's live status on mount (and when the selected
+  // connector changes) so the action card reflects reality - Connected vs
+  // "needs sign-in" - instead of a stale persisted status. Without this the
+  // page only ever shows the last status written by a manual reconnect, so an
+  // already-authorized hosted server (Notion/Canva/...) reads "Not connected"
+  // even though every agent has it. refreshServerStatuses is passive: it
+  // dedupes by STALE_MS and never auto-disables a server.
+  useEffect(() => {
+    if (installedServer?.enabled) {
+      void conn.refreshServerStatuses([installedServer]);
+    }
+    // Re-probe only when the selected connector identity / enabled flag changes,
+    // never on each status write (refreshServerStatuses updates the record).
+  }, [installedServer?.id, installedServer?.enabled]);
 
   if (!entry) return <div className={styles.unknown}>Unknown entry: {id}</div>;
 

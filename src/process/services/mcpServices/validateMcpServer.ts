@@ -5,6 +5,7 @@
  */
 
 import type { IMcpServer } from '@/common/config/storage';
+import { canonicalMcpServerName } from '@/common/mcp';
 
 /**
  * MCP server names that are interpolated into per-CLI agent commands must be a
@@ -43,7 +44,10 @@ export function sanitizeMcpServerName(name: string): string {
  * cleanly removed. Result always matches `^[A-Za-z0-9_-]+$` for non-empty input.
  */
 export function cliSafeMcpServerName(name: string): string {
-  return name.replace(/[^A-Za-z0-9_-]/g, '-');
+  // Same transform as the renderer-shared canonical form (single source of
+  // truth in @/common/mcp), so the install-status UI and the agent config
+  // writers can never disagree on a server's identity.
+  return canonicalMcpServerName(name);
 }
 
 /**

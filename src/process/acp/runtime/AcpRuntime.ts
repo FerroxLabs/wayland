@@ -20,6 +20,7 @@ import type {
 // import type { IAcpSessionRepository } from '@process/services/database/IAcpSessionRepository';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability';
 import { ProcessConfig } from '@process/utils/initStorage';
+import type { IMcpServer } from '@/common/config/storage';
 
 // 30 minutes. 5 minutes was far too aggressive for interactive chat: normal
 // think-time between messages exceeds it, so the agent process was killed and
@@ -99,8 +100,27 @@ export class AcpRuntime {
     const rawMcpServers = await ProcessConfig.get('mcp.config');
     if (Array.isArray(rawMcpServers) && rawMcpServers.length > 0) {
       const cachedInit = await ProcessConfig.get('acp.cachedInitializeResult');
-      const caps = cachedInit?.[config.agentBackend]?.capabilities?.mcpCapabilities;
-      const userServers = McpConfig.fromStorageConfig(rawMcpServers, caps);
+      const rawCaps = cachedInit?.[config.agentBackend]?.capabilities?.mcpCapabilities;
+      // Hosted (http) MCP servers must reach the session for an OAuth connector
+      // like Notion to be callable in a chat. Agents default http to false in
+      // their advertised caps, which dropped every hosted connector; enable
+      // http/sse here (an agent that can't use an http session server ignores
+      // it). This is the only path that makes a hosted connector a chat tool.
+      const caps = { stdio: rawCaps?.stdio ?? true, http: true, sse: true };
+      // Attach the CURRENT (refreshed) OAuth bearer so the session connects with
+      // a live token instead of the stale one baked into the agent's CLI/engine
+      // config at sync time (the cause of "401 invalid token" / a connector that
+      // silently drops out of the session). Dynamic import avoids an OAuth
+      // module-init cycle (HybridTokenStorage TDZ); on failure fall back to the
+      // stored headers (no worse than before).
+      let freshened = rawMcpServers as IMcpServer[];
+      try {
+        const { mcpService } = await import('@process/services/mcpServices/McpService');
+        freshened = await mcpService.attachOAuthTokens(freshened);
+      } catch (err) {
+        console.warn('[AcpRuntime] attachOAuthTokens failed; using stored MCP headers:', err);
+      }
+      const userServers = McpConfig.fromStorageConfig(freshened, caps);
       if (userServers.length > 0) {
         config.mcpServers = [...(config.mcpServers || []), ...userServers];
       }

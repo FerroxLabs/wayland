@@ -73,7 +73,7 @@ index 2bdb1c5..80918be 100644
          return params;
      }
 diff --git a/node_modules/@office-ai/aioncli-core/dist/src/mcp/oauth-provider.js b/node_modules/@office-ai/aioncli-core/dist/src/mcp/oauth-provider.js
-index 51ed849..df00348 100644
+index 51ed849..ee53d42 100644
 --- a/node_modules/@office-ai/aioncli-core/dist/src/mcp/oauth-provider.js
 +++ b/node_modules/@office-ai/aioncli-core/dist/src/mcp/oauth-provider.js
 @@ -147,6 +147,18 @@ export class MCPOAuthProvider {
@@ -219,3 +219,34 @@ index 51ed849..df00348 100644
              server.on('error', (error) => {
                  portReject(error);
                  reject(error);
+@@ -707,11 +784,18 @@ ${authUrl}
+             debugLogger.debug(`Returning valid token for server: ${serverName}`);
+             return token.accessToken;
+         }
+-        // Try to refresh if we have a refresh token
+-        if (token.refreshToken && config.clientId && credentials.tokenUrl) {
++        // Try to refresh if we have a refresh token. The clientId is required to
++        // call the token endpoint; prefer the caller-supplied one but fall back to
++        // the clientId persisted alongside the token. Wayland calls getValidToken
++        // with just { enabled: true }, so without this fallback an expired hosted
++        // token (Notion/Canva/...) is never refreshed and stays invalid forever,
++        // surfacing as "invalid_token" and an endless re-authorize loop.
++        const refreshClientId = config.clientId || credentials.clientId;
++        if (token.refreshToken && refreshClientId && credentials.tokenUrl) {
+             try {
++                const refreshConfig = { ...config, clientId: refreshClientId };
+                 debugLogger.log(`Refreshing expired token for MCP server: ${serverName}`);
+-                const newTokenResponse = await this.refreshAccessToken(config, token.refreshToken, credentials.tokenUrl, credentials.mcpServerUrl);
++                const newTokenResponse = await this.refreshAccessToken(refreshConfig, token.refreshToken, credentials.tokenUrl, credentials.mcpServerUrl);
+                 // Update stored token
+                 const newToken = {
+                     accessToken: newTokenResponse.access_token,
+@@ -722,7 +806,7 @@ ${authUrl}
+                 if (newTokenResponse.expires_in) {
+                     newToken.expiresAt = Date.now() + newTokenResponse.expires_in * 1000;
+                 }
+-                await this.tokenStorage.saveToken(serverName, newToken, config.clientId, credentials.tokenUrl, credentials.mcpServerUrl);
++                await this.tokenStorage.saveToken(serverName, newToken, refreshClientId, credentials.tokenUrl, credentials.mcpServerUrl);
+                 return newToken.accessToken;
+             }
+             catch (error) {

@@ -32,6 +32,8 @@ import type { ProviderId } from '@process/providers/types';
 import { BACKEND_AUTH_KEYS } from '@process/acp/compat/typeBridge';
 import { selectAuthFailureCulprits } from '@process/providers/detection/authFailure';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { codexBearerEnvVar } from '@process/services/mcpServices/agents/CodexMcpAgent';
+import type { IMcpServer } from '@/common/config/storage';
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
@@ -556,6 +558,36 @@ ${collectedResponses.join('\n')}`;
    * Resolve agent CLI configuration based on backend type.
    * Dispatches to custom or built-in resolution.
    */
+  /**
+   * Build the scoped env vars Codex reads HTTP MCP bearer tokens from. For each
+   * enabled hosted MCP server, fetch the current OAuth token (getValidToken
+   * refreshes when expired) and map it to the deterministic env-var name. Never
+   * throws and never blocks a spawn on a single failure.
+   */
+  private async buildCodexMcpBearerEnv(): Promise<Record<string, string>> {
+    const env: Record<string, string> = {};
+    try {
+      const raw = await ProcessConfig.get('mcp.config');
+      if (!Array.isArray(raw)) return env;
+      const hosted = (raw as IMcpServer[]).filter(
+        (s) => s?.enabled && (s.transport?.type === 'http' || s.transport?.type === 'streamable_http')
+      );
+      if (hosted.length === 0) return env;
+      // Dynamic import avoids an OAuth module-init cycle (HybridTokenStorage TDZ).
+      const { mcpOAuthService } = await import('@process/services/mcpServices/McpOAuthService');
+      const tokens = await Promise.all(
+        hosted.map((s) => mcpOAuthService.getValidToken(s).catch((): string | null => null))
+      );
+      hosted.forEach((server, i) => {
+        const token = tokens[i];
+        if (token) env[codexBearerEnvVar(server.name)] = token;
+      });
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'buildCodexMcpBearerEnv failed', err);
+    }
+    return env;
+  }
+
   private async resolveAgentCliConfig(data: AcpAgentManagerData): Promise<{
     cliPath?: string;
     customArgs?: string[];
@@ -571,6 +603,18 @@ ${collectedResponses.join('\n')}`;
     // auto-injected keys, which in turn win over the inherited shell env.
     const providerEnv = await this.buildConnectedProviderEnv();
     const mergedEnv: Record<string, string> = { ...providerEnv, ...resolved.customEnv };
+
+    // Codex ignores manual Authorization headers and reads each HTTP MCP server's
+    // bearer from an env var (see CodexMcpAgent.codexBearerEnvVar). Inject the
+    // CURRENT (refreshed) token for every enabled hosted MCP so a Codex chat
+    // connects without launching its OWN interactive OAuth flow. Best-effort and
+    // scoped to this spawn; an explicit custom-agent env var still wins.
+    if (data.backend === 'codex') {
+      const bearerEnv = await this.buildCodexMcpBearerEnv();
+      for (const [key, value] of Object.entries(bearerEnv)) {
+        if (!(key in mergedEnv)) mergedEnv[key] = value;
+      }
+    }
 
     // Flux routing (openai-surface generic backends + claude via the anthropic
     // surface; codex/codebuddy route separately).
