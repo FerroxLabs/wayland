@@ -92,7 +92,12 @@ describe('addProjectReference confinement (SEC-IPC-04)', () => {
 
     await addProjectReference(WORKSPACE, [OUT_OF_ROOT]);
 
-    expect(mockConfinePath).toHaveBeenCalledWith(OUT_OF_ROOT);
+    // A drag-drop is an explicit local gesture, so the gate is invoked with
+    // allowOutsideRoots (mirroring the conversation-workspace #67 path). That
+    // only widens the permitted source *location*: every form/traversal/symlink/
+    // sensitive-location guard still applies, so the mock (and the real gate)
+    // still reject /etc/passwd -> null.
+    expect(mockConfinePath).toHaveBeenCalledWith(OUT_OF_ROOT, { allowOutsideRoots: true });
     // The dangerous sinks were never reached for the rejected source.
     expect(mockLstat).not.toHaveBeenCalled();
     expect(mockCopyFile).not.toHaveBeenCalled();

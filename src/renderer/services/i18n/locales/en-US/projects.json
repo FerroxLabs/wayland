@@ -118,7 +118,8 @@
     "noWorkspaceTitle": "No workspace folder yet",
     "noWorkspaceBody": "Set a workspace folder for this project to add shared instructions, rules and reference files.",
     "setWorkspace": "Set workspace folder",
-    "fileTooLarge": "That file is too large (max 25 MB per file)."
+    "fileTooLarge": "That file is too large (max 25 MB per file).",
+    "filePartiallyAdded": "Added {{added}} file(s); {{failed}} could not be added."
   },
   "toast": {
     "created": "Project created",

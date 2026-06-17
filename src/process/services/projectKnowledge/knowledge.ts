@@ -323,13 +323,16 @@ export async function addProjectReference(workspace: string, sourcePaths: string
 
   for (const src of sources) {
     try {
-      // PRIMARY GATE: resolve the source to a trusted path. Accept it only when
-      // it confines to an authorized app root, or when it lives inside a
-      // user-approved (native-dialog) directory. Anything else - including a
-      // plain absolute path to a sensitive regular file - is rejected here,
-      // before any lstat/copyFile touches it. Both gates return the resolved,
+      // PRIMARY GATE: resolve the source to a trusted path. A drag-drop of a
+      // specific file is an explicit local user gesture, so - mirroring the
+      // conversation-workspace copy path (#67) - `allowOutsideRoots` accepts a
+      // source that sits outside the static/registered roots while keeping every
+      // form/traversal/symlink/sensitive-location guard intact (a secret like
+      // ~/.ssh/id_rsa is still rejected). Dialog-picked files still resolve via
+      // resolveWithinApprovedDirectory. Both gates return the resolved,
       // realpath-collapsed path so the path validated is the path copied.
-      const trusted = (await confinePath(src)) ?? resolveWithinApprovedDirectory(src);
+      const trusted =
+        (await confinePath(src, { allowOutsideRoots: true })) ?? resolveWithinApprovedDirectory(src);
       if (trusted === null) {
         console.warn('[projectKnowledge] refusing out-of-root reference source:', src);
         continue;

@@ -59,18 +59,33 @@ const ProjectReferencePanel: React.FC<{
 
   const onFilesDropped = useCallback(
     async (files: Array<{ path: string; name: string }>) => {
+      // The main process silently skips any source it refuses (a sensitive
+      // location, an oversized/symlinked/non-regular file). Diff the returned
+      // list against what we had so we report an honest count instead of a
+      // blanket success: the number of NEW reference files is how many were
+      // actually copied, and the remainder (dropped minus added) failed.
+      const before = new Set(refs.map((r) => r.name));
       try {
         const updated = await ipcBridge.project.addReference.invoke({
           id: projectId,
           filePaths: files.map((f) => f.path),
         });
-        setRefs(Array.isArray(updated) ? updated : []);
-        Message.success(t('projects.knowledge.fileAdded', { count: files.length }));
+        const list = Array.isArray(updated) ? updated : [];
+        setRefs(list);
+        const added = list.filter((r) => !before.has(r.name)).length;
+        const failed = files.length - added;
+        if (added === 0) {
+          Message.error(t('projects.knowledge.fileAddFailed'));
+        } else if (failed > 0) {
+          Message.warning(t('projects.knowledge.filePartiallyAdded', { added, failed }));
+        } else {
+          Message.success(t('projects.knowledge.fileAdded', { count: added }));
+        }
       } catch {
         Message.error(t('projects.knowledge.fileAddFailed'));
       }
     },
-    [projectId, t]
+    [projectId, refs, t]
   );
 
   const { isDragging, dragHandlers } = useWorkspaceDragImport({
