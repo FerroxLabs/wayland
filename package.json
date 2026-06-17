@@ -70,7 +70,7 @@
     "test:e2e:team:whitelist": "playwright test --config playwright.config.ts tests/e2e/specs/team-whitelist.e2e.ts --reporter=list",
     "test:e2e:team:comm": "playwright test --config playwright.config.ts tests/e2e/specs/team-communication.e2e.ts --reporter=list",
     "prepare": "husky",
-    "postinstall": "node scripts/postinstall.js && patch-package",
+    "postinstall": "node scripts/postinstall.js",
     "test:packaged:bun": "vitest run tests/integration/bundled-bun-packaged.test.ts",
     "test:bun": "bun test src/process/services/database/drivers/*.bun.test.ts",
     "server:start": "NODE_ENV=development bun dist-server/server.mjs",
@@ -339,7 +339,8 @@
     "electronVersion": "^41.6.0"
   },
   "patchedDependencies": {
-    "7zip-bin@5.2.0": "patches/7zip-bin@5.2.0.patch"
+    "7zip-bin@5.2.0": "patches/7zip-bin@5.2.0.patch",
+    "@office-ai/aioncli-core@0.30.6": "patches/@office-ai%2Faioncli-core@0.30.6.patch"
   },
   "productName": "Wayland",
   "trustedDependencies": [
