@@ -66,6 +66,27 @@ describe('WhisperLocal.transcribe', () => {
     );
   });
 
+  it('auto-acquires the binary on demand when it is not yet installed', async () => {
+    const acquireBinary = vi.fn(async () => '/fake/bin/whisper-cli');
+    const run = vi.fn(async () => 'ok\n');
+    const runtime = fakeRuntime({ resolveBinary: () => null, acquireBinary, run });
+    const result = await WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime);
+    expect(acquireBinary).toHaveBeenCalledOnce();
+    expect(result.text).toBe('ok');
+    const [binary] = run.mock.calls[0] as [string, string[]];
+    expect(binary).toBe('/fake/bin/whisper-cli');
+  });
+
+  it('throws WhisperLocalUnavailableError when binary acquisition fails', async () => {
+    const acquireBinary = vi.fn(async () => {
+      throw new Error('network down');
+    });
+    const runtime = fakeRuntime({ resolveBinary: () => null, acquireBinary });
+    await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime)).rejects.toBeInstanceOf(
+      WhisperLocalUnavailableError
+    );
+  });
+
   it('throws WhisperLocalUnavailableError when the model is not installed', async () => {
     const runtime = fakeRuntime({ resolveModel: () => null });
     await expect(WhisperLocal.transcribe(sampleRequest(), { model: 'base' }, runtime)).rejects.toBeInstanceOf(
