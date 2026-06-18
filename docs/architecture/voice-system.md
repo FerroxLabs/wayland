@@ -154,6 +154,69 @@ reducer** (`nextOpenVoiceAction`) that is fully unit-tested:
 - **Call greeting** (`common/voice/greeting.ts`): a time-of-day greeting using
   the spoken name when a call starts.
 
+### 2.8 Choosing a model — recommended defaults (everything is configurable)
+
+The system ships sensible defaults but never locks the user in: any registered
+engine/model can be selected, and the chain runner falls back gracefully. The
+recommendations below are guidance, not constraints.
+
+**Text-to-speech**
+
+| Situation | Recommended | Why |
+|---|---|---|
+| Any platform (default) | **Kokoro** (`af_sky`) | Offline, fast (warm ~210 ms), good quality, cross-platform |
+| Multilingual, offline | **Piper** | 30+ languages, very fast (warm ~47 ms), cross-platform |
+| Apple Silicon, best quality | **mlx-audio** | Runs the large natural-prosody models locally via MLX |
+| Zero-setup floor | System Native | No download; always available |
+
+**Speech-to-text**
+
+| Situation | Recommended | Size | Why |
+|---|---|---|---|
+| Out of the box (default) | **whisper-tiny** (bundled) | ~75 MB | Ships in the installer; zero-download, works offline immediately |
+| Cross-platform upgrade | whisper base / small / large-v3-turbo | 148 MB / 488 MB / ~1.5 GB | whisper.cpp; bigger = more accurate, slower, multilingual |
+| **Apple Silicon, English** | **Parakeet-MLX (8-bit)** | ~600 MB | Top open-ASR accuracy, lower latency than Whisper, streams partials — ideal for the call loop |
+| Apple Silicon, multilingual | MLX Whisper large-v3-turbo | ~1.5 GB | MLX speed with Whisper's language coverage |
+
+Notes that drive the defaults:
+
+- **whisper-tiny is the only model pre-installed.** It bundles with the app and
+  is what local dictation uses out of the box. Larger models are opt-in downloads.
+- **Parakeet 0.6b is English-only** — that's why it's a *recommendation* for
+  English users on a Mac, not the global default. Multilingual users stay on
+  Whisper.
+- **Parakeet quantization:** 8-bit is the sweet spot — roughly half the size of
+  bf16 (~600 MB vs ~1.2 GB) with negligible accuracy loss for transcription;
+  4-bit (~350 MB) trades a small, real accuracy cost for less disk. ASR models
+  quantize more gracefully than LLMs, so 8-bit is the sane default.
+
+### 2.9 Why MLX on Apple Silicon (the efficiency case)
+
+MLX is Apple's own ML framework, not an ONNX execution provider — which is why it
+succeeds where the ONNX CoreML provider doesn't (a benchmark showed CoreML was a
+*net loss* for Kokoro because the graph only partially mapped to it). On
+Apple Silicon, MLX gives:
+
+- **Unified memory:** CPU and GPU share one pool, so model + audio live together
+  with no CPU↔GPU copy — large models run without a discrete GPU.
+- **Metal GPU (and ANE) acceleration:** real parallel throughput vs CPU-only
+  ONNX/whisper.cpp; this is the latency win that makes the call loop feel live.
+- **First-class quantization:** fast 4/8-bit kernels, so 8-bit Parakeet runs
+  quickly at ~600 MB and low RAM.
+- **Lazy graph fusion:** ops fused before execution — lower per-call overhead.
+- **Zero driver setup:** works on any M-series Mac out of the box; no CUDA, no GPU
+  drivers, none of CoreML's partial-mapping issues.
+- **Power efficiency:** sustained transcription/synthesis at far lower wattage
+  than CPU inference — better on battery.
+- **Shared runtime:** MLX is already installed via `uv` for mlx-audio (TTS), so
+  adding Parakeet-MLX (STT) reuses the same runtime — small incremental footprint.
+
+The deliberate boundary: **MLX is Apple-Silicon-only.** It is therefore a
+*premium opt-in tier* (`available()` gates it to `darwin/arm64`), never a default.
+Windows, Linux, and Intel Macs use the cross-platform path (Kokoro + whisper.cpp /
+ONNX). This is the same pattern on both sides of the system — local-by-default,
+MLX as the Apple-Silicon accelerator when present.
+
 ---
 
 ## 3. What was broken, and how it was fixed
