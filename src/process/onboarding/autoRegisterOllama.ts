@@ -27,6 +27,7 @@
  */
 
 import type { CatalogModel, ProviderId } from '@process/providers/types';
+import { isUnsupportedLocalVisionModel } from '@process/providers/catalog/localVisionModelFilter';
 
 /** The fixed native provider id for the local Ollama daemon. */
 const OLLAMA_LOCAL_ID: ProviderId = 'ollama-local';
@@ -98,7 +99,12 @@ export function autoRegisterOllamaInRepo(repo: OllamaRegistryRepo, probe: Ollama
   try {
     if (!probe.running) return { action: 'skipped' };
 
-    const models = normalizeModelNames(probe.models).map(toCatalogModel);
+    const models = normalizeModelNames(probe.models)
+      // Hide local vision/VLM models a chat agent can't drive - they clutter the
+      // picker with un-selectable rows. providerId is unambiguously local here,
+      // so the filter needs no endpoint join.
+      .filter((name) => !isUnsupportedLocalVisionModel(OLLAMA_LOCAL_ID, name))
+      .map(toCatalogModel);
     const existing = repo.getRegistryProvider(OLLAMA_LOCAL_ID);
 
     if (existing) {
