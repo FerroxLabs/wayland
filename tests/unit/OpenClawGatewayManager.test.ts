@@ -19,6 +19,9 @@ const mockPath = isWindows ? 'C:\\bin;C:\\usr\\local\\bin' : '/usr/bin:/usr/loca
 
 const mockSpawn = vi.hoisted(() => vi.fn());
 const mockExecFileSync = vi.hoisted(() => vi.fn());
+// killChild (pulled in via OpenClawGatewayManager) promisifies execFile at
+// module load, so the mock must export it (only invoked on the win32 path).
+const mockExecFile = vi.hoisted(() => vi.fn());
 const mockAccessSync = vi.hoisted(() => vi.fn());
 const mockOpenSync = vi.hoisted(() => vi.fn());
 const mockReadSync = vi.hoisted(() => vi.fn());
@@ -27,11 +30,13 @@ const mockCloseSync = vi.hoisted(() => vi.fn());
 vi.mock('child_process', () => ({
   spawn: mockSpawn,
   execFileSync: mockExecFileSync,
+  execFile: mockExecFile,
 }));
 
 vi.mock('node:child_process', () => ({
   spawn: mockSpawn,
   execFileSync: mockExecFileSync,
+  execFile: mockExecFile,
 }));
 
 vi.mock('node:fs', () => ({
