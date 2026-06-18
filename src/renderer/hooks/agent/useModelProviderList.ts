@@ -18,6 +18,15 @@ export interface ModelProviderListResult {
    * disconnect (see useWCoreModelSelection's stale-model guard).
    */
   connectedProviders: IProvider[];
+  /**
+   * True only during the initial load of the legacy `model.config` view (SWR has
+   * no data yet). Consumers that revalidate a selected model against the provider
+   * lists must wait for this to be false: on a freshly-mounted conversation the
+   * lists are momentarily empty, and clearing a selection during that window
+   * blanks a model the user legitimately picked (the "model vanished after one
+   * message" race).
+   */
+  isLoading: boolean;
   geminiModeLookup: Map<string, GeminiModeOption>;
   getAvailableModels: (provider: IProvider) => string[];
   formatModelLabel: (provider: { platform?: string } | undefined, modelName?: string) => string;
@@ -36,9 +45,11 @@ export const useModelProviderList = (): ModelProviderListResult => {
     return lookup;
   }, [geminiModeOptions]);
 
-  const { data: modelConfig, mutate: mutateModelConfig } = useSWR('model.config.shared', () =>
-    ipcBridge.mode.getModelConfig.invoke()
-  );
+  const {
+    data: modelConfig,
+    mutate: mutateModelConfig,
+    isLoading,
+  } = useSWR('model.config.shared', () => ipcBridge.mode.getModelConfig.invoke());
 
   // Revalidate the legacy `model.config` view whenever the model registry's
   // catalog changes (connect / rekey / per-provider or global refresh emit
@@ -127,5 +138,5 @@ export const useModelProviderList = (): ModelProviderListResult => {
     [geminiModeLookup]
   );
 
-  return { providers, connectedProviders, geminiModeLookup, getAvailableModels, formatModelLabel };
+  return { providers, connectedProviders, isLoading, geminiModeLookup, getAvailableModels, formatModelLabel };
 };

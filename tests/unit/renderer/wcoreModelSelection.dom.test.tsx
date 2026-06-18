@@ -14,10 +14,12 @@ import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 const providerListState: {
   providers: IProvider[];
   connectedProviders: IProvider[];
+  isLoading: boolean;
   getAvailableModels: (p: IProvider) => string[];
 } = {
   providers: [],
   connectedProviders: [],
+  isLoading: false,
   getAvailableModels: () => [],
 };
 
@@ -25,6 +27,7 @@ vi.mock('@/renderer/hooks/agent/useModelProviderList', () => ({
   useModelProviderList: () => ({
     providers: providerListState.providers,
     connectedProviders: providerListState.connectedProviders,
+    isLoading: providerListState.isLoading,
     geminiModeLookup: new Map(),
     getAvailableModels: providerListState.getAvailableModels,
     formatModelLabel: (_m: unknown, name: string) => name,
@@ -37,11 +40,17 @@ const openai = { id: 'openai', platform: 'openai', model: ['gpt-5.5'] } as unkno
 const fluxModel = { id: 'flux', useModel: 'flux-auto' } as unknown as TProviderWithModel;
 const onSelectModel = vi.fn().mockResolvedValue(true);
 
-function setList(providers: IProvider[], avail: Record<string, string[]>, connected?: IProvider[]) {
+function setList(
+  providers: IProvider[],
+  avail: Record<string, string[]>,
+  connected?: IProvider[],
+  isLoading = false
+) {
   providerListState.providers = providers;
   // The unfiltered connected list defaults to the picker list; pass it
   // explicitly to model the "connected but no available models" case.
   providerListState.connectedProviders = connected ?? providers;
+  providerListState.isLoading = isLoading;
   providerListState.getAvailableModels = (p) => avail[p.id] ?? [];
 }
 
@@ -85,6 +94,21 @@ describe('useWCoreModelSelection revalidation (#64)', () => {
     // give the revalidation effect a chance to (wrongly) clear it
     await new Promise((r) => setTimeout(r, 30));
     expect(result.current.currentModel?.useModel).toBe('z-ai/glm-5.2');
+  });
+
+  it('keeps a freshly-picked model while the provider list is still loading (vanish-after-one-message race)', async () => {
+    // Repro for the live-found bug: a model picked on the new-chat screen lands
+    // in a freshly-mounted conversation whose `model.config` (SWR) hasn't
+    // resolved yet, so both provider lists are momentarily empty AND isLoading is
+    // true. The revalidation must NOT clear the selection during that window -
+    // otherwise the model runs one turn then the composer blanks to "No model
+    // selected". Once loaded, the existing guards take over.
+    setList([], { openai: [] }, [], /* isLoading */ true);
+    const initial = { id: 'openai', platform: 'openai', useModel: 'gpt-5.5' } as unknown as TProviderWithModel;
+    const { result } = renderHook(() => useWCoreModelSelection({ initialModel: initial, onSelectModel }));
+    // give the revalidation effect a chance to (wrongly) clear it
+    await new Promise((r) => setTimeout(r, 30));
+    expect(result.current.currentModel?.useModel).toBe('gpt-5.5');
   });
 
   it('never treats flux-auto as stale, even though its provider is filtered out', async () => {

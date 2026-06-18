@@ -167,6 +167,7 @@ vi.mock('@/renderer/hooks/agent/useModelProviderList', () => ({
   useModelProviderList: () => ({
     providers: mockProviders,
     connectedProviders: mockProviders,
+    isLoading: false,
     geminiModeLookup: new Map(),
     getAvailableModels: (p: Record<string, unknown>) => mockAvailableModels(p),
     formatModelLabel: () => '',

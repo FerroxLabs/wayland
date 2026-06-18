@@ -35,6 +35,7 @@ export const useWCoreModelSelection = ({
   const {
     providers: allProviders,
     connectedProviders: allConnectedProviders,
+    isLoading: providerListLoading,
     getAvailableModels,
     formatModelLabel,
   } = useModelProviderList();
@@ -70,6 +71,14 @@ export const useWCoreModelSelection = ({
   useEffect(() => {
     if (!currentModel) return;
     if (currentModel.useModel && isFluxModelId(currentModel.useModel)) return;
+    // Don't revalidate until the provider list has actually loaded. On a freshly
+    // mounted conversation `model.config` (SWR) is briefly undefined, so both
+    // `providers` and `connectedProviders` are empty for a tick. Running the
+    // stale-model clear in that window wrongly drops a model the user just picked
+    // on the new-chat screen - it runs one turn, then the composer blanks to "No
+    // model selected" until a manual reselect (the "vanished after one message"
+    // race). Once loaded, a genuinely-disconnected provider still clears (#64).
+    if (providerListLoading) return;
     const useModel = currentModel.useModel ?? '';
     const owner =
       providers.find((p) => p.id === currentModel.id && getAvailableModels(p).includes(useModel)) ??
@@ -100,7 +109,7 @@ export const useWCoreModelSelection = ({
     } else if (owner.id !== currentModel.id) {
       setCurrentModel({ ...(owner as unknown as TProviderWithModel), useModel });
     }
-  }, [providers, connectedProviders, currentModel, getAvailableModels]);
+  }, [providers, connectedProviders, currentModel, getAvailableModels, providerListLoading]);
 
   const handleSelectModel = useCallback(
     async (provider: IProvider, modelName: string) => {
