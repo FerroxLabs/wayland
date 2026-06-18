@@ -107,7 +107,13 @@ const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
   },
 };
 
-type DownloadState = 'idle' | 'downloading' | 'success' | 'error';
+/** Approx on-disk download size per model, for the picker + progress readout. */
+const WHISPER_MODEL_SIZE_LABEL: Record<string, string> = {
+  base: '~148 MB',
+  small: '~488 MB',
+};
+
+type DownloadState = 'idle' | 'downloading' | 'installing' | 'success' | 'error';
 
 const WhisperLocalDownloadControl: React.FC<{
   model: string;
@@ -118,13 +124,17 @@ const WhisperLocalDownloadControl: React.FC<{
   const [errorMsg, setErrorMsg] = useState('');
   const [installed, setInstalled] = useState<boolean | null>(null);
   const cancelledRef = React.useRef(false);
+  const asset = WHISPER_MODEL_ASSETS[model];
+  // Live byte-progress for the active model download (same emitter the TTS
+  // models use). null until the first progress frame arrives.
+  const downloadPercent = useAssetDownloadProgress(asset?.id ?? '');
+  const sizeLabel = WHISPER_MODEL_SIZE_LABEL[model] ?? '';
 
   // Probe install state on mount + every model switch so the UI shows
   // "Installed" instead of a Download button when the file already exists
   // on disk. Krug / Sutherland: don't make the user wonder.
   useEffect(() => {
     let cancelled = false;
-    const asset = WHISPER_MODEL_ASSETS[model];
     if (!asset) return;
     void voiceAsset.exists
       .invoke({ id: asset.id })
@@ -137,24 +147,33 @@ const WhisperLocalDownloadControl: React.FC<{
     return () => {
       cancelled = true;
     };
-  }, [model, downloadState]);
+  }, [model, downloadState, asset]);
 
   const handleDownload = useCallback(async () => {
-    const asset = WHISPER_MODEL_ASSETS[model];
-    if (!asset) return;
+    const target = WHISPER_MODEL_ASSETS[model];
+    if (!target) return;
     cancelledRef.current = false;
     setDownloadState('downloading');
     setErrorMsg('');
     try {
-      await voiceAsset.download.invoke(asset);
-      if (!cancelledRef.current) setDownloadState('success');
+      await voiceAsset.download.invoke(target);
+      if (cancelledRef.current) return;
+      // Download resolved (bytes verified + atomically placed). Confirm on disk
+      // before flipping to Installed - shows a brief "Installing…" while the
+      // exists-probe runs.
+      setDownloadState('installing');
+      const r = await voiceAsset.exists.invoke({ id: target.id }).catch(() => ({ installed: false }));
+      if (cancelledRef.current) return;
+      setInstalled(Boolean(r?.installed));
+      setDownloadState(r?.installed ? 'success' : 'error');
+      if (!r?.installed) setErrorMsg(t('settings.speechToTextDownloadError', { defaultValue: 'Download failed' }));
     } catch (err) {
       if (!cancelledRef.current) {
         setDownloadState('error');
         setErrorMsg(err instanceof Error ? err.message : String(err));
       }
     }
-  }, [model]);
+  }, [model, t]);
 
   const handleCancel = useCallback(async () => {
     cancelledRef.current = true;
@@ -169,8 +188,8 @@ const WhisperLocalDownloadControl: React.FC<{
     <>
       <Form.Item label={t('settings.speechToTextWhisperModel')}>
         <WaylandSelect value={model} onChange={onModelChange}>
-          <WaylandSelect.Option value='base'>base</WaylandSelect.Option>
-          <WaylandSelect.Option value='small'>small</WaylandSelect.Option>
+          <WaylandSelect.Option value='base'>base · {WHISPER_MODEL_SIZE_LABEL.base}</WaylandSelect.Option>
+          <WaylandSelect.Option value='small'>small · {WHISPER_MODEL_SIZE_LABEL.small}</WaylandSelect.Option>
         </WaylandSelect>
       </Form.Item>
       <Form.Item label={t('settings.speechToTextDownloadModel')}>
@@ -178,15 +197,28 @@ const WhisperLocalDownloadControl: React.FC<{
           {downloadState === 'downloading' ? (
             <>
               <div className='flex items-center gap-8px'>
-                <Progress percent={0} animation className='flex-1' />
+                <Progress
+                  percent={downloadPercent ?? 0}
+                  animation={downloadPercent === null}
+                  className='flex-1'
+                />
                 <Button size='mini' onClick={handleCancel}>
                   {t('settings.speechToTextCancelDownload')}
                 </Button>
               </div>
               <span className='text-12px text-t-tertiary'>
-                {t('settings.speechToTextDownloadProgressNotReported', 'Downloading… (progress reporting coming soon)')}
+                {downloadPercent === null
+                  ? t('settings.speechToTextDownloadStarting', { defaultValue: 'Starting download… ({{size}})', size: sizeLabel })
+                  : t('settings.speechToTextDownloadingPct', { defaultValue: 'Downloading {{pct}}% of {{size}}', pct: downloadPercent, size: sizeLabel })}
               </span>
             </>
+          ) : downloadState === 'installing' ? (
+            <div className='flex items-center gap-8px'>
+              <Progress percent={100} animation className='flex-1' />
+              <span className='text-12px text-t-tertiary shrink-0'>
+                {t('settings.speechToTextInstalling', { defaultValue: 'Installing…' })}
+              </span>
+            </div>
           ) : installed ? (
             <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
               <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
