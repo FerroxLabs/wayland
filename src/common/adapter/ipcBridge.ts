@@ -224,6 +224,11 @@ export const application = {
     void
   >('system.info'), // Get system info
   getPath: buildProvider<string, { name: 'desktop' | 'home' | 'downloads' }>('app.get-path'), // Get system path
+  // Coarse hardware capabilities for the voice-model recommender (RAM + arch).
+  hardwareInfo: buildProvider<
+    { totalRamGB: number; appleSilicon: boolean; platform: 'darwin-arm64' | 'other' },
+    void
+  >('system.hardware-info'),
   updateSystemInfo: buildProvider<IBridgeResponse, { cacheDir: string; workDir: string }>('system.update-info'), // Update system info
   getZoomFactor: buildProvider<number, void>('app.get-zoom-factor'),
   setZoomFactor: buildProvider<number, { factor: number }>('app.set-zoom-factor'),

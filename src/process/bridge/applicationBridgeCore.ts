@@ -21,6 +21,15 @@ export function initApplicationBridgeCore(): void {
     return Promise.resolve(getSystemDir());
   });
 
+  ipcBridge.application.hardwareInfo.provider(() => {
+    const appleSilicon = process.platform === 'darwin' && process.arch === 'arm64';
+    return Promise.resolve({
+      totalRamGB: Math.round(os.totalmem() / 1e9),
+      appleSilicon,
+      platform: appleSilicon ? ('darwin-arm64' as const) : ('other' as const),
+    });
+  });
+
   ipcBridge.application.updateSystemInfo.provider(async ({ cacheDir, workDir }) => {
     try {
       // Normalize paths: if the user picked a real path that matches a CLI-safe
