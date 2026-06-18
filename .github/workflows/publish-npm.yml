@@ -1,17 +1,19 @@
 name: Publish getwayland to npm (manual)
 
-# On-demand publish of the getwayland self-host CLI to npm at the version in
-# app/package.json (build-payload syncs installer/package.json to it). Use this
-# to backfill a release whose automatic npm publish was skipped/failed, or for
-# any out-of-band republish. Requires the NPM_TOKEN repo secret. Idempotent: a
-# version already on npm is a no-op.
+# On-demand publish of the getwayland self-host CLI to npm. Checks out the `ref`
+# you specify (a tag or branch) and publishes getwayland at that ref's
+# app/package.json version (build-payload syncs installer/package.json to it).
+# Use it to backfill a release whose automatic npm publish was skipped/failed.
+# Requires the NPM_TOKEN repo secret. Idempotent: a version already on npm is a
+# no-op. Dispatch is restricted to users with write access (workflow_dispatch).
 
 on:
   workflow_dispatch:
     inputs:
-      reason:
-        description: 'Why are you publishing manually? (e.g. backfill 0.10.2)'
-        required: false
+      ref:
+        description: 'Tag or branch to publish from (its app/package.json version is published, e.g. v0.10.2)'
+        required: true
+        default: 'feat/workflows-collaborative-surface'
 
 jobs:
   publish:
@@ -27,8 +29,12 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout
+      # `ref` comes from a write-access maintainer via workflow_dispatch (not
+      # untrusted external input). It only selects which commit to publish.
+      - name: Checkout the ref to publish
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
