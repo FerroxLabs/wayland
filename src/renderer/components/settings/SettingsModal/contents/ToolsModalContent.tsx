@@ -57,6 +57,11 @@ import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneC
 import { playAudioClip, stopVoicePlayback } from '@/renderer/utils/voicePlayback';
 import { speakWithSystemVoice } from '@/renderer/utils/systemVoice';
 import { useSystemVoices } from '@/renderer/hooks/voice/useSystemVoices';
+import { useSignedInProviders } from '@/renderer/hooks/voice/useSignedInProviders';
+import { useHardwareVoiceRecommendation } from '@/renderer/hooks/voice/useHardwareVoiceRecommendation';
+import { RecommendedVoiceHint } from '@/renderer/components/voice/RecommendedVoiceHint';
+import HuggingFaceModelSearch from '@/renderer/components/voice/HuggingFaceModelSearch';
+import type { HfSearchResult } from '@/renderer/services/huggingFaceVoiceSearch';
 import { isBelowVersion } from '@/renderer/utils/versionCompare';
 import { SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT } from './speechToTextEvents';
 
@@ -831,6 +836,8 @@ export const TextToSpeechSettingsSection: React.FC<{
   const [piperInstalled, setPiperInstalled] = useState<boolean | null>(null);
   const [testVoiceLoading, setTestVoiceLoading] = useState(false);
   const systemVoices = useSystemVoices();
+  const signedInProviders = useSignedInProviders();
+  const recommendation = useHardwareVoiceRecommendation(signedInProviders);
 
   useEffect(() => {
     void Promise.all([
@@ -989,6 +996,12 @@ export const TextToSpeechSettingsSection: React.FC<{
 
       <Divider className='mt-0px mb-20px' />
 
+      {recommendation && (
+        <div className='mb-12px'>
+          <RecommendedVoiceHint recommendation={recommendation} />
+        </div>
+      )}
+
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.textToSpeechProvider')}>
           <div className='flex items-center gap-8px'>
@@ -1068,11 +1081,16 @@ export const TextToSpeechSettingsSection: React.FC<{
               ))}
             </WaylandSelect>
           ) : config.provider === 'mlx-audio-local' ? (
-            <MlxAudioModelControl
-              value={config.voice || mlxDefaultModel}
-              models={mlxModels}
-              onChange={updateVoice}
-            />
+            <div className='flex flex-col gap-8px'>
+              <MlxAudioModelControl
+                value={config.voice || mlxDefaultModel}
+                models={mlxModels}
+                onChange={updateVoice}
+              />
+              {/* Discover more MLX voices on HuggingFace; selecting sets the
+                  model id (mlx-audio fetches the weights on first synthesis). */}
+              <HuggingFaceModelSearch kind='tts' onSelect={(e: HfSearchResult) => updateVoice(e.modelId)} />
+            </div>
           ) : config.provider === 'system-native' ? (
             systemVoices.length > 0 ? (
               <WaylandSelect
