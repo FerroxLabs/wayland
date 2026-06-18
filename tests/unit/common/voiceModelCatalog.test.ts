@@ -8,6 +8,9 @@ import {
   BUILT_IN_VOICE_MODELS,
   buildVoiceModelCatalog,
   voiceModelsFor,
+  isModelRemovable,
+  defaultModelFor,
+  availableVoiceModels,
   type VoiceModelEntry,
 } from '@/common/voice/voiceModelCatalog';
 
@@ -83,5 +86,40 @@ describe('common/voiceModelCatalog', () => {
     const mlx = voiceModelsFor(catalog, 'mlx-audio-local');
     expect(mlx.every((m) => m.engineId === 'mlx-audio-local')).toBe(true);
     expect(mlx.every((m) => m.kind === 'tts')).toBe(true);
+  });
+
+  it('whisper-tiny is the bundled, non-removable, recommended default', () => {
+    const tiny = BUILT_IN_VOICE_MODELS.find((m) => m.engineId === 'whisper-local' && m.modelId === 'tiny');
+    expect(tiny).toBeDefined();
+    expect(tiny?.bundled).toBe(true);
+    expect(tiny?.builtIn).toBe(true);
+    expect(tiny?.local).toBe(true);
+    expect(isModelRemovable(tiny!)).toBe(false);
+    expect(defaultModelFor(buildVoiceModelCatalog(), 'whisper-local')?.modelId).toBe('tiny');
+  });
+
+  it('downloadable models are removable; the floor is not', () => {
+    const catalog = buildVoiceModelCatalog();
+    const base = catalog.find((m) => m.modelId === 'base')!;
+    expect(isModelRemovable(base)).toBe(true);
+  });
+
+  it('availableVoiceModels drops other-platform and unsigned cloud entries; keeps local', () => {
+    const cloud: VoiceModelEntry = {
+      kind: 'stt', engineId: 'openai-whisper', modelId: 'whisper-1', label: 'OpenAI',
+      sizeLabel: '—', blurb: 'cloud', requiresProvider: 'openai', local: false,
+    };
+    const catalog = buildVoiceModelCatalog([cloud]);
+    // non-mac, not signed in: mlx (darwin-arm64) and the cloud entry are dropped; local whisper stays
+    const onOther = availableVoiceModels(catalog, { platform: 'other', signedInProviders: new Set() });
+    expect(onOther.some((m) => m.modelId === 'tiny')).toBe(true);
+    expect(onOther.some((m) => m.engineId === 'mlx-audio-local')).toBe(false);
+    expect(onOther.some((m) => m.modelId === 'whisper-1')).toBe(false);
+    // signed in to openai: the cloud entry appears
+    const signedIn = availableVoiceModels(catalog, { platform: 'other', signedInProviders: new Set(['openai']) });
+    expect(signedIn.some((m) => m.modelId === 'whisper-1')).toBe(true);
+    // mac: mlx entries appear
+    const onMac = availableVoiceModels(catalog, { platform: 'darwin-arm64' });
+    expect(onMac.some((m) => m.engineId === 'mlx-audio-local')).toBe(true);
   });
 });

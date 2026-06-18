@@ -38,6 +38,22 @@ export type VoiceModelEntry = {
   /** When set, the entry is only offered on that platform. */
   platform?: 'darwin-arm64';
   recommended?: boolean;
+  /** Runs fully on-device with no network/credential. Defaults all resolve to
+   * a local entry; cloud entries set this false. */
+  local?: boolean;
+  /** Ships in-repo (vs contributed by an extension). */
+  builtIn?: boolean;
+  /** Ships pre-installed in the app (no download). */
+  bundled?: boolean;
+  /** Can be deleted from disk. Built-in floors (bundled tiny, system-native)
+   * set this false — they are the guaranteed offline fallback. Default true. */
+  removable?: boolean;
+  /** Only selectable when the existing credential store is signed in to this
+   * provider (e.g. 'openai', 'deepgram'). The voice layer has NO auth of its
+   * own — this reuses the app's single sign-in. Absent = always available. */
+  requiresProvider?: string;
+  /** Approx peak RAM to load + run, for the hardware recommender / OOM warnings. */
+  minRamGB?: number;
 };
 
 /**
@@ -50,6 +66,24 @@ export type VoiceModelEntry = {
  */
 export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
   // --- whisper-local STT ---
+  // The bundled tiny model is the guaranteed offline floor: it ships in the
+  // installer, needs no download, and can never be removed. Every STT chain
+  // falls back to it.
+  {
+    kind: 'stt',
+    engineId: 'whisper-local',
+    modelId: 'tiny',
+    label: 'tiny (bundled)',
+    sizeLabel: '~75 MB',
+    blurb:
+      'Ships with the app and works offline instantly — no download. Fast but the least accurate; the always-available default and fallback.',
+    local: true,
+    bundled: true,
+    builtIn: true,
+    removable: false,
+    recommended: true,
+    minRamGB: 1,
+  },
   {
     kind: 'stt',
     engineId: 'whisper-local',
@@ -58,6 +92,8 @@ export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
     sizeLabel: '~148 MB',
     blurb:
       'Fast and lightweight. Good for clear speech and quick dictation; the best everyday balance of speed and accuracy on most machines.',
+    local: true,
+    minRamGB: 1,
   },
   {
     kind: 'stt',
@@ -67,6 +103,8 @@ export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
     sizeLabel: '~488 MB',
     blurb:
       'Noticeably more accurate on accents, names, and background noise, while staying reasonably quick. Pick this if base misses words.',
+    local: true,
+    minRamGB: 2,
   },
   {
     kind: 'stt',
@@ -76,6 +114,8 @@ export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
     sizeLabel: '~1.5 GB',
     blurb:
       'Near-large-v3 accuracy at much higher speed; multilingual. The best Whisper tier if your machine can hold it.',
+    local: true,
+    minRamGB: 4,
   },
 
   // --- mlx-audio-local TTS (Apple Silicon only) ---
@@ -89,6 +129,8 @@ export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
     blurb: 'All-rounder with voice cloning from a reference clip',
     platform: 'darwin-arm64',
     recommended: true,
+    local: true,
+    minRamGB: 8,
   },
   {
     kind: 'tts',
@@ -100,6 +142,8 @@ export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
     blurb: 'Most natural conversational voice',
     quant: '8-bit',
     platform: 'darwin-arm64',
+    local: true,
+    minRamGB: 8,
   },
   {
     kind: 'tts',
@@ -111,6 +155,8 @@ export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
     blurb: 'Expressive with emotion tags; quantize it',
     quant: '4-bit',
     platform: 'darwin-arm64',
+    local: true,
+    minRamGB: 12,
   },
   {
     kind: 'tts',
@@ -121,6 +167,8 @@ export const BUILT_IN_VOICE_MODELS: VoiceModelEntry[] = [
     sizeLabel: '~3-6 GB',
     blurb: 'Best realism + multi-speaker dialogue',
     platform: 'darwin-arm64',
+    local: true,
+    minRamGB: 16,
   },
 ];
 
@@ -145,3 +193,29 @@ export const buildVoiceModelCatalog = (extra: VoiceModelEntry[] = []): VoiceMode
 /** All catalog entries for a given engine, in declared order. */
 export const voiceModelsFor = (catalog: VoiceModelEntry[], engineId: string): VoiceModelEntry[] =>
   catalog.filter((m) => m.engineId === engineId);
+
+/** Whether a model may be deleted from disk. Built-in floors are not removable. */
+export const isModelRemovable = (entry: VoiceModelEntry): boolean => entry.removable !== false;
+
+/** The recommended default model for an engine (the `recommended` entry, else the first). */
+export const defaultModelFor = (catalog: VoiceModelEntry[], engineId: string): VoiceModelEntry | null => {
+  const forEngine = voiceModelsFor(catalog, engineId);
+  return forEngine.find((m) => m.recommended) ?? forEngine[0] ?? null;
+};
+
+/**
+ * Filter a catalog to what's offerable on this machine: drops entries gated to
+ * another platform, and (when `signedInProviders` is supplied) drops cloud
+ * entries whose `requiresProvider` is not signed in. Local entries always pass.
+ * This is how "default to local unless signed in" is enforced — the voice layer
+ * reuses the app's existing credential set, it never has its own auth.
+ */
+export const availableVoiceModels = (
+  catalog: VoiceModelEntry[],
+  ctx: { platform: 'darwin-arm64' | 'other'; signedInProviders?: ReadonlySet<string> },
+): VoiceModelEntry[] =>
+  catalog.filter((m) => {
+    if (m.platform && m.platform !== ctx.platform) return false;
+    if (m.requiresProvider && !ctx.signedInProviders?.has(m.requiresProvider)) return false;
+    return true;
+  });
