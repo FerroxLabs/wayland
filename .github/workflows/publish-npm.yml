@@ -1,0 +1,66 @@
+name: Publish getwayland to npm (manual)
+
+# On-demand publish of the getwayland self-host CLI to npm at the version in
+# app/package.json (build-payload syncs installer/package.json to it). Use this
+# to backfill a release whose automatic npm publish was skipped/failed, or for
+# any out-of-band republish. Requires the NPM_TOKEN repo secret. Idempotent: a
+# version already on npm is a no-op.
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why are you publishing manually? (e.g. backfill 0.10.2)'
+        required: false
+
+jobs:
+  publish:
+    name: Publish getwayland to npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require an npm token
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error title=NPM_TOKEN missing::Add an npm automation token as the NPM_TOKEN repo secret."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build the getwayland payload (syncs version to app/package.json)
+        working-directory: installer
+        run: node scripts/build-payload.mjs
+
+      - name: Publish to npm
+        working-directory: installer
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          case "$VERSION" in
+            *-*) DIST_TAG=next ;;   # prerelease (rc / beta) -> npm `next`
+            *)   DIST_TAG=latest ;; # stable -> npm `latest`
+          esac
+          echo "Publishing getwayland@$VERSION (dist-tag: $DIST_TAG)"
+          if npm view "getwayland@$VERSION" version >/dev/null 2>&1; then
+            echo "getwayland@$VERSION is already on npm - skipping."
+            exit 0
+          fi
+          npm publish --access public --tag "$DIST_TAG"

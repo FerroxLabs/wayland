@@ -373,7 +373,11 @@ jobs:
     name: Publish getwayland to npm
     runs-on: ubuntu-latest
     needs: [publish-release]
-    if: ${{ needs.publish-release.result == 'success' }}
+    # always() is REQUIRED: on a tag push the create-tag ancestor is skipped, and
+    # without always() GitHub propagates that skip down this chain (the release /
+    # publish-release jobs guard the same way). We still only publish when
+    # publish-release actually succeeded.
+    if: ${{ always() && needs.publish-release.result == 'success' }}
     steps:
       - name: Require an npm token
         env:
