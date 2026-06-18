@@ -22,6 +22,14 @@ import { useTitleRename } from '@/renderer/pages/conversation/hooks/useTitleRena
 import { useWorkspaceCollapse } from '@/renderer/pages/conversation/hooks/useWorkspaceCollapse';
 import { PreviewPanel, usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { dispatchWorkspaceToggleEvent } from '@/renderer/utils/workspace/workspaceEvents';
+import { SpeakRepliesControl } from '@/renderer/pages/conversation/components/SpeakRepliesControl';
+import { MicModeControl } from '@/renderer/pages/conversation/components/MicModeControl';
+import { OpenVoiceOverlay } from '@/renderer/pages/conversation/components/OpenVoiceOverlay';
+import { useOpenVoiceSession } from '@/renderer/hooks/voice/useOpenVoiceSession';
+import { useTtsConfig } from '@/renderer/hooks/voice/useTtsConfig';
+import { useVoiceChatPrefs } from '@/renderer/hooks/voice/useVoiceChatPrefs';
+import { cycleSpeakOverride } from '@/common/types/voiceChatPrefs';
+import { stopVoicePlayback } from '@/renderer/utils/voicePlayback';
 import { ACP_BACKENDS_ALL } from '@/common/types/acpTypes';
 import classNames from 'classnames';
 import { isMacEnvironment, isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
@@ -67,6 +75,42 @@ const ChatLayout: React.FC<{
   const { conversationId, workspacePath } = props;
   const { backend, presetAssistant, agentName } = props;
   const { t } = useTranslation();
+
+  // Voice: per-chat tri-state speaker toggle + global Esc-to-stop.
+  const [ttsConfig] = useTtsConfig();
+  const [chatPrefs, setOverride] = useVoiceChatPrefs();
+  const speakOverride = (conversationId && chatPrefs.overrides[conversationId]) || 'inherit';
+
+  // Call mode (open-voice) is ephemeral session-only state — never persisted.
+  // Reset whenever the active conversation changes so a call never leaks across
+  // conversations.
+  const [callActive, setCallActive] = React.useState(false);
+  React.useEffect(() => {
+    setCallActive(false);
+  }, [conversationId]);
+
+  // sendMessage bridge: ChatLayout cannot reach the platform send box directly,
+  // so the open-voice session dispatches a window CustomEvent that the shared
+  // SendBox consumes (it injects the text + arms the existing auto-send path).
+  const sendVoiceMessage = React.useCallback(
+    (text: string) => {
+      window.dispatchEvent(new CustomEvent('wayland:voice-send', { detail: { conversationId, text } }));
+    },
+    [conversationId]
+  );
+
+  const voiceSession = useOpenVoiceSession({ active: callActive, conversationId, sendMessage: sendVoiceMessage });
+
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        stopVoicePlayback();
+        setCallActive(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   // #27 phase 2: in a pop-out window, hide the tab bar and surface a Dock-back
   // action. The workspace COMES WITH the chat (the conversation's workspace is
   // its working context), so the panel + its toggle stay enabled in the pop-out;
@@ -249,6 +293,16 @@ const ChatLayout: React.FC<{
               <PictureInPicture2 size={16} />
             </button>
           )}
+          {ttsConfig.enabled && conversationId && (
+            <SpeakRepliesControl
+              override={speakOverride}
+              systemDefault={ttsConfig.autoReadDefault}
+              onCycle={() => setOverride(conversationId, cycleSpeakOverride(speakOverride))}
+            />
+          )}
+          {ttsConfig.enabled && conversationId && (
+            <MicModeControl active={callActive} onToggle={() => setCallActive((v) => !v)} />
+          )}
           {props.headerExtra}
           {(backend || presetAssistant) && (
             <AgentBadge
@@ -271,6 +325,17 @@ const ChatLayout: React.FC<{
           )}
         </div>
       </ArcoLayout.Header>
+      {callActive && conversationId && (
+        <div className='px-16px pb-8px'>
+          <OpenVoiceOverlay
+            phase={voiceSession.phase}
+            level={voiceSession.level}
+            silenceMs={voiceSession.silenceMs}
+            sensitivityBias={voiceSession.sensitivityBias}
+            onEnd={() => setCallActive(false)}
+          />
+        </div>
+      )}
       {resolvedTabsSlot}
     </>
   );

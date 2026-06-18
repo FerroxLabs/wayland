@@ -69,6 +69,12 @@ export const appendSpeechTranscript = (base: string, transcript: string): string
   return `${normalizedBase}\n${normalizedTranscript}`;
 };
 
+/** Decide whether a freshly dictated transcript should auto-send. True only when
+ *  the autoSend setting is on AND the transcript has non-whitespace content; a
+ *  blank transcript must never trigger a send. */
+export const shouldAutoSendTranscript = (transcript: string, autoSend: boolean): boolean =>
+  autoSend && transcript.trim().length > 0;
+
 const getSpeechInputEnvironment = (): SpeechInputEnvironment => {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
     return {

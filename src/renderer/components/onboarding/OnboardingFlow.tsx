@@ -20,11 +20,13 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
+import { Switch } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import { FLUX_AUTO_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { ConfigStorage } from '@/common/config/storage';
+import { normalizeTextToSpeechConfig } from '@/common/types/ttsTypes';
 import type { DetectionResult } from '@/common/types/onboarding';
 import type { ProviderId } from '@process/providers/types';
 import wordmark from '@renderer/assets/logos/wayland-wordmark-white.png';
@@ -51,7 +53,7 @@ type OnboardingFlowProps = {
   onFinish: () => void;
 };
 
-type Screen = 'quickstart' | 'scan' | 'outcome' | 'interests' | 'allset';
+type Screen = 'quickstart' | 'scan' | 'outcome' | 'interests' | 'voice' | 'allset';
 
 /** Provider id → real brand logo (rendered on a white tile). */
 const PROVIDER_LOGO: Record<string, string> = {
@@ -140,6 +142,8 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   const [scanLog, setScanLog] = useState(0);
   const [picks, setPicks] = useState<FocusPersonaId[]>([]);
   const [work, setWork] = useState('');
+  // Voice-setup step: read replies aloud (drives tools.textToSpeech enabled + autoReadDefault).
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [coldKey, setColdKey] = useState('');
   // Providers connected via the paste field this session - appended to the
   // reveal so a freshly-added key visibly lands "in the pool".
@@ -313,8 +317,20 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       void ConfigStorage.set('launchpad.barOrder', launchpadIds);
       void ConfigStorage.set('onboarding.focusArea', focus);
     }
-    setScreen('allset');
+    setScreen('voice');
   }, [picks, work]);
+
+  /**
+   * Persist the voice choice on Continue: read the stored tts config, flip
+   * `enabled` + `autoReadDefault` to the toggle, normalize (migrates v1 → v2
+   * chains), and write it back. Skip never calls this, so a skipped step leaves
+   * the existing config untouched.
+   */
+  const persistVoiceChoice = useCallback(async () => {
+    const stored = await ConfigStorage.get('tools.textToSpeech');
+    const next = normalizeTextToSpeechConfig({ ...stored, enabled: voiceEnabled, autoReadDefault: voiceEnabled });
+    await ConfigStorage.set('tools.textToSpeech', next);
+  }, [voiceEnabled]);
 
   const finishAll = useCallback(() => {
     const n = name.trim();
@@ -791,7 +807,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
           <button
             type='button'
             className={styles.ghost}
-            onClick={() => setScreen('allset')}
+            onClick={() => setScreen('voice')}
             disabled={busy === 'infer'}
           >
             {t('onboarding.flow.interests.skip')}
@@ -811,6 +827,61 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
                 {t('onboarding.flow.interests.startInChat')} <ArrowRight size={15} />
               </>
             )}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === 'voice') {
+    return (
+      <div className={styles.shell}>
+        <Header step={2} />
+        <h1 className={styles.headline}>
+          {t('onboarding.voiceTitle', { defaultValue: 'Want Wayland to speak?' })}
+          <span className={styles.pt}>.</span>
+        </h1>
+        <p className={styles.sub}>
+          {t('onboarding.voiceBody', {
+            defaultValue:
+              'Wayland can read replies aloud and listen to you. You can set this up now or anytime in Settings → Voice.',
+          })}
+        </p>
+        <div className={styles.block}>
+          <div className={styles.door} style={{ cursor: 'default' }}>
+            <span className={styles.dMain}>
+              <span className={styles.dTitle}>
+                {t('onboarding.voiceReadAloud', { defaultValue: 'Read replies aloud' })}
+              </span>
+            </span>
+            <Switch checked={voiceEnabled} onChange={setVoiceEnabled} />
+          </div>
+        </div>
+        <div className={`${styles.block} ${styles.note}`}>
+          <span className={styles.nIc}>
+            <Info size={17} />
+          </span>
+          <span>
+            {t('onboarding.voiceKokoroNote', {
+              defaultValue:
+                'Kokoro is the recommended local voice - fully on-device. Set it up anytime in Settings → Voice.',
+            })}
+          </span>
+        </div>
+        <div className={styles.grow} />
+        <div className={styles.actions}>
+          <button type='button' className={styles.ghost} onClick={() => setScreen('allset')}>
+            {t('onboarding.skip', { defaultValue: 'Skip' })}
+          </button>
+          <button
+            type='button'
+            className={styles.btn}
+            onClick={() => {
+              void persistVoiceChoice();
+              setScreen('allset');
+            }}
+          >
+            {t('onboarding.continue', { defaultValue: 'Continue' })} <ArrowRight size={15} />
           </button>
         </div>
       </div>

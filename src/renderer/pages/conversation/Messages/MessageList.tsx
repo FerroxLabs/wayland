@@ -5,8 +5,10 @@
  */
 
 import { ChevronDown } from 'lucide-react';
+import { ipcBridge } from '@/common';
 import type { CodexToolCallUpdate, IMessageAcpToolCall, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
+import { useAutoReadReplies } from '@/renderer/hooks/voice/useAutoReadReplies';
 import { useWorkflowViewMode } from '@/renderer/pages/guid/components/workflow/workflowViewMode';
 import { WorkflowTranscript } from '@/renderer/pages/guid/components/workflow/WorkflowTranscript';
 import { iconColors } from '@/renderer/styles/colors';
@@ -25,7 +27,7 @@ import HOC from '@renderer/utils/ui/HOC';
 import MessageCodexToolCall from './codex/MessageCodexToolCall';
 import type { FileChangeInfo } from './codex/MessageFileChanges';
 import MessageFileChanges, { parseDiff } from './codex/MessageFileChanges';
-import { useMessageList } from './hooks';
+import { useAddOrUpdateMessage, useMessageList } from './hooks';
 import MessageAgentStatus from './components/MessageAgentStatus';
 import MessagePlan from './components/MessagePlan';
 import MessageTips from './components/MessageTips';
@@ -174,6 +176,60 @@ const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.
   const targetMessageId = locationState.targetMessageId;
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | undefined>();
   const handledTargetKeyRef = useRef<string>('');
+
+  // --- Auto-read: speak completed assistant replies aloud ---
+  // The platform streaming flag (`streamRunning`) lives per-platform inside each
+  // SendBox, but every agent emits `start`/`finish` on the shared
+  // `conversation.responseStream` emitter. We track turn completion here - the
+  // smallest shared scope that has BOTH the conversation id (context) and the
+  // message list - so a single mount covers all platforms.
+  const conversationId = conversationContext?.conversationId;
+  const [streamRunning, setStreamRunning] = useState(false);
+  useEffect(() => {
+    if (!conversationId) return;
+    setStreamRunning(false);
+    return ipcBridge.conversation.responseStream.on((message) => {
+      if (message.conversation_id !== conversationId) return;
+      if (message.type === 'start' || message.type === 'thought') setStreamRunning(true);
+      else if (message.type === 'finish') setStreamRunning(false);
+    });
+  }, [conversationId]);
+
+  const lastAssistantText = useMemo(() => {
+    for (let i = list.length - 1; i >= 0; i--) {
+      const m = list[i];
+      if (m.type === 'text' && m.position === 'left') return m;
+    }
+    return null;
+  }, [list]);
+
+  const addOrUpdateMessage = useAddOrUpdateMessage();
+  useAutoReadReplies({
+    conversationId,
+    latestAssistant:
+      lastAssistantText && !streamRunning
+        ? { id: lastAssistantText.id, done: true, rawText: lastAssistantText.content.content }
+        : lastAssistantText
+          ? { id: lastAssistantText.id, done: false, rawText: lastAssistantText.content.content }
+          : null,
+    // Surface TTS engine failover inline in the conversation (not a toast):
+    // an unobtrusive centered system-line, consistent with other inline tips.
+    onFailover: (notices) => {
+      if (!conversationId) return;
+      for (const n of notices) {
+        addOrUpdateMessage(
+          {
+            id: uuid(),
+            type: 'tips',
+            position: 'center',
+            conversation_id: conversationId,
+            content: { content: `Voice: ${n.failedEngine} unavailable (${n.error}) — using ${n.fellBackTo}`, type: 'warning' },
+          },
+          true,
+        );
+      }
+    },
+  });
 
   // Pre-process message list to group Codex turn_diff messages
   const processedList = useMemo(() => {

@@ -13,7 +13,8 @@ import {
 } from '@/common/config/storage';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
 import type { TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
-import { voiceAsset } from '@/common/adapter/ipcBridge';
+import { DEFAULT_TTS_CONFIG, normalizeTextToSpeechConfig } from '@/common/types/ttsTypes';
+import { acpConversation, voiceAsset, voiceSynth } from '@/common/adapter/ipcBridge';
 import {
   isImageModelName,
   imageModelDisplayLabel,
@@ -32,6 +33,7 @@ import {
   Progress,
 } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { DownloadProgress } from '@/common/types/voiceAsset';
 import { useTranslation } from 'react-i18next';
 import useConfigModelListWithImage from '@/renderer/hooks/agent/useConfigModelListWithImage';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
@@ -46,9 +48,14 @@ import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsViewMode } from '../settingsViewContext';
 import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneCheck';
+import { playAudioClip, stopVoicePlayback } from '@/renderer/utils/voicePlayback';
+import { isBelowVersion } from '@/renderer/utils/versionCompare';
+import { SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT } from './speechToTextEvents';
+
+// Re-exported so existing importers can keep using this module path.
+export { SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT };
 
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
-export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
 export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
   enabled: false,
   provider: 'openai',
@@ -212,12 +219,23 @@ const WhisperLocalDownloadControl: React.FC<{
   );
 };
 
-export const TTS_CONFIG_CHANGED_EVENT = 'wayland:tts-config-changed';
+export { TTS_CONFIG_CHANGED_EVENT } from '@/renderer/hooks/voice/useTtsConfig';
 
-// Hoisted out of the component body so React doesn't see a new object
-// identity every render - the previous in-body literal forced every
-// useCallback dependent on KOKORO_ASSET to re-create, which in turn
-// thrashed the install probe's effect.
+/** Tracks real-time download progress for a specific asset id. */
+function useAssetDownloadProgress(assetId: string): number | null {
+  const [percent, setPercent] = useState<number | null>(null);
+  useEffect(() => {
+    const off = voiceAsset.downloadProgress.on((p: DownloadProgress) => {
+      if (p.assetId !== assetId) return;
+      if (p.totalBytes && p.totalBytes > 0) {
+        setPercent(Math.round((p.bytesDownloaded / p.totalBytes) * 100));
+      }
+    });
+    return () => { off(); setPercent(null); };
+  }, [assetId]);
+  return percent;
+}
+
 const KOKORO_ASSET: VoiceAsset = {
   id: 'kokoro-onnx-model',
   url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
@@ -225,73 +243,567 @@ const KOKORO_ASSET: VoiceAsset = {
   sha256: '',
 };
 
+const KOKORO_VOICES_ASSET: VoiceAsset = {
+  id: 'kokoro-voices',
+  url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin',
+  destPath: '',
+  sha256: '',
+};
+
+const KOKORO_PKG = 'kokoro-onnx';
+const KOKORO_REQUIRED_SPACE = '~490 MB';
+const KOKORO_DEFAULT_VOICE = 'af_sky';
+const KOKORO_VOICES: { value: string; label: string }[] = [
+  { value: 'af_sky',      label: 'Sky (AF)' },
+  { value: 'af_bella',    label: 'Bella (AF)' },
+  { value: 'af_heart',    label: 'Heart (AF)' },
+  { value: 'af_sarah',    label: 'Sarah (AF)' },
+  { value: 'af_nicole',   label: 'Nicole (AF)' },
+  { value: 'af_nova',     label: 'Nova (AF)' },
+  { value: 'af_alloy',    label: 'Alloy (AF)' },
+  { value: 'af_jessica',  label: 'Jessica (AF)' },
+  { value: 'af_river',    label: 'River (AF)' },
+  { value: 'am_adam',     label: 'Adam (AM)' },
+  { value: 'am_echo',     label: 'Echo (AM)' },
+  { value: 'am_eric',     label: 'Eric (AM)' },
+  { value: 'am_liam',     label: 'Liam (AM)' },
+  { value: 'am_michael',  label: 'Michael (AM)' },
+  { value: 'am_onyx',     label: 'Onyx (AM)' },
+  { value: 'bf_emma',     label: 'Emma (BF)' },
+  { value: 'bf_alice',    label: 'Alice (BF)' },
+  { value: 'bf_isabella', label: 'Isabella (BF)' },
+  { value: 'bf_lily',     label: 'Lily (BF)' },
+  { value: 'bm_george',   label: 'George (BM)' },
+  { value: 'bm_daniel',   label: 'Daniel (BM)' },
+  { value: 'bm_lewis',    label: 'Lewis (BM)' },
+  { value: 'bm_fable',    label: 'Fable (BM)' },
+];
+
+// Piper default-voice assets - model + config both required next to each other.
+// destPath + sha256 are resolved server-side by voiceAssetRegistry.ts (pinned
+// digests live there); the renderer just supplies the id + url.
+const PIPER_MODEL_ASSET: VoiceAsset = {
+  id: 'piper-voice-en_US-lessac-medium',
+  url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx',
+  destPath: '',
+  sha256: '',
+};
+
+const PIPER_CONFIG_ASSET: VoiceAsset = {
+  id: 'piper-voice-en_US-lessac-medium-config',
+  url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json',
+  destPath: '',
+  sha256: '',
+};
+
+const PIPER_PKG = 'piper-tts';
+const PIPER_REQUIRED_SPACE = '~65 MB';
+const PIPER_DEFAULT_VOICE = 'en_US-lessac-medium';
+// Mirrors PIPER_VOICES in @process/services/voice/engine/tts/piperEngine.ts -
+// kept as a renderer-side copy (same ids) because the engine module imports
+// node builtins the sandboxed renderer cannot bundle.
+const PIPER_VOICES: { value: string; label: string }[] = [
+  { value: 'en_US-lessac-medium', label: 'Lessac — English (US)' },
+  { value: 'es_ES-davefx-medium', label: 'DaveFX — Español' },
+  { value: 'fr_FR-siwis-medium', label: 'Siwis — Français' },
+  { value: 'de_DE-thorsten-medium', label: 'Thorsten — Deutsch' },
+];
+
+const MLX_AUDIO_PKG = 'mlx-audio';
+// MLX_AUDIO_MIN_VERSION 0.2.0 chosen as the first release with stable server mode
+// (used by the warm-worker pattern later).
+const MLX_AUDIO_MIN_VERSION = '0.2.0';
+const MLX_AUDIO_DEFAULT_MODEL = 'mlx-community/lucasnewman-f5-tts-mlx';
+const IS_APPLE_SILICON = process.platform === 'darwin' && process.arch === 'arm64';
+
+type PipState = 'idle' | 'installing' | 'removing' | 'error';
+
+type LocalSetupPhase = 'idle' | 'installing' | 'installed' | 'error';
+
+type LocalSetupAsset = { asset: VoiceAsset; label: string };
+
+/**
+ * Generic "download N assets, then uv-install a package" setup flow shared by
+ * the local TTS providers (Kokoro, Piper). The progress bar splits evenly
+ * across the asset downloads plus a final package segment; the package step
+ * has no byte-level events (uv downloads silently) so it sits at its segment
+ * start with animation.
+ */
+const LocalAssetSetupControl: React.FC<{
+  assets: LocalSetupAsset[];
+  pkg: string;
+  requiredSpace: string;
+  installedLabel: string;
+  installLabel: string;
+  onRefresh: () => void;
+  startSignal?: number;
+  onPhaseChange?: (phase: LocalSetupPhase) => void;
+}> = ({ assets, pkg, requiredSpace, installedLabel, installLabel, onRefresh, startSignal = 0, onPhaseChange }) => {
+  const { t } = useTranslation();
+  const [phase, setPhase] = useState<LocalSetupPhase>('idle');
+  // null = idle; 0..assets.length-1 = downloading that asset; assets.length = package install.
+  const [stepIndex, setStepIndex] = useState<number | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
+  const cancelledRef = useRef(false);
+  const handledSignalRef = useRef(0);
+
+  const totalSteps = assets.length + 1;
+  const segment = 100 / totalSteps;
+  const activeAsset = stepIndex !== null && stepIndex < assets.length ? assets[stepIndex] : null;
+  const activePercent = useAssetDownloadProgress(activeAsset?.asset.id ?? '');
+
+  const overallPercent = stepIndex === null
+    ? 0
+    : activeAsset
+      ? Math.round(stepIndex * segment + ((activePercent ?? 0) / 100) * segment)
+      : Math.round(assets.length * segment);
+  const overallAnimation = stepIndex !== null && (!activeAsset || activePercent === null);
+  const stepLabel = stepIndex === null ? '' : activeAsset ? activeAsset.label : 'Installing…';
+
+  const checkInstalled = useCallback(async () => {
+    const results = await Promise.all([
+      ...assets.map(({ asset }) =>
+        voiceAsset.exists.invoke({ id: asset.id }).catch(() => ({ installed: false }))),
+      voiceAsset.uvStatus.invoke({ pkg }).catch(() => ({ installed: false })),
+    ]);
+    setPhase(results.every((r) => Boolean(r?.installed)) ? 'installed' : 'idle');
+  }, [assets, pkg]);
+
+  useEffect(() => { void checkInstalled(); }, [checkInstalled]);
+
+  const runInstall = useCallback(async (skipPackage = false) => {
+    cancelledRef.current = false;
+    setPhase('installing');
+    setErrorMsg('');
+    try {
+      for (let i = 0; i < assets.length; i++) {
+        setStepIndex(i);
+        await voiceAsset.download.invoke(assets[i].asset);
+        if (cancelledRef.current) return;
+      }
+
+      if (!skipPackage) {
+        setStepIndex(assets.length);
+        const result = await voiceAsset.uvInstall.invoke({ pkg });
+        if (!result?.ok) throw new Error(result?.error ?? 'Install failed');
+      }
+
+      if (!cancelledRef.current) {
+        setStepIndex(null);
+        setPhase('installed');
+        onRefresh();
+      }
+    } catch (err) {
+      if (!cancelledRef.current) {
+        setStepIndex(null);
+        setPhase('error');
+        setErrorMsg(err instanceof Error ? err.message : String(err));
+      }
+    }
+  }, [assets, pkg, onRefresh]);
+
+  const handleInstall = useCallback(() => runInstall(false), [runInstall]);
+
+  // Begin installation when the parent requests it (the provider-row Install
+  // button). Each increment of startSignal triggers exactly one install run;
+  // the parent resets the signal on refresh so a remount cannot re-trigger.
+  useEffect(() => {
+    if (startSignal > handledSignalRef.current) {
+      handledSignalRef.current = startSignal;
+      void runInstall(false);
+    }
+  }, [startSignal, runInstall]);
+
+  // Let the parent mirror the install lifecycle (e.g. the provider-row button
+  // shows "Installing…" while the setup control works).
+  useEffect(() => {
+    onPhaseChange?.(phase);
+  }, [phase, onPhaseChange]);
+
+  const handleRedownload = useCallback(async () => {
+    const pkgRes = await voiceAsset.uvStatus.invoke({ pkg }).catch(() => ({ installed: false }));
+    if (!pkgRes?.installed) {
+      await runInstall(false);
+    } else {
+      await Promise.all(assets.map(({ asset }) => voiceAsset.delete.invoke({ id: asset.id }).catch(() => {})));
+      await runInstall(true);
+    }
+  }, [assets, pkg, runInstall]);
+
+  const handleCancel = useCallback(async () => {
+    cancelledRef.current = true;
+    if (activeAsset) await voiceAsset.cancel.invoke({ assetId: activeAsset.asset.id }).catch(() => {});
+    setStepIndex(null);
+    setPhase('idle');
+  }, [activeAsset]);
+
+  const handleDelete = useCallback(async () => {
+    await Promise.all(assets.map(({ asset }) => voiceAsset.delete.invoke({ id: asset.id }).catch(() => {})));
+    await voiceAsset.uvRemove.invoke({ pkg }).catch(() => {});
+    setPhase('idle');
+    onRefresh();
+  }, [assets, pkg, onRefresh]);
+
+  if (phase === 'installing') {
+    return (
+      <div className='flex items-center gap-8px'>
+        <Progress percent={overallPercent} animation={overallAnimation} className='flex-1' />
+        <span className='text-12px text-t-tertiary shrink-0'>{stepLabel}</span>
+        <Button size='mini' onClick={handleCancel}>
+          {t('settings.textToSpeechCancelDownload')}
+        </Button>
+      </div>
+    );
+  }
+
+  if (phase === 'installed') {
+    return (
+      <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
+        <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
+          <CheckCircle2 size={14} />
+          {installedLabel}
+        </span>
+        <div className='flex items-center gap-8px'>
+          <Button type='text' size='mini' icon={<RotateCcw size={12} />} onClick={handleRedownload} className='text-12px text-t-tertiary'>
+            {t('settings.textToSpeechRedownload', { defaultValue: 'Re-download' })}
+          </Button>
+          <Button type='text' size='mini' onClick={handleDelete} className='text-12px text-[var(--danger)]'>
+            {t('settings.ttsDeleteModel', { defaultValue: 'Delete' })}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className='flex flex-col gap-8px'>
+      <Button type='outline' onClick={handleInstall} size='small'>
+        {installLabel}
+      </Button>
+      <span className='text-11px text-t-tertiary text-center'>(approx. {requiredSpace} required)</span>
+      {phase === 'error' && (
+        <span className='text-12px text-[var(--danger)]'>{errorMsg}</span>
+      )}
+    </div>
+  );
+};
+
+const KOKORO_SETUP_ASSETS: LocalSetupAsset[] = [
+  { asset: KOKORO_ASSET, label: 'Downloading model…' },
+  { asset: KOKORO_VOICES_ASSET, label: 'Downloading voice data…' },
+];
+
+const KokoroSetupControl: React.FC<{
+  onRefresh: () => void;
+  startSignal?: number;
+  onPhaseChange?: (phase: LocalSetupPhase) => void;
+}> = ({ onRefresh, startSignal, onPhaseChange }) => {
+  const { t } = useTranslation();
+  return (
+    <LocalAssetSetupControl
+      assets={KOKORO_SETUP_ASSETS}
+      pkg={KOKORO_PKG}
+      requiredSpace={KOKORO_REQUIRED_SPACE}
+      installedLabel={t('settings.kokoroInstalled', { defaultValue: 'Kokoro TTS installed' })}
+      installLabel={t('settings.kokoroInstall', { defaultValue: 'Install Kokoro TTS' })}
+      onRefresh={onRefresh}
+      startSignal={startSignal}
+      onPhaseChange={onPhaseChange}
+    />
+  );
+};
+
+const PIPER_SETUP_ASSETS: LocalSetupAsset[] = [
+  { asset: PIPER_MODEL_ASSET, label: 'Downloading model…' },
+  { asset: PIPER_CONFIG_ASSET, label: 'Downloading voice data…' },
+];
+
+const PiperSetupControl: React.FC<{
+  onRefresh: () => void;
+  startSignal?: number;
+  onPhaseChange?: (phase: LocalSetupPhase) => void;
+}> = ({ onRefresh, startSignal, onPhaseChange }) => {
+  const { t } = useTranslation();
+  return (
+    <LocalAssetSetupControl
+      assets={PIPER_SETUP_ASSETS}
+      pkg={PIPER_PKG}
+      requiredSpace={PIPER_REQUIRED_SPACE}
+      installedLabel={t('settings.piperInstalled', { defaultValue: 'Piper TTS installed' })}
+      installLabel={t('settings.piperInstall', { defaultValue: 'Install Piper TTS' })}
+      onRefresh={onRefresh}
+      startSignal={startSignal}
+      onPhaseChange={onPhaseChange}
+    />
+  );
+};
+
+const UvPackageControl: React.FC<{
+  pkg: string;
+  installedLabel: string;
+  installLabel: string;
+  note?: string;
+  minVersion?: string;
+  onRefresh: () => void;
+}> = ({ pkg, installedLabel, installLabel, note, minVersion, onRefresh }) => {
+  const { t } = useTranslation();
+  const [uvState, setUvState] = useState<PipState>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [installed, setInstalled] = useState<boolean | null>(null);
+  const [version, setVersion] = useState<string | undefined>(undefined);
+  // During install, uv binary download emits progress with the uv-runtime asset id.
+  const uvBinaryPercent = useAssetDownloadProgress(`uv-runtime-${process.platform}-${process.arch}`);
+
+  const probe = useCallback(() => {
+    void voiceAsset.uvStatus
+      .invoke({ pkg })
+      .then((r) => {
+        setInstalled(Boolean(r?.installed));
+        setVersion(r?.version);
+      })
+      .catch(() => { setInstalled(false); setVersion(undefined); });
+  }, [pkg]);
+
+  useEffect(() => { probe(); }, [probe, uvState]);
+
+  const needsUpgrade = Boolean(
+    installed && version && minVersion && isBelowVersion(version, minVersion),
+  );
+
+  const handleInstall = useCallback(async () => {
+    setUvState('installing');
+    setErrorMsg('');
+    try {
+      const installPkg = needsUpgrade && minVersion ? `${pkg}>=${minVersion}` : pkg;
+      const result = await voiceAsset.uvInstall.invoke({ pkg: installPkg });
+      if (result?.ok) { setUvState('idle'); onRefresh(); }
+      else { setUvState('error'); setErrorMsg(result?.error ?? 'Install failed'); }
+    } catch (err) {
+      setUvState('error');
+      setErrorMsg(err instanceof Error ? err.message : String(err));
+    }
+  }, [pkg, minVersion, needsUpgrade, onRefresh]);
+
+  const handleRemove = useCallback(async () => {
+    setUvState('removing');
+    setErrorMsg('');
+    try {
+      const result = await voiceAsset.uvRemove.invoke({ pkg });
+      if (result?.ok) { setUvState('idle'); onRefresh(); }
+      else { setUvState('error'); setErrorMsg(result?.error ?? 'Remove failed'); }
+    } catch (err) {
+      setUvState('error');
+      setErrorMsg(err instanceof Error ? err.message : String(err));
+    }
+  }, [pkg, onRefresh]);
+
+  return (
+    <div className='flex flex-col gap-8px'>
+      {uvState === 'installing' || uvState === 'removing' ? (
+        <div className='flex items-center gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
+          <Progress percent={uvBinaryPercent ?? 0} animation={uvBinaryPercent === null} className='flex-1' />
+          <span className='text-12px text-t-tertiary'>
+            {uvState === 'installing' ? 'Installing…' : 'Removing…'}
+          </span>
+        </div>
+      ) : installed && !needsUpgrade ? (
+        <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
+          <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
+            <CheckCircle2 size={14} />
+            {installedLabel}
+          </span>
+          <Button type='text' size='mini' onClick={handleRemove} className='text-12px text-[var(--danger)]'>
+            Remove
+          </Button>
+        </div>
+      ) : (
+        <div className='flex flex-col gap-4px'>
+          <Button type='outline' onClick={handleInstall} size='small'>
+            {needsUpgrade && version && minVersion
+              ? t('settings.uvUpgradePackage', {
+                  defaultValue: 'Upgrade {{pkg}} (v{{from}} → v{{to}})',
+                  pkg,
+                  from: version,
+                  to: minVersion,
+                })
+              : installLabel}
+          </Button>
+          {note && <span className='text-11px text-t-tertiary'>{note}</span>}
+        </div>
+      )}
+      {uvState === 'error' && (
+        <span className='text-12px text-[var(--danger)]'>{errorMsg}</span>
+      )}
+    </div>
+  );
+};
+
+const MlxAudioInstallControl: React.FC<{ onRefresh: () => void }> = ({ onRefresh }) => (
+  <UvPackageControl
+    pkg={MLX_AUDIO_PKG}
+    installedLabel='mlx-audio installed'
+    installLabel='Install mlx-audio (uv)'
+    note='Apple Silicon only · downloads model from HuggingFace on first use'
+    minVersion={MLX_AUDIO_MIN_VERSION}
+    onRefresh={onRefresh}
+  />
+);
+
 export const TextToSpeechSettingsSection: React.FC<{
   config: TextToSpeechConfig;
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
-  const [downloadState, setDownloadState] = useState<DownloadState>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [installed, setInstalled] = useState<boolean | null>(null);
-  const cancelledRef = React.useRef(false);
+  const [installKey, setInstallKey] = useState(0);
+  const [installSignal, setInstallSignal] = useState(0);
+  const [setupPhase, setSetupPhase] = useState<LocalSetupPhase>('idle');
+  const [kokoroInstalled, setKokoroInstalled] = useState<boolean | null>(null);
+  const [piperInstalled, setPiperInstalled] = useState<boolean | null>(null);
+  const [testVoiceLoading, setTestVoiceLoading] = useState(false);
 
-  // Same install probe as Whisper - flip the UI from "Download Model" to
-  // "Installed" when the on-disk file already exists.
   useEffect(() => {
-    let cancelled = false;
-    void voiceAsset.exists
-      .invoke({ id: KOKORO_ASSET.id })
-      .then((r) => {
-        if (!cancelled) setInstalled(Boolean(r?.installed));
-      })
-      .catch(() => {
-        if (!cancelled) setInstalled(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [downloadState]);
+    void Promise.all([
+      voiceAsset.exists.invoke({ id: KOKORO_ASSET.id }).catch(() => ({ installed: false })),
+      voiceAsset.exists.invoke({ id: KOKORO_VOICES_ASSET.id }).catch(() => ({ installed: false })),
+      voiceAsset.uvStatus.invoke({ pkg: KOKORO_PKG }).catch(() => ({ installed: false })),
+    ]).then(([m, v, p]) => {
+      setKokoroInstalled(Boolean(m?.installed) && Boolean(v?.installed) && Boolean(p?.installed));
+    });
+    void Promise.all([
+      voiceAsset.exists.invoke({ id: PIPER_MODEL_ASSET.id }).catch(() => ({ installed: false })),
+      voiceAsset.exists.invoke({ id: PIPER_CONFIG_ASSET.id }).catch(() => ({ installed: false })),
+      voiceAsset.uvStatus.invoke({ pkg: PIPER_PKG }).catch(() => ({ installed: false })),
+    ]).then(([m, c, p]) => {
+      setPiperInstalled(Boolean(m?.installed) && Boolean(c?.installed) && Boolean(p?.installed));
+    });
+  }, [installKey]);
 
-  const handleDownloadKokoro = useCallback(async () => {
-    cancelledRef.current = false;
-    setDownloadState('downloading');
-    setErrorMsg('');
-    try {
-      await voiceAsset.download.invoke(KOKORO_ASSET);
-      if (!cancelledRef.current) setDownloadState('success');
-    } catch (err) {
-      if (!cancelledRef.current) {
-        setDownloadState('error');
-        setErrorMsg(err instanceof Error ? err.message : String(err));
-      }
-    }
-  }, []);
+  // A monotonically increasing token identifies the current test request.
+  // Bumping it (provider change, new test) makes any in-flight test stale:
+  // its response is ignored instead of playing audio or toggling state.
+  const testTokenRef = useRef(0);
 
-  const handleCancelDownload = useCallback(async () => {
-    cancelledRef.current = true;
-    await voiceAsset.cancel.invoke({ assetId: KOKORO_ASSET.id }).catch(() => {});
-    setDownloadState('idle');
+  const resetVoiceTest = useCallback(() => {
+    testTokenRef.current += 1;
+    stopVoicePlayback();
+    setTestVoiceLoading(false);
   }, []);
 
   const handleProviderChange = useCallback(
     (value: string) => {
-      onChange((current) => ({ ...current, provider: value as TextToSpeechProvider }));
+      const provider = value as TextToSpeechProvider;
+      resetVoiceTest();
+      onChange((current) => {
+        const isValidKokoroVoice = KOKORO_VOICES.some((v) => v.value === current.voice);
+        const isValidPiperVoice = PIPER_VOICES.some((v) => v.value === current.voice);
+        const voice = provider === 'mlx-audio-local' && !current.voice?.includes('/')
+          ? MLX_AUDIO_DEFAULT_MODEL
+          : provider === 'kokoro-local' && !isValidKokoroVoice
+            ? KOKORO_DEFAULT_VOICE
+            : provider === 'piper-local' && !isValidPiperVoice
+              ? PIPER_DEFAULT_VOICE
+              : current.voice;
+        // The chain (v2 authority) must follow the selection - normalize only
+        // migrates configs WITHOUT a chain, so a stale persisted chain would
+        // otherwise keep synthesizing with the previous provider.
+        return {
+          ...current,
+          provider,
+          voice,
+          chain: provider === 'system-native'
+            ? (['system-native'] as TextToSpeechProvider[])
+            : ([provider, 'system-native'] as TextToSpeechProvider[]),
+          engines: { ...current.engines, [provider]: { voice, speed: current.speed } },
+        };
+      });
+    },
+    [onChange, resetVoiceTest]
+  );
+
+  /** Voice/speed edits must update both the v1 fields and the engine entry the chain runner reads. */
+  const updateVoice = useCallback(
+    (value: string) => {
+      onChange((current) => ({
+        ...current,
+        voice: value,
+        engines: {
+          ...current.engines,
+          [current.provider]: { ...current.engines?.[current.provider], voice: value },
+        },
+      }));
     },
     [onChange]
   );
 
-  const handleTestVoice = useCallback(() => {
-    // Test playback uses window.speechSynthesis regardless of stored provider -
-    // gives users a "does my output device work" sanity check before they commit
-    // to downloading a local model or wiring a hosted provider key.
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(t('settings.textToSpeechTestPhrase', 'Voice check.'));
-    if (typeof config.speed === 'number' && config.speed > 0) {
-      utterance.rate = config.speed;
+  const updateSpeed = useCallback(
+    (value: number) => {
+      onChange((current) => ({
+        ...current,
+        speed: value,
+        engines: {
+          ...current.engines,
+          [current.provider]: { ...current.engines?.[current.provider], speed: value },
+        },
+      }));
+    },
+    [onChange]
+  );
+
+  const handleTestVoice = useCallback(async () => {
+    const phrase = t('settings.textToSpeechTestPhrase', 'Voice check.');
+    if (config.provider === 'system-native') {
+      if (typeof window === 'undefined' || !window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(phrase);
+      if (typeof config.speed === 'number' && config.speed > 0) utterance.rate = config.speed;
+      window.speechSynthesis.speak(utterance);
+      return;
     }
-    window.speechSynthesis.speak(utterance);
-  }, [config.speed, t]);
+    const token = ++testTokenRef.current;
+    const isStale = () => token !== testTokenRef.current;
+    setTestVoiceLoading(true);
+    try {
+      // Whole-clip path for the one-shot Test phrase. The warm worker (pre-warmed
+      // on conversation open) makes this near real-time; streaming's first-chunk
+      // win is for multi-sentence auto-read, which uses playStreamedAudio.
+      const result = await voiceSynth.speak.invoke({ text: phrase, config });
+      if (isStale()) return;
+      if (!result.ok || !result.data || result.data.length === 0) {
+        Message.error(`Voice test failed: ${result.error ?? 'no audio produced'}`);
+        setTestVoiceLoading(false);
+        return;
+      }
+      const playback = await playAudioClip(new Uint8Array(result.data), result.mimeType ?? 'audio/wav');
+      if (isStale()) return;
+      setTestVoiceLoading(false);
+      if (!playback.ok) Message.error(`Audio playback failed: ${playback.error}`);
+    } catch (err) {
+      if (isStale()) return;
+      const msg = err instanceof Error ? err.message : String(err);
+      Message.error(`Voice test failed: ${msg}`);
+      setTestVoiceLoading(false);
+    }
+  }, [config, t]);
+
+  const refreshInstallState = useCallback(() => {
+    // Reset the install signal so the remounted setup control (new installKey)
+    // does not see a stale request and re-run the install.
+    setInstallSignal(0);
+    setInstallKey((k) => k + 1);
+  }, []);
+
+  // The local providers need a download before they can speak: while assets
+  // are missing the provider-row button becomes the install entry point, and
+  // while the install state is still being probed (null) testing is held off.
+  const selectedLocalInstalled = config.provider === 'kokoro-local'
+    ? kokoroInstalled
+    : config.provider === 'piper-local'
+      ? piperInstalled
+      : true;
+  const needsLocalInstall = selectedLocalInstalled === false;
+  const localProbing = selectedLocalInstalled === null;
+  const localInstalling = setupPhase === 'installing';
+  const handleInstallClick = useCallback(() => setInstallSignal((s) => s + 1), []);
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>
@@ -302,9 +814,7 @@ export const TextToSpeechSettingsSection: React.FC<{
         </div>
         <Switch
           checked={config.enabled}
-          onChange={(checked) => {
-            onChange((current) => ({ ...current, enabled: checked }));
-          }}
+          onChange={(checked) => onChange((current) => ({ ...current, enabled: checked }))}
         />
       </div>
 
@@ -315,35 +825,96 @@ export const TextToSpeechSettingsSection: React.FC<{
           <div className='flex items-center gap-8px'>
             <WaylandSelect value={config.provider} onChange={handleProviderChange} className='flex-1'>
               <WaylandSelect.Option value='kokoro-local'>
-                {t('settings.textToSpeechProviderKokoroLocal')}
+                {kokoroInstalled
+                  ? t('settings.textToSpeechProviderKokoroLocal')
+                  : t('settings.kokoroPending', {
+                      defaultValue: 'Kokoro - Download Model ({{space}})',
+                      space: KOKORO_REQUIRED_SPACE,
+                    })}
+              </WaylandSelect.Option>
+              {IS_APPLE_SILICON && (
+                <WaylandSelect.Option value='mlx-audio-local'>
+                  {t('settings.ttsMlxAudioProvider', { defaultValue: 'MLX Audio (Apple Silicon)' })}
+                </WaylandSelect.Option>
+              )}
+              <WaylandSelect.Option value='piper-local'>
+                {t('settings.ttsPiperProvider', { defaultValue: 'Piper (Local, multilingual)' })}
               </WaylandSelect.Option>
               <WaylandSelect.Option value='system-native'>
-                {t('settings.textToSpeechProviderSystemNative')}
+                {t('settings.textToSpeechProviderSystemNativeDefault', { defaultValue: 'System Native (default)' })}
               </WaylandSelect.Option>
             </WaylandSelect>
-            <Button size='small' onClick={handleTestVoice}>
-              {t('settings.textToSpeechTestVoice', 'Test voice')}
-            </Button>
+            {needsLocalInstall ? (
+              <Button
+                size='small'
+                type='primary'
+                onClick={handleInstallClick}
+                loading={localInstalling}
+                disabled={localInstalling}
+              >
+                {localInstalling
+                  ? t('settings.kokoroInstalling', { defaultValue: 'Installing…' })
+                  : t('settings.kokoroInstallShort', { defaultValue: 'Install' })}
+              </Button>
+            ) : (
+              <Button
+                size='small'
+                onClick={handleTestVoice}
+                loading={testVoiceLoading}
+                disabled={testVoiceLoading || localProbing}
+              >
+                {t('settings.textToSpeechTestVoice', 'Test voice')}
+              </Button>
+            )}
           </div>
         </Form.Item>
 
-        <Form.Item label={t('settings.textToSpeechVoice')}>
-          <Input value={config.voice} onChange={(value) => onChange((current) => ({ ...current, voice: value }))} />
+        <Form.Item label={config.provider === 'mlx-audio-local'
+          ? t('settings.ttsMlxModel', { defaultValue: 'Model (HuggingFace ID)' })
+          : t('settings.textToSpeechVoice')}>
+          {config.provider === 'kokoro-local' ? (
+            <WaylandSelect
+              value={kokoroInstalled ? (config.voice || KOKORO_DEFAULT_VOICE) : undefined}
+              placeholder={kokoroInstalled ? undefined : 'Awaiting model download and install'}
+              disabled={!kokoroInstalled}
+              onChange={updateVoice}
+            >
+              {KOKORO_VOICES.map((v) => (
+                <WaylandSelect.Option key={v.value} value={v.value}>
+                  {v.label}
+                </WaylandSelect.Option>
+              ))}
+            </WaylandSelect>
+          ) : config.provider === 'piper-local' ? (
+            <WaylandSelect
+              value={piperInstalled ? (config.voice || PIPER_DEFAULT_VOICE) : undefined}
+              placeholder={piperInstalled ? undefined : 'Awaiting model download and install'}
+              disabled={!piperInstalled}
+              onChange={updateVoice}
+            >
+              {PIPER_VOICES.map((v) => (
+                <WaylandSelect.Option key={v.value} value={v.value}>
+                  {v.label}
+                </WaylandSelect.Option>
+              ))}
+            </WaylandSelect>
+          ) : (
+            <Input
+              value={config.voice}
+              placeholder={config.provider === 'mlx-audio-local' ? MLX_AUDIO_DEFAULT_MODEL : ''}
+              onChange={updateVoice}
+            />
+          )}
         </Form.Item>
 
         <Form.Item label={t('settings.textToSpeechSpeed')}>
-          {/* Reserve the same horizontal gutter on both sides as the
-              widest tick label, so Arco's translateX(-50%) centering on
-              the leftmost (0.5×) and rightmost (2×) marks doesn't push
-              the label past the form container. 20px is enough for "0.5×"
-              (~24px wide, half = 12px) with a small visual breather. */}
           <div className='px-20px'>
             <Slider
               min={0.5}
               max={2.0}
               step={0.1}
               value={config.speed}
-              onChange={(value) => onChange((current) => ({ ...current, speed: value as number }))}
+              onChange={(value) => updateSpeed(value as number)}
               marks={{ 0.5: '0.5×', 1: '1×', 1.5: '1.5×', 2: '2×' }}
               className='w-full'
             />
@@ -358,42 +929,30 @@ export const TextToSpeechSettingsSection: React.FC<{
         </Form.Item>
 
         {config.provider === 'kokoro-local' && (
-          <Form.Item label={t('settings.textToSpeechDownloadModel')}>
-            <div className='flex flex-col gap-8px'>
-              {downloadState === 'downloading' ? (
-                <div className='flex items-center gap-8px'>
-                  <Progress percent={0} animation className='flex-1' />
-                  <Button size='mini' onClick={handleCancelDownload}>
-                    {t('settings.textToSpeechCancelDownload')}
-                  </Button>
-                </div>
-              ) : installed ? (
-                <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
-                  <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
-                    <CheckCircle2 size={14} />
-                    {t('settings.textToSpeechModelInstalled', { defaultValue: 'Installed' })}
-                  </span>
-                  <Button
-                    type='text'
-                    size='mini'
-                    icon={<RotateCcw size={12} />}
-                    onClick={handleDownloadKokoro}
-                    className='text-12px text-t-tertiary'
-                  >
-                    {t('settings.textToSpeechRedownload', { defaultValue: 'Re-download' })}
-                  </Button>
-                </div>
-              ) : (
-                <Button type='outline' onClick={handleDownloadKokoro} size='small'>
-                  {t('settings.textToSpeechDownloadModel')}
-                </Button>
-              )}
-              {downloadState === 'error' && (
-                <span className='text-12px text-[var(--danger)]'>
-                  {t('settings.textToSpeechDownloadError')}: {errorMsg}
-                </span>
-              )}
-            </div>
+          <Form.Item label={t('settings.kokoroSetup', { defaultValue: 'Setup' })}>
+            <KokoroSetupControl
+              key={installKey}
+              startSignal={installSignal}
+              onPhaseChange={setSetupPhase}
+              onRefresh={refreshInstallState}
+            />
+          </Form.Item>
+        )}
+
+        {config.provider === 'piper-local' && (
+          <Form.Item label={t('settings.kokoroSetup', { defaultValue: 'Setup' })}>
+            <PiperSetupControl
+              key={installKey}
+              startSignal={installSignal}
+              onPhaseChange={setSetupPhase}
+              onRefresh={refreshInstallState}
+            />
+          </Form.Item>
+        )}
+
+        {config.provider === 'mlx-audio-local' && IS_APPLE_SILICON && (
+          <Form.Item label={t('settings.ttsMlxAudioInstall', { defaultValue: 'mlx-audio' })}>
+            <MlxAudioInstallControl key={installKey} onRefresh={refreshInstallState} />
           </Form.Item>
         )}
       </Form>
@@ -486,6 +1045,23 @@ export const SpeechToTextSettingsSection: React.FC<{
       <Divider className='mt-0px mb-20px' />
 
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
+        <Form.Item
+          label={t('settings.speechToTextAutoSend', { defaultValue: 'Send after transcription' })}
+          extra={t('settings.speechToTextAutoSendDescription', {
+            defaultValue: 'Automatically send dictated messages instead of leaving them in the input.',
+          })}
+        >
+          <Switch
+            checked={config.autoSend === true}
+            onChange={(checked) => {
+              onChange((current) => ({
+                ...current,
+                autoSend: checked,
+              }));
+            }}
+          />
+        </Form.Item>
+
         <Form.Item label={t('settings.speechToTextProvider')}>
           <WaylandSelect value={config.provider} onChange={handleProviderChange}>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>

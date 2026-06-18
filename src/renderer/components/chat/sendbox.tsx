@@ -40,7 +40,10 @@ import { useUploadState } from '@renderer/hooks/file/useUploadState';
 import UploadProgressBar from '@renderer/components/media/UploadProgressBar';
 import { allSupportedExts } from '@renderer/services/FileService';
 import SpeechInputButton from '@/renderer/components/chat/SpeechInputButton';
-import { appendSpeechTranscript } from '@/renderer/hooks/system/useSpeechInput';
+import { appendSpeechTranscript, shouldAutoSendTranscript } from '@/renderer/hooks/system/useSpeechInput';
+import { ConfigStorage } from '@/common/config/storage';
+import type { SpeechToTextConfig } from '@/common/types/speech';
+import { SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT } from '@/renderer/components/settings/SettingsModal/contents/speechToTextEvents';
 import { getConversationInputHistory, isCaretOnFirstLine } from '@/renderer/utils/chat/messageHistory';
 import './sendbox.css';
 
@@ -215,6 +218,14 @@ const SendBox: React.FC<{
   const warmupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestInputRef = useLatestRef(input);
   const setInputRef = useLatestRef(setInput);
+  // Speech-to-text autoSend: when enabled, a dictated transcript is sent
+  // automatically instead of being left in the input for manual review.
+  const [speechAutoSend, setSpeechAutoSend] = useState(false);
+  // Set by handleSpeechTranscript when a non-blank transcript is appended while
+  // autoSend is on. Consumed by the [input]-keyed effect below, which runs after
+  // React commits the new input value (so sendMessageHandler sees the fresh text
+  // rather than the stale closure value captured at transcript time).
+  const pendingAutoSendRef = useRef(false);
   const messageList = useMessageList();
   const [historyNavigationIndex, setHistoryNavigationIndex] = useState<number | null>(null);
   const historyDraftRef = useRef<string | null>(null);
@@ -251,6 +262,26 @@ const SendBox: React.FC<{
       setSendBoxHandler(null);
     };
   }, [setSendBoxHandler]);
+
+  // Load the speech-to-text autoSend flag on mount and keep it in sync with the
+  // settings toggle, which broadcasts SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT.
+  useEffect(() => {
+    let cancelled = false;
+    const applyConfig = (config: SpeechToTextConfig | null | undefined) => {
+      if (!cancelled) {
+        setSpeechAutoSend(config?.autoSend === true);
+      }
+    };
+    void ConfigStorage.get('tools.speechToText').then(applyConfig);
+    const handler = () => {
+      void ConfigStorage.get('tools.speechToText').then(applyConfig);
+    };
+    window.addEventListener(SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT, handler);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT, handler);
+    };
+  }, []);
 
   // Initialize and get the available width of single-line input
   useEffect(() => {
@@ -1265,6 +1296,30 @@ const SendBox: React.FC<{
       });
   };
 
+  // Keep a latest ref so the autoSend effect can fire the handler without
+  // re-running every render (sendMessageHandler has a fresh identity each render).
+  const sendMessageHandlerRef = useLatestRef(sendMessageHandler);
+
+  // Auto-send dictated transcripts once React has committed the new input. This
+  // runs after handleSpeechTranscript's setInput lands, so sendMessageHandler
+  // sees the fresh value instead of the stale closure it captured at dictation
+  // time. Blank input (e.g. an empty transcript) clears the flag without sending,
+  // and we never auto-send while a turn is in progress.
+  useEffect(() => {
+    if (!pendingAutoSendRef.current) {
+      return;
+    }
+    if (input.trim().length === 0) {
+      pendingAutoSendRef.current = false;
+      return;
+    }
+    if (isLoading || loading) {
+      return;
+    }
+    pendingAutoSendRef.current = false;
+    sendMessageHandlerRef.current();
+  }, [input, isLoading, loading, sendMessageHandlerRef]);
+
   const stopHandler = async () => {
     if (!onStop) return;
     try {
@@ -1278,10 +1333,40 @@ const SendBox: React.FC<{
     (transcript: string) => {
       const currentValue = latestInputRef.current;
       setInputRef.current(appendSpeechTranscript(currentValue, transcript));
+      // Defer the actual send to the [input]-keyed effect: sendMessageHandler
+      // closes over the input STATE, so calling it now would see the stale value
+      // from before this setState commits. We only arm the flag for non-blank
+      // transcripts so a silent recording never triggers a send.
+      if (shouldAutoSendTranscript(transcript, speechAutoSend)) {
+        pendingAutoSendRef.current = true;
+      }
     },
-    [latestInputRef, setInputRef]
+    [latestInputRef, setInputRef, speechAutoSend]
   );
   const speechLocale = i18n?.language || 'en-US';
+
+  // Open-voice (call mode) bridge: ChatLayout cannot reach this send box
+  // directly, so the open-voice session dispatches a 'wayland:voice-send' window
+  // event. We consume it only for the matching conversation, inject the text,
+  // and arm the SAME auto-send path used by dictation (pendingAutoSendRef + the
+  // [input]-keyed effect) so it sends through the guarded sendMessageHandler.
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ conversationId?: string; text?: string }>).detail;
+      if (!detail) return;
+      const ownId = conversationContext?.conversationId;
+      // Filter by conversation id: the active conversation's send box is the
+      // intended target. Skip when ids are present and differ.
+      if (detail.conversationId && ownId && detail.conversationId !== ownId) return;
+      const text = (detail.text ?? '').trim();
+      if (!text) return;
+      const currentValue = latestInputRef.current;
+      setInputRef.current(appendSpeechTranscript(currentValue, text));
+      pendingAutoSendRef.current = true;
+    };
+    window.addEventListener('wayland:voice-send', handler);
+    return () => window.removeEventListener('wayland:voice-send', handler);
+  }, [conversationContext?.conversationId, latestInputRef, setInputRef]);
 
   const hasDraftToSend = input.trim().length > 0 || domSnippets.length > 0;
 

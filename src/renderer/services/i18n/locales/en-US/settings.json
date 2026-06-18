@@ -1101,6 +1101,8 @@
   "imageGenNoModelCta": "Connect Flux",
   "speechToText": "Speech to Text",
   "speechToTextDescription": "Configure the voice input provider used by the chat box on desktop and WebUI.",
+  "speechToTextAutoSend": "Send after transcription",
+  "speechToTextAutoSendDescription": "Automatically send dictated messages instead of leaving them in the input.",
   "speechToTextProvider": "Provider",
   "speechToTextProviderOpenAI": "OpenAI Whisper",
   "speechToTextProviderDeepgram": "Deepgram Nova-2",

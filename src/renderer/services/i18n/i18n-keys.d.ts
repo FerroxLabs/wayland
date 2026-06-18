@@ -3673,6 +3673,8 @@ export type I18nKey =
   | 'settings.slashCommands.title'
   | 'settings.speechToText'
   | 'settings.speechToTextApiKey'
+  | 'settings.speechToTextAutoSend'
+  | 'settings.speechToTextAutoSendDescription'
   | 'settings.speechToTextBaseUrl'
   | 'settings.speechToTextCancelDownload'
   | 'settings.speechToTextDescription'

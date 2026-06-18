@@ -19,12 +19,15 @@ import {
   TextToSpeechSettingsSection,
   normalizeSpeechToTextConfig,
 } from '@renderer/components/settings/SettingsModal/contents/ToolsModalContent';
+import { useUserDisplayName } from '@renderer/hooks/system/useUserDisplayName';
 import ProviderHintBanner from './ProviderHintBanner';
+import { PronunciationField } from './PronunciationField';
 
 const VoiceSettings: React.FC = () => {
   const { t } = useTranslation();
   const [sttConfig, setSttConfig] = useState<SpeechToTextConfig>(DEFAULT_SPEECH_TO_TEXT_CONFIG);
   const [ttsConfig, setTtsConfig] = useState<TextToSpeechConfig>(DEFAULT_TTS_CONFIG);
+  const { resolvedName } = useUserDisplayName();
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +97,7 @@ const VoiceSettings: React.FC = () => {
         <ProviderHintBanner ttsConfig={ttsConfig} onChange={handleTtsChange} />
         <SpeechToTextSettingsSection config={sttConfig} onChange={handleSttChange} />
         <TextToSpeechSettingsSection config={ttsConfig} onChange={handleTtsChange} />
+        <PronunciationField displayName={resolvedName} ttsConfig={ttsConfig} />
       </div>
     </SettingsPageShell>
   );
