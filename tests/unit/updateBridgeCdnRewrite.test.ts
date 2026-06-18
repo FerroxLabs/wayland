@@ -114,6 +114,18 @@ const makeGitHubReleaseResponse = () => [
   },
 ];
 
+/**
+ * Retrieve the handler registered on a (mocked) provider object. The
+ * buildProvider wrapper in bridgeAllowlist interposes on `provider`, so the
+ * handler must be read via the mock's `_getHandler` registry rather than
+ * `vi.mocked(...).mock.calls`.
+ */
+const registeredHandler = (providerObj: unknown): Function => {
+  const handler = (providerObj as { _getHandler?: () => Function | undefined })._getHandler?.();
+  if (!handler) throw new Error('handler not registered');
+  return handler;
+};
+
 const getCheckHandler = async () => {
   vi.resetModules();
   const { initUpdateBridge } = await import('@process/bridge/updateBridge');
@@ -121,10 +133,7 @@ const getCheckHandler = async () => {
 
   initUpdateBridge();
 
-  const provider = vi.mocked(ipcBridge.update.check.provider);
-  const lastCall = provider.mock.calls.at(-1);
-  if (!lastCall) throw new Error('update.check handler not registered');
-  return lastCall[0];
+  return registeredHandler(ipcBridge.update.check);
 };
 
 describe('updateBridge GitHub asset URLs', () => {
@@ -193,10 +202,7 @@ describe('updateBridge download allowlist', () => {
 
       initUpdateBridge();
 
-      const provider = vi.mocked(ipcBridge.update.download.provider);
-      const lastCall = provider.mock.calls.at(-1);
-      if (!lastCall) throw new Error('update.download handler not registered');
-      const handler = lastCall[0];
+      const handler = registeredHandler(ipcBridge.update.download);
 
       // UPD-02: the secure download path requires `tagName` so the downloaded
       // bytes can be sha512-verified against the signed GitHub release metadata
@@ -224,10 +230,7 @@ describe('updateBridge download allowlist', () => {
 
     initUpdateBridge();
 
-    const provider = vi.mocked(ipcBridge.update.download.provider);
-    const lastCall = provider.mock.calls.at(-1);
-    if (!lastCall) throw new Error('update.download handler not registered');
-    const handler = lastCall[0];
+    const handler = registeredHandler(ipcBridge.update.download);
 
     const result = await handler({
       url: 'https://evil.example.com/fake.dmg',

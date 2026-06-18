@@ -277,6 +277,10 @@ export default defineConfig(({ mode }) => {
         'process.env.env': JSON.stringify(process.env.env),
         'process.env.WAYLAND_MULTI_INSTANCE': JSON.stringify(process.env.WAYLAND_MULTI_INSTANCE ?? ''),
         'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN ?? ''),
+        // Inlined at build time so renderer code can gate on platform/arch
+        // without relying on Node's process object (unavailable in browser context).
+        'process.platform': JSON.stringify(process.platform),
+        'process.arch': JSON.stringify(process.arch),
         global: 'globalThis',
       },
       optimizeDeps: {

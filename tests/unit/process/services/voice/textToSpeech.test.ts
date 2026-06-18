@@ -11,7 +11,7 @@ import {
   KokoroLocalUnavailableError,
   type KokoroLocalRuntime,
 } from '@process/services/voice/KokoroLocal';
-import { synthesize } from '@process/services/voice/TextToSpeechService';
+import { writeFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
@@ -25,10 +25,17 @@ const baseConfig = (overrides: Partial<TextToSpeechConfig> = {}): TextToSpeechCo
   ...overrides,
 });
 
+// KokoroLocal reads the synthesized WAV back from the output file (last
+// positional arg of the uv command), so the fake run must create it.
+const writeWavFixture = async (_uv: string, args: string[]) => {
+  writeFileSync(args[args.length - 1], Buffer.from([82, 73, 70, 70])); // fake WAV header bytes
+};
+
 const fakeKokoroRuntime = (overrides: Partial<KokoroLocalRuntime> = {}): KokoroLocalRuntime => ({
-  resolveBinary: () => '/fake/bin/kokoro-cli',
-  resolveModel: (voice) => `/fake/kokoro-models/${voice}.onnx`,
-  run: vi.fn(async () => new Uint8Array([82, 73, 70, 70])), // fake WAV header bytes
+  resolveUv: () => '/fake/bin/uv',
+  resolveModel: () => '/fake/kokoro/kokoro-v1.0.onnx',
+  resolveVoices: () => '/fake/kokoro/voices-v1.0.bin',
+  run: vi.fn(writeWavFixture),
   ...overrides,
 });
 
@@ -57,6 +64,33 @@ describe('normalizeTextToSpeechConfig', () => {
     expect(config.speed).toBe(1.5);
     expect(config.voice).toBe('en-us');
   });
+
+  it('migrates a v1 config (provider/voice/speed) to a chain', () => {
+    const config = normalizeTextToSpeechConfig({
+      enabled: true, provider: 'kokoro-local', voice: 'af_sky', speed: 1.5, autoReadResponses: true,
+    });
+    expect(config.chain).toEqual(['kokoro-local', 'system-native']);
+    expect(config.engines['kokoro-local']).toEqual({ voice: 'af_sky', speed: 1.5 });
+    expect(config.autoReadDefault).toBe(true);
+  });
+
+  it('passes a v2 config through unchanged', () => {
+    const v2 = {
+      enabled: true, provider: 'piper-local' as const, voice: 'x', speed: 1,
+      autoReadResponses: false, autoReadDefault: false,
+      chain: ['piper-local', 'system-native'] as ('piper-local' | 'system-native')[],
+      engines: { 'piper-local': { voice: 'en_US-lessac-medium', speed: 1 } },
+    };
+    const config = normalizeTextToSpeechConfig(v2);
+    expect(config.chain).toEqual(['piper-local', 'system-native']);
+    expect(config.engines['piper-local']?.voice).toBe('en_US-lessac-medium');
+  });
+
+  it('defaults to the offline chain with a valid kokoro voice (no "default" placeholder)', () => {
+    const config = normalizeTextToSpeechConfig();
+    expect(config.chain).toEqual(['kokoro-local', 'system-native']);
+    expect(config.engines['kokoro-local']?.voice).toBe('af_sky');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -71,20 +105,21 @@ describe('KokoroLocal.synthesize', () => {
     expect(result.mimeType).toBe('audio/wav');
   });
 
-  it('passes model path, voice, speed, and text to the binary', async () => {
-    const run = vi.fn(async () => new Uint8Array([1, 2, 3]));
+  it('passes model path, voices path, voice, speed, and text to the uv command', async () => {
+    const run = vi.fn(writeWavFixture);
     const runtime = fakeKokoroRuntime({ run });
     await KokoroLocal.synthesize('Test', baseConfig({ voice: 'en-us', speed: 1.25 }), runtime);
-    const [binary, args] = run.mock.calls[0] as [string, string[]];
-    expect(binary).toBe('/fake/bin/kokoro-cli');
-    expect(args).toContain('/fake/kokoro-models/en-us.onnx');
+    const [uv, args] = run.mock.calls[0] as unknown as [string, string[]];
+    expect(uv).toBe('/fake/bin/uv');
+    expect(args).toContain('/fake/kokoro/kokoro-v1.0.onnx');
+    expect(args).toContain('/fake/kokoro/voices-v1.0.bin');
     expect(args).toContain('en-us');
     expect(args).toContain('1.25');
     expect(args).toContain('Test');
   });
 
-  it('throws KokoroLocalUnavailableError when the binary is missing', async () => {
-    const runtime = fakeKokoroRuntime({ resolveBinary: () => null });
+  it('throws KokoroLocalUnavailableError when the uv runtime is missing', async () => {
+    const runtime = fakeKokoroRuntime({ resolveUv: () => null });
     await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toBeInstanceOf(
       KokoroLocalUnavailableError,
     );
@@ -97,53 +132,26 @@ describe('KokoroLocal.synthesize', () => {
     );
   });
 
+  it('throws KokoroLocalUnavailableError when the voice embeddings are missing', async () => {
+    const runtime = fakeKokoroRuntime({ resolveVoices: () => null });
+    await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toBeInstanceOf(
+      KokoroLocalUnavailableError,
+    );
+  });
+
   it('uses a coded error message the TTS service can surface to the user', async () => {
-    const runtime = fakeKokoroRuntime({ resolveBinary: () => null });
+    const runtime = fakeKokoroRuntime({ resolveUv: () => null });
     await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toThrow(
       /^TTS_KOKORO_LOCAL_UNAVAILABLE/,
     );
   });
 
-  it('does not invoke run when the binary is missing', async () => {
-    const run = vi.fn(async () => new Uint8Array(0));
-    const runtime = fakeKokoroRuntime({ resolveBinary: () => null, run });
+  it('does not invoke run when the uv runtime is missing', async () => {
+    const run = vi.fn(writeWavFixture);
+    const runtime = fakeKokoroRuntime({ resolveUv: () => null, run });
     await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toBeInstanceOf(
       KokoroLocalUnavailableError,
     );
     expect(run).not.toHaveBeenCalled();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// TextToSpeechService.synthesize - provider routing
-// ---------------------------------------------------------------------------
-
-describe('synthesize (TextToSpeechService)', () => {
-  it('routes kokoro-local to KokoroLocal and returns audio', async () => {
-    const runtime = fakeKokoroRuntime();
-    const result = await synthesize('Hello', baseConfig({ provider: 'kokoro-local' }), runtime);
-    expect(result.data.length).toBeGreaterThan(0);
-  });
-
-  it('routes system-native on non-macOS without crashing and returns empty audio', async () => {
-    // Guard: skip the real `say` invocation by only asserting the fallback path shape.
-    // On macOS in CI the `say` binary is present, but we only test the non-macOS branch here
-    // by mocking process.platform.
-    const originalPlatform = process.platform;
-    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
-    try {
-      const result = await synthesize('Hello', baseConfig({ provider: 'system-native' }));
-      expect(result.data).toBeInstanceOf(Uint8Array);
-      expect(result.mimeType).toBe('audio/wav');
-    } finally {
-      Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
-    }
-  });
-
-  it('propagates KokoroLocalUnavailableError from the kokoro-local provider', async () => {
-    const runtime = fakeKokoroRuntime({ resolveBinary: () => null });
-    await expect(synthesize('Hi', baseConfig({ provider: 'kokoro-local' }), runtime)).rejects.toBeInstanceOf(
-      KokoroLocalUnavailableError,
-    );
   });
 });

@@ -6,6 +6,7 @@ import {
   appendSpeechTranscript,
   getSpeechInputAvailabilityForEnvironment,
   pickRecordingMimeType,
+  shouldAutoSendTranscript,
   useSpeechInput,
 } from '@/renderer/hooks/system/useSpeechInput';
 
@@ -65,6 +66,21 @@ describe('appendSpeechTranscript', () => {
 
   it('ignores empty speech text', () => {
     expect(appendSpeechTranscript('hello', '   ')).toBe('hello');
+  });
+});
+
+describe('shouldAutoSendTranscript', () => {
+  it('arms auto-send for a non-blank transcript when the setting is on', () => {
+    expect(shouldAutoSendTranscript('  hello  ', true)).toBe(true);
+  });
+
+  it('does not auto-send when the setting is off', () => {
+    expect(shouldAutoSendTranscript('hello', false)).toBe(false);
+  });
+
+  it('does not auto-send a blank transcript even when the setting is on', () => {
+    expect(shouldAutoSendTranscript('   ', true)).toBe(false);
+    expect(shouldAutoSendTranscript('', true)).toBe(false);
   });
 });
 

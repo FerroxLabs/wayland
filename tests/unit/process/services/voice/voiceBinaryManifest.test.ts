@@ -13,6 +13,7 @@ import {
 } from '@process/services/voice/voiceBinaryManifest';
 import { VoiceAssetManager } from '@process/services/voice/VoiceAssetManager';
 import { getPlatformServices } from '@/common/platform';
+import { writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -396,61 +397,54 @@ describe('WhisperLocal - acquisition via runtime seam', () => {
   });
 });
 
-describe('KokoroLocal - acquisition via runtime seam', () => {
-  it('uses the acquired binary path when acquireBinary succeeds', async () => {
-    const run = vi.fn(async () => new Uint8Array([82, 73, 70, 70]));
-    const runtime: KokoroLocalRuntime = {
-      resolveBinary: () => null,
-      resolveModel: () => '/fake/kokoro-models/default.onnx',
-      run,
-      acquireBinary: vi.fn(async () => '/acquired/kokoro-cli'),
-    };
+describe('KokoroLocal - uv runtime seam', () => {
+  // KokoroLocal reads the WAV back from the output file (last positional arg
+  // of the uv command), so the fake run must create it.
+  const writeWavFixture = async (_uv: string, args: string[]) => {
+    writeFileSync(args[args.length - 1], Buffer.from([82, 73, 70, 70]));
+  };
+
+  const kokoroRuntime = (overrides: Partial<KokoroLocalRuntime> = {}): KokoroLocalRuntime => ({
+    resolveUv: () => '/fake/bin/uv',
+    resolveModel: () => '/fake/kokoro/kokoro-v1.0.onnx',
+    resolveVoices: () => '/fake/kokoro/voices-v1.0.bin',
+    run: vi.fn(writeWavFixture),
+    ...overrides,
+  });
+
+  it('invokes the resolved uv binary and returns the produced WAV', async () => {
+    const run = vi.fn(writeWavFixture);
+    const runtime = kokoroRuntime({ run });
 
     const result = await KokoroLocal.synthesize('Hello', baseConfig(), runtime);
     expect(result.data.length).toBeGreaterThan(0);
-    expect(run).toHaveBeenCalledWith('/acquired/kokoro-cli', expect.any(Array));
+    expect(result.mimeType).toBe('audio/wav');
+    expect(run).toHaveBeenCalledWith('/fake/bin/uv', expect.any(Array), expect.any(String));
   });
 
-  it('throws KokoroLocalUnavailableError when acquireBinary rejects', async () => {
-    const runtime: KokoroLocalRuntime = {
-      resolveBinary: () => null,
-      resolveModel: () => '/fake/kokoro-models/default.onnx',
-      run: vi.fn(async () => new Uint8Array(0)),
-      acquireBinary: vi.fn(async () => {
-        throw new BinaryAcquisitionError('onnx-runtime', 'offline');
-      }),
-    };
+  it('throws KokoroLocalUnavailableError when the uv runtime is missing', async () => {
+    const runtime = kokoroRuntime({ resolveUv: () => null });
 
     await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime)).rejects.toBeInstanceOf(
       KokoroLocalUnavailableError
     );
   });
 
-  it('throws KokoroLocalUnavailableError with TTS_ prefix when acquireBinary rejects', async () => {
-    const runtime: KokoroLocalRuntime = {
-      resolveBinary: () => null,
-      resolveModel: () => '/fake/kokoro-models/default.onnx',
-      run: vi.fn(async () => new Uint8Array(0)),
-      acquireBinary: vi.fn(async () => {
-        throw new BinaryAcquisitionError('onnx-runtime', 'offline');
-      }),
-    };
+  it('throws KokoroLocalUnavailableError with TTS_ prefix when the uv runtime is missing', async () => {
+    const runtime = kokoroRuntime({ resolveUv: () => null });
 
     await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime)).rejects.toThrow(
       /^TTS_KOKORO_LOCAL_UNAVAILABLE/
     );
   });
 
-  it('throws KokoroLocalUnavailableError (hard-disable) when acquireBinary is absent and binary is null', async () => {
-    const runtime: KokoroLocalRuntime = {
-      resolveBinary: () => null,
-      resolveModel: () => '/fake/kokoro-models/default.onnx',
-      run: vi.fn(async () => new Uint8Array(0)),
-      // no acquireBinary member
-    };
+  it('throws KokoroLocalUnavailableError when synthesis produces no output file', async () => {
+    // run resolves without writing the output file - e.g. the python child
+    // exited 0 but soundfile never wrote the WAV.
+    const runtime = kokoroRuntime({ run: vi.fn(async () => undefined) });
 
-    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime)).rejects.toBeInstanceOf(
-      KokoroLocalUnavailableError
+    await expect(KokoroLocal.synthesize('Hello', baseConfig(), runtime)).rejects.toThrow(
+      /no output file/
     );
   });
 });

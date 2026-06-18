@@ -92,10 +92,13 @@ const getCheckHandler = async () => {
 
   initUpdateBridge();
 
-  const provider = vi.mocked(ipcBridge.update.check.provider);
-  const lastCall = provider.mock.calls.at(-1);
-  if (!lastCall) throw new Error('update.check handler not registered');
-  return lastCall[0];
+  // The buildProvider wrapper in bridgeAllowlist interposes on `provider`, so
+  // the handler is read via the mock's `_getHandler` registry rather than
+  // `vi.mocked(...).mock.calls`.
+  const handler = (ipcBridge.update.check as unknown as { _getHandler?: () => Function | undefined })
+    ._getHandler?.();
+  if (!handler) throw new Error('update.check handler not registered');
+  return handler;
 };
 
 /** Extract every distinct GitHub API repo slug the handler fetched. */

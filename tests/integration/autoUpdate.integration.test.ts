@@ -169,11 +169,12 @@ describe('Auto-Update IPC Bridge Integration', () => {
       autoUpdaterService.resetForTest();
       initUpdateBridge();
 
-      // Hard assert: the handler must have been registered
-      const checkProviderCalls = vi.mocked(ipcBridge.autoUpdate.check.provider).mock.calls;
-      expect(checkProviderCalls.length).toBeGreaterThan(0);
-
-      const checkHandler = checkProviderCalls[0][0];
+      // Hard assert: the handler must have been registered. The buildProvider
+      // wrapper in bridgeAllowlist interposes on `provider`, so the handler is
+      // read via the mock's `_getHandler` registry.
+      const checkHandler = (
+        ipcBridge.autoUpdate.check as unknown as { _getHandler?: () => Function | undefined }
+      )._getHandler?.();
       expect(typeof checkHandler).toBe('function');
 
       // Initialize service so the handler can actually run
