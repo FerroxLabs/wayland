@@ -280,6 +280,50 @@ package + pinned model assets, run via the bundled `uv`) is the template a
 community *local* engine follows, so new local voices are platform-agnostic by
 construction.
 
+### 4.1 Contributing voice models (one level down from engines)
+
+The engine registry is the contribution surface for *engines*; the
+**voice-model catalog** (`src/common/voice/voiceModelCatalog.ts`) is the
+contribution surface for the *models within an engine*. The settings picker
+renders from this catalog instead of hardcoded lists, and a community extension
+can append entries to it without forking the picker.
+
+**Manifest convention.** An extension may ship a `voice-models` array — either
+inline in its `aion-extension.json` manifest or as a sibling `voice-models.json`
+next to the manifest. Each entry matches the `VoiceModelEntry` shape:
+
+```jsonc
+{
+  "voice-models": [
+    {
+      "kind": "tts",                       // 'tts' | 'stt'
+      "engineId": "mlx-audio-local",       // engine that consumes the model
+      "modelId": "acme/my-voice-mlx",      // stable id used in config (HF id or short id)
+      "label": "My Voice",                 // dropdown label
+      "hfId": "acme/my-voice-mlx",         // HuggingFace repo id, where applicable
+      "sizeLabel": "~600 MB",
+      "blurb": "Warm narrator voice",      // tooltip / description
+      "quant": "8-bit",                    // optional quantization hint
+      "platform": "darwin-arm64",          // optional: only offered on this platform
+      "recommended": false
+    }
+  ]
+}
+```
+
+Entries are merged via `buildVoiceModelCatalog`, which **dedups by
+`engineId` + `modelId` and never lets an extension override a built-in** — an
+extension can *add* a model but cannot shadow or hijack an in-repo one.
+
+**Status:** the catalog, the merge function, and this manifest convention ship
+now. The renderer **read path** (an `extensions.getVoiceModels` IPC provider
+backed by `ExtensionRegistry`, parallel to `getThemes` / `getSkills`) is a
+deliberate follow-up — adding it touches `src/common/adapter/ipcBridge.ts` and
+the extensions bridge/registry. Until that provider lands,
+`useVoiceModelCatalog` surfaces the built-in catalog; wiring the fetch is a
+one-line change (pass the fetched entries as the `extra` argument), with no call
+site changes.
+
 ---
 
 ## 5. Where things live

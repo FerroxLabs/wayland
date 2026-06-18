@@ -23,6 +23,11 @@ import {
 } from '@/common/config/imageModels';
 import type { VoiceAsset } from '@/common/types/voiceAsset';
 import {
+  voiceModelsFor,
+  type VoiceModelEntry,
+} from '@/common/voice/voiceModelCatalog';
+import { useVoiceModelCatalog } from '@/renderer/hooks/voice/useVoiceModelCatalog';
+import {
   Divider,
   Form,
   Message,
@@ -108,33 +113,14 @@ const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
   },
 };
 
-/** Approx on-disk download size per model, for the picker + progress readout. */
-const WHISPER_MODEL_SIZE_LABEL: Record<string, string> = {
-  base: '~148 MB',
-  small: '~488 MB',
-};
-
-/** Per-model explanation shown as a hover tooltip + inline description, so the
- * user understands the speed/accuracy/size trade-off before downloading. */
-const WHISPER_MODEL_INFO: Record<string, { size: string; blurb: string }> = {
-  base: {
-    size: '~148 MB',
-    blurb:
-      'Fast and lightweight. Good for clear speech and quick dictation; the best everyday balance of speed and accuracy on most machines.',
-  },
-  small: {
-    size: '~488 MB',
-    blurb:
-      'Noticeably more accurate on accents, names, and background noise, while staying reasonably quick. Pick this if base misses words.',
-  },
-};
-
 type DownloadState = 'idle' | 'downloading' | 'installing' | 'success' | 'error';
 
 const WhisperLocalDownloadControl: React.FC<{
   model: string;
   onModelChange: (model: string) => void;
-}> = ({ model, onModelChange }) => {
+  /** Catalog entries for whisper-local, sourced from the data-driven catalog. */
+  models: VoiceModelEntry[];
+}> = ({ model, onModelChange, models }) => {
   const { t } = useTranslation();
   const [downloadState, setDownloadState] = useState<DownloadState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -144,7 +130,8 @@ const WhisperLocalDownloadControl: React.FC<{
   // Live byte-progress for the active model download (same emitter the TTS
   // models use). null until the first progress frame arrives.
   const downloadPercent = useAssetDownloadProgress(asset?.id ?? '');
-  const sizeLabel = WHISPER_MODEL_SIZE_LABEL[model] ?? '';
+  const selectedEntry = models.find((m) => m.modelId === model);
+  const sizeLabel = selectedEntry?.sizeLabel ?? '';
 
   // Probe install state on mount + every model switch so the UI shows
   // "Installed" instead of a Download button when the file already exists
@@ -210,8 +197,9 @@ const WhisperLocalDownloadControl: React.FC<{
               content={
                 <div className='flex flex-col gap-6px max-w-280px text-12px'>
                   <span>{t('settings.whisperModelHelpIntro', { defaultValue: 'Bigger models are more accurate but slower and larger to download. A bundled tiny model already works offline with no download.' })}</span>
-                  <span><b>base · {WHISPER_MODEL_INFO.base.size}</b> — {WHISPER_MODEL_INFO.base.blurb}</span>
-                  <span><b>small · {WHISPER_MODEL_INFO.small.size}</b> — {WHISPER_MODEL_INFO.small.blurb}</span>
+                  {models.map((m) => (
+                    <span key={m.modelId}><b>{m.label} · {m.sizeLabel}</b> — {m.blurb}</span>
+                  ))}
                 </div>
               }
             >
@@ -222,11 +210,14 @@ const WhisperLocalDownloadControl: React.FC<{
       >
         <div className='flex flex-col gap-4px'>
           <WaylandSelect value={model} onChange={onModelChange}>
-            <WaylandSelect.Option value='base'>base · {WHISPER_MODEL_SIZE_LABEL.base}</WaylandSelect.Option>
-            <WaylandSelect.Option value='small'>small · {WHISPER_MODEL_SIZE_LABEL.small}</WaylandSelect.Option>
+            {models.map((m) => (
+              <WaylandSelect.Option key={m.modelId} value={m.modelId}>
+                {m.label} · {m.sizeLabel}
+              </WaylandSelect.Option>
+            ))}
           </WaylandSelect>
-          {WHISPER_MODEL_INFO[model] && (
-            <span className='text-11px text-t-tertiary'>{WHISPER_MODEL_INFO[model].blurb}</span>
+          {selectedEntry && (
+            <span className='text-11px text-t-tertiary'>{selectedEntry.blurb}</span>
           )}
         </div>
       </Form.Item>
@@ -719,11 +710,105 @@ const MlxAudioInstallControl: React.FC<{ onRefresh: () => void }> = ({ onRefresh
   />
 );
 
+/** Sentinel select value for the "custom HuggingFace id" escape hatch. */
+const MLX_CUSTOM_MODEL_VALUE = '__custom__';
+
+/**
+ * mlx-audio model field: a dropdown rendered from the data-driven catalog (per
+ * option: label · size, plus a hover tooltip + inline blurb) with a free-text
+ * "custom HF id" escape hatch for models not in the catalog.
+ */
+const MlxAudioModelControl: React.FC<{
+  value: string;
+  models: VoiceModelEntry[];
+  onChange: (value: string) => void;
+}> = ({ value, models, onChange }) => {
+  const { t } = useTranslation();
+  // Custom mode is active when the configured id isn't a known catalog entry,
+  // or when the user explicitly picked the custom option (tracked locally).
+  const isKnown = models.some((m) => m.modelId === value);
+  const [customMode, setCustomMode] = useState(!isKnown);
+  const selectValue = customMode || !isKnown ? MLX_CUSTOM_MODEL_VALUE : value;
+  const selectedEntry = models.find((m) => m.modelId === value);
+
+  const handleSelect = useCallback(
+    (next: string) => {
+      if (next === MLX_CUSTOM_MODEL_VALUE) {
+        setCustomMode(true);
+        return;
+      }
+      setCustomMode(false);
+      onChange(next);
+    },
+    [onChange]
+  );
+
+  return (
+    <div className='flex flex-col gap-4px'>
+      <WaylandSelect value={selectValue} onChange={handleSelect}>
+        {models.map((m) => (
+          <WaylandSelect.Option key={m.modelId} value={m.modelId}>
+            <span className='inline-flex items-center gap-6px'>
+              {m.label} · {m.sizeLabel}
+              {m.recommended && (
+                <span className='text-9px font-700 leading-none tracking-[0.05em] uppercase text-[rgb(var(--primary-6))] bg-[rgb(var(--primary-6)/0.12)] rd-5px px-6px py-2px'>
+                  {t('settings.ttsMlxRecommended', { defaultValue: 'Recommended' })}
+                </span>
+              )}
+              <Tooltip
+                content={
+                  <div className='flex flex-col gap-2px max-w-280px text-12px'>
+                    <span>{m.blurb}</span>
+                    {m.quant && <span className='text-t-tertiary'>{m.quant}</span>}
+                  </div>
+                }
+              >
+                <HelpCircle size={12} className='text-t-tertiary cursor-help' />
+              </Tooltip>
+            </span>
+          </WaylandSelect.Option>
+        ))}
+        <WaylandSelect.Option value={MLX_CUSTOM_MODEL_VALUE}>
+          {t('settings.ttsMlxCustomModel', { defaultValue: 'Custom HuggingFace id…' })}
+        </WaylandSelect.Option>
+      </WaylandSelect>
+      {selectValue === MLX_CUSTOM_MODEL_VALUE ? (
+        <Input
+          value={value}
+          placeholder={MLX_AUDIO_DEFAULT_MODEL}
+          onChange={onChange}
+        />
+      ) : (
+        selectedEntry && (
+          <span className='text-11px text-t-tertiary'>
+            {selectedEntry.blurb}
+            {selectedEntry.quant ? ` · ${selectedEntry.quant}` : ''}
+          </span>
+        )
+      )}
+    </div>
+  );
+};
+
 export const TextToSpeechSettingsSection: React.FC<{
   config: TextToSpeechConfig;
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
+  const catalog = useVoiceModelCatalog();
+  // mlx-audio is Apple-Silicon-only; gate its catalog entries by platform so the
+  // dropdown never offers a model the host cannot run.
+  const mlxModels = useMemo(
+    () => (IS_APPLE_SILICON ? voiceModelsFor(catalog, 'mlx-audio-local') : []),
+    [catalog]
+  );
+  // Prefer the catalog's recommended entry (a verified, live HF id) as the
+  // mlx-audio default over the engine const, whose mlx-community mirror id does
+  // not resolve. Falls back to the const if no recommendation is present.
+  const mlxDefaultModel = useMemo(
+    () => mlxModels.find((m) => m.recommended)?.modelId ?? MLX_AUDIO_DEFAULT_MODEL,
+    [mlxModels]
+  );
   const [installKey, setInstallKey] = useState(0);
   const [installSignal, setInstallSignal] = useState(0);
   const [setupPhase, setSetupPhase] = useState<LocalSetupPhase>('idle');
@@ -968,10 +1053,16 @@ export const TextToSpeechSettingsSection: React.FC<{
                 </WaylandSelect.Option>
               ))}
             </WaylandSelect>
+          ) : config.provider === 'mlx-audio-local' ? (
+            <MlxAudioModelControl
+              value={config.voice || mlxDefaultModel}
+              models={mlxModels}
+              onChange={updateVoice}
+            />
           ) : (
             <Input
               value={config.voice}
-              placeholder={config.provider === 'mlx-audio-local' ? MLX_AUDIO_DEFAULT_MODEL : ''}
+              placeholder=''
               onChange={updateVoice}
             />
           )}
@@ -1036,6 +1127,8 @@ export const SpeechToTextSettingsSection: React.FC<{
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const catalog = useVoiceModelCatalog();
+  const whisperModels = useMemo(() => voiceModelsFor(catalog, 'whisper-local'), [catalog]);
   const handleOpenProvidersPage = useCallback(() => {
     try {
       navigate('/settings/models');
@@ -1179,6 +1272,7 @@ export const SpeechToTextSettingsSection: React.FC<{
         ) : config.provider === 'whisper-local' ? (
           <WhisperLocalDownloadControl
             model={config.whisperLocal?.model ?? 'base'}
+            models={whisperModels}
             onModelChange={(model) =>
               onChange((current) => ({
                 ...current,
