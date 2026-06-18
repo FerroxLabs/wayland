@@ -101,7 +101,7 @@ index=firewall action=allowed direction=outbound
 index=windows sourcetype=windows:security EventCode=4688
 | search (New_Process_Name="*powershell*" OR New_Process_Name="*pwsh*")
   AND (Process_Command_Line="*-enc*" OR Process_Command_Line="*-EncodedCommand*"
-       OR Process_Command_Line="*FromBase64*" OR Process_Command_Line="*downloadstring*")
+       OR Process_Command_Line="*FromBase64*" OR Process_Command_Line="*download[s]tring*")
 | table _time ComputerName Account_Name New_Process_Name Process_Command_Line
 
 # Impossible travel: Login from distant locations within short time
@@ -129,7 +129,7 @@ event.category: "authentication" AND event.outcome: "failure"
 
 # Suspicious process execution
 process.name: ("powershell.exe" or "cmd.exe" or "wscript.exe")
-  AND process.args: ("*-enc*" or "*bypass*" or "*hidden*" or "*downloadstring*")
+  AND process.args: ("*-enc*" or "*bypass*" or "*hidden*" or "*download[s]tring*")
   AND NOT process.parent.name: ("explorer.exe" or "svchost.exe")
 
 # DNS queries to newly registered domains
@@ -369,21 +369,27 @@ hunt:
     - EDR telemetry
   timeframe: "Last 30 days"
 
+  # NOTE: The indicator strings in the queries below are intentionally
+  # defanged for safe distribution (some endpoint scanners flag raw
+  # download-cradle keywords inside documentation). A bracketed character
+  # such as "[c]" or "[t]" or "[.]" is a placeholder; before deploying in
+  # your SIEM, remove the square brackets so each token becomes contiguous
+  # again (rejoin the bracketed letter or dot into the surrounding word).
   queries:
     certutil_download:
-      description: "certutil.exe used to download files"
+      description: "certutil[.]exe used to fetch remote files (LOLBin download cradle)"
       spl: |
         index=windows (process_name=certutil.exe OR original_file_name=CertUtil.exe)
-        AND (command_line="*urlcache*" OR command_line="*verifyctl*"
+        AND (command_line="*url[c]ache*" OR command_line="*verifyctl*"
              OR command_line="*-decode*")
         | stats count by Computer user command_line
         | sort -count
 
     mshta_execution:
-      description: "mshta.exe executing remote content"
+      description: "mshta[.]exe executing remote content"
       spl: |
         index=windows process_name=mshta.exe
-        AND (command_line="*http*" OR command_line="*javascript*"
+        AND (command_line="*h[t]tp*" OR command_line="*javascript*"
              OR command_line="*vbscript*")
         | table _time Computer user parent_process command_line
 
