@@ -55,6 +55,8 @@ import { useNavigate } from 'react-router-dom';
 import { useSettingsViewMode } from '../settingsViewContext';
 import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneCheck';
 import { playAudioClip, stopVoicePlayback } from '@/renderer/utils/voicePlayback';
+import { speakWithSystemVoice } from '@/renderer/utils/systemVoice';
+import { useSystemVoices } from '@/renderer/hooks/voice/useSystemVoices';
 import { isBelowVersion } from '@/renderer/utils/versionCompare';
 import { SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT } from './speechToTextEvents';
 
@@ -229,7 +231,14 @@ const WhisperLocalDownloadControl: React.FC<{
       </Form.Item>
       <Form.Item label={t('settings.speechToTextDownloadModel')}>
         <div className='flex flex-col gap-8px'>
-          {downloadState === 'downloading' ? (
+          {selectedEntry?.bundled ? (
+            <div className='flex items-center gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
+              <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
+                <CheckCircle2 size={14} />
+                {t('settings.speechToTextBundled', { defaultValue: 'Built in — works offline, no download' })}
+              </span>
+            </div>
+          ) : downloadState === 'downloading' ? (
             <>
               <div className='flex items-center gap-8px'>
                 <Progress
@@ -821,6 +830,7 @@ export const TextToSpeechSettingsSection: React.FC<{
   const [kokoroInstalled, setKokoroInstalled] = useState<boolean | null>(null);
   const [piperInstalled, setPiperInstalled] = useState<boolean | null>(null);
   const [testVoiceLoading, setTestVoiceLoading] = useState(false);
+  const systemVoices = useSystemVoices();
 
   useEffect(() => {
     void Promise.all([
@@ -913,11 +923,9 @@ export const TextToSpeechSettingsSection: React.FC<{
   const handleTestVoice = useCallback(async () => {
     const phrase = t('settings.textToSpeechTestPhrase', 'Voice check.');
     if (config.provider === 'system-native') {
-      if (typeof window === 'undefined' || !window.speechSynthesis) return;
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(phrase);
-      if (typeof config.speed === 'number' && config.speed > 0) utterance.rate = config.speed;
-      window.speechSynthesis.speak(utterance);
+      // Web Speech API with the user's chosen OS voice (same path on every
+      // platform; config.voice holds the voiceURI).
+      void speakWithSystemVoice(phrase, { voiceURI: config.voice, rate: config.speed });
       return;
     }
     const token = ++testTokenRef.current;
@@ -1065,6 +1073,25 @@ export const TextToSpeechSettingsSection: React.FC<{
               models={mlxModels}
               onChange={updateVoice}
             />
+          ) : config.provider === 'system-native' ? (
+            systemVoices.length > 0 ? (
+              <WaylandSelect
+                value={config.voice || undefined}
+                placeholder={t('settings.systemVoiceDefault', { defaultValue: 'System default voice' })}
+                onChange={updateVoice}
+                showSearch
+              >
+                {systemVoices.map((v) => (
+                  <WaylandSelect.Option key={v.voiceURI} value={v.voiceURI}>
+                    {v.name} ({v.lang})
+                  </WaylandSelect.Option>
+                ))}
+              </WaylandSelect>
+            ) : (
+              <span className='text-12px text-t-tertiary'>
+                {t('settings.systemVoiceNone', { defaultValue: 'Using the operating system default voice.' })}
+              </span>
+            )
           ) : (
             <Input
               value={config.voice}

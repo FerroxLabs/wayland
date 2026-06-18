@@ -9,6 +9,7 @@ import { useVoiceChatPrefs } from './useVoiceChatPrefs';
 import { resolveSpeakState } from '@/common/types/voiceChatPrefs';
 import { toSpeakableText } from '@/common/voice/speakableText';
 import { playStreamedAudio, stopVoicePlayback } from '@/renderer/utils/voicePlayback';
+import { speakWithSystemVoice, stopSystemVoice } from '@/renderer/utils/systemVoice';
 import { useUserDisplayName } from '@/renderer/hooks/system/useUserDisplayName';
 import { ConfigStorage } from '@/common/config/storage';
 import { voiceSynth } from '@/common/adapter/ipcBridge';
@@ -71,6 +72,7 @@ export const useAutoReadReplies = (args: {
       prefs: chatPrefs,
     });
     if (!ttsConfig.enabled || !speakState || !args.conversationId) return;
+    if (ttsConfig.provider === 'system-native') return; // no worker to warm
     if (warmedConversationRef.current === args.conversationId) return;
     warmedConversationRef.current = args.conversationId;
     void voiceSynth.warmup.invoke({ config: ttsConfig });
@@ -78,7 +80,10 @@ export const useAutoReadReplies = (args: {
 
   // Stop playback when the user navigates to a different conversation.
   useEffect(() => {
-    return () => stopVoicePlayback();
+    return () => {
+      stopVoicePlayback();
+      stopSystemVoice();
+    };
   }, [args.conversationId]);
 
   useEffect(() => {
@@ -98,9 +103,15 @@ export const useAutoReadReplies = (args: {
     });
     if (action.speak) {
       lastSpokenIdRef.current = action.messageId;
-      void playStreamedAudio({ text: action.text, config: ttsConfig }).then((r) => {
-        if (r.notices && r.notices.length > 0) args.onFailover?.(r.notices);
-      });
+      if (ttsConfig.provider === 'system-native') {
+        // System Native plays via the Web Speech API in the renderer (works on
+        // every OS with the user's chosen voice) - not the main-process chain.
+        void speakWithSystemVoice(action.text, { voiceURI: ttsConfig.voice, rate: ttsConfig.speed });
+      } else {
+        void playStreamedAudio({ text: action.text, config: ttsConfig }).then((r) => {
+          if (r.notices && r.notices.length > 0) args.onFailover?.(r.notices);
+        });
+      }
     }
   }, [args.conversationId, args.latestAssistant, ttsConfig, chatPrefs, displayName]);
 };
