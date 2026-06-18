@@ -75,7 +75,11 @@ export const defaultSkillImportIo: SkillImportIo = {
   readdir,
   readFile,
   copyFile,
-  mkdir: (p, opts) => mkdir(p, opts),
+  mkdir: async (p, opts) => {
+    // fs/promises mkdir returns the first-created dir path with { recursive: true };
+    // the SkillImportIo contract is Promise<void>, so discard it.
+    await mkdir(p, opts);
+  },
   writeFile,
   gitClone: async (url, destDir) => {
     await execAsync(`git clone --depth 1 -- ${JSON.stringify(url)} ${JSON.stringify(destDir)}`);
