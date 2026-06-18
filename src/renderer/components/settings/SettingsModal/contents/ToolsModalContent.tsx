@@ -111,6 +111,12 @@ const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
     destPath: '',
     sha256: '',
   },
+  'large-v3-turbo': {
+    id: 'whisper-ggml-large-v3-turbo',
+    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
+    destPath: '',
+    sha256: '',
+  },
 };
 
 type DownloadState = 'idle' | 'downloading' | 'installing' | 'success' | 'error';

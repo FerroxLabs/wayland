@@ -43,6 +43,10 @@ const REGISTRY: Record<string, RegistryEntry> = {
     url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
     destSubpath: 'whisper/ggml-small.bin',
   },
+  'whisper-ggml-large-v3-turbo': {
+    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin',
+    destSubpath: 'whisper/ggml-large-v3-turbo.bin',
+  },
   // Kokoro ONNX TTS model - github release artifact pinned to v1.0.
   'kokoro-onnx-model': {
     url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',

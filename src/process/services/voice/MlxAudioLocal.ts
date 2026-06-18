@@ -15,7 +15,9 @@ import { getBinaryPath } from '@process/services/voice/voiceBinaryManifest';
 
 const execFileAsync = promisify(execFile);
 
-export const MLX_AUDIO_DEFAULT_MODEL = 'mlx-community/lucasnewman-f5-tts-mlx';
+// F5-TTS MLX weights live under the author's repo; the old mlx-community id
+// 401'd (no such mirror). Verified to resolve.
+export const MLX_AUDIO_DEFAULT_MODEL = 'lucasnewman/f5-tts-mlx';
 
 export class MlxAudioLocalUnavailableError extends Error {
   constructor(message: string) {
