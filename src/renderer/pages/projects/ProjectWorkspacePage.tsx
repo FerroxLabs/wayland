@@ -206,13 +206,18 @@ const ProjectWorkspacePage: React.FC = () => {
             }}
           >
             <span
-              className='block w-8px h-8px rd-full'
+              className='inline-block w-8px h-8px rd-full shrink-0'
               style={{
-                background: setupReady ? 'var(--color-success-6)' : 'var(--color-primary-6)',
-                boxShadow: `0 0 0 3px ${setupReady ? 'var(--color-success-light-1)' : 'var(--color-primary-light-1)'}`,
+                display: 'inline-block',
+                width: 8,
+                height: 8,
+                minWidth: 8,
+                minHeight: 8,
+                background: setupReady ? '#22c55e' : '#f59e0b',
+                boxShadow: 'none',
               }}
             />
-            {setupReady ? t('projects.workspace.setupDone') : t('projects.workspace.setupTodo')}
+            {setupReady ? 'Ready' : t('projects.workspace.setupTodo')}
           </button>
         )}
         <Button type='text' icon={<SettingsIcon size={15} />} onClick={() => openSettings('general')}>
