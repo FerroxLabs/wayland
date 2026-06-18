@@ -7,6 +7,7 @@
 import type { AcpBackend, AcpBackendAll, AcpBackendConfig } from '@/common/types/acpTypes';
 import type { SpeechToTextConfig } from '@/common/types/speech';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
+import type { VoiceChatPrefs } from '@/common/types/voiceChatPrefs';
 // C1: route through wrapped buildStorage so every namespace's storage.{get,set,clear,remove}
 // wire key is recorded in the bridge allowlist. The raw `storage.buildStorage` from
 // @office-ai/platform bypasses the allowlist and causes "Bridge event not allowed"
@@ -167,6 +168,8 @@ export interface IConfigStorageRefer {
   'onboarding.workDescription'?: string;
   /** User's preferred display name for the new-chat greeting. Empty = use the OS account name. */
   'user.displayName'?: string;
+  /** Phonetic respelling of the user's name for TTS (e.g. "muh-TAY-oh"). Never shown except in its settings field. */
+  'user.spokenName'?: string;
   /**
    * v0.4.7 - Install-scoped UUID generated on first launch. Seeds the
    * Kickoff SuggestionEngine's per-day deterministic shuffle so fresh
@@ -208,6 +211,10 @@ export interface IConfigStorageRefer {
   };
   'tools.speechToText'?: SpeechToTextConfig;
   'tools.textToSpeech'?: TextToSpeechConfig;
+  /** Per-conversation speak-replies overrides (tri-state); absent = inherit system default. */
+  'tools.voiceChatPrefs'?: VoiceChatPrefs;
+  /** System-wide open-voice defaults (e.g. silence gap before auto-send). */
+  'tools.voiceOpenDefaults'?: { silenceMs?: number; sensitivityBias?: number };
   // Per-category notification preferences (master switch lives in system.notificationEnabled via systemSettingsBridge)
   'notifications.agentFinished'?: boolean;
   'notifications.agentError'?: boolean;

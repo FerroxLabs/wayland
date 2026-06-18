@@ -5,19 +5,19 @@
  */
 
 import type { TextToSpeechAudio, TextToSpeechConfig } from '@/common/types/ttsTypes';
-import { acquireBinary } from '@process/services/voice/voiceBinaryManifest';
+import { getPlatformServices } from '@/common/platform';
 import { execFile } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { existsSync, readFileSync } from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { getBinaryPath } from '@process/services/voice/voiceBinaryManifest';
 
 const execFileAsync = promisify(execFile);
 
-/**
- * Thrown when the Kokoro ONNX binary or model is not installed. The TTS service
- * surfaces this as a normal coded error - it never crashes the process.
- */
+export const KOKORO_DEFAULT_VOICE = 'af_sky';
+
 export class KokoroLocalUnavailableError extends Error {
   constructor(message: string) {
     super(message);
@@ -25,66 +25,72 @@ export class KokoroLocalUnavailableError extends Error {
   }
 }
 
-/**
- * On-disk locations for the local Kokoro runtime. Task D2 (runtime binary
- * acquisition) downloads the binary and models into these exact paths.
- */
-export const KOKORO_BIN_DIR = path.join(
-  homedir(),
-  '.wayland',
-  'voice',
-  'bin',
-  `${process.platform}-${process.arch}`,
-);
-export const KOKORO_MODEL_DIR = path.join(homedir(), '.wayland', 'voice', 'kokoro-models');
+/** Returns the absolute path where the Kokoro ONNX model is expected on disk. */
+export const getKokoroModelPath = (): string =>
+  path.join(getPlatformServices().paths.getDataDir(), 'voice', 'kokoro', 'kokoro-v1.0.onnx');
 
-const KOKORO_BINARY_NAME = process.platform === 'win32' ? 'kokoro-cli.exe' : 'kokoro-cli';
+/** Returns the absolute path where the Kokoro voice embeddings file is expected on disk. */
+export const getKokoroVoicesPath = (): string =>
+  path.join(getPlatformServices().paths.getDataDir(), 'voice', 'kokoro', 'voices-v1.0.bin');
 
-/**
- * Injectable runtime seam. Production wires it to the filesystem and a real
- * subprocess; unit tests substitute fakes so no binary is required. Task D2
- * adds `acquireBinary` - an optional async hook that downloads the binary when
- * it is not yet cached; when absent the provider hard-disables on missing binary.
- */
 export type KokoroLocalRuntime = {
-  /** Absolute path to the kokoro-cli binary, or null when not installed. */
-  resolveBinary: () => string | null;
-  /** Absolute path to the ONNX model file, or null when not installed. */
-  resolveModel: (voice: string) => string | null;
-  /** Run the binary; resolves raw audio bytes (WAV). */
-  run: (binary: string, args: string[]) => Promise<Uint8Array>;
-  /**
-   * Optional: download the binary on demand. When provided and `resolveBinary`
-   * returns null, `synthesize` calls this to attempt acquisition before giving up.
-   * If acquisition fails the error is caught and re-thrown as KokoroLocalUnavailableError.
-   * Unit tests omit this member to test the hard-disable path without network access.
-   */
-  acquireBinary?: () => Promise<string>;
+  resolveUv: () => string | null;
+  resolveModel: () => string | null;
+  resolveVoices: () => string | null;
+  run: (uv: string, args: string[], cwd: string) => Promise<void>;
 };
 
 export const defaultKokoroLocalRuntime: KokoroLocalRuntime = {
-  resolveBinary: () => {
-    const binaryPath = path.join(KOKORO_BIN_DIR, KOKORO_BINARY_NAME);
-    return existsSync(binaryPath) ? binaryPath : null;
+  resolveUv: () => {
+    const p = getBinaryPath('uv-runtime');
+    return p && existsSync(p) ? p : null;
   },
-  acquireBinary: () => acquireBinary('onnx-runtime'),
-  resolveModel: (voice) => {
-    const modelPath = path.join(KOKORO_MODEL_DIR, `${voice}.onnx`);
-    return existsSync(modelPath) ? modelPath : null;
+  resolveModel: () => {
+    const p = getKokoroModelPath();
+    return existsSync(p) ? p : null;
   },
-  run: async (binary, args) => {
-    const { stdout } = await execFileAsync(binary, args, {
+  resolveVoices: () => {
+    const p = getKokoroVoicesPath();
+    return existsSync(p) ? p : null;
+  },
+  run: async (uv, args, cwd) => {
+    await execFileAsync(uv, args, {
       encoding: 'buffer',
       maxBuffer: 64 * 1024 * 1024,
+      timeout: 120_000,
+      cwd,
     });
-    return new Uint8Array(stdout);
   },
 };
 
+// Inline Python script: accepts positional args (model voices text voice speed outfile)
+// and writes 16-bit PCM WAV via the stdlib `wave` module. kokoro-onnx does NOT
+// bundle soundfile, so the float samples are converted with numpy (which it does
+// bundle) - this keeps synthesis dependency-free beyond the package itself.
+const SYNTH_SCRIPT = [
+  'from kokoro_onnx import Kokoro',
+  'import numpy as np, wave, sys',
+  'samples, sr = Kokoro(sys.argv[1], sys.argv[2]).create(',
+  '  sys.argv[3], voice=sys.argv[4], speed=float(sys.argv[5]))',
+  'pcm = (np.clip(samples, -1.0, 1.0) * 32767).astype("<i2")',
+  'w = wave.open(sys.argv[6], "wb")',
+  'w.setnchannels(1)',
+  'w.setsampwidth(2)',
+  'w.setframerate(sr)',
+  'w.writeframes(pcm.tobytes())',
+  'w.close()',
+].join('\n');
+
 /**
- * Local, offline text-to-speech via a Kokoro ONNX binary. No API key. When
- * the binary or model is missing the provider hard-disables itself by throwing
- * KokoroLocalUnavailableError, which the caller surfaces as a user message.
+ * Local, offline TTS via the kokoro-onnx Python package.
+ * Requires:
+ *   1. The uv runtime binary (downloaded via Settings › Tools)
+ *   2. `uv tool install kokoro-onnx` (via Settings › Tools)
+ *   3. The ONNX model file (kokoro-v1.0.onnx) downloaded via Settings › Tools
+ *   4. The voice embeddings file (voices-v1.0.bin) downloaded via Settings › Tools
+ *
+ * `config.voice` is a kokoro voice name (e.g. "af_sky", "bf_emma").
+ * Defaults to KOKORO_DEFAULT_VOICE when unset.
  */
 export class KokoroLocal {
   static async synthesize(
@@ -92,35 +98,53 @@ export class KokoroLocal {
     config: TextToSpeechConfig,
     runtime: KokoroLocalRuntime = defaultKokoroLocalRuntime,
   ): Promise<TextToSpeechAudio> {
-    let binary = runtime.resolveBinary();
-    if (!binary) {
-      if (runtime.acquireBinary) {
-        try {
-          binary = await runtime.acquireBinary();
-        } catch {
-          throw new KokoroLocalUnavailableError(
-            'TTS_KOKORO_LOCAL_UNAVAILABLE: kokoro-cli binary could not be acquired',
-          );
-        }
-      }
-      if (!binary) {
-        throw new KokoroLocalUnavailableError(
-          'TTS_KOKORO_LOCAL_UNAVAILABLE: kokoro-cli binary is not installed',
-        );
-      }
-    }
-
-    const voice = config.voice || 'default';
-    const modelPath = runtime.resolveModel(voice);
-    if (!modelPath) {
+    const uv = runtime.resolveUv();
+    if (!uv) {
       throw new KokoroLocalUnavailableError(
-        `TTS_KOKORO_LOCAL_UNAVAILABLE: Kokoro voice model "${voice}" is not installed`,
+        'TTS_KOKORO_LOCAL_UNAVAILABLE: uv runtime not installed. Use Settings › Tools to download it.',
       );
     }
 
-    const args = ['--model', modelPath, '--voice', voice, '--speed', String(config.speed), '--text', text];
+    const modelPath = runtime.resolveModel();
+    if (!modelPath) {
+      throw new KokoroLocalUnavailableError(
+        'TTS_KOKORO_LOCAL_UNAVAILABLE: Kokoro ONNX model not downloaded. Use Settings › Tools to download it.',
+      );
+    }
 
-    const data = await runtime.run(binary, args);
-    return { data, mimeType: 'audio/wav' };
+    const voicesPath = runtime.resolveVoices();
+    if (!voicesPath) {
+      throw new KokoroLocalUnavailableError(
+        'TTS_KOKORO_LOCAL_UNAVAILABLE: Kokoro voice embeddings not downloaded. Use Settings › Tools to download them.',
+      );
+    }
+
+    const voice = config.voice?.trim() || KOKORO_DEFAULT_VOICE;
+    const outDir = await mkdtemp(path.join(tmpdir(), 'wayland-tts-'));
+    const outFile = path.join(outDir, 'out.wav');
+
+    // --prerelease=allow matches voiceAssetBridge's uvInstall/uvStatus flags so
+    // synthesis resolves the exact environment the install step pre-warmed,
+    // instead of re-resolving (and re-downloading) a different one.
+    const args = [
+      'run', '--with', 'kokoro-onnx', '--prerelease=allow',
+      'python', '-c', SYNTH_SCRIPT,
+      modelPath, voicesPath, text, voice, String(config.speed ?? 1.0), outFile,
+    ];
+
+    try {
+      await runtime.run(uv, args, outDir);
+
+      if (!existsSync(outFile)) {
+        throw new KokoroLocalUnavailableError(
+          'TTS_KOKORO_LOCAL_UNAVAILABLE: synthesis produced no output file',
+        );
+      }
+
+      const data = new Uint8Array(readFileSync(outFile));
+      return { data, mimeType: 'audio/wav' };
+    } finally {
+      await rm(outDir, { recursive: true, force: true }).catch(() => {});
+    }
   }
 }

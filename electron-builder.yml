@@ -138,6 +138,10 @@ extraResources:
   # download. Fetched at build time by scripts/prepareVoiceModel.js.
   - from: resources/voice-models
     to: voice-models
+  # Kokoro warm-worker script (spawned via uv at runtime; must be a real
+  # on-disk file, not inside app.asar)
+  - from: resources/voice-workers
+    to: voice-workers
   # WhatsApp bridge: ESM Node subprocess forked via child_process.fork.
   # Must live outside app.asar so the path on disk is real and `fork()` works.
   # postinstall installs the bridge's own node_modules/ so this copy is self-contained.

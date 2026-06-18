@@ -40,7 +40,8 @@ import type {
 } from '../types/onboarding';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
 import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
-import type { DownloadResult, VoiceAsset } from '../types/voiceAsset';
+import type { TextToSpeechConfig } from '../types/ttsTypes';
+import type { DownloadProgress, DownloadResult, VoiceAsset } from '../types/voiceAsset';
 import type { SkillSecurityReport, SkillIndexEntry, SkillSource, SkillVerdict } from '../types/skillTypes';
 import type { ImportResult } from '../../process/services/skills/SkillImport';
 import type { KickoffResult, KickoffTelemetryEvent } from '../../process/services/kickoff/types';
@@ -400,8 +401,45 @@ export const speechToText = {
 };
 
 export const voiceSynth = {
-  speak: buildProvider<{ data: number[]; mimeType: string }, { text: string }>('voice-synth.speak'),
+  // Result envelope (never throws across the bridge): the provider catches its own
+  // errors and returns { ok: false, error } so the renderer can surface a reason
+  // instead of hanging. Flat optional fields (not a discriminated union) because the
+  // project compiles with strictNullChecks off, where boolean-discriminant narrowing
+  // is unreliable. See voiceSynthBridge.ts and bridgeAllowlist.buildProvider.
+  //
+  // The renderer passes its TTS config with the request. The provider must NOT
+  // read ConfigStorage itself: a main-side ConfigStorage.get round-trips to the
+  // renderer (which has no storage provider) and hangs forever - the same trap
+  // documented in WCoreManager for channel-spawned WCore.
+  speak: buildProvider<
+    { ok: boolean; data?: number[]; mimeType?: string; error?: string; engineUsed?: string },
+    { text: string; config: Partial<TextToSpeechConfig> }
+  >('voice-synth.speak'),
+  /**
+   * Streaming synthesis: the provider resolves with the envelope AFTER the
+   * final chunk; audio frames arrive via the `stream` emitter, scoped by
+   * requestId so other windows / WebUI clients ignore frames they did not
+   * request.
+   */
+  speakStream: buildProvider<
+    {
+      ok: boolean;
+      error?: string;
+      engineUsed?: string;
+      notices?: { failedEngine: string; fellBackTo: string; error: string }[];
+    },
+    { requestId: string; text: string; config: Partial<TextToSpeechConfig> }
+  >('voice-synth.speak-stream'),
+  stream: buildEmitter<{ requestId: string; seq: number; dataB64: string; mimeType: string; final: boolean }>(
+    'voice-synth.stream'
+  ),
   stop: buildProvider<Record<string, never>, void>('voice-synth.stop'),
+  /**
+   * Best-effort pre-warm of the active engine (start the persistent worker +
+   * load the model) so the first reply is near real-time. Returns the warmed
+   * engine id, or {} when nothing was warmed. Never throws.
+   */
+  warmup: buildProvider<{ warmed?: string }, { config: Partial<TextToSpeechConfig> }>('voice-synth.warmup'),
 };
 
 export const skills = {
@@ -492,14 +530,16 @@ export const skills = {
 export const voiceAsset = {
   download: buildProvider<DownloadResult, VoiceAsset>('voice-asset.download'),
   cancel: buildProvider<{ cancelled: boolean }, { assetId: string }>('voice-asset.cancel'),
-  // Resolve the install state for a known asset. The renderer uses this to
-  // suppress the Download button when the model is already on disk (no more
-  // "Download Model" alongside an already-installed model).
   exists: buildProvider<{ installed: boolean; destPath: string | null }, { id: string }>('voice-asset.exists'),
-  // wayland-asset:// URL base for the bundled voice-models directory. The
-  // renderer's transformers.js STT worker uses this as env.localModelPath
-  // so it can fetch the bundled Whisper-tiny ONNX files offline.
+  delete: buildProvider<{ deleted: boolean }, { id: string }>('voice-asset.delete'),
   localModelBase: buildProvider<{ url: string }, void>('voice-asset.local-model-base'),
+  // Real-time download progress events pushed from main → renderer.
+  downloadProgress: buildEmitter<DownloadProgress>('voice-asset.download-progress'),
+  // uv tool management for Python-based voice providers (e.g. mlx-audio, kokoro-onnx).
+  uvStatus: buildProvider<{ installed: boolean; version?: string }, { pkg: string }>('voice-asset.uv-status'),
+  // uvInstall auto-downloads the uv binary first if not already present.
+  uvInstall: buildProvider<{ ok: boolean; error?: string }, { pkg: string }>('voice-asset.uv-install'),
+  uvRemove: buildProvider<{ ok: boolean; error?: string }, { pkg: string }>('voice-asset.uv-remove'),
 };
 
 export const fileWatch = {

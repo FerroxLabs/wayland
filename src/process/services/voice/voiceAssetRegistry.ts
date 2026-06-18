@@ -48,6 +48,54 @@ const REGISTRY: Record<string, RegistryEntry> = {
     url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
     destSubpath: 'kokoro/kokoro-v1.0.onnx',
   },
+  // Kokoro voice embeddings - required alongside the ONNX model.
+  'kokoro-voices': {
+    url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin',
+    destSubpath: 'kokoro/voices-v1.0.bin',
+  },
+  // Piper voices (rhasspy/piper-voices on huggingface). Each voice is an ONNX
+  // model + a JSON config that piper requires next to it. SHA-256 digests were
+  // computed from clean fetches on 2026-06-12 (shasum -a 256 after curl -L).
+  'piper-voice-en_US-lessac-medium': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx',
+    destSubpath: 'piper/en_US-lessac-medium.onnx',
+    sha256: '5efe09e69902187827af646e1a6e9d269dee769f9877d17b16b1b46eeaaf019f',
+  },
+  'piper-voice-en_US-lessac-medium-config': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json',
+    destSubpath: 'piper/en_US-lessac-medium.onnx.json',
+    sha256: 'efe19c417bed055f2d69908248c6ba650fa135bc868b0e6abb3da181dab690a0',
+  },
+  'piper-voice-es_ES-davefx-medium': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/davefx/medium/es_ES-davefx-medium.onnx',
+    destSubpath: 'piper/es_ES-davefx-medium.onnx',
+    sha256: '6658b03b1a6c316ee4c265a9896abc1393353c2d9e1bca7d66c2c442e222a917',
+  },
+  'piper-voice-es_ES-davefx-medium-config': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/es/es_ES/davefx/medium/es_ES-davefx-medium.onnx.json',
+    destSubpath: 'piper/es_ES-davefx-medium.onnx.json',
+    sha256: '0e0dda87c732f6f38771ff274a6380d9252f327dca77aa2963d5fbdf9ec54842',
+  },
+  'piper-voice-fr_FR-siwis-medium': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx',
+    destSubpath: 'piper/fr_FR-siwis-medium.onnx',
+    sha256: '641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99',
+  },
+  'piper-voice-fr_FR-siwis-medium-config': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium/fr_FR-siwis-medium.onnx.json',
+    destSubpath: 'piper/fr_FR-siwis-medium.onnx.json',
+    sha256: '39479916c2db192b5ac9764daddd0c744d83e023ad890c6976c0633ae4df8959',
+  },
+  'piper-voice-de_DE-thorsten-medium': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/de/de_DE/thorsten/medium/de_DE-thorsten-medium.onnx',
+    destSubpath: 'piper/de_DE-thorsten-medium.onnx',
+    sha256: '7e64762d8e5118bb578f2eea6207e1a35a8e0c30595010b666f983fc87bb7819',
+  },
+  'piper-voice-de_DE-thorsten-medium-config': {
+    url: 'https://huggingface.co/rhasspy/piper-voices/resolve/main/de/de_DE/thorsten/medium/de_DE-thorsten-medium.onnx.json',
+    destSubpath: 'piper/de_DE-thorsten-medium.onnx.json',
+    sha256: '974adee790533adb273a1ac88f49027d2a1b8f0f2cf4905954a4791e79264e85',
+  },
 };
 
 /**

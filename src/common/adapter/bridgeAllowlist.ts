@@ -66,21 +66,58 @@ const CONTROL_ALLOWED: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Wrap `bridge.buildProvider` so every declared provider key is recorded.
+ * Sentinel field used to smuggle a provider-side error back across the bridge.
  *
- * Returned object is identical in shape and behavior to the platform's
- * `buildProvider` - this is a pure side-effect wrapper.
+ * The vendored `@office-ai/platform` bridge registers providers as
+ * `handler(data).then(emitCallback)` with NO `.catch`, and builds the renderer
+ * `invoke()` promise with only a `resolve` (no reject). So when a provider throws
+ * or returns a rejected promise, NO callback is ever emitted and the renderer's
+ * `invoke()` hangs forever - the error is silently swallowed app-wide.
+ *
+ * We close that gap here without patching vendored code: the provider wrapper
+ * catches any throw and resolves with `{ [BRIDGE_ERROR_KEY]: message }`, and the
+ * invoke wrapper detects that sentinel and re-throws, so `invoke()` rejects
+ * normally. The key is deliberately obscure so it cannot collide with a real
+ * payload field. Only the error path is affected; successful results pass
+ * through untouched (guarded by an `=== 'object'` check).
+ */
+const BRIDGE_ERROR_KEY = '__waylandBridgeProviderError__';
+
+/**
+ * Wrap `bridge.buildProvider` so every declared provider key is recorded AND a
+ * throwing provider surfaces as a rejected `invoke()` instead of an eternal hang.
+ *
+ * Behaviour is identical to the platform's `buildProvider` for the success path;
+ * the only change is that errors now propagate instead of being swallowed.
  */
 export function buildProvider<Data extends unknown, Params extends unknown = undefined>(
   key: string
 ): ReturnType<typeof bridge.buildProvider<Data, Params>> {
   providerKeys.add(key);
-  return bridge.buildProvider<Data, Params>(key);
+  const base = bridge.buildProvider<Data, Params>(key);
+  return {
+    // Preserve any extra properties the platform attaches to the provider
+    // object; only `provider` and `invoke` are intercepted below.
+    ...base,
+    provider: (handler: (params: Params) => Data | Promise<Data>) =>
+      base.provider((async (params: Params) => {
+        try {
+          return await handler(params);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          return { [BRIDGE_ERROR_KEY]: message } as unknown as Data;
+        }
+      }) as Parameters<typeof base.provider>[0]),
+    invoke: async (params: Params) => {
+      const result = await base.invoke(params);
+      if (result && typeof result === 'object' && BRIDGE_ERROR_KEY in (result as object)) {
+        throw new Error((result as Record<string, unknown>)[BRIDGE_ERROR_KEY] as string);
+      }
+      return result;
+    },
+  } as ReturnType<typeof bridge.buildProvider<Data, Params>>;
 }
 
-/**
- * Wrap `bridge.buildEmitter` so every declared emitter key is recorded.
- */
 export function buildEmitter<Params extends unknown = undefined>(
   key: string
 ): ReturnType<typeof bridge.buildEmitter<Params>> {
