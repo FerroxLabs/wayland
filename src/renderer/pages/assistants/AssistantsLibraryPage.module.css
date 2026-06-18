@@ -47,6 +47,19 @@
   }
 }
 
+/* Mobile: stack the filter rail above the content instead of side-by-side. */
+@media (max-width: 640px) {
+  .layout {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .scroll {
+    overflow-y: visible;
+    padding: var(--space-4) var(--space-4) var(--space-8);
+  }
+}
+
 .emptyState {
   padding: 48px 16px;
   text-align: center;
