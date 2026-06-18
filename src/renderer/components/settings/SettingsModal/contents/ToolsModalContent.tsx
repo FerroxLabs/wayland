@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CheckCircle2, RotateCcw } from 'lucide-react';
+import { CheckCircle2, HelpCircle, RotateCcw } from 'lucide-react';
 import {
   ConfigStorage,
   type IConfigStorageRefer,
@@ -31,6 +31,7 @@ import {
   Input,
   Slider,
   Progress,
+  Tooltip,
 } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DownloadProgress } from '@/common/types/voiceAsset';
@@ -113,6 +114,21 @@ const WHISPER_MODEL_SIZE_LABEL: Record<string, string> = {
   small: '~488 MB',
 };
 
+/** Per-model explanation shown as a hover tooltip + inline description, so the
+ * user understands the speed/accuracy/size trade-off before downloading. */
+const WHISPER_MODEL_INFO: Record<string, { size: string; blurb: string }> = {
+  base: {
+    size: '~148 MB',
+    blurb:
+      'Fast and lightweight. Good for clear speech and quick dictation; the best everyday balance of speed and accuracy on most machines.',
+  },
+  small: {
+    size: '~488 MB',
+    blurb:
+      'Noticeably more accurate on accents, names, and background noise, while staying reasonably quick. Pick this if base misses words.',
+  },
+};
+
 type DownloadState = 'idle' | 'downloading' | 'installing' | 'success' | 'error';
 
 const WhisperLocalDownloadControl: React.FC<{
@@ -186,11 +202,33 @@ const WhisperLocalDownloadControl: React.FC<{
 
   return (
     <>
-      <Form.Item label={t('settings.speechToTextWhisperModel')}>
-        <WaylandSelect value={model} onChange={onModelChange}>
-          <WaylandSelect.Option value='base'>base · {WHISPER_MODEL_SIZE_LABEL.base}</WaylandSelect.Option>
-          <WaylandSelect.Option value='small'>small · {WHISPER_MODEL_SIZE_LABEL.small}</WaylandSelect.Option>
-        </WaylandSelect>
+      <Form.Item
+        label={
+          <span className='flex items-center gap-4px'>
+            {t('settings.speechToTextWhisperModel')}
+            <Tooltip
+              content={
+                <div className='flex flex-col gap-6px max-w-280px text-12px'>
+                  <span>{t('settings.whisperModelHelpIntro', { defaultValue: 'Bigger models are more accurate but slower and larger to download. A bundled tiny model already works offline with no download.' })}</span>
+                  <span><b>base · {WHISPER_MODEL_INFO.base.size}</b> — {WHISPER_MODEL_INFO.base.blurb}</span>
+                  <span><b>small · {WHISPER_MODEL_INFO.small.size}</b> — {WHISPER_MODEL_INFO.small.blurb}</span>
+                </div>
+              }
+            >
+              <HelpCircle size={13} className='text-t-tertiary cursor-help' />
+            </Tooltip>
+          </span>
+        }
+      >
+        <div className='flex flex-col gap-4px'>
+          <WaylandSelect value={model} onChange={onModelChange}>
+            <WaylandSelect.Option value='base'>base · {WHISPER_MODEL_SIZE_LABEL.base}</WaylandSelect.Option>
+            <WaylandSelect.Option value='small'>small · {WHISPER_MODEL_SIZE_LABEL.small}</WaylandSelect.Option>
+          </WaylandSelect>
+          {WHISPER_MODEL_INFO[model] && (
+            <span className='text-11px text-t-tertiary'>{WHISPER_MODEL_INFO[model].blurb}</span>
+          )}
+        </div>
       </Form.Item>
       <Form.Item label={t('settings.speechToTextDownloadModel')}>
         <div className='flex flex-col gap-8px'>
