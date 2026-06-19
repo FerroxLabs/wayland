@@ -408,6 +408,13 @@
 .effortPop {
   min-width: 240px;
   padding: 4px;
+  /* Opaque, elevated surface matching the flyout chrome. Without a solid
+     background + border + shadow the Arco popup content was see-through, so the
+     model list rendered straight through the Effort submenu (overlap bug). */
+  background: var(--color-bg-4);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
 }
 .effortOpt {
   display: flex;
