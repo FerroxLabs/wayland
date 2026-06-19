@@ -44,6 +44,11 @@ import { initTaskBridge } from '@process/bridge/taskBridge';
 import { initSpeechToTextBridge } from '@process/bridge/speechToTextBridge';
 import { initHubBridge } from '@process/bridge/hubBridge';
 import { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
+import { initProjectBridge } from '@process/bridge/projectBridge';
+import { initTeamBridge } from '@process/bridge/teamBridge';
+import { initSkillsBridge } from '@process/bridge/skillsBridge';
+import { SqliteTeamRepository } from '@process/team/repository/SqliteTeamRepository';
+import { TeamSessionService } from '@process/team/TeamSessionService';
 
 logger.config({ print: true });
 
@@ -81,6 +86,16 @@ export async function initBridgeStandalone(): Promise<void> {
   initStarOfficeBridge();
   initSpeechToTextBridge();
   initHubBridge();
+  initProjectBridge();
+
+  // Team session service: pass the three required deps; ritualScheduler is
+  // optional (Standing-Company rituals are a no-op without it, which is fine
+  // for headless mode — users aren't installing cron-driven rituals here).
+  const teamRepo = new SqliteTeamRepository();
+  const teamSessionService = new TeamSessionService(teamRepo, workerTaskManager, conversationService);
+  initTeamBridge(teamSessionService);
+
+  initSkillsBridge();
 
   // Model-registry IPC powers the Models page + the model picker. The Electron
   // bridge wires this in `bridge/index.ts`; standalone must do it too or the

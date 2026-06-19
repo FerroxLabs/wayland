@@ -99,6 +99,7 @@ describe('SiderRecentChatsSection', () => {
       { id: 'c2', extra: {} },
       { id: 'c3', extra: { isHealthCheck: true } }, // filtered out
       { id: 'c4', extra: { teamId: 't1' } }, // filtered out
+      { id: 'c5', extra: { projectId: 'proj-fintrakd' } }, // filtered out
     ]);
     renderSection();
     const badge = await screen.findByTestId('recent-chats-badge', undefined, { timeout: 2000 });

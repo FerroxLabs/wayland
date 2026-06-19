@@ -21,7 +21,10 @@ export const isElectronDesktop = (): boolean => {
  * Check if running on macOS
  */
 export const isMacOS = (): boolean => {
-  return typeof navigator !== 'undefined' && /mac/i.test(navigator.userAgent);
+  if (typeof navigator === 'undefined') return false;
+  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+  const platform = nav.userAgentData?.platform || nav.platform || nav.userAgent;
+  return /mac|iphone|ipad|ipod/i.test(platform);
 };
 
 /**
