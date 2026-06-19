@@ -1,0 +1,42 @@
+name: Close fixed-pending-release on stable
+
+# When a STABLE release is published, close every issue tagged
+# state:fixed-pending-release with a "shipped in <tag>" comment.
+# Prereleases (rc/beta) are skipped so the RC cadence never closes issues early.
+# Can also be run by hand against a chosen tag via workflow_dispatch.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to attribute the fix to (e.g. v0.11.0)'
+        required: true
+
+permissions:
+  issues: write
+
+jobs:
+  close:
+    if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close fixed-pending-release issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.inputs.tag || github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          echo "Closing state:fixed-pending-release issues, attributing to $TAG"
+          gh issue list -R "$REPO" --state open \
+            --label 'state:fixed-pending-release' --limit 200 \
+            --json number --jq '.[].number' | while read -r n; do
+            [ -z "$n" ] && continue
+            echo "Closing #$n"
+            gh issue comment "$n" -R "$REPO" \
+              --body "Shipped in **$TAG**. Closing — please update and reopen if you still hit this on that build or later."
+            gh issue edit "$n" -R "$REPO" --remove-label 'state:fixed-pending-release' || true
+            gh issue close "$n" -R "$REPO" --reason completed
+          done
