@@ -1,11 +1,24 @@
 name: Close fixed-pending-release on stable
 
-# When a STABLE release is published, close every issue tagged
-# state:fixed-pending-release with a "shipped in <tag>" comment.
-# Prereleases (rc/beta) are skipped so the RC cadence never closes issues early.
-# Can also be run by hand against a chosen tag via workflow_dispatch.
+# Closes every open issue labeled state:fixed-pending-release with a "shipped in
+# <tag>" comment when a STABLE version ships.
+#
+# Three triggers, because the plain `release: published` event is unreliable here
+# (it did NOT fire for the v0.11.0 stable publish, though it fires for RCs):
+#   1. workflow_run  — fires when "Build and Release" completes for a stable tag.
+#                      This is the dependable path, immune to how the release is
+#                      published (GITHUB_TOKEN-published releases don't re-trigger
+#                      `release` events in other workflows).
+#   2. release        — belt-and-suspenders for when the event DOES propagate.
+#   3. workflow_dispatch — manual fallback, attribute to a chosen tag.
+#
+# Prereleases (rc/beta — any tag containing "-") never trigger it. The job is
+# idempotent: it only touches OPEN labeled issues, so double-firing is harmless.
 
 on:
+  workflow_run:
+    workflows: ['Build and Release']
+    types: [completed]
   release:
     types: [published]
   workflow_dispatch:
@@ -19,14 +32,20 @@ permissions:
 
 jobs:
   close:
-    if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'release' && github.event.release.prerelease == false) ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       startsWith(github.event.workflow_run.head_branch, 'v') &&
+       !contains(github.event.workflow_run.head_branch, '-'))
     runs-on: ubuntu-latest
     steps:
       - name: Close fixed-pending-release issues
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          TAG: ${{ github.event.inputs.tag || github.event.release.tag_name }}
+          TAG: ${{ github.event.inputs.tag || github.event.release.tag_name || github.event.workflow_run.head_branch }}
         run: |
           set -euo pipefail
           echo "Closing state:fixed-pending-release issues, attributing to $TAG"
