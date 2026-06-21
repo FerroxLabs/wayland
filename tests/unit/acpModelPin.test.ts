@@ -68,4 +68,44 @@ describe('resolvePinnedModelInfo', () => {
     });
     expect(out.currentModelId).toBe('opus');
   });
+
+  // #207: the Claude flyout emits registry ids ("claude-opus-4-8") while the
+  // agent advertises slot ids ("opus"). An exact-only match left the native pin
+  // dead, so a flux-routed Claude teammate's native pick fell through to the
+  // agent's reported Flux model on every poll (reverted to Flux Fast).
+  it('holds a native Claude pick when the flyout id is a registry id and the agent reports Flux (#207)', () => {
+    const out = resolvePinnedModelInfo(info('flux-fast', ['sonnet', 'opus', 'haiku']), {
+      fluxModelId: null, // selectedFluxModelRef is cleared once a native model is picked
+      showFlux: true,
+      userChangedModel: true,
+      selectedModelId: 'claude-opus-4-8',
+      backend: 'claude',
+    });
+    expect(out.currentModelId).toBe('opus');
+    expect(out.currentModelLabel).toBe('OPUS'); // friendly slot label, not the raw registry id
+  });
+
+  it('maps the Claude registry id to the matching slot (sonnet, not opus) (#207)', () => {
+    const out = resolvePinnedModelInfo(info('flux-fast', ['sonnet', 'opus', 'haiku']), {
+      fluxModelId: null,
+      showFlux: true,
+      userChangedModel: true,
+      selectedModelId: 'claude-sonnet-4-6',
+      backend: 'claude',
+    });
+    expect(out.currentModelId).toBe('sonnet');
+  });
+
+  it('does NOT substring-match for non-Claude backends (no false slot match)', () => {
+    // For codex, "gpt-5-codex" must NOT be coerced onto the available "gpt-5".
+    const next = info('o3', ['gpt-5', 'o3']);
+    const out = resolvePinnedModelInfo(next, {
+      ...NO_PINS,
+      userChangedModel: true,
+      selectedModelId: 'gpt-5-codex',
+      backend: 'codex',
+    });
+    expect(out).toBe(next);
+    expect(out.currentModelId).toBe('o3');
+  });
 });

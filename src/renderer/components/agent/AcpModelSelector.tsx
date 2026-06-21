@@ -128,11 +128,12 @@ const AcpModelSelector: React.FC<{
           showFlux,
           userChangedModel: hasUserChangedModel.current,
           selectedModelId: selectedModelRef.current,
+          backend,
         });
         return isSameModelInfo(prev, next) ? prev : next;
       });
     },
-    [showFlux]
+    [showFlux, backend]
   );
 
   const loadCachedModelInfo = useCallback(
