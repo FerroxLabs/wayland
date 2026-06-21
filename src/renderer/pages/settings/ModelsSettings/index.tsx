@@ -269,13 +269,16 @@ const ModelsSettingsInner: React.FC = () => {
   // (remote-secure-config W1.A). It returns status only; on success we reload
   // the read-only registry list (which IS remote-allowed) so the new row shows.
   const connectKey = useCallback(
-    async (providerId: ProviderId, key: string) => {
+    async (providerId: ProviderId, key: string, baseUrl?: string) => {
       if (headless) {
-        const res = await connectProviderHttp(providerId, key);
+        // The write-only HTTP route accepts an optional baseUrl (it forwards it
+        // to the same host-side connect the desktop IPC uses), so a remote WebUI
+        // can add a local OpenAI-compatible endpoint host-side (#71).
+        const res = await connectProviderHttp(providerId, key, baseUrl);
         if (res.ok) await reload();
         return res;
       }
-      return connect(providerId, { key });
+      return connect(providerId, baseUrl ? { key, baseUrl } : { key });
     },
     [headless, connect, reload]
   );
@@ -473,7 +476,12 @@ const ModelsSettingsInner: React.FC = () => {
         />
       </div>
 
-      <BrowseModal visible={browseOpen} onClose={handleBrowseClose} initialProvider={browseInitialProvider} />
+      <BrowseModal
+        visible={browseOpen}
+        onClose={handleBrowseClose}
+        initialProvider={browseInitialProvider}
+        connectKey={connectKey}
+      />
     </SettingsPageShell>
   );
 };

@@ -33,6 +33,14 @@ type Props = {
    * the grid (spec §4.3).
    */
   initialProvider?: ProviderId;
+  /**
+   * Connect a single-key provider, threading an optional `baseUrl`. Supplied by
+   * the parent so the connect routes through its headless-aware path: on desktop
+   * the `modelRegistry.connect` IPC, in a remote/WebUI session the write-only
+   * `/api/providers/connect` HTTP route (the IPC is remote-denied). This is what
+   * lets a remote WebUI add a local OpenAI-compatible endpoint host-side (#71).
+   */
+  connectKey: (providerId: ProviderId, key: string, baseUrl?: string) => Promise<IModelRegistryConnectResult>;
 };
 
 /** Map a `ConnectError` code to its inline-error i18n key suffix. */
@@ -72,7 +80,7 @@ type CatalogState =
  * A successful connect closes the modal; `useModelRegistry.connect` reloads the
  * connected list on its own.
  */
-const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider }) => {
+const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider, connectKey }) => {
   const { t } = useTranslation();
   const { providers, connect, getProviderCatalog } = useModelRegistry();
 
@@ -210,8 +218,10 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider }) => 
     setConnecting(true);
     setErrorKey(null);
     try {
-      const creds = baseUrl ? { key, baseUrl } : { key };
-      const res = await connect(view.provider.id, creds);
+      // Route through the parent's headless-aware connect so a remote/WebUI
+      // session adds the endpoint host-side over the write-only HTTP route
+      // instead of the remote-denied `modelRegistry.connect` IPC (#71).
+      const res = await connectKey(view.provider.id, key, baseUrl || undefined);
       if (res.ok) {
         onClose();
       } else {
@@ -222,7 +232,7 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider }) => 
     } finally {
       setConnecting(false);
     }
-  }, [view, keyValue, baseUrlValue, connect, onClose]);
+  }, [view, keyValue, baseUrlValue, connectKey, onClose]);
 
   // ---- Cloud connect (passed to CloudCredentialForm) ---------------------
   const handleCloudConnect = useCallback(

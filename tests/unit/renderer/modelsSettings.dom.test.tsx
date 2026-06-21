@@ -54,6 +54,8 @@ const mockDetectKeys = vi.fn();
 const mockConnect = vi.fn();
 const mockDisconnect = vi.fn();
 const mockGoogleLogin = vi.fn();
+// Headless write-only HTTP connect route (remote WebUI path).
+const mockConnectProviderHttp = vi.fn();
 
 vi.mock('../../../src/common/adapter/ipcBridge', () => ({
   modelRegistry: {
@@ -77,6 +79,11 @@ vi.mock('../../../src/common/adapter/ipcBridge', () => ({
     setAutoRefresh: { invoke: vi.fn().mockResolvedValue({ ok: true }) },
     listChanged: { on: vi.fn(() => vi.fn()) },
   },
+}));
+
+// Write-only provider-key HTTP client (the headless/remote WebUI connect path).
+vi.mock('../../../src/renderer/services/ProviderKeyService', () => ({
+  connectProviderHttp: (...a: unknown[]) => mockConnectProviderHttp(...a),
 }));
 
 // `@/common` barrel - GoogleButton imports `ipcBridge` from here.
@@ -139,6 +146,7 @@ beforeEach(() => {
   mockConnect.mockReset().mockResolvedValue({ ok: true });
   mockDisconnect.mockReset().mockResolvedValue({ ok: true });
   mockGoogleLogin.mockReset().mockResolvedValue({ success: true, data: { account: '' } });
+  mockConnectProviderHttp.mockReset().mockResolvedValue({ ok: true });
   // Default: no pending deep-link. Tests opt in by overriding per case.
   mockConsumePendingDeepLink.mockReset().mockReturnValue(null);
 });
@@ -318,6 +326,52 @@ describe('ModelsSettings page', () => {
     // The page should not announce a detected OpenAI key alongside the
     // connected row - exactly one detected-row should be present.
     expect(screen.queryByText(/detected\.found:provider=OpenAI/)).not.toBeInTheDocument();
+  });
+
+  it('routes a headless OpenAI-compatible add through the host-side HTTP route with baseUrl (#71)', async () => {
+    // Remote/WebUI session: no electronAPI, so isElectronDesktop() is false and
+    // the page is headless. Adding a local OpenAI-compatible endpoint from Browse
+    // must go through the write-only /api/providers/connect route (host-side),
+    // carrying the baseUrl, NOT the remote-denied modelRegistry.connect IPC.
+    mockList.mockResolvedValue([]);
+    mockDetectKeys.mockResolvedValue([]);
+    mockConnectProviderHttp.mockResolvedValue({ ok: true });
+
+    const savedElectronAPI = (window as unknown as { electronAPI?: unknown }).electronAPI;
+    delete (window as unknown as { electronAPI?: unknown }).electronAPI;
+    try {
+      renderPage();
+
+      // Open Browse, pick the OpenAI-compatible BYO tile. Arco's Modal renders
+      // in a portal on document.body, so query the document, not the container.
+      fireEvent.click(await screen.findByText('settings.modelsPage.connect.browse'));
+      const tile = await waitFor(() => {
+        const el = document.querySelector('[data-provider="openai-compatible"]');
+        if (!el) throw new Error('openai-compatible tile not found');
+        return el as HTMLElement;
+      });
+      fireEvent.click(tile);
+
+      // Fill the api key + the custom endpoint base URL.
+      const keyInput = await screen.findByPlaceholderText('settings.modelsPage.browse.keyPlaceholder');
+      fireEvent.change(keyInput, { target: { value: 'sk-local-test' } });
+      const baseUrlInput = screen.getByPlaceholderText('settings.modelsPage.browse.baseUrlPlaceholder');
+      fireEvent.change(baseUrlInput, { target: { value: 'http://127.0.0.1:8003/v1' } });
+
+      fireEvent.click(screen.getByText('settings.modelsPage.browse.connect'));
+
+      await waitFor(() =>
+        expect(mockConnectProviderHttp).toHaveBeenCalledWith(
+          'openai-compatible',
+          'sk-local-test',
+          'http://127.0.0.1:8003/v1'
+        )
+      );
+      // The remote-denied IPC is never used in headless mode.
+      expect(mockConnect).not.toHaveBeenCalled();
+    } finally {
+      (window as unknown as { electronAPI?: unknown }).electronAPI = savedElectronAPI;
+    }
   });
 
   it('shares one providers snapshot across the page and the Browse modal (shared registry state)', async () => {
