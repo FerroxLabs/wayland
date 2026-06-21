@@ -4,6 +4,38 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-06-21
+
+### Wayland Core engine
+
+- Bundled engine updated to v0.12.5, fixing a critical bug where every chat reply errored (`finish_reason: error`, 0 tokens) on every model and provider on Windows, and correcting the Gemini egress allowlist (#200, #223).
+
+### Models & providers
+
+- Teams: a Claude member no longer reverts to "Flux Fast" after the first message, and a Gemini member's model now routes to its Gemini provider instead of OpenRouter (#207).
+- A remote/WebUI session can now add a local OpenAI-compatible endpoint (#71).
+- Wayland Core workflows bind to the selected provider instead of blocking prompts with "No model selected" (#198).
+- Teams no longer fail to start with "No CLI path" on Wayland Core backends (#204).
+
+### Channels, voice & import
+
+- Obsidian import opens a folder picker and shows its results, and memory import now reads native Claude Code project memory (#133, #165).
+
+### Onboarding
+
+- "Get a free Gemini key" opens the browser, and the Gemini onboarding door points to a Google AI Studio key (#202).
+
+### Reliability & fixes
+
+- Installer resolves bun from `~/.bun/bin` so headless setup and systemd work (#201).
+- Windows uninstaller reaps orphaned processes left behind on close/uninstall (#139).
+- The GUI-spawned engine now inherits `WAYLAND_BASH_SHELL` (#197).
+- `wayland_search_skills` returns metadata instead of full skill bodies, fixing a Claude Code 25k-token Read overflow (#199).
+
+### Internal
+
+- Added `scripts/stage-wcore-bump.mjs` to stage bundled-engine version bumps from the signed release checksums (#222).
+
 ## [0.11.0] - 2026-06-19
 
 ### Models & providers
