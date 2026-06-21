@@ -908,13 +908,19 @@ export class TeamSessionService {
   }
 
   private resolveConversationType(agentType: string): AgentType {
-    if (agentType === 'gemini') return 'gemini';
-    if (agentType === 'wcore') return 'wcore';
-    if (agentType === 'codex') return 'acp';
-    if (agentType === 'openclaw-gateway') return 'openclaw-gateway';
-    if (agentType === 'nanobot') return 'nanobot';
-    if (agentType === 'remote') return 'remote';
-    return 'acp';
+    // Delegate to the canonical backend→type map so this can never drift from
+    // it again. A divergent copy here is exactly what broke Teams for Wayland
+    // Core (#204): the `wayland-core`/`agent-profile` aliases - both the WCore
+    // engine, not an ACP CLI - fell through to 'acp', so an in-place backend
+    // swap to "wayland-core" passed the same-type guard, kept its 'acp'
+    // conversation, and then died on spawn with `No CLI path for backend
+    // "wayland-core"`. With the alias mapped to 'wcore', that swap is now
+    // correctly rejected as a cross-type change (remove + re-add instead).
+    const type = getConversationTypeForBackend(agentType);
+    // getConversationTypeForBackend's return type includes 'codex' (a
+    // create-params type) but it never returns it - codex maps to 'acp'. Narrow
+    // back to the team layer's AgentType.
+    return type === 'codex' ? 'acp' : type;
   }
 
   async renameAgent(teamId: string, slotId: string, newName: string): Promise<void> {
