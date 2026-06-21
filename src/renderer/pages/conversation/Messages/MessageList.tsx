@@ -5,6 +5,7 @@
  */
 
 import { ChevronDown } from 'lucide-react';
+import { ipcBridge } from '@/common';
 import type { CodexToolCallUpdate, IMessageAcpToolCall, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { useWorkflowViewMode } from '@/renderer/pages/guid/components/workflow/workflowViewMode';
@@ -42,6 +43,7 @@ import type { WriteFileResult } from './types';
 import { useAutoScroll } from './useAutoScroll';
 import { useAutoPreviewOfficeFiles } from '@/renderer/hooks/file/useAutoPreviewOfficeFiles';
 import SelectionReplyButton from './components/SelectionReplyButton';
+import { computeChatTimeMarkers, splitGap, type ChatTimeMarker } from './utils/chatTimeMarkers';
 
 type TurnDiffContent = Extract<CodexToolCallUpdate, { subtype: 'turn_diff' }>;
 
@@ -164,10 +166,61 @@ const MessageItem: React.FC<{ message: TMessage; highlighted?: boolean }> = Reac
     prev.highlighted === next.highlighted
 );
 
+/**
+ * Subtle date/time + elapsed-gap chip rendered above a project-chat message
+ * when the day changes or a meaningful gap has passed (#59). Date/time are
+ * locale-formatted via Intl; only the compact gap units come from i18n.
+ */
+const ChatTimeMarkerRow: React.FC<{ marker: ChatTimeMarker }> = ({ marker }) => {
+  const { t, i18n } = useTranslation();
+  const d = new Date(marker.ts);
+  const time = d.toLocaleTimeString(i18n.language, { hour: 'numeric', minute: '2-digit' });
+  let label: string;
+  if (marker.dayChange) {
+    const date = d.toLocaleDateString(i18n.language, { month: 'short', day: 'numeric', year: 'numeric' });
+    label = `${date} · ${time}`;
+  } else {
+    const { hours, minutes } = splitGap(marker.gapMs);
+    const gap =
+      hours === 0
+        ? t('messages.timeMarker.gapMinutes', { minutes })
+        : minutes === 0
+          ? t('messages.timeMarker.gapHours', { hours })
+          : t('messages.timeMarker.gapHoursMinutes', { hours, minutes });
+    label = `${time} · ${gap}`;
+  }
+  return (
+    <div className='flex justify-center mt-14px mb-4px'>
+      <span className='text-11px text-t-tertiary bg-1 rd-full px-10px py-2px whitespace-nowrap'>{label}</span>
+    </div>
+  );
+};
+
 const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.ReactNode }> = ({ emptySlot }) => {
   const list = useMessageList();
   const conversationContext = useConversationContextSafe();
   useAutoPreviewOfficeFiles(conversationContext);
+
+  // Project-backed chats get subtle transcript time markers (#59); gate on the
+  // conversation's projectId so personal chats stay quiet.
+  const conversationId = conversationContext?.conversationId;
+  const [isProjectChat, setIsProjectChat] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setIsProjectChat(false);
+    if (!conversationId) return;
+    void ipcBridge.conversation.get
+      .invoke({ id: conversationId })
+      .then((conv) => {
+        if (cancelled) return;
+        const projectId = (conv?.extra as { projectId?: string } | undefined)?.projectId;
+        setIsProjectChat(Boolean(projectId));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [conversationId]);
   const { t } = useTranslation();
   const location = useLocation();
   const locationState = (location.state || {}) as ConversationLocationState;
@@ -254,6 +307,21 @@ const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.
     }
     return result;
   }, [list]);
+
+  // Per-row time markers for project chats, aligned to processedList indices (#59).
+  const timeMarkers = useMemo(() => {
+    if (!isProjectChat) return null;
+    const tsById = new Map<string, number | undefined>();
+    for (const m of list) tsById.set(m.id, m.createdAt);
+    const timestamps = processedList.map((item) => {
+      if ('type' in item && (item.type === 'file_summary' || item.type === 'tool_summary')) {
+        const firstSrc = getProcessedItemSourceMessageIds(item)[0];
+        return firstSrc ? tsById.get(firstSrc) : undefined;
+      }
+      return (item as TMessage).createdAt;
+    });
+    return computeChatTimeMarkers(timestamps);
+  }, [isProjectChat, processedList, list]);
 
   // Use auto-scroll hook
   const {
@@ -348,8 +416,10 @@ const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.
 
   const renderItem = (_index: number, item: (typeof processedList)[0]) => {
     const highlighted = matchesTargetMessage(item, highlightedMessageId);
+    const marker = timeMarkers?.[_index] ?? null;
+    let body: React.ReactNode;
     if ('type' in item && ['file_summary', 'tool_summary'].includes(item.type)) {
-      return (
+      body = (
         <div
           key={item.id}
           id={`message-${getProcessedItemAnchorId(item)}`}
@@ -360,8 +430,18 @@ const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.
           {item.type === 'tool_summary' && <MessageToolGroupSummary messages={item.messages}></MessageToolGroupSummary>}
         </div>
       );
+    } else {
+      body = (
+        <MessageItem message={item as TMessage} key={(item as TMessage).id} highlighted={highlighted}></MessageItem>
+      );
     }
-    return <MessageItem message={item as TMessage} key={(item as TMessage).id} highlighted={highlighted}></MessageItem>;
+    if (!marker) return body;
+    return (
+      <>
+        <ChatTimeMarkerRow marker={marker} />
+        {body}
+      </>
+    );
   };
 
   if (processedList.length === 0 && emptySlot) {
