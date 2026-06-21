@@ -3,17 +3,24 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Import service for claude-mem SQLite database.
- * Reads ~/.claude-mem/claude-mem.db and maps observation/session/prompt rows
- * to MemoryEntry markdown files written into the target IJFW memory directory.
+ * Import service for Claude memories. Pulls from BOTH known locations and
+ * merges the results into the target IJFW memory directory:
+ *   1. The third-party claude-mem plugin's SQLite database
+ *      (~/.claude-mem/claude-mem.db), mapping observation rows to markdown.
+ *   2. Native Claude Code project memory
+ *      (~/.claude/projects/<project>/memory/*.md), which is already markdown
+ *      with frontmatter. Many users have (2) but no (1) - see #165, where the
+ *      importer only checked the SQLite path and reported "not found".
  */
 
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import * as crypto from 'node:crypto';
 import BetterSqlite3 from 'better-sqlite3';
 import type Database from 'better-sqlite3';
 import log from 'electron-log';
+import { parseMarkdownBlocks } from '../memory/markdownFrontmatter';
 
 export type ClaudeMemImportResult = {
   imported: number;
@@ -72,9 +79,9 @@ function parseTags(raw: string | null): string[] {
 }
 
 /**
- * Import observations from ~/.claude-mem/claude-mem.db into `ijfwMemoryDir`.
- *
- * Returns early (no throw) if the database file is absent or unreadable.
+ * Import Claude memories from both known locations into `ijfwMemoryDir`:
+ * the claude-mem SQLite database AND native Claude Code project memory.
+ * Never throws - missing sources are reported via the result, not exceptions.
  */
 export async function runClaudeMemImport(opts?: { ijfwMemoryDir?: string }): Promise<ClaudeMemImportResult> {
   const dbPath = path.join(os.homedir(), '.claude-mem', 'claude-mem.db');
@@ -82,15 +89,7 @@ export async function runClaudeMemImport(opts?: { ijfwMemoryDir?: string }): Pro
 
   const result: ClaudeMemImportResult = { imported: 0, skipped: 0, errors: [] };
 
-  // Check database exists.
-  try {
-    await fs.promises.access(dbPath);
-  } catch {
-    result.errors.push(`~/.claude-mem/claude-mem.db not found`);
-    return result;
-  }
-
-  // Ensure target directory exists.
+  // Ensure target directory exists (shared by both sources).
   try {
     await fs.promises.mkdir(memDir, { recursive: true });
   } catch (err) {
@@ -98,12 +97,38 @@ export async function runClaudeMemImport(opts?: { ijfwMemoryDir?: string }): Pro
     return result;
   }
 
+  const dbPresent = await importFromClaudeMemDb(dbPath, memDir, result);
+  const projectsPresent = await importFromClaudeProjects(memDir, result);
+
+  if (!dbPresent && !projectsPresent && result.imported === 0) {
+    result.errors.push('No Claude memory found: ~/.claude-mem/claude-mem.db not found and no ~/.claude/projects/*/memory');
+  }
+
+  return result;
+}
+
+/**
+ * Import observation rows from the claude-mem SQLite database into `memDir`.
+ * Returns true when the database file exists (regardless of rows imported),
+ * false when it is absent, so the caller can tell whether the source was found.
+ */
+async function importFromClaudeMemDb(
+  dbPath: string,
+  memDir: string,
+  result: ClaudeMemImportResult
+): Promise<boolean> {
+  try {
+    await fs.promises.access(dbPath);
+  } catch {
+    return false;
+  }
+
   let db: Database.Database;
   try {
     db = new BetterSqlite3(dbPath, { readonly: true });
   } catch (err) {
     result.errors.push(`Failed to open claude-mem.db: ${String(err)}`);
-    return result;
+    return true;
   }
 
   try {
@@ -174,5 +199,89 @@ export async function runClaudeMemImport(opts?: { ijfwMemoryDir?: string }): Pro
     }
   }
 
-  return result;
+  return true;
+}
+
+/**
+ * Import native Claude Code project memory into `memDir`. Claude Code stores
+ * per-project memories at ~/.claude/projects/<project>/memory/*.md as markdown
+ * with frontmatter (the same shape IJFW uses), plus a human-facing MEMORY.md
+ * index that is skipped. Each frontmatter block becomes one deduped entry.
+ * Returns true when the ~/.claude/projects directory exists.
+ */
+async function importFromClaudeProjects(memDir: string, result: ClaudeMemImportResult): Promise<boolean> {
+  const projectsDir = path.join(os.homedir(), '.claude', 'projects');
+
+  let projectEntries: fs.Dirent[];
+  try {
+    projectEntries = await fs.promises.readdir(projectsDir, { withFileTypes: true });
+  } catch {
+    return false;
+  }
+
+  for (const projectEntry of projectEntries) {
+    if (!projectEntry.isDirectory()) continue;
+    const projectName = projectEntry.name;
+    const sourceMemDir = path.join(projectsDir, projectName, 'memory');
+
+    let mdFiles: string[];
+    try {
+      const entries = await fs.promises.readdir(sourceMemDir);
+      // MEMORY.md is the human index (no frontmatter blocks) - skip it.
+      mdFiles = entries.filter((n) => n.endsWith('.md') && n !== 'MEMORY.md');
+    } catch {
+      // No memory/ dir for this project - skip.
+      continue;
+    }
+
+    for (const mdFile of mdFiles) {
+      const filePath = path.join(sourceMemDir, mdFile);
+      try {
+        const content = await fs.promises.readFile(filePath, 'utf8');
+        const blocks = parseMarkdownBlocks(content);
+
+        for (const block of blocks) {
+          const fm = block.frontmatter;
+          const summaryRaw = typeof fm['summary'] === 'string' ? fm['summary'] : '';
+          const descRaw = typeof fm['description'] === 'string' ? fm['description'] : '';
+          const summary = summaryRaw || descRaw || block.body.split('\n')[0].replace(/^#+\s*/, '') || 'Untitled';
+
+          // Stable id from source + summary so re-imports dedupe.
+          const idSource = `${projectName}:${mdFile}:${summary.slice(0, 80)}`;
+          const id = crypto.createHash('sha1').update(idSource).digest('hex').slice(0, 12);
+          const destFile = path.join(memDir, `claude-project-${id}.md`);
+
+          // Dedupe: if file already exists, skip.
+          try {
+            await fs.promises.access(destFile);
+            result.skipped++;
+            continue;
+          } catch {
+            // File does not exist - proceed to write.
+          }
+
+          const rawTags = fm['tags'];
+          const tags: string[] = Array.isArray(rawTags) ? rawTags : typeof rawTags === 'string' && rawTags ? [rawTags] : [];
+          const typeRaw = typeof fm['type'] === 'string' ? fm['type'] : 'observation';
+
+          const frontmatter = buildFrontmatter({
+            type: typeRaw,
+            summary: summary.replace(/[\r\n]+/g, ' ').slice(0, 200),
+            stored: new Date().toISOString(),
+            project: projectName,
+            tags,
+            source: 'claude-project',
+          });
+
+          await fs.promises.writeFile(destFile, `${frontmatter}\n${block.body}\n`, 'utf8');
+          result.imported++;
+        }
+      } catch (err) {
+        log.warn('[claudeMemImporter] failed to import project memory file', { filePath, err });
+        result.errors.push(`${filePath}: ${String(err)}`);
+      }
+    }
+  }
+
+  return true;
 }

@@ -91,4 +91,53 @@ describe('runClaudeMemImport', () => {
     expect(result).toHaveProperty('imported');
     expect(result).toHaveProperty('errors');
   });
+
+  // #165: native Claude Code project memory (~/.claude/projects/<p>/memory/*.md)
+  // must import even when the claude-mem SQLite db is absent.
+  it('imports native Claude Code project memory when the db is absent', async () => {
+    const memDir = makeTmp();
+    tmpDirs.push(memDir);
+
+    // Seed a native project memory file under the pinned home.
+    const projMemDir = path.join(mockHome, '.claude', 'projects', '-Users-x-dev-proj', 'memory');
+    fs.mkdirSync(projMemDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(projMemDir, 'a-fact.md'),
+      ['---', 'name: a-fact', 'description: A real thing worth remembering', 'type: project', '---', '', 'The body of the fact.'].join(
+        '\n',
+      ),
+      'utf8',
+    );
+    // MEMORY.md index must be skipped (no frontmatter blocks).
+    fs.writeFileSync(path.join(projMemDir, 'MEMORY.md'), '- [a-fact](a-fact.md) - hook\n', 'utf8');
+
+    const result = await runClaudeMemImport({ ijfwMemoryDir: memDir });
+
+    expect(result.imported).toBe(1);
+    const written = fs.readdirSync(memDir).filter((n) => n.startsWith('claude-project-'));
+    expect(written).toHaveLength(1);
+    const body = fs.readFileSync(path.join(memDir, written[0]), 'utf8');
+    expect(body).toContain('source: claude-project');
+    expect(body).toContain('The body of the fact.');
+  });
+
+  it('dedupes native project memory on re-import', async () => {
+    const memDir = makeTmp();
+    tmpDirs.push(memDir);
+
+    const projMemDir = path.join(mockHome, '.claude', 'projects', '-Users-x-dev-proj', 'memory');
+    fs.mkdirSync(projMemDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(projMemDir, 'a-fact.md'),
+      ['---', 'description: A real thing', '---', '', 'Body.'].join('\n'),
+      'utf8',
+    );
+
+    const first = await runClaudeMemImport({ ijfwMemoryDir: memDir });
+    expect(first.imported).toBe(1);
+
+    const second = await runClaudeMemImport({ ijfwMemoryDir: memDir });
+    expect(second.imported).toBe(0);
+    expect(second.skipped).toBe(1);
+  });
 });
