@@ -7,7 +7,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Tabs } from '@arco-design/web-react';
-import { Clock, Gauge, RefreshCw, Users } from 'lucide-react';
+import { Clock, Gauge, PictureInPicture2, RefreshCw, Users } from 'lucide-react';
+import { ipcBridge } from '@/common';
+import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
 import { useMissionControl } from './useMissionControl';
 import { CostTab } from './cost/CostTab';
 import PageShell from '@/renderer/components/layout/PageShell';
@@ -169,8 +171,17 @@ const OperationsView: React.FC = () => {
   const { t } = useTranslation();
   const { snapshot, loading, refresh } = useMissionControl();
   const entries = snapshot?.entries ?? [];
-  const counts: LedgerCounts =
-    snapshot?.counts ?? { running: 0, verifying: 0, pending: 0, blocked: 0, failed: 0, zombie: 0, done: 0, idle: 0, total: 0 };
+  const counts: LedgerCounts = snapshot?.counts ?? {
+    running: 0,
+    verifying: 0,
+    pending: 0,
+    blocked: 0,
+    failed: 0,
+    zombie: 0,
+    done: 0,
+    idle: 0,
+    total: 0,
+  };
 
   return (
     <>
@@ -212,6 +223,22 @@ const OperationsView: React.FC = () => {
 
 const MissionControlPage: React.FC = () => {
   const { t } = useTranslation();
+  const isPopout = useIsPopoutMode();
+
+  // Hide the pop-out trigger when this page is itself rendered inside a pop-out
+  // window - there is nothing to pop out into from there (#157).
+  const actions = isPopout ? undefined : (
+    <Button
+      type='text'
+      size='small'
+      icon={<PictureInPicture2 size={16} />}
+      aria-label={t('missionControl.popout')}
+      title={t('missionControl.popout')}
+      onClick={() => {
+        void ipcBridge.application.popoutRoute.invoke({ route: 'mission-control' });
+      }}
+    />
+  );
 
   return (
     <PageShell
@@ -219,6 +246,7 @@ const MissionControlPage: React.FC = () => {
       icon={<Gauge size={20} />}
       subtitle={t('missionControl.description')}
       width='full'
+      actions={actions}
     >
       <Tabs defaultActiveTab='operations' className={styles.tabs}>
         <Tabs.TabPane key='operations' title={t('missionControl.tabs.operations')}>

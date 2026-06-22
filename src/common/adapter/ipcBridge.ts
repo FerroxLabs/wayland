@@ -231,6 +231,11 @@ export const application = {
   updateSystemInfo: buildProvider<IBridgeResponse, { cacheDir: string; workDir: string }>('system.update-info'), // Update system info
   getZoomFactor: buildProvider<number, void>('app.get-zoom-factor'),
   setZoomFactor: buildProvider<number, { factor: number }>('app.set-zoom-factor'),
+  // Pop a main destination (e.g. Mission Control) out into its own window, reusing
+  // the conversation pop-out window infrastructure. `route` is validated against an
+  // allowlist in the main process. Returns alreadyOpen:true when an existing
+  // pop-out of the same route was focused instead of a new one created (#157).
+  popoutRoute: buildProvider<{ ok: boolean; alreadyOpen: boolean }, { route: string }>('app.popout-route'),
   // CDP (Chrome DevTools Protocol) management
   getCdpStatus: buildProvider<IBridgeResponse<ICdpStatus>, void>('app.get-cdp-status'), // Get CDP status
   updateCdpConfig: buildProvider<IBridgeResponse<ICdpConfig>, Partial<ICdpConfig>>('app.update-cdp-config'), // Update CDP config

@@ -1608,6 +1608,7 @@ export type I18nKey =
   | 'missionControl.meta.verdictFail'
   | 'missionControl.meta.verdictPass'
   | 'missionControl.pageTitle'
+  | 'missionControl.popout'
   | 'missionControl.refresh'
   | 'missionControl.section.active'
   | 'missionControl.section.attention'

@@ -5,12 +5,14 @@
  */
 
 /**
- * Pop-out chat window manager (#27 phase 2).
+ * Pop-out window manager (#27 phase 2; #157 route pop-outs).
  *
- * Opens a single conversation in its own OS BrowserWindow for multi-monitor
- * work. The window loads the SAME renderer entry as the main window, deep-linked
- * to `#/conversation/<id>?mode=popout` so the renderer hides the sider / tab bar
- * and runs as a focused standalone surface.
+ * Opens a single conversation - or an allowlisted top-level route such as
+ * Mission Control - in its own OS BrowserWindow for multi-monitor work. The
+ * window loads the SAME renderer entry as the main window, deep-linked with
+ * `?mode=popout` (e.g. `#/conversation/<id>?mode=popout` or
+ * `#/mission-control?mode=popout`) so the renderer hides the sider / tab bar and
+ * runs as a focused standalone surface.
  *
  * Live agent streams need NO new plumbing: each pop-out registers via
  * `initMainAdapterWithWindow`, and `common/adapter/main.ts` already broadcasts
@@ -38,6 +40,12 @@ import { ipcBridge } from '@/common';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { initMainAdapterWithWindow } from '@/common/adapter/main';
 import { resolvePopoutAction, resolvePopoutBounds, type PopoutBounds } from '@process/utils/popoutBounds';
+import {
+  isAllowedPopoutRoute,
+  routePopoutHash,
+  routePopoutKey,
+  routePopoutLoadFileHash,
+} from '@process/utils/popoutRoutes';
 
 /**
  * Registry of live pop-out windows keyed by conversation id. Window instances
@@ -103,8 +111,54 @@ function schedulePersistBounds(win: BrowserWindow): void {
  * when an existing window was focused instead of a new one created.
  */
 export async function openPopoutWindow(conversationId: string): Promise<{ ok: boolean; alreadyOpen: boolean }> {
-  if (resolvePopoutAction(popouts, conversationId) === 'focus') {
-    const existing = popouts.get(conversationId)!;
+  return openPopout({
+    key: conversationId,
+    deepLink: `#/conversation/${encodeURIComponent(conversationId)}?mode=popout`,
+    loadFileHash: `/conversation/${encodeURIComponent(conversationId)}?mode=popout`,
+    // Conversation pop-outs notify all windows on close so the main-window tab
+    // un-dims its placeholder. Route pop-outs have no such placeholder.
+    onClosed: () => {
+      try {
+        ipcBridge.conversation.popoutClosed.emit({ conversation_id: conversationId });
+      } catch (err) {
+        console.warn('[Popout] Failed to emit popoutClosed:', err);
+      }
+    },
+  });
+}
+
+/**
+ * Open (or focus) a pop-out window for an allowlisted top-level route (e.g.
+ * Mission Control), reusing the conversation pop-out window infrastructure
+ * (#157). Rejects any route not on the allowlist - `route` is renderer-supplied.
+ */
+export async function openRoutePopoutWindow(route: string): Promise<{ ok: boolean; alreadyOpen: boolean }> {
+  if (!isAllowedPopoutRoute(route)) {
+    console.warn('[Popout] Rejected non-allowlisted route pop-out:', route);
+    return { ok: false, alreadyOpen: false };
+  }
+  return openPopout({
+    key: routePopoutKey(route),
+    deepLink: routePopoutHash(route),
+    loadFileHash: routePopoutLoadFileHash(route),
+  });
+}
+
+/**
+ * Shared pop-out window creation, keyed by an arbitrary registry key. Dedupes
+ * (focuses an existing live window), creates a chrome-less BrowserWindow loading
+ * `deepLink`, registers it for live bridge streams, and persists shared geometry.
+ * `onClosed` runs after the window closes (in addition to registry cleanup).
+ */
+async function openPopout(opts: {
+  key: string;
+  deepLink: string;
+  loadFileHash: string;
+  onClosed?: () => void;
+}): Promise<{ ok: boolean; alreadyOpen: boolean }> {
+  const { key, deepLink, loadFileHash, onClosed } = opts;
+  if (resolvePopoutAction(popouts, key) === 'focus') {
+    const existing = popouts.get(key)!;
     if (existing.isMinimized()) existing.restore();
     existing.show();
     existing.focus();
@@ -184,7 +238,7 @@ export async function openPopoutWindow(conversationId: string): Promise<{ ok: bo
   // Register with the bridge so live streams reach this window.
   initMainAdapterWithWindow(win);
 
-  popouts.set(conversationId, win);
+  popouts.set(key, win);
 
   win.once('ready-to-show', () => {
     if (!win.isDestroyed()) {
@@ -204,23 +258,17 @@ export async function openPopoutWindow(conversationId: string): Promise<{ ok: bo
   win.on('move', () => schedulePersistBounds(win));
 
   win.on('closed', () => {
-    popouts.delete(conversationId);
-    // Notify ALL windows so the main window un-dims its placeholder tab. Closing
-    // by any path (dock-back, OS close, app quit) funnels through here.
-    try {
-      ipcBridge.conversation.popoutClosed.emit({ conversation_id: conversationId });
-    } catch (err) {
-      console.warn('[Popout] Failed to emit popoutClosed:', err);
-    }
+    popouts.delete(key);
+    // Closing by any path (dock-back, OS close, app quit) funnels through here.
+    if (onClosed) onClosed();
   });
 
-  loadPopoutContent(win, conversationId);
+  loadPopoutContent(win, deepLink, loadFileHash);
 
   return { ok: true, alreadyOpen: false };
 }
 
-function loadPopoutContent(win: BrowserWindow, conversationId: string): void {
-  const deepLink = `#/conversation/${encodeURIComponent(conversationId)}?mode=popout`;
+function loadPopoutContent(win: BrowserWindow, deepLink: string, loadFileHash: string): void {
   const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
   if (!app.isPackaged && rendererUrl) {
     win.loadURL(`${rendererUrl}/${deepLink}`).catch((error) => {
@@ -228,11 +276,9 @@ function loadPopoutContent(win: BrowserWindow, conversationId: string): void {
     });
   } else {
     const fallbackFile = path.join(__dirname, '../renderer/index.html');
-    win
-      .loadFile(fallbackFile, { hash: `/conversation/${encodeURIComponent(conversationId)}?mode=popout` })
-      .catch((error) => {
-        console.error('[Popout] loadFile failed:', error);
-      });
+    win.loadFile(fallbackFile, { hash: loadFileHash }).catch((error) => {
+      console.error('[Popout] loadFile failed:', error);
+    });
   }
 }
 

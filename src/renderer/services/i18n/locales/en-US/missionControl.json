@@ -3,6 +3,7 @@
   "pageTitle": "Mission Control",
   "description": "Every task and scheduled job across your teams, live in one place.",
   "refresh": "Refresh",
+  "popout": "Open in new window",
   "live": "Live",
   "empty": "All quiet",
   "emptyHint": "Team tasks and scheduled jobs appear here the moment they start.",
