@@ -45,6 +45,7 @@ describe('applicationBridge CDP functionality', () => {
         relaunch: vi.fn(),
         exit: vi.fn(),
       },
+      ipcMain: { handle: vi.fn(), on: vi.fn(), removeHandler: vi.fn() },
     }));
 
     // Mock fs
@@ -133,6 +134,7 @@ function mockElectronApp(extra?: Record<string, any>) {
       commandLine: { appendSwitch: vi.fn() },
       ...extra,
     },
+    ipcMain: { handle: vi.fn(), on: vi.fn(), removeHandler: vi.fn() },
   };
 }
 
@@ -239,6 +241,7 @@ describe('CDP configuration functions', () => {
           openDevTools: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           getZoomFactor: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           setZoomFactor: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
+          popoutRoute: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           getCdpStatus: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           updateCdpConfig: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           getStartOnBootStatus: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },

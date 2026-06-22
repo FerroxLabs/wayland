@@ -33,6 +33,7 @@ describe('applicationBridge start-on-boot helpers', () => {
       ipcBridge: {
         application: {
           restart: { provider: vi.fn() },
+          popoutRoute: { provider: vi.fn() },
           isDevToolsOpened: { provider: vi.fn() },
           openDevTools: { provider: vi.fn() },
           getZoomFactor: { provider: vi.fn() },
@@ -71,6 +72,13 @@ describe('applicationBridge start-on-boot helpers', () => {
 
     vi.doMock('@process/bridge/applicationBridgeCore', () => ({
       initApplicationBridgeCore: vi.fn(),
+    }));
+
+    // applicationBridge now imports the popout manager, which loads the main IPC
+    // adapter at module scope (ipcMain.handle). These start-on-boot tests don't
+    // exercise popout, so stub the module to keep the import side-effect-free.
+    vi.doMock('@process/utils/popoutWindowManager', () => ({
+      openRoutePopoutWindow: vi.fn(),
     }));
   };
 
@@ -195,6 +203,7 @@ describe('applicationBridge start-on-boot helpers', () => {
         getLoginItemSettings: vi.fn(),
         setLoginItemSettings: vi.fn(),
       },
+      ipcMain: { handle: vi.fn(), on: vi.fn(), removeHandler: vi.fn() },
     }));
 
     const { getStartOnBootStatus } = await import('@process/bridge/applicationBridge');
@@ -233,6 +242,7 @@ describe('applicationBridge start-on-boot helpers', () => {
       ipcBridge: {
         application: {
           restart: { provider: vi.fn() },
+          popoutRoute: { provider: vi.fn() },
           isDevToolsOpened: { provider: vi.fn() },
           openDevTools: { provider: vi.fn() },
           getZoomFactor: { provider: vi.fn() },
@@ -287,6 +297,7 @@ describe('applicationBridge start-on-boot helpers', () => {
         getLoginItemSettings: vi.fn(() => ({ openAtLogin: true, wasOpenedAtLogin: true })),
         setLoginItemSettings: vi.fn(),
       },
+      ipcMain: { handle: vi.fn(), on: vi.fn(), removeHandler: vi.fn() },
     }));
 
     const { initApplicationBridge } = await import('@process/bridge/applicationBridge');
@@ -319,6 +330,7 @@ describe('applicationBridge start-on-boot helpers', () => {
       ipcBridge: {
         application: {
           restart: { provider: vi.fn() },
+          popoutRoute: { provider: vi.fn() },
           isDevToolsOpened: { provider: vi.fn() },
           openDevTools: { provider: vi.fn() },
           getZoomFactor: { provider: vi.fn() },
@@ -369,6 +381,7 @@ describe('applicationBridge start-on-boot helpers', () => {
         getLoginItemSettings: vi.fn(),
         setLoginItemSettings: vi.fn(),
       },
+      ipcMain: { handle: vi.fn(), on: vi.fn(), removeHandler: vi.fn() },
     }));
 
     const { initApplicationBridge } = await import('@process/bridge/applicationBridge');
