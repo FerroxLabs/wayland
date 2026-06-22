@@ -32,7 +32,7 @@ import { requireSecureConfigWrite } from './configWriteGuards';
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
 import { readSourceFiles } from '@process/bridge/projectBridge';
-import { hasUsableModel, oneShotComplete, pickBestModel } from '@process/services/completion/oneShot';
+import { hasUsableModel, oneShotCompleteBest } from '@process/services/completion/oneShot';
 
 type DraftKind = 'context' | 'rules';
 
@@ -47,7 +47,12 @@ interface DraftRequestBody {
   constraints?: string;
 }
 
-type DraftResponse = { draft: string; error?: 'no-model' | 'failed' };
+// `detail` mirrors the IPC path (#221): the real provider cause (e.g. "401:
+// invalid api key", "Provider returned HTTP 502 (non-JSON response)") so
+// headless WebUI users see WHY a draft failed, not a dead-end "failed" (#238).
+// It carries only provider/HTTP error text — never file paths (readSourceFiles
+// fails closed and never throws a path), so the no-exfiltration invariant holds.
+type DraftResponse = { draft: string; error?: 'no-model' | 'failed'; detail?: string };
 
 function bodyString(value: unknown): string {
   return typeof value === 'string' ? value : '';
@@ -116,12 +121,9 @@ export async function generateKnowledgeDraftLogic(params: {
   constraints?: string;
 }): Promise<DraftResponse> {
   try {
-    if (!hasUsableModel()) return { draft: '', error: 'no-model' };
-    const model = await pickBestModel();
-    if (!model) return { draft: '', error: 'no-model' };
+    if (!(await hasUsableModel())) return { draft: '', error: 'no-model' };
     // readSourceFiles calls confinePath on every path — this is the security gate.
-    const sourceFiles =
-      params.filePaths && params.filePaths.length > 0 ? await readSourceFiles(params.filePaths) : '';
+    const sourceFiles = params.filePaths && params.filePaths.length > 0 ? await readSourceFiles(params.filePaths) : '';
     const prompt = buildDraftPrompt({
       name: params.name,
       description: params.description,
@@ -132,7 +134,9 @@ export async function generateKnowledgeDraftLogic(params: {
       audience: params.audience,
       constraints: params.constraints,
     });
-    const raw = await oneShotComplete(prompt, { model, maxTokens: 1200, timeoutMs: 90_000 });
+    // Tries each usable provider in ranked order so one broken "best" provider
+    // doesn't hard-fail the draft (#244/#248).
+    const raw = await oneShotCompleteBest(prompt, { maxTokens: 1200, timeoutMs: 90_000 });
     const draft = raw
       .replace(/^```(?:markdown|md)?\s*\n?/i, '')
       .replace(/\n?```\s*$/i, '')
@@ -141,7 +145,9 @@ export async function generateKnowledgeDraftLogic(params: {
   } catch (err) {
     console.error('[projectKnowledgeDraftRoutes] generateKnowledgeDraftLogic failed:', err);
     const msg = err instanceof Error ? err.message : '';
-    return { draft: '', error: msg === 'no-usable-model' ? 'no-model' : 'failed' };
+    if (msg === 'no-usable-model') return { draft: '', error: 'no-model' };
+    // Surface the real cause to headless users (parity with the IPC path, #238).
+    return { draft: '', error: 'failed', detail: msg || undefined };
   }
 }
 

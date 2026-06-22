@@ -27,15 +27,13 @@ const {
   mockAppendAudit,
   mockReadSourceFiles,
   mockHasUsableModel,
-  mockPickBestModel,
-  mockOneShotComplete,
+  mockOneShotCompleteBest,
 } = vi.hoisted(() => ({
   mockRequireSecureConfigWrite: vi.fn((_req: Request, _res: Response) => true as boolean),
   mockAppendAudit: vi.fn(() => Promise.resolve(true)),
   mockReadSourceFiles: vi.fn(async (_paths: string[]) => ''),
-  mockHasUsableModel: vi.fn(() => true as boolean),
-  mockPickBestModel: vi.fn(async () => 'gpt-4o' as string | null),
-  mockOneShotComplete: vi.fn(async (_prompt: string) => 'DRAFT_OUTPUT'),
+  mockHasUsableModel: vi.fn(async () => true as boolean),
+  mockOneShotCompleteBest: vi.fn(async (_prompt: string) => 'DRAFT_OUTPUT'),
 }));
 
 vi.mock('@process/webserver/routes/configWriteGuards', () => ({
@@ -53,8 +51,7 @@ vi.mock('@process/bridge/projectBridge', () => ({
 
 vi.mock('@process/services/completion/oneShot', () => ({
   hasUsableModel: mockHasUsableModel,
-  pickBestModel: mockPickBestModel,
-  oneShotComplete: mockOneShotComplete,
+  oneShotCompleteBest: mockOneShotCompleteBest,
 }));
 
 vi.mock('@process/webserver/middleware/security', () => ({
@@ -96,9 +93,8 @@ function makeReq(body: Record<string, unknown> = {}): Request {
 describe('generateKnowledgeDraftLogic', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockHasUsableModel.mockReturnValue(true);
-    mockPickBestModel.mockResolvedValue('gpt-4o');
-    mockOneShotComplete.mockResolvedValue('DRAFT_OUTPUT');
+    mockHasUsableModel.mockResolvedValue(true);
+    mockOneShotCompleteBest.mockResolvedValue('DRAFT_OUTPUT');
     mockReadSourceFiles.mockResolvedValue('');
   });
 
@@ -109,24 +105,29 @@ describe('generateKnowledgeDraftLogic', () => {
   });
 
   it('returns { error: "no-model" } when hasUsableModel is false', async () => {
-    mockHasUsableModel.mockReturnValue(false);
+    mockHasUsableModel.mockResolvedValue(false);
     const { generateKnowledgeDraftLogic } = await import('@process/webserver/routes/projectKnowledgeDraftRoutes');
     const result = await generateKnowledgeDraftLogic({ kind: 'context' });
     expect(result).toEqual({ draft: '', error: 'no-model' });
   });
 
-  it('returns { error: "no-model" } when pickBestModel returns null', async () => {
-    mockPickBestModel.mockResolvedValue(null);
+  it('maps a thrown "no-usable-model" to { error: "no-model" } with no leaked detail', async () => {
+    mockOneShotCompleteBest.mockRejectedValue(new Error('no-usable-model'));
     const { generateKnowledgeDraftLogic } = await import('@process/webserver/routes/projectKnowledgeDraftRoutes');
     const result = await generateKnowledgeDraftLogic({ kind: 'rules' });
     expect(result).toEqual({ draft: '', error: 'no-model' });
+    expect(result.detail).toBeUndefined();
   });
 
-  it('returns { error: "failed" } when oneShotComplete throws', async () => {
-    mockOneShotComplete.mockRejectedValue(new Error('timeout'));
+  it('returns { error: "failed", detail } surfacing the real provider cause (#238 parity)', async () => {
+    mockOneShotCompleteBest.mockRejectedValue(new Error('Provider returned HTTP 502 (non-JSON response)'));
     const { generateKnowledgeDraftLogic } = await import('@process/webserver/routes/projectKnowledgeDraftRoutes');
     const result = await generateKnowledgeDraftLogic({ kind: 'context' });
-    expect(result).toEqual({ draft: '', error: 'failed' });
+    expect(result).toEqual({
+      draft: '',
+      error: 'failed',
+      detail: 'Provider returned HTTP 502 (non-JSON response)',
+    });
   });
 
   it('calls readSourceFiles with the supplied filePaths', async () => {
@@ -142,7 +143,7 @@ describe('generateKnowledgeDraftLogic', () => {
       // readSourceFiles (which calls confinePath internally) returns '' for a
       // rejected path. We simulate that here.
       mockReadSourceFiles.mockResolvedValue('');
-      mockOneShotComplete.mockResolvedValue('safe draft only');
+      mockOneShotCompleteBest.mockResolvedValue('safe draft only');
       const { generateKnowledgeDraftLogic } = await import('@process/webserver/routes/projectKnowledgeDraftRoutes');
       const result = await generateKnowledgeDraftLogic({ kind: 'context', filePaths: ['/etc/passwd'] });
       expect(result.draft).not.toMatch(/passwd/i);
@@ -151,7 +152,7 @@ describe('generateKnowledgeDraftLogic', () => {
 
     it('does not echo the input file path in the returned draft', async () => {
       mockReadSourceFiles.mockResolvedValue('');
-      mockOneShotComplete.mockResolvedValue('clean draft');
+      mockOneShotCompleteBest.mockResolvedValue('clean draft');
       const { generateKnowledgeDraftLogic } = await import('@process/webserver/routes/projectKnowledgeDraftRoutes');
       const result = await generateKnowledgeDraftLogic({
         kind: 'context',
@@ -171,9 +172,8 @@ describe('POST /api/projects/generate-knowledge-draft (route)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRequireSecureConfigWrite.mockReturnValue(true);
-    mockHasUsableModel.mockReturnValue(true);
-    mockPickBestModel.mockResolvedValue('gpt-4o');
-    mockOneShotComplete.mockResolvedValue('DRAFT_OUTPUT');
+    mockHasUsableModel.mockResolvedValue(true);
+    mockOneShotCompleteBest.mockResolvedValue('DRAFT_OUTPUT');
     mockReadSourceFiles.mockResolvedValue('');
   });
 
@@ -199,10 +199,8 @@ describe('POST /api/projects/generate-knowledge-draft (route)', () => {
     const res = mockRes();
     const req = makeReq({ kind: 'context' });
     denyAuth(req, res, vi.fn());
-    expect((res.status as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(401);
-    expect((res.json as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
-      expect.objectContaining({ success: false })
-    );
+    expect(res.status as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(401);
+    expect(res.json as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
 
   it('returns early when requireSecureConfigWrite returns false', async () => {
@@ -215,24 +213,22 @@ describe('POST /api/projects/generate-knowledge-draft (route)', () => {
     await handler(makeReq({ kind: 'context' }), res, vi.fn());
     expect(mockRequireSecureConfigWrite).toHaveBeenCalled();
     // Business logic must NOT run after the guard writes the 403.
-    expect(mockPickBestModel).not.toHaveBeenCalled();
+    expect(mockOneShotCompleteBest).not.toHaveBeenCalled();
   });
 
   it('returns 400 for a missing or invalid kind', async () => {
     const handler = getHandler(passThroughAuth);
     const res = mockRes();
     await handler(makeReq({ kind: 'invalid' }), res, vi.fn());
-    expect((res.status as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(400);
-    expect((res.json as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
-      expect.objectContaining({ success: false })
-    );
+    expect(res.status as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(400);
+    expect(res.json as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
 
   it('accepts a valid request and returns { success: true, data: { draft } }', async () => {
     const handler = getHandler(passThroughAuth);
     const res = mockRes();
     await handler(makeReq({ kind: 'context', name: 'My project' }), res, vi.fn());
-    expect((res.json as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
+    expect(res.json as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(
       expect.objectContaining({
         success: true,
         data: expect.objectContaining({ draft: 'DRAFT_OUTPUT' }),
@@ -241,11 +237,11 @@ describe('POST /api/projects/generate-knowledge-draft (route)', () => {
   });
 
   it('returns { error: "no-model" } when no model is available', async () => {
-    mockHasUsableModel.mockReturnValue(false);
+    mockHasUsableModel.mockResolvedValue(false);
     const handler = getHandler(passThroughAuth);
     const res = mockRes();
     await handler(makeReq({ kind: 'rules' }), res, vi.fn());
-    expect((res.json as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
+    expect(res.json as ReturnType<typeof vi.fn>).toHaveBeenCalledWith(
       expect.objectContaining({
         success: true,
         data: expect.objectContaining({ error: 'no-model' }),
@@ -264,7 +260,7 @@ describe('POST /api/projects/generate-knowledge-draft (route)', () => {
 
   it('does not echo filePaths in the HTTP response', async () => {
     mockReadSourceFiles.mockResolvedValue('');
-    mockOneShotComplete.mockResolvedValue('clean draft');
+    mockOneShotCompleteBest.mockResolvedValue('clean draft');
     const handler = getHandler(passThroughAuth);
     const res = mockRes();
     await handler(makeReq({ kind: 'context', filePaths: ['/etc/passwd'] }), res, vi.fn());

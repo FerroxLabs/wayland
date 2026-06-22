@@ -117,22 +117,26 @@ export async function pickCheapestFastModel(): Promise<PickedModel | null> {
 }
 
 /**
- * Pick the most capable model the user has a usable key for (for high-stakes,
- * rarely-run drafting like the knowledge wizard). Prefers known flagships by
- * name; when none match, de-prioritizes the obviously-cheap/fast models so a
- * more capable default wins.
+ * All usable models the user has a key for, ranked most-capable first. Prefers
+ * known flagships by name; when none match, de-prioritizes the obviously
+ * cheap/fast models so a more capable default wins. Used for high-stakes,
+ * rarely-run drafting (the knowledge/instructions wizard).
  */
-export async function pickBestModel(): Promise<PickedModel | null> {
+export async function rankedBestModels(): Promise<PickedModel[]> {
   const providers = await getMergedModelProviders();
   const candidates = usableModels(providers);
-  if (candidates.length === 0) return null;
   candidates.sort((a, b) => {
     const rb = bestRank(b.modelId);
     const ra = bestRank(a.modelId);
     if (ra !== rb) return ra - rb; // known flagship first
     return fastRank(b.modelId) - fastRank(a.modelId); // tie: prefer the less-cheap (more capable) one
   });
-  return candidates[0];
+  return candidates;
+}
+
+/** Pick the single most capable model the user has a usable key for, or null. */
+export async function pickBestModel(): Promise<PickedModel | null> {
+  return (await rankedBestModels())[0] ?? null;
 }
 
 /** True if any configured model can be called (used to enable the UI affordance). */
@@ -153,6 +157,33 @@ const fetchWithTimeout = async (url: string, init: RequestInit, timeoutMs = FETC
 };
 
 const joinUrl = (base: string, suffix: string): string => `${base.replace(/\/+$/, '')}${suffix}`;
+
+/**
+ * Parse a provider's JSON response, surfacing a clean HTTP error for a non-2xx
+ * or non-JSON body (a Cloudflare/nginx 502, a 404 page, or an auth/login HTML
+ * redirect) instead of the cryptic `Unexpected token '<', "<html> <"...` that
+ * `res.json()` throws when it meets HTML. The status was previously read AFTER
+ * the parse, so a useful HTTP error surfaced as a JSON-parse crash (#244/#248).
+ */
+async function parseJsonResponse<T>(res: Response): Promise<T> {
+  const text = await res.text();
+  let data: T | undefined;
+  if (text) {
+    try {
+      data = JSON.parse(text) as T;
+    } catch {
+      data = undefined; // non-JSON body (HTML error/login page, plain text, …)
+    }
+  }
+  if (!res.ok) {
+    const message = (data as { error?: { message?: string } } | undefined)?.error?.message;
+    throw new Error(message ? `${res.status}: ${message}` : `Provider returned HTTP ${res.status} (non-JSON response)`);
+  }
+  if (data === undefined) {
+    throw new Error(`Provider returned a non-JSON response (HTTP ${res.status})`);
+  }
+  return data;
+}
 
 /**
  * Make a single completion call. Routes by endpoint host so a Claude/Gemini
@@ -194,8 +225,7 @@ export async function oneShotComplete(
       },
       timeoutMs
     );
-    const data = (await res.json()) as { content?: Array<{ text?: string }>; error?: { message?: string } };
-    if (!res.ok) throw new Error(`${res.status}: ${data.error?.message || 'request failed'}`);
+    const data = await parseJsonResponse<{ content?: Array<{ text?: string }> }>(res);
     return (data.content?.[0]?.text || '').trim();
   }
 
@@ -213,11 +243,9 @@ export async function oneShotComplete(
       },
       timeoutMs
     );
-    const data = (await res.json()) as {
+    const data = await parseJsonResponse<{
       candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-      error?: { message?: string };
-    };
-    if (!res.ok) throw new Error(`${res.status}: ${data.error?.message || 'request failed'}`);
+    }>(res);
     return (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
   }
 
@@ -235,10 +263,48 @@ export async function oneShotComplete(
     },
     timeoutMs
   );
-  const data = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-    error?: { message?: string };
-  };
-  if (!res.ok) throw new Error(`${res.status}: ${data.error?.message || 'request failed'}`);
+  const data = await parseJsonResponse<{ choices?: Array<{ message?: { content?: string } }> }>(res);
   return (data.choices?.[0]?.message?.content || '').trim();
+}
+
+/**
+ * Draft-grade completion that survives a misconfigured "best" provider.
+ *
+ * `pickBestModel()` ranks by model NAME with no health check, so a broken proxy
+ * whose model is named "…-opus"/"…-pro" can outrank a working key and make the
+ * whole draft hard-fail (#244/#248). This tries each usable provider in ranked
+ * order — one attempt per provider, since the failure mode is provider-level (a
+ * bad key, a wrong/down endpoint, an HTML error body) — returns the first
+ * success, falls back to Google-auth Gemini, and only throws the real provider
+ * error when every route fails. Used for the rare, high-stakes knowledge draft.
+ */
+export async function oneShotCompleteBest(
+  prompt: string,
+  opts?: { maxTokens?: number; timeoutMs?: number }
+): Promise<string> {
+  const ranked = await rankedBestModels();
+  // One attempt per distinct provider (the best-ranked model of each).
+  const attempts: PickedModel[] = [];
+  const seen = new Set<string>();
+  for (const candidate of ranked) {
+    if (seen.has(candidate.provider.id)) continue;
+    seen.add(candidate.provider.id);
+    attempts.push(candidate);
+  }
+  let lastErr: Error | null = null;
+  for (const model of attempts) {
+    try {
+      // Sequential by design: only try the next provider if this one fails.
+      // eslint-disable-next-line no-await-in-loop
+      return await oneShotComplete(prompt, { ...opts, model });
+    } catch (err) {
+      lastErr = err instanceof Error ? err : new Error(String(err));
+      // Fall through to the next provider rather than hard-failing on the top pick.
+    }
+  }
+  // No keyed provider worked (or none exist) — Google-auth Gemini is the last resort.
+  if (isGoogleAuthGeminiAvailable()) {
+    return googleAuthGeminiComplete(prompt, { maxTokens: opts?.maxTokens, timeoutMs: opts?.timeoutMs });
+  }
+  throw lastErr ?? new Error('no-usable-model');
 }

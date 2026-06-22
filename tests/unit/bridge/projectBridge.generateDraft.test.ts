@@ -43,18 +43,16 @@ vi.mock('@process/services/projectKnowledge/knowledge', () => ({
 vi.mock('@process/services/completion/oneShot', () => ({
   hasUsableModel: vi.fn(),
   oneShotComplete: vi.fn(),
-  pickBestModel: vi.fn(),
+  oneShotCompleteBest: vi.fn(),
 }));
 
 import { initProjectBridge } from '../../../src/process/bridge/projectBridge';
-import { oneShotComplete, pickBestModel } from '@process/services/completion/oneShot';
+import { oneShotCompleteBest } from '@process/services/completion/oneShot';
 
-const mockPick = vi.mocked(pickBestModel);
-const mockComplete = vi.mocked(oneShotComplete);
+// The draft handler delegates to oneShotCompleteBest, which internally ranks +
+// falls back across providers; the handler only maps its result/throw.
+const mockComplete = vi.mocked(oneShotCompleteBest);
 
-// A truthy model so the handler proceeds to oneShotComplete (shape is irrelevant:
-// oneShotComplete is mocked, so the real provider fields are never read).
-const A_MODEL = { provider: { apiKey: 'k' }, modelId: 'gpt-5' } as unknown as Awaited<ReturnType<typeof pickBestModel>>;
 const draftArgs = { kind: 'context' as const, description: 'a thing' };
 
 type DraftResult = { draft: string; error?: 'no-model' | 'failed'; detail?: string };
@@ -68,7 +66,6 @@ beforeEach(() => {
 
 describe('generateKnowledgeDraft error surfacing (#221)', () => {
   it('returns the underlying provider error as `detail` when generation fails', async () => {
-    mockPick.mockResolvedValue(A_MODEL);
     mockComplete.mockRejectedValue(new Error('401: invalid x-api-key'));
 
     const res = await runDraft();
@@ -79,7 +76,8 @@ describe('generateKnowledgeDraft error surfacing (#221)', () => {
   });
 
   it('maps a missing usable model to `no-model` with no leaked detail', async () => {
-    mockPick.mockResolvedValue(null);
+    // oneShotCompleteBest throws 'no-usable-model' when no provider can be called.
+    mockComplete.mockRejectedValue(new Error('no-usable-model'));
 
     const res = await runDraft();
 
@@ -88,7 +86,6 @@ describe('generateKnowledgeDraft error surfacing (#221)', () => {
   });
 
   it('returns the trimmed draft and no error on success', async () => {
-    mockPick.mockResolvedValue(A_MODEL);
     mockComplete.mockResolvedValue('# Draft\nHello');
 
     const res = await runDraft();

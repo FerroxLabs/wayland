@@ -19,7 +19,7 @@ import {
   appendProjectDecision,
   readProjectIjfwMemory,
 } from '@process/services/projectKnowledge/knowledge';
-import { hasUsableModel, oneShotComplete, pickBestModel } from '@process/services/completion/oneShot';
+import { hasUsableModel, oneShotComplete, oneShotCompleteBest } from '@process/services/completion/oneShot';
 
 /** Prompt the cheap model with a knowledge doc and ask for a single-sentence summary. */
 const SUMMARY_KIND_LABEL = { context: 'project instructions', rules: 'project rules', decisions: 'project decisions' };
@@ -240,8 +240,6 @@ export function initProjectBridge(): void {
       // High-stakes, rarely-run: use the best model the user has, not the cheap one.
       // Never reject - return a structured error so the wizard never hangs.
       try {
-        const model = await pickBestModel();
-        if (!model) return { draft: '', error: 'no-model' };
         const sourceFiles = filePaths && filePaths.length > 0 ? await readSourceFiles(filePaths) : '';
         const prompt = buildDraftPrompt({
           name,
@@ -255,7 +253,9 @@ export function initProjectBridge(): void {
         });
         // A 1200-token draft from a flagship/reasoning model can take well over the
         // cheap-summary timeout; give it room so it doesn't abort mid-generation.
-        const raw = await oneShotComplete(prompt, { model, maxTokens: 1200, timeoutMs: 90_000 });
+        // oneShotCompleteBest tries each usable provider in ranked order, so a single
+        // broken "best" provider no longer hard-fails the draft (#244/#248).
+        const raw = await oneShotCompleteBest(prompt, { maxTokens: 1200, timeoutMs: 90_000 });
         // Strip accidental wrapping code fences from a chatty model.
         const draft = raw
           .replace(/^```(?:markdown|md)?\s*\n?/i, '')
