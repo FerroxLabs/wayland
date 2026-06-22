@@ -41,9 +41,7 @@ function csrfHeaders(): Record<string, string> {
  * handler return shape so the wizard consumes it unchanged: `{ draft }` on
  * success or `{ draft: '', error }` on failure.
  */
-export async function generateKnowledgeDraftHttp(
-  params: GenerateKnowledgeDraftParams
-): Promise<KnowledgeDraftResult> {
+export async function generateKnowledgeDraftHttp(params: GenerateKnowledgeDraftParams): Promise<KnowledgeDraftResult> {
   try {
     const csrf = getCsrfToken();
     const res = await fetch('/api/projects/generate-knowledge-draft', {

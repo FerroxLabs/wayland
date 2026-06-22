@@ -124,7 +124,11 @@ const KnowledgeWizard: React.FC<{
       };
       // Desktop uses Electron IPC; headless/remote WebUI uses the token-authed
       // HTTP route (#234). Both return the same shape, including #221's `detail`.
-      const { draft: out, error, detail } = isElectronDesktop()
+      const {
+        draft: out,
+        error,
+        detail,
+      } = isElectronDesktop()
         ? await ipcBridge.project.generateKnowledgeDraft.invoke(params)
         : await generateKnowledgeDraftHttp(params);
       if (error) {
