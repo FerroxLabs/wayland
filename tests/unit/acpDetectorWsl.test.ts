@@ -33,6 +33,25 @@ vi.mock('@process/utils/safeExec', () => ({
   safeExecFile: (...args: unknown[]) => safeExecFileMock(...args),
 }));
 
+// The WSL-presence check (`wsl.exe -l -q`) goes through child_process.execSync,
+// a separate boundary from safeExec. Mock it so we control whether a distro is
+// reported and can assert it is memoized (called at most once).
+const execSyncMock = vi.fn();
+vi.mock('child_process', () => ({
+  execSync: (...args: unknown[]) => execSyncMock(...args),
+}));
+
+/** Make `wsl.exe -l -q` report one distro (WSL present) or none (absent). */
+function wslPresence(present: boolean) {
+  return (cmd: string): string => {
+    if (cmd === 'wsl.exe -l -q') {
+      if (present) return 'Ubuntu\n';
+      throw new Error('wsl.exe: no installed distributions');
+    }
+    throw new Error(`unexpected execSync: ${cmd}`);
+  };
+}
+
 vi.mock('@process/utils/shellEnv', () => ({
   getEnhancedEnv: () => ({ PATH: 'C:\\\\Windows\\\\System32' }),
 }));
@@ -87,6 +106,8 @@ describe('AcpDetector WSL fallback (#258)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     Object.defineProperty(process, 'platform', { value: 'win32' });
+    // Default: a WSL distro is present so the (a)/(b) probe paths run.
+    execSyncMock.mockImplementation(wslPresence(true));
   });
 
   afterEach(() => {
@@ -122,6 +143,10 @@ describe('AcpDetector WSL fallback (#258)', () => {
     expect(wslCall![1][3]).toContain("command -v 'hermes'");
     // claude was already found on Windows, so it must NOT be re-probed in WSL.
     expect(wslCall![1][3]).not.toContain("command -v 'claude'");
+
+    // The WSL-presence check is memoized: probed at most once for the batch.
+    const presenceCalls = execSyncMock.mock.calls.filter((c) => c[0] === 'wsl.exe -l -q');
+    expect(presenceCalls.length).toBeLessThanOrEqual(1);
   });
 
   it('(c) reports not-found and does not throw when WSL is unavailable', async () => {
@@ -136,5 +161,44 @@ describe('AcpDetector WSL fallback (#258)', () => {
     const agents = await detector.detectBuiltinAgents();
 
     expect(agents).toEqual([]); // none found, no throw
+  });
+
+  it('(d) skips all WSL command-v probes when no distro is present (sync path)', async () => {
+    // WSL-less box: presence check reports no distro.
+    execSyncMock.mockImplementation(wslPresence(false));
+
+    const detector = await freshDetector();
+    // The sync path is reached via isCliAvailable() (AgentRegistry startup path).
+    // None of these CLIs exist on the (mocked) Windows PATH or via PowerShell.
+    expect(detector.isCliAvailable('openclaw')).toBe(false);
+    expect(detector.isCliAvailable('nanobot')).toBe(false);
+
+    // No per-CLI WSL `command -v` spawn happened - this is the blocking
+    // spawn-storm the fix prevents.
+    const wslProbeCalls = execSyncMock.mock.calls.filter(
+      (c) => typeof c[0] === 'string' && c[0].includes('command -v')
+    );
+    expect(wslProbeCalls).toEqual([]);
+
+    // And the presence check is memoized across both CLI checks (at most once).
+    const presenceCalls = execSyncMock.mock.calls.filter((c) => c[0] === 'wsl.exe -l -q');
+    expect(presenceCalls.length).toBeLessThanOrEqual(1);
+  });
+
+  it('(e) still runs the per-CLI WSL probe when a distro IS present (sync path)', async () => {
+    // Presence present; the sync where/powershell fail, so it falls to the WSL probe.
+    execSyncMock.mockImplementation((cmd: string): string => {
+      if (cmd === 'wsl.exe -l -q') return 'Ubuntu\n';
+      if (cmd.includes('command -v')) return '/usr/bin/openclaw\n'; // found in WSL
+      throw new Error(`not found: ${cmd}`); // where / powershell miss
+    });
+
+    const detector = await freshDetector();
+    expect(detector.isCliAvailable('openclaw')).toBe(true);
+
+    const wslProbeCalls = execSyncMock.mock.calls.filter(
+      (c) => typeof c[0] === 'string' && c[0].includes("command -v 'openclaw'")
+    );
+    expect(wslProbeCalls.length).toBe(1);
   });
 });
