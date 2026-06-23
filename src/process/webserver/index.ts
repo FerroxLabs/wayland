@@ -255,6 +255,20 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
 
   // Create Express app and server
   const app = express();
+
+  // Trust proxy — required when running behind a reverse proxy (Traefik,
+  // nginx, etc.) so that rate limiters and `req.secure` correctly read
+  // X-Forwarded-For and X-Forwarded-Proto headers set by the proxy.
+  //   TRUST_PROXY=1   → trust the first hop (single proxy, most common)
+  //   TRUST_PROXY=N   → trust N hops
+  //   TRUST_PROXY     → trust all (equivalent to true)
+  //   unset           → trust none (Express default)
+  const trustProxy = process.env.TRUST_PROXY;
+  if (trustProxy !== undefined) {
+    const parsed = parseInt(trustProxy, 10);
+    app.set('trust proxy', isNaN(parsed) ? true : parsed);
+  }
+
   const server = createServer(app);
   // Use noServer mode so we can route WebSocket upgrades manually.
   // This lets us forward Vite HMR upgrades to the Vite dev server during
