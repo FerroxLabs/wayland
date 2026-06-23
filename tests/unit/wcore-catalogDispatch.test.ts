@@ -26,6 +26,12 @@ function providerArg(args: string[]): string | undefined {
   return i === -1 ? undefined : args[i + 1];
 }
 
+/** Read the value following `--base-url`. */
+function baseUrlArg(args: string[]): string | undefined {
+  const i = args.indexOf('--base-url');
+  return i === -1 ? undefined : args[i + 1];
+}
+
 /** True if a `--base-url` arg was pushed. */
 function hasBaseUrl(args: string[]): boolean {
   return args.includes('--base-url');
@@ -247,5 +253,68 @@ describe('buildSpawnConfig - engine-native provider routing (#177)', () => {
     // The bug: key landed in OPENAI_API_KEY -> api.openai.com -> 401. Never again.
     expect(env.OPENAI_API_KEY).toBeUndefined();
     expect(hasBaseUrl(args)).toBe(false);
+  });
+});
+
+/**
+ * #268 - Keyless LOCAL Ollama init. The auto-registered local Ollama provider is
+ * keyless by design (`autoRegisterOllama`: `creds.key = ''`, base URL
+ * `http://127.0.0.1:11434/v1`) and `ollama-local` is NOT a catalog/native id, so
+ * it routes through the generic `--provider openai` arm. Without a key the engine
+ * `bail!`s "No API key found" at init and the spawn exits 1 BEFORE `ready` -
+ * which the desktop surfaces as "wcore exited with code 1 during init". The CLI
+ * works only because `--profile ollama` carries `api_key = "ollama"`.
+ *
+ * The fix injects the same dummy placeholder for a keyless LOCAL endpoint, while
+ * leaving keyed and keyless-CLOUD endpoints unchanged.
+ */
+describe('buildSpawnConfig - keyless local Ollama (#268)', () => {
+  /** The model exactly as the legacy bridge mirrors an auto-registered local Ollama. */
+  function makeLocalOllamaModel(useModel = 'hermes3:8b'): TProviderWithModel {
+    return {
+      id: 'ollama-local-uuid',
+      platform: 'openai-compatible',
+      name: 'Ollama Local',
+      baseUrl: 'http://127.0.0.1:11434/v1',
+      apiKey: '',
+      useModel,
+      __waylandModelRegistryBridge: 'v2:ollama-local',
+    } as TProviderWithModel;
+  }
+
+  it('injects a placeholder OPENAI_API_KEY so the engine does not bail at init', () => {
+    const { env } = buildSpawnConfig(makeLocalOllamaModel(), OPTS);
+    // Non-empty key clears the engine's resolve_api_key gate. The local daemon
+    // ignores the Authorization header, so the exact value is irrelevant.
+    expect(env.OPENAI_API_KEY).toBe('ollama');
+  });
+
+  it('produces the SAME effective endpoint as the working `--profile ollama` CLI path', () => {
+    const { args } = buildSpawnConfig(makeLocalOllamaModel(), OPTS);
+    // mapProvider -> openai; stripTrailingV1 strips the persisted `/v1`, and the
+    // engine re-appends its default `/v1/chat/completions`. The CLI profile uses
+    // `base_url = "http://localhost:11434"` -> identical effective endpoint
+    // (`.../v1/chat/completions`), just a different loopback spelling.
+    expect(providerArg(args)).toBe('openai');
+    expect(baseUrlArg(args)).toBe('http://127.0.0.1:11434');
+    expect(args).toContain('--model');
+    expect(args[args.indexOf('--model') + 1]).toBe('hermes3:8b');
+  });
+
+  it('does NOT inject a placeholder for a keyless CLOUD openai endpoint (regression guard)', () => {
+    const model = makeNativeModel('openai', '');
+    model.baseUrl = 'https://api.openai.com/v1';
+    const { env } = buildSpawnConfig(model, OPTS);
+    // A missing key against a cloud host is a genuine misconfig - leave it to
+    // fail rather than silently masking it with a dummy bearer.
+    expect(env.OPENAI_API_KEY).toBeUndefined();
+  });
+
+  it('keeps a KEYED openai provider unchanged - the real key wins (regression guard)', () => {
+    const model = makeNativeModel('openai', 'sk-real');
+    model.baseUrl = 'http://127.0.0.1:11434/v1';
+    const { env } = buildSpawnConfig(model, OPTS);
+    // Even on a local host, a user-supplied key must never be replaced.
+    expect(env.OPENAI_API_KEY).toBe('sk-real');
   });
 });

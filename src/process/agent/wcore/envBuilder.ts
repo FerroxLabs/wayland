@@ -5,7 +5,7 @@
  */
 
 import type { TProviderWithModel } from '@/common/config/storage';
-import { isOpenAIHost } from '@/common/utils/urlValidation';
+import { isLocalBaseUrl, isOpenAIHost } from '@/common/utils/urlValidation';
 import { loadBaselineProviderCatalog } from '@process/providers/catalog/providerCatalogStore';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
@@ -194,6 +194,26 @@ function mapProvider(model: TProviderWithModel): WCoreProvider {
 const GEMINI_OPENAI_COMPAT_PATH = '/v1beta/openai';
 
 /**
+ * Dummy bearer token injected for a KEYLESS, LOCAL OpenAI-compatible backend
+ * (the local Ollama daemon being the canonical case, #268).
+ *
+ * Why this is load-bearing: the engine's `resolve_api_key` HARD-REQUIRES a key
+ * for the `openai` provider - with no `--api-key`, no `OPENAI_API_KEY`, and no
+ * OAuth it `bail!`s "No API key found", `bootstrap.build()` returns Err, and the
+ * spawned wcore exits 1 BEFORE emitting `ready`. The desktop then surfaces only
+ * "wcore exited with code 1 during init" (`index.ts`). The working CLI path uses
+ * `--profile ollama`, whose example config carries `api_key = "ollama"`, so the
+ * engine never reaches that bail - which is exactly why the CLI succeeds while
+ * the keyless desktop spawn fails on the same daemon.
+ *
+ * The local daemon ignores the Authorization header, so the value is irrelevant
+ * to the request; it only needs to be non-empty to clear the engine's key gate.
+ * Matches `LOCAL_KEYLESS_PLACEHOLDER` in `modelBridge.ts` (the legacy spawn path
+ * already injects the identical value for the same reason).
+ */
+const LOCAL_KEYLESS_PLACEHOLDER = 'ollama';
+
+/**
  * Default `--max-tokens` budget for reasoning-tier models when the caller
  * does not specify one.
  *
@@ -364,8 +384,16 @@ export function buildSpawnConfig(
       break;
 
     case 'openai': {
-      if (model.apiKey) env.OPENAI_API_KEY = model.apiKey;
       const baseUrl = resolveOpenAIBaseUrl(model);
+      // Keyless LOCAL backend (local Ollama, #268): the engine still demands a
+      // key for `--provider openai` or it bails at init, so inject the dummy
+      // placeholder (the local daemon ignores Authorization). A keyless CLOUD
+      // endpoint is a genuine misconfig and is left to fail as before.
+      if (model.apiKey) {
+        env.OPENAI_API_KEY = model.apiKey;
+      } else if (isLocalBaseUrl(baseUrl)) {
+        env.OPENAI_API_KEY = LOCAL_KEYLESS_PLACEHOLDER;
+      }
       if (baseUrl) args.push('--base-url', stripTrailingV1(baseUrl));
       break;
     }
