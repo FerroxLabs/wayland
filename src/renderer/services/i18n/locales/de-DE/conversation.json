@@ -233,6 +233,11 @@
       "permissionDenied": "Mikrofonberechtigung wurde verweigert",
       "recordingUnsupported": "Live-Aufnahme wird hier nicht unterstützt. Bitte stattdessen eine Audiodatei hochladen",
       "transcriptionFailed": "Audiotranskription fehlgeschlagen",
+      "authError": "Dein Sprachanbieter hat den Schlüssel abgelehnt. Überprüfe die Verbindung zum Anbieter, um die Spracheingabe zu nutzen",
+      "premiumLocked": "Flux Voice erfordert einen kostenpflichtigen Flux-Tarif. Führe ein Upgrade durch, um das Diktat zu nutzen",
+      "quota": "Das Kontingent oder Tariflimit deines Sprachanbieters wurde erreicht. Überprüfe dein Konto oder wechsle den Anbieter",
+      "providerDown": "Der Sprachanbieter ist vorübergehend nicht verfügbar. Bitte versuche es in Kürze erneut",
+      "rateLimited": "Zu viele Anfragen. Bitte versuche es in Kürze erneut",
       "genericError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen"
     }
   },

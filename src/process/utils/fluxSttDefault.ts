@@ -51,7 +51,7 @@ export function resolveFluxSttDefault(deps: FluxSttDefaultDeps): SpeechToTextCon
     enabled: current?.enabled ?? false,
     autoSend: current?.autoSend,
     provider: 'flux-voice',
-    openai: {
+    flux: {
       apiKey: fluxKey,
       baseUrl: FLUX_VOICE_BASE_URL,
       model: FLUX_VOICE_MODEL,

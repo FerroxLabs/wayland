@@ -21,6 +21,8 @@ export type SpeechInputErrorCode =
   | 'not-configured'
   | 'permission-denied'
   | 'premium-locked'
+  | 'provider-down'
+  | 'quota'
   | 'rate-limited'
   | 'recording-unsupported'
   | 'transcription-failed'
@@ -143,14 +145,23 @@ export const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
 
   const message = error instanceof Error ? error.message : String(error);
 
+  // Flux's paywalled-tier signal keeps its own renderer treatment (upgrade prompt).
   if (message.includes('STT_FLUX_PREMIUM_LOCKED')) {
     return 'premium-locked';
   }
-  if (message.includes('STT_FLUX_AUTH_ERROR')) {
+  // Shared taxonomy codes (every provider). The legacy STT_FLUX_* codes are kept
+  // so an in-flight error from an older build still maps correctly.
+  if (message.includes('STT_AUTH') || message.includes('STT_FLUX_AUTH_ERROR')) {
     return 'auth-error';
+  }
+  if (message.includes('STT_QUOTA')) {
+    return 'quota';
   }
   if (message.includes('STT_RATE_LIMITED')) {
     return 'rate-limited';
+  }
+  if (message.includes('STT_PROVIDER_DOWN')) {
+    return 'provider-down';
   }
   if (
     message.includes('STT_FLUX_NOT_CONFIGURED') ||
@@ -160,7 +171,7 @@ export const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
   ) {
     return 'not-configured';
   }
-  if (message.includes('STT_FILE_TOO_LARGE')) {
+  if (message.includes('STT_TOO_LARGE') || message.includes('STT_FILE_TOO_LARGE')) {
     return 'file-too-large';
   }
   if (message.includes('STT_NETWORK_ERROR')) {

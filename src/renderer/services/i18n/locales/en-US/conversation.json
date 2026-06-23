@@ -245,8 +245,10 @@
       "permissionDenied": "Microphone permission was denied",
       "recordingUnsupported": "Live recording is not supported here. Please upload an audio file instead",
       "transcriptionFailed": "Audio transcription failed",
-      "authError": "Flux key is invalid — reconnect Flux Router to use voice input",
+      "authError": "Your speech provider rejected the key. Check the provider connection to use voice input",
       "premiumLocked": "Flux Voice needs a paid Flux plan — upgrade to use dictation",
+      "quota": "Your speech provider's quota or plan limit was reached. Check your account or switch providers",
+      "providerDown": "The speech provider is temporarily unavailable. Please try again shortly",
       "rateLimited": "Too many requests — try again shortly",
       "genericError": "Voice input failed. Please try again"
     }

@@ -228,6 +228,11 @@
       "permissionDenied": "Mikrofon izni reddedildi",
       "recordingUnsupported": "Bu ortamda doğrudan kayıt desteklenmiyor. Lütfen bir ses dosyası yükleyin",
       "transcriptionFailed": "Ses yazıya dönüştürülemedi",
+      "authError": "Ses sağlayıcınız anahtarı reddetti. Sesli girişi kullanmak için sağlayıcı bağlantısını kontrol edin",
+      "premiumLocked": "Flux Voice ücretli bir Flux planı gerektirir. Dikteyi kullanmak için planınızı yükseltin",
+      "quota": "Ses sağlayıcınızın kotası veya plan sınırı doldu. Hesabınızı kontrol edin ya da sağlayıcı değiştirin",
+      "providerDown": "Ses sağlayıcı geçici olarak kullanılamıyor. Lütfen kısa süre içinde tekrar deneyin",
+      "rateLimited": "Çok fazla istek gönderildi. Lütfen kısa süre içinde tekrar deneyin",
       "genericError": "Sesli giriş başarısız oldu. Lütfen tekrar deneyin"
     }
   },

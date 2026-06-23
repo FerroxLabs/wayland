@@ -233,6 +233,11 @@
       "permissionDenied": "A permissão do microfone foi negada",
       "recordingUnsupported": "A gravação ao vivo não é compatível aqui. Em vez disso, envie um arquivo de áudio",
       "transcriptionFailed": "Falha na transcrição do áudio",
+      "authError": "Seu provedor de voz rejeitou a chave. Verifique a conexão com o provedor para usar a entrada de voz",
+      "premiumLocked": "O Flux Voice exige um plano pago do Flux. Faça upgrade para usar o ditado",
+      "quota": "A cota ou o limite do plano do seu provedor de voz foi atingido. Verifique sua conta ou troque de provedor",
+      "providerDown": "O provedor de voz está temporariamente indisponível. Tente novamente em breve",
+      "rateLimited": "Muitas solicitações. Tente novamente em breve",
       "genericError": "Falha na entrada de voz. Tente novamente"
     }
   },

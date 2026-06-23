@@ -233,6 +233,11 @@
       "permissionDenied": "L'autorisation d'accès au microphone a été refusée",
       "recordingUnsupported": "L'enregistrement en direct n'est pas pris en charge ici. Veuillez importer un fichier audio à la place",
       "transcriptionFailed": "Échec de la transcription de l'audio",
+      "authError": "Votre fournisseur vocal a rejeté la clé. Vérifiez la connexion au fournisseur pour utiliser la saisie vocale",
+      "premiumLocked": "Flux Voice nécessite un forfait Flux payant. Mettez à niveau pour utiliser la dictée",
+      "quota": "Le quota ou la limite du forfait de votre fournisseur vocal a été atteint. Vérifiez votre compte ou changez de fournisseur",
+      "providerDown": "Le fournisseur vocal est temporairement indisponible. Veuillez réessayer sous peu",
+      "rateLimited": "Trop de requêtes. Veuillez réessayer sous peu",
       "genericError": "Échec de la saisie vocale. Veuillez réessayer"
     }
   },

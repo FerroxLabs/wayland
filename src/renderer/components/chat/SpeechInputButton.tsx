@@ -72,6 +72,10 @@ export const getErrorMessageKey = (errorCode: SpeechInputErrorCode) => {
       return 'conversation.chat.speech.permissionDenied';
     case 'premium-locked':
       return 'conversation.chat.speech.premiumLocked';
+    case 'provider-down':
+      return 'conversation.chat.speech.providerDown';
+    case 'quota':
+      return 'conversation.chat.speech.quota';
     case 'rate-limited':
       return 'conversation.chat.speech.rateLimited';
     case 'recording-unsupported':

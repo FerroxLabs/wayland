@@ -233,6 +233,11 @@
       "permissionDenied": "Se denegó el permiso del micrófono",
       "recordingUnsupported": "La grabación en directo no es compatible aquí. Sube un archivo de audio en su lugar",
       "transcriptionFailed": "Error en la transcripción del audio",
+      "authError": "Tu proveedor de voz rechazó la clave. Comprueba la conexión con el proveedor para usar la entrada de voz",
+      "premiumLocked": "Flux Voice requiere un plan de pago de Flux. Mejora tu plan para usar el dictado",
+      "quota": "Se alcanzó la cuota o el límite del plan de tu proveedor de voz. Revisa tu cuenta o cambia de proveedor",
+      "providerDown": "El proveedor de voz no está disponible temporalmente. Vuelve a intentarlo en breve",
+      "rateLimited": "Demasiadas solicitudes. Inténtalo de nuevo en breve",
       "genericError": "La entrada de voz falló. Inténtalo de nuevo"
     }
   },

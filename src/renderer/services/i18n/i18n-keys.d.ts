@@ -357,6 +357,8 @@ export type I18nKey =
   | 'conversation.chat.speech.pickFileTooltip'
   | 'conversation.chat.speech.premiumLocked'
   | 'conversation.chat.speech.processing'
+  | 'conversation.chat.speech.providerDown'
+  | 'conversation.chat.speech.quota'
   | 'conversation.chat.speech.rateLimited'
   | 'conversation.chat.speech.recordTooltip'
   | 'conversation.chat.speech.recordingUnsupported'

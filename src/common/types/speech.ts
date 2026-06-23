@@ -25,6 +25,21 @@ export type DeepgramSpeechToTextConfig = {
   smartFormat?: boolean;
 };
 
+/**
+ * Flux Voice STT config. Mirrors the OpenAI-compatible transcription shape Flux
+ * Router exposes, but lives in its own block so the Flux key/model are scoped to
+ * Flux rather than sharing the `openai` config. For backward compatibility a key
+ * previously stored under `openai` still resolves (see SpeechToTextService).
+ */
+export type FluxSpeechToTextConfig = {
+  apiKey: string;
+  baseUrl?: string;
+  language?: string;
+  model: string;
+  prompt?: string;
+  temperature?: number;
+};
+
 export type WhisperLocalSpeechToTextConfig = {
   /** whisper.cpp model identifier, e.g. 'base', 'small'. The binary and model
    *  are acquired at runtime by VoiceAssetManager (task D2); absent until then. */
@@ -37,6 +52,7 @@ export type SpeechToTextConfig = {
   enabled: boolean;
   provider: SpeechToTextProvider;
   deepgram?: DeepgramSpeechToTextConfig;
+  flux?: FluxSpeechToTextConfig;
   openai?: OpenAISpeechToTextConfig;
   whisperLocal?: WhisperLocalSpeechToTextConfig;
 };

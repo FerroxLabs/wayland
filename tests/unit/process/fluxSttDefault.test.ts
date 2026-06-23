@@ -22,16 +22,16 @@ describe('resolveFluxSttDefault', () => {
     });
     expect(result).not.toBeNull();
     expect(result?.provider).toBe('flux-voice');
-    expect(result?.openai?.apiKey).toBe('sk-flux-test');
-    expect(result?.openai?.baseUrl).toBe('https://api.fluxrouter.ai/v1');
-    expect(result?.openai?.model).toBe('flux-voice');
+    expect(result?.flux?.apiKey).toBe('sk-flux-test');
+    expect(result?.flux?.baseUrl).toBe('https://api.fluxrouter.ai/v1');
+    expect(result?.flux?.model).toBe('flux-voice');
   });
 
   it('seeds Flux Voice when no config exists at all (first boot)', () => {
     const result = resolveFluxSttDefault({ current: undefined, fluxKey: 'sk-flux-test' });
     expect(result).not.toBeNull();
     expect(result?.provider).toBe('flux-voice');
-    expect(result?.openai?.apiKey).toBe('sk-flux-test');
+    expect(result?.flux?.apiKey).toBe('sk-flux-test');
   });
 
   it('preserves enabled/autoSend from the existing config', () => {

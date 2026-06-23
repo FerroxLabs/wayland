@@ -64,8 +64,24 @@ describe('mapSpeechInputError', () => {
     expect(mapSpeechInputError(new Error('STT_FLUX_PREMIUM_LOCKED'))).toBe('premium-locked');
   });
 
-  it('maps STT_FLUX_AUTH_ERROR to auth-error', () => {
+  it('maps the legacy STT_FLUX_AUTH_ERROR to auth-error (back-compat)', () => {
     expect(mapSpeechInputError(new Error('STT_FLUX_AUTH_ERROR'))).toBe('auth-error');
+  });
+
+  it('maps the shared STT_AUTH code to auth-error', () => {
+    expect(mapSpeechInputError(new Error('STT_AUTH'))).toBe('auth-error');
+  });
+
+  it('maps STT_QUOTA to quota', () => {
+    expect(mapSpeechInputError(new Error('STT_QUOTA'))).toBe('quota');
+  });
+
+  it('maps STT_PROVIDER_DOWN to provider-down', () => {
+    expect(mapSpeechInputError(new Error('STT_PROVIDER_DOWN'))).toBe('provider-down');
+  });
+
+  it('maps the shared STT_TOO_LARGE code to file-too-large', () => {
+    expect(mapSpeechInputError(new Error('STT_TOO_LARGE'))).toBe('file-too-large');
   });
 
   it('maps STT_RATE_LIMITED to rate-limited', () => {
