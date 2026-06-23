@@ -550,3 +550,118 @@ describe('composeMessage - activity merge (#252)', () => {
     expect(list.filter((m) => m.type === 'activity')).toHaveLength(2);
   });
 });
+
+// ---------------------------------------------------------------------------
+// #252 Phase 2: sub_agent_event drill-down - the inner serialized child
+// WCoreEvent is recursively parsed so the sub-agent's REAL tools / thinking /
+// nested sub-agents surface, instead of the old lossy inner.type+inner.text
+// flatten. These fail on the old code (which produced no `nodes` subtree).
+// ---------------------------------------------------------------------------
+
+const subAgentEvent = (parentCallId: string, agentName: string, inner: unknown): IResponseMessage =>
+  ({
+    type: 'sub_agent_event',
+    msg_id: '',
+    conversation_id: 'c1',
+    data: { parentCallId, agentName, inner },
+  }) as unknown as IResponseMessage;
+
+describe('transformMessage - sub_agent drill-down (#252 Phase 2)', () => {
+  it('surfaces the child tool call as a node subtree (fail-on-old)', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', {
+        type: 'tool_request',
+        msg_id: 'm1',
+        call_id: 'child-tool',
+        tool: { name: 'ReadFile', category: 'info', args: {}, description: '' },
+      })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.type).toBe('sub_agent');
+    // OLD code produced no `nodes` (only a flat body string).
+    expect(msg.content.nodes).toBeDefined();
+    expect(msg.content.nodes![0]).toMatchObject({ id: 'child-tool', kind: 'tool', name: 'ReadFile' });
+  });
+
+  it('surfaces the child thinking monologue as a thinking node', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', { type: 'thinking', msg_id: 'mt', text: 'reasoning...' })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.content.nodes![0]).toMatchObject({ kind: 'thinking', detail: 'reasoning...' });
+  });
+
+  it('keeps the legacy flat body for a text_delta inner (no regression)', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', { type: 'text_delta', msg_id: 'mt', text: 'hi there' })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.content.body).toBe('hi there');
+  });
+
+  it('advances lifecycle to done on a child info event', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', { type: 'info', msg_id: 'm', message: 'done' })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.content.status).toBe('done');
+  });
+
+  it('omits nodes for a malformed/opaque inner (graceful flat fallback)', () => {
+    const msg = transformMessage(subAgentEvent('spawn:1:worker', 'worker', { not: 'an event' })) as Extract<
+      TMessage,
+      { type: 'sub_agent' }
+    >;
+    expect(msg.content.nodes).toBeUndefined();
+    expect(msg.content.body).toBe('');
+  });
+});
+
+describe('composeMessage - sub_agent subtree merge (#252 Phase 2)', () => {
+  it('merges a child tool_request then tool_result into ONE evolving tool node', () => {
+    const req = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', {
+        type: 'tool_request',
+        msg_id: 'm1',
+        call_id: 'c1',
+        tool: { name: 'Bash', category: 'exec', args: {}, description: '' },
+      })
+    )!;
+    const res = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', {
+        type: 'tool_result',
+        msg_id: 'm1',
+        call_id: 'c1',
+        tool_name: 'Bash',
+        status: 'success',
+        output: 'output text',
+        output_type: 'text',
+      })
+    )!;
+    let list = composeMessage(req, []);
+    list = composeMessage(res, list);
+
+    const cards = list.filter((m) => m.type === 'sub_agent') as Extract<TMessage, { type: 'sub_agent' }>[];
+    expect(cards).toHaveLength(1);
+    const nodes = cards[0].content.nodes!;
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0]).toMatchObject({ id: 'c1', status: 'done', detail: 'output text' });
+  });
+
+  it('folds a nested sub-agent subtree under the parent (depth-N)', () => {
+    const nested = transformMessage(
+      subAgentEvent('spawn:1:parent', 'parent', {
+        type: 'sub_agent_event',
+        parent_call_id: 'spawn:2:child',
+        agent_name: 'child',
+        inner: {
+          type: 'tool_request',
+          msg_id: 'mc',
+          call_id: 'nested-tool',
+          tool: { name: 'Grep', category: 'info', args: {}, description: '' },
+        },
+      })
+    )!;
+    const list = composeMessage(nested, []);
+    const card = list.find((m) => m.type === 'sub_agent') as Extract<TMessage, { type: 'sub_agent' }>;
+    const childAgent = card.content.nodes![0];
+    expect(childAgent).toMatchObject({ kind: 'sub_agent', callId: 'spawn:2:child' });
+    expect(childAgent.children![0]).toMatchObject({ id: 'nested-tool', name: 'Grep' });
+  });
+});

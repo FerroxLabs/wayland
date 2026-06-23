@@ -8,12 +8,19 @@ import type { IMessageSubAgent } from '@/common/chat/chatLib';
 import { Spin } from '@arco-design/web-react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import ActivityNodeTree from './ActivityNodeTree';
 import styles from './SubAgentActivityCard.module.css';
 
 const SubAgentActivityCard: React.FC<{ message: IMessageSubAgent }> = ({ message }) => {
   const { t } = useTranslation();
-  const { agentName, status, body } = message.content;
+  const { agentName, status, body, nodes } = message.content;
   const [expanded, setExpanded] = useState(true);
+
+  // #252 Phase 2: when the inner stream parsed into a real activity subtree
+  // (the sub-agent's own tools / thinking / nested sub-agents), drill into the
+  // depth-N tree. A malformed / opaque / text-only inner has no nodes and falls
+  // back to the legacy flat `body` render below (no regression).
+  const hasTree = Boolean(nodes && nodes.length);
 
   const isDone = status === 'done';
   const isFailed = status === 'failed';
@@ -42,7 +49,12 @@ const SubAgentActivityCard: React.FC<{ message: IMessageSubAgent }> = ({ message
         <span className={`${styles.arrow} ${expanded ? styles.arrowExpanded : ''}`}>{'▶'}</span>
         <span className={styles.summary}>{headerLabel}</span>
       </div>
-      {body && (
+      {expanded && hasTree && (
+        <div className={styles.tree}>
+          <ActivityNodeTree nodes={nodes!} />
+        </div>
+      )}
+      {!hasTree && body && (
         <div className={`${styles.body} ${!expanded ? styles.collapsed : ''}`}>{body}</div>
       )}
       <hr className={styles.divider} />

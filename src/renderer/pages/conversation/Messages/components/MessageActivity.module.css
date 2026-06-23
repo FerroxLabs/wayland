@@ -133,6 +133,18 @@
   font-family: var(--font-mono, monospace);
 }
 
+/* #252 Phase 2 - nested sub-agent subtree: indented under its parent node, with
+   a left rail in the Wayland brand tint to read as a depth-N branch. */
+.childTree {
+  margin: 6px 0 6px 14px;
+  padding-left: 12px;
+  border-left: 2px solid var(--color-aou-3, rgba(var(--primary-6), 0.3));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: activityFadeIn 0.2s ease-out;
+}
+
 .cost {
   display: flex;
   flex-direction: column;

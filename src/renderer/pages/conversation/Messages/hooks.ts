@@ -7,7 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { TMessage } from '@/common/chat/chatLib';
 import { composeMessage } from '@/common/chat/chatLib';
-import { mergeActivityContent } from '@/common/chat/activityTree';
+import { mergeActivityContent, mergeNodeList } from '@/common/chat/activityTree';
 import { useCallback, useEffect, useRef } from 'react';
 import { createContext } from '@renderer/utils/ui/createContext';
 
@@ -231,10 +231,18 @@ function composeMessageWithIndex(message: TMessage, list: TMessage[], index: Mes
         const next = message.content;
         const mergedStatus =
           next.status === 'done' || next.status === 'failed' ? next.status : prev.status;
+        // #252 Phase 2: fold the sub-agent's streamed child subtree by node id
+        // (recurses for nested sub-agents). Mirrors composeMessage.
+        const mergedNodes = mergeNodeList(prev.nodes, next.nodes);
         const newList = list.slice();
         newList[existingIdx] = {
           ...existingMsg,
-          content: { ...prev, status: mergedStatus, body: prev.body + next.body },
+          content: {
+            ...prev,
+            status: mergedStatus,
+            body: prev.body + next.body,
+            ...(mergedNodes.length ? { nodes: mergedNodes } : {}),
+          },
         };
         return newList;
       }

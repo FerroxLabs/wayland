@@ -26,7 +26,8 @@ import type {
 } from '@/common/types/acpTypes';
 import type { IResponseMessage } from '../adapter/ipcBridge';
 import { uuid } from '../utils';
-import { addOrUpdateNode, emptyActivityContent, mergeActivityContent } from './activityTree';
+import { addOrUpdateNode, emptyActivityContent, mergeActivityContent, mergeNodeList } from './activityTree';
+import { parseInnerEvent } from './innerEvent';
 import type { TurnCost } from '@/process/agent/wcore/protocol';
 
 /**
@@ -420,8 +421,16 @@ export type IMessageSubAgent = IMessage<
     agentName: string;
     /** Lifecycle status. */
     status: 'running' | 'done' | 'failed';
-    /** Accumulated streamed output text from the sub-agent. */
+    /** Accumulated streamed output text from the sub-agent (legacy flat body / fallback). */
     body: string;
+    /**
+     * #252 Phase 2 - the sub-agent's real activity subtree, parsed from the
+     * inner serialized WCoreEvent stream (its own tool calls, thinking spans and
+     * nested sub-agents). Optional + additive: when absent (malformed/opaque
+     * inner) the card falls back to the flat `body`. Child nodes merge by their
+     * own callId; nested sub-agents recurse via `ActivityNode.children`.
+     */
+    nodes?: ActivityNode[];
   }
 >;
 
@@ -709,24 +718,25 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
     case 'sub_agent_event': {
       // v0.9.4 sub-agent activity card. The `data` field carries:
       //   { parentCallId: string; agentName: string; inner: unknown }
-      // `inner` is the raw WCoreEvent from the child agent - we only read its
-      // `type` field to advance the lifecycle and `text` for text_delta chunks.
+      // #252 Phase 2: `inner` is a serialized child WCoreEvent. We recursively
+      // parse it (parseInnerEvent) to surface the sub-agent's REAL tool calls,
+      // thinking spans and nested sub-agents as an activity subtree - instead of
+      // the old lossy flatten that read only inner.type + inner.text. The legacy
+      // `body` text is still accumulated so a malformed/opaque inner falls back
+      // to the flat render with no regression.
       const saData = message.data as {
         parentCallId: string;
         agentName: string;
         inner: unknown;
       };
-      const inner = saData.inner as { type?: string; text?: string } | null | undefined;
-      const innerType = inner?.type ?? '';
+      const parsed = parseInnerEvent(saData.inner);
 
       let status: IMessageSubAgent['content']['status'] = 'running';
-      if (innerType === 'info') {
+      if (parsed.lifecycle === 'done') {
         status = 'done';
-      } else if (innerType === 'error') {
+      } else if (parsed.lifecycle === 'failed') {
         status = 'failed';
       }
-
-      const body = innerType === 'text_delta' ? (inner?.text ?? '') : '';
 
       return {
         id: uuid(),
@@ -740,7 +750,8 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
           parentCallId: saData.parentCallId,
           agentName: saData.agentName,
           status,
-          body,
+          body: parsed.text,
+          ...(parsed.nodes.length ? { nodes: parsed.nodes } : {}),
         },
       };
     }
@@ -1012,7 +1023,15 @@ export const composeMessage = (
             ? nextContent.status
             : prevContent.status;
         const mergedBody = prevContent.body + nextContent.body;
-        const merged = { ...prevContent, status: mergedStatus, body: mergedBody } as typeof prevContent;
+        // #252 Phase 2: fold the sub-agent's streamed child subtree (its tools /
+        // thinking / nested sub-agents) by node id; recurses for nested agents.
+        const mergedNodes = mergeNodeList(prevContent.nodes, nextContent.nodes);
+        const merged = {
+          ...prevContent,
+          status: mergedStatus,
+          body: mergedBody,
+          ...(mergedNodes.length ? { nodes: mergedNodes } : {}),
+        } as typeof prevContent;
         return updateMessage(i, { ...msg, content: merged });
       }
     }

@@ -9,9 +9,11 @@ import {
   addOrUpdateNode,
   emptyActivityContent,
   mergeActivityContent,
+  mergeNodeList,
   type ActivityContent,
   type ActivityEvent,
 } from '../../src/common/chat/activityTree';
+import type { ActivityNode } from '../../src/common/chat/chatLib';
 
 const base = (): ActivityContent => emptyActivityContent('turn-1');
 
@@ -149,5 +151,60 @@ describe('activityTree.mergeActivityContent', () => {
     const acc = mergeActivityContent(base(), base());
     expect(acc.nodes).toHaveLength(0);
     expect(acc.status).toBe('running');
+  });
+});
+
+const tool = (id: string, status: ActivityNode['status'], detail?: string): ActivityNode => ({
+  id,
+  kind: 'tool',
+  callId: id,
+  name: id,
+  status,
+  ...(detail ? { detail } : {}),
+});
+
+describe('activityTree.mergeNodeList (#252 Phase 2 sub-agent subtree)', () => {
+  it('appends a new child node when its id is unseen', () => {
+    const merged = mergeNodeList([tool('a', 'running')], [tool('b', 'running')]);
+    expect(merged.map((n) => n.id)).toEqual(['a', 'b']);
+  });
+
+  it('merges by id: appends detail and advances status to terminal', () => {
+    const merged = mergeNodeList([tool('a', 'running', 'part1')], [tool('a', 'done', 'part2')]);
+    expect(merged).toHaveLength(1);
+    expect(merged[0]).toMatchObject({ id: 'a', status: 'done', detail: 'part1part2' });
+  });
+
+  it('recurses into nested sub-agent children by id (depth-N)', () => {
+    const prev: ActivityNode[] = [
+      {
+        id: 'sub:1',
+        kind: 'sub_agent',
+        callId: '1',
+        name: 'child',
+        status: 'running',
+        children: [tool('t1', 'running', 'x')],
+      },
+    ];
+    const next: ActivityNode[] = [
+      {
+        id: 'sub:1',
+        kind: 'sub_agent',
+        callId: '1',
+        name: 'child',
+        status: 'done',
+        children: [tool('t1', 'done', 'y')],
+      },
+    ];
+    const merged = mergeNodeList(prev, next);
+    expect(merged[0].status).toBe('done');
+    expect(merged[0].children).toHaveLength(1);
+    expect(merged[0].children![0]).toMatchObject({ id: 't1', status: 'done', detail: 'xy' });
+  });
+
+  it('handles undefined inputs without throwing', () => {
+    expect(mergeNodeList(undefined, [tool('a', 'running')])).toHaveLength(1);
+    expect(mergeNodeList([tool('a', 'running')], undefined)).toHaveLength(1);
+    expect(mergeNodeList()).toEqual([]);
   });
 });

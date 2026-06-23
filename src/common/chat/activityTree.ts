@@ -198,6 +198,39 @@ export const mergeActivityContent = (prev: ActivityContent, next: ActivityConten
   return { ...merged, status: rollUpStatus(merged.nodes) };
 };
 
+/**
+ * #252 Phase 2 - merge an incoming list of fully-formed ActivityNodes into an
+ * accumulated list, keyed by node id (= callId for tools/sub-agents). Used by
+ * the sub_agent compose paths to fold each streamed inner-event delta into the
+ * sub-agent's subtree: a child tool's chunks/result merge into the existing tool
+ * node, and a nested sub-agent's children recurse (depth-N) by id.
+ *
+ * Detail is appended (streamed stdout / thinking text accumulates); status
+ * advances toward terminal; children merge recursively; startTime is kept,
+ * endTime is taken from the latest. Immutable - returns a new array.
+ */
+export const mergeNodeList = (prev: ActivityNode[] = [], next: ActivityNode[] = []): ActivityNode[] => {
+  const merged = prev.slice();
+  for (const node of next) {
+    const idx = merged.findIndex((n) => n.id === node.id);
+    if (idx === -1) {
+      merged.push(node);
+      continue;
+    }
+    const prevNode = merged[idx];
+    merged[idx] = {
+      ...prevNode,
+      name: node.name || prevNode.name,
+      status: node.status,
+      startTime: prevNode.startTime ?? node.startTime,
+      endTime: node.endTime ?? prevNode.endTime,
+      ...(node.detail != null ? { detail: (prevNode.detail ?? '') + node.detail } : {}),
+      ...(node.children || prevNode.children ? { children: mergeNodeList(prevNode.children, node.children) } : {}),
+    };
+  }
+  return merged;
+};
+
 /** Fold a fully-formed node (from a delta content) into accumulated content. */
 const foldNode = (content: ActivityContent, node: ActivityNode): ActivityContent => {
   const nodes = content.nodes.slice();
