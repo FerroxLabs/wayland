@@ -16,7 +16,12 @@ export class ExtensionWatcher {
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   start(): void {
-    const dirs = getExtensionScanSources().map((s) => s.dir);
+    // Skip the read-only 'bundled' source: it ships inside the app (asar in
+    // packaged builds), which fs.watch cannot observe, and it never changes at
+    // runtime so there's nothing to hot-reload.
+    const dirs = getExtensionScanSources()
+      .filter((s) => s.source !== 'bundled')
+      .map((s) => s.dir);
     const uniqueDirs = [...new Set(dirs)];
 
     for (const dir of uniqueDirs) {

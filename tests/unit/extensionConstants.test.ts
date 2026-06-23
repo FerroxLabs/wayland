@@ -10,6 +10,7 @@ vi.mock('@/common/platform', () => ({
     paths: {
       getDataDir: () => '/appdata',
       isPackaged: () => mocks.isPackaged(),
+      getAppPath: () => '/app-root',
     },
   }),
 }));
@@ -22,6 +23,7 @@ vi.mock('@process/utils', () => ({
 import {
   EXTENSION_MANIFEST_FILE,
   getAppDataExtensionsDir,
+  getBundledExtensionsDir,
   getEnvExtensionsDirs,
   getExtensionScanSources,
   getHubResourcesDir,
@@ -161,6 +163,22 @@ describe('extension constants', () => {
     });
   });
 
+  describe('getBundledExtensionsDir', () => {
+    afterEach(() => {
+      mocks.isPackaged.mockReturnValue(false);
+    });
+
+    it('resolves under <appPath>/resources/bundled-extensions in dev', () => {
+      mocks.isPackaged.mockReturnValue(false);
+      expect(getBundledExtensionsDir()).toBe(path.join('/app-root', 'resources', 'bundled-extensions'));
+    });
+
+    it('resolves to the in-asar <appPath>/bundled-extensions when packaged', () => {
+      mocks.isPackaged.mockReturnValue(true);
+      expect(getBundledExtensionsDir()).toBe(path.join('/app-root', 'bundled-extensions'));
+    });
+  });
+
   describe('getExtensionScanSources', () => {
     const originalEnv = process.env.WAYLAND_EXTENSIONS_PATH;
     const originalE2E = process.env.WAYLAND_E2E_TEST;
@@ -170,6 +188,24 @@ describe('extension constants', () => {
       else process.env.WAYLAND_EXTENSIONS_PATH = originalEnv;
       if (originalE2E === undefined) delete process.env.WAYLAND_E2E_TEST;
       else process.env.WAYLAND_E2E_TEST = originalE2E;
+    });
+
+    it('includes the read-only bundled source, appended after writable sources', () => {
+      delete process.env.WAYLAND_EXTENSIONS_PATH;
+      delete process.env.WAYLAND_E2E_TEST;
+      const sources = getExtensionScanSources();
+      const bundled = sources.find((s) => s.source === 'bundled');
+      expect(bundled).toBeDefined();
+      expect(bundled!.dir).toBe(path.join('/app-root', 'resources', 'bundled-extensions'));
+      // Must never be first (getInstallTargetDir would otherwise pick it).
+      expect(sources[0].source).not.toBe('bundled');
+    });
+
+    it('omits the bundled source in E2E mode', () => {
+      process.env.WAYLAND_EXTENSIONS_PATH = '/e2e/ext';
+      process.env.WAYLAND_E2E_TEST = '1';
+      const sources = getExtensionScanSources();
+      expect(sources.some((s) => s.source === 'bundled')).toBe(false);
     });
 
     it('should return user and appdata dirs by default', () => {
@@ -211,6 +247,15 @@ describe('extension constants', () => {
       const dir = getInstallTargetDir();
       const sources = getExtensionScanSources();
       expect(dir).toBe(sources[0].dir);
+    });
+
+    it('should never return the read-only bundled (asar) dir', () => {
+      delete process.env.WAYLAND_EXTENSIONS_PATH;
+      delete process.env.WAYLAND_E2E_TEST;
+      const dir = getInstallTargetDir();
+      // Writable userData dir, NOT the bundled in-app dir.
+      expect(dir).toBe(getUserExtensionsDir());
+      expect(dir).not.toBe(getBundledExtensionsDir());
     });
 
     it('should return env dir when WAYLAND_EXTENSIONS_PATH is set', () => {

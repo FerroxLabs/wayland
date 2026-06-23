@@ -101,6 +101,11 @@ files:
     to: assistant
   - from: out/main/static
     to: static
+  # Bundled business-pack extensions: read in place from inside the asar via the
+  # 'bundled' scan source (#275 — no longer copied out as loose .md files that
+  # tripped AV content heuristics). viteStaticCopy emits out/main/bundled-extensions.
+  - from: out/main/bundled-extensions
+    to: bundled-extensions
 
 extraResources:
   - from: public
@@ -114,12 +119,6 @@ extraResources:
     to: bundled-wayland-core
   - from: resources/hub
     to: hub
-  # Bundled business-pack extensions (real aion-extension.json trees).
-  # Copied into <userData>/extensions/<pack>/ on first run by initStorage so
-  # ExtensionLoader discovers them via the 'appdata' scan source. Ships outside
-  # app.asar so on-disk paths are real for fs scanning + SKILL.md reads.
-  - from: resources/bundled-extensions
-    to: bundled-extensions
   # Skills library + Wayland built-in workflows: shipped as real on-disk
   # Resources so SkillLibrary can read them in packaged builds. The previous
   # asarUnpack entries for these never worked: the source lives under

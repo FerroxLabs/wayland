@@ -555,7 +555,7 @@ export type ExtWebui = z.infer<typeof ExtWebuiSchema>;
 export type ExtSettingsTab = z.infer<typeof ExtSettingsTabSchema>;
 export type ExtModelProvider = z.infer<typeof ExtModelProviderSchema>;
 
-export type ExtensionSource = 'local' | 'appdata' | 'env';
+export type ExtensionSource = 'local' | 'appdata' | 'env' | 'bundled';
 
 export type LoadedExtension = {
   manifest: ExtensionManifest;

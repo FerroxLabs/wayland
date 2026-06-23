@@ -22,6 +22,26 @@ export function getAppDataExtensionsDir(): string {
   return path.join(getPlatformServices().paths.getDataDir(), EXTENSIONS_DIR_NAME);
 }
 
+/**
+ * Read-only directory holding the bundled business-pack extensions that ship
+ * inside the app. These are read in place (the main process's patched fs reads
+ * inside app.asar transparently) instead of being copied out as loose files —
+ * loose .md skill bodies were tripping AV content heuristics (#275).
+ *
+ * Packaged: viteStaticCopy maps resources/bundled-extensions/* into the asar at
+ *           <appPath>/bundled-extensions (mirrors the skills/ + assistant/ copy).
+ * Dev:      viteStaticCopy doesn't run; resolve from the on-disk source under
+ *           <appPath>/resources/bundled-extensions (appPath = project root).
+ */
+export function getBundledExtensionsDir(): string {
+  const platform = getPlatformServices().paths;
+  const appPath = platform.getAppPath();
+  if (!appPath) return '';
+  return platform.isPackaged()
+    ? path.join(appPath, 'bundled-extensions')
+    : path.join(appPath, 'resources', 'bundled-extensions');
+}
+
 export function getEnvExtensionsDirs(): string[] {
   const envPath = process.env[WAYLAND_EXTENSIONS_PATH_ENV];
   if (!envPath) return [];
@@ -117,6 +137,14 @@ export function getExtensionScanSources(): ExtensionScanSource[] {
     if (appDataDir !== userDir) {
       push(appDataDir, 'appdata');
     }
+
+    // Read-only bundled business packs shipped inside the app (asar in packaged
+    // builds). Appended LAST so writable dirs win for dedup and so this never
+    // becomes the install target (getInstallTargetDir returns sources[0]).
+    const bundledDir = getBundledExtensionsDir();
+    if (bundledDir) {
+      push(bundledDir, 'bundled');
+    }
   }
 
   return sources;
@@ -129,6 +157,9 @@ export function getExtensionScanSources(): ExtensionScanSource[] {
  */
 export function getInstallTargetDir(): string {
   const sources = getExtensionScanSources();
-  // First source has the highest priority - install there
-  return sources[0]?.dir ?? getUserExtensionsDir();
+  // First WRITABLE source has the highest priority - install there. The
+  // 'bundled' source is read-only (ships inside the asar), so it can never be
+  // an install target even if it sorts first.
+  const writable = sources.find((s) => s.source !== 'bundled');
+  return writable?.dir ?? getUserExtensionsDir();
 }
