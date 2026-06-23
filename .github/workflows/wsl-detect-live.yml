@@ -5,7 +5,15 @@ name: WSL CLI Detection (live #258)
 # does not publish anything. The detector's logic is unit-tested with mocks in
 # tests/unit/acpDetectorWsl.test.ts — this job exercises the real wsl.exe path.
 
+# Push-triggered on this branch (workflow_dispatch can't reach a workflow that
+# only exists off the default branch). Also dispatchable once on the default branch.
 on:
+  push:
+    branches: ['fix/258-wsl-cli-detect']
+    paths:
+      - 'src/process/agent/acp/AcpDetector.ts'
+      - 'tests/unit/acpDetectorWslLive.test.ts'
+      - '.github/workflows/wsl-detect-live.yml'
   workflow_dispatch:
     inputs:
       branch:
@@ -22,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ inputs.branch || github.ref }}
 
       - name: Setup bun
         uses: oven-sh/setup-bun@v2
