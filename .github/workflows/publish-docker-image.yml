@@ -1,0 +1,90 @@
+name: Publish Docker Image to GHCR
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-publish:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # --- Derive image tags from the release tag ---------------------------
+      - name: Resolve version and build tags
+        id: tags
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION=$(echo "$TAG" | sed 's/^v//')
+
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
+            echo "::error::Release tag '$TAG' does not start with a semver version."
+            exit 1
+          fi
+
+          # Parse major.minor.patch from the first three numeric segments.
+          FULL_SEMVER=$(echo "$VERSION" | sed -E 's/^([0-9]+)\.([0-9]+)\.([0-9]+).*/\1.\2.\3/')
+
+          COMMIT=$(git rev-parse --short HEAD)
+
+          # Comma-separated tags for docker/build-push-action.
+          TAGS="${REGISTRY}/${IMAGE_NAME}:${FULL_SEMVER},${REGISTRY}/${IMAGE_NAME}:latest"
+          if echo "$TAG" | grep -qiE '-(alpha|beta|rc)[0-9]'; then
+            TAGS="${TAGS},${REGISTRY}/${IMAGE_NAME}:prerelease"
+          fi
+          TAGS="${TAGS},${REGISTRY}/${IMAGE_NAME}:${FULL_SEMVER}-${COMMIT}"
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "full_semver=${FULL_SEMVER}" >> "$GITHUB_OUTPUT"
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "::notice::Tags: ${TAGS}"
+
+      # --- Buildx setup — must happen after checkout so the runner can
+      #     discover any platform-specific QEMU drivers registered in ~/.docker. ---------------------------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver-opts: image=moby/buildkit:latest
+
+      # --- Authenticate to GHCR ------------------------------------------------
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Build and push the Docker image -----------------------------------
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.tags.outputs.tags }}
+          labels: |
+            org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.description=Wayland desktop AI agent server — API-only runtime image.
+            org.opencontainers.image.vendor=FerroxLabs
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.tags.outputs.full_semver }}
+          push: true
+
+      - name: Report result
+        run: |
+          echo "::notice::Docker images published successfully."
+          echo "${{ steps.tags.outputs.tags }}" | tr ',' '\n' | while read -r tag; do
+            echo "  ${tag}"
+          done
