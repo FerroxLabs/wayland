@@ -38,12 +38,18 @@ import CronProposeCard from './components/CronProposeCard';
 import MessageSkillSuggest from './components/MessageSkillSuggest';
 import MessageText from './components/MessageText';
 import MessageThinking from './components/MessageThinking';
-import SubAgentActivityCard from './components/SubAgentActivityCard';
 import type { WriteFileResult } from './types';
 import { useAutoScroll } from './useAutoScroll';
 import { useAutoPreviewOfficeFiles } from '@/renderer/hooks/file/useAutoPreviewOfficeFiles';
 import SelectionReplyButton from './components/SelectionReplyButton';
 import { computeChatTimeMarkers, splitGap, type ChatTimeMarker } from './utils/chatTimeMarkers';
+
+// 0.11.3: the inline observability UI (activity tree, sub-agent cards, "View Steps"
+// tool summary) is temporarily disabled pending the rework — see
+// app/.planning/handoffs/SESSION-HANDOFF-2026-06-24-OBSERVABILITY-REWORK-AND-JSON-STREAM.md.
+// The StatusFooter "processing" cue stays. Flip to true (and restore the sub_agent
+// case) to re-enable.
+const SHOW_OBSERVABILITY_INLINE = false;
 
 type TurnDiffContent = Extract<CodexToolCallUpdate, { subtype: 'turn_diff' }>;
 
@@ -151,7 +157,10 @@ const MessageItem: React.FC<{ message: TMessage; highlighted?: boolean }> = Reac
       case 'cron_propose':
         return <CronProposeCard message={message} />;
       case 'sub_agent':
-        return <SubAgentActivityCard message={message} />;
+        // 0.11.3: observability inline cards disabled pending the rework; the
+        // StatusFooter "processing" cue is the live indicator. (Re-enabled by the
+        // observability rework — see the 2026-06-24 handoff.)
+        return null;
       case 'activity':
         // #252 reframe: the activity tree moved to the opt-in ObservabilityPanel.
         // The chat center stays calm - the inline StatusFooter pulse is the only
@@ -432,7 +441,9 @@ const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.
           style={highlighted ? highlightStyle : undefined}
         >
           {item.type === 'file_summary' && <MessageFileChanges diffsChanges={item.diffs} />}
-          {item.type === 'tool_summary' && <MessageToolGroupSummary messages={item.messages}></MessageToolGroupSummary>}
+          {/* 0.11.3: the "View Steps" tool summary is disabled with the rest of the
+              observability UI pending the rework; the StatusFooter is the live cue. */}
+          {SHOW_OBSERVABILITY_INLINE && item.type === 'tool_summary' && <MessageToolGroupSummary messages={item.messages}></MessageToolGroupSummary>}
         </div>
       );
     } else {

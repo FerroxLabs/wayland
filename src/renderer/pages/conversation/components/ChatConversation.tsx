@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Eye, History } from 'lucide-react';
+import { History } from 'lucide-react';
 import { ipcBridge } from '@/common';
-import { useObservabilitySettings } from '@/renderer/hooks/settings/useObservabilitySettings';
 import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import type { WorkflowSession } from '@/common/types/workflowTypes';
 import { uuid } from '@/common/utils';
@@ -203,27 +202,11 @@ type WCoreConversation = Extract<TChatConversation, { type: 'wcore' }>;
 // State is shared with the panel (WCoreChat) via the cross-instance settings
 // store, so toggling here keeps both in lockstep and survives reload.
 export const ObservabilityToggle: React.FC = () => {
-  const { t } = useTranslation();
-  const { settings, update } = useObservabilitySettings();
-  return (
-    <Tooltip content={t('conversation.observability.toggle', { defaultValue: 'Observability' })}>
-      <Button
-        size='mini'
-        type={settings.panelOpen ? 'primary' : 'default'}
-        aria-pressed={settings.panelOpen}
-        icon={
-          <Eye
-            size={14}
-            color={settings.panelOpen ? undefined : iconColors.primary}
-            strokeWidth={2}
-            strokeLinejoin='miter'
-            strokeLinecap='square'
-          />
-        }
-        onClick={() => update('panelOpen', !settings.panelOpen)}
-      />
-    </Tooltip>
-  );
+  // 0.11.3: observability UI temporarily disabled pending the rework (see
+  // app/.planning/handoffs/SESSION-HANDOFF-2026-06-24-OBSERVABILITY-REWORK-AND-JSON-STREAM.md).
+  // Hiding the toggle keeps the opt-in panel from ever opening; the inline
+  // StatusFooter "processing" cue remains the live indicator.
+  return null;
 };
 
 const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; sliderTitle: React.ReactNode }> = ({
