@@ -213,7 +213,9 @@ export function readClaudeModelInfoFromCcSwitch(paths?: Partial<CcSwitchPaths>):
  * provider config OR the user has a `~/.claude/settings.json` (the Claude Code
  * CLI is set up). Honors the user's configured slot (e.g. settings.model
  * `"opus[1m]"` -> `"opus"`), falling back to the cc-switch current slot, then
- * Sonnet.
+ * Opus (the "Claude Opus 4.8" product default — a real slot id so
+ * `ANTHROPIC_MODEL=opus` is set at spawn instead of the CLI's own Sonnet
+ * fallback).
  *
  * Used so a Claude Code chat defaults to the subscription (native, e.g. Opus 4.8)
  * instead of flux-auto when "Route all agents through Flux" is globally on. A
@@ -231,7 +233,7 @@ export function getClaudeNativeDefaultModelId(homeDir = os.homedir()): string | 
   const settings = hasClaudeSettings
     ? parseJsonObject<ClaudeSettings>(fs.readFileSync(paths.claudeSettingsPath, 'utf-8'))
     : null;
-  return claudeSlotForModelId(settings?.model) ?? ccSwitchInfo?.currentModelId ?? 'default';
+  return claudeSlotForModelId(settings?.model) ?? ccSwitchInfo?.currentModelId ?? 'opus';
 }
 
 export function readClaudeProviderEnvFromCcSwitch(paths?: Partial<CcSwitchPaths>): ClaudeProviderEnv {
