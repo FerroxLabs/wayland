@@ -41,6 +41,12 @@ describe('projectMessages.acpToolCallToNode', () => {
   it('reads the nested .update fields and maps in_progress -> running', () => {
     expect(acpToolCallToNode(acpMsg().content)).toMatchObject({ id: 't1', kind: 'tool', name: 'web_search', status: 'running' });
   });
+  it('synthesizes an id when toolCallId is missing (never vanishes)', () => {
+    const content = { sessionId: 's1', update: { sessionUpdate: 'tool_call', toolCallId: '', status: 'in_progress', title: 'web_search', kind: 'execute' } } as unknown as IMessageAcpToolCall['content'];
+    const node = acpToolCallToNode(content);
+    expect(node.id).toBe('acp:execute:web_search');
+    expect(node.name).toBe('web_search');
+  });
 });
 
 describe('projectMessages.toolSummaryToSteps', () => {
@@ -66,6 +72,19 @@ describe('projectMessages.subAgentToStep', () => {
     expect(step).toMatchObject({ id: 'p1', kind: 'sub_agent', agent: 'researcher', status: 'running' });
     expect(step.children).toHaveLength(1);
     expect(step.children?.[0].label).toBe('Reading apnews.com');
+  });
+  it('settles still-running children to done when the sub-agent has finished', () => {
+    const content: IMessageSubAgent['content'] = {
+      parentCallId: 'p2',
+      agentName: 'worker',
+      status: 'done',
+      body: '',
+      nodes: [{ id: 'c1', kind: 'thinking', name: '', status: 'running', detail: 'pondering' }],
+    };
+    const step = subAgentToStep(content);
+    expect(step.status).toBe('done');
+    // child was 'running' but the agent finished -> settled to 'done' (no stuck spinner)
+    expect(step.children?.[0].status).toBe('done');
   });
 });
 

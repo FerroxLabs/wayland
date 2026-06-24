@@ -62,6 +62,19 @@ describe('MessageToolbar', () => {
     await waitFor(() => expect(screen.getByTestId('check-icon')).toBeTruthy());
   });
 
+  it('handles a clipboard failure without crashing or false-showing success', async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error('denied'));
+    Object.assign(navigator, { clipboard: { writeText } });
+
+    render(<MessageToolbar text='copy me' />);
+    fireEvent.click(screen.getByLabelText('Copy'));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    // No success check-icon on failure; the copy icon stays (graceful, no crash).
+    expect(screen.queryByTestId('check-icon')).toBeNull();
+    expect(screen.getByTestId('copy-icon')).toBeTruthy();
+  });
+
   it('fires onRegenerate when the regenerate button is clicked', () => {
     const onRegenerate = vi.fn();
     render(<MessageToolbar text='x' onRegenerate={onRegenerate} />);

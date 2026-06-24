@@ -588,6 +588,7 @@ export type I18nKey =
   | 'conversation.thinking.label'
   | 'conversation.toolbar.copied'
   | 'conversation.toolbar.copy'
+  | 'conversation.toolbar.copyFailed'
   | 'conversation.toolbar.regenerate'
   | 'conversation.toolbar.thumbsDown'
   | 'conversation.toolbar.thumbsUp'

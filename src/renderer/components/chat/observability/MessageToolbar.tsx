@@ -25,6 +25,7 @@ const COPIED_RESET_MS = 2000;
 const MessageToolbar: React.FC<Props> = ({ text, onRegenerate, onFeedback, revealed, className }) => {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -35,10 +36,19 @@ const MessageToolbar: React.FC<Props> = ({ text, onRegenerate, onFeedback, revea
   }, []);
 
   const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
     if (resetTimer.current) clearTimeout(resetTimer.current);
-    resetTimer.current = setTimeout(() => setCopied(false), COPIED_RESET_MS);
+    try {
+      await navigator.clipboard.writeText(text);
+      setFailed(false);
+      setCopied(true);
+      resetTimer.current = setTimeout(() => setCopied(false), COPIED_RESET_MS);
+    } catch {
+      // Surface the failure instead of swallowing it (no silent failure on a
+      // primary action): the icon/tooltip flips to a "Copy failed" state.
+      setCopied(false);
+      setFailed(true);
+      resetTimer.current = setTimeout(() => setFailed(false), COPIED_RESET_MS);
+    }
   }, [text]);
 
   const handleFeedback = useCallback(
@@ -58,15 +68,17 @@ const MessageToolbar: React.FC<Props> = ({ text, onRegenerate, onFeedback, revea
     <div className={containerClass} role='toolbar'>
       <Tooltip
         content={
-          copied
-            ? t('conversation.toolbar.copied', { defaultValue: 'Copied' })
-            : t('conversation.toolbar.copy', { defaultValue: 'Copy' })
+          failed
+            ? t('conversation.toolbar.copyFailed', { defaultValue: 'Copy failed' })
+            : copied
+              ? t('conversation.toolbar.copied', { defaultValue: 'Copied' })
+              : t('conversation.toolbar.copy', { defaultValue: 'Copy' })
         }
       >
         <Button
           type='text'
           size='mini'
-          className={copied ? styles.success : styles.button}
+          className={failed ? styles.failed : copied ? styles.success : styles.button}
           aria-label={t('conversation.toolbar.copy', { defaultValue: 'Copy' })}
           icon={copied ? <Check size='16' /> : <Copy size='16' />}
           onClick={handleCopy}

@@ -65,15 +65,22 @@ const isEvent = (v: unknown): v is { type: string } & Record<string, unknown> =>
  */
 const genericNode = (ev: { type: string; call_id?: unknown; msg_id?: unknown }): ActivityNode => {
   const key = typeof ev.call_id === 'string' ? ev.call_id : typeof ev.msg_id === 'string' ? ev.msg_id : '';
-  return {
-    id: `evt:${ev.type}:${key}`,
-    kind: 'tool',
-    name: ev.type,
-    status: 'done',
-    startTime: Date.now(),
-    endTime: Date.now(),
-  };
+  // No synthetic timestamps - we don't actually know the timing, so don't show a
+  // bogus "0.0s". Status 'done' (it happened) without inflating a duration row.
+  return { id: `evt:${ev.type}:${key}`, kind: 'tool', name: ev.type, status: 'done' };
 };
+
+/** Build a browser/cua op node from a child browser_event / cua_event. */
+const opNode = (kind: 'browser' | 'cua', callId: string, op: string, summary: string, url?: string): ActivityNode => ({
+  id: callId,
+  kind,
+  callId,
+  name: op,
+  status: 'done',
+  startTime: Date.now(),
+  endTime: Date.now(),
+  detail: summary + (url ? ` (${url})` : ''),
+});
 
 /** Build a tool ActivityNode from a child tool_* event. */
 const toolNode = (callId: string, name: string, status: ActivityNode['status'], detail?: string): ActivityNode => ({
@@ -182,8 +189,18 @@ export const parseInnerEvent = (inner: unknown, depth = 0): ParsedInner => {
       case 'error':
         return { nodes: [], text: '', lifecycle: 'failed' };
 
-      // stream_start / stream_end / ready / pong / etc. are turn FRAMING - no
-      // drill-down content, so they stay empty (the card falls back to body).
+      // A child tool panic is a real failure - surface it as a failed tool node.
+      case 'tool_panicked':
+        return { nodes: [toolNode(ev.call_id, ev.tool_name ?? '', 'failed', ev.panic_message)], text: '' };
+
+      // Browser / computer-use ops are meaningful drill-down content.
+      case 'browser_event':
+        return { nodes: [opNode('browser', ev.call_id, ev.op, ev.summary, ev.url)], text: '' };
+      case 'cua_event':
+        return { nodes: [opNode('cua', ev.call_id, ev.op, ev.summary)], text: '' };
+
+      // Enumerated FRAMING / control events (shipped in protocol.ts) carry no
+      // drill-down content - stay empty so the card falls back to body, no noise.
       case 'stream_start':
       case 'stream_end':
       case 'ready':
@@ -192,16 +209,28 @@ export const parseInnerEvent = (inner: unknown, depth = 0): ParsedInner => {
       case 'mcp_ready':
       case 'session_cost':
       case 'trace_event':
+      case 'provider_circuit_event':
+      case 'approval_required':
+      case 'approval_resume':
+      case 'suspend':
+      case 'budget_exceeded':
+      case 'plugin_registration_failed':
+      case 'plugin_event':
+      case 'evolution_event':
+      case 'browser_policy_denied':
+      case 'cua_policy_denied':
         return EMPTY;
 
-      // Defensive (IJFW: never a blank card): an UNRECOGNIZED inner event type -
-      // e.g. a future engine event - still surfaces as one generic step keyed by
-      // its type, instead of silently vanishing. The humanizer renders a clean
-      // label from the type at draw time.
+      // Defensive (IJFW: never a blank card): a GENUINELY unenumerated inner event
+      // type - e.g. a future engine event not yet in protocol.ts - still surfaces
+      // as one generic step instead of vanishing. Known types are handled above.
       default:
         return { nodes: [genericNode(ev)], text: '' };
     }
-  } catch {
+  } catch (e) {
+    // Don't silently swallow an unexpected parser bug - log it, then still
+    // degrade gracefully to the text-only fallback (no crash, no blank).
+    console.error('[parseInnerEvent] failed to parse inner event', e);
     return fallback(inner);
   }
 };

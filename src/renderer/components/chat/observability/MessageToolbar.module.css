@@ -22,6 +22,10 @@
   color: var(--success);
 }
 
+.failed {
+  color: var(--danger);
+}
+
 .selected {
   color: var(--brand);
 }

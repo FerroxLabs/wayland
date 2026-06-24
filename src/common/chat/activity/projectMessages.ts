@@ -60,14 +60,30 @@ export const toolGroupToNodes = (content: IMessageToolGroup['content']): Activit
 /** Map one ACP tool_call message to a canonical tool node (fields nest under `.update`). */
 export const acpToolCallToNode = (content: IMessageAcpToolCall['content']): ActivityNode => {
   const u = content.update;
+  // Synthesize an id when a malformed ACP event omits toolCallId, so the call
+  // still surfaces as a node instead of vanishing (mirrors innerEvent's genericNode).
+  const id = u.toolCallId || `acp:${u.kind ?? 'tool'}:${u.title ?? ''}`;
   return {
-    id: u.toolCallId,
+    id,
     kind: 'tool',
-    callId: u.toolCallId,
+    callId: id,
     name: u.title ?? '',
     status: ACP_STATUS[u.status] ?? 'running',
   };
 };
+
+/**
+ * When a sub-agent has finished, settle any still-'running' child node to 'done'
+ * so the nested timeline reflects the parent's terminal state - the engine
+ * advances the sub-agent ROOT status (info/error) but never re-stamps the child
+ * thinking/tool nodes, which would otherwise spin forever after completion.
+ */
+const settleNodes = (nodes: ActivityNode[]): ActivityNode[] =>
+  nodes.map((n) => ({
+    ...n,
+    status: n.status === 'running' ? 'done' : n.status,
+    ...(n.children?.length ? { children: settleNodes(n.children) } : {}),
+  }));
 
 /**
  * Project a grouped tool_summary (mixed wcore tool_group + ACP acp_tool_call)
@@ -86,8 +102,10 @@ export const toolSummaryToSteps = (
 };
 
 /** Project a spawned sub_agent card (parsed inner subtree) into one sub_agent step. */
-export const subAgentToStep = (content: IMessageSubAgent['content'], source?: ActivitySource): ActivityStep =>
-  nodeToStep(
+export const subAgentToStep = (content: IMessageSubAgent['content'], source?: ActivitySource): ActivityStep => {
+  const terminal = content.status === 'done' || content.status === 'failed';
+  const children = content.nodes?.length ? (terminal ? settleNodes(content.nodes) : content.nodes) : undefined;
+  return nodeToStep(
     {
       id: content.parentCallId,
       kind: 'sub_agent',
@@ -95,10 +113,11 @@ export const subAgentToStep = (content: IMessageSubAgent['content'], source?: Ac
       name: content.agentName,
       status: content.status,
       ...(content.body ? { detail: content.body } : {}),
-      ...(content.nodes?.length ? { children: content.nodes } : {}),
+      ...(children ? { children } : {}),
     },
     source
   );
+};
 
 /** Project the live activity-tree card into steps. */
 export const activityToSteps = (content: IMessageActivity['content'], source?: ActivitySource): ActivityStep[] =>

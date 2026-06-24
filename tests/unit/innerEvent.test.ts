@@ -175,9 +175,21 @@ describe('innerEvent.parseInnerEvent - graceful fallback / regression', () => {
     expect(r.text).toBe('');
   });
 
-  it('keeps turn FRAMING events (stream_start/end/ready/pong) empty - no noise nodes', () => {
-    expect(parseInnerEvent({ type: 'stream_start', msg_id: 'm1' }).nodes).toHaveLength(0);
-    expect(parseInnerEvent({ type: 'stream_end', msg_id: 'm1' }).nodes).toHaveLength(0);
-    expect(parseInnerEvent({ type: 'pong' }).nodes).toHaveLength(0);
+  it('keeps ENUMERATED framing/control events empty - no noise nodes', () => {
+    for (const type of ['stream_start', 'stream_end', 'pong', 'approval_required', 'provider_circuit_event', 'suspend', 'budget_exceeded', 'evolution_event', 'plugin_event', 'cua_policy_denied']) {
+      expect(parseInnerEvent({ type, msg_id: 'm1', call_id: 'c1' }).nodes).toHaveLength(0);
+    }
+  });
+
+  it('maps meaningful enumerated ops: tool_panicked -> failed tool, browser/cua -> op node', () => {
+    const panic = parseInnerEvent({ type: 'tool_panicked', call_id: 'c1', tool_name: 'Bash', panic_message: 'boom' });
+    expect(panic.nodes[0]).toMatchObject({ id: 'c1', kind: 'tool', name: 'Bash', status: 'failed', detail: 'boom' });
+
+    const browser = parseInnerEvent({ type: 'browser_event', call_id: 'b1', op: 'navigate', url: 'https://x.com', summary: 'opened' });
+    expect(browser.nodes[0]).toMatchObject({ id: 'b1', kind: 'browser', name: 'navigate' });
+    expect(browser.nodes[0].detail).toContain('https://x.com');
+
+    const cua = parseInnerEvent({ type: 'cua_event', call_id: 'u1', op: 'click', summary: 'clicked' });
+    expect(cua.nodes[0]).toMatchObject({ id: 'u1', kind: 'cua', name: 'click' });
   });
 });

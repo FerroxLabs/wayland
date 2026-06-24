@@ -353,6 +353,7 @@
   "toolbar": {
     "copy": "Copy",
     "copied": "Copied",
+    "copyFailed": "Copy failed",
     "regenerate": "Regenerate",
     "thumbsUp": "Good response",
     "thumbsDown": "Bad response"
