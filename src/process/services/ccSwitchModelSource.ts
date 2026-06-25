@@ -206,6 +206,42 @@ export function readClaudeModelInfoFromCcSwitch(paths?: Partial<CcSwitchPaths>):
   }
 }
 
+/** Friendly labels for the native Claude model slots (no cc-switch DB to read). */
+const CLAUDE_SLOT_LABELS: Record<ClaudeModelSlotId, string> = {
+  opus: 'Opus',
+  default: 'Sonnet',
+  haiku: 'Haiku',
+};
+
+/** Native slot order for the picker (Opus first - the product default). */
+const CLAUDE_NATIVE_SLOT_ORDER: readonly ClaudeModelSlotId[] = ['opus', 'default', 'haiku'];
+
+/**
+ * Build Claude model info from a plain `~/.claude/settings.json` (Claude Code CLI
+ * set up WITHOUT cc-switch). This is the fallback for `readClaudeModelInfoFromCcSwitch`
+ * (which returns null with no cc-switch DB): a native Claude login still surfaces its
+ * switchable slots (Opus / Sonnet / Haiku) in the picker eagerly, before the first
+ * message, with the current slot taken from settings.model (e.g. "opus[1m]" -> opus).
+ * Returns null when the Claude Code CLI isn't set up.
+ */
+export function readClaudeModelInfoFromSettings(homeDir = os.homedir()): AcpModelInfo | null {
+  const { claudeSettingsPath } = getCcSwitchPaths(homeDir);
+  if (!fs.existsSync(claudeSettingsPath)) return null;
+  const settings = parseJsonObject<ClaudeSettings>(fs.readFileSync(claudeSettingsPath, 'utf-8'));
+  const currentModelId = claudeSlotForModelId(settings?.model) ?? 'opus';
+  const availableModels = CLAUDE_NATIVE_SLOT_ORDER.map((id) => ({ id, label: CLAUDE_SLOT_LABELS[id] }));
+  const currentModelLabel =
+    availableModels.find((m) => m.id === currentModelId)?.label ?? CLAUDE_SLOT_LABELS.opus;
+  return {
+    currentModelId,
+    currentModelLabel,
+    availableModels,
+    canSwitch: true,
+    source: 'models',
+    sourceDetail: 'claude-slots',
+  };
+}
+
 /**
  * The native Claude default model SLOT for a brand-new Claude Code chat, or null
  * when there is no native Claude login to default to (so the caller keeps its
