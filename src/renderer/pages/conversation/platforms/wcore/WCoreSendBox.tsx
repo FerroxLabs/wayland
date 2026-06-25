@@ -48,7 +48,6 @@ import { Message, Tag } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWCoreMessage } from './useWCoreMessage';
-import { useFastAck } from './useFastAck';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { classifyAcpAuthFailure } from '@/renderer/pages/conversation/platforms/acp/acpAuthFailure';
@@ -115,7 +114,6 @@ const WCoreSendBox: React.FC<{
   const { t } = useTranslation();
   const { checkAndUpdateTitle } = useAutoTitle();
   const { currentModel, getDisplayModelName } = modelSelection;
-  const { fireAck } = useFastAck(conversation_id);
   const readiness = useProviderReadiness();
   // The engine is "asleep" when no working inference provider is configured.
   // While asleep we still let the user compose + send: the message is held in
@@ -249,13 +247,6 @@ const WCoreSendBox: React.FC<{
             }
           }
         } else {
-          // Perceived-speed (#30): on the Flux path, fire a parallel flux-fast
-          // "here's the plan" ack and show it as a transient bubble above the
-          // real stream. Not awaited - the real turn dispatches immediately and
-          // is unaffected if the ack is slow or fails.
-          if (isFluxModelId(currentModel?.useModel)) {
-            fireAck(input, msg_id);
-          }
           const result = await ipcBridge.conversation.sendMessage.invoke({
             input: displayMessage,
             msg_id,
@@ -279,7 +270,6 @@ const WCoreSendBox: React.FC<{
       checkAndUpdateTitle,
       conversation_id,
       currentModel?.useModel,
-      fireAck,
       setActiveMsgId,
       removeMessageByMsgId,
       setWaitingResponse,

@@ -14,7 +14,6 @@ import { useTabResumeEffect } from '@/renderer/hooks/system/useTabResumeEffect';
 import { isToolUnsupportedErrorMessage } from '@/renderer/utils/model/errorDetection';
 import i18n from '@/renderer/services/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { dispatchAckClear } from './ackEvents';
 
 type TokenUsage = {
   input_tokens?: number;
@@ -154,11 +153,6 @@ export const useWCoreMessage = (
           setStreamRunning(true);
           streamRunningRef.current = true;
           turnEndedInErrorRef.current = false;
-          // Fast-ack (#30): the real response is starting - drop the transient
-          // "here's the plan" bubble so it never overlaps the real stream.
-          if (message.msg_id) {
-            dispatchAckClear({ conversationId: conversation_id, msgId: message.msg_id });
-          }
           // Don't reset waitingResponse here - let tool completion flow handle it
           break;
         case 'finish':
@@ -276,10 +270,6 @@ export const useWCoreMessage = (
             // Mark the turn as currently ended-in-error; a later content/tool_group
             // frame clears this if the turn actually continues and succeeds.
             turnEndedInErrorRef.current = true;
-            // Fast-ack (#30): the turn errored - drop any transient ack bubble.
-            if (message.msg_id) {
-              dispatchAckClear({ conversationId: conversation_id, msgId: message.msg_id });
-            }
             // Tool-incapable models (e.g. OpenRouter's Aion-1.0) hard-fail because the
             // engine always attaches its built-in tools. Replace the opaque provider
             // 404 with a clean, actionable message before it is rendered as a tip.
