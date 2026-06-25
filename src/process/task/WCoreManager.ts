@@ -973,24 +973,21 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         return;
       }
 
-      // W7 S4 HITL: wcore forwards `approval_required` typed (index.ts) so a
-      // future renderer can show an approval modal. There is no such UI nor any
-      // `approval_resume` sender yet, so consume it here to avoid the
-      // "Unsupported message type" warning in transformMessage (chatLib has no
-      // `approval_required` case → default branch). Mirrors config_changed /
-      // sub_agent_event pre-processing above.
-      //
-      // `reason` is an opaque engine string. In auto-approve (yolo) runs it is
-      // an info signal and dropping it is correct. A non-'info' reason means the
-      // engine is genuinely gated on a resume the app cannot send — log loudly
-      // so a hung turn is diagnosable rather than silent. Renderer wiring +
-      // approval_resume are out of scope (tracked separately).
+      // W7 S4 HITL: the engine suspended the turn waiting on `approval_required`
+      // (resume_token based — distinct from tool_group confirmations). The engine
+      // self-resolves this under --auto-approve, but that path can fail on some
+      // provider routes (notably Anthropic-format `toolu_` tool ids routed via
+      // Flux), leaving the turn wedged forever with no host response. There is no
+      // renderer UI for this HITL path yet, so in an auto mode (Autopilot/Auto
+      // Edit) — and for informational (`reason:'info'`, e.g. the internal todo
+      // tool) approvals in any mode — send an explicit, idempotent
+      // `approval_resume` so the turn can never hang. (A stale/duplicate token is
+      // safely ignored engine-side.)
       if (data.type === 'approval_required') {
-        const reason = (data.data as { reason?: string } | undefined)?.reason;
-        if (reason && reason !== 'info') {
-          mainError('[WCoreManager]', `approval_required reason='${reason}' but no approval UI; dropping`, data.data);
-        } else {
-          mainLog('[WCoreManager]', 'approval_required (auto-approve info)', data.data);
+        const appr = (data.data ?? {}) as { resumeToken?: string; reason?: string };
+        const autoMode = this.currentMode === 'yolo' || this.currentMode === 'auto_edit';
+        if (appr.resumeToken && (autoMode || appr.reason === 'info')) {
+          this.agent?.resumeApproval(appr.resumeToken, true);
         }
         return;
       }
