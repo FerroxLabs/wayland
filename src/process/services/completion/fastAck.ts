@@ -44,17 +44,10 @@ const MAX_PROMPT_CHARS = 1000;
  */
 export function buildFastAckPrompt(userMessage: string): string {
   const gist = userMessage.trim().slice(0, MAX_PROMPT_CHARS);
-  return `You write a single "Quick take" shown for a moment while the real answer is being prepared. Its only job is to add something the user does NOT already know from their own message. Never restate, paraphrase, or summarize their request.
-
-Pick the ONE move that fits this message:
-- Question or research ask: give your best provisional answer from what you already know, in a few words, framed as a first instinct you are about to verify.
-- Build / make / write ask: commit to ONE concrete decision about how you will do it (a specific structure, choice, or default) — not a recap of what they asked for.
-- Something important is ambiguous: state the single assumption you are making, so they can correct it now.
-- Otherwise: lead with the one fact that best orients the topic.
-
-If the message is only a confirmation, a "yes do that", or a small follow-up with nothing genuinely new to add, reply with an empty message and no other text.
-
-Rules: at most 1-2 short sentences (~40 words). Vary your phrasing and length from one take to the next. Never begin with "I'll", "I will", "Let me", or "Sure". Never use the shape "I'll X, Y, and Z". Do not restate the request.
+  // Kept deliberately short: this runs on flux-fast and must return before the
+  // main model's first token, or the renderer's race-guard drops it. A long
+  // meta-prompt slows the first token enough to lose that race.
+  return `In ONE short line (max 20 words), ADD something the user doesn't already know: your best provisional answer, one concrete decision, or the key assumption you're making. Never restate or paraphrase their request. Never begin with "I'll". If it's only a confirmation with nothing new to add, reply with nothing.
 
 User message: "${gist}"`;
 }

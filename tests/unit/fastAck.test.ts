@@ -10,10 +10,10 @@ import { buildFastAckPrompt, cleanFastAck } from '@process/services/completion/f
 describe('buildFastAckPrompt', () => {
   it('forbids echoing the request and bans the "I\'ll ..." opener', () => {
     const out = buildFastAckPrompt('Refactor the auth module');
-    expect(out).toContain('add something the user does NOT already know');
+    expect(out).toContain("ADD something the user doesn't already know");
     expect(out).toContain('Never restate');
     expect(out).toContain('Never begin with "I\'ll"');
-    expect(out).toContain('reply with an empty message');
+    expect(out).toContain('reply with nothing');
     expect(out).toContain('Refactor the auth module');
   });
 
