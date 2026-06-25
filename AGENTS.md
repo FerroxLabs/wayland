@@ -154,7 +154,7 @@ See the `testing` skill (`.claude/skills/testing/SKILL.md`) for complete workflo
 ```bash
 bun run lint:fix       # auto-fix lint issues in .ts / .tsx (oxlint)
 bun run format         # auto-format .ts / .tsx / .css / .json / .md (oxfmt)
-bunx tsc --noEmit      # verify no type errors
+bun run typecheck      # verify no type errors (raises the heap; raw `tsc --noEmit` OOMs on large checkouts)
 ```
 
 **Before every PR** - run the full CI check locally to catch everything CI catches (end-of-file, trailing whitespace, all file types):

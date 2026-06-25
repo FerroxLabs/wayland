@@ -17,6 +17,16 @@ const crypto = require('crypto');
 const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 
+// Raise the V8 old-space ceiling for the bundling step. electron-vite transforms
+// ~13k modules in a single process; on machines with the default ~2 GB heap the
+// renderer build OOMs partway through ("Ineffective mark-compacts near heap
+// limit - JavaScript heap out of memory", #260). 8192 MB matches the `typecheck`
+// script. Setting it on process.env propagates to every execSync child below
+// (they all spread process.env). An explicit caller --max-old-space-size wins.
+if (!/--max[-_]old[-_]space[-_]size/.test(process.env.NODE_OPTIONS || '')) {
+  process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS || ''} --max-old-space-size=8192`.trim();
+}
+
 // DMG retry logic for macOS: detects DMG creation failures by checking artifacts
 // (.app exists but .dmg missing) and retries only the DMG step using
 // electron-builder --prepackaged with the .app path (not the parent directory).
