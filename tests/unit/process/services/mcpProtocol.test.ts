@@ -35,6 +35,15 @@ vi.mock('fs', () => ({ promises: { access: vi.fn() } }));
 vi.mock('@process/utils/safeExec', () => ({
   safeExec: vi.fn().mockResolvedValue({ stdout: '', stderr: '' }),
 }));
+// #283/#306: McpProtocol gates "non-2xx probe -> auth required" on OAuth
+// discovery. Mock the helper so these tests stay hermetic (no real .well-known
+// network calls) and we can drive the discoverable / not-discoverable branches.
+const { isOAuthProtectedEndpointMock } = vi.hoisted(() => ({
+  isOAuthProtectedEndpointMock: vi.fn(async () => false),
+}));
+vi.mock('@process/services/mcpServices/McpOAuthService', () => ({
+  isOAuthProtectedEndpoint: isOAuthProtectedEndpointMock,
+}));
 
 import type { McpConnectionTestResult, McpOperationResult } from '@process/services/mcpServices/McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
@@ -61,6 +70,7 @@ describe('AbstractMcpAgent', () => {
 
   beforeEach(async () => {
     vi.resetModules();
+    isOAuthProtectedEndpointMock.mockReset().mockResolvedValue(false);
 
     const { AbstractMcpAgent } = await import('@process/services/mcpServices/McpProtocol');
 
@@ -154,6 +164,49 @@ describe('AbstractMcpAgent', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Connection refused');
+
+      vi.unstubAllGlobals();
+    });
+
+    it('should return needsAuth for a 400 "missing Authorization header" probe when OAuth is discoverable (#283 GitHub)', async () => {
+      isOAuthProtectedEndpointMock.mockResolvedValue(true);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          status: 400,
+          statusText: 'Bad Request',
+          ok: false,
+          headers: new Headers(),
+        })
+      );
+
+      const result = await testAgent.testHttpConnection({ url: 'https://api.githubcopilot.com/mcp' });
+
+      expect(result.success).toBe(false);
+      expect(result.needsAuth).toBe(true);
+      expect(result.authMethod).toBe('oauth');
+      expect(isOAuthProtectedEndpointMock).toHaveBeenCalledWith('https://api.githubcopilot.com/mcp');
+
+      vi.unstubAllGlobals();
+    });
+
+    it('should return a connection error (not needsAuth) for a non-2xx probe with no discoverable OAuth (#283 5xx guard)', async () => {
+      isOAuthProtectedEndpointMock.mockResolvedValue(false);
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          status: 503,
+          statusText: 'Service Unavailable',
+          ok: false,
+          headers: new Headers(),
+        })
+      );
+
+      const result = await testAgent.testHttpConnection({ url: 'https://down.example.com/mcp' });
+
+      expect(result.success).toBe(false);
+      expect(result.needsAuth).toBeUndefined();
+      expect(result.error).toBe('HTTP 503: Service Unavailable');
 
       vi.unstubAllGlobals();
     });

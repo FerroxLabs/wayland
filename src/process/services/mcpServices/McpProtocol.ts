@@ -349,6 +349,22 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
         }
       }
 
+      // #283 / #306: a non-2xx probe without a 401 challenge (GitHub returns 400
+      // "missing required Authorization header", Google Workspace similarly) is
+      // an auth requirement only when OAuth is discoverable on the endpoint.
+      // Gating on discovery keeps a transient 5xx a connection error.
+      if (!authCheckResponse.ok) {
+        const { isOAuthProtectedEndpoint } = await import('@process/services/mcpServices/McpOAuthService');
+        if (await isOAuthProtectedEndpoint(transport.url)) {
+          return {
+            success: false,
+            needsAuth: true,
+            authMethod: 'oauth',
+            error: 'Authentication required',
+          };
+        }
+      }
+
       // Create SSE transport
       const sseTransport = new SSEClientTransport(new URL(transport.url), {
         requestInit: {
@@ -441,6 +457,8 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
         }),
       });
 
+      // Fast path: an RFC 6750 challenge (401 + WWW-Authenticate) is an
+      // unambiguous OAuth requirement.
       if (probeResponse.status === 401) {
         const wwwAuthenticate = probeResponse.headers.get('WWW-Authenticate');
         if (wwwAuthenticate) {
@@ -452,13 +470,26 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
             error: 'Authentication required',
           };
         }
-        return {
-          success: false,
-          error: `HTTP ${probeResponse.status}: ${probeResponse.statusText}`,
-        };
       }
 
       if (!probeResponse.ok) {
+        // #283 / #306: GitHub/Google remote MCP reject an unauthenticated probe
+        // with 400 "missing required Authorization header" (not 401 +
+        // WWW-Authenticate), so the challenge fast path never fires. Treat a
+        // non-2xx probe as an auth requirement ONLY when OAuth discovery
+        // succeeds on the endpoint; a transient 5xx with no discoverable OAuth
+        // stays a plain connection error rather than a spurious sign-in prompt.
+        // Lazy import: only the (rare) non-2xx path needs the OAuth module, so
+        // every other McpProtocol importer stays free of its load-time cost.
+        const { isOAuthProtectedEndpoint } = await import('@process/services/mcpServices/McpOAuthService');
+        if (await isOAuthProtectedEndpoint(transport.url)) {
+          return {
+            success: false,
+            needsAuth: true,
+            authMethod: 'oauth',
+            error: 'Authentication required',
+          };
+        }
         return {
           success: false,
           error: `HTTP ${probeResponse.status}: ${probeResponse.statusText}`,

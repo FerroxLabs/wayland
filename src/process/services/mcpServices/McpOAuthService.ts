@@ -35,7 +35,7 @@ function canonicalizeRootResource(value: string): string {
 
 const originalBuildResourceParameter = OAuthUtils.buildResourceParameter.bind(OAuthUtils);
 (OAuthUtils as unknown as { buildResourceParameter: (url: string) => string }).buildResourceParameter = (
-  endpointUrl: string,
+  endpointUrl: string
 ): string => canonicalizeRootResource(originalBuildResourceParameter(endpointUrl));
 
 // Mirror the canonicalization on the inbound side. discoverOAuthConfig compares
@@ -50,8 +50,7 @@ const originalBuildResourceParameter = OAuthUtils.buildResourceParameter.bind(OA
 // endpoint path. Path-vs-base mismatches (Linear: requests /mcp, advertises the
 // bare host) are handled in the discoverOAuthConfig wrapper below, which DOES
 // have the server url in scope.
-const originalFetchProtectedResourceMetadata =
-  OAuthUtils.fetchProtectedResourceMetadata.bind(OAuthUtils);
+const originalFetchProtectedResourceMetadata = OAuthUtils.fetchProtectedResourceMetadata.bind(OAuthUtils);
 (
   OAuthUtils as unknown as {
     fetchProtectedResourceMetadata: (url: string) => Promise<{ resource?: string } | null>;
@@ -75,8 +74,7 @@ const originalFetchProtectedResourceMetadata =
 // so the comparison passes. Only applies when advertised is a genuine prefix -
 // any other mismatch still throws.
 const originalDiscoverOAuthConfig = OAuthUtils.discoverOAuthConfig.bind(OAuthUtils);
-const originalDiscoverOAuthFromWWWAuthenticate =
-  OAuthUtils.discoverOAuthFromWWWAuthenticate.bind(OAuthUtils);
+const originalDiscoverOAuthFromWWWAuthenticate = OAuthUtils.discoverOAuthFromWWWAuthenticate.bind(OAuthUtils);
 
 function isSameOriginPrefix(advertised: string, requested: string): boolean {
   try {
@@ -106,10 +104,7 @@ function isSameOriginPrefix(advertised: string, requested: string): boolean {
 // Higgsfield reaches the second path, so patching only the first (the original
 // Linear-only fix) left the bare-origin OAuth servers failing with
 // "Protected resource <origin> does not match expected <origin>/mcp".
-async function withSameOriginPrefixRecovery<T>(
-  serverUrl: string | undefined,
-  run: () => Promise<T>,
-): Promise<T> {
+async function withSameOriginPrefixRecovery<T>(serverUrl: string | undefined, run: () => Promise<T>): Promise<T> {
   try {
     return await run();
   } catch (err) {
@@ -130,8 +125,8 @@ async function withSameOriginPrefixRecovery<T>(
     // then restore so other servers keep their own canonical resource.
     const saved = OAuthUtils.buildResourceParameter;
     const advForced = canonicalizeRootResource(advertised!);
-    (OAuthUtils as unknown as { buildResourceParameter: (u: string) => string }).buildResourceParameter =
-      () => advForced;
+    (OAuthUtils as unknown as { buildResourceParameter: (u: string) => string }).buildResourceParameter = () =>
+      advForced;
     try {
       return await run();
     } finally {
@@ -149,15 +144,42 @@ async function withSameOriginPrefixRecovery<T>(
 
 (
   OAuthUtils as unknown as {
-    discoverOAuthFromWWWAuthenticate: (
-      wwwAuthenticate: string,
-      mcpServerUrl?: string,
-    ) => Promise<unknown>;
+    discoverOAuthFromWWWAuthenticate: (wwwAuthenticate: string, mcpServerUrl?: string) => Promise<unknown>;
   }
 ).discoverOAuthFromWWWAuthenticate = (wwwAuthenticate: string, mcpServerUrl?: string) =>
   withSameOriginPrefixRecovery(mcpServerUrl, () =>
-    originalDiscoverOAuthFromWWWAuthenticate(wwwAuthenticate, mcpServerUrl),
+    originalDiscoverOAuthFromWWWAuthenticate(wwwAuthenticate, mcpServerUrl)
   );
+
+/**
+ * #283 / #306: Decide whether `url` is an OAuth-protected MCP endpoint by running
+ * OAuth metadata discovery (RFC 9728 protected-resource + RFC 8414 auth-server)
+ * against it. This is deliberately INDEPENDENT of the connection probe's HTTP
+ * status: GitHub's remote MCP answers an unauthenticated probe with
+ * 400 "missing required Authorization header" and Google Workspace MCP behaves
+ * similarly - neither returns the RFC 6750 `401 + WWW-Authenticate` challenge the
+ * old detection keyed on. Discovery still succeeds because the `.well-known`
+ * metadata endpoints are reachable regardless of the probe status.
+ *
+ * Used to GATE the "treat a non-2xx probe as auth-required" rule (Overwatch
+ * ruling on #283): a non-2xx response only means "sign-in required" when OAuth is
+ * actually discoverable here, so a transient 5xx with no discoverable OAuth stays
+ * a plain connection error instead of triggering a spurious sign-in flow.
+ *
+ * Never throws - any discovery failure (network error, no metadata, malformed
+ * response) resolves to `false`.
+ */
+export async function isOAuthProtectedEndpoint(url: string): Promise<boolean> {
+  try {
+    const discovered = (await OAuthUtils.discoverOAuthConfig(url)) as
+      | { authorizationUrl?: string; registrationUrl?: string }
+      | null
+      | undefined;
+    return Boolean(discovered && (discovered.authorizationUrl || discovered.registrationUrl));
+  } catch {
+    return false;
+  }
+}
 
 // Pin the OAuth callback server port. Upstream picks a random OS-assigned port
 // unless OAUTH_CALLBACK_PORT is set, which is fine for DCR flows (the freshly-
@@ -284,38 +306,37 @@ export class McpOAuthService {
         },
       });
 
-      // Check whether it returned 401 Unauthorized
-      if (response.status === 401) {
-        const wwwAuthenticate = response.headers.get('WWW-Authenticate');
-
-        if (wwwAuthenticate) {
-          // Server requires OAuth auth
-          // Check whether we already have a stored token
-          const credentials = await this.tokenStorage.getCredentials(server.name);
-
-          if (credentials && credentials.token) {
-            // Have a token, but it may be expired
-            const isExpired = this.tokenStorage.isTokenExpired(credentials.token);
-
-            return {
-              isAuthenticated: !isExpired,
-              needsLogin: isExpired,
-              error: isExpired ? 'Token expired' : undefined,
-            };
-          }
-
-          // No token; login required
-          return {
-            isAuthenticated: false,
-            needsLogin: true,
-          };
-        }
+      // Fast path: an RFC 6750 challenge (401 + WWW-Authenticate) unambiguously
+      // means the endpoint wants OAuth.
+      if (response.status === 401 && response.headers.get('WWW-Authenticate')) {
+        return this.authStatusFromStoredToken(server);
       }
 
-      // Connection succeeded or auth not required
+      // Reachable and not demanding auth.
+      if (response.ok) {
+        return {
+          isAuthenticated: true,
+          needsLogin: false,
+        };
+      }
+
+      // #283 / #306: some remote MCP servers reject an unauthenticated probe
+      // WITHOUT a 401 challenge - GitHub's returns 400 "missing required
+      // Authorization header", Google Workspace similarly. A non-2xx probe is
+      // only an auth requirement when the endpoint actually advertises OAuth, so
+      // gate on discovery (independent of the probe status). A transient 5xx with
+      // no discoverable OAuth stays a connection error, not a spurious sign-in.
+      if (await isOAuthProtectedEndpoint(url)) {
+        return this.authStatusFromStoredToken(server);
+      }
+
+      // Non-2xx and no discoverable OAuth: a genuine connection failure. Do NOT
+      // report it as authenticated - that was the original fall-through bug that
+      // left #283/#306 servers looking "connected" while every request 400s.
       return {
-        isAuthenticated: true,
+        isAuthenticated: false,
         needsLogin: false,
+        error: `HTTP ${response.status}: ${response.statusText}`,
       };
     } catch (error) {
       console.error('[McpOAuthService] Error checking OAuth status:', error);
@@ -325,6 +346,32 @@ export class McpOAuthService {
         error: error instanceof Error ? error.message : String(error),
       };
     }
+  }
+
+  /**
+   * Resolve OAuth status from any stored credentials for `server`: authenticated
+   * when a non-expired token exists, otherwise login required. Shared by the
+   * 401-challenge fast path and the #283/#306 discovery-gated path so both reach
+   * the identical token-presence/expiry decision.
+   */
+  private async authStatusFromStoredToken(server: IMcpServer): Promise<OAuthStatus> {
+    const credentials = await this.tokenStorage.getCredentials(server.name);
+
+    if (credentials && credentials.token) {
+      // Have a token, but it may be expired.
+      const isExpired = this.tokenStorage.isTokenExpired(credentials.token);
+      return {
+        isAuthenticated: !isExpired,
+        needsLogin: isExpired,
+        error: isExpired ? 'Token expired' : undefined,
+      };
+    }
+
+    // No token; login required.
+    return {
+      isAuthenticated: false,
+      needsLogin: true,
+    };
   }
 
   /**
@@ -393,7 +440,8 @@ export class McpOAuthService {
               code: 'needs_byo',
               redirectUri: WAYLAND_OAUTH_REDIRECT_URI,
               authorizationUrl: discovered.authorizationUrl,
-              error: 'This vendor does not support automatic OAuth client registration. Paste a manually-registered client_id (and secret) to continue.',
+              error:
+                'This vendor does not support automatic OAuth client registration. Paste a manually-registered client_id (and secret) to continue.',
             };
           }
         } catch (probeErr) {
