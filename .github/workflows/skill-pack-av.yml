@@ -1,0 +1,105 @@
+# #309 — verify the skill/workflow body pack reduces AV false-positive surface
+# WITHOUT relying on the developer running antivirus locally.
+#
+# Two layers, by design:
+#   1. structural-gate (BLOCKING, deterministic, no AV): build the pack and
+#      assert the shipped resource dir contains ZERO loose scannable SKILL.md,
+#      uses a neutral non-document blob, has plain-text entropy (no gzip/base64),
+#      and round-trips byte-exact vs source. This is the real acceptance test —
+#      "the thing AV scans is simply gone, and search is unchanged" — and it
+#      cannot flake on a signature update.
+#   2. defender-scan (ADVISORY, corroboration): on windows-latest run an
+#      on-demand Microsoft Defender scan over the packed dir, GATED by an EICAR
+#      liveness canary so a "0 detections" result is trustworthy and not a no-op.
+#      AV verdicts are non-deterministic/vendor-specific, so this informs but
+#      does not block.
+name: skill-pack-av
+
+on:
+  pull_request:
+    branches: [main, dev, 'feat/**', 'release/**', 'integration/**']
+    paths:
+      - 'src/process/resources/skills-library/**'
+      - 'src/process/resources/bundled-workflows/**'
+      - 'src/process/services/skills/**'
+      - 'scripts/build-skill-pack.ts'
+      - 'scripts/verify-skill-pack.ts'
+      - 'electron-builder.yml'
+      - '.github/workflows/skill-pack-av.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skill-pack-av-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  structural-gate:
+    name: Structural gate (no loose .md, byte-exact round-trip)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install deps
+        run: bun install --frozen-lockfile
+      - name: Build skill pack
+        run: bun run build:skill-pack
+      - name: Verify pack (no loose .md, neutral blob, low entropy, byte-exact)
+        run: bun run verify:skill-pack
+
+  defender-scan:
+    name: Defender corroboration (advisory, EICAR-gated)
+    runs-on: windows-latest
+    # Advisory only — AV verdicts are non-deterministic. Never blocks the merge.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install deps
+        run: bun install --frozen-lockfile
+      - name: Build skill pack
+        run: bun run build:skill-pack
+      - name: Update Defender signatures
+        shell: pwsh
+        run: |
+          $mp = "$env:ProgramFiles\Windows Defender\MpCmdRun.exe"
+          & $mp -SignatureUpdate
+        continue-on-error: true
+      - name: EICAR liveness canary (scanner MUST detect this)
+        shell: pwsh
+        run: |
+          # Hosted runners keep Defender in passive mode (real-time off), but
+          # on-demand scans still work. Prove the scanner is actually live before
+          # trusting any "clean" result on the pack.
+          $mp = "$env:ProgramFiles\Windows Defender\MpCmdRun.exe"
+          $dir = Join-Path $env:RUNNER_TEMP 'eicar-canary'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          # Standard EICAR test string, assembled at runtime so this file isn't itself flagged.
+          $eicar = 'X5O!P%@AP[4\PZX54(P^)7CC)7}' + '$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+          Set-Content -Path (Join-Path $dir 'eicar.com') -Value $eicar -NoNewline -Encoding ascii
+          & $mp -Scan -ScanType 3 -File $dir -DisableRemediation
+          if ($LASTEXITCODE -ne 2) {
+            Write-Error "Defender did NOT flag EICAR (exit $LASTEXITCODE) — scanner is not live; clean results are untrustworthy."
+            exit 1
+          }
+          Write-Host "Defender is live (EICAR detected)."
+      - name: Scan the packed skill resources
+        shell: pwsh
+        run: |
+          $mp = "$env:ProgramFiles\Windows Defender\MpCmdRun.exe"
+          $packDir = Join-Path $env:GITHUB_WORKSPACE '.skill-pack'
+          & $mp -Scan -ScanType 3 -File $packDir -DisableRemediation
+          $code = $LASTEXITCODE
+          if ($code -eq 0) {
+            Write-Host "Defender: no detections on the packed skill resources."
+          } elseif ($code -eq 2) {
+            Write-Warning "Defender flagged something in the packed resources — investigate (advisory, non-blocking)."
+          } else {
+            Write-Warning "Defender scan returned exit $code (advisory)."
+          }

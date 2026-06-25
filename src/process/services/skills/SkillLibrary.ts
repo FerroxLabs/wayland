@@ -16,8 +16,14 @@
 import path from 'path';
 import { existsSync } from 'fs';
 import { readFile as fsReadFile } from 'fs/promises';
-import { SKILL_SCANNER_VERSION, type SkillIndexEntry, type SkillSecurityReport, type SkillSource } from '@/common/types/skillTypes';
+import {
+  SKILL_SCANNER_VERSION,
+  type SkillIndexEntry,
+  type SkillSecurityReport,
+  type SkillSource,
+} from '@/common/types/skillTypes';
 import { SkillGuard } from './SkillGuard';
+import { openSkillPack, type SkillPackReader } from './SkillPack';
 
 // ProcessConfig and mainLogger are intentionally NOT imported at the module
 // level: pulling them in drags `@/common` + initStorage (with the database
@@ -158,6 +164,14 @@ export class SkillLibrary {
   /** Tracks whether the on-disk index.json has been merged in yet. */
   private indexLoaded = false;
   private loadPromise: Promise<void> | null = null;
+  /**
+   * #309: packed body stores. When a `skill-bodies.bin` + offset index is
+   * present in the resource dir (packaged builds), vendored bodies are seek-read
+   * from the blob instead of loose `bodies/*.md`. `null` means no pack (dev tree
+   * / legacy layout) - `loadBody` then reads loose files exactly as before.
+   */
+  private skillPack: SkillPackReader | null = null;
+  private workflowPack: SkillPackReader | null = null;
 
   private constructor(opts: SkillLibraryOptions = {}) {
     this.resourceDir = opts.resourceDir ?? resolveSkillsLibraryDir();
@@ -188,6 +202,12 @@ export class SkillLibrary {
   private load(): Promise<void> {
     if (this.loadPromise) return this.loadPromise;
     this.loadPromise = (async () => {
+      // #309: open the packed body stores if present (packaged builds ship a
+      // blob + offset index instead of loose bodies/). Absent in the dev tree -
+      // openSkillPack returns null and loadBody falls back to loose files.
+      this.skillPack = await openSkillPack(this.resourceDir);
+      this.workflowPack = await openSkillPack(this.bundledWorkflowsDir);
+
       const indexPath = path.join(this.resourceDir, 'index.json');
       const raw = await this.readFileFn(indexPath);
       const parsed = JSON.parse(raw) as SkillIndexEntry[];
@@ -278,10 +298,10 @@ export class SkillLibrary {
           console.warn(`${TAG} ${warning}`);
           continue;
         }
-        console.warn(
-          `${TAG} Skill name collision on registerSource - '${entry.name}' overwritten`,
-          { prev: existing.source, next: entry.source }
-        );
+        console.warn(`${TAG} Skill name collision on registerSource - '${entry.name}' overwritten`, {
+          prev: existing.source,
+          next: entry.source,
+        });
         this.entries = this.entries.filter((e) => e.name !== entry.name);
       }
       this.entries.push(entry);
@@ -320,9 +340,7 @@ export class SkillLibrary {
     }
     if (query !== undefined && query.length > 0) {
       const q = query.toLowerCase();
-      result = result.filter(
-        (e) => e.name.toLowerCase().includes(q) || e.description.toLowerCase().includes(q)
-      );
+      result = result.filter((e) => e.name.toLowerCase().includes(q) || e.description.toLowerCase().includes(q));
     }
 
     return result;
@@ -348,9 +366,7 @@ export class SkillLibrary {
   async stats(filter?: { type?: SkillIndexEntry['type'] }): Promise<SkillStats> {
     await this.ensureLoaded();
 
-    const entries = filter?.type
-      ? this.entries.filter((e) => e.type === filter.type)
-      : this.entries;
+    const entries = filter?.type ? this.entries.filter((e) => e.type === filter.type) : this.entries;
 
     const bySource = {} as Record<SkillSource, number>;
     let flagged = 0;
@@ -423,6 +439,11 @@ export class SkillLibrary {
     // fallback so index entries may store the path with or without the
     // `bodies/` prefix.
     if (this.bundledWorkflowNames.has(name)) {
+      // #309: prefer the packed body store; fall back to loose files (dev tree).
+      if (this.workflowPack?.has(entry.path)) {
+        const body = await this.workflowPack.read(entry.path);
+        if (body !== null) return body;
+      }
       try {
         return await this.readFileFn(path.join(this.bundledWorkflowsDir, entry.path));
       } catch {
@@ -432,6 +453,11 @@ export class SkillLibrary {
           return null;
         }
       }
+    }
+    // #309: vendored skills-library body - prefer the pack, fall back to loose.
+    if (this.skillPack?.has(entry.path)) {
+      const body = await this.skillPack.read(entry.path);
+      if (body !== null) return body;
     }
     try {
       return await this.readFileFn(path.join(this.resourceDir, entry.path));
@@ -457,11 +483,17 @@ export class SkillLibrary {
     if (!entry) return null;
     const stored = entry.security?.scannerVersion ?? 0;
     if (stored >= SKILL_SCANNER_VERSION) return entry.security ?? null;
-    let body: string;
-    try {
-      body = await this.readFileFn(path.join(this.resourceDir, entry.path));
-    } catch {
-      return entry.security ?? null;
+    let body: string | null = null;
+    // #309: prefer the packed body store; fall back to loose files (dev tree).
+    if (this.skillPack?.has(entry.path)) {
+      body = await this.skillPack.read(entry.path);
+    }
+    if (body === null) {
+      try {
+        body = await this.readFileFn(path.join(this.resourceDir, entry.path));
+      } catch {
+        return entry.security ?? null;
+      }
     }
     const [report] = await SkillGuard.scan(
       [{ name: entry.name, body, description: entry.description, tags: entry.metadata.tags ?? [] }],

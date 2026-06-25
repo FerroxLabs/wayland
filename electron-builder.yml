@@ -120,13 +120,15 @@ extraResources:
   - from: resources/hub
     to: hub
   # Skills library + Wayland built-in workflows: shipped as real on-disk
-  # Resources so SkillLibrary can read them in packaged builds. The previous
-  # asarUnpack entries for these never worked: the source lives under
-  # src/process/resources/ and was never copied into the asar, so asarUnpack
-  # matched nothing. extraResources copies them straight to Contents/Resources.
-  - from: src/process/resources/skills-library
+  # Resources so SkillLibrary (and the plain-node wayland_search_skills
+  # subprocess, which cannot read inside app.asar) can read them in packaged
+  # builds. #309: ship from the PACKED staging dir (.skill-pack/), produced by
+  # `build:skill-pack` in the pre-build hooks. That dir contains index.json + a
+  # single opaque body blob (skill-bodies.bin) + offset index — NO loose
+  # SKILL.md — so AV content heuristics have no per-file markdown to scan.
+  - from: .skill-pack/skills-library
     to: skills-library
-  - from: src/process/resources/bundled-workflows
+  - from: .skill-pack/bundled-workflows
     to: bundled-workflows
   # models.dev enrichment snapshot - offline floor for ModelsDevClient.
   # Generated at build time by scripts/bundle-modelsdev.ts (prebuild hook).
