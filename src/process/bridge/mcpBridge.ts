@@ -5,7 +5,6 @@
  */
 
 import { ipcBridge } from '@/common';
-import { ConfigStorage } from '@/common/config/storage';
 import type { IMcpServer } from '@/common/config/storage';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { mcpOAuthService } from '@process/services/mcpServices/McpOAuthService';
@@ -33,7 +32,14 @@ export async function persistMcpByoOAuthCredentials(input: {
   }
   // ConfigStorage exposes the same backing file as the renderer's
   // useMcpServers hook (mcp.config key on agent.config storage).
-  const servers: IMcpServer[] = (await ConfigStorage.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
+  // #283: read/write the persisted MCP config through the MAIN-process config
+  // accessor (ProcessConfig = the same `configFile` used by initStorage and the
+  // ACP session builder). The renderer-facing `ConfigStorage` is a bridge API
+  // whose get/set route over the IPC wire; calling them from the main process
+  // has no responder and hangs forever, which left "Save & sign in" spinning
+  // for every BYO-OAuth MCP (GitHub, Slack, ...).
+  const { ProcessConfig } = await import('@process/utils/initStorage');
+  const servers: IMcpServer[] = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
   const idx = servers.findIndex((s) => s.id === serverId);
   if (idx < 0) {
     return { ok: false, msg: `MCP server not found: ${serverId}` };
@@ -41,7 +47,7 @@ export async function persistMcpByoOAuthCredentials(input: {
   const updated = mcpOAuthService.setByoCredentials(servers[idx], clientId, clientSecret);
   const nextServers = [...servers];
   nextServers[idx] = { ...updated, updatedAt: Date.now() };
-  await ConfigStorage.set('mcp.config', nextServers);
+  await ProcessConfig.set('mcp.config', nextServers);
   return { ok: true };
 }
 
@@ -164,7 +170,10 @@ export function initMcpBridge(): void {
       }
       // The desktop renderer reads back the updated record to refresh its local
       // useMcpServers cache; re-read it from storage (the helper persisted it).
-      const servers: IMcpServer[] = (await ConfigStorage.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
+      // #283: main-process read MUST use ProcessConfig, not the renderer-bridge
+      // ConfigStorage (which hangs when called from main).
+      const { ProcessConfig } = await import('@process/utils/initStorage');
+      const servers: IMcpServer[] = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
       const server = servers.find((s) => s.id === serverId);
       return { success: true, data: { server } };
     } catch (error) {
