@@ -988,6 +988,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const autoMode = this.currentMode === 'yolo' || this.currentMode === 'auto_edit';
         if (appr.resumeToken && (autoMode || appr.reason === 'info')) {
           this.agent?.resumeApproval(appr.resumeToken, true);
+        } else if (appr.reason && appr.reason !== 'info') {
+          // Did not (could not) auto-resume a non-info approval: the engine is
+          // genuinely gated on a resume the app can't send (no resume token, or
+          // a real approval in a non-auto mode with no HITL UI yet). Log loudly
+          // so a wedged turn is diagnosable rather than silently hung. (#264)
+          mainError('[WCoreManager]', `approval_required reason='${appr.reason}' but no approval UI; cannot resume`, data.data);
         }
         return;
       }
