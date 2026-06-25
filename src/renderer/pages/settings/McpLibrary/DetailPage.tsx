@@ -244,13 +244,21 @@ export function DetailPage() {
   };
 
   /**
-   * api-key save+connect: persist the installed server with the user's token
-   * (now embedded as a Bearer header by entryToServerData), run a REAL
-   * connection test that reaches the server and lists tools, and only enable
-   * the server when that test passes. This replaces the prior decorative token
-   * field whose value went nowhere and the false-positive "connected" banner.
+   * Save + connect a credential-bearing server: persist the installed server
+   * with the user's env-supplied credentials, run a REAL connection test that
+   * reaches the server and lists tools, and only enable the server when that
+   * test passes. Replaces the prior decorative token field whose value went
+   * nowhere and the false-positive "connected" banner.
+   *
+   * Shared by two auth models that connect identically — by starting the server
+   * with credentials already on it, NOT via the HTTP loopback OAuth path:
+   *  - api-key connectors (token embedded as a Bearer header by entryToServerData)
+   *  - stdio oauth2-byo connectors (#306): they carry their OAuth client creds on
+   *    transport.env (e.g. GOOGLE_OAUTH_CLIENT_ID/SECRET) and run their OWN OAuth
+   *    inside the spawned subprocess, so login() (which rejects non-HTTP
+   *    transports) must never be called for them.
    */
-  const saveAndConnectApiKey = async () => {
+  const saveAndConnect = async () => {
     const hasToken = Object.values(env).some((v) => typeof v === 'string' && v.trim().length > 0);
     // Some api-key connectors take an OPTIONAL key (Context7's free tier works
     // without one) - their guide has no token input. Only block on a missing
@@ -296,12 +304,24 @@ export function DetailPage() {
   const onPrimary = async (action: string) => {
     // api-key hosted MCP: persist token + test + enable on success.
     if (action === 'api-key-save') {
-      await saveAndConnectApiKey();
+      await saveAndConnect();
       return;
     }
     // Install first (or reuse the existing server if already installed), then
     // trigger OAuth for entries whose setup guide emits an 'oauth-flow' action.
     if (action !== 'oauth-flow') return;
+
+    // #306: An oauth2-byo connector on a STDIO transport (Google Workspace,
+    // gcloud, Teams, MS365, Xero) does its OWN OAuth inside the spawned
+    // subprocess using env credentials — it is NOT HTTP-family, so the desktop
+    // loopback OAuth path (login()) hard-rejects it ("OAuth requires an
+    // HTTP-family transport, got 'stdio'"). Route it to the env-install path:
+    // persist the creds and start + test the server so it self-authenticates.
+    const transport = installedServer?.transport.type ?? entry.packages[0]?.transport.type ?? entry.remotes?.[0]?.type;
+    if (transport === 'stdio') {
+      await saveAndConnect();
+      return;
+    }
 
     let server: IMcpServer | null = installedServer ?? null;
     if (!server) {
