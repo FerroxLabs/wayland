@@ -822,10 +822,14 @@ export const acpConversation = {
   getMode: buildProvider<IBridgeResponse<{ mode: string; initialized: boolean }>, { conversationId: string }>(
     'acp.get-mode'
   ),
-  // Get model info for ACP agents (model name and available models)
-  getModelInfo: buildProvider<IBridgeResponse<{ modelInfo: AcpModelInfo | null }>, { conversationId: string }>(
-    'acp.get-model-info'
-  ),
+  // Get model info for ACP agents (model name and available models).
+  // `backend` is optional and only consulted before a task exists, so the
+  // process can derive a backend's cold-start catalog (e.g. Claude Code's
+  // cc-switch model list) instead of returning null.
+  getModelInfo: buildProvider<
+    IBridgeResponse<{ modelInfo: AcpModelInfo | null }>,
+    { conversationId: string; backend?: string }
+  >('acp.get-model-info'),
   // Set model for ACP agents
   setModel: buildProvider<
     IBridgeResponse<{ modelInfo: AcpModelInfo | null }>,

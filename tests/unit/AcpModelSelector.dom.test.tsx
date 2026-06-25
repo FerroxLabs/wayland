@@ -279,6 +279,52 @@ describe('AcpModelSelector', () => {
     expect(screen.queryByText(FIRST_CONNECTION_LABEL)).toBeNull();
   });
 
+  it('shows Claude Code current model + switch list immediately on a new chat (no first-connection tooltip)', async () => {
+    // Cold start: no cached catalog (Claude never reports via the models API, so
+    // acp.cachedModels has no `claude` entry), but the process derives the
+    // cc-switch catalog and returns it pre-connection. The picker must populate
+    // immediately and offer the switch list, with no first-connection tooltip.
+    configGetMock.mockResolvedValue(null);
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: {
+        modelInfo: {
+          currentModelId: 'opus',
+          currentModelLabel: 'Claude Opus 4.8',
+          availableModels: [
+            { id: 'opus', label: 'Claude Opus 4.8' },
+            { id: 'default', label: 'Claude Sonnet 4.5' },
+            { id: 'haiku', label: 'Claude Haiku 4.5' },
+          ],
+          canSwitch: true,
+          source: 'models',
+          sourceDetail: 'cc-switch',
+        },
+      },
+    });
+
+    render(<AcpModelSelector conversationId='conv-claude-cold' backend='claude' />);
+
+    // Current model surfaces in the compact label immediately.
+    await waitFor(() => {
+      expect(screen.getAllByText('Claude Opus 4.8 · cc-switch').length).toBeGreaterThan(0);
+    });
+    // The first-connection guidance is never shown.
+    expect(screen.queryByText(FIRST_CONNECTION_LABEL)).toBeNull();
+
+    // The backend is forwarded so the process can derive the cold-start catalog.
+    expect(ipcMock.getModelInfo).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: 'conv-claude-cold', backend: 'claude' })
+    );
+
+    // The switch list is selectable.
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => {
+      expect(screen.getByText('Claude Sonnet 4.5')).toBeTruthy();
+      expect(screen.getByText('Claude Haiku 4.5')).toBeTruthy();
+    });
+  });
+
   it('shows the first-connection guidance only after the cache load completes with no models', async () => {
     // No cached catalog and no live models: a backend that has genuinely never
     // connected. After the cache lookup settles, the first-connection label shows.

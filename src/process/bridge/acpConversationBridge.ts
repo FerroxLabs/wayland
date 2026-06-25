@@ -194,15 +194,20 @@ export function initAcpConversationBridge(workerTaskManager: IWorkerTaskManager)
     return Promise.resolve({ success: true, data: task.getMode() });
   });
 
-  ipcBridge.acpConversation.getModelInfo.provider(({ conversationId }) => {
+  ipcBridge.acpConversation.getModelInfo.provider(async ({ conversationId, backend }) => {
     const task = workerTaskManager.getTask(conversationId);
     if (!task || !(task instanceof AcpAgentManager)) {
-      return Promise.resolve({ success: true, data: { modelInfo: null } });
+      // No live task yet (cold start on a new chat). Some backends — Claude Code —
+      // can resolve their model catalog offline from local config; derive it so
+      // the picker populates immediately instead of showing the first-connection
+      // tooltip. Returns null for backends without an offline source.
+      const modelInfo = backend ? await AcpAgentManager.getStaticModelInfo(backend) : null;
+      return { success: true, data: { modelInfo } };
     }
-    return Promise.resolve({
+    return {
       success: true,
       data: { modelInfo: task.getModelInfo() },
-    });
+    };
   });
 
   // Set model for ACP agents

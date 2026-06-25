@@ -33,6 +33,7 @@ import type { ProviderId } from '@process/providers/types';
 import { BACKEND_AUTH_KEYS } from '@process/acp/compat/typeBridge';
 import { selectAuthFailureCulprits } from '@process/providers/detection/authFailure';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { readClaudeModelInfoFromCcSwitch } from '@process/services/ccSwitchModelSource';
 import { codexBearerEnvVar } from '@process/services/mcpServices/agents/CodexMcpAgent';
 import type { IMcpServer } from '@/common/config/storage';
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
@@ -1803,6 +1804,46 @@ ${collectedResponses.join('\n')}`;
       return null;
     }
     return this.agent.getModelInfo();
+  }
+
+  /**
+   * Model info for a backend BEFORE any task/agent exists (cold start on a new
+   * chat). Claude Code never reports through the ACP `models` API, so its catalog
+   * is not in `acp.cachedModels`; instead it is derivable offline from the
+   * cc-switch local config (provider DB + `~/.claude/settings.json`), with no live
+   * ACP connection. We compute it here so the picker shows the current model +
+   * switch list immediately, and persist it into `acp.cachedModels` so later cold
+   * starts hit the renderer's warm-cache path and it survives as last-known.
+   *
+   * Returns null for every other backend (their pre-connection catalog already
+   * comes from `acp.cachedModels`, populated by a previous live session), so this
+   * cannot regress models-API backends (kimi/opencode) or backends that genuinely
+   * expose nothing.
+   */
+  static async getStaticModelInfo(backend: string): Promise<AcpModelInfo | null> {
+    if (backend !== 'claude') return null;
+
+    const modelInfo = readClaudeModelInfoFromCcSwitch();
+    if (!modelInfo?.availableModels?.length) return null;
+
+    try {
+      const cached = (await ProcessConfig.get('acp.cachedModels')) || {};
+      const existing = cached[backend];
+      await ProcessConfig.set('acp.cachedModels', {
+        ...cached,
+        [backend]: {
+          ...modelInfo,
+          // Preserve the original default from the first live session, mirroring
+          // cacheModelList — a derived default must not clobber a real one.
+          currentModelId: existing?.currentModelId ?? modelInfo.currentModelId,
+          currentModelLabel: existing?.currentModelLabel ?? modelInfo.currentModelLabel,
+        },
+      });
+    } catch (error) {
+      mainWarn('[AcpAgentManager]', 'Failed to cache static claude model info', error);
+    }
+
+    return modelInfo;
   }
 
   /**

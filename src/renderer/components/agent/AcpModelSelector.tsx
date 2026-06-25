@@ -239,7 +239,10 @@ const AcpModelSelector: React.FC<{
 
   const reloadModelInfo = useCallback(
     async (options?: { preserveInitialModel?: boolean }) => {
-      const result = await ipcBridge.acpConversation.getModelInfo.invoke({ conversationId });
+      // Pass `backend` so the process can derive a cold-start catalog (e.g.
+      // Claude Code's cc-switch model list) before a task exists, instead of
+      // returning null and forcing the first-connection tooltip.
+      const result = await ipcBridge.acpConversation.getModelInfo.invoke({ conversationId, backend });
 
       if (result.success && result.data?.modelInfo) {
         const info = result.data.modelInfo;
