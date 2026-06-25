@@ -38,6 +38,53 @@ const FLUX_PICKER_MODELS: ReadonlyArray<{ id: FluxModelId; label: string }> = FL
 }));
 
 /**
+ * Module-level mirror of the persisted `acp.cachedModels` catalog, keyed by
+ * backend. ConfigStorage.get is async (there is no synchronous read), so a
+ * picker mounting for a NEW chat would otherwise flash the "available after
+ * first connection" tooltip until its post-mount Effect resolved. We warm this
+ * map once at import (`prefetchCachedModels`) and on every cache read, so any
+ * later picker can initialize its state synchronously and render the real
+ * catalog with no null flash. Populated only with backends that have a non-empty
+ * `availableModels`.
+ */
+const memCache: Record<string, AcpModelInfo> = {};
+
+/** True once `prefetchCachedModels` has resolved, so a synchronous init from
+ * `memCache` can distinguish "warmed, genuinely empty" from "not warmed yet". */
+let prefetchDone = false;
+
+/** Module-level one-shot prefetch promise so the ConfigStorage read happens at
+ * most once regardless of how many pickers mount. */
+let prefetchPromise: Promise<void> | null = null;
+
+function warmMemCacheFrom(cached: Record<string, AcpModelInfo> | undefined): void {
+  if (!cached) return;
+  for (const [key, info] of Object.entries(cached)) {
+    if (info?.availableModels?.length) memCache[key] = info;
+  }
+}
+
+function prefetchCachedModels(): Promise<void> {
+  if (!prefetchPromise) {
+    prefetchPromise = ConfigStorage.get('acp.cachedModels')
+      .then((cached) => {
+        warmMemCacheFrom(cached ?? undefined);
+      })
+      .catch(() => {
+        // Silently ignore — pickers fall back to their post-mount load.
+      })
+      .finally(() => {
+        prefetchDone = true;
+      });
+  }
+  return prefetchPromise;
+}
+
+// Kick the prefetch off at module import so the catalog is usually warm before
+// the first picker even mounts.
+void prefetchCachedModels();
+
+/**
  * Whether this backend can route through Flux. `getFluxCompat` returns 'env' or
  * 'setup' for Flux-capable backends (and covers wcore/gemini), 'vendor' for
  * backends locked to their own service, and undefined when unclassified.
@@ -88,7 +135,30 @@ const AcpModelSelector: React.FC<{
 }> = ({ conversationId, backend, initialModelId }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [modelInfo, setModelInfo] = useState<AcpModelInfo | null>(null);
+  // Initialize synchronously from the warmed module cache so a NEW chat for a
+  // backend used before in this session shows its catalog immediately, with no
+  // null flash and no "first connection" tooltip. The post-mount load below
+  // refreshes from ConfigStorage / live IPC.
+  const [modelInfo, setModelInfo] = useState<AcpModelInfo | null>(() => {
+    const cached = backend ? memCache[backend] : undefined;
+    if (!cached) return null;
+    const effectiveModelId = initialModelId ?? cached.currentModelId ?? null;
+    return {
+      ...cached,
+      currentModelId: effectiveModelId,
+      currentModelLabel:
+        (effectiveModelId && cached.availableModels.find((m) => m.id === effectiveModelId)?.label) ||
+        effectiveModelId,
+    };
+  });
+  // Whether the cache lookup (prefetch + this picker's first load) has settled.
+  // Lets the render tell "still loading, no models yet" (neutral) apart from
+  // "load finished, genuinely no models" (show the first-connection guidance).
+  // Seeded true when we already had a synchronous cache hit or the module
+  // prefetch resolved before mount.
+  const [cacheChecked, setCacheChecked] = useState<boolean>(
+    () => prefetchDone || (backend ? Boolean(memCache[backend]) : false)
+  );
   const fluxConnected = useFluxConnected();
   // Unified flyout: view model is driven off `curatedForAgent(backend)` (claude
   // ->anthropic, codex->openai, vendor CLIs->[]). `activeKey` is resolved below
@@ -140,6 +210,9 @@ const AcpModelSelector: React.FC<{
     async (backendKey: string, options?: { preserveInitialModel?: boolean }) => {
       try {
         const cached = await ConfigStorage.get('acp.cachedModels');
+        // Warm the module cache for every backend so sibling/later pickers can
+        // initialize synchronously from this read.
+        warmMemCacheFrom(cached ?? undefined);
         const cachedInfo = cached?.[backendKey];
         if (!cachedInfo?.availableModels?.length) return;
 
@@ -214,9 +287,16 @@ const AcpModelSelector: React.FC<{
       prevConversationIdRef.current = conversationId;
     }
 
-    void reloadModelInfo({ preserveInitialModel: true }).catch(() => {
-      // loadCachedModelInfo is already handled inside reloadModelInfo
-    });
+    // Wait for the module prefetch too, so `cacheChecked` only flips once the
+    // persisted catalog has truly been consulted (avoids a premature "first
+    // connection" message while ConfigStorage is mid-read).
+    void Promise.all([prefetchCachedModels(), reloadModelInfo({ preserveInitialModel: true })])
+      .catch(() => {
+        // loadCachedModelInfo is already handled inside reloadModelInfo
+      })
+      .finally(() => {
+        setCacheChecked(true);
+      });
   }, [conversationId, backend, initialModelId, reloadModelInfo]);
 
   useEffect(() => {
@@ -461,7 +541,32 @@ const AcpModelSelector: React.FC<{
     );
   }
 
-  // State 1: No model info - show disabled "Use CLI model" button
+  // State 1a: No model info yet AND the cache lookup is still in flight - show a
+  // neutral, quiet "Loading models…" state instead of the alarming "available
+  // after first connection" tooltip. Most backends resolve to a cached catalog,
+  // so this is the honest interim message.
+  if (!modelInfo && !cacheChecked) {
+    const loadingLabel = t('conversation.welcome.modelLoading', { defaultValue: 'Loading models…' });
+    return (
+      <Tooltip content={loadingLabel} position='top'>
+        <Button
+          className='sendbox-model-btn header-model-btn agent-mode-compact-pill'
+          shape='round'
+          size='small'
+          loading
+          style={{ cursor: 'default' }}
+        >
+          <span className='flex items-center gap-6px min-w-0 leading-none'>
+            <MarqueePillLabel>{loadingLabel}</MarqueePillLabel>
+          </span>
+        </Button>
+      </Tooltip>
+    );
+  }
+
+  // State 1b: Cache lookup finished and there are genuinely no cached/live
+  // models for this backend (never connected) - show the first-connection
+  // guidance so the user knows a message will surface the catalog.
   if (!modelInfo) {
     return (
       <Tooltip content={t('conversation.welcome.modelSwitchNotSupported')} position='top'>

@@ -598,6 +598,7 @@ export type I18nKey =
   | 'conversation.welcome.currentWorkspace'
   | 'conversation.welcome.fluxGroupLabel'
   | 'conversation.welcome.linkFolder'
+  | 'conversation.welcome.modelLoading'
   | 'conversation.welcome.modelSwitchNotSupported'
   | 'conversation.welcome.multiAgentModeEnabled'
   | 'conversation.welcome.nativeModelsGroupLabel'

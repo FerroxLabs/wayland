@@ -9,6 +9,7 @@
     "selectModel": "Sélectionner un modèle",
     "useCliModel": "Sélectionner un modèle",
     "modelSwitchNotSupported": "La liste des modèles sera disponible après la première connexion. Envoyez un message pour vous connecter et charger les modèles disponibles.",
+    "modelLoading": "Chargement des modèles…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "Modèles de l'agent",
     "specifyWorkspace": "Discuter dans un dossier",

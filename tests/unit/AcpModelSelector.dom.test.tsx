@@ -67,7 +67,11 @@ vi.mock('@/common/config/storage', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback || key,
+    t: (key: string, fallback?: string | { defaultValue?: string }) => {
+      if (typeof fallback === 'string') return fallback || key;
+      if (fallback && typeof fallback === 'object' && fallback.defaultValue) return fallback.defaultValue;
+      return key;
+    },
   }),
 }));
 
@@ -75,7 +79,15 @@ vi.mock('swr', () => ({
   default: () => ({ data: [], error: undefined, mutate: vi.fn() }),
 }));
 
+import { ConfigStorage } from '@/common/config/storage';
 import AcpModelSelector from '../../src/renderer/components/agent/AcpModelSelector';
+
+const configGetMock = ConfigStorage.get as unknown as ReturnType<typeof vi.fn>;
+// The i18n mock returns the raw key when no string/defaultValue fallback is
+// given, so the first-connection state's button label is this key, and the
+// neutral loading state's label is its defaultValue.
+const FIRST_CONNECTION_LABEL = 'conversation.welcome.useCliModel';
+const LOADING_LABEL = 'Loading models…';
 
 describe('AcpModelSelector', () => {
   beforeEach(() => {
@@ -234,5 +246,54 @@ describe('AcpModelSelector', () => {
     await waitFor(() => {
       expect(screen.getAllByText('GLM 5.1x · cc-switch').length).toBeGreaterThan(0);
     });
+  });
+
+  it('renders the cached catalog (no first-connection tooltip) when ConfigStorage has cached models', async () => {
+    // Live IPC reports nothing yet (manager not created) so the picker must fall
+    // back to the persisted catalog instead of the alarming first-connection state.
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: { modelInfo: null },
+    });
+    configGetMock.mockResolvedValue({
+      qwen: {
+        currentModelId: 'qwen-max',
+        currentModelLabel: 'Qwen Max',
+        availableModels: [
+          { id: 'qwen-max', label: 'Qwen Max' },
+          { id: 'qwen-plus', label: 'Qwen Plus' },
+        ],
+        canSwitch: true,
+        source: 'models',
+        sourceDetail: 'qwen-cache',
+      },
+    });
+
+    render(<AcpModelSelector conversationId='conv-cache' backend='qwen' />);
+
+    // The cached current model surfaces in the compact label...
+    await waitFor(() => {
+      expect(screen.getAllByText('Qwen Max').length).toBeGreaterThan(0);
+    });
+    // ...and the misleading "first connection" guidance is never shown.
+    expect(screen.queryByText(FIRST_CONNECTION_LABEL)).toBeNull();
+  });
+
+  it('shows the first-connection guidance only after the cache load completes with no models', async () => {
+    // No cached catalog and no live models: a backend that has genuinely never
+    // connected. After the cache lookup settles, the first-connection label shows.
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: { modelInfo: null },
+    });
+    configGetMock.mockResolvedValue(null);
+
+    render(<AcpModelSelector conversationId='conv-empty' backend='goose' />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText(FIRST_CONNECTION_LABEL).length).toBeGreaterThan(0);
+    });
+    // And it is NOT the neutral loading placeholder by that point.
+    expect(screen.queryByText(LOADING_LABEL)).toBeNull();
   });
 });

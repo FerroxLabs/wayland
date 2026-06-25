@@ -9,6 +9,7 @@
     "selectModel": "Model Seç",
     "useCliModel": "Model Seç",
     "modelSwitchNotSupported": "Model listesi ilk bağlantıdan sonra kullanılabilir olacaktır. Bağlanmak ve mevcut modelleri yüklemek için önce bir mesaj gönderin.",
+    "modelLoading": "Modeller yükleniyor…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "Ajan modelleri",
     "specifyWorkspace": "Klasörde Sohbet Et",
