@@ -29,6 +29,11 @@ vi.mock('@arco-design/web-react', () => ({
 
 vi.mock('@icon-park/react', () => ({
   Copy: () => <span data-testid='copy-icon' />,
+  Like: () => <span data-testid='like-icon' />,
+  Unlike: () => <span data-testid='unlike-icon' />,
+  Refresh: () => <span data-testid='refresh-icon' />,
+  PlayOne: () => <span data-testid='playone-icon' />,
+  PauseOne: () => <span data-testid='pauseone-icon' />,
 }));
 
 vi.mock('@renderer/components/chat/CollapsibleContent', () => ({
