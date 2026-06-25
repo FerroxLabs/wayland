@@ -84,11 +84,20 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
   const needAuth: string[] = [];
   let okCount = 0;
 
-  // Probe sequentially: connection tests can spawn CLIs / open sockets, and a
-  // burst of parallel spawns is a worse failure mode than a slightly slower run.
-  // Each probe is individually bounded so one hung server cannot starve the rest.
-  for (const server of enabled) {
-    const result = await probeWithTimeout(deps.testConnection, server, perServerTimeoutMs);
+  // Probe every server CONCURRENTLY, each under its own timeout. A sequential
+  // run sums the per-server budgets: with the dozen-plus servers this check
+  // exists to diagnose (#273), several hung probes at `perServerTimeoutMs` each
+  // would blow past the runner's 30s whole-check budget and collapse right back
+  // into the opaque "timed out after 30s" with no per-server detail. Bounding the
+  // total to ~one per-server timeout regardless of count is the only way to keep
+  // the partial diagnostics the user actually needs. Result order matches
+  // `enabled` so the report is stable.
+  const results = await Promise.all(
+    enabled.map((server) => probeWithTimeout(deps.testConnection, server, perServerTimeoutMs))
+  );
+  for (let i = 0; i < enabled.length; i += 1) {
+    const server = enabled[i];
+    const result = results[i];
     if (result === TIMED_OUT) {
       timedOut.push(server.name);
     } else if (result.success) {

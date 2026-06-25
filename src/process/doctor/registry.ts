@@ -22,11 +22,13 @@ import { agentRegistry } from '@process/agent/AgentRegistry';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
 import { ConnectionTester } from '@process/providers/detection/ConnectionTester';
+import { Curator } from '@process/providers/catalog/Curator';
+import type { ProviderId } from '@process/providers/types';
 import { detectWCore } from '@process/agent/wcore/binaryResolver';
 import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
 import { mcpService } from '@process/services/mcpServices/McpService';
-import { ConfigStorage } from '@/common/config/storage';
+import { ProcessConfig } from '@process/utils/initStorage';
 import type { IMcpServer, TChatConversation } from '@/common/config/storage';
 import type { IProject } from '@/common/types/project';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
@@ -45,6 +47,24 @@ async function providerRepo(): Promise<ProviderRepository> {
   return new ProviderRepository(db.getDriver());
 }
 
+/**
+ * Effectively-enabled model count for a provider — the curated catalog with the
+ * user's per-model overrides applied, mirroring the Models page provider on/off
+ * toggle (a provider reads "off" when this is `0`). Drives the Doctor's
+ * skip-disabled rule (#271); the connectivity check treats a provider with a
+ * non-empty catalog but `0` enabled models as user-switched-off.
+ */
+function countEnabledModels(repo: ProviderRepository, curator: Curator, providerId: ProviderId): number {
+  const curated = curator.curate(repo.getRegistryCatalog(providerId));
+  const overrides = new Map(repo.listRegistryOverrides(providerId).map((o) => [o.modelId, o.enabled]));
+  let enabled = 0;
+  for (const model of curated) {
+    const override = overrides.get(model.id);
+    if (override === undefined ? model.enabled : override) enabled += 1;
+  }
+  return enabled;
+}
+
 /** True when `path` exists on disk (an `fs.access` probe). */
 async function pathExists(path: string): Promise<boolean> {
   try {
@@ -55,9 +75,20 @@ async function pathExists(path: string): Promise<boolean> {
   }
 }
 
-/** The persisted MCP server list (the `mcp.config` key the MCP Library writes). */
+/**
+ * The persisted MCP server list (the `mcp.config` key the MCP Library writes).
+ *
+ * Read through `ProcessConfig` (the main-process, file-backed config) rather
+ * than `ConfigStorage`. `ConfigStorage.get` is a renderer↔main bridge round-trip;
+ * because this check runs INSIDE the `doctor.runDoctor` bridge invocation, a
+ * nested bridge call never resolves (reentrancy) and the whole MCP check hangs
+ * until the runner's 30s timeout — collapsing into the opaque "Check timed out
+ * after 30s" with no per-server detail (issue #273). `ProcessConfig` reads the
+ * same backing file directly in-process, so it resolves immediately and the
+ * per-server probes below can actually run.
+ */
 async function listMcpServers(): Promise<IMcpServer[]> {
-  return (await ConfigStorage.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
+  return (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
 }
 
 /**
@@ -81,9 +112,7 @@ async function listConfiguredWorkspaces(): Promise<WorkspaceEntry[]> {
     add(`Project "${project.name}"`, project.workspace);
   }
 
-  const conversations = await conversationServiceSingleton
-    .listAllConversations()
-    .catch((): TChatConversation[] => []);
+  const conversations = await conversationServiceSingleton.listAllConversations().catch((): TChatConversation[] => []);
   for (const conversation of conversations) {
     // `extra.workspace` exists on gemini/acp conversations; read defensively
     // since the union is wide and some kinds carry no workspace.
@@ -110,11 +139,14 @@ export function buildDoctorChecks(): DoctorCheck[] {
       category: 'providers',
       run: async () => {
         const repo = await providerRepo();
+        const curator = new Curator();
         return checkProviderConnectivity(
           {
             listRegistryProviders: () => repo.listRegistryProviders(),
             getRegistryProviderCreds: (id) => repo.getRegistryProviderCreds(id),
             countRegistryCatalog: (id) => repo.countRegistryCatalog(id),
+            countEnabledModels: (id) => countEnabledModels(repo, curator, id),
+            hasModelOverrides: (id) => repo.listRegistryOverrides(id).length > 0,
           },
           connectionTester
         );

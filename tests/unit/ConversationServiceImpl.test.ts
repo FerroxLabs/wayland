@@ -38,6 +38,11 @@ vi.mock('../../src/process/services/database/SqliteProjectRepository', () => ({
 }));
 vi.mock('../../src/process/services/projectKnowledge/knowledge', () => ({
   loadProjectKnowledgeBlock: vi.fn(async () => null),
+  // ConversationServiceImpl also imports loadGlobalMemoryBlock (global-memory
+  // injection, obs-rework). The mock must expose it or vitest throws "No
+  // loadGlobalMemoryBlock export is defined on the mock" when that path runs in
+  // the full sharded suite, reddening the 0.11.4 base (#317). '' = no block.
+  loadGlobalMemoryBlock: vi.fn(async () => ''),
 }));
 
 function makeRepo(overrides: Partial<IConversationRepository> = {}): IConversationRepository {

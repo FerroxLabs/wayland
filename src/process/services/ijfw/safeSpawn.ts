@@ -38,11 +38,7 @@ let resolverOverride: (() => Promise<string>) | null = null;
  * nvm-windows, fnm, volta, scoop and Chocolatey layouts) in addition to the
  * well-known fixed install locations.
  */
-export function __buildNpmCliCandidates(
-  platform: NodeJS.Platform,
-  env: NodeJS.ProcessEnv,
-  execPath: string,
-): string[] {
+export function __buildNpmCliCandidates(platform: NodeJS.Platform, env: NodeJS.ProcessEnv, execPath: string): string[] {
   if (platform === 'win32') {
     // Use path.win32 explicitly so candidate construction is correct (and unit
     // testable) regardless of the host OS the resolver/test runs on.
@@ -57,9 +53,7 @@ export function __buildNpmCliCandidates(
     // case where a real node.exe is the host process.
     pushNpmCli(win.dirname(execPath));
     // User-global npm install (npm install -g npm).
-    candidates.push(
-      win.join(env['APPDATA'] ?? '', 'npm', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
-    );
+    candidates.push(win.join(env['APPDATA'] ?? '', 'npm', 'node_modules', 'npm', 'bin', 'npm-cli.js'));
     // System-wide Node.js installer default.
     pushNpmCli('C:\\Program Files\\nodejs');
     pushNpmCli('C:\\Program Files (x86)\\nodejs');
@@ -76,16 +70,7 @@ export function __buildNpmCliCandidates(
   }
 
   return [
-    path.join(
-      path.dirname(execPath),
-      '..',
-      'libnode',
-      'lib',
-      'node_modules',
-      'npm',
-      'bin',
-      'npm-cli.js',
-    ),
+    path.join(path.dirname(execPath), '..', 'libnode', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
     '/usr/local/lib/node_modules/npm/bin/npm-cli.js',
     '/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js',
   ];
@@ -101,25 +86,52 @@ export function __setTrustedNpmCliResolver(fn: (() => Promise<string>) | null): 
   trustedNpmCache = null;
 }
 
-async function defaultResolveTrustedNpm(): Promise<string> {
+/**
+ * Decide whether a resolved npm-cli.js is trustworthy by its stat.
+ *
+ * The POSIX world-writable + ownership checks are meaningless on Windows: NTFS
+ * does not express these bits, so Node reports a normal file under
+ * `C:\Program Files\nodejs` as world-writable (mode `0o666`) and `getuid()` is
+ * `undefined`. Applying them there rejects every valid system npm and breaks the
+ * IJFW update check (#261). On Windows the trust anchor is instead the candidate
+ * origin (system install dirs / a Node dir on PATH) built by
+ * `__buildNpmCliCandidates`, so accept any path that resolves there.
+ */
+export function __isAcceptableNpmStat(
+  stat: { mode: number; uid?: number },
+  platform: NodeJS.Platform,
+  currentUid: number | undefined
+): boolean {
+  if (platform === 'win32') return true;
+  // Reject world-writable npm CLIs.
+  if ((stat.mode & 0o002) !== 0) return false;
+  // Reject CLIs owned by anyone other than current uid (where applicable).
+  if (currentUid !== undefined && stat.uid !== currentUid && stat.uid !== 0) return false;
+  return true;
+}
+
+export async function defaultResolveTrustedNpm(): Promise<string> {
   // SEC-007: resolve via known install locations + PATH-derived Node dirs,
   // NOT a bare PATH lookup of an arbitrary `npm` binary.
   const candidates = __buildNpmCliCandidates(process.platform, process.env, process.execPath);
+  const rejected: Array<{ candidate: string; reason: string }> = [];
   for (const candidate of candidates) {
     try {
       const real = await fs.promises.realpath(candidate);
       const stat = await fs.promises.lstat(real);
-      // Reject world-writable npm CLIs.
-      if ((stat.mode & 0o002) !== 0) continue;
-      // Reject CLIs owned by anyone other than current uid (where applicable).
-      const currentUid = process.getuid?.();
-      if (currentUid !== undefined && stat.uid !== currentUid && stat.uid !== 0) continue;
+      if (!__isAcceptableNpmStat(stat, process.platform, process.getuid?.())) {
+        rejected.push({ candidate: real, reason: 'failed trust check (world-writable / foreign owner)' });
+        continue;
+      }
       return real;
-    } catch {
-      /* try next */
+    } catch (err) {
+      rejected.push({ candidate, reason: err instanceof Error ? err.message : String(err) });
     }
   }
-  throw new Error('Could not resolve trusted npm');
+  // Enumerate every tried candidate + rejection reason so a failed resolution is
+  // diagnosable from the logs instead of a bare "Could not resolve". (#261)
+  const detail = rejected.map((r) => `  - ${r.candidate}: ${r.reason}`).join('\n');
+  throw new Error(`Could not resolve trusted npm (platform=${process.platform}). Tried:\n${detail}`);
 }
 
 async function resolveTrustedNpmCli(): Promise<string> {

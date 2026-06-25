@@ -50,6 +50,36 @@ export function mapModeForAcpBridge(mode: string): string {
 }
 
 /**
+ * Resolve the effective `session/set_mode` modeId to send to an ACP agent,
+ * validated against the modes the agent actually advertised (in session/new or
+ * initialize).
+ *
+ * The requested mode is first translated to the bridge vocabulary via
+ * `mapModeForAcpBridge` (e.g. 'autoGuarded' -> 'default'). The result is then
+ * checked against the agent's advertised modes: some backends do not expose a
+ * 'default' agent - opencode's primary mode is 'build' - so sending an
+ * unadvertised modeId makes the agent reject the request ("Agent not found:
+ * default") and the session never becomes usable (issue #298). When the agent
+ * advertised modes and the mapped id is not among them, fall back to the agent's
+ * advertised current/primary mode (or the first advertised mode).
+ *
+ * When the agent advertised no modes (e.g. the Claude bridge, which honors
+ * 'default'/'acceptEdits' without listing them in a top-level `modes` object),
+ * the mapped id is trusted as-is so existing backends are unaffected.
+ */
+export function resolveAcpSessionModeId(
+  mode: string,
+  availableModes: ReadonlyArray<{ id: string }> | undefined,
+  currentModeId: string | null | undefined
+): string {
+  const bridgeModeId = mapModeForAcpBridge(mode);
+  if (!availableModes || availableModes.length === 0) return bridgeModeId;
+  if (availableModes.some((m) => m.id === bridgeModeId)) return bridgeModeId;
+  if (currentModeId && availableModes.some((m) => m.id === currentModeId)) return currentModeId;
+  return availableModes[0].id;
+}
+
+/**
  * Get the full-auto mode value for a given backend.
  * Falls back to 'yolo' for unknown backends.
  */

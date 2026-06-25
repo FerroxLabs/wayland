@@ -18,7 +18,9 @@ import * as childProcess from 'node:child_process';
 // eslint-disable-next-line import/first
 import {
   __buildNpmCliCandidates,
+  __isAcceptableNpmStat,
   __setTrustedNpmCliResolver,
+  defaultResolveTrustedNpm,
   safeSpawn,
 } from '@process/services/ijfw/safeSpawn';
 
@@ -47,9 +49,7 @@ describe('ijfw/safeSpawn', () => {
     process.env.HOME = '/Users/test';
     process.env.NODE_ENV = 'test';
     (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockReset();
-    (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockImplementation(() =>
-      makeFakeChild(),
-    );
+    (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => makeFakeChild());
   });
 
   afterEach(() => {
@@ -109,9 +109,9 @@ describe('ijfw/safeSpawn', () => {
   });
 
   it('throws when extraEnv contains an invalid key', async () => {
-    await expect(
-      safeSpawn({ cmd: 'node', args: ['x'], extraEnv: { 'bad-key': 'v' } }),
-    ).rejects.toThrow(/invalid env key/);
+    await expect(safeSpawn({ cmd: 'node', args: ['x'], extraEnv: { 'bad-key': 'v' } })).rejects.toThrow(
+      /invalid env key/
+    );
   });
 
   it('passes cwd through to spawn options', async () => {
@@ -125,9 +125,7 @@ describe('ijfw/safeSpawn', () => {
     __setTrustedNpmCliResolver(async () => {
       throw new Error('Could not resolve trusted npm');
     });
-    await expect(safeSpawn({ cmd: 'npm', args: ['x'] })).rejects.toThrow(
-      /trusted npm/i,
-    );
+    await expect(safeSpawn({ cmd: 'npm', args: ['x'] })).rejects.toThrow(/trusted npm/i);
   });
 
   describe('__buildNpmCliCandidates (#261)', () => {
@@ -135,16 +133,12 @@ describe('ijfw/safeSpawn', () => {
       const candidates = __buildNpmCliCandidates(
         'win32',
         { APPDATA: 'C:\\Users\\me\\AppData\\Roaming', PATH: '' },
-        'C:\\Users\\me\\AppData\\Local\\Programs\\wayland\\wayland.exe',
+        'C:\\Users\\me\\AppData\\Local\\Programs\\wayland\\wayland.exe'
       );
       // System-wide Node.js installer default.
-      expect(candidates).toContain(
-        'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
-      );
+      expect(candidates).toContain('C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js');
       // User-global npm self-install under APPDATA.
-      expect(candidates).toContain(
-        'C:\\Users\\me\\AppData\\Roaming\\npm\\node_modules\\npm\\bin\\npm-cli.js',
-      );
+      expect(candidates).toContain('C:\\Users\\me\\AppData\\Roaming\\npm\\node_modules\\npm\\bin\\npm-cli.js');
     });
 
     it('derives npm-cli.js from Node dirs found on Windows PATH (where-style)', () => {
@@ -153,17 +147,60 @@ describe('ijfw/safeSpawn', () => {
       const candidates = __buildNpmCliCandidates(
         'win32',
         { APPDATA: 'C:\\Users\\me\\AppData\\Roaming', PATH: `C:\\Windows;${nodeDir}` },
-        'C:\\app\\wayland.exe',
+        'C:\\app\\wayland.exe'
       );
-      expect(candidates).toContain(
-        `${nodeDir}\\node_modules\\npm\\bin\\npm-cli.js`,
-      );
+      expect(candidates).toContain(`${nodeDir}\\node_modules\\npm\\bin\\npm-cli.js`);
     });
 
     it('returns POSIX candidates unchanged on non-Windows', () => {
-      const candidates = __buildNpmCliCandidates('darwin', { PATH: '/usr/bin' }, '/Applications/Wayland.app/Contents/MacOS/Wayland');
+      const candidates = __buildNpmCliCandidates(
+        'darwin',
+        { PATH: '/usr/bin' },
+        '/Applications/Wayland.app/Contents/MacOS/Wayland'
+      );
       expect(candidates).toContain('/usr/local/lib/node_modules/npm/bin/npm-cli.js');
       expect(candidates).toContain('/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js');
+    });
+  });
+
+  describe('__isAcceptableNpmStat (#261)', () => {
+    it('accepts any resolving path on Windows (NTFS perms are not POSIX-meaningful)', () => {
+      // A normal C:\Program Files\nodejs file reads as world-writable (0o666)
+      // through Node's translated mode and getuid() is undefined — it must NOT
+      // be rejected, or the IJFW update check breaks (#261).
+      expect(__isAcceptableNpmStat({ mode: 0o666, uid: undefined }, 'win32', undefined)).toBe(true);
+    });
+
+    it('rejects world-writable npm on POSIX', () => {
+      expect(__isAcceptableNpmStat({ mode: 0o666, uid: 0 }, 'linux', 0)).toBe(false);
+    });
+
+    it('rejects foreign-owned npm on POSIX', () => {
+      expect(__isAcceptableNpmStat({ mode: 0o755, uid: 1234 }, 'linux', 501)).toBe(false);
+    });
+
+    it('accepts a non-world-writable npm owned by self or root on POSIX', () => {
+      expect(__isAcceptableNpmStat({ mode: 0o755, uid: 501 }, 'darwin', 501)).toBe(true);
+      expect(__isAcceptableNpmStat({ mode: 0o755, uid: 0 }, 'darwin', 501)).toBe(true);
+    });
+  });
+
+  describe('defaultResolveTrustedNpm diagnostics (#261)', () => {
+    it('throws an enumerated diagnostic listing every tried candidate when none resolve', async () => {
+      // Force every candidate to fail to resolve. This must be hermetic across
+      // platforms: on a real Windows runner the hardcoded
+      // `C:\Program Files\nodejs\...` candidate actually exists and resolves, so
+      // stub realpath rather than rely on a bogus PATH (which only "works" on a
+      // host that happens to lack a system Node install).
+      const spy = vi
+        .spyOn(fs.promises, 'realpath')
+        .mockRejectedValue(Object.assign(new Error('ENOENT: no such file'), { code: 'ENOENT' }));
+      try {
+        await expect(defaultResolveTrustedNpm()).rejects.toThrow(/Could not resolve trusted npm/);
+        await expect(defaultResolveTrustedNpm()).rejects.toThrow(/npm-cli\.js/);
+      } finally {
+        spy.mockRestore();
+      }
     });
   });
 });

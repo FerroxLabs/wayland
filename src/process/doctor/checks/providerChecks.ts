@@ -26,6 +26,21 @@ export type ProviderRegistryReader = {
   listRegistryProviders: () => RegistryProvider[];
   getRegistryProviderCreds: (providerId: ProviderId) => RegistryCredsResult;
   countRegistryCatalog: (providerId: ProviderId) => number;
+  /**
+   * How many of a provider's catalog models are effectively ENABLED (curated
+   * defaults with the user's per-model overrides applied) — the same notion the
+   * Models page provider on/off toggle uses.
+   */
+  countEnabledModels?: (providerId: ProviderId) => number;
+  /**
+   * Whether the user has written ANY explicit per-model enable/disable override
+   * for the provider. This is what distinguishes a deliberate "switch the
+   * provider OFF" (the toggle writes `false` overrides for every model) from a
+   * provider that simply has zero models enabled BY DEFAULT (the curator marks
+   * non-flagship / legacy / out-of-recency models disabled, and a fresh connect
+   * writes no overrides at all). Only the former is "user-disabled" (issue #271).
+   */
+  hasModelOverrides?: (providerId: ProviderId) => boolean;
 };
 
 /** The connect-probe surface — `ConnectionTester.test` (narrowed for tests). */
@@ -83,6 +98,29 @@ function baseUrlFromCreds(creds: Record<string, unknown>): string | undefined {
 }
 
 /**
+ * True when the user has intentionally switched a provider OFF, so connectivity
+ * must skip it entirely — not probe, warn, or report (Overwatch ruling on issue
+ * #271). "User-disabled" requires ALL of:
+ *  - a non-empty catalog (an EMPTY catalog is the "no models" state the
+ *    model-registry check owns, not a disable — still probe it);
+ *  - zero effectively-enabled models; AND
+ *  - at least one explicit per-model override.
+ *
+ * The override requirement is the crucial guard: the curator marks many models
+ * disabled BY DEFAULT (non-flagship / legacy / out-of-recency), and a fresh
+ * connect writes no overrides — so "zero enabled" ALONE does not imply user
+ * intent. Without it, a genuinely-connected provider whose models all default
+ * off would be silently skipped, hiding a real auth/credit failure. Only a
+ * deliberate toggle-OFF (which writes `false` overrides) counts. Requires both
+ * `countEnabledModels` and `hasModelOverrides`; absent either, nothing is
+ * treated as disabled (probe it — never silence a real failure).
+ */
+function isUserDisabled(reader: ProviderRegistryReader, id: ProviderId): boolean {
+  if (!reader.countEnabledModels || !reader.hasModelOverrides) return false;
+  return reader.countRegistryCatalog(id) > 0 && reader.hasModelOverrides(id) && reader.countEnabledModels(id) === 0;
+}
+
+/**
  * Provider connectivity — for every connected provider, run the real probe and
  * classify the worst outcome. FAIL on auth/credit/undecryptable errors; WARN on
  * a provider that cannot be probed (no key, offline host) so it is surfaced
@@ -92,12 +130,24 @@ export async function checkProviderConnectivity(
   reader: ProviderRegistryReader,
   probe: ConnectProbe
 ): Promise<DoctorCheckOutcome> {
-  const providers = reader.listRegistryProviders();
-  if (providers.length === 0) {
+  const allProviders = reader.listRegistryProviders();
+  if (allProviders.length === 0) {
     return {
       status: 'warn',
       detail: 'No providers are connected.',
       remediation: 'Connect at least one provider in Settings → Models so the app can run inference.',
+    };
+  }
+
+  // A provider the user intentionally switched OFF is not routable and not a
+  // fault — skip it entirely (no probe, no warn, no report) per the #271 ruling.
+  const providers = allProviders.filter((p) => !isUserDisabled(reader, p.providerId));
+  const disabledCount = allProviders.length - providers.length;
+  if (providers.length === 0) {
+    return {
+      status: 'warn',
+      detail: `No enabled providers to check (${disabledCount} disabled provider(s) skipped).`,
+      remediation: 'Enable a provider in Settings → Models, or connect a new one, so the app can run inference.',
     };
   }
 
@@ -127,9 +177,7 @@ export async function checkProviderConnectivity(
     }
 
     const key = keyFromCreds(credsResult.creds);
-    const creds = key
-      ? { key }
-      : { fields: credsResult.creds as Record<string, string> };
+    const creds = key ? { key } : { fields: credsResult.creds as Record<string, string> };
     const result = await probe.test(provider.providerId, creds, baseUrlFromCreds(credsResult.creds));
 
     if (result.ok) {
@@ -165,7 +213,11 @@ export async function checkProviderConnectivity(
       remediation: 'Check the provider host is reachable and the credentials are present in Settings → Models.',
     };
   }
-  return { status: 'pass', detail: `${okCount} of ${providers.length} connected provider(s) passed the live probe.` };
+  const disabledSuffix = disabledCount > 0 ? ` (${disabledCount} disabled provider(s) skipped)` : '';
+  return {
+    status: 'pass',
+    detail: `${okCount} of ${providers.length} enabled provider(s) passed the live probe${disabledSuffix}.`,
+  };
 }
 
 /**
