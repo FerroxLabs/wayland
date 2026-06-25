@@ -595,6 +595,7 @@ export type I18nKey =
   | 'conversation.tabs.poppedOut'
   | 'conversation.thinking.complete'
   | 'conversation.thinking.label'
+  | 'conversation.thinking.thoughtFor'
   | 'conversation.welcome.clearWorkspace'
   | 'conversation.welcome.currentWorkspace'
   | 'conversation.welcome.fluxGroupLabel'

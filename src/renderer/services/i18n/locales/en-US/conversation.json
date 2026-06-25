@@ -315,6 +315,7 @@
   },
   "thinking": {
     "complete": "Thought complete",
+    "thoughtFor": "Thought for {{duration}}",
     "label": "Thinking..."
   },
   "subAgent": {

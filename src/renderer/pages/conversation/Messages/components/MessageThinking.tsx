@@ -10,11 +10,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './MessageThinking.module.css';
 
-const getFirstLine = (content: string): string => {
-  const firstLine = content.split('\n')[0] || '';
-  return firstLine.length > 80 ? firstLine.slice(0, 80) + '...' : firstLine;
-};
-
 const MessageThinking: React.FC<{ message: IMessageThinking }> = ({ message }) => {
   const { t } = useTranslation();
 
@@ -72,8 +67,11 @@ const MessageThinking: React.FC<{ message: IMessageThinking }> = ({ message }) =
     }
   }, [text, isDone, expanded]);
 
+  // Collapsed reads "Thought for 3s" (Claude-style); the live state shows the
+  // model's own gerund subject ("Synthesizing…") when the engine provides one,
+  // else a calm "Thinking…". Full reasoning is on expand.
   const summaryText = isDone
-    ? `${t('conversation.thinking.complete', { defaultValue: 'Thought complete' })} (${formatDuration(duration || 0)}) - ${getFirstLine(text)}`
+    ? t('conversation.thinking.thoughtFor', { defaultValue: 'Thought for {{duration}}', duration: formatDuration(duration || 0) })
     : `${subject || t('conversation.thinking.label', { defaultValue: 'Thinking...' })} (${formatElapsedTime(elapsedTime)})`;
 
   return (
