@@ -539,6 +539,7 @@ export type I18nKey =
   | 'conversation.observability.showCostHint'
   | 'conversation.observability.sourcesCount'
   | 'conversation.observability.summaryDid'
+  | 'conversation.observability.summaryDidMore'
   | 'conversation.observability.summaryDidShort'
   | 'conversation.observability.title'
   | 'conversation.observability.toggle'

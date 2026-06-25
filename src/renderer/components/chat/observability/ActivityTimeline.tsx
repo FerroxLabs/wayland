@@ -163,6 +163,20 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
     ? t('conversation.observability.summaryDid', { defaultValue: 'Did {{count}} things · {{duration}}', count: doneCount(steps), duration: dur })
     : t('conversation.observability.summaryDidShort', { defaultValue: 'Did {{count}} things', count: doneCount(steps) });
 
+  // "What I did" at-a-glance: name the real actions under the collapsed summary
+  // (only for genuinely multi-step turns; a single action is self-evident).
+  const doneLabels = steps.filter((s) => s.status !== 'running' && s.label).map((s) => s.label.replace(/[.…]+$/, ''));
+  const stepDetail =
+    doneLabels.length >= 2
+      ? doneLabels.length > 3
+        ? t('conversation.observability.summaryDidMore', {
+            defaultValue: '{{steps}} · +{{count}} more',
+            steps: doneLabels.slice(0, 3).join(' · '),
+            count: doneLabels.length - 3,
+          })
+        : doneLabels.join(' · ')
+      : '';
+
   return (
     <div className={styles.container} data-testid='activity-timeline' data-timeline-status={status}>
       <div
@@ -201,6 +215,12 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
         )}
         <Right className={`${styles.chev} ${expanded ? styles.chevOpen : ''}`} size='13' aria-hidden='true' />
       </div>
+
+      {!running && !expanded && stepDetail && (
+        <div className={styles.summaryDetail} data-testid='activity-summary-detail'>
+          {stepDetail}
+        </div>
+      )}
 
       {expanded && (
         <div className={styles.list}>

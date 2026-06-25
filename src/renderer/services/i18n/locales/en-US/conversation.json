@@ -348,6 +348,7 @@
     "runningCount": "{{count}} running",
     "summaryDid": "Did {{count}} things · {{duration}}",
     "summaryDidShort": "Did {{count}} things",
+    "summaryDidMore": "{{steps}} · +{{count}} more",
     "expandRow": "Toggle step detail",
     "sourcesCount": "{{count}} sources"
   },
