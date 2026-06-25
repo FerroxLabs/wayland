@@ -22,6 +22,8 @@ import { agentRegistry } from '@process/agent/AgentRegistry';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
 import { ConnectionTester } from '@process/providers/detection/ConnectionTester';
+import { Curator } from '@process/providers/catalog/Curator';
+import type { ProviderId } from '@process/providers/types';
 import { detectWCore } from '@process/agent/wcore/binaryResolver';
 import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
@@ -43,6 +45,24 @@ import { checkSecretStorage, checkEngineConfigIntegrity } from './checks/configC
 async function providerRepo(): Promise<ProviderRepository> {
   const db = await getDatabase();
   return new ProviderRepository(db.getDriver());
+}
+
+/**
+ * Effectively-enabled model count for a provider — the curated catalog with the
+ * user's per-model overrides applied, mirroring the Models page provider on/off
+ * toggle (a provider reads "off" when this is `0`). Drives the Doctor's
+ * skip-disabled rule (#271); the connectivity check treats a provider with a
+ * non-empty catalog but `0` enabled models as user-switched-off.
+ */
+function countEnabledModels(repo: ProviderRepository, curator: Curator, providerId: ProviderId): number {
+  const curated = curator.curate(repo.getRegistryCatalog(providerId));
+  const overrides = new Map(repo.listRegistryOverrides(providerId).map((o) => [o.modelId, o.enabled]));
+  let enabled = 0;
+  for (const model of curated) {
+    const override = overrides.get(model.id);
+    if (override === undefined ? model.enabled : override) enabled += 1;
+  }
+  return enabled;
 }
 
 /** True when `path` exists on disk (an `fs.access` probe). */
@@ -119,11 +139,14 @@ export function buildDoctorChecks(): DoctorCheck[] {
       category: 'providers',
       run: async () => {
         const repo = await providerRepo();
+        const curator = new Curator();
         return checkProviderConnectivity(
           {
             listRegistryProviders: () => repo.listRegistryProviders(),
             getRegistryProviderCreds: (id) => repo.getRegistryProviderCreds(id),
             countRegistryCatalog: (id) => repo.countRegistryCatalog(id),
+            countEnabledModels: (id) => countEnabledModels(repo, curator, id),
+            hasModelOverrides: (id) => repo.listRegistryOverrides(id).length > 0,
           },
           connectionTester
         );
