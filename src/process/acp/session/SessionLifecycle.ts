@@ -1,4 +1,4 @@
-import { getFullAutoMode } from '@/common/types/agentModes';
+import { getFullAutoMode, resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { isFluxModelId } from '@/common/config/flux';
 import { parseInitializeResult } from '@/common/types/acpTypes';
 import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
@@ -327,9 +327,16 @@ export class SessionLifecycle {
       }
     }
     if (pending.mode) {
+      // Validate the desired mode against the agent's advertised modes before
+      // re-asserting it. Wayland seeds the desired mode from the generic
+      // `default`, but backends like opencode have no `default` agent (their
+      // primary is `build`) and reject it with "Agent not found", breaking the
+      // session at startup/reconnect (#298).
+      const { availableModes, currentModeId } = this.host.configTracker.modeSnapshot();
+      const mode = resolveAcpSessionModeId(pending.mode, availableModes, currentModeId);
       try {
-        await this._client.setMode(this._sessionId, pending.mode);
-        this.host.configTracker.setCurrentMode(pending.mode);
+        await this._client.setMode(this._sessionId, mode);
+        this.host.configTracker.setCurrentMode(mode);
       } catch {
         /* best effort */
       }

@@ -5,6 +5,7 @@ import type {
   UsageUpdate,
 } from '@agentclientprotocol/sdk';
 import * as path from 'node:path';
+import { resolveAcpSessionModeId } from '@/common/types/agentModes';
 import { AcpError } from '@process/acp/errors/AcpError';
 import { buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
 import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
@@ -253,9 +254,14 @@ export class AcpSession {
     if (this._status === 'idle' || this._status === 'error') return;
     const { client, sessionId } = this.lifecycle;
     if (this._status === 'active' && client && sessionId) {
+      // Validate against the agent's advertised modes: backends like opencode
+      // have no `default` agent (their primary is `build`), so an unadvertised
+      // modeId is rejected with "Agent not found" and breaks the session (#298).
+      const { availableModes, currentModeId } = this.configTracker.modeSnapshot();
+      const resolved = resolveAcpSessionModeId(modeId, availableModes, currentModeId);
       client
-        .setMode(sessionId, modeId)
-        .then(() => this.configTracker.setCurrentMode(modeId))
+        .setMode(sessionId, resolved)
+        .then(() => this.configTracker.setCurrentMode(resolved))
         .then(() => this.callbacks.onModeUpdate(this.configTracker.modeSnapshot()))
         .catch((err) => console.warn('[AcpSession] setMode failed:', err));
     }
