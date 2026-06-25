@@ -56,7 +56,7 @@ describe('useMcpOAuth login timeout / cancel (#242)', () => {
 
     let outcome: Awaited<ReturnType<typeof result.current.login>> | undefined;
     act(() => {
-      void result.current.login(server, { timeoutMs: 1000 }).then((r) => {
+      void result.current.login(server, undefined, { timeoutMs: 1000 }).then((r) => {
         outcome = r;
       });
     });
@@ -81,7 +81,7 @@ describe('useMcpOAuth login timeout / cancel (#242)', () => {
     let outcome: Awaited<ReturnType<typeof result.current.login>> | undefined;
     act(() => {
       void result.current
-        .login(server, { signal: controller.signal, timeoutMs: 60_000 })
+        .login(server, undefined, { signal: controller.signal, timeoutMs: 60_000 })
         .then((r) => {
           outcome = r;
         });
@@ -105,7 +105,7 @@ describe('useMcpOAuth login timeout / cancel (#242)', () => {
 
     let outcome: Awaited<ReturnType<typeof result.current.login>> | undefined;
     await act(async () => {
-      outcome = await result.current.login(server, { timeoutMs: 120_000 });
+      outcome = await result.current.login(server, undefined, { timeoutMs: 120_000 });
     });
 
     expect(outcome).toEqual({ success: true });

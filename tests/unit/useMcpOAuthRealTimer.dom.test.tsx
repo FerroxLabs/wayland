@@ -74,7 +74,7 @@ describe('useMcpOAuth #242 real-timer drive (no fake timers)', () => {
     let settled: Awaited<ReturnType<typeof result.current.login>> | undefined;
     let didSettle = false;
     act(() => {
-      void result.current.login(server, { timeoutMs: 50 }).then((r) => {
+      void result.current.login(server, undefined, { timeoutMs: 50 }).then((r) => {
         settled = r;
         didSettle = true;
       });
@@ -103,7 +103,7 @@ describe('useMcpOAuth #242 real-timer drive (no fake timers)', () => {
     act(() => {
       // Large timeout: if cancel did NOT work, this test would hang far past it.
       void result.current
-        .login(server, { signal: controller.signal, timeoutMs: 60_000 })
+        .login(server, undefined, { signal: controller.signal, timeoutMs: 60_000 })
         .then((r) => {
           settled = r;
           didSettle = true;
@@ -131,7 +131,7 @@ describe('useMcpOAuth #242 real-timer drive (no fake timers)', () => {
     let settled: Awaited<ReturnType<typeof result.current.login>> | undefined;
     await act(async () => {
       // Real (short) timeout coexists; the real resolve must win the race.
-      settled = await result.current.login(server, { timeoutMs: 50 });
+      settled = await result.current.login(server, undefined, { timeoutMs: 50 });
     });
 
     expect(settled).toEqual({ success: true });

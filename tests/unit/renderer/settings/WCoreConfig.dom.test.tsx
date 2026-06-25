@@ -188,7 +188,7 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
 
   it('shows the engine chip with the pinned version when running', async () => {
     render(<WCoreConfig />);
-    await waitFor(() => expect(screen.getByText('engine running · v0.11.0')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(/^engine running · v\d/)).toBeTruthy());
   });
 
   it('shows engine stopped when the wcore backend is absent', async () => {

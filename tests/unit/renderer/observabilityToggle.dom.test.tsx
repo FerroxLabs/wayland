@@ -24,6 +24,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: { defaultValue?: string }) => options?.defaultValue ?? key,
   }),
+  initReactI18next: { type: '3rdParty', init: () => {} },
 }));
 
 // ChatConversation evaluates a large tree of sibling imports at module load.
