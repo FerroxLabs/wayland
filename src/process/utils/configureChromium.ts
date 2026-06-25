@@ -9,7 +9,7 @@ import http from 'http';
 import * as fs from 'fs';
 import * as path from 'path';
 import os from 'os';
-import { getDevAppName } from '@/common/platform';
+import { getDevAppName, getDevProfileDir } from '@/common/platform';
 import { writeFileSyncAtomic } from './atomicWrite';
 
 // ============ Environment Separation ============
@@ -20,9 +20,11 @@ if (!app.isPackaged) {
   const devAppName = getDevAppName();
   app.setName(devAppName);
   // In Electron 28+, setName alone no longer updates userData path on macOS.
-  // Explicitly override userData to the dev directory.
+  // Explicitly override userData to the dev directory. The userData dir can be
+  // isolated per instance (WAYLAND_DEV_PROFILE) while the app NAME stays on the
+  // base profile so safeStorage-encrypted credentials still decrypt.
   const appSupportDir = path.dirname(app.getPath('userData'));
-  app.setPath('userData', path.join(appSupportDir, devAppName));
+  app.setPath('userData', path.join(appSupportDir, getDevProfileDir()));
 }
 
 // Configure Chromium command-line flags for WebUI and CLI modes
