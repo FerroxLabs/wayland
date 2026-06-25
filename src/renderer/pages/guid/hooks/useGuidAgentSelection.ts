@@ -5,7 +5,6 @@
  */
 
 import { ipcBridge } from '@/common';
-import { DEFAULT_CODEX_MODELS } from '@/common/types/codex/codexModels';
 import type { IProvider } from '@/common/config/storage';
 import { ConfigStorage } from '@/common/config/storage';
 import type { AcpBackendAll, AcpSessionConfigOption } from '@/common/types/acpTypes';
@@ -526,18 +525,10 @@ export const useGuidAgentSelection = ({
     const cached = acpCachedModels[backend];
     if (cached) return cached;
 
-    // Fallback: when no cached models exist for codex (e.g., first launch or stale cache),
-    // use the hardcoded default list so the Guid page shows a model selector immediately.
-    if (backend === 'codex' && DEFAULT_CODEX_MODELS.length > 0) {
-      return {
-        source: 'models' as const,
-        currentModelId: DEFAULT_CODEX_MODELS[0].id,
-        currentModelLabel: DEFAULT_CODEX_MODELS[0].label,
-        availableModels: DEFAULT_CODEX_MODELS.map((m) => ({ id: m.id, label: m.label })),
-        canSwitch: true,
-      } satisfies AcpModelInfo;
-    }
-
+    // No cached catalog for this backend yet. Return null (no hardcoded list):
+    // GuidModelSelector then sources its unified model list from the live curated
+    // catalog (`curatedForAgent`), so an enumerable CLI like Codex surfaces live
+    // GPT models instead of a stale fallback.
     return null;
   }, [selectedAgentKey, acpCachedModels, isPresetAgent, currentEffectiveAgentInfo.agentType]);
 

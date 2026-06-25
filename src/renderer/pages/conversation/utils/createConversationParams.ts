@@ -11,7 +11,6 @@ import type { TProviderWithModel } from '@/common/config/storage';
 import type { AcpBackend } from '@/common/types/acpTypes';
 import { getFluxCompat } from '@/common/types/acpTypes';
 import { FLUX_AUTO_MODEL, FLUX_PROVIDER_ID } from '@/common/config/flux';
-import { DEFAULT_CODEX_MODELS } from '@/common/types/codex/codexModels';
 import { resolveLocaleKey } from '@/common/utils';
 import { loadPresetAssistantResources } from '@/common/utils/presetAssistantResources';
 import {
@@ -104,12 +103,9 @@ async function resolvePreferredAcpModelId(backend: string): Promise<string | und
     return FLUX_AUTO_MODEL;
   }
 
-  // Codex needs a native default (its picker is empty pre-session); applies only
-  // when Flux defaulting above did not fire.
-  if (backend === 'codex' && DEFAULT_CODEX_MODELS.length > 0) {
-    return DEFAULT_CODEX_MODELS[0]?.id;
-  }
-
+  // No hardcoded default (PRINCIPLE: no hardcoded model lists). With no cached
+  // pick and no Flux default, leave the model unset - the launch picker sources
+  // a live model (curated catalog) and the user's selection supplies it.
   return undefined;
 }
 

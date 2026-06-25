@@ -9,7 +9,6 @@ import { resolveLocaleKey } from '../../src/common/utils';
 
 const loadPresetAssistantResources = vi.fn();
 const configGet = vi.fn();
-const defaultCodexModels: Array<{ id: string; label: string }> = [];
 
 vi.mock('@/common', () => ({
   ipcBridge: {},
@@ -43,10 +42,6 @@ vi.mock('@/common/utils/presetAssistantResources', () => ({
   loadPresetAssistantResources,
 }));
 
-vi.mock('@/common/types/codex/codexModels', () => ({
-  DEFAULT_CODEX_MODELS: defaultCodexModels,
-}));
-
 const { buildPresetAssistantParams, buildCliAgentParams } =
   await import('../../src/renderer/pages/conversation/utils/createConversationParams');
 
@@ -54,7 +49,6 @@ describe('createConversationParams', () => {
   beforeEach(() => {
     loadPresetAssistantResources.mockReset();
     configGet.mockReset();
-    defaultCodexModels.length = 0;
   });
 
   it('uses the shared locale resolver for Turkish', async () => {
@@ -287,8 +281,7 @@ describe('createConversationParams', () => {
     expect(params.extra.currentModelId).toBe('claude-sonnet-4-5');
   });
 
-  it('falls back to default codex model when no cached ACP model exists', async () => {
-    defaultCodexModels.push({ id: 'gpt-5', label: 'GPT-5' });
+  it('leaves codex model unset when no cached ACP model and Flux is off (no hardcoded default)', async () => {
     configGet.mockImplementation(async (key: string) => {
       if (key === 'acp.config') {
         return {};
@@ -307,7 +300,9 @@ describe('createConversationParams', () => {
       '/tmp/workspace'
     );
 
-    expect(params.extra.currentModelId).toBe('gpt-5');
+    // No hardcoded codex default: with no cached pick and Flux off, the model is
+    // left undefined and the launch picker supplies a live (curated) model.
+    expect(params.extra.currentModelId).toBeUndefined();
   });
 
   it('throws error for wcore if no enabled provider', async () => {

@@ -18,8 +18,6 @@ const configStorageMock = vi.hoisted(() => ({
   set: vi.fn().mockResolvedValue(undefined),
 }));
 
-const defaultCodexModels = vi.hoisted(() => [] as Array<{ id: string; label: string }>);
-
 const ipcMock = vi.hoisted(() => ({
   getAvailableAgents: vi.fn(),
   refreshCustomAgents: vi.fn().mockResolvedValue(undefined),
@@ -27,6 +25,10 @@ const ipcMock = vi.hoisted(() => ({
   getAssistants: vi.fn(),
   remoteAgentList: vi.fn().mockResolvedValue([]),
   getClaudeNativeDefault: vi.fn().mockResolvedValue(null),
+  // Eager catalog resolve for an uncached backend (no live task). Default: no
+  // model info, so the hook leaves currentAcpCachedModelInfo null and the
+  // picker sources its list from the live curated catalog.
+  getModelInfo: vi.fn().mockResolvedValue({ success: false, data: null }),
 }));
 
 // ---------------------------------------------------------------------------
@@ -38,6 +40,7 @@ vi.mock('../../src/common', () => ({
     acpConversation: {
       getAvailableAgents: { invoke: ipcMock.getAvailableAgents },
       refreshCustomAgents: { invoke: ipcMock.refreshCustomAgents },
+      getModelInfo: { invoke: ipcMock.getModelInfo },
     },
     extensions: {
       getAssistants: { invoke: ipcMock.getAssistants },
@@ -57,10 +60,6 @@ vi.mock('../../src/common/config/storage', () => ({
 
 vi.mock('../../src/common/config/presets/assistantPresets', () => ({
   ASSISTANT_PRESETS: [],
-}));
-
-vi.mock('../../src/common/types/codex/codexModels', () => ({
-  DEFAULT_CODEX_MODELS: defaultCodexModels,
 }));
 
 let swrData: Record<string, unknown> = {};
@@ -161,6 +160,9 @@ function setupMocks(overrides?: {
 
   ipcMock.getAvailableAgents.mockResolvedValue({ success: true, data: AVAILABLE_AGENTS });
   ipcMock.getAssistants.mockResolvedValue([]);
+  // Eager catalog resolve for an uncached backend: default to no model info so
+  // currentAcpCachedModelInfo stays null (picker uses the live curated catalog).
+  ipcMock.getModelInfo.mockResolvedValue({ success: false, data: null });
 
   configStorageMock.get.mockImplementation(async (key: string) => {
     switch (key) {
@@ -194,7 +196,6 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resetSwrCache();
-    defaultCodexModels.length = 0;
     setupMocks();
   });
 
@@ -389,8 +390,10 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
     expect(configStorageMock.set).toHaveBeenCalledWith('guid.lastSelectedAgent', 'gemini');
   });
 
-  it('uses default codex models when codex has no cached list', async () => {
-    defaultCodexModels.push({ id: 'gpt-5', label: 'GPT-5' }, { id: 'gpt-5-mini', label: 'GPT-5 Mini' });
+  it('returns null cached info for codex with no cached list (picker uses live curated catalog)', async () => {
+    // No hardcoded DEFAULT_CODEX_MODELS fallback anymore: an uncached codex
+    // backend resolves currentAcpCachedModelInfo to null, and GuidModelSelector
+    // then sources its model list from the live curated catalog instead.
     setupMocks({ cachedModels: {}, acpConfig: {} });
 
     const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
@@ -404,13 +407,10 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.currentAcpCachedModelInfo?.currentModelId).toBe('gpt-5');
+      expect(result.current.selectedAgentKey).toBe('codex');
     });
 
-    expect(result.current.currentAcpCachedModelInfo?.availableModels).toEqual([
-      { id: 'gpt-5', label: 'GPT-5' },
-      { id: 'gpt-5-mini', label: 'GPT-5 Mini' },
-    ]);
+    expect(result.current.currentAcpCachedModelInfo).toBeNull();
   });
 
   // ---------------------------------------------------------------------------
