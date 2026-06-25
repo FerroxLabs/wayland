@@ -1174,6 +1174,23 @@ export class WaylandUIDatabase {
     }
   }
 
+  deleteMessagesAfter(conversationId: string, timestamp: number): IQueryResult<number> {
+    try {
+      const stmt = this.db.prepare('DELETE FROM messages WHERE conversation_id = ? AND created_at > ?');
+      const result = stmt.run(conversationId, timestamp);
+
+      return {
+        success: true,
+        data: result.changes,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
   /**
    * Get message by msg_id and conversation_id
    * Used for finding existing messages to update (e.g., streaming text accumulation)

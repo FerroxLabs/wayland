@@ -17,7 +17,7 @@
  * active sendbox owns send, so it listens and re-runs the turn.
  */
 
-import { Copy, Like, PauseOne, PlayOne, Refresh, Unlike } from '@icon-park/react';
+import { Copy, Edit, Like, PauseOne, PlayOne, Refresh, Unlike } from '@icon-park/react';
 import { Tooltip } from '@arco-design/web-react';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -27,6 +27,10 @@ import { iconColors } from '@/renderer/styles/colors';
 /** Dispatched by Retry; the active platform sendbox listens and re-sends the turn. */
 export const CHAT_RETRY_EVENT = 'wl:chat-retry';
 export type ChatRetryDetail = { conversationId?: string; text: string };
+
+/** Dispatched by the user-message Edit+Save flow; the active sendbox listens and re-runs the turn. */
+export const EDIT_AND_RERUN_EVENT = 'wl:chat-edit-rerun';
+export type ChatEditRerunDetail = { conversationId: string; afterTimestamp: number; text: string };
 
 type Feedback = 'up' | 'down';
 
@@ -50,6 +54,8 @@ type Props = {
   /** For Retry (assistant only): the preceding user prompt to re-send. */
   retryText?: string;
   conversationId?: string;
+  /** Called when the user clicks the Edit button (user messages only). */
+  onEdit?: () => void;
 };
 
 const stripMarkdown = (s: string): string =>
@@ -88,7 +94,7 @@ const ActionButton: React.FC<{ label: string; onClick: () => void; active?: bool
   </Tooltip>
 );
 
-const MessageActions: React.FC<Props> = ({ onCopy, messageId, readText, isUser, display, retryText, conversationId }) => {
+const MessageActions: React.FC<Props> = ({ onCopy, messageId, readText, isUser, display, retryText, conversationId, onEdit }) => {
   const { t } = useTranslation();
   const fbKey = `wl:fb:${messageId}`;
   const [feedback, setFeedback] = useState<Feedback | null>(() => {
@@ -164,6 +170,12 @@ const MessageActions: React.FC<Props> = ({ onCopy, messageId, readText, isUser, 
       <ActionButton label={t('common.copy', { defaultValue: 'Copy' })} onClick={onCopy}>
         <Copy size={16} fill={iconColors.secondary} />
       </ActionButton>
+
+      {isUser && onEdit && (
+        <ActionButton label={t('conversation.actions.edit', { defaultValue: 'Edit' })} onClick={onEdit}>
+          <Edit size={16} fill={iconColors.secondary} />
+        </ActionButton>
+      )}
 
       {!isUser && (
         <>

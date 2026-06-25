@@ -7,11 +7,17 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import MessageActions, { CHAT_RETRY_EVENT, type ChatRetryDetail } from '@/renderer/pages/conversation/Messages/components/MessageActions';
+import MessageActions, {
+  CHAT_RETRY_EVENT,
+  EDIT_AND_RERUN_EVENT,
+  type ChatRetryDetail,
+  type ChatEditRerunDetail,
+} from '@/renderer/pages/conversation/Messages/components/MessageActions';
 
 vi.mock('@arco-design/web-react', () => ({ Tooltip: ({ children }: { children?: React.ReactNode }) => <>{children}</> }));
 vi.mock('@icon-park/react', () => ({
   Copy: () => <span data-testid='copy-icon' />,
+  Edit: () => <span data-testid='edit-icon' />,
   PlayOne: () => <span data-testid='play-icon' />,
   PauseOne: () => <span data-testid='pause-icon' />,
   Refresh: () => <span data-testid='refresh-icon' />,
@@ -44,11 +50,26 @@ describe('MessageActions', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('user: renders only copy', () => {
-    render(<MessageActions {...base} isUser />);
+  it('user: renders copy; no read-aloud or retry; Edit shown when onEdit provided', () => {
+    const onEdit = vi.fn();
+    render(<MessageActions {...base} isUser onEdit={onEdit} />);
     expect(screen.getByLabelText('Copy')).toBeTruthy();
+    expect(screen.getByLabelText('Edit')).toBeTruthy();
     expect(screen.queryByLabelText('Read aloud')).toBeNull();
     expect(screen.queryByLabelText('Retry')).toBeNull();
+  });
+
+  it('user: no Edit button when onEdit is not provided', () => {
+    render(<MessageActions {...base} isUser />);
+    expect(screen.getByLabelText('Copy')).toBeTruthy();
+    expect(screen.queryByLabelText('Edit')).toBeNull();
+  });
+
+  it('user: clicking Edit calls onEdit', () => {
+    const onEdit = vi.fn();
+    render(<MessageActions {...base} isUser onEdit={onEdit} />);
+    fireEvent.click(screen.getByLabelText('Edit'));
+    expect(onEdit).toHaveBeenCalledTimes(1);
   });
 
   it('copy calls onCopy', () => {
@@ -74,6 +95,10 @@ describe('MessageActions', () => {
     fireEvent.click(screen.getByLabelText('Retry'));
     expect(spy).toHaveBeenCalledWith({ conversationId: 'c1', text: 'do it again' });
     window.removeEventListener(CHAT_RETRY_EVENT, handler);
+  });
+
+  it('EDIT_AND_RERUN_EVENT is exported with the correct channel name', () => {
+    expect(EDIT_AND_RERUN_EVENT).toBe('wl:chat-edit-rerun');
   });
 
   it('read-aloud calls speechSynthesis', () => {

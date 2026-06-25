@@ -156,6 +156,10 @@ export const conversation = {
       config: { model?: string; thinking?: string; thinking_budget?: number; effort?: string };
     }
   >('conversation.set-config'),
+  deleteMessagesAfter: buildProvider<
+    IBridgeResponse<{ deleted: number }>,
+    { conversation_id: string; afterTimestamp: number }
+  >('conversation.delete-messages-after'),
   confirmation: {
     add: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.add'),
     update: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.update'),
