@@ -554,6 +554,21 @@ export function initConversationBridge(
     }
   });
 
+  // Fast first-response ack (#30): a one-shot flux-fast "here's the plan"
+  // sentence, fired in parallel with the real turn. Dynamic import keeps the
+  // completion chain out of the boot module graph (same hazard as generateTitle).
+  // Best-effort: always returns success with text '' on any failure so the
+  // renderer treats it as "no ack" and the real turn is never affected.
+  ipcBridge.conversation.fastAck.provider(async ({ prompt }) => {
+    try {
+      const { generateFastAck } = await import('@process/services/completion/fastAck');
+      const text = await generateFastAck(prompt);
+      return { success: true, data: { text } };
+    } catch {
+      return { success: true, data: { text: '' } };
+    }
+  });
+
   // Generic sendMessage - dispatches via IAgentManager.sendMessage interface
   ipcBridge.conversation.sendMessage.provider(async (params) => {
     if (!params) {

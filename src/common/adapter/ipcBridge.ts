@@ -122,6 +122,10 @@ export const conversation = {
     IBridgeResponse<ConversationSideQuestionResult>,
     { conversation_id: string; question: string }
   >('conversation.ask-side-question'),
+  // Fast first-response ack: a one-shot flux-fast "here's the plan" sentence,
+  // fired in parallel with the real turn and shown as a transient bubble until
+  // the main response starts streaming. Best-effort - empty text on any failure.
+  fastAck: buildProvider<IBridgeResponse<{ text: string }>, { prompt: string }>('completion.fast-ack'),
   confirmMessage: buildProvider<IBridgeResponse, IConfirmMessageParams>('conversation.confirm.message'), // Generic confirm message
   responseStream: buildEmitter<IResponseMessage>('chat.response.stream'), // Receive messages (unified interface)
   turnCompleted: buildEmitter<IConversationTurnCompletedEvent>('conversation.turn.completed'),

@@ -362,6 +362,7 @@ export type I18nKey =
   | 'conversation.chat.confirmationLoadError'
   | 'conversation.chat.noModelSelected'
   | 'conversation.chat.processing'
+  | 'conversation.chat.quickTake'
   | 'conversation.chat.quotaExceededBody'
   | 'conversation.chat.quotaExceededNoFallback'
   | 'conversation.chat.quotaExceededTitle'
