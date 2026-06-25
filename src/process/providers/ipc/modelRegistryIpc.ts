@@ -787,6 +787,26 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         }
         // `not-found` - nothing to refresh.
         if (stored.status !== 'ok') return { ok: false };
+
+        // The keyless `ollama-local` provider's catalog is the live `/api/tags`
+        // daemon listing, NOT a `buildAndPersistCatalog` assembly: assembling
+        // against an empty key builds zero models and WIPES the catalog every
+        // tick (Finding 1). `refreshAllOnce` guards this; the per-provider
+        // Refresh button must too, or each click empties the catalog (#314).
+        // Re-probe the daemon instead - an unreachable daemon leaves the
+        // existing catalog untouched (never replaced with []). The exemption is
+        // scoped to a loopback baseUrl (Finding 5) so a row whose stored host is
+        // not loopback is treated like any other custom provider and the
+        // keyless allowance can never be hijacked onto a remote host.
+        const storedBaseUrl = stored.creds.baseUrl;
+        if (
+          providerId === OLLAMA_LOCAL_ID &&
+          isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')
+        ) {
+          const outcome = await refreshOllamaLocal();
+          return { ok: outcome === 'ok' };
+        }
+
         const creds = toTestCreds(stored.creds);
         const built = await buildAndPersistCatalog(providerId, creds);
         return { ok: built.ok };

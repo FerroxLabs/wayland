@@ -803,7 +803,10 @@ describe('modelRegistry IPC - refresh', () => {
     const result = await h.refresh({ providerId: 'xai' });
 
     expect(result).toEqual({ ok: true });
-    const ids = repo.getRegistryCatalog('xai').map((m) => m.id).toSorted();
+    const ids = repo
+      .getRegistryCatalog('xai')
+      .map((m) => m.id)
+      .toSorted();
     expect(ids).toContain('grok-4');
     expect(ids).toContain('grok-3');
   });
@@ -1751,6 +1754,90 @@ describe('modelRegistry IPC - refreshAllOnce SSRF gate (ollama-local exemption)'
     expect(probeOllama).not.toHaveBeenCalled();
     expect(summary.failed).toContain('ollama-local');
     expect(summary.succeeded).not.toContain('ollama-local');
+  });
+});
+
+describe('modelRegistry IPC - per-provider refresh (ollama-local guard, #314)', () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
+  it('re-probes the daemon instead of wiping the catalog when Refresh is clicked for loopback ollama-local (#314)', async () => {
+    // The per-provider Refresh button used buildAndPersistCatalog for every
+    // provider; for keyless ollama-local that assembles zero models and empties
+    // the catalog (Finding 1) - the daemon is up but the picker drops to 0. The
+    // guard must route a loopback ollama-local row to a live daemon re-probe
+    // instead, the same exemption refreshAllOnce already has.
+    process.env.NODE_ENV = 'production';
+
+    const { deps, repo } = makeFakes();
+    const probeOllama = vi.fn().mockResolvedValue({ running: true, models: ['llama3.2:3b'] });
+    deps.probeOllama = probeOllama;
+
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'connected',
+      creds: { key: '', baseUrl: 'http://127.0.0.1:11434/v1' },
+    });
+    // A previously-populated catalog that the buggy path would wipe to [].
+    repo.replaceRegistryCatalog('ollama-local', [catalogModel({ id: 'llama3.2:3b', providerId: 'ollama-local' })]);
+
+    const h = createModelRegistryHandlers(deps);
+    const result = await h.refresh({ providerId: 'ollama-local' });
+
+    expect(result).toEqual({ ok: true });
+    // Routed to the live re-probe, NOT buildAndPersistCatalog.
+    expect(probeOllama).toHaveBeenCalledTimes(1);
+    // Catalog refreshed from the daemon listing - never emptied.
+    expect(repo.getRegistryCatalog('ollama-local').map((m) => m.id)).toEqual(['llama3.2:3b']);
+  });
+
+  it('leaves the existing catalog untouched when the daemon is unreachable (never wipes to [])', async () => {
+    process.env.NODE_ENV = 'production';
+    const { deps, repo } = makeFakes();
+    const probeOllama = vi.fn().mockResolvedValue({ running: false, models: [] });
+    deps.probeOllama = probeOllama;
+
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'connected',
+      creds: { key: '', baseUrl: 'http://127.0.0.1:11434/v1' },
+    });
+    repo.replaceRegistryCatalog('ollama-local', [catalogModel({ id: 'llama3.2:3b', providerId: 'ollama-local' })]);
+
+    const h = createModelRegistryHandlers(deps);
+    const result = await h.refresh({ providerId: 'ollama-local' });
+
+    // A transient daemon-down reports not-ok but must keep the last-known models
+    // - the picker survives an Ollama restart instead of blanking.
+    expect(result).toEqual({ ok: false });
+    expect(repo.getRegistryCatalog('ollama-local').map((m) => m.id)).toEqual(['llama3.2:3b']);
+    expect(probeOllama).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT take the keyless re-probe path for a non-loopback ollama-local row (Finding 5)', async () => {
+    process.env.NODE_ENV = 'production';
+    const { deps, repo } = makeFakes();
+    const probeOllama = vi.fn().mockResolvedValue({ running: true, models: ['x'] });
+    deps.probeOllama = probeOllama;
+
+    // A row claiming to be ollama-local but pointing off-loopback (link-local
+    // cloud-metadata) must NOT get the keyless re-probe exemption.
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'connected',
+      creds: { key: '', baseUrl: 'http://169.254.169.254/v1' },
+    });
+
+    const h = createModelRegistryHandlers(deps);
+    await h.refresh({ providerId: 'ollama-local' });
+
+    // Off-loopback is treated like any other provider - no keyless exemption.
+    expect(probeOllama).not.toHaveBeenCalled();
   });
 });
 
