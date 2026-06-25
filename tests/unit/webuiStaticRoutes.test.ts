@@ -3,6 +3,8 @@ import os from 'os';
 import path from 'path';
 import express from 'express';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { registerPlatformServices } from '@/common/platform';
+import { NodePlatformServices } from '@/common/platform/NodePlatformServices';
 
 const tempDirs: string[] = [];
 
@@ -27,6 +29,9 @@ function getRegisteredGetRoutePaths(app: express.Express): Array<string | RegExp
 afterEach(() => {
   vi.resetModules();
   vi.restoreAllMocks();
+  // Restore the default node platform services registered by vitest.setup.ts so
+  // the per-test stub below does not leak into other tests in this file.
+  registerPlatformServices(new NodePlatformServices());
 
   for (const dir of tempDirs.splice(0)) {
     fs.rmSync(dir, { recursive: true, force: true });
@@ -37,12 +42,13 @@ describe('registerStaticRoutes', () => {
   it('does not register a dedicated /favicon.ico route in production static mode', async () => {
     const packagedRoot = createPackagedRendererRoot();
 
-    vi.doMock('electron', () => ({
-      app: {
-        setName: vi.fn(),
-        getAppPath: () => packagedRoot,
-      },
-    }));
+    // staticRoutes resolves the renderer build via
+    // getPlatformServices().paths.getAppPath() (not electron.app directly), so
+    // point the platform service at the packaged renderer root for this test.
+    const services = new NodePlatformServices();
+    services.paths.getAppPath = () => packagedRoot;
+    registerPlatformServices(services);
+
     vi.doMock('@process/webserver/auth/middleware/TokenMiddleware', () => ({
       TokenMiddleware: {
         extractToken: () => null,
