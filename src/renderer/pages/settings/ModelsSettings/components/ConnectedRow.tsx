@@ -1,10 +1,13 @@
-import React from 'react';
-import { Button, Spin } from '@arco-design/web-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Message, Spin, Switch, Tooltip } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
-import type { ConnectError } from '@process/providers/types';
+import type { ConnectError, CuratedModel } from '@process/providers/types';
+import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
+import ProviderLogo from '@renderer/components/model/ProviderLogo';
 import { providerMeta } from '../providerCatalog';
+import { defaultOnIds, enabledCount, mergeCatalogRows } from './bulkToggle';
 import styles from '../ModelsSettings.module.css';
 
 type Props = {
@@ -49,11 +52,89 @@ const VIA_KEY: Record<string, string> = {
  */
 const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
   const { t } = useTranslation();
+  const { getCatalog, toggleModel, registryVersion } = useModelRegistry();
   const meta = providerMeta(provider.providerId);
 
   const isError = provider.state === 'error';
   const isTesting = provider.state === 'testing';
   const noModels = !isError && !isTesting && provider.modelCount === 0;
+
+  // Provider-level on/off toggle (#54). The row keeps a lightweight copy of the
+  // provider's merged catalog rows just to derive "how many models are on" and
+  // to know which ids a turn-on should enable. It re-fetches whenever the
+  // registry changes (`registryVersion` bumps on every `listChanged` event and
+  // on every reload - e.g. a per-model toggle inside Manage), so the switch and
+  // count stay live without its own IPC subscription.
+  const [rows, setRows] = useState<CuratedModel[] | null>(null);
+  const [toggleBusy, setToggleBusy] = useState(false);
+  // The switch toggle is optimistic; hold the user's intent so a re-derive from
+  // a stale `registryVersion` during the in-flight bulk write can't flip it back.
+  const pendingOn = useRef<boolean | null>(null);
+
+  const canToggle = !isError && !isTesting;
+
+  useEffect(() => {
+    if (!canToggle) {
+      setRows(null);
+      return;
+    }
+    let alive = true;
+    void (async () => {
+      try {
+        const view = await getCatalog(provider.providerId);
+        if (alive) setRows(mergeCatalogRows(view));
+      } catch {
+        if (alive) setRows(null);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [canToggle, getCatalog, provider.providerId, registryVersion]);
+
+  const enabledModels = useMemo(() => (rows ? enabledCount(rows) : 0), [rows]);
+  // On = at least one model enabled. A partial set still reads as on - the
+  // count next to it tells the user how many (kept simple, per the spec).
+  const providerOn = pendingOn.current ?? enabledModels > 0;
+
+  const handleProviderToggle = useCallback(
+    async (on: boolean) => {
+      if (!rows) return;
+      const ids = on ? defaultOnIds(rows) : rows.filter((r) => r.enabled).map((r) => r.id);
+      pendingOn.current = on;
+      // Optimistic local flip so the switch + count react instantly.
+      const idSet = new Set(ids);
+      setRows((prev) => (prev ? prev.map((r) => (idSet.has(r.id) ? { ...r, enabled: on } : r)) : prev));
+      if (ids.length === 0) {
+        pendingOn.current = null;
+        return;
+      }
+      setToggleBusy(true);
+      const results = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await toggleModel(provider.providerId, id, on);
+            return Boolean(res?.ok);
+          } catch {
+            return false;
+          }
+        })
+      );
+      setToggleBusy(false);
+      pendingOn.current = null;
+      if (results.some((ok) => !ok)) {
+        Message.error(t('settings.modelsPage.row.toggleFailed'));
+        // Re-fetch authoritative state so the switch reflects what actually stuck.
+        try {
+          const view = await getCatalog(provider.providerId);
+          setRows(mergeCatalogRows(view));
+        } catch {
+          /* leave optimistic state; next registryVersion bump will reconcile */
+        }
+      }
+    },
+    [rows, toggleModel, getCatalog, provider.providerId, t]
+  );
 
   // Localize the `connectedVia` enum; fall back to the raw value if the backend
   // ever emits an unmapped literal so the row still renders something readable.
@@ -71,13 +152,7 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
           <FluxRouterMark size={20} />
         </div>
       ) : (
-        <div
-          className={styles.avatar}
-          style={{ background: meta.bg, color: meta.darkText ? '#1a1a1a' : '#fff' }}
-          aria-hidden
-        >
-          {meta.mono}
-        </div>
+        <ProviderLogo id={meta.id} mono={meta.mono} bg={meta.bg} darkText={meta.darkText} size={34} />
       )}
 
       <div className='min-w-0'>
@@ -129,6 +204,28 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
             {t('settings.modelsPage.row.manage')}
           </Button>
         )
+      )}
+
+      {canToggle && (
+        <Tooltip
+          content={t(
+            rows !== null && rows.length === 0
+              ? 'settings.modelsPage.row.providerToggleNoModelsHint'
+              : providerOn
+                ? 'settings.modelsPage.row.providerToggleOffHint'
+                : 'settings.modelsPage.row.providerToggleOnHint'
+          )}
+        >
+          <Switch
+            className={styles.providerToggle}
+            size='small'
+            checked={providerOn}
+            loading={toggleBusy}
+            disabled={rows === null || rows.length === 0}
+            onChange={(checked) => void handleProviderToggle(checked)}
+            aria-label={t('settings.modelsPage.row.providerToggleAria', { provider: meta.displayName })}
+          />
+        </Tooltip>
       )}
     </div>
   );

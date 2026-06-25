@@ -36,38 +36,18 @@ import { useWCoreModelSelection } from '../platforms/wcore/useWCoreModelSelectio
 import { usePreviewContext } from '../Preview';
 import StarOfficeMonitorCard from '../platforms/openclaw/StarOfficeMonitorCard.tsx';
 import ConversationSkillsIndicator from './ConversationSkillsIndicator';
-import AddSkillToChatButton from './AddSkillToChatButton';
 import { WorkflowSurface } from '@/renderer/pages/guid/components/workflow/WorkflowSurface';
-import type { WCoreModelSelection } from '../platforms/wcore/useWCoreModelSelection';
-import type { GeminiModelSelection } from '../platforms/gemini/useGeminiModelSelection';
 // import SkillRuleGenerator from './components/SkillRuleGenerator'; // Temporarily hidden
 
-// Null-object model selection stubs used when a wcore or gemini conversation
-// is wrapped inside WorkflowSurface. The workflow chrome controls the flow;
-// model switching is disabled in this path (no WCore/GeminiModelSelector is
-// rendered in the ChatLayout header because hideHeader=true suppresses it).
-const WORKFLOW_WCORE_MODEL_SELECTION: WCoreModelSelection = {
-  currentModel: undefined,
-  providers: [],
-  getAvailableModels: () => [],
-  handleSelectModel: async () => {},
-  getDisplayModelName: () => '',
-};
-
-const WORKFLOW_GEMINI_MODEL_SELECTION: GeminiModelSelection = {
-  currentModel: undefined,
-  providers: [],
-  geminiModeLookup: new Map(),
-  formatModelLabel: () => '',
-  getDisplayModelName: () => '',
-  getAvailableModels: () => [],
-  handleSelectModel: async () => {},
-};
-
-/** Check whether a specific skill is loaded for the conversation */
-const hasLoadedSkill = (conversation: TChatConversation | undefined, skillName: string): boolean => {
-  const loadedSkills = (conversation?.extra as { loadedSkills?: Array<{ name: string }> })?.loadedSkills;
-  return loadedSkills?.some((s) => s.name === skillName) ?? false;
+// Shared props for the wcore/gemini panels rendered inside WorkflowSurface.
+type WorkflowPanelExtras = {
+  sliderTitle: React.ReactNode;
+  workspaceEnabled: boolean;
+  workflowSessionId: string;
+  initialWorkflowSession?: WorkflowSession;
+  workflowTotalSteps: number | null;
+  workflowApplyStepMarker: ReturnType<typeof useWorkflowSession>['applyStepMarker'];
+  onLaunchWorkflow: (workflowName: string) => void;
 };
 
 const _AssociatedConversation: React.FC<{ conversation_id: string }> = ({ conversation_id }) => {
@@ -189,7 +169,6 @@ const GeminiConversationPanel: React.FC<{
     headerExtra: (
       <div className='flex items-center gap-8px'>
         <ConversationSkillsIndicator conversation={conversation} />
-        <AddSkillToChatButton conversationId={conversation.id} />
         <CronJobManager
           conversationId={conversation.id}
           cronJobId={conversation.extra?.cronJobId as string | undefined}
@@ -219,6 +198,17 @@ const GeminiConversationPanel: React.FC<{
 
 type WCoreConversation = Extract<TChatConversation, { type: 'wcore' }>;
 
+// #252 reframe: header control that opens/closes the opt-in observability panel.
+// State is shared with the panel (WCoreChat) via the cross-instance settings
+// store, so toggling here keeps both in lockstep and survives reload.
+export const ObservabilityToggle: React.FC = () => {
+  // 0.11.3: observability UI temporarily disabled pending the rework (see
+  // app/.planning/handoffs/SESSION-HANDOFF-2026-06-24-OBSERVABILITY-REWORK-AND-JSON-STREAM.md).
+  // Hiding the toggle keeps the opt-in panel from ever opening; the inline
+  // StatusFooter "processing" cue remains the live indicator.
+  return null;
+};
+
 const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; sliderTitle: React.ReactNode }> = ({
   conversation,
   sliderTitle,
@@ -246,11 +236,11 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
     title: conversation.name,
     siderTitle: sliderTitle,
     sider: <ChatSider conversation={conversation} />,
-    headerLeft: <WCoreModelSelector selection={modelSelection} />,
+    headerLeft: <WCoreModelSelector selection={modelSelection} conversationId={conversation.id} />,
     headerExtra: (
       <div className='flex items-center gap-8px'>
+        <ObservabilityToggle />
         <ConversationSkillsIndicator conversation={conversation} />
-        <AddSkillToChatButton conversationId={conversation.id} />
         <CronJobManager
           conversationId={conversation.id}
           cronJobId={conversation.extra?.cronJobId as string | undefined}
@@ -276,6 +266,115 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
   );
 };
 
+// #132: wcore/gemini conversations wrapped in WorkflowSurface previously got a
+// null-object model selection (currentModel: undefined), so typing in the
+// composer threw "No model selected for current session" - the send box gate
+// requires currentModel?.useModel. These panels own the real selection hook
+// seeded from conversation.model (identical to the non-workflow panels above).
+// The surface still hides the header (hideHeader), so no in-workflow model
+// switcher is shown; the selection exists purely so the composer can send.
+const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & WorkflowPanelExtras> = ({
+  conversation,
+  sliderTitle,
+  workspaceEnabled,
+  workflowSessionId,
+  initialWorkflowSession,
+  workflowTotalSteps,
+  workflowApplyStepMarker,
+  onLaunchWorkflow,
+}) => {
+  const onSelectModel = useCallback(
+    async (_provider: IProvider, modelName: string) => {
+      const selected = { ..._provider, useModel: modelName } as TProviderWithModel;
+      await ipcBridge.conversation.stop.invoke({ conversation_id: conversation.id });
+      const ok = await ipcBridge.conversation.update.invoke({ id: conversation.id, updates: { model: selected } });
+      return Boolean(ok);
+    },
+    [conversation.id]
+  );
+  const modelSelection = useWCoreModelSelection({ initialModel: conversation.model, onSelectModel });
+  return (
+    <ChatLayout
+      title={conversation.name}
+      sider={<ChatSider conversation={conversation} />}
+      siderTitle={sliderTitle}
+      workspaceEnabled={workspaceEnabled}
+      workspacePath={conversation.extra.workspace}
+      conversationId={conversation.id}
+      hideHeader={true}
+    >
+      <WorkflowSurface
+        sessionId={workflowSessionId}
+        initialSession={initialWorkflowSession}
+        onLaunchWorkflow={onLaunchWorkflow}
+      >
+        <WCoreChat
+          key={conversation.id}
+          conversation_id={conversation.id}
+          workspace={conversation.extra.workspace}
+          modelSelection={modelSelection}
+          sessionMode={conversation.extra?.sessionMode}
+          workflowSessionId={workflowSessionId}
+          workflowTotalSteps={workflowTotalSteps}
+          workflowApplyStepMarker={workflowApplyStepMarker}
+        />
+      </WorkflowSurface>
+    </ChatLayout>
+  );
+};
+
+const GeminiWorkflowPanel: React.FC<{ conversation: GeminiConversation; hideSendBox?: boolean } & WorkflowPanelExtras> = ({
+  conversation,
+  sliderTitle,
+  workspaceEnabled,
+  workflowSessionId,
+  initialWorkflowSession,
+  workflowTotalSteps,
+  workflowApplyStepMarker,
+  onLaunchWorkflow,
+  hideSendBox,
+}) => {
+  const onSelectModel = useCallback(
+    async (_provider: IProvider, modelName: string) => {
+      const selected = { ..._provider, useModel: modelName } as TProviderWithModel;
+      const ok = await ipcBridge.conversation.update.invoke({ id: conversation.id, updates: { model: selected } });
+      return Boolean(ok);
+    },
+    [conversation.id]
+  );
+  const modelSelection = useGeminiModelSelection({ initialModel: conversation.model, onSelectModel });
+  return (
+    <ChatLayout
+      title={conversation.name}
+      sider={<ChatSider conversation={conversation} />}
+      siderTitle={sliderTitle}
+      workspaceEnabled={workspaceEnabled}
+      workspacePath={conversation.extra.workspace}
+      conversationId={conversation.id}
+      hideHeader={true}
+    >
+      <WorkflowSurface
+        sessionId={workflowSessionId}
+        initialSession={initialWorkflowSession}
+        onLaunchWorkflow={onLaunchWorkflow}
+      >
+        <GeminiChat
+          key={conversation.id}
+          conversation_id={conversation.id}
+          workspace={conversation.extra.workspace}
+          modelSelection={modelSelection}
+          cronJobId={conversation.extra?.cronJobId as string | undefined}
+          hideSendBox={hideSendBox}
+          sessionMode={conversation.extra?.sessionMode}
+          workflowSessionId={workflowSessionId}
+          workflowTotalSteps={workflowTotalSteps}
+          workflowApplyStepMarker={workflowApplyStepMarker}
+        />
+      </WorkflowSurface>
+    </ChatLayout>
+  );
+};
+
 const ChatConversation: React.FC<{
   conversation?: TChatConversation;
   hideSendBox?: boolean;
@@ -283,7 +382,19 @@ const ChatConversation: React.FC<{
   const { t } = useTranslation();
   const { openPreview } = usePreviewContext();
   const location = useLocation();
+  const navigate = useNavigate();
   const workspaceEnabled = Boolean(conversation?.extra?.workspace);
+
+  // Complete-card CTAs ("Run again" / "Up next") launch a workflow by name.
+  // Route to the library launcher deeplink (mirrors `/scheduled?workflow=`)
+  // so the user lands on the pre-opened detail modal with the agent/model
+  // picker and remembered selection, one click from a fresh run (issue #82).
+  const handleLaunchWorkflow = useCallback(
+    (workflowName: string) => {
+      void navigate(`/workflows?workflow=${encodeURIComponent(workflowName)}`);
+    },
+    [navigate]
+  );
 
   // Resolve workflowSessionId from router state (preferred - present on first
   // navigation) then fall back to the persisted extra field (survives refresh).
@@ -453,70 +564,38 @@ const ChatConversation: React.FC<{
   // Workflow path: build the appropriate chat node for any backend type, then
   // wrap it in WorkflowSurface inside a ChatLayout that hides the standard header.
   if (isWorkflow && workflowSessionId) {
-    // For wcore workflow conversations, build a WCoreChat node directly so we
-    // can pass it as children to WorkflowSurface without double-mounting ChatLayout.
+    // wcore/gemini workflow conversations delegate to dedicated panels that own
+    // a real model selection seeded from conversation.model (#132).
     if (conversation && conversation.type === 'wcore') {
-      const wcoreConv = conversation as Extract<TChatConversation, { type: 'wcore' }>;
-      const wcoreChatNode = (
-        <WCoreChat
-          key={wcoreConv.id}
-          conversation_id={wcoreConv.id}
-          workspace={wcoreConv.extra.workspace}
-          modelSelection={WORKFLOW_WCORE_MODEL_SELECTION}
-          sessionMode={wcoreConv.extra?.sessionMode}
+      return (
+        <WCoreWorkflowPanel
+          key={conversation.id}
+          conversation={conversation as WCoreConversation}
+          sliderTitle={sliderTitle}
+          workspaceEnabled={workspaceEnabled}
           workflowSessionId={workflowSessionId}
+          initialWorkflowSession={initialWorkflowSession}
           workflowTotalSteps={workflowTotalSteps}
           workflowApplyStepMarker={workflowApplyStepMarker}
+          onLaunchWorkflow={handleLaunchWorkflow}
         />
-      );
-      return (
-        <ChatLayout
-          title={wcoreConv.name}
-          sider={<ChatSider conversation={wcoreConv} />}
-          siderTitle={sliderTitle}
-          workspaceEnabled={workspaceEnabled}
-          workspacePath={wcoreConv.extra.workspace}
-          conversationId={wcoreConv.id}
-          hideHeader={true}
-        >
-          <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession}>
-            {wcoreChatNode}
-          </WorkflowSurface>
-        </ChatLayout>
       );
     }
 
-    // For gemini workflow conversations, build a GeminiChat node directly.
     if (conversation && conversation.type === 'gemini') {
-      const geminiConv = conversation as Extract<TChatConversation, { type: 'gemini' }>;
-      const geminiChatNode = (
-        <GeminiChat
-          key={geminiConv.id}
-          conversation_id={geminiConv.id}
-          workspace={geminiConv.extra.workspace}
-          modelSelection={WORKFLOW_GEMINI_MODEL_SELECTION}
-          cronJobId={geminiConv.extra?.cronJobId as string | undefined}
-          hideSendBox={hideSendBox}
-          sessionMode={geminiConv.extra?.sessionMode}
+      return (
+        <GeminiWorkflowPanel
+          key={conversation.id}
+          conversation={conversation as GeminiConversation}
+          sliderTitle={sliderTitle}
+          workspaceEnabled={workspaceEnabled}
           workflowSessionId={workflowSessionId}
+          initialWorkflowSession={initialWorkflowSession}
           workflowTotalSteps={workflowTotalSteps}
           workflowApplyStepMarker={workflowApplyStepMarker}
+          onLaunchWorkflow={handleLaunchWorkflow}
+          hideSendBox={hideSendBox}
         />
-      );
-      return (
-        <ChatLayout
-          title={geminiConv.name}
-          sider={<ChatSider conversation={geminiConv} />}
-          siderTitle={sliderTitle}
-          workspaceEnabled={workspaceEnabled}
-          workspacePath={geminiConv.extra.workspace}
-          conversationId={geminiConv.id}
-          hideHeader={true}
-        >
-          <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession}>
-            {geminiChatNode}
-          </WorkflowSurface>
-        </ChatLayout>
       );
     }
 
@@ -532,7 +611,7 @@ const ChatConversation: React.FC<{
         conversationId={conversation?.id}
         hideHeader={true}
       >
-        <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession}>
+        <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession} onLaunchWorkflow={handleLaunchWorkflow}>
           {conversationNode}
         </WorkflowSurface>
       </ChatLayout>
@@ -577,7 +656,6 @@ const ChatConversation: React.FC<{
         </div>
       )}
       <ConversationSkillsIndicator conversation={conversation} />
-      {conversation && <AddSkillToChatButton conversationId={conversation.id} />}
       {conversation && (
         <div className='shrink-0'>
           <CronJobManager

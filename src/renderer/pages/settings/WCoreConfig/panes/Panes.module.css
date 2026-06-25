@@ -85,11 +85,16 @@
   gap: 12px;
   margin-bottom: 28px;
 }
+@media (max-width: 767px) {
+  .statusStrip {
+    grid-template-columns: 1fr;
+  }
+}
 .statusCard {
   border: 1px solid var(--wc-hairline);
   border-radius: var(--wc-r-md);
   padding: 15px 16px;
-  background: linear-gradient(180deg, var(--wc-surface-1), rgba(34, 34, 34, 0.3));
+  background: linear-gradient(180deg, var(--wc-surface-1), var(--wc-surface-2));
 }
 
 /* Services & Keys credential card - matches the surface hairline, not the
@@ -604,6 +609,55 @@
   border-color: rgba(52, 211, 153, 0.4);
 }
 
+/* ---- Approval-mode bar (global posture master control) ---- */
+.modeBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.modeBarLabel {
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--wc-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.modeHint {
+  font-size: 0.72rem;
+  color: var(--wc-text-muted);
+  margin: 7px 0 14px;
+  line-height: 1.45;
+}
+
+/* ---- Per-tool posture state (auto-runs vs asks first / on/off gate) ---- */
+.posture {
+  font-family: var(--wc-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.postureAuto {
+  color: var(--wc-success);
+}
+.postureAsk {
+  color: var(--wc-text-muted);
+}
+
+/* ---- "on/off gate" chip — marks the two real registration gates ---- */
+.gateChip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--wc-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.02em;
+  color: var(--wc-text-muted);
+  background: var(--wc-hairline);
+  border-radius: 100px;
+  padding: 1px 7px;
+}
+
 /* ---- Slider ---- */
 .sliderWrap {
   display: flex;
@@ -766,7 +820,7 @@
   border-radius: var(--wc-r-md);
   padding: 16px 18px;
   margin-top: 18px;
-  background: linear-gradient(180deg, var(--wc-surface-1), rgba(34, 34, 34, 0.4));
+  background: linear-gradient(180deg, var(--wc-surface-1), var(--wc-surface-2));
 }
 .inTitle {
   font-size: 0.84rem;
@@ -795,4 +849,78 @@
   font-size: 0.76rem;
   color: var(--wc-text-muted);
   padding: 13px 4px;
+}
+
+/* In-app engine update card (Overview pane). Accent-bordered when an update is
+   available; success-tinted once an update has been installed. */
+.updateCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--wc-accent);
+  border-radius: var(--wc-r-md);
+  background: linear-gradient(180deg, var(--wc-surface-1), var(--wc-surface-2));
+}
+.updateCardDone {
+  border-color: var(--wc-success);
+}
+.updateIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: var(--wc-accent);
+  background: color-mix(in srgb, var(--wc-accent) 14%, transparent);
+}
+.updateCardDone .updateIcon {
+  color: var(--wc-success);
+  background: var(--wc-success-dim);
+}
+.updateText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.updateTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--wc-text-primary);
+}
+.updateBody {
+  font-size: 0.78rem;
+  color: var(--wc-text-secondary);
+  line-height: 1.45;
+}
+.updateProgress {
+  margin-top: 6px;
+  max-width: 320px;
+}
+.updateBtn {
+  flex-shrink: 0;
+}
+
+/* Warning banner shown when the egress firewall is turned off (deliberate,
+   accepted-risk state). Amber, not an error - it's the operator's choice. */
+.dangerNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--wc-warning);
+  border-radius: var(--wc-r-md);
+  background: var(--wc-warning-dim);
+  color: var(--wc-warning);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.dangerNote svg {
+  flex-shrink: 0;
+  margin-top: 1px;
 }

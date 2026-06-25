@@ -22,6 +22,7 @@ const {
   setupBasicMiddlewareMock,
   setupCorsMock,
   setupErrorHandlerMock,
+  setupTrustProxyMock,
   registerAuthRoutesMock,
   registerApiRoutesMock,
   registerStaticRoutesMock,
@@ -54,6 +55,7 @@ const {
     setupBasicMiddlewareMock: vi.fn(),
     setupCorsMock: vi.fn(),
     setupErrorHandlerMock: vi.fn(),
+    setupTrustProxyMock: vi.fn(),
     registerAuthRoutesMock: vi.fn(),
     registerApiRoutesMock: vi.fn(),
     registerStaticRoutesMock: vi.fn(),
@@ -103,6 +105,7 @@ vi.mock('@process/webserver/setup', () => ({
   setupBasicMiddleware: setupBasicMiddlewareMock,
   setupCors: setupCorsMock,
   setupErrorHandler: setupErrorHandlerMock,
+  setupTrustProxy: setupTrustProxyMock,
 }));
 
 vi.mock('@process/webserver/routes/authRoutes', () => ({

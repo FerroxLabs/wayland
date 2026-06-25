@@ -1,0 +1,76 @@
+name: WSL CLI Detection (live #258)
+
+# Live integration proof for #258: detect a CLI installed ONLY inside WSL on a
+# real windows-latest runner with a real WSL distro. Manual-only (workflow_dispatch);
+# does not publish anything. The detector's logic is unit-tested with mocks in
+# tests/unit/acpDetectorWsl.test.ts — this job exercises the real wsl.exe path.
+
+# Push-triggered on this branch (workflow_dispatch can't reach a workflow that
+# only exists off the default branch). Also dispatchable once on the default branch.
+on:
+  push:
+    branches: ['fix/258-wsl-cli-detect']
+    paths:
+      - 'src/process/agent/acp/AcpDetector.ts'
+      - 'tests/unit/acpDetectorWslLive.test.ts'
+      - '.github/workflows/wsl-detect-live.yml'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to test'
+        required: true
+        default: 'fix/258-wsl-cli-detect'
+        type: string
+
+jobs:
+  wsl-detect:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || github.ref }}
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps
+        shell: bash
+        # --ignore-scripts: this job only needs the AcpDetector module + vitest;
+        # skipping postinstalls avoids the officecli binary-fetch tar failure on
+        # Windows (Git-bash tar misreads the C:\ path) which is irrelevant here.
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Install WSL + Ubuntu
+        uses: Vampire/setup-wsl@v3
+        with:
+          distribution: Ubuntu-24.04
+          set-as-default: 'true'
+
+      - name: Sanity — WSL bash works and lists a distro
+        shell: pwsh
+        run: |
+          wsl -l -v
+          wsl -e bash -lc 'echo WSL_OK; bash --version | head -1; echo "PATH=$PATH"'
+
+      - name: Plant a CLI inside WSL only (hermes in /usr/local/bin)
+        shell: pwsh
+        run: |
+          wsl -e bash -lc 'printf "#!/usr/bin/env bash\necho hermes-stub\n" > /usr/local/bin/hermes && chmod +x /usr/local/bin/hermes'
+          wsl -e bash -lc 'command -v hermes'
+
+      - name: Confirm hermes is NOT on the Windows PATH (else the test is a false pass)
+        shell: pwsh
+        run: |
+          $w = Get-Command hermes -ErrorAction SilentlyContinue
+          if ($w) { Write-Error "hermes resolved on Windows PATH ($($w.Source)) - live WSL test would be a false pass"; exit 1 }
+          Write-Host "hermes absent on Windows PATH (good - detection must use WSL)"
+
+      - name: Run live WSL detection test
+        shell: bash
+        env:
+          WSL_LIVE: '1'
+        run: bunx vitest run tests/unit/acpDetectorWslLive.test.ts

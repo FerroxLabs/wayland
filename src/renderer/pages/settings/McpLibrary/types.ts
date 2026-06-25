@@ -30,6 +30,14 @@ export interface PackageRef {
   runtimeHint: 'npx' | 'uvx' | 'docker' | 'native';
   transport: { type: 'stdio' | 'streamable-http' | 'sse' };
   environmentVariables?: EnvVar[];
+  /**
+   * Extra CLI arguments appended after the package identifier when spawning a
+   * stdio server, for packages that need a subcommand (`convex mcp start`),
+   * a toolset flag (`--services apps,databases`), or credentials passed as
+   * flags/positional args rather than env. `{{VAR}}` tokens are substituted
+   * from the user's setup-guide input values (same names as environmentVariables).
+   */
+  runtimeArguments?: string[];
 }
 
 export interface RemoteRef {
@@ -61,6 +69,22 @@ export interface WaylandExtension {
     method: AuthMethod;
     providerName?: string;
     providerSignupUrl?: string;
+    /**
+     * HTTP header the api-key token is sent in for a hosted (remote) server.
+     * Defaults to `Authorization` (value `Bearer <token>`). Override for
+     * vendors that use a custom header - e.g. New Relic's `Api-Key`, Readwise's
+     * `X-Access-Token` (where the raw token is sent without the `Bearer` prefix).
+     */
+    header?: string;
+    /**
+     * URL query parameter the api-key token is appended to for a hosted
+     * (remote) server that authenticates via the URL rather than a header -
+     * e.g. Exa's `https://mcp.exa.ai/mcp?exaApiKey=<token>`. Mutually exclusive
+     * with `header`: when set, the token is injected into the remote URL and no
+     * Authorization header is sent (header auth is silently ignored by these
+     * servers, which is why the stdio fallback appeared to "not save the key").
+     */
+    queryParam?: string;
     scopes?: { name: string; plainLanguage: string }[];
     /**
      * Vendor hint for the BYO-credentials flow. When the OAuth server does

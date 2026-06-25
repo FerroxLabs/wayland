@@ -15,6 +15,7 @@ import { buildEngineSpawnEnv, buildSpawnConfig } from './envBuilder';
 import { resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
+import { killChild } from '@process/agent/acp/utils';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
@@ -574,6 +575,18 @@ export class WCoreAgent {
             }${event.error ? `: ${event.error}` : ''}`,
             msg_id: this.activeMsgId ?? '',
           });
+          // #252: also surface the open transition as an activity-tree node so
+          // failover (which fallback provider took over) is visible in-line.
+          this.onStreamEvent({
+            type: 'provider_circuit_event',
+            data: {
+              primary: event.primary,
+              fallback: event.fallback,
+              state: event.state,
+              error: event.error,
+            },
+            msg_id: this.activeMsgId ?? '',
+          });
         }
         break;
 
@@ -641,6 +654,9 @@ export class WCoreAgent {
         break;
 
       // ── W6 F7: end-of-session cost aggregate ──────────────────────
+      // #252: stamp the active msg_id so the renderer attaches the per-turn
+      // cost rows to the in-flight turn's activity card. WCoreManager
+      // force-forwards this past the empty-msg_id guard.
       case 'session_cost':
         this.onStreamEvent({
           type: 'session_cost',
@@ -649,7 +665,7 @@ export class WCoreAgent {
             totalCostUsd: event.total_cost_usd,
             perTurn: event.per_turn,
           },
-          msg_id: '',
+          msg_id: this.activeMsgId ?? '',
         });
         break;
 
@@ -805,11 +821,16 @@ export class WCoreAgent {
     return this.childProcess !== null;
   }
 
-  kill(): void {
+  async kill(): Promise<void> {
     this.restoreProjectConfig();
     if (this.childProcess) {
-      this.childProcess.kill('SIGTERM');
+      // wayland-core spawns its own child tree (MCP servers, tool subprocesses).
+      // A bare SIGTERM is a no-op on Windows and never reaches the tree, leaving
+      // orphaned processes after quit (#139). killChild does a taskkill /T /F on
+      // win32 and a SIGTERM->SIGKILL descendant sweep on POSIX.
+      const child = this.childProcess;
       this.childProcess = null;
+      await killChild(child, false);
     }
   }
 

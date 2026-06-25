@@ -188,6 +188,10 @@ export function WikiHomePage(): React.ReactElement {
     navigate(`/wiki/${slug}`);
   };
 
+  const handleOpenSettings = (): void => {
+    navigate('/settings/ijfw');
+  };
+
   return (
     <div className={styles.page}>
       {/* Topbar */}
@@ -247,7 +251,12 @@ export function WikiHomePage(): React.ReactElement {
         <Button type='primary' size='small' className={styles.newBtn}>
           {t('wiki.home.newConcept', '+ New concept')}
         </Button>
-        <button className={styles.iconBtn} title={t('wiki.home.settings', 'Settings')} aria-label={t('wiki.home.settings', 'Settings')}>
+        <button
+          className={styles.iconBtn}
+          title={t('wiki.home.settings', 'Settings')}
+          aria-label={t('wiki.home.settings', 'Settings')}
+          onClick={handleOpenSettings}
+        >
           <Settings size={15} />
         </button>
       </header>

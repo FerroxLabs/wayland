@@ -3,6 +3,7 @@
   "fileChanges": "檔案變更",
   "fileChangesCount": "{{count}} 個檔案變更",
   "conversationInProgress": "目前正在進行對話...",
+  "working": "Working...",
   "confirm": "確認",
   "canceledExecution": "已取消執行",
   "openLinkFailed": "無法開啟連結",
@@ -67,5 +68,12 @@
     "yesAlwaysAllowTool": "是，始終允許來自伺服器 \"{{serverName}}\" 的工具 \"{{toolName}}\"",
     "yesAlwaysAllowServer": "是，始終允許來自伺服器 \"{{serverName}}\" 的所有工具",
     "no": "否 (esc)"
+  },
+  "slash.customBadge": "Custom",
+  "runaway": {
+    "title": "Stopped a runaway loop",
+    "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
+    "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
+    "dismiss": "Got it"
   }
 }

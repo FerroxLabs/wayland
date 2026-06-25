@@ -209,3 +209,18 @@ export class BudgetController {
     }
   }
 }
+
+let singleton: BudgetController | undefined;
+
+/** Install the process-wide BudgetController. Called once from initBridge. */
+export function setBudgetController(controller: BudgetController): void {
+  singleton = controller;
+}
+
+/**
+ * Get the process-wide BudgetController, or undefined before it is wired. The
+ * turn-start path consults this for the pre-turn pause gate (canStartTurn).
+ */
+export function getBudgetController(): BudgetController | undefined {
+  return singleton;
+}

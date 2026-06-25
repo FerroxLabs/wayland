@@ -109,10 +109,27 @@ vi.mock('@arco-design/web-react', () => {
   };
 });
 
-// useModelRegistry - only `curatedForAgent` is consumed by the picker.
+// useModelRegistry - `curatedForAgent` is consumed by both the picker's own
+// fetch and the delegated `useModelSelectorViewModel`. `registryVersion` is
+// read by the view-model hook's effect deps.
 const mockCuratedForAgent = vi.fn();
 vi.mock('@/renderer/hooks/useModelRegistry', () => ({
-  useModelRegistry: () => ({ curatedForAgent: mockCuratedForAgent }),
+  useModelRegistry: () => ({ curatedForAgent: mockCuratedForAgent, registryVersion: 0 }),
+}));
+
+// The home picker now delegates rendering to the shared `ModelSelectorFlyout`
+// via `useModelSelectorViewModel`, which composes these three sources. Mock
+// them deterministically (flux off, no pins, no recents) so the view model is
+// driven purely by `curatedForAgent` - the behavior these tests assert.
+vi.mock('@/renderer/hooks/useFluxConnected', () => ({
+  useFluxConnected: () => false,
+}));
+vi.mock('@/renderer/hooks/usage/usePinnedModels', () => ({
+  pinKey: (providerId: string, modelId: string) => `${providerId}:${modelId}`,
+  usePinnedModels: () => ({ pinned: new Set<string>(), toggle: vi.fn() }),
+}));
+vi.mock('@/renderer/hooks/usage/useRecentlyUsedModels', () => ({
+  useRecentlyUsedModels: () => ({ models: [], loading: false }),
 }));
 
 // `ipcBridge.modelRegistry.resolveForChatStart` - the chat-start refactor
@@ -129,6 +146,8 @@ vi.mock('@/common', () => ({
     // escapes after the test completes, failing the whole shard.
     usage: {
       recordEvent: { invoke: vi.fn().mockResolvedValue(undefined) },
+      // The delegated flyout's recently-used zone queries this on open.
+      queryRecentlyUsedModels: { invoke: vi.fn().mockResolvedValue([]) },
     },
   },
 }));
@@ -196,6 +215,10 @@ beforeEach(() => {
   mockCuratedForAgent.mockReset();
   mockNavigate.mockReset();
   mockResolveForChatStart.mockReset();
+  // Default to a benign not-connected result so the cold-start auto-pick effect
+  // (which now fires on mount for a provider-agent picker with no selection)
+  // resolves cleanly and stays silent in tests that don't exercise it.
+  mockResolveForChatStart.mockResolvedValue({ ok: false, error: 'not-connected' });
   baseProps.setCurrentModel.mockClear();
 });
 
@@ -255,13 +278,15 @@ describe('GuidModelSelector home picker', () => {
     expect(screen.getByText('Claude Haiku 4.5')).toBeInTheDocument();
   });
 
-  it('renders the plain-language scope caption inline', async () => {
+  it('renders the curated models through the shared flyout', async () => {
     mockCuratedForAgent.mockResolvedValue(CLAUDE_MODELS);
 
-    // 'claude' resolves to the `scope.claude` plain-language sentence.
+    // The home picker delegates to ModelSelectorFlyout; the scope caption is a
+    // dropped home-only affordance. Verify the flyout's own title + rows render.
     render(<GuidModelSelector {...baseProps} agentKey='claude' />);
 
-    expect(await screen.findByText('settings.agentsPage.scope.claude')).toBeInTheDocument();
+    expect(await screen.findByText('Claude Opus 4.7')).toBeInTheDocument();
+    expect(screen.getByText('conversation.modelSelector.title')).toBeInTheDocument();
   });
 
   it('re-scopes the model list when the selected agent changes', async () => {
@@ -281,12 +306,14 @@ describe('GuidModelSelector home picker', () => {
     expect(screen.queryByText('Claude Opus 4.7')).not.toBeInTheDocument();
   });
 
-  it('shows a sensible message when the agent has no curated models', async () => {
+  it('shows the empty-state card when the agent has no curated models', async () => {
     mockCuratedForAgent.mockResolvedValue([]);
 
+    // Flux is mocked off + no curated models => the flyout's empty card.
     render(<GuidModelSelector {...baseProps} agentKey='claude' />);
 
-    expect(await screen.findByText('settings.modelsPage.homePicker.empty')).toBeInTheDocument();
+    expect(await screen.findByText('conversation.modelSelector.emptyTitle')).toBeInTheDocument();
+    expect(screen.getByText('conversation.modelSelector.connectProvider')).toBeInTheDocument();
   });
 
   it('navigates to the new /settings/models route when the resolver reports the provider is not connected', async () => {
@@ -364,6 +391,40 @@ describe('GuidModelSelector home picker', () => {
     await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
     const arg = setCurrentModel.mock.calls[0][0];
     expect(arg.useModel).toBe('claude-sonnet-4-7');
+  });
+
+  it('auto-picks the recommended curated model on cold start when nothing is selected', async () => {
+    // Remote/headless WebUI: the legacy getModelConfig-based default can resolve
+    // empty, so the registry curated list drives the cold-start default. With no
+    // selection at all, the home auto-picks the first safe model through the
+    // chat-start path so a brand-new user is not stranded on "No model configured
+    // yet" until they manually open the picker.
+    mockCuratedForAgent.mockResolvedValue([
+      curated({ id: 'flux-auto', providerId: 'flux-router', displayName: 'Flux Auto', family: 'Flux' }),
+    ]);
+    mockResolveForChatStart.mockResolvedValue({
+      ok: true,
+      provider: {
+        id: 'flux-router',
+        providerId: 'flux-router',
+        name: 'Flux Router',
+        platform: 'openai-compatible',
+        modelId: 'flux-auto',
+        baseUrl: '',
+        accountId: 'default',
+      },
+    });
+    const setCurrentModel = vi.fn().mockResolvedValue(undefined);
+
+    render(<GuidModelSelector {...baseProps} agentKey='wcore' setCurrentModel={setCurrentModel} />);
+
+    await waitFor(() =>
+      expect(mockResolveForChatStart).toHaveBeenCalledWith({ providerId: 'flux-router', modelId: 'flux-auto' })
+    );
+    await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
+    expect(setCurrentModel.mock.calls[0][0].useModel).toBe('flux-auto');
+    // Silent: the cold-start pick must never navigate the user off /guid.
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('does not fire the graceful fallback when the pinned model is still curated', async () => {
@@ -476,6 +537,10 @@ describe('GuidModelSelector home picker', () => {
     render(<GuidModelSelector {...baseProps} agentKey='codex' modelList={[]} setCurrentModel={setCurrentModel} />);
 
     const row = await screen.findByText('GPT-5.5');
+    // The cold-start auto-pick fires resolveForChatStart→setCurrentModel once on
+    // mount (no prior selection). Clear it so this assertion counts only the
+    // explicit click being tested here.
+    setCurrentModel.mockClear();
     fireEventClick(row);
 
     await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));

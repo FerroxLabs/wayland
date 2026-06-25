@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.circleci/circleci-mcp",
+  "title": "CircleCI",
+  "description": "Analyze build failures, run pipelines, and detect flaky tests - CircleCI’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/CircleCI-Public/mcp-server-circleci",
+  "repository": {
+    "url": "https://github.com/CircleCI-Public/mcp-server-circleci",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@circleci/mcp-server-circleci",
+      "version": "latest",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "CIRCLECI_TOKEN",
+          "description": "CircleCI API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "devops",
+      "developer"
+    ],
+    "tags": [
+      "circleci",
+      "ci",
+      "pipelines"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 136,
+    "installRate": 0,
+    "iconUrl": "icons/com.circleci-circleci-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "CircleCI",
+      "providerSignupUrl": "https://app.circleci.com/settings/user/tokens"
+    },
+    "setupGuide": {
+      "path": "guides/com.circleci-circleci-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

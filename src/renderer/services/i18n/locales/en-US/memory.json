@@ -1,4 +1,5 @@
 {
+  "injectedLabel": "User memory (from Wayland Memory) - the user dropped or saved this; use it to answer questions about it",
   "page": {
     "title": "Memory",
     "subtitle": "Your AI's persistent knowledge across every session"
@@ -399,6 +400,7 @@
       "title": "Import memories",
       "close": "Close import drawer",
       "importing": "Importing…",
+      "failed": "Import failed. Please try again.",
       "status": {
         "ready": "ready",
         "checking": "checking",

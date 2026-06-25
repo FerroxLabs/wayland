@@ -49,7 +49,18 @@ export class McpConfig {
     const caps = capabilities ?? DEFAULT_MCP_CAPABILITIES;
 
     return servers
-      .filter((s) => s.builtin === true && s.enabled && (s.status === undefined || s.status === 'connected'))
+      .filter(
+        (s) =>
+          // Wayland-managed builtin servers AND user-installed library/custom
+          // servers (e.g. hosted OAuth Notion) must reach the chat session.
+          // Restricting to builtin silently dropped every library MCP from the
+          // session, so they were never callable in a chat. Still gated on
+          // enabled + connected (or not-yet-probed) so a known-broken server
+          // is not surfaced to the agent.
+          (s.builtin === true || s.source === 'library' || s.source === 'custom') &&
+          s.enabled &&
+          (s.status === undefined || s.status === 'connected')
+      )
       .map((server): McpServer | null => {
         switch (server.transport.type) {
           case 'stdio':

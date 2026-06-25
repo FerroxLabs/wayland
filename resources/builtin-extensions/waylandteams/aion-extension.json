@@ -1,0 +1,19 @@
+{
+  "$schema": "../../../schemas/aion-extension-v1.json",
+  "name": "waylandteams-specialist-bundle",
+  "displayName": "Wayland Teams",
+  "version": "1.0.0",
+  "description": "Native built-in catalog of Wayland specialists and ready-made teams. Ships with the app and loads unconditionally - it is not a user-installable plugin.",
+  "author": "Wayland",
+  "i18n": {
+    "localesDir": "i18n",
+    "defaultLocale": "en-US"
+  },
+  "engine": {
+    "wayland": ">=1.0.0 <2.0.0"
+  },
+  "contributes": {
+    "assistants": "$file:contributes/assistants.json",
+    "skills": "$file:contributes/skills.json"
+  }
+}

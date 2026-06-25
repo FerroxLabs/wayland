@@ -19,6 +19,14 @@
   "readyToInstallDesc": "업데이트가 다운로드되었습니다. 아래 버튼을 클릭하여 재시작하고 업데이트를 설치하세요.",
   "installNow": "지금 설치 및 재시작",
   "autoUpdateMode": "자동 업데이트 모드",
+  "ijfw": {
+    "availableTitle": "IJFW 업데이트 사용 가능",
+    "pathIssueTitle": "IJFW 명령 경로에 주의가 필요합니다",
+    "pathIssueBody": "IJFW가 설치되어 있지만 ijfw 명령이 PATH에 없습니다. Wayland는 로컬 설치를 계속 사용할 수 있습니다.",
+    "updateButton": "IJFW 업데이트",
+    "updateStarted": "IJFW 업데이트를 시작했습니다. 새 버전이 준비된 후 Wayland를 다시 시작하세요.",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "폴더에서 보기",
   "openFile": "파일 열기",
   "errorTitle": "업데이트 실패",
@@ -27,5 +35,11 @@
     "metadataMissing": "이 릴리스의 서명된 업데이트 메타데이터(latest.yml)를 찾을 수 없습니다. 검증되지 않은 설치 프로그램을 열지 않습니다.",
     "assetNotInMetadata": "다운로드한 파일 \"{{name}}\"이(가) 서명된 업데이트 메타데이터에 없습니다. 검증되지 않은 설치 프로그램을 열지 않습니다.",
     "checksumMismatch": "다운로드한 업데이트가 무결성 검증(체크섬 불일치)에 실패하여 삭제되었습니다. 실행하지 마세요. 다시 시도하거나 Releases 페이지에서 다운로드하세요."
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

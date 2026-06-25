@@ -61,6 +61,13 @@ const ccSwitchMock = vi.hoisted(() => ({
 
 vi.mock('@process/services/ccSwitchModelSource', () => ccSwitchMock);
 
+// Keep the bridge version resolver offline + deterministic: return the pinned
+// fallback package as-is so spawn args match the source-of-truth constants
+// instead of whatever version the live npm registry resolves at test time.
+vi.mock('../../src/process/agent/acp/bridgeVersionResolver', () => ({
+  resolveBridgePackage: vi.fn(async (fallbackPackage: string) => fallbackPackage),
+}));
+
 import { execFile as execFileCb, spawn } from 'child_process';
 import { execFileSync } from 'child_process';
 import {
@@ -70,6 +77,9 @@ import {
   spawnGenericBackend,
   spawnNpxBackend,
 } from '../../src/process/agent/acp/acpConnectors';
+// Track the resolved Claude bridge package from the source of truth so this
+// test never goes stale when the pinned bridge version bumps.
+import { CLAUDE_ACP_NPX_PACKAGE } from '../../src/common/types/acpTypes';
 
 const mockExecFile = vi.mocked(execFileCb);
 const mockExecFileSync = vi.mocked(execFileSync);
@@ -335,7 +345,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',
-      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.33.1']),
+      expect.arrayContaining(['x', '--bun', CLAUDE_ACP_NPX_PACKAGE]),
       expect.objectContaining({
         cwd: '/cwd',
         detached: true,
@@ -359,7 +369,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',
-      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.33.1']),
+      expect.arrayContaining(['x', '--bun', CLAUDE_ACP_NPX_PACKAGE]),
       expect.objectContaining({
         env: expect.objectContaining({
           PATH: '/usr/bin',
@@ -388,7 +398,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',
-      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.33.1']),
+      expect.arrayContaining(['x', '--bun', CLAUDE_ACP_NPX_PACKAGE]),
       expect.objectContaining({
         env: expect.objectContaining({
           ANTHROPIC_BASE_URL: 'https://api.fluxrouter.ai/anthropic',
@@ -409,7 +419,7 @@ describe('connectClaude - detached process group', () => {
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',
-      expect.arrayContaining(['x', '--bun', '@agentclientprotocol/claude-agent-acp@0.33.1']),
+      expect.arrayContaining(['x', '--bun', CLAUDE_ACP_NPX_PACKAGE]),
       expect.objectContaining({
         cwd: 'C:\\cwd',
         detached: false,

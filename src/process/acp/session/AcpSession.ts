@@ -6,6 +6,7 @@ import type {
 } from '@agentclientprotocol/sdk';
 import * as path from 'node:path';
 import { AcpError } from '@process/acp/errors/AcpError';
+import { buildAcpSetupGuidance } from '@process/acp/errors/setupFailure';
 import type { ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { noopMetrics, type AcpMetrics } from '@process/acp/metrics/AcpMetrics';
 import { ConfigTracker } from '@process/acp/session/ConfigTracker';
@@ -205,6 +206,19 @@ export class AcpSession {
       case 'suspended':
         this.promptExecutor.setPending(content);
         this.lifecycle.resume();
+        return;
+      case 'prompting':
+        // The agent is mid-turn. Queue the follow-up instead of rejecting it -
+        // `PromptExecutor.execute` flushes the pending prompt the moment the
+        // current turn finishes (status → active). This is what stops a fast
+        // second message from hitting a "Cannot send in prompting state" error.
+        this.promptExecutor.setPending(content);
+        return;
+      case 'starting':
+      case 'resuming':
+        // Session is spawning / reconnecting — queue the message so doStart /
+        // doResume flush it automatically when the session reaches 'active'.
+        this.promptExecutor.setPending(content);
         return;
       default:
         throw new AcpError('INVALID_STATE', `Cannot send in ${this._status} state`);
@@ -414,10 +428,15 @@ export class AcpSession {
   }
 
   enterError(message: string): void {
+    // If the backend failed because it's installed but missing a runtime extra
+    // (e.g. Hermes without the ACP adapter), rewrite the raw stderr into
+    // actionable install guidance with the correct command. Otherwise pass the
+    // original message through unchanged.
+    const displayMessage = buildAcpSetupGuidance(this.agentConfig.agentBackend, message) ?? message;
     this.promptExecutor.clearPending();
-    this.permissionResolver.rejectAll(new Error(message));
+    this.permissionResolver.rejectAll(new Error(displayMessage));
     this.promptExecutor.stopTimer();
     this.setStatus('error');
-    this.callbacks.onSignal({ type: 'error', message, recoverable: false });
+    this.callbacks.onSignal({ type: 'error', message: displayMessage, recoverable: false });
   }
 }

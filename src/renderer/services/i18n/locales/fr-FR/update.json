@@ -19,6 +19,14 @@
   "readyToInstallDesc": "La mise à jour a été téléchargée. Cliquez sur le bouton ci-dessous pour redémarrer et installer la mise à jour.",
   "installNow": "Installer et redémarrer",
   "autoUpdateMode": "Mode de mise à jour automatique",
+  "ijfw": {
+    "availableTitle": "Mise à jour IJFW disponible",
+    "pathIssueTitle": "Le chemin de la commande IJFW nécessite votre attention",
+    "pathIssueBody": "IJFW est installé, mais la commande ijfw n'est pas dans le PATH. Wayland peut tout de même utiliser l'installation locale.",
+    "updateButton": "Mettre à jour IJFW",
+    "updateStarted": "Mise à jour IJFW démarrée. Redémarrez Wayland une fois la nouvelle version préparée.",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "Afficher dans le dossier",
   "openFile": "Ouvrir le fichier",
   "errorTitle": "Échec de la mise à jour",
@@ -27,5 +35,11 @@
     "metadataMissing": "Impossible de trouver les métadonnées de mise à jour signées (latest.yml) pour cette version. Refus d'ouvrir un programme d'installation non vérifié.",
     "assetNotInMetadata": "Le fichier téléchargé « {{name}} » ne figure pas dans les métadonnées de mise à jour signées. Refus d'ouvrir un programme d'installation non vérifié.",
     "checksumMismatch": "La mise à jour téléchargée a échoué à la vérification d'intégrité (somme de contrôle non concordante) et a été supprimée. Ne l'exécutez pas. Veuillez réessayer ou télécharger depuis la page Releases."
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

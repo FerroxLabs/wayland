@@ -66,19 +66,12 @@
   --motion-base: 200ms cubic-bezier(0.2, 0, 0, 1);
 
   /* Tier surface - Featured workflows + Standing teams share one
-     visual idiom. Recipe pulls a faint orange-tinted neutral fill
-     halfway toward black so the tier reads as 'deeper than base'
-     while keeping the Forge Orange border as the headline accent. */
-  --tier-bg: color-mix(
-    in srgb,
-    color-mix(in srgb, var(--color-fill-1) 88%, rgb(var(--primary-6)) 12%) 50%,
-    black 50%
-  );
-  --tier-bg-hover: color-mix(
-    in srgb,
-    color-mix(in srgb, var(--color-fill-2) 84%, rgb(var(--primary-6)) 16%) 50%,
-    black 50%
-  );
+     visual idiom: a faint orange-tinted fill so the tier reads as
+     distinct from base while the Forge Orange border carries the
+     headline accent. The fill direction is mode-dependent (lighter
+     surfaces tint up, darker surfaces tint down), so the concrete
+     --tier-bg / --tier-bg-hover values live in the light and dark
+     blocks below. */
 }
 
 /* ============================================================
@@ -98,7 +91,7 @@ body[arco-theme='light'] {
   --primary-3: 255, 179, 153;
   --primary-4: 255, 150, 112;
   --primary-5: 255, 130, 85;
-  --primary-6: 255, 107, 53;   /* brand */
+  --primary-6: 255, 107, 53; /* brand */
   --primary-7: 232, 90, 40;
   --primary-8: 204, 85, 41;
   --primary-9: 153, 64, 30;
@@ -148,7 +141,7 @@ body[arco-theme='light'] {
   --bg-9: #2a2a2a;
   --bg-10: #0d0d0d;
 
-  --bg-tint: #fff5ef;      /* warm tint for user message bubbles */
+  --bg-tint: #fff5ef; /* warm tint for user message bubbles */
   --bg-elevated: #ffffff;
   --bg-hover: #f0f0f0;
   --bg-active: #e5e5e5;
@@ -179,9 +172,7 @@ body[arco-theme='light'] {
   --brand-light: #ffe6db;
   --brand-soft-bg: rgba(255, 107, 53, 0.08);
   --brand-soft-border: rgba(255, 107, 53, 0.28);
-  --brand-glow: 0 0 0 1px rgba(255, 107, 53, 0.6),
-    0 0 24px rgba(255, 107, 53, 0.14),
-    0 8px 32px rgba(0, 0, 0, 0.12);
+  --brand-glow: 0 0 0 1px rgba(255, 107, 53, 0.6), 0 0 24px rgba(255, 107, 53, 0.14), 0 8px 32px rgba(0, 0, 0, 0.12);
 
   /* ---- Semantic ---- */
   --primary: #ff6b35;
@@ -190,12 +181,12 @@ body[arco-theme='light'] {
   --danger: #f87171;
   --info: #ff6b35;
 
-  --success-soft-bg: rgba(52, 211, 153, 0.10);
-  --success-soft-border: rgba(52, 211, 153, 0.30);
-  --warning-soft-bg: rgba(251, 191, 36, 0.10);
-  --warning-soft-border: rgba(251, 191, 36, 0.30);
-  --danger-soft-bg: rgba(248, 113, 113, 0.10);
-  --danger-soft-border: rgba(248, 113, 113, 0.30);
+  --success-soft-bg: rgba(52, 211, 153, 0.1);
+  --success-soft-border: rgba(52, 211, 153, 0.3);
+  --warning-soft-bg: rgba(251, 191, 36, 0.1);
+  --warning-soft-border: rgba(251, 191, 36, 0.3);
+  --danger-soft-bg: rgba(248, 113, 113, 0.1);
+  --danger-soft-border: rgba(248, 113, 113, 0.3);
 
   /* ---- Misc ---- */
   --message-user-bg: var(--bg-tint);
@@ -215,9 +206,9 @@ body[arco-theme='light'] {
      Used by the new-chat starter to colour active intent pills and the
      attribution dot on suggestion rows. Tuned against the light-mode neutral
      ramp so any of the three reads as a soft accent next to the brand orange. */
-  --color-team: 99, 102, 241;       /* indigo-500 - extension-contributed assistants */
+  --color-team: 99, 102, 241; /* indigo-500 - extension-contributed assistants */
   --color-specialist: 16, 185, 129; /* emerald-500 - narrow-domain specialists */
-  --color-builtin: 251, 146, 60;    /* warm-orange - first-party built-ins */
+  --color-builtin: 251, 146, 60; /* warm-orange - first-party built-ins */
 
   /* ---- Arco neutral ramp - light ----
      Maps Arco's semantic neutral tokens onto Wayland's existing ramp so
@@ -228,31 +219,37 @@ body[arco-theme='light'] {
      fill-1 = subtlest hover fill → fill-4 = strong fill
      border-1 = subtlest separator → border-4 = strong outline
      bg-1 = base surface (lowest) → bg-5 = highest elevation */
-  --color-text-1: var(--text-primary);      /* #0d0d0d - primary text */
-  --color-text-2: var(--text-secondary);    /* #333333 - secondary text */
-  --color-text-3: var(--text-muted);        /* #777777 - tertiary / placeholder */
-  --color-text-4: var(--text-disabled);     /* #aaaaaa - disabled text */
+  --color-text-1: var(--text-primary); /* #0d0d0d - primary text */
+  --color-text-2: var(--text-secondary); /* #333333 - secondary text */
+  --color-text-3: var(--text-muted); /* #777777 - tertiary / placeholder */
+  --color-text-4: var(--text-disabled); /* #aaaaaa - disabled text */
 
-  --color-fill-1: var(--bg-1);              /* #f7f7f7 - subtlest fill (hover bg) */
-  --color-fill-2: var(--bg-2);              /* #f0f0f0 - light fill */
-  --color-fill-3: var(--bg-3);              /* #e5e5e5 - medium fill */
-  --color-fill-4: var(--bg-4);              /* #d4d4d4 - strong fill */
+  --color-fill-1: var(--bg-1); /* #f7f7f7 - subtlest fill (hover bg) */
+  --color-fill-2: var(--bg-2); /* #f0f0f0 - light fill */
+  --color-fill-3: var(--bg-3); /* #e5e5e5 - medium fill */
+  --color-fill-4: var(--bg-4); /* #d4d4d4 - strong fill */
 
-  --color-border-1: var(--border-light);    /* #e5e5e5 - subtlest separator */
-  --color-border-2: var(--border-base);     /* #d4d4d4 - standard border (most-used) */
-  --color-border-3: var(--border-bright);   /* #bfbfbf - stronger outline */
-  --color-border-4: var(--border-mid);      /* #999999 - strongest outline */
+  --color-border-1: var(--border-light); /* #e5e5e5 - subtlest separator */
+  --color-border-2: var(--border-base); /* #d4d4d4 - standard border (most-used) */
+  --color-border-3: var(--border-bright); /* #bfbfbf - stronger outline */
+  --color-border-4: var(--border-mid); /* #999999 - strongest outline */
 
-  --color-bg-1: var(--bg-base);             /* #ffffff - base / page background */
-  --color-bg-2: var(--bg-1);               /* #f7f7f7 - first elevation (sidebar, panels) */
-  --color-bg-3: var(--bg-2);               /* #f0f0f0 - second elevation */
-  --color-bg-4: var(--bg-3);               /* #e5e5e5 - third elevation */
-  --color-bg-5: var(--bg-elevated);        /* #ffffff - highest elevation (popup, tooltip) */
+  --color-bg-1: var(--bg-base); /* #ffffff - base / page background */
+  --color-bg-2: var(--bg-1); /* #f7f7f7 - first elevation (sidebar, panels) */
+  --color-bg-3: var(--bg-2); /* #f0f0f0 - second elevation */
+  --color-bg-4: var(--bg-3); /* #e5e5e5 - third elevation */
+  --color-bg-5: var(--bg-elevated); /* #ffffff - highest elevation (popup, tooltip) */
 
   /* Theme-adaptive filter for monochrome SVG icon avatars (extension packs
      ship them as black-on-transparent). Light mode → no filter, the
      black-on-light reads fine. Dark mode override sits in the dark block. */
   --avatar-img-filter: none;
+
+  /* Tier surface - light. Tint the base fill toward Forge Orange and a
+     touch toward white so the tier reads as a warm, distinct surface
+     without ever going dark. */
+  --tier-bg: color-mix(in srgb, var(--color-fill-1) 90%, rgb(var(--primary-6)) 10%);
+  --tier-bg-hover: color-mix(in srgb, var(--color-fill-2) 86%, rgb(var(--primary-6)) 14%);
 }
 
 /* ============================================================
@@ -287,9 +284,9 @@ body[arco-theme='dark'] {
   --arcoblue-9: 255, 179, 153;
   --arcoblue-10: 255, 230, 219;
 
-  --color-primary-light-1: rgba(255, 107, 53, 0.10);
+  --color-primary-light-1: rgba(255, 107, 53, 0.1);
   --color-primary-light-2: rgba(255, 107, 53, 0.18);
-  --color-primary-light-3: rgba(255, 107, 53, 0.30);
+  --color-primary-light-3: rgba(255, 107, 53, 0.3);
   --color-primary-light-4: rgba(255, 107, 53, 0.45);
 
   /* AOU palette - dark mode (brand orange where the legacy purples lived) */
@@ -326,7 +323,7 @@ body[arco-theme='dark'] {
   --bg-9: #c0c0c0;
   --bg-10: #f5f5f5;
 
-  --bg-tint: #1a130f;      /* warm dark tint for user message bubbles */
+  --bg-tint: #1a130f; /* warm dark tint for user message bubbles */
   --bg-elevated: #222222;
   --bg-hover: #1a1a1a;
   --bg-active: #262626;
@@ -357,12 +354,10 @@ body[arco-theme='dark'] {
   --brand: #ff6b35;
   --brand-hover: #ff8255;
   --brand-pressed: #cc5529;
-  --brand-light: #1f1612;  /* warm tinted dark surface for brand-bg areas */
+  --brand-light: #1f1612; /* warm tinted dark surface for brand-bg areas */
   --brand-soft-bg: rgba(255, 107, 53, 0.06);
   --brand-soft-border: rgba(255, 107, 53, 0.22);
-  --brand-glow: 0 0 0 1px rgba(255, 107, 53, 0.6),
-    0 0 24px rgba(255, 107, 53, 0.14),
-    0 8px 32px rgba(0, 0, 0, 0.5);
+  --brand-glow: 0 0 0 1px rgba(255, 107, 53, 0.6), 0 0 24px rgba(255, 107, 53, 0.14), 0 8px 32px rgba(0, 0, 0, 0.5);
 
   /* Semantic - same family as light */
   --primary: #ff6b35;
@@ -394,9 +389,9 @@ body[arco-theme='dark'] {
 
   /* Chat-redesign intent accents - dark mode (lighter triples so they read
      against the cinematic neutral ramp). */
-  --color-team: 129, 140, 248;       /* indigo-400 */
-  --color-specialist: 52, 211, 153;  /* emerald-400 */
-  --color-builtin: 253, 186, 116;    /* warm-orange-300 */
+  --color-team: 129, 140, 248; /* indigo-400 */
+  --color-specialist: 52, 211, 153; /* emerald-400 */
+  --color-builtin: 253, 186, 116; /* warm-orange-300 */
 
   /* ---- Arco neutral ramp - dark ----
      Same slots as light; values inverted to match the dark Wayland ramp.
@@ -405,26 +400,26 @@ body[arco-theme='dark'] {
      fill-1 = subtlest fill → fill-4 = stronger fill (solid dark surfaces)
      border-1 = subtlest separator → border-4 = strong outline
      bg-1 = deepest surface → bg-5 = highest elevation */
-  --color-text-1: var(--text-primary);      /* #f5f5f5 - primary text */
-  --color-text-2: var(--text-secondary);    /* #c0c0c0 - secondary text */
-  --color-text-3: var(--text-muted);        /* #9a9a9a - tertiary / placeholder */
-  --color-text-4: var(--text-disabled);     /* #555555 - disabled text */
+  --color-text-1: var(--text-primary); /* #f5f5f5 - primary text */
+  --color-text-2: var(--text-secondary); /* #c0c0c0 - secondary text */
+  --color-text-3: var(--text-muted); /* #9a9a9a - tertiary / placeholder */
+  --color-text-4: var(--text-disabled); /* #555555 - disabled text */
 
-  --color-fill-1: var(--bg-1);              /* #111111 - subtlest fill (hover bg) */
-  --color-fill-2: var(--bg-2);              /* #161616 - light fill */
-  --color-fill-3: var(--bg-3);              /* #1c1c1c - medium fill */
-  --color-fill-4: var(--bg-4);              /* #222222 - strong fill */
+  --color-fill-1: var(--bg-1); /* #111111 - subtlest fill (hover bg) */
+  --color-fill-2: var(--bg-2); /* #161616 - light fill */
+  --color-fill-3: var(--bg-3); /* #1c1c1c - medium fill */
+  --color-fill-4: var(--bg-4); /* #222222 - strong fill */
 
-  --color-border-1: var(--border-light);    /* #1f1f1f - subtlest separator */
-  --color-border-2: var(--border-base);     /* #2a2a2a - standard border (most-used) */
-  --color-border-3: var(--border-bright);   /* #353535 - stronger outline */
-  --color-border-4: var(--border-mid);      /* #353535 - strongest outline */
+  --color-border-1: var(--border-light); /* #1f1f1f - subtlest separator */
+  --color-border-2: var(--border-base); /* #2a2a2a - standard border (most-used) */
+  --color-border-3: var(--border-bright); /* #353535 - stronger outline */
+  --color-border-4: var(--border-mid); /* #353535 - strongest outline */
 
-  --color-bg-1: var(--bg-base);             /* #0a0a0a - deepest / page background */
-  --color-bg-2: var(--bg-1);               /* #111111 - first elevation (sidebar, panels) */
-  --color-bg-3: var(--bg-2);               /* #161616 - second elevation */
-  --color-bg-4: var(--bg-3);               /* #1c1c1c - third elevation */
-  --color-bg-5: var(--bg-elevated);        /* #222222 - highest elevation (popup, tooltip) */
+  --color-bg-1: var(--bg-base); /* #0a0a0a - deepest / page background */
+  --color-bg-2: var(--bg-1); /* #111111 - first elevation (sidebar, panels) */
+  --color-bg-3: var(--bg-2); /* #161616 - second elevation */
+  --color-bg-4: var(--bg-3); /* #1c1c1c - third elevation */
+  --color-bg-5: var(--bg-elevated); /* #222222 - highest elevation (popup, tooltip) */
 
   /* Dark mode: monochrome black-on-transparent SVG icons need to flip to
      near-white to read on dark surfaces. `brightness(0) invert(0.9)`
@@ -432,4 +427,14 @@ body[arco-theme='dark'] {
      to other grayscale values) then inverts to ~#e5e5e5 - same tone as
      --color-text-2, matching emoji weight without going pure white. */
   --avatar-img-filter: brightness(0) invert(0.9);
+
+  /* Tier surface - dark. Tint the base fill toward Forge Orange and a
+     touch toward black so the tier reads as 'deeper than base' while the
+     Forge Orange border carries the headline accent. */
+  --tier-bg: color-mix(in srgb, color-mix(in srgb, var(--color-fill-1) 88%, rgb(var(--primary-6)) 12%) 80%, black 20%);
+  --tier-bg-hover: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--color-fill-2) 84%, rgb(var(--primary-6)) 16%) 80%,
+    black 20%
+  );
 }

@@ -117,6 +117,12 @@
     "scheduleDesc": {
       "manual": "Вручну",
       "hourly": "Щогодини",
+      "everyNHours_one": "Щогодини",
+      "everyNHours_other": "Кожні {{count}} год.",
+      "everyNHoursAtMinute_one": "Щогодини о :{{minute}}",
+      "everyNHoursAtMinute_other": "Кожні {{count}} год. о :{{minute}}",
+      "everyNMinutes_one": "Щохвилини",
+      "everyNMinutes_other": "Кожні {{count}} хв.",
       "dailyAt": "Щодня о {{time}}",
       "weekdaysAt": "У будні о {{time}}",
       "weeklyAt": "Що{{day}} о {{time}}",

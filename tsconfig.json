@@ -41,12 +41,15 @@
     "src/process/services/database/migration_v47.bun.test.ts",
     "src/process/services/database/migration_v48.bun.test.ts",
     "src/process/services/database/migration_v49.bun.test.ts",
+    "src/process/services/database/migration_v51.bun.test.ts",
+    "src/process/services/database/migration_v52.bun.test.ts",
     "src/process/services/cost/ModelPricing.bun.test.ts",
     "src/process/services/cost/CostRecorder.bun.test.ts",
     "src/process/services/cost/SqliteCostRepository.bun.test.ts",
     "src/process/services/cost/SqliteBudgetRepository.bun.test.ts",
     "src/process/services/cost/BudgetController.bun.test.ts",
     "src/process/services/cost/gatewayUsage.bun.test.ts",
-    "src/common/adapter/bridgeAllowlist.budgets.bun.test.ts"
+    "src/common/adapter/bridgeAllowlist.budgets.bun.test.ts",
+    "src/process/services/skills/SkillLibrary.paths.bun.test.ts"
   ]
 }

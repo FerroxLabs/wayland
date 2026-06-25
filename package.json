@@ -1,6 +1,6 @@
 {
   "name": "Wayland",
-  "version": "0.9.6-rc.2.1",
+  "version": "0.11.3",
   "description": "The local-first desktop AI agent that drives every AI CLI on your machine - Claude Code, Codex, Gemini and more, on your keys.",
   "keywords": [],
   "license": "AGPL-3.0-or-later",
@@ -43,6 +43,7 @@
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
+    "typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit",
     "i18n:types": "node scripts/generate-i18n-types.js",
     "audit:settings": "node scripts/audit-settings.mjs",
     "test": "vitest run",

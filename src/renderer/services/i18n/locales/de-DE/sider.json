@@ -18,6 +18,10 @@
     "wired": {
       "body": "Letzte 100: H{{h}} · S{{s}} · O{{o}}",
       "action": "Sehen, wohin jeder Schritt ging"
+    },
+    "dismiss": {
+      "label": "Flux-Status ausblenden",
+      "hint": "Flux-Status ausgeblendet."
     }
   },
   "accordion": {

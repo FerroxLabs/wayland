@@ -1,0 +1,81 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.xero/xero-mcp",
+  "title": "Xero",
+  "description": "Accounting in natural language - invoices, contacts, P&L and balance-sheet reports, bank transactions - Xero's official MCP.",
+  "version": "0.0.17",
+  "websiteUrl": "https://github.com/XeroAPI/xero-mcp-server",
+  "repository": {
+    "url": "https://github.com/XeroAPI/xero-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@xeroapi/xero-mcp-server",
+      "version": "0.0.17",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "XERO_CLIENT_ID",
+          "description": "Xero Custom Connection client ID.",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "XERO_CLIENT_SECRET",
+          "description": "Xero Custom Connection client secret.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "payments",
+      "productivity"
+    ],
+    "tags": [
+      "xero",
+      "accounting",
+      "invoices"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 203,
+    "installRate": 0,
+    "iconUrl": "icons/com.xero-xero-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#13B5EA"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Xero",
+      "providerSignupUrl": "https://developer.xero.com/app/manage",
+      "byoClient": {
+        "registrationUrl": "https://developer.xero.com/app/manage",
+        "requiresSecret": true
+      }
+    },
+    "setupGuide": {
+      "path": "guides/com.xero-xero-mcp.md",
+      "estimatedMinutes": 4,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

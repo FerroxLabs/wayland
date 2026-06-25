@@ -5,12 +5,16 @@
  */
 
 import type { ISqliteDriver } from '@process/services/database/drivers/ISqliteDriver';
-import type {
-  AskRecord,
-  ResolvedSkill,
-  StepState,
-  WorkflowSession,
-  WorkflowSessionStatus,
+import {
+  isWorkflowInteractivity,
+  isWorkflowRunMode,
+  type AskRecord,
+  type ResolvedSkill,
+  type StepState,
+  type WorkflowInteractivity,
+  type WorkflowRunMode,
+  type WorkflowSession,
+  type WorkflowSessionStatus,
 } from '@/common/types/workflowTypes';
 
 /**
@@ -29,6 +33,8 @@ export type WorkflowSessionPatch = Partial<{
   category: string | null;
   completed_at: number | null;
   begin_sent_at: number | null;
+  run_mode: WorkflowRunMode;
+  interactivity: WorkflowInteractivity;
 }>;
 
 type Row = {
@@ -48,6 +54,8 @@ type Row = {
   updated_at: number;
   completed_at: number | null;
   begin_sent_at: number | null;
+  run_mode: string;
+  interactivity: string;
 };
 
 const RESUME_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
@@ -70,6 +78,10 @@ const rowToSession = (r: Row): WorkflowSession => ({
   updated_at: r.updated_at,
   completed_at: r.completed_at,
   begin_sent_at: r.begin_sent_at,
+  // Defensive coercion: a malformed persisted value falls back to the safe
+  // default rather than poisoning the run driver.
+  run_mode: isWorkflowRunMode(r.run_mode) ? r.run_mode : 'running',
+  interactivity: isWorkflowInteractivity(r.interactivity) ? r.interactivity : 'step',
 });
 
 /**
@@ -101,8 +113,9 @@ export class WorkflowSessionRepository {
            current_step, total_steps,
            steps_json, skills_json, asks_json,
            status, palette, category,
-           created_at, updated_at, completed_at, begin_sent_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+           created_at, updated_at, completed_at, begin_sent_at,
+           run_mode, interactivity
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .run(
         session.id,
@@ -120,7 +133,9 @@ export class WorkflowSessionRepository {
         created_at,
         updated_at,
         session.completed_at,
-        session.begin_sent_at ?? null
+        session.begin_sent_at ?? null,
+        session.run_mode,
+        session.interactivity
       );
   }
 
@@ -230,6 +245,14 @@ export class WorkflowSessionRepository {
     if (patch.begin_sent_at !== undefined) {
       sets.push('begin_sent_at = ?');
       params.push(patch.begin_sent_at);
+    }
+    if (patch.run_mode !== undefined) {
+      sets.push('run_mode = ?');
+      params.push(patch.run_mode);
+    }
+    if (patch.interactivity !== undefined) {
+      sets.push('interactivity = ?');
+      params.push(patch.interactivity);
     }
 
     // Always bump updated_at server-side.

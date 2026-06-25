@@ -32,7 +32,7 @@ import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher'
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
-import { shouldInjectGeminiMcpServer } from '@process/agent/acp/mcpSessionConfig';
+import { shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
 import BaseAgentManager from './BaseAgentManager';
 import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
 import { mainLog, mainWarn, mainError } from '@process/utils/mainLogger';
@@ -382,7 +382,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         // Builtin servers (image gen, skill search) are seeded with status
         // undefined and never connection-tested; accept them on undefined to
         // match the ACP session path. User servers still require connected.
-        .filter(shouldInjectGeminiMcpServer)
+        .filter(shouldInjectSessionMcpServer)
         .forEach((server: IMcpServer) => {
           if (server.transport.type === 'stdio') {
             mcpConfig[server.name] = {

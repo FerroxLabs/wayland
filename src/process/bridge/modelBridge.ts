@@ -447,65 +447,115 @@ export function initModelBridge(): void {
       return { success: true, data: { mode: vertexAIModels } };
     }
 
-    // MiniMax does not provide /v1/models endpoint (verified 2026-02), return hardcoded list
-    // For MiniMax platform, return the supported model list directly
+    // MiniMax now exposes a standard OpenAI-compatible `/v1/models` endpoint
+    // (the earlier "no /v1/models" note was stale - re-verified live 2026-06-24:
+    // `api.minimax.io/v1/models` returns `{data:[{id}]}`). Fetch the live list so
+    // a new model (e.g. MiniMax-M3) appears without a release; fall back to a
+    // current static snapshot only if the fetch fails.
     if (base_url && isMiniMaxAPI(base_url)) {
-      console.log('Using MiniMax model list (text models only)');
-      const minimaxModels = [
-        // Text/Chat Models - For conversational AI use
+      // Offline fallback only - kept current (synced from the live endpoint
+      // 2026-06-24); the live list always wins when reachable.
+      const fallbackMinimaxModels = [
+        'MiniMax-M3',
         'MiniMax-M2.7',
+        'MiniMax-M2.7-highspeed',
         'MiniMax-M2.5',
-        'MiniMax-M2.1', // 230B params, 10B active - Best for programming & reasoning (~60 tokens/sec)
-        'MiniMax-M2.1-lightning', // Same as M2.1 but faster (~100 tokens/sec)
-        'MiniMax-M2', // 200k context, 128k output - Complex reasoning & function calling
-        'M2-her', // Role-play & character-driven conversations
+        'MiniMax-M2.5-highspeed',
+        'MiniMax-M2.1',
+        'MiniMax-M2.1-highspeed',
+        'MiniMax-M2',
       ];
-      return { success: true, data: { mode: minimaxModels } };
+      try {
+        await assertSafeBaseUrl(base_url);
+      } catch (e) {
+        return { success: false, msg: e instanceof Error ? e.message : String(e) };
+      }
+      try {
+        const trimmed = base_url.replace(/\/+$/, '');
+        const modelsUrl = /\/v1$/i.test(trimmed) ? `${trimmed}/models` : `${trimmed}/v1/models`;
+        const response = await fetch(modelsUrl, {
+          headers: { Authorization: `Bearer ${actualApiKey}`, 'User-Agent': 'Wayland/1.0' },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (!data.data || !Array.isArray(data.data)) {
+          throw new Error('Invalid response format');
+        }
+        const modelList = data.data
+          .map((model: { id?: unknown }) => model.id)
+          .filter((id: unknown): id is string => typeof id === 'string' && id.length > 0);
+        if (modelList.length === 0) {
+          throw new Error('No models returned');
+        }
+        return { success: true, data: { mode: modelList } };
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.warn('Failed to fetch MiniMax models via /v1/models, falling back to static list:', errorMessage);
+        return { success: true, data: { mode: fallbackMinimaxModels } };
+      }
     }
 
-    // DashScope Coding Plan does not provide /v1/models endpoint (returns 404)
-    // Validate API key via /chat/completions probe, then return hardcoded list
+    // DashScope Coding Plan DOES publish a live OpenAI-compatible /v1/models
+    // endpoint (`coding.dashscope.aliyuncs.com/v1/models`). The earlier "returns
+    // 404" note tested the wrong `/compatible-mode/v1/models` path - re-verified
+    // live 2026-06-24: `/v1/models` returns `{data:[{id}]}`. Fetch the live list,
+    // which also validates the key (a bad key 401s); fall back to a current static
+    // snapshot only on a network failure.
     if (base_url && isDashScopeCodingAPI(base_url)) {
-      const codingPlanModels = [
+      // Offline fallback only - synced from the live endpoint 2026-06-24 (the
+      // prior list was missing qwen3.6-plus / qwen3.7-plus).
+      const fallbackCodingPlanModels = [
         'qwen3-coder-plus',
         'qwen3-coder-next',
+        'qwen3.7-plus',
+        'qwen3.6-plus',
         'qwen3.5-plus',
         'qwen3-max-2026-01-23',
-        'glm-4.7',
         'glm-5',
-        'MiniMax-M2.5',
+        'glm-4.7',
         'kimi-k2.5',
+        'MiniMax-M2.5',
       ];
-
-      // Validate the API key by probing the chat/completions endpoint
-      if (actualApiKey) {
-        try {
-          await assertSafeBaseUrl(base_url);
-        } catch (e) {
-          return { success: false, msg: e instanceof Error ? e.message : String(e) };
-        }
-        try {
-          const probeUrl = `${base_url.replace(/\/+$/, '')}/chat/completions`;
-          const probeResponse = await fetch(probeUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${actualApiKey}` },
-            body: JSON.stringify({
-              model: codingPlanModels[0],
-              messages: [{ role: 'user', content: 'hi' }],
-              max_tokens: PROBE_MAX_TOKENS,
-            }),
-          });
-          if (probeResponse.status === 401) {
-            const errorData = await probeResponse.json().catch(() => ({}));
-            const errorMsg = errorData?.error?.message || errorData?.message || 'Invalid API key or token expired';
-            return { success: false, msg: errorMsg };
-          }
-        } catch {
-          // Network error during probe - still return model list, user will see error when chatting
-        }
+      try {
+        await assertSafeBaseUrl(base_url);
+      } catch (e) {
+        return { success: false, msg: e instanceof Error ? e.message : String(e) };
       }
-
-      return { success: true, data: { mode: codingPlanModels } };
+      try {
+        const trimmed = base_url.replace(/\/+$/, '');
+        const modelsUrl = /\/v1$/i.test(trimmed) ? `${trimmed}/models` : `${trimmed}/v1/models`;
+        const response = await fetch(modelsUrl, {
+          headers: {
+            ...(actualApiKey ? { Authorization: `Bearer ${actualApiKey}` } : {}),
+            'User-Agent': 'Wayland/1.0',
+          },
+        });
+        if (response.status === 401) {
+          const errorData = await response.json().catch(() => ({}));
+          const errorMsg = errorData?.error?.message || errorData?.message || 'Invalid API key or token expired';
+          return { success: false, msg: errorMsg };
+        }
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (!data.data || !Array.isArray(data.data)) {
+          throw new Error('Invalid response format');
+        }
+        const modelList = data.data
+          .map((model: { id?: unknown }) => model.id)
+          .filter((id: unknown): id is string => typeof id === 'string' && id.length > 0);
+        if (modelList.length === 0) {
+          throw new Error('No models returned');
+        }
+        return { success: true, data: { mode: modelList } };
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.warn('Failed to fetch DashScope coding-plan models via /v1/models, falling back to static list:', errorMessage);
+        return { success: true, data: { mode: fallbackCodingPlanModels } };
+      }
     }
 
     // For Anthropic/Claude platform, use Anthropic API to fetch models

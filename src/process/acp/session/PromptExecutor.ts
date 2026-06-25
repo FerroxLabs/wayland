@@ -21,7 +21,8 @@ export type PromptHost = {
 };
 
 export class PromptExecutor {
-  private pendingPrompt: PromptContent | null = null;
+  private pendingPrompts: PromptContent[] = [];
+  private flushing = false;
   private readonly timer: PromptTimer;
 
   constructor(
@@ -34,24 +35,30 @@ export class PromptExecutor {
   // ─── Pending prompt buffer ────────────────────────────────────
 
   hasPending(): boolean {
-    return this.pendingPrompt !== null;
+    return this.pendingPrompts.length > 0;
   }
 
   setPending(content: PromptContent): void {
-    this.pendingPrompt = content;
+    this.pendingPrompts.push(content);
   }
 
   clearPending(): void {
-    this.pendingPrompt = null;
+    if (this.pendingPrompts.length > 0) {
+      console.warn(`[PromptExecutor] discarding ${this.pendingPrompts.length} queued message(s) — session terminated`);
+    }
+    this.pendingPrompts = [];
   }
 
-  /** Fire the pending prompt if one exists and session is active. */
+  /** Fire the next queued prompt if one exists and the session is active. */
   flush(): void {
-    if (this.pendingPrompt && this.host.status === 'active') {
-      const content = this.pendingPrompt;
-      this.pendingPrompt = null;
-      void this.execute(content);
-    }
+    if (this.flushing || this.pendingPrompts.length === 0 || this.host.status !== 'active') return;
+    this.flushing = true;
+    const content = this.pendingPrompts.shift()!;
+    void this.execute(content).finally(() => {
+      this.flushing = false;
+      // Chain the next queued prompt if one arrived while this turn was running.
+      this.flush();
+    });
   }
 
   // ─── Execute ──────────────────────────────────────────────────
@@ -59,6 +66,12 @@ export class PromptExecutor {
   async execute(content: PromptContent): Promise<void> {
     const { lifecycle } = this.host;
     if (!lifecycle.client || !lifecycle.sessionId) return;
+
+    // New user prompt = new logical response. Open a fresh dedup window so an
+    // identical consecutive prompt still emits, while keeping the doubling
+    // dedup (#184) scoped to this single turn (which may span onTurnEnd + a
+    // late real-id full-text restate).
+    this.host.messageTranslator.onTurnStart();
 
     this.host.setStatus('prompting');
 
@@ -91,13 +104,20 @@ export class PromptExecutor {
     this.host.messageTranslator.onTurnEnd();
     this.host.setStatus('active');
     this.host.callbacks.onSignal({ type: 'turn_finished' });
+    // Drain any follow-up the user queued mid-turn (sendMessage during
+    // 'prompting' calls setPending). flush() is a no-op unless a prompt is
+    // pending and the session is active, which it now is.
+    this.flush();
   }
 
   private handlePromptError(err: unknown, content: PromptContent): void {
     const acpErr = normalizeError(err);
 
     if (acpErr.code === 'AUTH_REQUIRED') {
-      this.pendingPrompt = content;
+      // Preserve the failed message at the front of the queue so it is
+      // re-delivered after the user completes auth (do NOT overwrite any
+      // already-queued follow-ups).
+      this.pendingPrompts.unshift(content);
       this.host.lifecycle.setAuthPendingForPrompt();
       void this.host.lifecycle.teardown().then(() => {
         this.host.setStatus('error');
@@ -115,6 +135,8 @@ export class PromptExecutor {
     if (acpErr.retryable) {
       this.host.setStatus('active');
       this.host.callbacks.onSignal({ type: 'error', message: acpErr.message, recoverable: true });
+      // Deliver any queued follow-up now that the session is back to 'active'.
+      this.flush();
     } else {
       this.host.enterError(acpErr.message);
     }
@@ -133,7 +155,7 @@ export class PromptExecutor {
   }
 
   cancelAll(): void {
-    this.pendingPrompt = null;
+    this.pendingPrompts = [];
     if (this.host.status === 'prompting') this.cancel();
   }
 

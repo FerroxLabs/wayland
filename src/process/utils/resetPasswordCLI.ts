@@ -42,9 +42,10 @@ const hashPasswordAsync = (password: string, saltRounds: number): Promise<string
     });
   });
 
-// Hash password using bcrypt
+// Hash password using bcrypt. 12 rounds to match AuthService.SALT_ROUNDS so a
+// CLI-reset password is hashed at the same strength as every other path (#26).
 async function hashPassword(password: string): Promise<string> {
-  return await hashPasswordAsync(password, 10);
+  return await hashPasswordAsync(password, 12);
 }
 
 // Generate random password

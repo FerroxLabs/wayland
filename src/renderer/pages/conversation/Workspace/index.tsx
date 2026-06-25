@@ -15,6 +15,7 @@ import {
   getWorkspaceDisplayName as getDisplayName,
 } from '@/renderer/utils/workspace/workspace';
 import { Empty, Message, Tree } from '@arco-design/web-react';
+import { Star } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import FileChangeList from './components/FileChangeList';
@@ -34,6 +35,7 @@ import { useWorkspaceModals } from './hooks/useWorkspaceModals';
 import { useWorkspacePaste } from './hooks/useWorkspacePaste';
 import { useWorkspaceSearch } from './hooks/useWorkspaceSearch';
 import { useWorkspaceTree } from './hooks/useWorkspaceTree';
+import { useWorkspaceFavorites } from './hooks/useWorkspaceFavorites';
 import type { WorkspaceProps, WorkspaceTab } from './types';
 import {
   computeContextMenuPosition,
@@ -65,6 +67,7 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
   // Tab state and file changes
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('files');
   const fileChangesHook = useFileChanges({ workspace });
+  const favoritesHook = useWorkspaceFavorites({ conversationId: conversation_id });
 
   // Initialize all hooks
   const { isWorkspaceCollapsed, setIsWorkspaceCollapsed } = useWorkspaceCollapse();
@@ -350,7 +353,47 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
               handleDeleteNode={fileOpsHook.handleDeleteNode}
               openRenameModal={fileOpsHook.openRenameModal}
               closeContextMenu={modalsHook.closeContextMenu}
+              isFavorite={
+                modalsHook.contextMenu.node ? favoritesHook.isFavorite(modalsHook.contextMenu.node.relativePath) : false
+              }
+              onToggleFavorite={favoritesHook.isProject ? favoritesHook.toggleFavorite : undefined}
             />
+
+            {/* Pinned favorites (project Files only) */}
+            {favoritesHook.isProject && favoritesHook.favorites.length > 0 && (
+              <div className={`workspace-favorites ${isMobile ? 'px-20px' : 'px-32px'} pt-8px`}>
+                <div className='text-11px text-t-tertiary font-medium mb-4px'>
+                  {t('conversation.workspace.favorites.title')}
+                </div>
+                {favoritesHook.favorites.map((fav) => {
+                  const favNode: IDirOrFile = {
+                    name: fav.name,
+                    fullPath: fav.fullPath,
+                    relativePath: fav.relativePath,
+                    isDir: false,
+                    isFile: true,
+                  };
+                  return (
+                    <div
+                      key={fav.relativePath}
+                      className='flex items-center gap-6px min-w-0 py-3px pr-6px rd-6px cursor-pointer text-13px hover:bg-2'
+                      title={fav.relativePath}
+                      onClick={() => void fileOpsHook.handlePreviewFile(favNode)}
+                      onDoubleClick={() => fileOpsHook.handleAddToChat(favNode)}
+                      onContextMenu={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        openNodeContextMenu(favNode, event.clientX, event.clientY);
+                      }}
+                    >
+                      <Star size={13} className='flex-shrink-0 text-t-tertiary' fill='currentColor' />
+                      <span className='overflow-hidden text-ellipsis whitespace-nowrap'>{fav.name}</span>
+                    </div>
+                  );
+                })}
+                <div className='h-1px bg-3 mt-6px'></div>
+              </div>
+            )}
 
             {/* Empty state or Tree */}
             {!hasOriginalFiles ? (

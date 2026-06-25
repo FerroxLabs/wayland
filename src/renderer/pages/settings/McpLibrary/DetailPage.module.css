@@ -1,0 +1,588 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* Connector detail page. Restyle of the legacy mcp-detail-* skin onto real
+   Wayland tokens, matching .planning/mcp-redesign/detail.html. Hero + state-aware
+   action card + tabbed body + sticky Connection/Available-to/Links side rail. */
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 40px 64px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--color-text-3);
+  font-size: var(--type-13);
+  padding: 6px 0;
+  margin-bottom: 14px;
+  cursor: pointer;
+  transition: color var(--motion-fast);
+}
+
+.back:hover {
+  color: var(--color-text-1);
+}
+
+/* hero */
+.hero {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--color-border-1);
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  background: var(--color-bg-5);
+  border: 1px solid var(--color-border-2);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.logo img {
+  width: 34px;
+  height: 34px;
+}
+
+.logoFallback {
+  font-size: var(--type-24);
+  font-weight: 700;
+  color: var(--color-text-2);
+}
+
+.heroMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: var(--type-24);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--color-text-1);
+}
+
+.verifiedTick {
+  color: rgb(var(--primary-6));
+}
+
+.heroTags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: var(--type-11);
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: var(--radius-card-inner);
+  background: var(--color-fill-3);
+  color: var(--color-text-3);
+}
+
+.tagOutline {
+  background: none;
+  border: 1px solid var(--color-border-2);
+  color: var(--color-text-3);
+}
+
+.heroTagline {
+  margin: 12px 0 0;
+  font-size: var(--type-14);
+  color: var(--color-text-2);
+  max-width: 64ch;
+  line-height: 1.55;
+}
+
+/* action card (right of hero) */
+.action {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-card);
+  padding: 16px;
+}
+
+.actionConnected {
+  border-color: rgb(var(--primary-6) / 0.22);
+  background: linear-gradient(160deg, rgb(var(--primary-6) / 0.06), transparent 70%);
+}
+
+.statusLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--type-13);
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--color-text-2);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotOk {
+  background: var(--success);
+}
+
+.dotWarn {
+  background: var(--warning);
+}
+
+.dotErr {
+  background: var(--danger);
+}
+
+.dotOff {
+  background: var(--color-text-4);
+}
+
+.cOk {
+  color: var(--success);
+}
+
+.cWarn {
+  color: var(--warning);
+}
+
+.cErr {
+  color: var(--danger);
+}
+
+.statusMeta {
+  font-size: var(--type-12);
+  color: var(--color-text-3);
+  margin-bottom: 14px;
+}
+
+/* primary CTA (Install / Sign in / Reconnect) */
+.btnPrimary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgb(var(--primary-6));
+  color: #0a0a0a;
+  font-weight: 600;
+  font-size: var(--type-14);
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  cursor: pointer;
+  transition: background var(--motion-fast), transform var(--motion-fast);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: rgb(var(--primary-5));
+}
+
+.btnPrimary:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btnWarn {
+  background: var(--warning);
+  color: #1a1206;
+}
+
+/* secondary lifecycle buttons (Reconnect / Remove) */
+.btn2 {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--color-border-3);
+  color: var(--color-text-1);
+  font-weight: 500;
+  font-size: var(--type-12);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition: border-color var(--motion-fast), color var(--motion-fast);
+}
+
+.btn2:hover:not(:disabled) {
+  border-color: rgb(var(--primary-6));
+  color: rgb(var(--primary-6));
+}
+
+.btn2:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn2Danger:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.note {
+  font-size: var(--type-11);
+  color: var(--color-text-4);
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  text-align: center;
+}
+
+.note svg {
+  flex-shrink: 0;
+}
+
+/* installed control block */
+.ctrlRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-border-1);
+}
+
+.ctrlRow:first-of-type {
+  border-top: none;
+}
+
+.ctrlKey {
+  font-size: var(--type-13);
+  color: var(--color-text-2);
+}
+
+.lifecycle {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* body: tabs + two-col */
+.tabs {
+  display: flex;
+  gap: 24px;
+  margin: 22px 0 0;
+  border-bottom: 1px solid var(--color-border-1);
+}
+
+.tab {
+  background: none;
+  border: none;
+  color: var(--color-text-3);
+  font-size: var(--type-14);
+  font-weight: 500;
+  padding: 11px 2px;
+  position: relative;
+  cursor: pointer;
+  transition: color var(--motion-fast);
+}
+
+.tabCount {
+  font-size: var(--type-11);
+  color: var(--color-text-4);
+  margin-left: 4px;
+}
+
+.tab:hover {
+  color: var(--color-text-1);
+}
+
+.tabActive {
+  color: var(--color-text-1);
+}
+
+.tabActive::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: rgb(var(--primary-6));
+  border-radius: 2px;
+}
+
+.cols {
+  display: flex;
+  gap: 28px;
+  margin-top: 24px;
+  align-items: flex-start;
+}
+
+.colMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.colSide {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+}
+
+.hSec {
+  font-size: var(--type-11);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-3);
+  margin: 0 0 12px;
+}
+
+.prose {
+  font-size: var(--type-14);
+  color: var(--color-text-2);
+  line-height: 1.65;
+  max-width: 68ch;
+}
+
+.prose p {
+  margin: 0 0 12px;
+}
+
+/* tools list */
+.tool {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-card-inner);
+  background: var(--color-bg-2);
+  margin-bottom: 8px;
+}
+
+.toolName {
+  font-size: var(--type-13);
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  color: var(--color-text-1);
+}
+
+.toolDesc {
+  font-size: var(--type-12);
+  color: var(--color-text-3);
+  margin-top: 2px;
+}
+
+.locked {
+  font-size: var(--type-13);
+  color: var(--color-text-3);
+}
+
+/* Fallback connect bar - shown under the setup steps when the guide itself
+   doesn't expose a connect button, so every connector has a working action. */
+.connectBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-1);
+}
+
+.connectBar .btnPrimary {
+  width: auto;
+  min-width: 200px;
+}
+
+.connectHint {
+  font-size: var(--type-12);
+  color: var(--color-text-3);
+}
+
+/* setup success banner */
+.setupSuccess {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-card-inner);
+  background: var(--success-soft-bg);
+  color: var(--success);
+  font-size: var(--type-13);
+  font-weight: 500;
+}
+
+/* side panel */
+.panel {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.panel h3 {
+  font-size: var(--type-11);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-3);
+  margin: 0 0 12px;
+}
+
+.kv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  font-size: var(--type-12);
+  border-top: 1px solid var(--color-border-1);
+}
+
+.kv:first-of-type {
+  border-top: none;
+}
+
+.kvKey {
+  color: var(--color-text-3);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.kvKey svg {
+  color: var(--color-text-4);
+  flex-shrink: 0;
+}
+
+.kvVal {
+  color: var(--color-text-1);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* available-to badges */
+.agentBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.agentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-fill-2);
+  border: 1px solid var(--color-border-1);
+  font-size: var(--type-12);
+  color: var(--color-text-2);
+}
+
+.agentAvatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--color-bg-5);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-2);
+}
+
+.availableNote {
+  font-size: var(--type-12);
+  color: var(--color-text-3);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.availableEmpty {
+  font-size: var(--type-12);
+  color: var(--color-text-3);
+  margin: 0 0 10px;
+}
+
+/* links */
+.link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 0;
+  font-size: var(--type-13);
+  color: var(--color-text-2);
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--motion-fast);
+}
+
+.link svg {
+  color: var(--color-text-4);
+  flex-shrink: 0;
+}
+
+.link:hover {
+  color: rgb(var(--primary-6));
+}
+
+.link:hover svg {
+  color: rgb(var(--primary-6));
+}
+
+.unknown {
+  padding: 40px;
+  color: var(--color-text-3);
+  font-size: var(--type-14);
+}
+
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column;
+  }
+
+  .action {
+    width: 100%;
+  }
+
+  .cols {
+    flex-direction: column;
+  }
+
+  .colSide {
+    width: 100%;
+    position: static;
+  }
+}

@@ -5,10 +5,17 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Divider, Form, Switch, Tooltip, Message } from '@arco-design/web-react';
-import { HelpCircle } from 'lucide-react';
+import { Divider, Form, Switch, Message, Button } from '@arco-design/web-react';
+import { Wand2, Plug, RefreshCw, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ConfigStorage, BUILTIN_IMAGE_GEN_ID, type IConfigStorageRefer, type IMcpServer } from '@/common/config/storage';
+import {
+  isImageModelName,
+  imageModelDisplayLabel,
+  isFluxProviderRow,
+  FLUX_RECOMMENDED_IMAGE_ID,
+} from '@/common/config/imageModels';
 import useConfigModelListWithImage from '@renderer/hooks/agent/useConfigModelListWithImage';
 import {
   useMcpServers,
@@ -24,6 +31,7 @@ const isBuiltinImageGenServer = (server: IMcpServer) =>
 
 const ImageGenSettings: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [messageApi, messageContext] = Message.useMessage({ maxCount: 5 });
 
   const { modelListWithImage } = useConfigModelListWithImage();
@@ -44,15 +52,13 @@ const ImageGenSettings: React.FC = () => {
     ? (agentInstallStatus[builtinImageGenServer.name] ?? [])
     : [];
 
-  // Filter providers to only those with image-capable models
+  // Providers with image-capable models, Flux floated to the top so its
+  // recommended "Flux Image" default leads the picker.
   const imageModelList = useMemo(() => {
-    const isImageModel = (modelName: string) => {
-      const n = modelName.toLowerCase();
-      return n.includes('image') || n.includes('banana') || n.includes('imagine');
-    };
-    return (modelListWithImage || [])
-      .filter((p) => p.model.some(isImageModel))
-      .map((p) => ({ ...p, model: p.model.filter(isImageModel) }));
+    const list = (modelListWithImage || [])
+      .filter((p) => p.model.some(isImageModelName))
+      .map((p) => Object.assign({}, p, { model: p.model.filter(isImageModelName) }));
+    return list.toSorted((a, b) => Number(isFluxProviderRow(b)) - Number(isFluxProviderRow(a)));
   }, [modelListWithImage]);
 
   // Load persisted model selection on mount
@@ -225,53 +231,100 @@ const ImageGenSettings: React.FC = () => {
         <Divider className='mt-0px mb-20px' />
 
         {/* Default model picker */}
-        <Form layout='horizontal' labelAlign='left'>
+        <Form layout='horizontal' labelAlign='left' labelCol={{ flex: '170px' }} wrapperCol={{ flex: '1' }}>
           <Form.Item label={t('settings.imageGenPage.defaultModelLabel')}>
             {imageModelList.length > 0 ? (
-              <WaylandSelect value={selectedValue} onChange={handleModelChange}>
+              <WaylandSelect
+                value={selectedValue}
+                onChange={handleModelChange}
+                className='max-w-[420px]'
+                triggerProps={{ className: 'wl-image-model-popup' }}
+              >
                 {imageModelList.map(({ model, ...platform }) => (
                   <WaylandSelect.OptGroup label={platform.name} key={platform.id}>
                     {model.map((modelName) => (
                       <WaylandSelect.Option key={platform.id + modelName} value={`${platform.id}|${modelName}`}>
-                        {modelName}
+                        <span className='inline-flex items-center gap-6px'>
+                          {imageModelDisplayLabel(modelName)}
+                          {modelName === FLUX_RECOMMENDED_IMAGE_ID && (
+                            <span className='text-9px font-700 leading-none tracking-[0.05em] uppercase text-[rgb(var(--primary-6))] bg-[rgb(var(--primary-6)/0.12)] rd-5px px-6px py-2px'>
+                              {t('settings.imageGenRecommended', 'Recommended')}
+                            </span>
+                          )}
+                        </span>
                       </WaylandSelect.Option>
                     ))}
                   </WaylandSelect.OptGroup>
                 ))}
               </WaylandSelect>
             ) : (
-              <div className='flex items-center gap-8px text-t-secondary text-13px'>
-                <span>{t('settings.imageGenPage.noModels')}</span>
-                <Tooltip
-                  content={
-                    <span>
-                      {t('settings.needHelpTooltip')}{' '}
-                      <a
-                        href='https://github.com/FerroxLabs/wayland/wiki/Wayland-Image-Generation-Tool-Model-Configuration-Guide'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='text-[rgb(var(--primary-6))] underline'
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {t('settings.configGuide')}
-                      </a>
-                    </span>
-                  }
+              // No image-capable model connected (nothing installed, no key, or
+              // only a CLI like Claude Code): recommend Flux, mirroring the
+              // models panel's Flux hero.
+              <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px max-w-[420px]'>
+                <div className='min-w-0'>
+                  <div className='text-13px font-medium text-t-primary'>
+                    {t('settings.imageGenNoModelTitle', 'No image model connected')}
+                  </div>
+                  <div className='text-12px text-t-secondary'>
+                    {t(
+                      'settings.imageGenNoModelBody',
+                      'Connect Flux Router to generate images. One key, every model, and it picks the right one for each request.'
+                    )}
+                  </div>
+                </div>
+                <Button
+                  type='primary'
+                  size='small'
+                  className='w-full sm:w-auto shrink-0'
+                  onClick={() => navigate('/settings/models')}
                 >
-                  <a
-                    href='https://github.com/FerroxLabs/wayland/wiki/Wayland-Image-Generation-Tool-Model-Configuration-Guide'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-[rgb(var(--primary-6))] cursor-pointer'
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <HelpCircle size={14} />
-                  </a>
-                </Tooltip>
+                  {t('settings.imageGenNoModelCta', 'Connect Flux')}
+                </Button>
               </div>
             )}
           </Form.Item>
         </Form>
+
+        {imageModelList.length > 0 && (
+          <div className='flex items-start gap-6px mt-12px text-12px text-t-tertiary'>
+            <RefreshCw size={12} className='mt-2px shrink-0 text-[rgb(var(--primary-6))]' />
+            <span>{t('settings.imageGenPage.autoUpdateHint')}</span>
+          </div>
+        )}
+      </div>
+
+      {/* How it works */}
+      <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border border-solid border-[var(--color-border-2)]'>
+        <div className='flex items-center gap-8px mb-16px'>
+          <Wand2 size={16} className='text-[rgb(var(--primary-6))]' />
+          <span className='text-14px text-t-primary'>{t('settings.imageGenPage.howItWorksTitle')}</span>
+        </div>
+        <div className='flex flex-col gap-12px'>
+          <div className='flex items-start gap-10px'>
+            <Wand2 size={14} className='mt-2px shrink-0 text-t-tertiary' />
+            <span className='text-13px text-t-secondary'>{t('settings.imageGenPage.howItWorksUsage')}</span>
+          </div>
+          <div className='flex items-start gap-10px'>
+            <Plug size={14} className='mt-2px shrink-0 text-t-tertiary' />
+            <span className='text-13px text-t-secondary'>{t('settings.imageGenPage.howItWorksProviders')}</span>
+          </div>
+          <div className='flex items-start gap-10px'>
+            <RefreshCw size={14} className='mt-2px shrink-0 text-t-tertiary' />
+            <span className='text-13px text-t-secondary'>{t('settings.imageGenPage.howItWorksAuto')}</span>
+          </div>
+        </div>
+        <Divider className='my-16px' />
+        <Button
+          type='text'
+          className='px-0px text-[rgb(var(--primary-6))]'
+          onClick={() => navigate('/settings/models')}
+        >
+          <span className='inline-flex items-center gap-6px'>
+            {t('settings.imageGenPage.manageProvidersCta')}
+            <ArrowRight size={14} />
+          </span>
+        </Button>
       </div>
     </SettingsPageShell>
   );

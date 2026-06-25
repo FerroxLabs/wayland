@@ -37,12 +37,12 @@ const SiderToolbar: React.FC<SiderToolbarProps> = ({
         <Tooltip {...siderTooltipProps} content={t('conversation.welcome.newConversation')} position='right'>
           <div
             className={classNames(
-              'w-full h-40px flex items-center justify-center cursor-pointer transition-colors text-t-primary rd-8px hover:bg-fill-3 active:bg-fill-4',
+              'w-full h-26px flex items-center justify-center cursor-pointer transition-colors text-t-primary rd-8px hover:bg-fill-3 active:bg-fill-4',
               styles.newChatTrigger
             )}
             onClick={onNewChat}
           >
-            <Plus size={20} className={classNames('block leading-none', styles.newChatIcon)} style={{ lineHeight: 0 }} />
+            <Plus size={16} className={classNames('block leading-none', styles.newChatIcon)} style={{ lineHeight: 0 }} />
           </div>
         </Tooltip>
       </div>
@@ -55,15 +55,15 @@ const SiderToolbar: React.FC<SiderToolbarProps> = ({
         <div
           className={classNames(
             styles.newChatTrigger,
-            'h-40px flex-1 flex items-center justify-start gap-8px px-10px rd-0.5rem cursor-pointer group transition-all bg-transparent text-t-primary hover:bg-fill-3 active:bg-fill-4',
+            'h-26px flex-1 flex items-center justify-start gap-8px px-8px rd-0.5rem cursor-pointer group transition-all bg-transparent text-t-primary hover:bg-fill-3 active:bg-fill-4',
             isMobile && 'sider-action-btn-mobile'
           )}
           onClick={onNewChat}
         >
-          <div className='size-28px rd-8px bg-aou-2 border border-solid border-[var(--color-border-2)] group-hover:bg-fill-3 group-hover:border-transparent flex items-center justify-center shrink-0 transition-colors'>
-            <Plus size={20} className={classNames('block leading-none', styles.newChatIcon)} style={{ lineHeight: 0 }} />
+          <div className='size-20px rd-8px bg-aou-2 border border-solid border-[var(--color-border-2)] group-hover:bg-fill-3 group-hover:border-transparent flex items-center justify-center shrink-0 transition-colors'>
+            <Plus size={16} className={classNames('block leading-none', styles.newChatIcon)} style={{ lineHeight: 0 }} />
           </div>
-          <span className='collapsed-hidden text-t-primary text-14px font-medium leading-24px'>
+          <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px'>
             {t('conversation.welcome.newConversation')}
           </span>
         </div>
@@ -75,7 +75,7 @@ const SiderToolbar: React.FC<SiderToolbarProps> = ({
       >
         <div
           className={classNames(
-            'h-40px w-40px rd-0.5rem flex items-center justify-center cursor-pointer shrink-0 transition-all border border-solid border-transparent',
+            'h-26px w-32px rd-0.5rem flex items-center justify-center cursor-pointer shrink-0 transition-all border border-solid border-transparent',
             isMobile && 'sider-action-icon-btn-mobile',
             {
               'text-[color:var(--color-text-2)] hover:text-[color:var(--color-text-1)] hover:bg-fill-2 hover:border-[var(--color-border-2)]':
@@ -85,7 +85,7 @@ const SiderToolbar: React.FC<SiderToolbarProps> = ({
           )}
           onClick={onToggleBatchMode}
         >
-          <ListChecks size={20} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
+          <ListChecks size={16} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
         </div>
       </Tooltip>
     </div>

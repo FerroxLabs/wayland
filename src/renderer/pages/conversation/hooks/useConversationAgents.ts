@@ -11,6 +11,9 @@ import { ConfigStorage } from '@/common/config/storage';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { DETECTED_AGENTS_SWR_KEY, fetchDetectedAgents } from '@/renderer/utils/model/agentTypes';
 import type { AvailableAgent } from '@/renderer/utils/model/agentTypes';
+import { useHiddenAgents } from '@/renderer/hooks/assistant/useHiddenAgents';
+import { getAgentKey } from '@/renderer/pages/guid/hooks/agentSelectionUtils';
+import type { AcpBackend } from '@/renderer/pages/guid/types';
 
 export type UseConversationAgentsResult = {
   /** Detected execution engines (acp, extension, remote, wcore, gemini, etc.) */
@@ -87,6 +90,21 @@ export const useConversationAgents = (): UseConversationAgentsResult => {
     () => ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
   );
 
+  // Agent keys the user hid on the Agents settings page (shared SWR cache).
+  const { hiddenSet } = useHiddenAgents();
+
+  // Launch choices = detected engines minus (a) extension/template adapters
+  // (those launch via the preset/assistant path, not as a raw CLI engine) and
+  // (b) agents the user hid. Never collapse to empty: if every engine would be
+  // filtered out, fall back to the unfiltered list so the picker stays usable.
+  const launchCliAgents = useMemo(() => {
+    const all = cliAgents || [];
+    const filtered = all.filter(
+      (agent) => !agent.isExtension && !hiddenSet.has(getAgentKey({ ...agent, backend: agent.backend as AcpBackend }))
+    );
+    return filtered.length > 0 ? filtered : all;
+  }, [cliAgents, hiddenSet]);
+
   const presetAssistants = useMemo(() => {
     const configBased = (presetConfigs || []).map(configToAvailableAgent);
     const extensionBased = (extensionAssistants || [])
@@ -109,7 +127,7 @@ export const useConversationAgents = (): UseConversationAgentsResult => {
   };
 
   return {
-    cliAgents: cliAgents || [],
+    cliAgents: launchCliAgents,
     presetAssistants,
     isLoading: isLoadingAgents || isLoadingPresets || isLoadingExtensionAssistants,
     refresh,

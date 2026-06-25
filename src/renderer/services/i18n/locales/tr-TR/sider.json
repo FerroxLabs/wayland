@@ -18,6 +18,10 @@
     "wired": {
       "body": "Son 100: H{{h}} · S{{s}} · O{{o}}",
       "action": "Her turun nereye gittiğini gör"
+    },
+    "dismiss": {
+      "label": "Flux Durumunu gizle",
+      "hint": "Flux Durumu gizlendi."
     }
   },
   "accordion": {

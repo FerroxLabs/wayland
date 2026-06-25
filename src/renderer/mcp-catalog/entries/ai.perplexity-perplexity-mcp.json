@@ -1,0 +1,72 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.perplexity/perplexity-mcp",
+  "title": "Perplexity",
+  "description": "Real-time search plus deep research and reasoning powered by Sonar - Perplexity’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.perplexity.ai/guides/mcp-server",
+  "repository": {
+    "url": "https://github.com/perplexityai/modelcontextprotocol",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@perplexity-ai/mcp-server",
+      "version": "latest",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "PERPLEXITY_API_KEY",
+          "description": "Perplexity API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "core",
+    "categories": [
+      "search",
+      "research"
+    ],
+    "tags": [
+      "perplexity",
+      "sonar",
+      "search",
+      "research"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 113,
+    "installRate": 0,
+    "iconUrl": "icons/ai.perplexity-perplexity-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#20808D"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Perplexity",
+      "providerSignupUrl": "https://www.perplexity.ai/settings/api"
+    },
+    "setupGuide": {
+      "path": "guides/ai.perplexity-perplexity-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

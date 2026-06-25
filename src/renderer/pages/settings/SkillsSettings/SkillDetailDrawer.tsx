@@ -161,7 +161,7 @@ const SkillDetailDrawer: React.FC<Props> = ({ entry, open, onClose, onTogglePin,
           {entry.metadata.category && <MetaRow label='Category' value={entry.metadata.category} />}
           {entry.metadata.version && <MetaRow label='Version' value={entry.metadata.version} />}
           {entry.metadata.author && <MetaRow label='Author' value={entry.metadata.author} />}
-          {entry.metadata.tags.length > 0 && (
+          {Array.isArray(entry.metadata.tags) && entry.metadata.tags.length > 0 && (
             <MetaRow
               label='Tags'
               value={

@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import zxcvbn from 'zxcvbn';
-import { CIPHER_PREFIX, decryptString, encryptString } from '@process/secrets';
+import { CIPHER_PREFIX, decryptString, encryptString, FILE_CIPHER_PREFIX } from '@process/secrets';
 import type { AuthUser } from '../repository/UserRepository';
 import { UserRepository } from '../repository/UserRepository';
 import { TokenFamilyRepository } from '../repository/TokenFamilyRepository';
@@ -246,10 +246,23 @@ export class AuthService {
    *   ciphertext lazily by {@link getJwtSecret}.
    */
   private static decryptJwtSecret(stored: string): string {
-    if (stored.startsWith(CIPHER_PREFIX)) {
+    if (AuthService.isEncryptedAtRest(stored)) {
       return decryptString(stored);
     }
     return stored;
+  }
+
+  /**
+   * Whether a stored `users.jwt_secret` value is already ciphertext from EITHER
+   * secrets backend: `safeStorage` ({@link CIPHER_PREFIX}) OR the headless
+   * file-key fallback ({@link FILE_CIPHER_PREFIX}, used when no OS keychain is
+   * available — bun server, Linux without libsecret). #155: gating only on
+   * CIPHER_PREFIX made a headless-written secret look like legacy plaintext, so
+   * it was returned as raw ciphertext and never matched the secret that signed
+   * the JWT → `invalid signature` on every WebSocket verify.
+   */
+  private static isEncryptedAtRest(stored: string): boolean {
+    return stored.startsWith(CIPHER_PREFIX) || stored.startsWith(FILE_CIPHER_PREFIX);
   }
 
   /**
@@ -272,7 +285,7 @@ export class AuthService {
       // Confirm the overwrite landed as ciphertext - no plaintext residue.
       const reread = await UserRepository.getPrimaryWebUIUser();
       const persisted = reread?.jwt_secret ?? null;
-      if (!persisted || !persisted.startsWith(CIPHER_PREFIX)) {
+      if (!persisted || !AuthService.isEncryptedAtRest(persisted)) {
         throw new Error('post-migration JWT secret is not encrypted at rest');
       }
     } catch (migrationError) {
@@ -317,7 +330,7 @@ export class AuthService {
         // partially encrypts) silently leaving plaintext at rest, so we
         // confirm the persisted value is ciphertext before treating the
         // migration as done.
-        if (!stored.startsWith(CIPHER_PREFIX)) {
+        if (!AuthService.isEncryptedAtRest(stored)) {
           await this.purgePlaintextJwtSecret(systemUser.id, this.jwtSecret);
         }
 

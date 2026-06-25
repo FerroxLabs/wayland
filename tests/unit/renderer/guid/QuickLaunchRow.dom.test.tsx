@@ -27,7 +27,7 @@ describe('QuickLaunchRow', () => {
     const { container } = render(<QuickLaunchRow {...baseProps} onAnchorClick={onAnchorClick} />);
     fireEvent.click(container.querySelector('[data-quicklaunch-id="write-copy"]') as HTMLButtonElement);
     expect(onAnchorClick).toHaveBeenCalledWith(expect.objectContaining({
-      id: 'write-copy', label: 'Write copy', assistantId: 'ext-copy',
+      id: 'write-copy', label: 'Write copy', assistantId: 'builtin-copy',
     }));
   });
 

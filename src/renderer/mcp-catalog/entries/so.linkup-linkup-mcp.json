@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "so.linkup/linkup-mcp",
+  "title": "Linkup",
+  "description": "Real-time web search, autonomous research, and page fetch - Linkup’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/LinkupPlatform/linkup-mcp-server",
+  "repository": {
+    "url": "https://github.com/LinkupPlatform/linkup-mcp-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.linkup.so/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "search",
+      "research"
+    ],
+    "tags": [
+      "linkup",
+      "search",
+      "research"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 112,
+    "installRate": 0,
+    "iconUrl": "icons/so.linkup-linkup-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#1A56DB"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Linkup",
+      "providerSignupUrl": "https://app.linkup.so"
+    },
+    "setupGuide": {
+      "path": "guides/so.linkup-linkup-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -43,3 +43,27 @@
   border-color: var(--brand);
   color: #ffffff;
 }
+
+/* Narrow / mobile: a single horizontal scroll row instead of wrapping the
+   intent pills into 2-3 ragged rows (the #2 mobile-layout complaint). */
+@media (max-width: 768px) {
+  .pillBar {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .pillBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pill {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+}

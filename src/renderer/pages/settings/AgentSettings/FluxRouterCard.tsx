@@ -12,6 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import { ipcBridge } from '@/common';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
+import { isElectronDesktop } from '@renderer/utils/platform';
+import { completeFluxConnectHttp, startFluxConnectHttp } from '@renderer/services/FluxConnectService';
 import styles from './AgentsSettings.module.css';
 
 /**
@@ -38,8 +40,13 @@ const FluxRouterCard: React.FC = () => {
 
   const [routeEnabled, setRouteEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [connecting, setConnecting] = useState(false);
 
   const connected = providers.some((p) => p.providerId === 'flux-router');
+  // On the desktop app the connect flow is the IPC loopback PKCE dance (driven
+  // from the Models hero). In a headless WebUI (a phone) there is no loopback /
+  // system browser, so we drive the SAME OAuth through the write-only HTTP route.
+  const isDesktop = isElectronDesktop();
 
   useEffect(() => {
     ipcBridge.systemSettings.getRouteThroughFlux
@@ -47,6 +54,49 @@ const FluxRouterCard: React.FC = () => {
       .then(setRouteEnabled)
       .catch((err) => console.warn('[FluxRouterCard.getRouteThroughFlux]', err));
   }, []);
+
+  // Begin the remote Flux connect: ask the server for a blessed-origin authorize
+  // URL, then send this browser to Flux. The PKCE verifier never leaves the
+  // server; we return here with ?fluxCode&fluxState for the completion effect.
+  const handleRemoteConnect = useCallback(async () => {
+    setConnecting(true);
+    try {
+      const started = await startFluxConnectHttp();
+      if (!started?.authorizeUrl) {
+        Message.error(t('settings.agentsPage.flux.remoteConnectError'));
+        setConnecting(false);
+        return;
+      }
+      window.location.assign(started.authorizeUrl);
+    } catch {
+      Message.error(t('settings.agentsPage.flux.remoteConnectError'));
+      setConnecting(false);
+    }
+  }, [t]);
+
+  // Finish the remote connect when the browser returns from Flux with the code.
+  useEffect(() => {
+    if (isDesktop) return;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('fluxCode');
+    const state = params.get('fluxState');
+    if (!code || !state) return;
+
+    // Strip the one-time params so a refresh can't replay the exchange.
+    params.delete('fluxCode');
+    params.delete('fluxState');
+    const cleaned = params.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${cleaned ? `?${cleaned}` : ''}`);
+
+    setConnecting(true);
+    completeFluxConnectHttp(code, state)
+      .then((ok) => {
+        if (ok) Message.success(t('settings.agentsPage.flux.remoteConnectSuccess'));
+        else Message.error(t('settings.agentsPage.flux.remoteConnectError'));
+      })
+      .catch(() => Message.error(t('settings.agentsPage.flux.remoteConnectError')))
+      .finally(() => setConnecting(false));
+  }, [isDesktop, t]);
 
   const handleRouteChange = useCallback(async (enabled: boolean) => {
     setSaving(true);
@@ -98,15 +148,28 @@ const FluxRouterCard: React.FC = () => {
         ) : (
           <>
             <div className={styles.fluxDesc}>{t('settings.agentsPage.flux.desc')}</div>
-            <Button
-              size='small'
-              type='primary'
-              className={styles.fluxConnectBtn}
-              icon={<Right />}
-              onClick={() => navigate('/settings/models')}
-            >
-              {t('settings.agentsPage.flux.connectCta')}
-            </Button>
+            {isDesktop ? (
+              <Button
+                size='small'
+                type='primary'
+                className={styles.fluxConnectBtn}
+                icon={<Right />}
+                onClick={() => navigate('/settings/models')}
+              >
+                {t('settings.agentsPage.flux.connectCta')}
+              </Button>
+            ) : (
+              <Button
+                size='small'
+                type='primary'
+                className={styles.fluxConnectBtn}
+                loading={connecting}
+                onClick={() => void handleRemoteConnect()}
+                data-testid='flux-remote-connect'
+              >
+                {t('settings.agentsPage.flux.remoteConnectCta')}
+              </Button>
+            )}
           </>
         )}
       </div>

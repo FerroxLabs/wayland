@@ -13,13 +13,16 @@ vi.mock('react-i18next', () => ({
 }));
 
 import { HomeHintBar } from '@renderer/pages/guid/components/HomeHintBar';
+import { formatModifierShortcut } from '@/renderer/utils/platform';
 
 describe('HomeHintBar', () => {
   it('renders 3 kbd hints when chatStartedCount < 5', () => {
     render(<HomeHintBar chatStartedCount={2} />);
-    expect(screen.getByText('⌘K')).toBeInTheDocument();
+    // Assert against the platform helper the component uses (⌘K on macOS,
+    // Ctrl+K elsewhere) so the test holds on any CI runner, not just macOS.
+    expect(screen.getByText(formatModifierShortcut('K'))).toBeInTheDocument();
     expect(screen.getByText('Tab')).toBeInTheDocument();
-    expect(screen.getByText('⌘N')).toBeInTheDocument();
+    expect(screen.getByText(formatModifierShortcut('N'))).toBeInTheDocument();
   });
 
   it('renders nothing when chatStartedCount >= 5', () => {

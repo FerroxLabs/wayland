@@ -63,6 +63,8 @@ import * as path from 'path';
 import { pathToFileURL } from 'url';
 import { initMainAdapterWithWindow } from './common/adapter/main';
 import { ipcBridge } from './common';
+import { closeAllPopouts, isPopoutWebContents } from '@process/utils/popoutWindowManager';
+import { initPopoutBridge } from '@process/bridge/popoutBridge';
 import { AION_ASSET_PROTOCOL } from '@process/extensions';
 import { resolveAllowedAssetPath } from '@process/extensions/protocol/assetAllowlist';
 import { initializeProcess } from './process';
@@ -554,7 +556,11 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
     const mainWebContentsId = mainWindow.webContents.id;
     const GRANTED_PERMISSIONS = new Set(['media', 'mediaKeySystem', 'audioCapture', 'videoCapture']);
     const isFirstPartyRenderer = (wc: Electron.WebContents | null | undefined): boolean => {
-      if (!wc || wc.id !== mainWebContentsId) {
+      // First-party = the main renderer OR a pop-out chat window (#27 phase 2).
+      // Pop-outs load the same origin-locked renderer and must be able to use the
+      // mic for voice; their navigation is guarded identically in
+      // popoutWindowManager (will-navigate origin check + deny window.open).
+      if (!wc || (wc.id !== mainWebContentsId && !isPopoutWebContents(wc.id))) {
         return false;
       }
       try {
@@ -607,10 +613,15 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
   setupZoomForWindow(mainWindow);
   registerWindowMaximizeListeners(mainWindow);
 
-  // Initialize auto-updater service (skip when disabled via env, e.g. E2E / CI)
+  // Initialize auto-updater service (skip when disabled via env, e.g. E2E / CI,
+  // and in unpackaged dev where there is no installed app to update - the updater
+  // would otherwise hit the GitHub feed on every dev launch and log spurious errors)
   const isCiRuntime = process.env.CI === 'true' || process.env.CI === '1' || process.env.GITHUB_ACTIONS === 'true';
   const disableAutoUpdater =
-    process.env.WAYLAND_DISABLE_AUTO_UPDATE === '1' || process.env.WAYLAND_E2E_TEST === '1' || isCiRuntime;
+    !app.isPackaged ||
+    process.env.WAYLAND_DISABLE_AUTO_UPDATE === '1' ||
+    process.env.WAYLAND_E2E_TEST === '1' ||
+    isCiRuntime;
   if (!disableAutoUpdater) {
     Promise.all([import('./process/services/autoUpdaterService'), import('./process/bridge/updateBridge')])
       .then(([{ autoUpdaterService }, { createAutoUpdateStatusBroadcast }]) => {
@@ -816,6 +827,14 @@ const handleAppReady = async (): Promise<void> => {
     console.error('Failed to initialize process:', error);
     app.exit(1);
     return;
+  }
+
+  // #27 phase 2: register pop-out window providers (conversation.popout /
+  // dockBack). Cheap + idempotent; creates no windows until the renderer asks.
+  try {
+    initPopoutBridge();
+  } catch (error) {
+    console.error('[Wayland] Failed to init pop-out bridge:', error);
   }
 
   try {
@@ -1106,6 +1125,9 @@ type CleanupModules = {
   // L16 (AUDIT-05 F18): shut down cron timers from before-quit so scheduled
   // work cannot outlive the app's quit sequence.
   cron: typeof import('@process/services/cron/cronServiceSingleton');
+  // #139: reap webhook tunnel CLIs (cloudflared/ngrok/tailscale) on quit so
+  // their long-lived child processes don't orphan past the app.
+  tunnel: typeof import('@process/channels/tunnel');
 };
 let _cleanupModulesPromise: Promise<CleanupModules> | undefined;
 
@@ -1120,17 +1142,21 @@ const prefetchCleanupModules = (): Promise<CleanupModules> => {
     import('@process/services/database/export'),
     import('@process/services/cron/cronServiceSingleton'),
     import('@process/bridge/fileWatchBridge'),
-  ]).then(([ambient, channels, webuiBridge, webserverAdapter, officeWatch, pptPreview, database, cron, fileWatch]) => ({
-    ambient,
-    channels,
-    webuiBridge,
-    webserverAdapter,
-    officeWatch,
-    pptPreview,
-    database,
-    cron,
-    fileWatch,
-  }));
+    import('@process/channels/tunnel'),
+  ]).then(
+    ([ambient, channels, webuiBridge, webserverAdapter, officeWatch, pptPreview, database, cron, fileWatch, tunnel]) => ({
+      ambient,
+      channels,
+      webuiBridge,
+      webserverAdapter,
+      officeWatch,
+      pptPreview,
+      database,
+      cron,
+      fileWatch,
+      tunnel,
+    })
+  );
 };
 
 // Ensure we don't miss the ready event when running in CLI/WebUI mode
@@ -1200,6 +1226,10 @@ app.on('before-quit', async () => {
   setIsQuitting(true);
   isExplicitQuit = true;
   destroyTray();
+  // #27 phase 2: pop-outs are ephemeral - tear them down on quit (synchronous,
+  // cheap; their `closed` handlers fire popoutClosed but the main window is also
+  // closing so the broadcast is a harmless no-op).
+  closeAllPopouts();
 
   // M17: per-step budget. A single slow step (e.g. WebSocket close) cannot
   // starve later steps. Total ceiling stays at 10s.
@@ -1264,6 +1294,7 @@ app.on('before-quit', async () => {
       safeImport('database', () => import('@process/services/database/export')),
       safeImport('cron', () => import('@process/services/cron/cronServiceSingleton')),
       safeImport('fileWatch', () => import('@process/bridge/fileWatchBridge')),
+      safeImport('tunnel', () => import('@process/channels/tunnel')),
     ]);
     const out: Partial<CleanupModules> = {};
     for (const [k, v] of entries) {
@@ -1333,6 +1364,19 @@ app.on('before-quit', async () => {
       PER_STEP_TIMEOUT_MS
     );
 
+    // #139: reap webhook tunnel CLIs. ChannelManager.shutdown() does not own
+    // the tunnels (the WebhookExposureService singleton does), so they must be
+    // torn down explicitly here or the cloudflared/ngrok/tailscale process
+    // orphans past the app.
+    const tunnelStep = withTimeout(
+      'stopAllTunnels',
+      (async () => {
+        if (!mods.tunnel) return;
+        await mods.tunnel.stopAllTunnels();
+      })(),
+      PER_STEP_TIMEOUT_MS
+    );
+
     const webServerStep = withTimeout(
       'webServer.close',
       (async () => {
@@ -1389,6 +1433,7 @@ app.on('before-quit', async () => {
       ambientStep,
       teamStep,
       channelsStep,
+      tunnelStep,
       webServerStep,
       officeWatchStep,
       pptPreviewStep,

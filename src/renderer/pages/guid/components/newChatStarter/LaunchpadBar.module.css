@@ -26,6 +26,14 @@
   }
 }
 
+/* Phones: two columns so the default 10 assistants land as an even 5x2 grid
+   (no orphaned card in a lone last row) with bigger tap targets. */
+@media (max-width: 540px) {
+  .bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .cardWrap {
   position: relative;
 }

@@ -86,7 +86,10 @@
     "closeAll": "Close All",
     "closeLeft": "Close to the Left",
     "closeRight": "Close to the Right",
-    "closeOthers": "Close Others"
+    "closeOthers": "Close Others",
+    "popOut": "Pop Out",
+    "dockBack": "Dock Back",
+    "poppedOut": "Open in a separate window"
   },
   "dropdown": {
     "cliAgents": "CLI Agents",
@@ -94,6 +97,13 @@
   },
   "noAgentsAvailable": "No agents available",
   "noModelConfigured": "No model configured. Please configure in settings.",
+  "noModelCta": {
+    "title": "No model configured yet",
+    "bodyDesktop": "Set one up to start chatting.",
+    "bodyRemote": "Connect Flux or set up a model on the server to start chatting.",
+    "button": "Set up a model",
+    "sendTooltip": "Connect a model to start sending"
+  },
   "createFailed": "Failed to create conversation",
   "workspace": {
     "title": "Workspace",
@@ -157,11 +167,16 @@
       "renameTimeout": "Rename request timed out, please try again",
       "addToChat": "Add to chat",
       "addedToChat": "Added to chat",
+      "favorite": "Favorite",
+      "unfavorite": "Unfavorite",
       "openFailed": "Failed to open",
       "revealFailed": "Failed to open containing folder",
       "download": "Download",
       "downloadSuccess": "Download successful",
       "downloadFailed": "Download failed"
+    },
+    "favorites": {
+      "title": "Favorites"
     },
     "changes": {
       "tab": "Changes",
@@ -209,6 +224,7 @@
     "apiErrorNoCli": "API error occurred. No CLI agent available for fallback.",
     "apiErrorSwitchFailed": "Failed to create fallback conversation.",
     "apiErrorSwitched": "API error, auto-switched to {{cli}} CLI",
+    "toolUnsupported": "This model can't use tools (Read/Write/Search), which Wayland needs to do work. Pick a tool-capable model from the model picker and try again.",
     "confirmationLoadError": "Failed to load confirmation dialog",
     "tryAnotherAgent": "Try another agent:",
     "switchedToAgent": "Switched to {{agent}}",
@@ -230,6 +246,9 @@
       "permissionDenied": "Microphone permission was denied",
       "recordingUnsupported": "Live recording is not supported here. Please upload an audio file instead",
       "transcriptionFailed": "Audio transcription failed",
+      "authError": "Flux key is invalid — reconnect Flux Router to use voice input",
+      "premiumLocked": "Flux Voice needs a paid Flux plan — upgrade to use dictation",
+      "rateLimited": "Too many requests — try again shortly",
       "genericError": "Voice input failed. Please try again"
     }
   },
@@ -302,6 +321,29 @@
     "statusDone": "Done",
     "statusFailed": "Failed"
   },
+  "activity": {
+    "activeHeader": "Activity",
+    "stepCount": "{{count}} steps",
+    "completedSummary": "Completed {{count}} steps in {{duration}}",
+    "statusWorking": "Working",
+    "statusDone": "Done",
+    "statusFailed": "Failed",
+    "kindTool": "Tool",
+    "kindThinking": "Thinking",
+    "kindSubAgent": "Sub-agent",
+    "kindCircuit": "Provider",
+    "kindBrowser": "Browser",
+    "kindCua": "Computer",
+    "costPerTurn": "${{cost}}"
+  },
+  "observability": {
+    "title": "Observability",
+    "toggle": "Observability",
+    "close": "Close panel",
+    "empty": "Activity from this conversation will appear here.",
+    "showCost": "Show cost",
+    "showCostHint": "off by default"
+  },
   "skills": {
     "loaded": "Loaded Skills"
   },
@@ -338,20 +380,74 @@
     "wcoreExplainer": "Wayland Core could not authenticate. The inference provider rejected the API key (401). Unlike Claude Code, Wayland Core has no subscription sign-in to fall back on, so add a working provider key or route it through Flux Router.",
     "flux": {
       "label": "Route through Flux",
-      "sublabel": "Free and card-free. Flux runs the model for you, no provider key needed.",
+      "sublabel": "Smart routing picks the right model for each task. Start free with a $1 credit, then pay as you go or pick a plan.",
       "action": "Route"
     },
     "addKey": {
       "label": "Add a {{provider}} API key",
       "sublabel": "Open Settings and paste an API key from your provider console.",
-      "action": "Add key"
+      "action": "Add key",
+      "labelAny": "Add any provider API key"
     },
     "cliLogin": {
       "label": "Sign in to the CLI",
-      "sublabel": "Run {{cmd}} in your terminal, then send the message again.",
+      "sublabel": "Run {{cmd}} to sign in with your subscription, then send the message again.",
       "action": "Copy command",
       "copied": "Command copied"
     },
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "recommended": "(recommended)"
+  },
+  "composerMenu": {
+    "skills": "Skills",
+    "connectors": "Connectors",
+    "countOn": "{{count}} on",
+    "skillsTitle": "Skills on this chat",
+    "skillsSub": "Only these load by default. Everything else stays one search away.",
+    "onThisChat": "On this chat",
+    "searchPlaceholder": "Search skills…",
+    "suggestedFor": "Suggested for “{{draft}}”",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noResults": "No skills match “{{query}}”.",
+    "manageAllSkills": "Manage all skills",
+    "tagBuiltin": "builtin",
+    "tagAdded": "added",
+    "toggleAria": "Toggle {{name}}",
+    "connectorsTitle": "Connectors",
+    "connectorsSub": "Turn a connected MCP server on or off.",
+    "connectorsConnected": "Connected",
+    "toolCount": "{{count}} tools",
+    "noConnectors": "No connectors installed yet.",
+    "addConnector": "Add a connector",
+    "manageConnectors": "Manage connectors"
+  },
+  "modelSelector": {
+    "title": "Model",
+    "subtitle": "Pick a model for this chat. Only what you have connected shows.",
+    "enabledCount": "{{count}} enabled",
+    "recommended": "Recommended",
+    "searchPlaceholder": "Search models…",
+    "modelCount": "{{count}} models",
+    "moreModels": "More models",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noMatch": "No models match “{{query}}”.",
+    "unavailable": "Currently unavailable",
+    "pinAria": "Pin {{name}}",
+    "unpinAria": "Unpin {{name}}",
+    "effort": "Effort",
+    "effortLow": "Low",
+    "effortMedium": "Medium",
+    "effortHigh": "High",
+    "effortLowDesc": "Fast responses with lighter reasoning",
+    "effortMediumDesc": "Balances speed and reasoning depth",
+    "effortHighDesc": "Greater reasoning depth for complex problems",
+    "emptyTitle": "No models yet",
+    "emptySub": "Connect a provider to choose a model.",
+    "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
+    "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
+    "connectProvider": "Connect a provider",
+    "manageModels": "Manage models"
   }
 }

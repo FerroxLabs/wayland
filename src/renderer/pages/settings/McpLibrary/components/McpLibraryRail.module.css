@@ -1,0 +1,25 @@
+/* Status rows and category rows are each grouped with a tight vertical gap so
+   the rail reads as two stacked clusters under the shared search input. */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Hairline separator between the status cluster and the categories cluster. */
+.divider {
+  height: 1px;
+  margin: var(--space-2) var(--space-1) 0;
+  background: var(--color-border-2);
+}
+
+/* "CATEGORIES" group label: uppercase, tracked-out, muted. The nearest token
+   size is --type-11 (the scale has no 9px step). */
+.groupLabel {
+  padding: var(--space-1) var(--space-3) var(--space-1);
+  font-size: var(--type-11);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-4);
+}

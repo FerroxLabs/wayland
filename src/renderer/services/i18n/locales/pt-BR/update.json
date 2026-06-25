@@ -19,6 +19,14 @@
   "readyToInstallDesc": "A atualização foi baixada. Clique no botão abaixo para reiniciar e instalar a atualização.",
   "installNow": "Instalar e reiniciar",
   "autoUpdateMode": "Modo de atualização automática",
+  "ijfw": {
+    "availableTitle": "Atualização do IJFW disponível",
+    "pathIssueTitle": "O caminho do comando IJFW precisa de atenção",
+    "pathIssueBody": "O IJFW está instalado, mas o comando ijfw não está no PATH. O Wayland ainda pode usar a instalação local.",
+    "updateButton": "Atualizar IJFW",
+    "updateStarted": "Atualização do IJFW iniciada. Reinicie o Wayland depois que ela preparar a nova versão.",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "Mostrar na pasta",
   "openFile": "Abrir arquivo",
   "errorTitle": "Falha na atualização",
@@ -27,5 +35,11 @@
     "metadataMissing": "Não foi possível encontrar os metadados de atualização assinados (latest.yml) para esta versão. Recusando-se a abrir um instalador não verificado.",
     "assetNotInMetadata": "O arquivo baixado \"{{name}}\" não consta nos metadados de atualização assinados. Recusando-se a abrir um instalador não verificado.",
     "checksumMismatch": "A atualização baixada falhou na verificação de integridade (checksum divergente) e foi descartada. Não a execute. Tente novamente ou baixe pela página de Releases."
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

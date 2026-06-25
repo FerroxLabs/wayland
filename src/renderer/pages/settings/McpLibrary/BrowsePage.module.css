@@ -1,0 +1,40 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  /* gap so a section header never butts the card grid above it */
+  gap: var(--space-6);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(264px, 100%), 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.showMore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.showMoreCount {
+  color: var(--color-text-3);
+  font-size: 13px;
+}
+
+.empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--color-text-3);
+  border: 1px dashed var(--color-border-1);
+  border-radius: var(--radius-card);
+}

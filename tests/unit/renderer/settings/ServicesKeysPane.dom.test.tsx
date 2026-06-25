@@ -33,6 +33,8 @@ vi.mock('../../../../src/common', () => ({
 
 vi.mock('../../../../src/renderer/utils/platform', () => ({
   openExternalUrl: (url: string) => mockOpenExternal(url),
+  // Default to desktop so the existing save/remove tests exercise the real path.
+  isElectronDesktop: () => true,
 }));
 
 import React from 'react';

@@ -162,7 +162,7 @@ const CodePreview: React.FC<CodePreviewProps> = ({
             <div
               className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-bg-3 transition-colors'
               onClick={handleDownload}
-              title={t('preview.downloadCode', { language: language.toUpperCase() })}
+              title={t('preview.downloadCode', { language: (language || 'text').toUpperCase() })}
             >
               <svg
                 width='14'

@@ -14,7 +14,8 @@ import {
   isBuiltinImageGenTransport,
 } from '@process/resources/builtinMcp/constants';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { safeExecFile } from '@process/utils/safeExec';
+import { safeExecFile, execErrorDetail } from '@process/utils/safeExec';
+import { cliSafeMcpServerName } from '../validateMcpServer';
 import { validateMcpEnvEntry } from '../validateMcpServer';
 
 /** Env options for exec calls - ensures CLI is found from Finder/launchd launches */
@@ -119,9 +120,37 @@ export function parseCodexMcpListOutput(result: string): IMcpServer[] {
   });
 }
 
+/**
+ * Deterministic env var Codex reads an MCP server's bearer token from. Codex
+ * ignores manual Authorization headers and only supports `--bearer-token-env-var`
+ * for HTTP auth, so the same name must be derivable at `codex mcp add` time and
+ * at agent-spawn time (where the live token is injected into the scoped env).
+ */
+export function codexBearerEnvVar(serverName: string): string {
+  return `WAYLAND_MCP_BEARER_${cliSafeMcpServerName(serverName).replace(/[^A-Za-z0-9]/g, '_').toUpperCase()}`;
+}
+
+/**
+ * Extract the OAuth bearer Wayland attached to an HTTP server (via
+ * McpService.attachOAuthToken), if any. Returns null for non-HTTP transports or
+ * when no Authorization: Bearer header is present.
+ */
+export function codexBearerToken(server: IMcpServer): string | null {
+  if (server.transport.type !== 'http' && server.transport.type !== 'streamable_http') return null;
+  const headers = 'headers' in server.transport ? server.transport.headers : undefined;
+  if (!headers) return null;
+  const auth = Object.entries(headers).find(([k]) => k.toLowerCase() === 'authorization')?.[1];
+  if (!auth) return null;
+  const match = /^Bearer\s+(.+)$/i.exec(auth.trim());
+  return match ? match[1] : null;
+}
+
 export function buildCodexAddArgs(server: IMcpServer): string[] | null {
+  // Codex CLI rejects dots in the server name; use the CLI-safe form (the
+  // remove path applies the identical transform so the keys stay in sync).
+  const cliName = cliSafeMcpServerName(server.name);
   if (server.transport.type === 'stdio') {
-    const args = ['mcp', 'add', server.name];
+    const args = ['mcp', 'add', cliName];
 
     for (const [key, value] of Object.entries(server.transport.env || {})) {
       // Reject argv-breaking keys/values before they ride into the
@@ -136,7 +165,16 @@ export function buildCodexAddArgs(server: IMcpServer): string[] | null {
 
   if (server.transport.type === 'http' || server.transport.type === 'streamable_http') {
     const url = 'url' in server.transport ? server.transport.url : '';
-    return ['mcp', 'add', server.name, '--url', url];
+    const args = ['mcp', 'add', cliName, '--url', url];
+    // When Wayland holds an OAuth bearer for this server, register env-var auth
+    // so Codex reads the token from a scoped env var instead of launching its
+    // OWN interactive OAuth flow during `codex mcp add` (which opens the
+    // provider's authorize page and dies on a throwaway 127.0.0.1 callback
+    // port). The matching env var is set on the exec + the agent spawn.
+    if (codexBearerToken(server)) {
+      args.push('--bearer-token-env-var', codexBearerEnvVar(server.name));
+    }
+    return args;
   }
 
   return null;
@@ -211,26 +249,21 @@ export class CodexMcpAgent extends AbstractMcpAgent {
             continue;
           }
 
-          if (
-            (server.transport.type === 'http' || server.transport.type === 'streamable_http') &&
-            'headers' in server.transport &&
-            server.transport.headers
-          ) {
-            const authHeader = Object.entries(server.transport.headers).find(
-              ([key]) => key.toLowerCase() === 'authorization'
-            );
-            if (authHeader) {
-              console.warn(
-                `[CodexMcpAgent] ${server.name}: Codex CLI uses --bearer-token-env-var for auth, manual header not supported`
-              );
-            }
+          // Codex ignores manual Authorization headers and only reads HTTP bearer
+          // tokens from an env var (--bearer-token-env-var, set by buildCodexAddArgs).
+          // Provide the token in a SCOPED env for THIS exec only - never via
+          // process.env, which would leak the credential into every child process.
+          const bearer = codexBearerToken(server);
+          const execOptions = getExecEnv();
+          if (bearer) {
+            execOptions.env = { ...execOptions.env, [codexBearerEnvVar(server.name)]: bearer };
           }
 
           try {
-            await safeExecFile('codex', args, { timeout: 5000, ...getExecEnv() });
+            await safeExecFile('codex', args, { timeout: 5000, ...execOptions });
             console.log(`[CodexMcpAgent] Added MCP server: ${server.name}`);
           } catch (error) {
-            console.warn(`Failed to add MCP ${server.name} to Codex:`, error);
+            console.warn(`Failed to add MCP ${server.name} to Codex: ${execErrorDetail(error)}`);
           }
         }
         return { success: true };
@@ -259,7 +292,7 @@ export class CodexMcpAgent extends AbstractMcpAgent {
 
         for (const candidateName of candidateNames) {
           try {
-            const result = await safeExecFile('codex', ['mcp', 'remove', candidateName], {
+            const result = await safeExecFile('codex', ['mcp', 'remove', cliSafeMcpServerName(candidateName)], {
               timeout: 5000,
               ...getExecEnv(),
             });

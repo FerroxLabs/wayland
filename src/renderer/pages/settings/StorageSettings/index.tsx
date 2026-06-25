@@ -1,4 +1,4 @@
-import { Button, Input, Modal } from '@arco-design/web-react';
+import { Button, Input, Message, Modal } from '@arco-design/web-react';
 import { AlertTriangle } from 'lucide-react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,13 +15,18 @@ const StorageSettings: React.FC = () => {
   const [resetText, setResetText] = useState('');
   const [resetting, setResetting] = useState(false);
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (resetText !== 'reset') return;
     setResetting(true);
-    void storage.resetAll.invoke().finally(() => {
-      setResetting(false);
+    try {
+      await storage.resetAll.invoke();
       setResetOpen(false);
-    });
+    } catch (error) {
+      console.error('Storage reset failed:', error);
+      Message.error(t('settings.storagePage.resetFailed'));
+    } finally {
+      setResetting(false);
+    }
   };
 
   return (

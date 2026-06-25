@@ -470,3 +470,232 @@ describe('composeMessage - cron_trigger', () => {
     expect(messageHandler).toHaveBeenCalledWith('insert', cronTriggerMsg);
   });
 });
+
+// ---------------------------------------------------------------------------
+// #252 activity card: transformMessage normalization + composeMessage merge
+// ---------------------------------------------------------------------------
+
+describe('transformMessage - activity (#252)', () => {
+  it('normalizes a tool_chunk into an activity card node with detail', () => {
+    const msg = transformMessage({
+      type: 'tool_chunk',
+      msg_id: 'turn-1',
+      conversation_id: 'c1',
+      data: { callId: 'call-1', toolName: 'Bash', chunk: 'partial-output' },
+    } as unknown as IResponseMessage);
+    expect(msg).toBeDefined();
+    expect(msg!.type).toBe('activity');
+    // #252 fix: merge key is namespaced off the turn id so it cannot collide
+    // with the assistant text message that carries the same raw turn msg_id.
+    expect(msg!.msg_id).toBe('activity:turn-1');
+    const content = (msg as Extract<TMessage, { type: 'activity' }>).content;
+    expect(content.turnId).toBe('turn-1');
+    expect(content.nodes).toHaveLength(1);
+    expect(content.nodes[0].detail).toBe('partial-output');
+    expect(content.nodes[0].callId).toBe('call-1');
+  });
+
+  it('normalizes session_cost into per-turn cost rows', () => {
+    const msg = transformMessage({
+      type: 'session_cost',
+      msg_id: 'turn-1',
+      conversation_id: 'c1',
+      data: { perTurn: [{ turn: 1, model: 'm', provider: 'openai', cost_usd: 0.5 }] },
+    } as unknown as IResponseMessage);
+    expect(msg!.type).toBe('activity');
+    const content = (msg as Extract<TMessage, { type: 'activity' }>).content;
+    expect(content.perTurnCost).toEqual([{ turn: 1, model: 'm', provider: 'openai', costUsd: 0.5 }]);
+  });
+});
+
+describe('composeMessage - activity merge (#252)', () => {
+  it('merges two tool_chunk deltas for the same turn into one card (fail-on-old)', () => {
+    const first = transformMessage({
+      type: 'tool_chunk',
+      msg_id: 'turn-1',
+      conversation_id: 'c1',
+      data: { callId: 'call-1', toolName: 'Bash', chunk: 'aaa' },
+    } as unknown as IResponseMessage)!;
+    const second = transformMessage({
+      type: 'tool_chunk',
+      msg_id: 'turn-1',
+      conversation_id: 'c1',
+      data: { callId: 'call-1', toolName: 'Bash', chunk: 'bbb' },
+    } as unknown as IResponseMessage)!;
+
+    let list = composeMessage(first, []);
+    list = composeMessage(second, list);
+
+    // Old code (no 'activity' type) would drop these in transformMessage and
+    // never produce a single merged card; new code merges into ONE card.
+    const activityCards = list.filter((m) => m.type === 'activity');
+    expect(activityCards).toHaveLength(1);
+    const content = (activityCards[0] as Extract<TMessage, { type: 'activity' }>).content;
+    expect(content.nodes).toHaveLength(1);
+    expect(content.nodes[0].detail).toBe('aaabbb');
+  });
+
+  it('keeps separate cards for different turns', () => {
+    const t1 = transformMessage({
+      type: 'tool_chunk',
+      msg_id: 'turn-1',
+      conversation_id: 'c1',
+      data: { callId: 'a', toolName: 'Bash', chunk: 'x' },
+    } as unknown as IResponseMessage)!;
+    const t2 = transformMessage({
+      type: 'tool_chunk',
+      msg_id: 'turn-2',
+      conversation_id: 'c1',
+      data: { callId: 'b', toolName: 'Bash', chunk: 'y' },
+    } as unknown as IResponseMessage)!;
+    let list = composeMessage(t1, []);
+    list = composeMessage(t2, list);
+    expect(list.filter((m) => m.type === 'activity')).toHaveLength(2);
+  });
+
+  // Regression (#252 cross-audit): the activity card must NOT reuse the turn's
+  // stream msg_id, or it collides with the assistant text message that carries
+  // the same id and fragments streamed prose into duplicate bubbles. The common
+  // turn shape is text -> streaming tool (tool_chunk) -> text on ONE turn id.
+  it('does not fragment the turn text when an activity card is interleaved (fail-on-old)', () => {
+    const textDelta = (content: string): IMessageText =>
+      ({
+        id: 'x',
+        type: 'text',
+        msg_id: 'turn-1',
+        position: 'left',
+        conversation_id: 'c1',
+        content: { content },
+      }) as IMessageText;
+    const activity = transformMessage({
+      type: 'tool_chunk',
+      msg_id: 'turn-1',
+      conversation_id: 'c1',
+      data: { callId: 'call-1', toolName: 'Bash', chunk: 'stdout' },
+    } as unknown as IResponseMessage)!;
+
+    let list = composeMessage(textDelta('Hello '), []);
+    list = composeMessage(activity, list);
+    list = composeMessage(textDelta('World'), list);
+
+    const textCards = list.filter((m) => m.type === 'text');
+    expect(textCards).toHaveLength(1);
+    expect((textCards[0] as IMessageText).content.content).toBe('Hello World');
+    expect(list.filter((m) => m.type === 'activity')).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #252 Phase 2: sub_agent_event drill-down - the inner serialized child
+// WCoreEvent is recursively parsed so the sub-agent's REAL tools / thinking /
+// nested sub-agents surface, instead of the old lossy inner.type+inner.text
+// flatten. These fail on the old code (which produced no `nodes` subtree).
+// ---------------------------------------------------------------------------
+
+const subAgentEvent = (parentCallId: string, agentName: string, inner: unknown): IResponseMessage =>
+  ({
+    type: 'sub_agent_event',
+    msg_id: '',
+    conversation_id: 'c1',
+    data: { parentCallId, agentName, inner },
+  }) as unknown as IResponseMessage;
+
+describe('transformMessage - sub_agent drill-down (#252 Phase 2)', () => {
+  it('surfaces the child tool call as a node subtree (fail-on-old)', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', {
+        type: 'tool_request',
+        msg_id: 'm1',
+        call_id: 'child-tool',
+        tool: { name: 'ReadFile', category: 'info', args: {}, description: '' },
+      })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.type).toBe('sub_agent');
+    // OLD code produced no `nodes` (only a flat body string).
+    expect(msg.content.nodes).toBeDefined();
+    expect(msg.content.nodes![0]).toMatchObject({ id: 'child-tool', kind: 'tool', name: 'ReadFile' });
+  });
+
+  it('surfaces the child thinking monologue as a thinking node', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', { type: 'thinking', msg_id: 'mt', text: 'reasoning...' })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.content.nodes![0]).toMatchObject({ kind: 'thinking', detail: 'reasoning...' });
+  });
+
+  it('keeps the legacy flat body for a text_delta inner (no regression)', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', { type: 'text_delta', msg_id: 'mt', text: 'hi there' })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.content.body).toBe('hi there');
+  });
+
+  it('advances lifecycle to done on a child info event', () => {
+    const msg = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', { type: 'info', msg_id: 'm', message: 'done' })
+    ) as Extract<TMessage, { type: 'sub_agent' }>;
+    expect(msg.content.status).toBe('done');
+  });
+
+  it('omits nodes for a malformed/opaque inner (graceful flat fallback)', () => {
+    const msg = transformMessage(subAgentEvent('spawn:1:worker', 'worker', { not: 'an event' })) as Extract<
+      TMessage,
+      { type: 'sub_agent' }
+    >;
+    expect(msg.content.nodes).toBeUndefined();
+    expect(msg.content.body).toBe('');
+  });
+});
+
+describe('composeMessage - sub_agent subtree merge (#252 Phase 2)', () => {
+  it('merges a child tool_request then tool_result into ONE evolving tool node', () => {
+    const req = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', {
+        type: 'tool_request',
+        msg_id: 'm1',
+        call_id: 'c1',
+        tool: { name: 'Bash', category: 'exec', args: {}, description: '' },
+      })
+    )!;
+    const res = transformMessage(
+      subAgentEvent('spawn:1:worker', 'worker', {
+        type: 'tool_result',
+        msg_id: 'm1',
+        call_id: 'c1',
+        tool_name: 'Bash',
+        status: 'success',
+        output: 'output text',
+        output_type: 'text',
+      })
+    )!;
+    let list = composeMessage(req, []);
+    list = composeMessage(res, list);
+
+    const cards = list.filter((m) => m.type === 'sub_agent') as Extract<TMessage, { type: 'sub_agent' }>[];
+    expect(cards).toHaveLength(1);
+    const nodes = cards[0].content.nodes!;
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0]).toMatchObject({ id: 'c1', status: 'done', detail: 'output text' });
+  });
+
+  it('folds a nested sub-agent subtree under the parent (depth-N)', () => {
+    const nested = transformMessage(
+      subAgentEvent('spawn:1:parent', 'parent', {
+        type: 'sub_agent_event',
+        parent_call_id: 'spawn:2:child',
+        agent_name: 'child',
+        inner: {
+          type: 'tool_request',
+          msg_id: 'mc',
+          call_id: 'nested-tool',
+          tool: { name: 'Grep', category: 'info', args: {}, description: '' },
+        },
+      })
+    )!;
+    const list = composeMessage(nested, []);
+    const card = list.find((m) => m.type === 'sub_agent') as Extract<TMessage, { type: 'sub_agent' }>;
+    const childAgent = card.content.nodes![0];
+    expect(childAgent).toMatchObject({ kind: 'sub_agent', callId: 'spawn:2:child' });
+    expect(childAgent.children![0]).toMatchObject({ id: 'nested-tool', name: 'Grep' });
+  });
+});

@@ -1,0 +1,442 @@
+[
+  {
+    "name": "research-jtbd-interviews",
+    "description": "Run switch interviews and extract the four Forces of Progress when the user wants to understand why people actually buy.",
+    "file": "skills/research/jtbd-interviews.md"
+  },
+  {
+    "name": "research-audience-discovery",
+    "description": "Turn raw interview material into JTBD segment cards the team can write to, price to, and channel to.",
+    "file": "skills/research/audience-discovery.md"
+  },
+  {
+    "name": "research-competitive-scan",
+    "description": "Map the customer's real competitor set (including non-consumption and workarounds) before positioning, pricing, or hero copy.",
+    "file": "skills/research/competitive-scan.md"
+  },
+  {
+    "name": "copy-customer-voice",
+    "description": "Mine raw customer language (reviews, tickets, calls) before drafting any headline, hero, CTA, or email.",
+    "file": "skills/copy/customer-voice.md"
+  },
+  {
+    "name": "copy-awareness-stages",
+    "description": "Diagnose the reader's awareness stage and pick the right first line for headlines, hooks, ad opens, and email subjects.",
+    "file": "skills/copy/awareness-stages.md"
+  },
+  {
+    "name": "copy-hook-craft",
+    "description": "Write scroll-stopping openers — social first lines, video opens, subject lines, cold-outbound first sentences, ad headlines.",
+    "file": "skills/copy/hook-craft.md"
+  },
+  {
+    "name": "sales-discovery-call",
+    "description": "Structure a SPIN-disciplined discovery call so the buyer surfaces their own problem, cost, and need-payoff before any pitch.",
+    "file": "skills/sales/discovery-call.md"
+  },
+  {
+    "name": "sales-objection-handling",
+    "description": "Sort stated vs. real objections across price, timing, authority, fit, and trust — and respond by acknowledge-ask-respond, not argue.",
+    "file": "skills/sales/objection-handling.md"
+  },
+  {
+    "name": "sales-close-and-next-step",
+    "description": "Distinguish advancement from continuation and propose concrete, achievable, mutually-agreed next steps that actually move deals.",
+    "file": "skills/sales/close-and-next-step.md"
+  },
+  {
+    "name": "forge-value-pricing",
+    "description": "Value-based pricing — willingness-to-pay research, value-equation math, and the three-strategy decision (premium/value-capture/penetration).",
+    "file": "skills/forge/value-pricing.md"
+  },
+  {
+    "name": "forge-offer-construction",
+    "description": "Assemble the offer — outcome language, bonus-pairs-anxiety, guarantee, and the offer stack that earns the price.",
+    "file": "skills/forge/offer-construction.md"
+  },
+  {
+    "name": "forge-packaging-tiers",
+    "description": "Three-tier packaging (good/better/best), decoy pricing, the upgrade ladder, and when to skip tiers entirely.",
+    "file": "skills/forge/packaging-tiers.md"
+  },
+  {
+    "name": "mira-brand-foundation",
+    "description": "Build the onlyness statement — Neumeier's difference-beats-betterness positioning before any visual decision.",
+    "file": "skills/mira/brand-foundation.md"
+  },
+  {
+    "name": "mira-visual-system",
+    "description": "Lock the visual system — type, color, voice — so recognition compounds across every touchpoint.",
+    "file": "skills/mira/visual-system.md"
+  },
+  {
+    "name": "mira-presentation-design",
+    "description": "Design presentation visuals — decks, hero blocks, and landing visuals — anchored to the onlyness statement.",
+    "file": "skills/mira/presentation-design.md"
+  },
+  {
+    "name": "beacon-channel-strategy",
+    "description": "Pick the channel mix using See/Think/Do/Care — stage-first, not platform-first.",
+    "file": "skills/beacon/channel-strategy.md"
+  },
+  {
+    "name": "beacon-seo-organic",
+    "description": "Organic search strategy — intent-stage keyword mapping, content gap audit, and what to write next.",
+    "file": "skills/beacon/seo-organic.md"
+  },
+  {
+    "name": "beacon-paid-acquisition",
+    "description": "Paid channels — Binet/Field 60/40 brand-vs-activation split, attribution discipline, and when to scale.",
+    "file": "skills/beacon/paid-acquisition.md"
+  },
+  {
+    "name": "beacon-instagram",
+    "description": "Instagram — content format mix, Reels-first reality, and the carousel-vs-Reel-vs-Story decision.",
+    "file": "skills/beacon/instagram.md"
+  },
+  {
+    "name": "beacon-linkedin",
+    "description": "LinkedIn — personal vs company-page strategy, post format mix, and DM-to-meeting motion.",
+    "file": "skills/beacon/linkedin.md"
+  },
+  {
+    "name": "beacon-email-sequences",
+    "description": "Email sequence design — welcome, nurture, sales, win-back. Cadence, segmentation, and inbox-deliverability.",
+    "file": "skills/beacon/email-sequences.md"
+  },
+  {
+    "name": "beacon-short-form-video",
+    "description": "Short-form video — TikTok/Reels/Shorts mechanics, hook-first structure, and platform-native repurposing.",
+    "file": "skills/beacon/short-form-video.md"
+  },
+  {
+    "name": "beacon-twitter-x",
+    "description": "Twitter/X — feed mechanics, thread structure, and reply-discoverability strategy.",
+    "file": "skills/beacon/twitter-x.md"
+  },
+  {
+    "name": "beacon-facebook",
+    "description": "Facebook — page/group/ads ecosystem and where it still earns attention.",
+    "file": "skills/beacon/facebook.md"
+  },
+  {
+    "name": "beacon-podcast",
+    "description": "Podcast — show structure, guest economy, and distribution-as-marketing.",
+    "file": "skills/beacon/podcast.md"
+  },
+  {
+    "name": "beacon-newsletter",
+    "description": "Newsletter — format, cadence, monetization paths from sponsorship to product.",
+    "file": "skills/beacon/newsletter.md"
+  },
+  {
+    "name": "beacon-affiliate-program",
+    "description": "Affiliate program design — payout structure, partner recruitment, and tracking infrastructure.",
+    "file": "skills/beacon/affiliate-program.md"
+  },
+  {
+    "name": "beacon-blog-content",
+    "description": "Blog content strategy — cluster topics, SEO-aware writing, and the publish-and-distribute loop.",
+    "file": "skills/beacon/blog-content.md"
+  },
+  {
+    "name": "beacon-funnel-build",
+    "description": "Sales funnel build — landing page, opt-in, nurture, conversion event, retention loop.",
+    "file": "skills/beacon/funnel-build.md"
+  },
+  {
+    "name": "patch-operating-rhythm",
+    "description": "Install the operating rhythm — daily standup, weekly review, monthly KPI, quarterly priorities. Harnish's Scaling Up cadence.",
+    "file": "skills/patch/operating-rhythm.md"
+  },
+  {
+    "name": "patch-crm-hygiene",
+    "description": "Keep the CRM honest — stale-deal audits, contact-data hygiene, pipeline-stage discipline.",
+    "file": "skills/patch/crm-hygiene.md"
+  },
+  {
+    "name": "patch-process-design",
+    "description": "Turn chaos into SOPs — find the failure mode, document the fix, name the owner.",
+    "file": "skills/patch/process-design.md"
+  },
+  {
+    "name": "spark-curriculum-architecture",
+    "description": "Backward-design a course or book from the learner transformation. Outcomes first, modules second.",
+    "file": "skills/spark/curriculum-architecture.md"
+  },
+  {
+    "name": "spark-long-form-narrative",
+    "description": "Build the long-form arc — chapter logic, narrative tension, and the through-line that holds a 100-page work together.",
+    "file": "skills/spark/long-form-narrative.md"
+  },
+  {
+    "name": "spark-learner-engagement",
+    "description": "Design for completion — Fogg's tiny habits, spaced repetition, and the activation moments learners actually need.",
+    "file": "skills/spark/learner-engagement.md"
+  },
+  {
+    "name": "coin-runway-and-burn",
+    "description": "Runway math — burn rate, cash-out date, and the kill-line that triggers a hard reset.",
+    "file": "skills/coin/runway-and-burn.md"
+  },
+  {
+    "name": "coin-unit-economics",
+    "description": "CAC, LTV, contribution margin, and payback period — the four numbers that determine whether the math works.",
+    "file": "skills/coin/unit-economics.md"
+  },
+  {
+    "name": "coin-pricing-math",
+    "description": "The numbers behind a pricing decision — gross-margin floor, price-sensitivity calc, and what changes for each tier.",
+    "file": "skills/coin/pricing-math.md"
+  },
+  {
+    "name": "sentry-formation-and-structure",
+    "description": "Entity formation — LLC vs C-corp vs S-corp, ownership structure, cap-table basics. Not legal advice; flags when you need a lawyer.",
+    "file": "skills/sentry/formation-and-structure.md"
+  },
+  {
+    "name": "sentry-contracts-and-terms",
+    "description": "Contract starter pack — mutual NDA, MSA, ToS, privacy policy, contractor agreement. Not legal advice; flags when you need a lawyer.",
+    "file": "skills/sentry/contracts-and-terms.md"
+  },
+  {
+    "name": "sentry-ip-and-compliance",
+    "description": "IP basics + compliance — trademark, copyright, GDPR, AI rules, consumer protection. Not legal advice; flags when you need a lawyer.",
+    "file": "skills/sentry/ip-and-compliance.md"
+  },
+  {
+    "name": "stage-pitch-deck",
+    "description": "Build the 10-12 slide investor deck — Sequoia structure reordered through Raskin's shift sentence.",
+    "file": "skills/stage/pitch-deck.md"
+  },
+  {
+    "name": "stage-narrative-shift",
+    "description": "Name the macro-trend shift that makes this company inevitable. The shift-sentence pass/fail before any deck draft.",
+    "file": "skills/stage/narrative-shift.md"
+  },
+  {
+    "name": "stage-demo-day-and-q-a",
+    "description": "Demo day mechanics + the typical 20 investor questions. Rehearsal-ready, not slide-ware.",
+    "file": "skills/stage/demo-day-and-q-a.md"
+  },
+  {
+    "name": "helm-decision-frames",
+    "description": "Founder decision frames — first principles, inversion, second-order thinking, pre-mortem.",
+    "file": "skills/helm/decision-frames.md"
+  },
+  {
+    "name": "helm-founder-cadence",
+    "description": "Weekly review, light OKRs, prioritization stack. The personal operating rhythm that compounds.",
+    "file": "skills/helm/founder-cadence.md"
+  },
+  {
+    "name": "helm-stuck-and-unstuck",
+    "description": "Diagnose the kind of stuck (call / work / question) and name the three options: push, walk away, or ask for help.",
+    "file": "skills/helm/stuck-and-unstuck.md"
+  },
+  {
+    "name": "probe-fake-door-tests",
+    "description": "Smoke tests, landing-page tests, sign-up-intent measurement — the cheapest way to disprove a hypothesis.",
+    "file": "skills/probe/fake-door-tests.md"
+  },
+  {
+    "name": "probe-mvp-design",
+    "description": "The smallest thing that could disprove the hypothesis. Ries's build-measure-learn applied to the first cycle.",
+    "file": "skills/probe/mvp-design.md"
+  },
+  {
+    "name": "probe-validation-rubric",
+    "description": "When has it validated? When has it failed? Falsifiable thresholds and the kill criteria that protect you from sunk cost.",
+    "file": "skills/probe/validation-rubric.md"
+  },
+  {
+    "name": "vault-storefront-foundation",
+    "description": "PDP architecture, listing structure, Shopify+ fundamentals. Traffic-source-first PDP design.",
+    "file": "skills/vault/storefront-foundation.md"
+  },
+  {
+    "name": "vault-agentic-geo",
+    "description": "Generative Engine Optimization — optimizing for AI shoppers, ChatGPT discovery, agentic-storefront mechanics.",
+    "file": "skills/vault/agentic-geo.md"
+  },
+  {
+    "name": "vault-marketplace-ops",
+    "description": "Amazon PPC + inventory rhythm + review velocity. Marketplace-native operating discipline.",
+    "file": "skills/vault/marketplace-ops.md"
+  },
+  {
+    "name": "smith-shape-and-spec",
+    "description": "Shape Up shaping + spec writing for coding agents. Appetite, breadboard, rabbit-holes, no-gos.",
+    "file": "skills/smith/shape-and-spec.md"
+  },
+  {
+    "name": "smith-architecture-decisions",
+    "description": "ADR pattern, tradeoff tables, regret-check analysis. What you'd kick yourself for in 18 months.",
+    "file": "skills/smith/architecture-decisions.md"
+  },
+  {
+    "name": "smith-agent-handoff",
+    "description": "Write specs and tickets that Cursor / Claude Code / coding agents can execute reliably — with kill switches and verification.",
+    "file": "skills/smith/agent-handoff.md"
+  },
+  {
+    "name": "mend-ticket-triage",
+    "description": "P0-P3 classification, response templates, escalation matrix. Murphy's Desired Outcome framing.",
+    "file": "skills/mend/ticket-triage.md"
+  },
+  {
+    "name": "mend-onboarding-flow",
+    "description": "The activation path — Desired Outcome, the magic moment, and the first 30-day journey.",
+    "file": "skills/mend/onboarding-flow.md"
+  },
+  {
+    "name": "mend-churn-prevention",
+    "description": "Churn signals, save-call playbooks, expansion-conversation triggers. Save-or-grow before the renewal.",
+    "file": "skills/mend/churn-prevention.md"
+  },
+  {
+    "name": "lens-funnel-diagnosis",
+    "description": "Where the funnel drops, what to fix, and the minimum sample size before you call meaning on it.",
+    "file": "skills/lens/funnel-diagnosis.md"
+  },
+  {
+    "name": "lens-cohort-and-retention",
+    "description": "Cohort curves, magic-moment analysis, retention math that distinguishes survivorship from signal.",
+    "file": "skills/lens/cohort-and-retention.md"
+  },
+  {
+    "name": "lens-north-star-and-experiments",
+    "description": "Pick the North Star metric and design Kohavi-grade experiments — pre-registration, MDE, guardrails.",
+    "file": "skills/lens/north-star-and-experiments.md"
+  },
+  {
+    "name": "verdict-score-and-rank",
+    "description": "Score content on 8 dimensions (hook, clarity, emotional pull, differentiation, value density, voice, shareability, platform fit).",
+    "file": "skills/verdict/score-and-rank.md"
+  },
+  {
+    "name": "verdict-flag-and-fix",
+    "description": "Catch AI-mush, vague claims, clickbait-without-payoff, drag, missing CTA — the editorial smoke alarms.",
+    "file": "skills/verdict/flag-and-fix.md"
+  },
+  {
+    "name": "verdict-the-one-edit",
+    "description": "Name the single specific edit that would make this 20% better. Not a list — the one.",
+    "file": "skills/verdict/the-one-edit.md"
+  },
+  {
+    "name": "copy-lens-curiosity-packaging",
+    "description": "Curiosity & packaging lens — MrBeast retention discipline applied to title, thumbnail, opening.",
+    "file": "skills/copy/lens-curiosity-packaging.md"
+  },
+  {
+    "name": "copy-lens-value-framing",
+    "description": "Pain & value lens — Hormozi's value-equation framing applied to hook and CTA angle.",
+    "file": "skills/copy/lens-value-framing.md"
+  },
+  {
+    "name": "copy-lens-clarity",
+    "description": "Education & clarity lens — Abdaal/Feynman simplicity. Best analogy, common mistake, clarity score.",
+    "file": "skills/copy/lens-clarity.md"
+  },
+  {
+    "name": "copy-lens-positioning",
+    "description": "Authority & belief reframe lens — Welsh's solopreneur authority playbook for sharper positioning.",
+    "file": "skills/copy/lens-positioning.md"
+  },
+  {
+    "name": "copy-lens-business-angle",
+    "description": "Money & ownership lens — Sanchez's boring-business framing for time/money impact and shareability.",
+    "file": "skills/copy/lens-business-angle.md"
+  },
+  {
+    "name": "copy-lens-storytelling",
+    "description": "Narrative & emotion lens — Bartlett-style diary storytelling. Tension, before, turning point, after.",
+    "file": "skills/copy/lens-storytelling.md"
+  },
+  {
+    "name": "copy-lens-differentiation",
+    "description": "Remarkable & contrarian lens — Godin's purple-cow tradition. Obvious version, differentiated angle, compressed insight.",
+    "file": "skills/copy/lens-differentiation.md"
+  },
+  {
+    "name": "copy-lens-platform-native",
+    "description": "Attention & platform-native lens — Gary Vee's day-trading attention applied to platform-specific opening line.",
+    "file": "skills/copy/lens-platform-native.md"
+  },
+  {
+    "name": "slate-role-design",
+    "description": "Define a role as a hypothesis — name the outcome that stops being delivered when the seat is empty.",
+    "file": "skills/slate/role-design.md"
+  },
+  {
+    "name": "slate-candidate-evaluation",
+    "description": "Structured interviews, signal-vs-noise, reference-check discipline. Decision in 3 weeks, not 3 months.",
+    "file": "skills/slate/candidate-evaluation.md"
+  },
+  {
+    "name": "slate-hiring-structure",
+    "description": "Contractor vs employee vs fractional vs agency — and the comp structure that fits the work.",
+    "file": "skills/slate/hiring-structure.md"
+  },
+  {
+    "name": "voiceprint-voice-interview",
+    "description": "The 22-question Interviewer phase — adaptive questioning that pushes back on vague answers and captures audience, refusals, voice, structure, influences, stance.",
+    "file": "skills/voiceprint/voice-interview.md"
+  },
+  {
+    "name": "voiceprint-voice-compile",
+    "description": "The Compiler phase — synthesize samples + transcripts + answers into a structured 6-section voice profile. Samples beat self-report; flag the gap when they contradict.",
+    "file": "skills/voiceprint/voice-compile.md"
+  },
+  {
+    "name": "voiceprint-voice-maintenance",
+    "description": "The 6-month refresh logic + voice-notes.md running log. When to update, when not, and how the daily delete-the-AI-tic habit becomes next quarter's refresh input.",
+    "file": "skills/voiceprint/voice-maintenance.md"
+  },
+  {
+    "name": "xrole-consume-voice-profile",
+    "description": "Cross-role mode skill — teaches Copy/Spark/Stage/Mira how to load a Voiceprint-produced voice profile and draft in the user's voice instead of generic AI.",
+    "file": "skills/cross-role/consume-voice-profile.md"
+  },
+  {
+    "name": "sentry-employment-and-classification",
+    "description": "Employment law receiving-end — W2-vs-1099 classification, at-will basics, equity-as-comp tax exposure. Not legal advice; escalates fast.",
+    "file": "skills/sentry/employment-and-classification.md"
+  },
+  {
+    "name": "coin-hire-affordability",
+    "description": "The math behind \"can I afford this hire?\" — fully-loaded cost, labor-efficiency-ratio floor, payback window.",
+    "file": "skills/coin/hire-affordability.md"
+  },
+  {
+    "name": "lens-marketing-attribution",
+    "description": "Marketing attribution — last-click / first-click / linear / time-decay, the small-data attribution trap, why every platform overclaims.",
+    "file": "skills/lens/marketing-attribution.md"
+  },
+  {
+    "name": "research-market-research",
+    "description": "Macro market sizing — TAM/SAM/SOM, industry-cycle assessment, the bottom-up beats top-down rule. User-toggle (most users don't need this).",
+    "file": "skills/research/market-research.md"
+  },
+  {
+    "name": "sales-partnerships",
+    "description": "Partnership / BD discipline — partner-fit rules, the three partnership shapes (referral / co-marketing / integration), the partnership-debt trap.",
+    "file": "skills/sales/partnerships.md"
+  },
+  {
+    "name": "humanizer-tell-detector",
+    "description": "Diagnose AI-tells in a draft — score perplexity, burstiness, and structural tells; flag specific lines; recommend rewrite or pass.",
+    "file": "skills/humanizer/tell-detector.md"
+  },
+  {
+    "name": "humanizer-rewrite-pass",
+    "description": "Full humanize rewrite — vocabulary substitution from the AI blacklist + sentence-length variation (Klinkenborg's short-long-short) + parenthetical asides. Both axes together.",
+    "file": "skills/humanizer/rewrite-pass.md"
+  },
+  {
+    "name": "humanizer-voice-match",
+    "description": "Layer the user's Voiceprint profile on top of a rewrite pass — applies DO/DON'T rules from the voice file so the output is humanized AND sounds like the user, not just like a generic person.",
+    "file": "skills/humanizer/voice-match.md"
+  }
+]

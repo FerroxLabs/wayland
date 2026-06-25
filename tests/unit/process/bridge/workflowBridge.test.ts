@@ -25,18 +25,22 @@ const {
   startProvider,
   findActiveProvider,
   findAllActiveProvider,
+  findByIdProvider,
   resolveSkillsProvider,
   updateSessionStateProvider,
   dispatchAutonomousStepProvider,
+  acceptStepProvider,
   countActiveProvider,
   deleteSessionProvider,
 } = vi.hoisted(() => ({
   startProvider: vi.fn(),
   findActiveProvider: vi.fn(),
   findAllActiveProvider: vi.fn(),
+  findByIdProvider: vi.fn(),
   resolveSkillsProvider: vi.fn(),
   updateSessionStateProvider: vi.fn(),
   dispatchAutonomousStepProvider: vi.fn(),
+  acceptStepProvider: vi.fn(),
   countActiveProvider: vi.fn(),
   deleteSessionProvider: vi.fn(),
 }));
@@ -47,9 +51,11 @@ vi.mock('@/common', () => ({
       start: { provider: startProvider },
       findActive: { provider: findActiveProvider },
       findAllActive: { provider: findAllActiveProvider },
+      findById: { provider: findByIdProvider },
       resolveSkills: { provider: resolveSkillsProvider },
       updateSessionState: { provider: updateSessionStateProvider },
       dispatchAutonomousStep: { provider: dispatchAutonomousStepProvider },
+      acceptStep: { provider: acceptStepProvider },
       countActive: { provider: countActiveProvider },
       deleteSession: { provider: deleteSessionProvider },
     },
@@ -85,6 +91,8 @@ function makeFakeSession(overrides: Partial<WorkflowSession> = {}): WorkflowSess
     updated_at: 0,
     completed_at: null,
     begin_sent_at: null,
+    run_mode: 'running',
+    interactivity: 'step',
     ...overrides,
   };
 }
@@ -94,6 +102,7 @@ function makeFakeService() {
     start: vi.fn(),
     findActive: vi.fn(),
     findAllActive: vi.fn(),
+    findById: vi.fn(),
     resolveSkills: vi.fn(),
     applyStepTransition: vi.fn(),
     appendAsk: vi.fn(),
@@ -102,6 +111,12 @@ function makeFakeService() {
     endSession: vi.fn(),
     markBeginSent: vi.fn(),
     deleteSession: vi.fn(),
+    pause: vi.fn(),
+    resume: vi.fn(),
+    setRunMode: vi.fn(),
+    setInteractivity: vi.fn(),
+    backtrackToStep: vi.fn(),
+    acceptStep: vi.fn(),
   };
 }
 
@@ -111,9 +126,11 @@ describe('workflowBridge - handler routing', () => {
     startProvider.mockReset();
     findActiveProvider.mockReset();
     findAllActiveProvider.mockReset();
+    findByIdProvider.mockReset();
     resolveSkillsProvider.mockReset();
     updateSessionStateProvider.mockReset();
     dispatchAutonomousStepProvider.mockReset();
+    acceptStepProvider.mockReset();
     countActiveProvider.mockReset();
     deleteSessionProvider.mockReset();
   });
@@ -195,6 +212,19 @@ describe('workflowBridge - handler routing', () => {
     expect(result).toEqual({ sessions });
   });
 
+  it('routes workflow.findById to service.findById and wraps the session (returns it for any status)', async () => {
+    const svc = makeFakeService();
+    const session = makeFakeSession({ status: 'complete', run_mode: 'done' });
+    svc.findById.mockResolvedValue(session);
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string }, { session: WorkflowSession | null }>(findByIdProvider);
+    const result = await handler({ sessionId: 'sess-1' });
+
+    expect(svc.findById).toHaveBeenCalledWith('sess-1');
+    expect(result).toEqual({ session });
+  });
+
   it('routes workflow.resolveSkills to service.resolveSkills with the slug list', async () => {
     const svc = makeFakeService();
     svc.resolveSkills.mockResolvedValue({ skills: [], unresolved: ['missing'] });
@@ -229,6 +259,32 @@ describe('workflowBridge - handler routing', () => {
       timestamp: 1700000000000,
     });
     expect(result).toEqual({ session });
+  });
+
+  it('updateSessionState.setStepStatus threads an explicit parent source through', async () => {
+    const svc = makeFakeService();
+    const session = makeFakeSession();
+    svc.applyStepTransition.mockResolvedValue(session);
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string; patch: Record<string, unknown> }, { session: WorkflowSession }>(
+      updateSessionStateProvider
+    );
+    await handler({
+      sessionId: 'sess-1',
+      patch: { setStepStatus: { n: 3, status: 'now', source: 'parent', completed_at: 1700000000001 } },
+    });
+
+    // The renderer-supplied `source` must reach the service verbatim so the
+    // stepCursor leapfrog guard (parent markers only) finally activates - it
+    // was inert while the bridge hardcoded 'user'.
+    expect(svc.applyStepTransition).toHaveBeenCalledWith('sess-1', {
+      step_n: 3,
+      status: 'now',
+      source: 'parent',
+      dispatch_id: null,
+      timestamp: 1700000000001,
+    });
   });
 
   it('updateSessionState.appendAsk dispatches to appendAsk', async () => {
@@ -303,6 +359,42 @@ describe('workflowBridge - handler routing', () => {
     expect(svc.endSession).toHaveBeenCalledWith('sess-1');
   });
 
+  it('updateSessionState.setRunMode=paused dispatches to pause', async () => {
+    const svc = makeFakeService();
+    svc.pause.mockResolvedValue(makeFakeSession({ run_mode: 'paused' }));
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string; patch: Record<string, unknown> }, { session: WorkflowSession }>(
+      updateSessionStateProvider
+    );
+    await handler({ sessionId: 'sess-1', patch: { setRunMode: 'paused' } });
+    expect(svc.pause).toHaveBeenCalledWith('sess-1');
+  });
+
+  it('updateSessionState.setRunMode=running dispatches to resume (Continue affordance)', async () => {
+    const svc = makeFakeService();
+    svc.resume.mockResolvedValue(makeFakeSession({ run_mode: 'running' }));
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string; patch: Record<string, unknown> }, { session: WorkflowSession }>(
+      updateSessionStateProvider
+    );
+    await handler({ sessionId: 'sess-1', patch: { setRunMode: 'running' } });
+    expect(svc.resume).toHaveBeenCalledWith('sess-1');
+  });
+
+  it('updateSessionState.setRunMode=done dispatches to setRunMode directly', async () => {
+    const svc = makeFakeService();
+    svc.setRunMode.mockResolvedValue(makeFakeSession({ run_mode: 'done' }));
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string; patch: Record<string, unknown> }, { session: WorkflowSession }>(
+      updateSessionStateProvider
+    );
+    await handler({ sessionId: 'sess-1', patch: { setRunMode: 'done' } });
+    expect(svc.setRunMode).toHaveBeenCalledWith('sess-1', 'done');
+  });
+
   it('updateSessionState throws on an empty patch', async () => {
     const svc = makeFakeService();
     initWorkflowBridge(svc as never);
@@ -331,6 +423,36 @@ describe('workflowBridge - handler routing', () => {
     expect(result).toEqual({ session });
   });
 
+  it('updateSessionState.setInteractivity dispatches to setInteractivity', async () => {
+    const svc = makeFakeService();
+    const session = makeFakeSession({ interactivity: 'auto' });
+    svc.setInteractivity.mockResolvedValue(session);
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string; patch: Record<string, unknown> }, { session: WorkflowSession }>(
+      updateSessionStateProvider
+    );
+    const result = await handler({ sessionId: 'sess-1', patch: { setInteractivity: 'auto' } });
+
+    expect(svc.setInteractivity).toHaveBeenCalledWith('sess-1', 'auto');
+    expect(result).toEqual({ session });
+  });
+
+  it('updateSessionState.backtrackToStep dispatches to backtrackToStep and returns the session', async () => {
+    const svc = makeFakeService();
+    const session = makeFakeSession({ current_step: 2 });
+    svc.backtrackToStep.mockResolvedValue({ session, snapshot: [] });
+    initWorkflowBridge(svc as never);
+
+    const handler = captured<{ sessionId: string; patch: Record<string, unknown> }, { session: WorkflowSession }>(
+      updateSessionStateProvider
+    );
+    const result = await handler({ sessionId: 'sess-1', patch: { backtrackToStep: 2 } });
+
+    expect(svc.backtrackToStep).toHaveBeenCalledWith('sess-1', 2);
+    expect(result).toEqual({ session });
+  });
+
   it('dispatchAutonomousStep without deps throws a clear "not yet wired" error', async () => {
     const svc = makeFakeService();
     // Init WITHOUT passing the dispatch deps - exercises the cold-start
@@ -343,5 +465,43 @@ describe('workflowBridge - handler routing', () => {
       dispatchAutonomousStepProvider
     );
     await expect(handler({ sessionId: 'sess-1', stepN: 1 })).rejects.toThrow(/dispatch deps not yet wired/);
+  });
+
+  it('routes workflow.acceptStep to service.acceptStep and sends the directive', async () => {
+    const svc = makeFakeService();
+    const session = makeFakeSession({ conversation_id: 'conv-7' });
+    svc.acceptStep.mockResolvedValue({ decision: 'advance', directive: 'Proceed to step 2: Ship', session });
+    const sendDirective = vi.fn(async () => undefined);
+    initWorkflowBridge(svc as never, {
+      conversationService: {} as never,
+      workerTaskManager: {} as never,
+      telemetry: {} as never,
+      getDefaultModel: () => ({}) as never,
+      sendDirective,
+    });
+
+    const handler = captured<{ sessionId: string }, { session: WorkflowSession }>(acceptStepProvider);
+    const result = await handler({ sessionId: 'sess-1' });
+    expect(svc.acceptStep).toHaveBeenCalledWith('sess-1');
+    expect(sendDirective).toHaveBeenCalledWith('conv-7', 'Proceed to step 2: Ship');
+    expect(result.session).toBe(session);
+  });
+
+  it('acceptStep does not send when there is no directive (terminal/complete)', async () => {
+    const svc = makeFakeService();
+    const session = makeFakeSession();
+    svc.acceptStep.mockResolvedValue({ decision: 'complete', directive: null, session });
+    const sendDirective = vi.fn(async () => undefined);
+    initWorkflowBridge(svc as never, {
+      conversationService: {} as never,
+      workerTaskManager: {} as never,
+      telemetry: {} as never,
+      getDefaultModel: () => ({}) as never,
+      sendDirective,
+    });
+
+    const handler = captured<{ sessionId: string }, { session: WorkflowSession }>(acceptStepProvider);
+    await handler({ sessionId: 'sess-1' });
+    expect(sendDirective).not.toHaveBeenCalled();
   });
 });

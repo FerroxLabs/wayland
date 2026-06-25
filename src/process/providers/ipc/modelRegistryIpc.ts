@@ -47,7 +47,6 @@ import type {
   IModelRegistryCreds,
   IModelRegistryDetectedKey,
   IModelRegistryProviderView,
-  IModelRegistryRefreshState,
   IModelRegistryRefreshSummary,
   IModelRegistryResolveForChatStartResult,
   IModelRegistryTestResult,
@@ -58,7 +57,7 @@ import { isLocalBaseUrl } from '@/common/utils/urlValidation';
 import { autoRegisterOllamaInRepo } from '@process/onboarding/autoRegisterOllama';
 import type { OllamaProbe, OllamaRegistryRepo } from '@process/onboarding/autoRegisterOllama';
 import { getDatabase } from '@process/services/database';
-import type { ConnectError, CuratedModel, ProviderConnState, ProviderId, RawModel } from '../types';
+import type { ConnectError, CuratedModel, ProviderId, RawModel } from '../types';
 import type { CatalogSource } from '../sources/CatalogSource';
 import { ApiProviderSource } from '../sources/ApiProviderSource';
 import { validateProviderBaseUrl } from '../sources/validateBaseUrl';
@@ -68,15 +67,22 @@ import type { CliAgentKey } from '../sources/CliAgentSource';
 import { CatalogAssembler, MODELS_DEV_PROVIDER_KEY } from '../catalog/CatalogAssembler';
 import { Curator } from '../catalog/Curator';
 import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/providerCatalogStore';
+import { PROVIDER_ENDPOINTS } from '../detection/providerEndpoints';
 import type { CatalogProviderEntry } from '../catalog/catalogProvider';
-import { FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
 import { injectFluxVirtualModels } from '../catalog/fluxVirtualModels';
+import {
+  buildChatGptSubscriptionCatalog,
+  buildChatGptSubscriptionCatalogLive,
+  CHATGPT_SUBSCRIPTION_PROVIDER_ID,
+} from '../catalog/chatgptSubscriptionModels';
 import { ConnectionTester } from '../detection/ConnectionTester';
 import { KeyDiscovery } from '../detection/KeyDiscovery';
 import { ModelsDevClient } from '../enrichment/ModelsDevClient';
 import type { ModelsDevRegistry } from '../enrichment/modelsDevSchema';
 import { ProviderRepository } from '../storage/ProviderRepository';
 import { runLegacyModelConfigMigration } from '../migration/legacyModelConfigMigration';
+import { runOrphanProviderDedup } from '../migration/orphanProviderDedup';
 import { mirrorConnectOrRekey, mirrorDisconnect } from '../legacyModelConfigBridge';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
@@ -300,6 +306,18 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       const out: { key: string; baseUrl?: string } = { key: creds.key };
       if (typeof creds.baseUrl === 'string' && creds.baseUrl.trim().length > 0) {
         out.baseUrl = creds.baseUrl.trim();
+      } else if (!PROVIDER_ENDPOINTS[providerId]) {
+        // Providers from the "100+ more" catalog (e.g. opencode-go) carry their
+        // endpoint in the bundled catalog, not in PROVIDER_ENDPOINTS. The connect
+        // view picks them key-only with no baseUrl, so resolve the catalog
+        // endpoint here - otherwise the connection test has no endpoint to probe
+        // and always fails "unknown", and inference would have no base URL. (#63)
+        try {
+          const entry = (await getProviderCatalog()).find((e) => e.id === providerId);
+          if (entry?.baseUrl) out.baseUrl = entry.baseUrl;
+        } catch {
+          /* non-fatal: fall through with no baseUrl */
+        }
       }
       return out;
     }
@@ -358,6 +376,20 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         return { ok: false, models: 0, sourceErrors: 0 };
       }
 
+      // The ChatGPT subscription can't be listed via `api.openai.com/v1/models`
+      // (the subscription token is locked out of it), but the Codex backend DOES
+      // expose the account's live model list at `codex/models?client_version=...`
+      // (same source the Codex CLI / Hermes / OpenClaw use). Fetch it live so the
+      // catalog always reflects OpenAI's current models; fall back to a static
+      // snapshot only when the fetch fails. The generic API source below would
+      // fetch zero models and wipe the catalog, so this provider stays special.
+      if (providerId === CHATGPT_SUBSCRIPTION_PROVIDER_ID) {
+        const accessToken = 'key' in creds ? creds.key : '';
+        const models = await buildChatGptSubscriptionCatalogLive(accessToken);
+        repo.replaceRegistryCatalog(providerId, models);
+        return { ok: true, models: models.length, sourceErrors: 0 };
+      }
+
       // `refreshAllOnce` fetches the models.dev registry once for the whole
       // sweep and threads it in, so N providers don't each re-fetch (and can't
       // assemble against different registry versions mid-sweep). Single-provider
@@ -368,6 +400,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       const isGoogleAuth = 'useGoogleAuth' in creds && creds.useGoogleAuth === true;
 
       let sources: CatalogSource[];
+      let usedLiveApiSource = false;
       if (CLOUD_PROVIDERS.has(providerId) || isGoogleAuth) {
         // Cloud + google-auth-Gemini - synthesize the catalog from the
         // models.dev registry slice. The OAuth-authenticated SDK reads model
@@ -383,11 +416,30 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             ? (stored.creds.baseUrl as string)
             : undefined;
         sources = [deps.makeApiSource(providerId, creds.key, customBaseUrl)];
+        usedLiveApiSource = true;
       } else {
         sources = [];
       }
 
-      const { models, sourceErrors } = await assembler.assemble(sources, registry);
+      const { models: liveModels, sourceErrors } = await assembler.assemble(sources, registry);
+      let models = liveModels;
+
+      // models.dev fallback: a live `/v1/models` source that enumerated NOTHING
+      // is the signature of an OAuth/subscription bearer that authenticates for
+      // inference but cannot list models - xAI "Sign in with X" is the case in
+      // point, and it is exactly why google-auth Gemini already routes through
+      // CloudRegistrySource above. Rather than persist an empty catalog (dead
+      // provider, dead toggle), synthesize from the models.dev registry slice.
+      // That keeps the catalog CURRENT with no hardcoded id list - models.dev is
+      // re-fetched on every refresh - and yields [] for providers models.dev
+      // does not track, so a genuinely-empty custom endpoint still stays empty.
+      // API-KEY connections are unaffected: their live listing is non-empty, so
+      // the fallback never runs and the user's real account models win.
+      if (usedLiveApiSource && models.length === 0) {
+        const fallback = await assembler.assemble([new CloudRegistrySource(providerId, registry)], registry);
+        if (fallback.models.length > 0) models = fallback.models;
+      }
+
       const finalModels = providerId === FLUX_PROVIDER_ID ? injectFluxVirtualModels(models) : models;
       repo.replaceRegistryCatalog(providerId, finalModels);
       return { ok: true, models: finalModels.length, sourceErrors };
@@ -507,6 +559,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
     const isCloud = CLOUD_PROVIDERS.has(providerId);
     const isGoogleAuth = 'useGoogleAuth' in resolved;
+    // #100: a key that authenticates but has no usable credit yet (e.g. a brand
+    // new OpenRouter key) should still be addable. When set, the fresh-connect
+    // path persists the provider connected-but-switched-off with a warning
+    // instead of rejecting it.
+    let noCredit = false;
 
     if (isGoogleAuth) {
       // Google-auth Gemini - no HTTP probe (OAuth is verified by the auth
@@ -525,7 +582,15 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       // but build an empty catalog).
       if ('fields' in resolved) return { ok: false, error: 'unrecognized' };
       const result = await connectionTester.test(providerId, resolved as { key: string }, resolved.baseUrl);
-      if (!result.ok) return { ok: false, error: result.error ?? 'unknown' };
+      if (!result.ok) {
+        // A no-credit key still authenticates, and providers with a public model
+        // listing (OpenRouter) still build a full catalog. On a FRESH connect,
+        // accept it as connected-but-off with a warning (#100) instead of
+        // rejecting. A rekey keeps the strict behavior - never silently swap a
+        // working key for an unusable one. Every other failure is a hard reject.
+        if (isRekey || result.error !== 'no-credit') return { ok: false, error: result.error ?? 'unknown' };
+        noCredit = true;
+      }
     }
 
     // Ship-gate Fix B2: persist an explicit `baseUrl` alongside the api key
@@ -585,6 +650,18 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       return { ok: false, error: 'unknown' };
     }
 
+    if (noCredit) {
+      // Connected, but the key has no usable credit yet. Land the provider
+      // switched off - disable every catalogued model so the row reads Connected
+      // + off - and return a warning so the panel can say "add credit, then turn
+      // it on" (#100). Flipping the provider switch on later re-enables the
+      // curated defaults; the disable overrides survive catalog refreshes.
+      for (const model of repo.getRegistryCatalog(providerId)) {
+        repo.setRegistryOverride(providerId, model.id, false);
+      }
+      return { ok: true, warning: 'no-credit' };
+    }
+
     return { ok: true };
   }
 
@@ -624,10 +701,15 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // `not-found` - no row to test.
         if (stored.status !== 'ok') return { ok: false, error: 'unrecognized' };
 
-        if (CLOUD_PROVIDERS.has(providerId) || stored.creds.useGoogleAuth === true) {
-          // Cloud + google-auth - neither can be HTTP-probed via the standard
-          // `/v1/models` path. A stored credential is the strongest available
-          // signal; treat it as connected.
+        if (
+          CLOUD_PROVIDERS.has(providerId) ||
+          providerId === CHATGPT_SUBSCRIPTION_PROVIDER_ID ||
+          stored.creds.useGoogleAuth === true
+        ) {
+          // Cloud + google-auth + chatgpt-subscription - none can be HTTP-probed
+          // via the standard `/v1/models` path (the ChatGPT backend has no model
+          // listing and its token is rejected by api.openai.com). A stored
+          // credential is the strongest available signal; treat it as connected.
           repo.updateRegistryProviderState(providerId, 'connected');
           return { ok: true };
         }
@@ -640,8 +722,10 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           creds as { key: string } | { fields: Record<string, string> },
           typeof stored.creds.baseUrl === 'string' ? stored.creds.baseUrl : undefined
         );
-        const state: ProviderConnState = result.ok ? 'connected' : 'error';
-        repo.updateRegistryProviderState(providerId, state, result.ok ? undefined : result.error);
+        // A no-credit key is still authenticated - keep the provider Connected
+        // (it sits switched-off via disabled models), consistent with connect (#100).
+        const established = result.ok || result.error === 'no-credit';
+        repo.updateRegistryProviderState(providerId, established ? 'connected' : 'error', established ? undefined : result.error);
         return result.ok ? { ok: true } : { ok: false, error: result.error ?? 'unknown' };
       } catch {
         return { ok: false, error: 'unknown' };
@@ -908,11 +992,20 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             const { models } = await assembler.assemble([source], registry);
             return curator.curate(models);
           }
-          // Non-enumerable CLI - fall back to the underlying provider's curated
-          // set when that provider is connected, else nothing.
+          // Non-enumerable CLI (e.g. Claude Code). When the underlying provider
+          // is connected with its own API key, use the persisted, override-aware
+          // catalog. When it is NOT connected - the common case for a CLI-login
+          // user (a Claude Pro/Max subscription, no Anthropic API key) - the
+          // picker used to come back EMPTY (#125). Synthesize the underlying
+          // provider's model families straight from the models.dev registry (the
+          // same keyless path cloud providers use), so Claude shows real models.
           const underlying = CLI_UNDERLYING_PROVIDER[cliKey];
-          if (!repo.getRegistryProvider(underlying)) return [];
-          return applyOverrides(underlying, curator.curate(repo.getRegistryCatalog(underlying)));
+          if (repo.getRegistryProvider(underlying)) {
+            return applyOverrides(underlying, curator.curate(repo.getRegistryCatalog(underlying)));
+          }
+          const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
+          const { models } = await assembler.assemble([new CloudRegistrySource(underlying, registry)], registry);
+          return curator.curate(models);
         }
 
         return [];
@@ -993,6 +1086,7 @@ const CHAT_START_PLATFORM: Partial<Record<ProviderId, string>> = {
   lingyiwanwu: 'openai-compatible',
   'zhipu-glm': 'openai-compatible',
   minimax: 'openai-compatible',
+  sakana: 'openai-compatible',
   stability: 'openai-compatible',
   deepgram: 'openai-compatible',
   assemblyai: 'openai-compatible',
@@ -1002,6 +1096,20 @@ const CHAT_START_PLATFORM: Partial<Record<ProviderId, string>> = {
   // Local Ollama daemon - dispatched as the OpenAI-compatible protocol against
   // its hardcoded loopback `/v1` endpoint, with no API key (keyless local).
   'ollama-local': 'openai-compatible',
+  // Ollama Cloud - OpenAI-compatible against ollama.com with the user's key.
+  // Without this entry chat-start returned `unsupported` and inference fell
+  // back to api.openai.com (401). See #36.
+  'ollama-cloud': 'openai-compatible',
+  // ChatGPT subscription (OAuth) - dispatched as `openai-compatible` so the
+  // legacy bridge's `v2:chatgpt-subscription` tag propagates onto the chat-start
+  // model (via the `platformFor === 'openai-compatible'` legacy-match in
+  // GuidModelSelector), where envBuilder re-routes it to the native
+  // `--provider openai-chatgpt` (the engine owns chatgpt.com/backend-api and
+  // reads the OAuth token from ~/.codex/auth.json). Without this entry
+  // buildChatStartPayload returned `unsupported`, so resolveForChatStart failed
+  // and the picker bounced the user to Settings - the model could never be
+  // selected and the #243 engine routing was never reached (live-E2E gap).
+  'chatgpt-subscription': 'openai-compatible',
   // Azure intentionally absent - the legacy dispatch has no Azure arm; a
   // future Azure chat-start will need its own dispatcher work.
 };
@@ -1032,7 +1140,13 @@ const CHAT_START_BASE_URL: Partial<Record<ProviderId, string>> = {
   baichuan: 'https://api.baichuan-ai.com/v1',
   lingyiwanwu: 'https://api.lingyiwanwu.com/v1',
   'zhipu-glm': 'https://open.bigmodel.cn/api/paas/v4',
-  minimax: 'https://api.minimax.chat/v1',
+  // International MiniMax platform (`.io`); the mainland-China `api.minimax.chat`
+  // host 401s international keys (and vice versa) - same split as Moonshot above.
+  // Inference MUST use the same host the key was validated against (the probe in
+  // providerEndpoints.ts also uses `.io`), or a key that connects fine then 401s
+  // on the first message (#135).
+  minimax: 'https://api.minimax.io/v1',
+  sakana: 'https://api.sakana.ai/v1',
   stability: 'https://api.stability.ai/v1',
   deepgram: 'https://api.deepgram.com/v1',
   assemblyai: 'https://api.assemblyai.com/v2',
@@ -1041,6 +1155,9 @@ const CHAT_START_BASE_URL: Partial<Record<ProviderId, string>> = {
   // Hardcoded local Ollama OpenAI-compatible endpoint. Never user-overridable -
   // the keyless allowance is anchored to this fixed loopback host.
   'ollama-local': 'http://127.0.0.1:11434/v1',
+  // Ollama Cloud OpenAI-compatible root (mirrors the pinned models probe in
+  // providerEndpoints.ts). See #36.
+  'ollama-cloud': 'https://ollama.com/v1',
 };
 
 /** Short human label per provider - shown in the home-picker button text. */
@@ -1050,6 +1167,7 @@ const CHAT_START_NAME: Partial<Record<ProviderId, string>> = {
   'google-gemini': 'Google Gemini',
   'aws-bedrock': 'AWS Bedrock',
   vertex: 'Google Vertex',
+  'chatgpt-subscription': 'ChatGPT',
   openrouter: 'OpenRouter',
   groq: 'Groq',
   xai: 'xAI',
@@ -1070,6 +1188,7 @@ const CHAT_START_NAME: Partial<Record<ProviderId, string>> = {
   lingyiwanwu: 'Lingyi Wanwu',
   'zhipu-glm': 'Zhipu GLM',
   minimax: 'MiniMax',
+  sakana: 'Sakana AI',
   stability: 'Stability AI',
   deepgram: 'Deepgram',
   assemblyai: 'AssemblyAI',
@@ -1077,6 +1196,7 @@ const CHAT_START_NAME: Partial<Record<ProviderId, string>> = {
   'flux-router': 'Flux Router',
   'openai-compatible': 'OpenAI Compatible',
   'ollama-local': 'Ollama (Local)',
+  'ollama-cloud': 'Ollama (Cloud)',
 };
 
 /**
@@ -1126,6 +1246,15 @@ function buildChatStartPayload(
   if (isGoogleAuthGemini) {
     // No credential material in the payload - the dispatcher reads the OAuth
     // tokens from the main-process auth store.
+    return { kind: 'payload', payload };
+  }
+
+  // ── ChatGPT subscription ───────────────────────────────────────────────
+  if (providerId === 'chatgpt-subscription') {
+    // Keyless, like Google-auth Gemini: no credential in the payload. The engine
+    // reads the ChatGPT OAuth token from its own store (~/.codex/auth.json,
+    // written by the desktop on sign-in) via `--provider openai-chatgpt`, so the
+    // empty-key branch below (-> undecryptable) must NOT apply here (#243).
     return { kind: 'payload', payload };
   }
 
@@ -1286,13 +1415,44 @@ export function mergeSpawnSecrets<T extends TProviderWithModel>(model: T, secret
  * never sent to the renderer. Resolution is per-call, so two concurrent chats
  * each get their own key with no shared global state in this path.
  */
+/**
+ * Extract the canonical registry providerId from the `v2:<id>` bridge tag a
+ * legacy-mirrored binding carries. After `legacyModelConfigBridge` collapses
+ * `platform` to `openai-compatible` and assigns a random-uuid `id`, this tag is
+ * the ONLY surviving carrier of the real provider id.
+ */
+function bridgeProviderId(model: TProviderWithModel): string | undefined {
+  const tag = (model as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+  if (typeof tag === 'string' && tag.startsWith('v2:')) {
+    const id = tag.slice('v2:'.length);
+    if (id) return id;
+  }
+  return undefined;
+}
+
 export async function hydrateModelForSpawn<T extends TProviderWithModel>(model: T): Promise<T> {
+  // A legacy-mirrored binding (Flux, Sakana, OpenRouter, ...) collapses `platform`
+  // to `openai-compatible` and stores a random-uuid `id`; the canonical registry
+  // providerId survives ONLY in the `v2:<id>` bridge tag. Resolving by `model.id`
+  // misses the registry, so the provider's base URL is never applied and the engine
+  // falls back to api.openai.com with a valid non-OpenAI key -> 401. Resolve by the
+  // bridge tag first (this generalizes the prior Flux-only special-case).
+  const bridgeId = bridgeProviderId(model);
+  const providerId = isFluxModelId(model.useModel) ? FLUX_PROVIDER_ID : (bridgeId ?? model.id);
   const secrets = await resolveModelSecretsForSpawn({
-    providerId: model.id,
+    providerId,
     accountId: model.accountId ?? DEFAULT_ACCOUNT_ID,
     modelId: model.useModel,
   });
-  return mergeSpawnSecrets(model, secrets);
+  const merged = mergeSpawnSecrets(model, secrets);
+  // Safety net: if no base URL resolved but the bridge tag names a provider with a
+  // known canonical base URL, apply it so an openai-compatible key is never shipped
+  // to api.openai.com (covers a binding whose registry row is absent/legacy).
+  if (!merged.baseUrl && bridgeId) {
+    const canonicalBaseUrl = CHAT_START_BASE_URL[bridgeId as ProviderId];
+    if (canonicalBaseUrl) return { ...merged, baseUrl: canonicalBaseUrl };
+  }
+  return merged;
 }
 
 // ─── IPC registration ─────────────────────────────────────────────────────────
@@ -1565,8 +1725,14 @@ export const CATALOG_DATA_VERSION = 1;
 function scheduleStartupMigration(): void {
   if (_migrationScheduled) return;
   _migrationScheduled = true;
-  app
-    .whenReady()
+  // In the standalone (non-Electron) server runtime the `electron` module is
+  // undefined, so `app` is undefined and `app.whenReady()` would throw. There
+  // is no `whenReady` gate to wait on there - storage is already initialized
+  // before the registry IPC is wired - so resolve immediately. The Electron
+  // path keeps deferring to `app.whenReady()` exactly as before.
+  const ready: Promise<unknown> =
+    typeof app?.whenReady === 'function' ? app.whenReady() : Promise.resolve();
+  ready
     .then(async () => {
       if (!_repo) return;
       try {
@@ -1575,6 +1741,20 @@ function scheduleStartupMigration(): void {
         // The migration is itself defensive - this catch is the belt-and-braces
         // outer guard so a thrown migration cannot crash the main process.
         console.warn('[modelRegistry] Legacy-config migration failed:', error);
+      }
+      // Remove orphaned pre-registry duplicate rows (the "Two Geminis" the
+      // legacy->registry migration leaves behind). Runs after the legacy
+      // migration so any freshly-mirrored bridge rows are visible, and uses
+      // `ProcessConfig` directly - it only edits `model.config`, no creds.
+      try {
+        await runOrphanProviderDedup({
+          get: (key) => ProcessConfig.get(key as never) as Promise<unknown>,
+          set: async (key, value) => {
+            await ProcessConfig.set(key as never, value as never);
+          },
+        });
+      } catch (error) {
+        console.warn('[modelRegistry] Orphan-provider dedup failed:', error);
       }
       let postUpgradeSwept = false;
       try {
@@ -1783,13 +1963,109 @@ export async function connectModelRegistryProvider(
     console.error('[modelRegistry] connectModelRegistryProvider called before IPC init');
     return { ok: false, error: 'unknown' };
   }
+  // Detect a FIRST-TIME Flux connection before the upsert so a later rekey - or a
+  // reconnect after the user turned routing off (#160) - never silently re-enables
+  // routing. Connecting Flux Router at all IS the intent to route through it.
+  // Gate on "no CONNECTED row", not "no row at all": the connect handler upserts
+  // an `error`-state row when the first attempt fails (transient catalog/network
+  // blip), so keying off mere existence would treat the successful RETRY as
+  // non-fresh and never enable routing - dropping the user back on a tiny local
+  // model. This mirrors the headless importEnvKeys guard (skip only when already
+  // connected); the #160 promise holds because a connected row is still skipped.
+  const priorFlux = providerId === FLUX_PROVIDER_ID ? _repo?.getRegistryProvider(providerId) : undefined;
+  const isFreshFluxConnect = providerId === FLUX_PROVIDER_ID && !!_repo && priorFlux?.state !== 'connected';
   const result = await _handlers.connect({ providerId, creds });
   if (result.ok && _repo) void mirrorConnectOrRekey(_repo, providerId);
+  // Enable Flux routing once on first connect so the home/chat default resolves
+  // flux-auto instead of a tiny local model (e.g. Ollama smollm2:135m) that
+  // happens to sort first in the safe-default fallback. Mirrors the headless
+  // env-import path (importEnvKeys); the fresh-connect guard preserves a user's
+  // later decision to turn routing off.
+  if (result.ok && isFreshFluxConnect) {
+    try {
+      await ProcessConfig.set('system.routeThroughFlux', true);
+    } catch (routeError) {
+      console.warn('[modelRegistry] Failed to enable Flux routing on first connect:', routeError);
+    }
+  }
   // Live-update any open picker / the Models page after a connect, the same way
   // the manual refresh handler does. On failure the provider's `error` state
   // must surface too, so emit always.
   ipcBridge.modelRegistry.listChanged.emit();
   return result;
+}
+
+/**
+ * Read the NON-SECRET registry view for a single provider (state + model count
+ * + connectedVia), or `null` when the provider is not in the registry.
+ *
+ * Exposed for the remote secret-write routes (remote-secure-config W1): after a
+ * write-only connect they return `{ state, modelCount }` as status only - never
+ * the key. Reuses the same `list()` projection the read-only Models page uses,
+ * so the status is sourced from exactly one place. Returns `null` if called
+ * before `initModelRegistryIpc` has captured the production handlers.
+ */
+export async function getModelRegistryProviderView(
+  providerId: ProviderId
+): Promise<IModelRegistryProviderView | null> {
+  if (!_handlers) return null;
+  const list = await _handlers.list();
+  return list.find((p) => p.providerId === providerId) ?? null;
+}
+
+/**
+ * Register a ChatGPT subscription connected via OAuth (`chatgpt-subscription`).
+ *
+ * This provider CANNOT go through `connectModelRegistryProvider`: a ChatGPT
+ * subscription access token is rejected by `api.openai.com`, and the ChatGPT
+ * backend (`chatgpt.com/backend-api`) exposes no `/v1/models` listing - so the
+ * standard HTTP-probe + models.dev catalog build would both fail. Like the
+ * cloud / google-auth providers, connection is verified by the OAuth module that
+ * minted the token, so we skip the probe and seed a STATIC catalog of the model
+ * ids the Responses path accepts.
+ *
+ * The access token is stored on the registry row as `creds.key` and the ChatGPT
+ * backend base as `creds.baseUrl` so the legacy bridge writes an
+ * `openai-compatible` row pointing at the backend. The custom Responses headers
+ * + body translation are NOT wired here - see the inference seam documented in
+ * `chatgptOAuth.ts` (registerChatGptSubscription).
+ *
+ * Returns `{ ok: false, error: 'unknown' }` if called before the registry repo
+ * is initialized.
+ */
+export function connectChatGptSubscriptionProvider(params: {
+  accessToken: string;
+  baseUrl: string;
+}): IModelRegistryConnectResult {
+  if (!_repo) {
+    console.error('[modelRegistry] connectChatGptSubscriptionProvider called before IPC init');
+    return { ok: false, error: 'unknown' };
+  }
+  try {
+    _repo.upsertRegistryProvider({
+      providerId: CHATGPT_SUBSCRIPTION_PROVIDER_ID,
+      connectedVia: 'ChatGPT subscription',
+      state: 'connected',
+      creds: { key: params.accessToken, baseUrl: params.baseUrl },
+    });
+    // Write a static placeholder immediately so the picker is never empty during
+    // the live fetch, then upgrade to the account's real model list in the
+    // background (connect must stay sync for the IPC contract).
+    _repo.replaceRegistryCatalog(CHATGPT_SUBSCRIPTION_PROVIDER_ID, buildChatGptSubscriptionCatalog());
+    void mirrorConnectOrRekey(_repo, CHATGPT_SUBSCRIPTION_PROVIDER_ID);
+    ipcBridge.modelRegistry.listChanged.emit();
+    void buildChatGptSubscriptionCatalogLive(params.accessToken).then((models) => {
+      try {
+        _repo?.replaceRegistryCatalog(CHATGPT_SUBSCRIPTION_PROVIDER_ID, models);
+        ipcBridge.modelRegistry.listChanged.emit();
+      } catch {
+        // Keep the static placeholder if the live upgrade can't be persisted.
+      }
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'unknown' };
+  }
 }
 
 /**

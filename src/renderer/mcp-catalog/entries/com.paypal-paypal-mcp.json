@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.paypal/paypal-mcp",
+  "title": "PayPal",
+  "description": "Create and manage invoices, transactions, subscriptions, disputes, and orders - PayPal’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.paypal.ai/developer/tools/ai/mcp-quickstart",
+  "repository": {
+    "url": "https://docs.paypal.ai/developer/tools/ai/mcp-quickstart",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.paypal.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "payments",
+      "sales"
+    ],
+    "tags": [
+      "paypal",
+      "payments",
+      "invoices"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 141,
+    "installRate": 0,
+    "iconUrl": "icons/com.paypal-paypal-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#003087"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "PayPal",
+      "providerSignupUrl": "https://www.paypal.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.paypal-paypal-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

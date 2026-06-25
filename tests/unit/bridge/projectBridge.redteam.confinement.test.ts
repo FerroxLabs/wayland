@@ -55,7 +55,7 @@ import { readSourceFiles } from '../../../src/process/bridge/projectBridge';
 const mockConfinePath = vi.mocked(confinePath);
 const mockReadFile = vi.mocked(fs.readFile);
 
-const IN_ROOT = '/Users/seandonahoe/Documents/project/notes.md';
+const IN_ROOT = '/Users/you/Documents/project/notes.md';
 const OUT_OF_ROOT = '/etc/passwd';
 
 beforeEach(() => {

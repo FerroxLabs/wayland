@@ -8,17 +8,24 @@
  *
  * On Linux distributions without libsecret/gnome-keyring (typical headless
  * servers and minimal container images), `safeStorage.isEncryptionAvailable()`
- * returns `false`. In that case `encryptString` THROWS rather than silently
- * falling back to plaintext storage. Callers must surface the error and
- * remediate (install `libsecret-1-0` / `gnome-keyring`, or refuse to persist
- * credentials).
+ * returns `false`. In the standalone (non-Electron) server runtime the
+ * `electron` module - and thus `safeStorage` - is undefined entirely.
  *
- * Ciphertext is opaque base64 and is prefixed with {@link CIPHER_PREFIX} so
- * stored values can be distinguished from legacy `b64:` / `plain:` formats
- * during migration.
+ * In both of those cases we fall back to the file-key backend
+ * ({@link ./fileKeyStore}): an AES-256-GCM scheme whose key is derived from a
+ * 0600 per-install secret in the data directory. This is strictly weaker than
+ * an OS keychain (see the security note in fileKeyStore.ts) but is what lets a
+ * headless server persist provider credentials at all (issue #25). The Electron
+ * keychain path remains preferred and is used whenever it is available; we never
+ * silently write plaintext.
+ *
+ * Ciphertext is opaque base64 and is prefixed with {@link CIPHER_PREFIX}
+ * (safeStorage) or {@link FILE_CIPHER_PREFIX} (file backend) so the two formats
+ * - and the legacy `b64:` / `plain:` formats - are always distinguishable.
  */
 
 import { safeStorage } from 'electron';
+import { fileDecryptString, fileEncryptString, FILE_CIPHER_PREFIX } from './fileKeyStore';
 
 /** Opaque ciphertext string returned by {@link encryptString}. */
 export type EncryptedString = string;
@@ -44,37 +51,41 @@ export function isEncryptionAvailable(): boolean {
 }
 
 /**
- * Encrypts a UTF-8 plaintext string using Electron `safeStorage` and returns
- * a prefixed base64-encoded ciphertext.
+ * Encrypts a UTF-8 plaintext string and returns a prefixed base64 ciphertext.
  *
- * @throws Error when encryption is unavailable on the host. The error message
- *   includes remediation guidance for Linux users.
+ * Prefers Electron `safeStorage` (OS keychain). When that is unavailable
+ * (headless server, or Linux without libsecret) it falls back to the file-key
+ * backend so credentials can still be persisted. Never writes plaintext.
  */
 export function encryptString(plaintext: string): EncryptedString {
-  if (!isEncryptionAvailable()) {
-    throw new Error(
-      '[secrets/safeStorage] OS credential encryption is not available. ' +
-        'On Linux, install libsecret (e.g. `apt install libsecret-1-0 gnome-keyring`) ' +
-        'and ensure a secret service is running. On headless servers, run a session ' +
-        'with `dbus-launch` or refuse to persist credentials. Refusing to fall back ' +
-        'to plaintext.'
-    );
+  if (isEncryptionAvailable()) {
+    const cipherBuffer = safeStorage.encryptString(plaintext);
+    return `${CIPHER_PREFIX}${cipherBuffer.toString('base64')}`;
   }
-
-  const cipherBuffer = safeStorage.encryptString(plaintext);
-  return `${CIPHER_PREFIX}${cipherBuffer.toString('base64')}`;
+  // No OS keychain - use the file-key backend instead of refusing to persist.
+  return fileEncryptString(plaintext);
 }
 
 /**
  * Decrypts a value produced by {@link encryptString}.
  *
- * @throws Error when the input does not carry the {@link CIPHER_PREFIX} or
- *   when the underlying `safeStorage.decryptString` rejects the payload.
+ * Routes by scheme prefix: {@link FILE_CIPHER_PREFIX} values go to the file-key
+ * backend, {@link CIPHER_PREFIX} values go to Electron `safeStorage`. This means
+ * a blob written by either backend decrypts correctly regardless of which
+ * backend is currently preferred - e.g. a value the file backend wrote stays
+ * readable, and a keychain-written value still decrypts via safeStorage.
+ *
+ * @throws Error when the input carries neither known prefix, or when the
+ *   underlying backend rejects the payload (bad tag, wrong key, corruption).
  */
 export function decryptString(encoded: EncryptedString): string {
+  if (encoded.startsWith(FILE_CIPHER_PREFIX)) {
+    return fileDecryptString(encoded);
+  }
+
   if (!encoded.startsWith(CIPHER_PREFIX)) {
     throw new Error(
-      `[secrets/safeStorage] Refusing to decrypt value without "${CIPHER_PREFIX}" prefix. ` +
+      `[secrets/safeStorage] Refusing to decrypt value without "${CIPHER_PREFIX}" or "${FILE_CIPHER_PREFIX}" prefix. ` +
         'Legacy `b64:` / `plain:` values must be migrated explicitly.'
     );
   }

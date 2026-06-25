@@ -4,12 +4,20 @@ import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
 import { Button, Dropdown, Menu, Tooltip } from '@arco-design/web-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 import useSWR from 'swr';
 import { ipcBridge } from '@/common';
 import type { IProvider } from '@/common/config/storage';
+import ModelSelectorFlyout from '@renderer/components/model/modelSelector/ModelSelectorFlyout';
+import {
+  resolveActiveModelKey,
+  resolveSelectedProvider,
+} from '@renderer/components/model/modelSelector/resolveSelectedProvider';
+import { useModelSelectorViewModel } from '@renderer/components/model/modelSelector/useModelSelectorViewModel';
+import { usePinnedModels } from '@renderer/hooks/usage/usePinnedModels';
 
 // Unified model dropdown for chat header, send box, and channel settings
 const GeminiModelSelector: React.FC<{
@@ -19,6 +27,7 @@ const GeminiModelSelector: React.FC<{
   variant?: 'header' | 'settings';
 }> = ({ selection, disabled = false, label: customLabel, variant = 'header' }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { isOpen: isPreviewOpen } = usePreviewContext();
   const layout = useLayoutContext();
   const compact = variant === 'header' && (isPreviewOpen || layout?.isMobile);
@@ -38,6 +47,19 @@ const GeminiModelSelector: React.FC<{
       healthStatus === 'healthy' ? 'bg-green-500' : healthStatus === 'unhealthy' ? 'bg-red-500' : 'bg-gray-400';
     return { status: healthStatus, color: healthColor };
   }, [currentModel, modelConfig]);
+
+  // Unified flyout state (in-chat header variant only). A Flux selection keys
+  // off the canonical `flux-router:<id>` so the Flux Auto hero shows its active
+  // check even though the live Flux provider carries an opaque id. Hooks run
+  // unconditionally to keep the hook count stable across early returns.
+  // Key the active flyout row by the registry ProviderId recovered from the
+  // selection's owning bridge row, not the legacy storage id (#124).
+  const activeModelKey = useMemo(
+    () => resolveActiveModelKey(modelConfig, currentModel),
+    [modelConfig, currentModel?.id, currentModel?.useModel]
+  );
+  const vm = useModelSelectorViewModel('gemini', activeModelKey);
+  const { toggle } = usePinnedModels(true);
 
   // Disabled state (non-Gemini Agent): render a simple Tooltip + Button, no Dropdown needed
   if (disabled || !selection) {
@@ -68,6 +90,17 @@ const GeminiModelSelector: React.FC<{
   }
 
   const { providers, geminiModeLookup, getAvailableModels, handleSelectModel, formatModelLabel } = selection;
+
+  // The flyout emits `(modelId, providerId)`; route it through the existing
+  // `handleSelectModel(provider, modelName)` path. The flyout's providerId is
+  // the registry ProviderId, not the legacy storage provider.id, so resolve the
+  // owning provider robustly (see resolveSelectedProvider) - matching on
+  // provider.id alone silently dropped every non-Flux selection (#99/102/103/104).
+  const onSelect = (modelId: string, providerId: string) => {
+    const provider = resolveSelectedProvider(providers, getAvailableModels, modelId, providerId);
+    if (!provider) return;
+    void handleSelectModel(provider, modelId);
+  };
 
   // formatModelLabel returns the friendly label for known modes (e.g. 'Auto (Gemini 3)')
   // and falls back to the raw model name for manual sub-model selections.
@@ -111,6 +144,28 @@ const GeminiModelSelector: React.FC<{
         </span>
       </Button>
     );
+
+  // In-chat header: the unified flyout (search + pins + Flux hero, provider-
+  // gated). Settings/channel variant keeps the Arco Menu with its manual
+  // Google-auth sub-mode submenus, which the curated flyout does not model.
+  if (variant === 'header') {
+    return (
+      <Dropdown
+        trigger='click'
+        droplist={
+          <ModelSelectorFlyout
+            vm={vm}
+            onSelect={onSelect}
+            onTogglePin={toggle}
+            onManage={() => navigate('/settings/models')}
+            draftSearch
+          />
+        }
+      >
+        {triggerButton}
+      </Dropdown>
+    );
+  }
 
   return (
     <Dropdown

@@ -18,6 +18,7 @@
 
 import type { CatalogSource } from './CatalogSource';
 import type { ConnectError, ProviderId, RawModel } from '../types';
+import { fetchWithRetry } from '../../utils/fetchWithRetry';
 import { PROVIDER_ENDPOINTS } from '../detection/providerEndpoints';
 import type { AuthStrategy } from '../detection/providerAuth';
 import { ANTHROPIC_VERSION, appendQuery, authStrategyFor } from '../detection/providerAuth';
@@ -152,21 +153,19 @@ export class ApiProviderSource implements CatalogSource {
 
   /** Fetch one page, mapping every failure mode onto a `ProviderSourceError`. */
   private async fetchPage(url: string, auth: AuthStrategy): Promise<unknown> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
     let res: Response;
     try {
-      res = await fetch(url, {
-        method: 'GET',
-        signal: controller.signal,
-        headers: this.requestHeaders(auth),
-      });
+      // Bounded retry on transient faults (dropped sockets, timeouts, 429/5xx,
+      // and the OpenAI-family false-404). A still-failing response is returned
+      // for classification below, exactly as the bare fetch did.
+      res = await fetchWithRetry(
+        url,
+        { method: 'GET', headers: this.requestHeaders(auth) },
+        { timeoutMs: FETCH_TIMEOUT_MS, providerId: this.providerId }
+      );
     } catch (err) {
       // A network/DNS failure or an abort (timeout) - the provider is unreachable.
       throw new ProviderSourceError('offline', describeError(err));
-    } finally {
-      clearTimeout(timer);
     }
 
     if (!res.ok) {

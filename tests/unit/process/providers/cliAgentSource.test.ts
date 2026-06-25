@@ -92,37 +92,13 @@ describe('CliAgentSource - enumerable CLI (Codex)', () => {
     expect(models.some((m) => m.id === 'codex-auto-review')).toBe(false);
   });
 
-  it('invokes the codex CLI with the offline `debug models --bundled` arguments', async () => {
-    execFileMock.mockResolvedValue({ stdout: CODEX_DEBUG_MODELS_JSON, stderr: '' });
-
-    await new CliAgentSource('codex').listModels();
-
-    expect(execFileMock).toHaveBeenCalledTimes(1);
-    const [file, args, options] = execFileMock.mock.calls[0];
-    expect(file).toBe('codex');
-    expect(args).toEqual(['debug', 'models', '--bundled']);
-    expect(options?.timeout).toBeGreaterThan(0);
-  });
-
-  it('returns [] without throwing when the codex CLI is missing (spawn ENOENT)', async () => {
-    execFileMock.mockRejectedValue(Object.assign(new Error('spawn codex ENOENT'), { code: 'ENOENT' }));
-
-    await expect(new CliAgentSource('codex').listModels()).resolves.toEqual([]);
-  });
-
-  it('returns [] without throwing when the codex CLI exits non-zero', async () => {
-    execFileMock.mockRejectedValue(Object.assign(new Error('Command failed with exit code 1'), { code: 1 }));
-
-    await expect(new CliAgentSource('codex').listModels()).resolves.toEqual([]);
-  });
-
-  it('returns [] without throwing when the codex CLI emits unparseable output', async () => {
+  it('returns [] without throwing when the codex CLI emits unparseable output (both paths)', async () => {
     execFileMock.mockResolvedValue({ stdout: 'not json at all', stderr: '' });
 
     await expect(new CliAgentSource('codex').listModels()).resolves.toEqual([]);
   });
 
-  it('returns [] without throwing when the codex CLI emits a well-formed but model-less payload', async () => {
+  it('returns [] without throwing when both commands emit a model-less payload', async () => {
     execFileMock.mockResolvedValue({ stdout: JSON.stringify({ models: [] }), stderr: '' });
 
     await expect(new CliAgentSource('codex').listModels()).resolves.toEqual([]);
@@ -154,6 +130,80 @@ describe('CliAgentSource - enumerable CLI (Codex)', () => {
     const models = await new CliAgentSource('codex').listModels();
 
     expect(models).toEqual([{ id: 'gpt-5.5', providerId: 'openai' }]);
+  });
+});
+
+// ─── Account-aware preference + graceful bundled fallback (issue #22) ──────────
+
+/** Account-scoped catalog: ONE entitled model (what the subscription can call). */
+const CODEX_ACCOUNT_MODELS_JSON = JSON.stringify({
+  models: [{ slug: 'gpt-5.5', display_name: 'GPT-5.5', visibility: 'list', supported_in_api: true }],
+});
+
+/** Offline bundled catalog: a BROADER set incl. models the account can't call. */
+const CODEX_BUNDLED_MODELS_JSON = JSON.stringify({
+  models: [
+    { slug: 'gpt-5.5', display_name: 'GPT-5.5', visibility: 'list', supported_in_api: true },
+    { slug: 'gpt-5.2', display_name: 'GPT-5.2', visibility: 'list', supported_in_api: true },
+    { slug: 'gpt-5.3-codex', display_name: 'GPT-5.3-Codex', visibility: 'list', supported_in_api: true },
+  ],
+});
+
+describe('CliAgentSource - account-aware vs bundled (Codex, issue #22)', () => {
+  it('tries the account-aware `debug models` (no --bundled) FIRST', async () => {
+    execFileMock.mockResolvedValue({ stdout: CODEX_ACCOUNT_MODELS_JSON, stderr: '' });
+
+    await new CliAgentSource('codex').listModels();
+
+    const [file, args, options] = execFileMock.mock.calls[0];
+    expect(file).toBe('codex');
+    expect(args).toEqual(['debug', 'models']);
+    expect(options?.timeout).toBeGreaterThan(0);
+  });
+
+  it('uses the account-aware result and does NOT call the bundled fallback when it yields models', async () => {
+    execFileMock.mockResolvedValue({ stdout: CODEX_ACCOUNT_MODELS_JSON, stderr: '' });
+
+    const models = await new CliAgentSource('codex').listModels();
+
+    // Scoped to the one entitled model - the broad bundled set is never consulted.
+    expect(models).toEqual([{ id: 'gpt-5.5', providerId: 'openai', rawName: 'GPT-5.5' }]);
+    expect(execFileMock).toHaveBeenCalledTimes(1);
+    expect(execFileMock.mock.calls[0][1]).toEqual(['debug', 'models']);
+  });
+
+  it('falls back to `--bundled` when the account-aware probe errors - list is NOT blank', async () => {
+    execFileMock
+      .mockRejectedValueOnce(Object.assign(new Error('refresh failed: network'), { code: 1 }))
+      .mockResolvedValueOnce({ stdout: CODEX_BUNDLED_MODELS_JSON, stderr: '' });
+
+    const models = await new CliAgentSource('codex').listModels();
+
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+    expect(execFileMock.mock.calls[0][1]).toEqual(['debug', 'models']);
+    expect(execFileMock.mock.calls[1][1]).toEqual(['debug', 'models', '--bundled']);
+    expect(models.map((m) => m.id)).toEqual(['gpt-5.5', 'gpt-5.2', 'gpt-5.3-codex']);
+  });
+
+  it('falls back to `--bundled` when the account-aware probe returns an empty catalog - list is NOT blank', async () => {
+    execFileMock
+      .mockResolvedValueOnce({ stdout: JSON.stringify({ models: [] }), stderr: '' })
+      .mockResolvedValueOnce({ stdout: CODEX_BUNDLED_MODELS_JSON, stderr: '' });
+
+    const models = await new CliAgentSource('codex').listModels();
+
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+    expect(execFileMock.mock.calls[1][1]).toEqual(['debug', 'models', '--bundled']);
+    expect(models.length).toBe(3);
+  });
+
+  it('returns [] only when BOTH the account-aware and bundled commands fail (CLI missing)', async () => {
+    execFileMock.mockRejectedValue(Object.assign(new Error('spawn codex ENOENT'), { code: 'ENOENT' }));
+
+    const models = await new CliAgentSource('codex').listModels();
+
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+    expect(models).toEqual([]);
   });
 });
 

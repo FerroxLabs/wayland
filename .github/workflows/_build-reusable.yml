@@ -99,6 +99,12 @@ jobs:
   build:
     name: Build ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
+    # Defense in depth: without this, a hung step (e.g. codesign blocking on
+    # Apple's timestamp server) rides GitHub's 6h default — three v0.9.7 runs
+    # wedged 90-160 min before manual cancel. 120 sits clear of a slow-but-healthy
+    # build (~50-60 min build + two ~20 min notary waits can stack) yet still cuts
+    # a true wedge well before 6h so auto-retry kicks in.
+    timeout-minutes: 120
     needs: code-quality
     if: ${{ always() && (inputs.skip_code_quality || needs.code-quality.result == 'success') }}
 
@@ -239,6 +245,13 @@ jobs:
             security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
             security default-keychain -s build.keychain
             security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+            # Disable the 300s default auto-lock. The dmg is code-signed in a
+            # separate codesign call (notarizeDmg) several minutes AFTER the app
+            # sign — past the 300s default, the keychain auto-locks and that
+            # codesign hangs forever waiting for an unlock prompt that never
+            # comes in CI. (Root cause of the v0.9.7 mac "codesign hang"; it was
+            # never the Apple TSA.) 6h timeout outlasts any build.
+            security set-keychain-settings -t 21600 build.keychain
 
             # Import certificate
             security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
@@ -332,6 +345,60 @@ jobs:
           MSVS_VERSION: 2022
           GYP_MSVS_VERSION: 2022
 
+      # Mandatory-on-tag signing guard: a release tag build must never ship an
+      # unsigned Windows artifact. If the Azure Trusted Signing service-principal
+      # secret is missing on a release tag, fail loudly BEFORE the build (the
+      # build step below swallows its own failures into a notice, so this is the
+      # hard gate). Non-tag/dev builds are unaffected and may build unsigned.
+      - name: Require Azure signing credentials on release tag (Windows)
+        if: startsWith(matrix.platform, 'windows') && startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+        shell: bash
+        env:
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          if [ -z "$AZURE_CLIENT_SECRET" ]; then
+            echo "::error title=Windows signing not configured::AZURE_CLIENT_SECRET is empty on a release tag. Refusing to ship an unsigned Windows build. Set AZURE_TENANT_ID / AZURE_CLIENT_ID / AZURE_CLIENT_SECRET repo secrets."
+            exit 1
+          fi
+          echo "Azure Trusted Signing credentials present — proceeding with signed Windows build."
+
+      # electron-builder's Azure Trusted Signing path invokes the
+      # `Invoke-TrustedSigning` cmdlet from the `TrustedSigning` PowerShell
+      # module. electron-builder tries to install it inline ("installing required
+      # module (TrustedSigning)"), but that install is unreliable on the hosted
+      # runners — a non-interactive Install-Module fails silently when the NuGet
+      # provider is absent or PSGallery is untrusted, leaving the cmdlet
+      # unrecognized and the signed build failing with "The term
+      # 'Invoke-TrustedSigning' is not recognized" (v0.9.9-rc.1 windows-x64).
+      # Pre-install it deterministically here so electron-builder auto-loads it
+      # from disk in the build step that follows.
+      - name: Pre-install Azure TrustedSigning module (Windows, signed builds)
+        if: startsWith(matrix.platform, 'windows')
+        shell: pwsh
+        env:
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:AZURE_CLIENT_SECRET) {
+            Write-Host "No Azure signing secret present — skipping TrustedSigning module install (unsigned build)."
+            exit 0
+          }
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+          }
+          # Pin to electron-builder's own floor so we never auto-load a major it
+          # did not expect; electron-builder then re-runs Install-Module -Force
+          # against an already-trusted gallery and short-circuits.
+          Install-Module -Name TrustedSigning -MinimumVersion 0.5.0 -Force -Scope CurrentUser -AllowClobber -Repository PSGallery
+          Import-Module TrustedSigning
+          if (-not (Get-Command Invoke-TrustedSigning -ErrorAction SilentlyContinue)) {
+            Write-Error "Invoke-TrustedSigning still not available after installing the TrustedSigning module."
+            exit 1
+          }
+          $mod = Get-Module -ListAvailable -Name TrustedSigning | Select-Object -First 1
+          Write-Host "TrustedSigning module installed (v$($mod.Version)); Invoke-TrustedSigning is available."
+
       - name: Build with electron-builder (Windows)
         if: startsWith(matrix.platform, 'windows')
         id: windows-build
@@ -389,6 +456,13 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          # Azure Trusted Signing credentials (Windows Authenticode). electron-builder
+          # authenticates Trusted Signing via the Azure EnvironmentCredential, which
+          # reads exactly these three vars. Non-secret signing config lives in
+          # electron-builder.yml under win.azureSignOptions.
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           # CI flag & GitHub token / CI 标识与 GitHub Token
           CI: true
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -482,6 +556,20 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           CI: true
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # Post-build: repair the macOS update feed. electron-builder computes the
+      # dmg's sha512/size at artifact-created time — BEFORE notarizeDmg staples
+      # it — and flushes latest-mac.yml only in its final publish-task phase
+      # (after the afterAllArtifactBuild hook returns), so the on-disk manifest
+      # carries the stale pre-staple dmg hash and in-app updates fail integrity
+      # verification (#109). The yml is on disk now and the dmg is stapled, so
+      # recompute the real digests here. Idempotent: a notarization-skipped
+      # (un-stapled) build leaves the manifest byte-for-byte unchanged. The
+      # release smoke gate (verify-update-metadata.mjs) then confirms it.
+      - name: Repair macOS update manifest (post-notarize)
+        if: startsWith(matrix.platform, 'macos')
+        shell: bash
+        run: node scripts/repair-mac-manifest.mjs --dir out
 
       # Linux: Standard build without special error handling
       # Linux: 标准构建，无特殊错误处理

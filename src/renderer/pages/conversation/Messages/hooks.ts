@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { TMessage } from '@/common/chat/chatLib';
 import { composeMessage } from '@/common/chat/chatLib';
+import { mergeActivityContent, mergeNodeList } from '@/common/chat/activityTree';
 import { useCallback, useEffect, useRef } from 'react';
 import { createContext } from '@renderer/utils/ui/createContext';
 
@@ -230,10 +231,41 @@ function composeMessageWithIndex(message: TMessage, list: TMessage[], index: Mes
         const next = message.content;
         const mergedStatus =
           next.status === 'done' || next.status === 'failed' ? next.status : prev.status;
+        // #252 Phase 2: fold the sub-agent's streamed child subtree by node id
+        // (recurses for nested sub-agents). Mirrors composeMessage.
+        const mergedNodes = mergeNodeList(prev.nodes, next.nodes);
         const newList = list.slice();
         newList[existingIdx] = {
           ...existingMsg,
-          content: { ...prev, status: mergedStatus, body: prev.body + next.body },
+          content: {
+            ...prev,
+            status: mergedStatus,
+            body: prev.body + next.body,
+            ...(mergedNodes.length ? { nodes: mergedNodes } : {}),
+          },
+        };
+        return newList;
+      }
+    }
+    const newIdx = list.length;
+    index.msgIdIndex.set(message.msg_id, newIdx);
+    return list.concat(message);
+  }
+
+  // #252 activity card: merge by msg_id (= activity:${turnId}) via msgIdIndex.
+  // The namespaced key keeps the card out of the turn's text-message slot in
+  // msgIdIndex, so interleaved text deltas still merge into one bubble.
+  // Each incoming message is a single-event delta; fold its nodes/cost into the
+  // existing card. Mirrors the sub_agent branch above (index-optimized).
+  if (message.type === 'activity' && message.msg_id) {
+    const existingIdx = index.msgIdIndex.get(message.msg_id);
+    if (existingIdx !== undefined && existingIdx < list.length) {
+      const existingMsg = list[existingIdx];
+      if (existingMsg.type === 'activity') {
+        const newList = list.slice();
+        newList[existingIdx] = {
+          ...existingMsg,
+          content: mergeActivityContent(existingMsg.content, message.content),
         };
         return newList;
       }
@@ -371,6 +403,33 @@ export const useRemoveMessageByMsgId = () => {
     },
     [update]
   );
+};
+
+/**
+ * Drop transient error tips from the live list. Some engine `error` events are
+ * non-fatal diagnostics (e.g. wcore's "Cache full miss: TtlExpiry") emitted
+ * mid-turn while the turn keeps streaming and ultimately completes. Those would
+ * otherwise leave a stale error banner above an otherwise successful turn.
+ * Called on stream finish so a completed turn does not carry a dead error.
+ */
+export const useClearErrorTips = () => {
+  const update = useUpdateMessageList();
+
+  return useCallback(() => {
+    // useAddOrUpdateMessage batches stream events into a setTimeout-driven flush,
+    // so error/content messages from the just-finished turn may still be queued
+    // when `finish` fires. Defer the clear by one macrotask so it runs after that
+    // flush has committed the turn's messages; otherwise it would filter a list
+    // that does not yet contain the error tip, which the flush then re-adds.
+    setTimeout(() => {
+      update((list) => {
+        const next = list.filter((message) => !(message.type === 'tips' && message.content?.type === 'error'));
+        // Preserve referential identity when nothing changed so React skips the
+        // re-render (the common case: turns finish without an error tip).
+        return next.length === list.length ? list : next;
+      });
+    });
+  }, [update]);
 };
 
 export const useMessageLstCache = (key: string) => {

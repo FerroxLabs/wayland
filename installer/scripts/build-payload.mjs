@@ -9,7 +9,7 @@
  * Run from app/installer:  node scripts/build-payload.mjs   (then `npm publish`)
  */
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,6 +27,10 @@ function run(cmd, args) {
 console.log('Building Wayland headless payload…');
 run('bun', ['run', 'build:renderer:web']);
 run('bun', ['run', 'build:server']);
+// Builtin MCP stdio servers (team_*, image-gen, search-skills). Built to
+// out/main/; copied beside the server bundle below so the headless
+// resolveMcpScriptDir() (= the bundle's own dir) finds them.
+run('node', ['scripts/build-mcp-servers.js']);
 
 const distServer = join(APP, 'dist-server');
 const renderer = join(APP, 'out', 'renderer');
@@ -38,6 +42,31 @@ rmSync(PAYLOAD, { recursive: true, force: true });
 mkdirSync(join(PAYLOAD, 'out'), { recursive: true });
 cpSync(distServer, join(PAYLOAD, 'dist-server'), { recursive: true });
 cpSync(renderer, join(PAYLOAD, 'out', 'renderer'), { recursive: true });
+
+// MCP stdio scripts: built into out/main/, must sit beside the server bundle
+// (payload/dist-server) so the startup canary + team tools resolve them.
+const outMain = join(APP, 'out', 'main');
+const isMcpScript = (f) =>
+  /^(builtin-mcp-.+|team-mcp-stdio|team-guide-mcp-stdio)\.(js|mjs)$/.test(f) || f === 'eventkit-bridge';
+const mcpScripts = existsSync(outMain) ? readdirSync(outMain).filter(isMcpScript) : [];
+for (const f of mcpScripts) cpSync(join(outMain, f), join(PAYLOAD, 'dist-server', f));
+const REQUIRED_MCP = ['builtin-mcp-image-gen.js', 'builtin-mcp-search-skills.js', 'team-mcp-stdio.js', 'team-guide-mcp-stdio.js'];
+const missingMcp = REQUIRED_MCP.filter((f) => !mcpScripts.includes(f));
+if (missingMcp.length) { console.error(`✗ MCP build incomplete, missing: ${missingMcp.join(', ')}`); process.exit(1); }
+console.log(`  + ${mcpScripts.length} MCP scripts → payload/dist-server`);
+
+// Builtin resource trees the server resolves under payload/src/process/resources/.
+// (skills + assistant + skills-library + bundled-workflows; matches what the
+// desktop ships via viteStaticCopy + extraResources.)
+const resSrc = join(APP, 'src', 'process', 'resources');
+const resDst = join(PAYLOAD, 'src', 'process', 'resources');
+const RESOURCE_DIRS = ['skills', 'assistant', 'skills-library', 'bundled-workflows'];
+for (const name of RESOURCE_DIRS) {
+  const s = join(resSrc, name);
+  if (!existsSync(s)) { console.error(`✗ resource dir missing in source: ${name} (${s})`); process.exit(1); }
+  cpSync(s, join(resDst, name), { recursive: true });
+}
+console.log(`  + resources (${RESOURCE_DIRS.join(', ')}) → payload/src/process/resources`);
 
 // Sync version to the app.
 const appPkg = JSON.parse(readFileSync(join(APP, 'package.json'), 'utf8'));

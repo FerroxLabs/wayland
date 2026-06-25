@@ -19,6 +19,14 @@
   "readyToInstallDesc": "更新已下载完成，点击下方按钮重启应用并安装更新。",
   "installNow": "立即安装",
   "autoUpdateMode": "自动更新模式",
+  "ijfw": {
+    "availableTitle": "IJFW 更新可用",
+    "pathIssueTitle": "IJFW 命令路径需要注意",
+    "pathIssueBody": "IJFW 已安装，但 ijfw 命令不在 PATH 中。Wayland 仍可使用本地安装。",
+    "updateButton": "更新 IJFW",
+    "updateStarted": "IJFW 更新已开始。在它准备好新版本后，请重启 Wayland。",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "在文件夹中显示",
   "openFile": "打开文件",
   "errorTitle": "更新失败",
@@ -27,5 +35,11 @@
     "metadataMissing": "找不到此版本的已签名更新元数据 (latest.yml)。拒绝打开未经验证的安装程序。",
     "assetNotInMetadata": "下载的文件“{{name}}”未列在已签名的更新元数据中。拒绝打开未经验证的安装程序。",
     "checksumMismatch": "下载的更新未通过完整性校验（校验和不匹配），已被丢弃。请勿运行它。请重试或从 Releases 页面下载。"
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

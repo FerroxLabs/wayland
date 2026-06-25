@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.pinecone/pinecone-mcp",
+  "title": "Pinecone",
+  "description": "Manage indexes, upsert records, run cascading vector search, and rerank - Pinecone’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/pinecone-io/pinecone-mcp",
+  "repository": {
+    "url": "https://github.com/pinecone-io/pinecone-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@pinecone-database/mcp",
+      "version": "latest",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "PINECONE_API_KEY",
+          "description": "Pinecone API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "ml",
+      "database"
+    ],
+    "tags": [
+      "pinecone",
+      "vector",
+      "rag"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 131,
+    "installRate": 0,
+    "iconUrl": "icons/io.pinecone-pinecone-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#1B17F5"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Pinecone",
+      "providerSignupUrl": "https://app.pinecone.io"
+    },
+    "setupGuide": {
+      "path": "guides/io.pinecone-pinecone-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

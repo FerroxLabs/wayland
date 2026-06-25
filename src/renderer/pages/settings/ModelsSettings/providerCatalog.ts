@@ -35,6 +35,13 @@ export type ProviderMeta = {
   darkText: boolean;
   /** Browse-modal group this provider belongs to (spec §4.6). */
   group: ProviderGroup;
+  /**
+   * Held out of the Browse grid + provider lists while a provider is built but
+   * not yet user-ready (e.g. chatgpt-subscription, gated until its inference
+   * seam is verified). Keeps the Record<NativeProviderId> complete without
+   * exposing a dead connect path.
+   */
+  hidden?: boolean;
 };
 
 /**
@@ -72,6 +79,16 @@ export const PROVIDER_META: Record<NativeProviderId, ProviderMeta> = {
   },
   groq: { id: 'groq', displayName: 'Groq', mono: 'Gq', bg: '#f55036', darkText: false, group: 'open' },
   xai: { id: 'xai', displayName: 'xAI Grok', mono: 'x', bg: '#1a1a1a', darkText: false, group: 'frontier' },
+  'chatgpt-subscription': {
+    id: 'chatgpt-subscription',
+    displayName: 'ChatGPT (subscription)',
+    mono: 'C',
+    bg: '#10a37f',
+    darkText: false,
+    group: 'frontier',
+    // Gated until the codex/Responses inference seam is wired + live-verified.
+    hidden: true,
+  },
   mistral: { id: 'mistral', displayName: 'Mistral', mono: 'M', bg: '#fa5111', darkText: false, group: 'frontier' },
   cohere: { id: 'cohere', displayName: 'Cohere', mono: 'C', bg: '#39594d', darkText: false, group: 'frontier' },
   perplexity: {
@@ -138,6 +155,7 @@ export const PROVIDER_META: Record<NativeProviderId, ProviderMeta> = {
     group: 'chinese',
   },
   minimax: { id: 'minimax', displayName: 'MiniMax', mono: 'Mm', bg: '#e8472b', darkText: false, group: 'chinese' },
+  sakana: { id: 'sakana', displayName: 'Sakana AI', mono: 'Sa', bg: '#1f6feb', darkText: false, group: 'open' },
   stability: {
     id: 'stability',
     displayName: 'Stability AI',
@@ -208,11 +226,69 @@ export function providerMeta(id: ProviderId): ProviderMeta {
 export const PROVIDER_GROUP_ORDER: readonly ProviderGroup[] = ['frontier', 'cloud', 'open', 'chinese', 'voice'];
 
 /** All provider metadata in a stable order (frontier → voice, declaration order within). */
-export const ALL_PROVIDERS: readonly ProviderMeta[] = Object.values(PROVIDER_META);
+export const ALL_PROVIDERS: readonly ProviderMeta[] = Object.values(PROVIDER_META).filter((p) => !p.hidden);
 
 /** Providers belonging to one Browse group, in declaration order. */
 export function providersInGroup(group: ProviderGroup): ProviderMeta[] {
   return ALL_PROVIDERS.filter((p) => p.group === group);
+}
+
+/**
+ * "Bring your own endpoint" providers, in render order. Surfaced as a dedicated
+ * section at the FRONT of the Browse modal - the custom / self-hosted /
+ * OpenAI-compatible connect was the single hardest thing to find (buried under
+ * "Open inference"), so it leads now. When NOT searching these are pulled out of
+ * the grouped library to avoid duplication; a search re-includes them so an
+ * explicit "azure" / "openrouter" query still finds them in their group.
+ */
+export const BYO_PROVIDER_ORDER = [
+  'openai-compatible',
+  'ollama-local',
+  'azure',
+  'aws-bedrock',
+  'vertex',
+  'openrouter',
+] as const satisfies readonly ProviderId[];
+
+/** Fast membership test for the BYO front section. */
+export const BYO_PROVIDER_IDS: ReadonlySet<ProviderId> = new Set(BYO_PROVIDER_ORDER);
+
+/** The BYO providers as resolved metadata, in render order. */
+export const BYO_PROVIDERS: readonly ProviderMeta[] = BYO_PROVIDER_ORDER.map((id) => providerMeta(id));
+
+/**
+ * Extra search terms that resolve to a provider beyond its display name. Lets a
+ * user who thinks in terms of "custom", "self-hosted", "runpod", or "vllm" find
+ * the OpenAI-compatible endpoint - none of which appear in any display name.
+ */
+const PROVIDER_SEARCH_ALIASES: Partial<Record<ProviderId, readonly string[]>> = {
+  'openai-compatible': [
+    'custom',
+    'self-hosted',
+    'selfhosted',
+    'self hosted',
+    'local',
+    'runpod',
+    'vllm',
+    'lm studio',
+    'lmstudio',
+    'endpoint',
+    'byo',
+    'compatible',
+  ],
+  'ollama-local': ['local', 'ollama'],
+};
+
+/**
+ * Whether a provider matches a (lowercased, trimmed) search query - by display
+ * name, id, or one of its aliases. An empty query matches nothing here; callers
+ * gate the unsearched view separately.
+ */
+export function providerMatchesQuery(p: ProviderMeta, q: string): boolean {
+  if (!q) return false;
+  if (p.displayName.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)) return true;
+  const aliases = PROVIDER_SEARCH_ALIASES[p.id];
+  return aliases ? aliases.some((a) => a.includes(q) || q.includes(a)) : false;
 }
 
 /** Result of recognizing a provider from a pasted API key. */
@@ -259,8 +335,15 @@ export function recognizeKey(raw: string): KeyRecognition {
   if (key.startsWith('sk-ant-')) return { kind: 'recognized', provider: 'anthropic' };
   if (key.startsWith('sk-flux-')) return { kind: 'recognized', provider: 'flux-router' };
   if (key.startsWith('sk-or-')) return { kind: 'recognized', provider: 'openrouter' };
-  if (key.startsWith('sk-proj-')) return { kind: 'recognized', provider: 'openai' };
-  if (key.startsWith('AIza')) return { kind: 'recognized', provider: 'google-gemini' };
+  // OpenAI project (`sk-proj-`), service-account (`sk-svcacct-`), and Admin API
+  // (`sk-admin-`) keys - all distinct from the bare legacy `sk-` shape (#224 audit).
+  if (key.startsWith('sk-proj-') || key.startsWith('sk-svcacct-') || key.startsWith('sk-admin-')) {
+    return { kind: 'recognized', provider: 'openai' };
+  }
+  // Google AI Studio issues classic `AIza` "traffic" keys and newer `AQ.`
+  // "authentication" keys (some accounts now get the latter exclusively); both
+  // are valid Generative Language API keys (#224).
+  if (key.startsWith('AIza') || key.startsWith('AQ.')) return { kind: 'recognized', provider: 'google-gemini' };
   if (key.startsWith('gsk_')) return { kind: 'recognized', provider: 'groq' };
   if (key.startsWith('xai-')) return { kind: 'recognized', provider: 'xai' };
   if (key.startsWith('hf_')) return { kind: 'recognized', provider: 'huggingface' };
@@ -271,9 +354,14 @@ export function recognizeKey(raw: string): KeyRecognition {
   if (key.startsWith('csk-')) return { kind: 'recognized', provider: 'cerebras' };
   if (key.startsWith('nvapi-')) return { kind: 'recognized', provider: 'nvidia' };
   if (key.startsWith('esecret_')) return { kind: 'recognized', provider: 'anyscale' };
-  if (key.startsWith('dg_')) return { kind: 'recognized', provider: 'deepgram' };
-  if (key.startsWith('aai_')) return { kind: 'recognized', provider: 'assemblyai' };
-  if (key.startsWith('xi-api-')) return { kind: 'recognized', provider: 'elevenlabs' };
+  if (key.startsWith('fish_')) return { kind: 'recognized', provider: 'sakana' };
+  // GitHub Models inference uses a GitHub PAT (classic `ghp_` / fine-grained
+  // `github_pat_`); route to the connectable github-models catalog provider (#224 audit).
+  if (key.startsWith('ghp_') || key.startsWith('github_pat_')) {
+    return { kind: 'recognized', provider: 'github-models' };
+  }
+  // Removed dead `dg_` (deepgram), `aai_` (assemblyai), `xi-api-` (elevenlabs)
+  // rules - never real key prefixes; those providers connect via Browse (#224 audit).
 
   // Multi-field cloud provider (priority 90) - needs the credential form, not a
   // bare key.

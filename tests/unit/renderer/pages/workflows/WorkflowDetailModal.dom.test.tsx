@@ -22,7 +22,9 @@ vi.mock('react-router-dom', () => ({
 const mockStart = vi.fn();
 const mockUpdateSessionState = vi.fn();
 const mockGetReport = vi.fn();
+const mockGetBody = vi.fn();
 const mockFindActive = vi.fn();
+const mockCuratedForAgent = vi.fn();
 
 vi.mock('@/common', () => ({
   ipcBridge: {
@@ -35,6 +37,10 @@ vi.mock('@/common', () => ({
     },
     skills: {
       getReport: { invoke: (...args: unknown[]) => mockGetReport(...args) },
+      getBody: { invoke: (...args: unknown[]) => mockGetBody(...args) },
+    },
+    modelRegistry: {
+      curatedForAgent: { invoke: (...args: unknown[]) => mockCuratedForAgent(...args) },
     },
   },
 }));
@@ -122,12 +128,17 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     mockStart.mockReset();
     mockUpdateSessionState.mockReset();
     mockGetReport.mockReset();
+    mockGetBody.mockReset();
     mockFindActive.mockReset();
     mockFetchDetectedAgents.mockReset();
     mockConfigStorageGet.mockReset();
     mockConfigStorageSet.mockReset();
+    mockCuratedForAgent.mockReset();
+    mockCuratedForAgent.mockResolvedValue([]);
 
     mockGetReport.mockResolvedValue({});
+    // Default: no SKILL.md body -> modal shows the generic fallback copy.
+    mockGetBody.mockResolvedValue(null);
     // Default: no active session - modal opens in picker mode
     mockFindActive.mockResolvedValue({ session: null });
 
@@ -175,6 +186,34 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('workflow-backend-select')).toBeTruthy();
     });
+  });
+
+  // S8 regression: the "When you launch this" preview must be populated from
+  // skills.getBody. The old code called skills.getReport (security verdict)
+  // and then setBody(null) unconditionally, so the body was always blank and
+  // the generic fallback always showed.
+  it('populates the preview body from skills.getBody (S8)', async () => {
+    const BODY = 'Step 1. Draft the announcement.\nStep 2. Schedule the send.';
+    mockGetBody.mockResolvedValue(BODY);
+
+    render(<WorkflowDetailModal entry={makeEntry()} onClose={vi.fn()} />);
+
+    await waitFor(() => expect(screen.getByText(/Draft the announcement/)).toBeTruthy());
+
+    // The body must come from getBody, not getReport.
+    expect(mockGetBody).toHaveBeenCalledWith({ name: 'launch-plan' });
+    // The generic fallback copy must NOT be shown when a real body exists.
+    expect(screen.queryByText(/loads this workflow as its first directive/i)).toBeNull();
+  });
+
+  it('falls back to the generic copy when skills.getBody returns null (S8)', async () => {
+    mockGetBody.mockResolvedValue(null);
+
+    render(<WorkflowDetailModal entry={makeEntry()} onClose={vi.fn()} />);
+
+    await waitFor(() =>
+      expect(screen.getByText(/loads this workflow as its first directive/i)).toBeTruthy()
+    );
   });
 
   it('defaults picker to guid.lastSelectedAgent from ConfigStorage', async () => {
@@ -294,6 +333,62 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
     expect(callArg).toHaveProperty('model');
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/conversation/conv_new', expect.any(Object));
+  });
+
+  // --- #198: WCore model carries provider identity into launch ------------
+
+  it('resolves the real provider for a WCore model instead of a synthetic fallback (#198)', async () => {
+    // Repro: Wayland Core picker is empty in the ACP cache (user hasn't opened
+    // a WCore chat), so the model list comes from the curated registry, which
+    // carries a registry providerId ('openai') - NOT the backend key ('wcore').
+    // The bug: buildLaunchTarget matched providers by `platform === backend`,
+    // which never matched for wcore, so it built a synthetic 'wcore-fallback'
+    // provider that the send box later rejected as "No model selected".
+    mockFetchDetectedAgents.mockResolvedValue([WCORE_AGENT]);
+    mockCuratedForAgent.mockResolvedValue([{ id: 'gpt-5.5', displayName: 'GPT-5.5', providerId: 'openai' }]);
+    mockConfigStorageGet.mockImplementation((key: string) => {
+      if (key === 'guid.lastSelectedAgent') return Promise.resolve(null);
+      // No wcore entry -> picker falls back to the curated registry list.
+      if (key === 'acp.cachedModels') return Promise.resolve({});
+      if (key === 'acp.config') return Promise.resolve({});
+      if (key === 'model.config') {
+        // The real connected provider: opaque legacy id, platform 'openai',
+        // and the model in its catalog. Its id is NOT 'openai' and its platform
+        // is NOT 'wcore', so only providerId/membership resolution finds it.
+        return Promise.resolve([
+          {
+            id: 'openai-7f3a',
+            platform: 'openai',
+            name: 'OpenAI',
+            baseUrl: 'https://api.openai.com',
+            apiKey: 'sk-real',
+            model: ['gpt-5.5'],
+          },
+        ]);
+      }
+      return Promise.resolve(null);
+    });
+
+    const newSession = makeSession({ id: 'sess_new', conversation_id: 'conv_new' });
+    mockStart.mockResolvedValue({ sessionId: 'sess_new', session: newSession });
+
+    render(<WorkflowDetailModal entry={makeEntry()} onClose={vi.fn()} />);
+
+    await waitFor(() => expect(screen.getByTestId('workflow-model-select')).toBeTruthy());
+
+    clickLaunch();
+
+    await waitFor(() => expect(mockStart).toHaveBeenCalledTimes(1));
+
+    const callArg = mockStart.mock.calls[0][0] as { model: Record<string, unknown> };
+    // The launch target must carry the REAL provider, not a synthetic fallback.
+    expect(callArg.model.id).toBe('openai-7f3a');
+    expect(callArg.model.platform).toBe('openai');
+    expect(callArg.model.apiKey).toBe('sk-real');
+    expect(callArg.model.useModel).toBe('gpt-5.5');
+    // Guard against the regression specifically.
+    expect(callArg.model.id).not.toBe('wcore-fallback');
+    expect(callArg.model.platform).not.toBe('wcore');
   });
 
   // --- Resume probe tests (Audit B HIGH-2) --------------------------------

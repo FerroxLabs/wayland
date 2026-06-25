@@ -177,5 +177,8 @@
     "title": "从已安装的 CLI 工具镜像技能",
     "subtitle": "呈现来自 ~/.claude/skills、~/.codex/skills 和 ~/.gemini/skills 的技能，使其显示在你的技能页面上。需手动开启。需重启后生效。",
     "restartNeeded": "- 请重启应用以生效。"
+  },
+  "addToChat": {
+    "alreadyAdded": "Added"
   }
 }

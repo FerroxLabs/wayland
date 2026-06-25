@@ -5,6 +5,7 @@
  */
 
 import { getEnhancedEnv } from '@process/utils/shellEnv';
+import { killChild } from '@process/agent/acp/utils';
 import type { ChildProcess } from 'child_process';
 import { spawn } from 'child_process';
 
@@ -112,13 +113,13 @@ export class NanobotConnection {
   }
 
   /**
-   * Kill any running nanobot child process.
+   * Kill any running nanobot child process and its descendant tree (#139).
    */
-  kill(): void {
-    if (this.child) {
-      this.child.kill();
-      this.child = null;
-    }
+  async kill(): Promise<void> {
+    const child = this.child;
+    if (!child) return;
+    this.child = null;
+    await killChild(child, false);
   }
 
   get isRunning(): boolean {

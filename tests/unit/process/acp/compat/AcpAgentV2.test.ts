@@ -2,6 +2,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AcpAgentV2, SESSION_START_TIMEOUT_MS } from '@process/acp/compat/AcpAgentV2';
+import { getFullAutoMode } from '@/common/types/agentModes';
 import type { SessionCallbacks } from '@process/acp/types';
 import type { OldAcpAgentConfig } from '@process/acp/compat/typeBridge';
 
@@ -641,10 +642,16 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
   }
 
   describe('getModelInfo()', () => {
-    it('should return null initially', () => {
+    it('returns the static Sonnet/Opus/Haiku slot fallback initially for claude (#184)', () => {
+      // Claude Code's ACP wrapper never advertises a model list, so with no
+      // cc-switch data and no cache, getModelInfo falls back to the static slots
+      // (instead of null) so the in-chat picker is populated + switchable.
       const agent = createAgent();
 
-      expect(agent.getModelInfo()).toBe(null);
+      const info = agent.getModelInfo();
+      expect(info?.availableModels.map((m) => m.id)).toEqual(['sonnet', 'opus', 'haiku']);
+      expect(info?.canSwitch).toBe(true);
+      expect(info?.sourceDetail).toBe('claude-slots');
     });
 
     it('should return cached model info after onModelUpdate callback', async () => {
@@ -1039,19 +1046,21 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
   });
 
   describe('enableYoloMode()', () => {
-    it('should delegate to setMode with bypassPermissions', async () => {
+    it('should delegate to setMode with the backend full-auto (guarded) mode', async () => {
       const agent = await createStartedAgent();
 
-      // Mock setMode to trigger onModeUpdate after a tick
+      // enableYoloMode now routes through getFullAutoMode so the guardrail's
+      // "auto guarded" mode is used instead of raw bypassPermissions.
+      const expectedMode = getFullAutoMode('claude');
       mockSessionMethods.setMode.mockImplementation(() => {
         setTimeout(() => {
-          capturedCallbacks.onModeUpdate({ currentMode: 'bypassPermissions' });
+          capturedCallbacks.onModeUpdate({ currentMode: expectedMode });
         }, 0);
       });
 
       await agent.enableYoloMode();
 
-      expect(mockSessionMethods.setMode).toHaveBeenCalledWith('bypassPermissions');
+      expect(mockSessionMethods.setMode).toHaveBeenCalledWith(expectedMode);
     });
 
     it('should propagate result from setMode', async () => {

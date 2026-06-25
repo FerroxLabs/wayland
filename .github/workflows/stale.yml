@@ -1,0 +1,35 @@
+name: Stale needs-info
+
+# Only nudges issues explicitly waiting on reporter detail (state:needs-info).
+# It never touches the rest of the backlog: only-issue-labels scopes it, and
+# fixed/priority/milestoned issues are exempt.
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          only-issue-labels: 'state:needs-info'
+          days-before-issue-stale: 14
+          days-before-issue-close: 7
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          exempt-issue-labels: 'priority:high,state:fixed-pending-release'
+          exempt-all-issue-milestones: true
+          stale-issue-label: 'stale'
+          stale-issue-message: >
+            This issue has been waiting on more detail for 14 days. If it is
+            still happening, add the requested information and it will reopen
+            the conversation. It will close in 7 days otherwise.
+          close-issue-message: >
+            Closing for now since we did not get the detail needed to
+            reproduce. Comment with the info and we will pick it back up.

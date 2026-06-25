@@ -6,7 +6,12 @@
 import React from 'react';
 
 export interface LayoutContextValue {
+  /** Legacy composite (narrow OR small-screen touch). Prefer the two below. */
   isMobile: boolean;
+  /** Viewport below the mobile width breakpoint - use for LAYOUT decisions (#47). */
+  isNarrow: boolean;
+  /** Touch / coarse pointer primary input - use for INTERACTION decisions (#47). */
+  isTouch: boolean;
   siderCollapsed: boolean;
   setSiderCollapsed: (value: boolean) => void;
 }

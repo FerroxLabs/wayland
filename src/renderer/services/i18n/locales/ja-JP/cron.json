@@ -131,6 +131,12 @@
     "scheduleDesc": {
       "manual": "手動",
       "hourly": "毎時実行",
+      "everyNHours_one": "毎時",
+      "everyNHours_other": "{{count}} 時間ごと",
+      "everyNHoursAtMinute_one": "毎時 :{{minute}} 分",
+      "everyNHoursAtMinute_other": "{{count}} 時間ごとの :{{minute}} 分",
+      "everyNMinutes_one": "毎分",
+      "everyNMinutes_other": "{{count}} 分ごと",
       "dailyAt": "毎日 {{time}} に実行",
       "weekdaysAt": "平日 {{time}} に実行",
       "weeklyAt": "毎週{{day}} {{time}} に実行",

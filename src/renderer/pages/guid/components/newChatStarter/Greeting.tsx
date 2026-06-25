@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './Greeting.module.css';
 
@@ -44,8 +44,10 @@ const LABEL_POOL: Record<TimeBucket, string[]> = {
  *
  * Renders "<phrase>, <name>" when `displayName` is provided, otherwise just
  * "<phrase>". The phrase varies by time of day (lateNight <5, morning <12,
- * afternoon <17, evening <21, otherwise night) and a phrasing is picked once
- * per mount so the greeting feels alive without re-rolling on every render.
+ * afternoon <17, evening <21, otherwise night). The phrasing is chosen
+ * deterministically from the current date+hour so a remount (e.g. an upstream
+ * re-render in headless mode) never visibly flips the text — it only changes
+ * once per hour, never per mount.
  */
 const Greeting: React.FC<GreetingProps> = ({ now, displayName }) => {
   const { t } = useTranslation();
@@ -53,7 +55,10 @@ const Greeting: React.FC<GreetingProps> = ({ now, displayName }) => {
   const date = now ?? new Date();
   const bucket = resolveTimeBucket(date.getHours());
 
-  const [variantIndex] = useState(() => Math.floor(Math.random() * LABEL_POOL[bucket].length));
+  // Deterministic, remount-stable selection: seed off the calendar day + hour
+  // so the phrase is constant for any given hour but still rotates over time.
+  const seed = date.getFullYear() * 1000000 + (date.getMonth() + 1) * 10000 + date.getDate() * 100 + date.getHours();
+  const variantIndex = seed % LABEL_POOL[bucket].length;
 
   const timeLabel = t(`guid.newChat.greeting.labels.${bucket}.${variantIndex}`, {
     defaultValue: LABEL_POOL[bucket][variantIndex],

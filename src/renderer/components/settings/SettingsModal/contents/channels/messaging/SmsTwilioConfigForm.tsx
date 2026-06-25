@@ -13,6 +13,8 @@ import { Alert, Button, Input, Message, Tooltip } from '@arco-design/web-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+const PLUGIN_ID = 'sms-twilio';
+
 /**
  * Preference row layout - mirrors the shape used by TelegramConfigForm so the
  * Settings page reads consistently across channels.
@@ -55,8 +57,9 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
 
   const [webhookToken, setWebhookToken] = useState<string | null>(null);
   const [rotating, setRotating] = useState(false);
+  const [testing, setTesting] = useState(false);
 
-  const pluginInstanceId = pluginStatus?.id ?? 'sms-twilio_default';
+  const pluginInstanceId = pluginStatus?.id ?? `${PLUGIN_ID}_default`;
 
   // Audit fix v0.4.2: same pattern as webhook channel. Until the tunnel layer
   // resolves to a real hostname, do NOT compose a URL containing the
@@ -107,6 +110,79 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
       setRotating(false);
     }
   }, [pluginInstanceId, t]);
+
+  const handleTestAndEnable = useCallback(async () => {
+    if (!accountSid.trim()) {
+      Message.error(
+        t('settings.channels.smsTwilio.credentials.accountSid.required', 'Account SID is required')
+      );
+      return;
+    }
+    if (!authToken.trim()) {
+      Message.error(
+        t('settings.channels.smsTwilio.credentials.authToken.required', 'Auth Token is required')
+      );
+      return;
+    }
+    if (!fromNumber.trim() && !messagingServiceSid.trim()) {
+      Message.error(
+        t(
+          'settings.channels.smsTwilio.fromOrServiceRequired',
+          'A From Number or Messaging Service SID is required'
+        )
+      );
+      return;
+    }
+    if (fromNumber.trim() && !E164_REGEX.test(fromNumber.trim())) {
+      Message.error(
+        t(
+          'settings.channels.smsTwilio.credentials.fromNumber.invalid',
+          'Must be E.164 format, e.g. +14155550123'
+        )
+      );
+      return;
+    }
+    setTesting(true);
+    try {
+      const testResult = await channel.testPlugin.invoke({
+        pluginId: PLUGIN_ID,
+        token: authToken.trim(),
+      });
+      if (!testResult.success) {
+        Message.error(
+          testResult.msg ??
+            t('settings.channels.smsTwilio.connectionFailed', 'Twilio connection test failed')
+        );
+        return;
+      }
+
+      const enableResult = await channel.enablePlugin.invoke({
+        pluginId: PLUGIN_ID,
+        config: {
+          accountSid: accountSid.trim(),
+          authToken: authToken.trim(),
+          ...(fromNumber.trim() ? { fromNumber: fromNumber.trim() } : {}),
+          ...(messagingServiceSid.trim()
+            ? { messagingServiceSid: messagingServiceSid.trim() }
+            : {}),
+        },
+      });
+      if (enableResult.success) {
+        Message.success(
+          t('settings.channels.smsTwilio.pluginEnabled', 'SMS (Twilio) channel enabled')
+        );
+      } else {
+        Message.error(
+          enableResult.msg ??
+            t('settings.channels.smsTwilio.enableFailed', 'Failed to enable Twilio SMS plugin')
+        );
+      }
+    } catch (error: unknown) {
+      Message.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setTesting(false);
+    }
+  }, [accountSid, authToken, fromNumber, messagingServiceSid, t]);
 
   return (
     <div className='flex flex-col gap-24px'>
@@ -240,6 +316,12 @@ const SmsTwilioConfigForm: React.FC<SmsTwilioConfigFormProps> = ({ pluginStatus,
           'US deployments require A2P 10DLC brand and campaign registration. Toll-free numbers require separate verification. Both processes can take several days.'
         )}
       />
+
+      <div className='flex justify-end'>
+        <Button type='primary' loading={testing} onClick={() => void handleTestAndEnable()}>
+          {t('settings.channels.smsTwilio.testAndEnable', 'Test & Enable')}
+        </Button>
+      </div>
       <ChannelAgentModelSelector platform='sms-twilio' modelSelection={modelSelection} />
 
     </div>

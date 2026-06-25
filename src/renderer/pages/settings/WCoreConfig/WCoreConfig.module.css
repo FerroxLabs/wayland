@@ -7,15 +7,18 @@
  */
 
 .surface {
-  /* ---- mockup-v3 :root tokens (reproduced for exact fidelity) ---- */
-  --wc-bg-base: #0a0a0a;
-  --wc-surface-1: #222222;
-  --wc-surface-2: #2a2a2a;
-  --wc-surface-3: #353535;
+  /* ---- Neutral surface/text/hairline tokens map onto the app's semantic
+     theme tokens so this surface follows light and dark mode like every
+     other tab (issue #20). The brand accent/success/warning tokens below
+     stay fixed - they are mode-invariant by design. ---- */
+  --wc-bg-base: var(--color-bg-1);
+  --wc-surface-1: var(--color-bg-3);
+  --wc-surface-2: var(--color-bg-4);
+  --wc-surface-3: var(--color-fill-3);
 
-  --wc-text-primary: #f5f5f5;
-  --wc-text-secondary: #c0c0c0;
-  --wc-text-muted: #8a8a8a;
+  --wc-text-primary: var(--color-text-1);
+  --wc-text-secondary: var(--color-text-2);
+  --wc-text-muted: var(--color-text-3);
 
   --wc-accent: #ff6b35;
   --wc-accent-dim: rgba(255, 107, 53, 0.14);
@@ -23,8 +26,8 @@
   --wc-success: #34d399;
   --wc-success-dim: rgba(52, 211, 153, 0.14);
 
-  --wc-hairline: rgba(255, 255, 255, 0.06);
-  --wc-hairline-strong: rgba(255, 255, 255, 0.1);
+  --wc-hairline: var(--color-border-1);
+  --wc-hairline-strong: var(--color-border-2);
 
   --wc-r-sm: 6px;
   --wc-r-md: 8px;
@@ -68,7 +71,7 @@
   flex-shrink: 0;
   padding: 0 24px;
   border-bottom: 1px solid var(--wc-hairline);
-  background: linear-gradient(90deg, rgba(255, 107, 53, 0.06), transparent 40%), rgba(10, 10, 10, 0.72);
+  background: linear-gradient(90deg, rgba(255, 107, 53, 0.06), transparent 40%), var(--color-bg-2);
   backdrop-filter: blur(10px);
 }
 

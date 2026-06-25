@@ -108,10 +108,48 @@
           "type": "string",
           "enum": ["beginner", "intermediate", "advanced"],
           "description": "Target difficulty level of the workflow."
+        },
+        "interactivity": {
+          "type": "string",
+          "enum": ["step", "auto"],
+          "description": "Default run mode: step-by-step (collaborative, stops at artifacts/decisions) or auto-run (runs to completion, stops only on consequential actions). Absent means step."
         }
       },
       "additionalProperties": {
         "type": "string"
+      }
+    },
+    "launch_questions": {
+      "type": "array",
+      "description": "Up-front questions posed on the launch card before the run begins (only genuinely-knowable inputs; NOT downstream step inputs).",
+      "items": {
+        "type": "object",
+        "required": ["id", "question", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable identifier for this question, used to key the answer in session state."
+          },
+          "question": {
+            "type": "string",
+            "description": "The question text shown to the user on the launch card."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["text", "choice"],
+            "description": "Input type: free-form text or a fixed set of choices."
+          },
+          "options": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Allowed choices when type is 'choice'. Omit for text questions."
+          },
+          "placeholder": {
+            "type": "string",
+            "description": "Placeholder hint shown inside a text input. Optional."
+          }
+        },
+        "additionalProperties": false
       }
     },
     "allowed-tools": {

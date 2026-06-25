@@ -27,20 +27,57 @@ let trustedNpmCache: string | null = null;
 let resolverOverride: (() => Promise<string>) | null = null;
 
 /**
- * Test-only: inject a custom resolver. Pass null to restore the default
- * resolution chain. The function is exported with a `__` prefix to make its
- * test-only intent explicit.
+ * Build the ordered list of candidate npm-cli.js paths to probe, given a
+ * platform and environment. Pure (no filesystem access) so it can be unit
+ * tested. The actual trust validation (ownership / world-writable checks)
+ * happens in defaultResolveTrustedNpm against the resolved real paths.
+ *
+ * On Windows, npm ships as the `npm.cmd` shim colocated with `node.exe` and
+ * `node_modules\npm\bin\npm-cli.js`. We therefore derive `npm-cli.js` from
+ * every directory on PATH that could host a Node install (covers the Node MSI,
+ * nvm-windows, fnm, volta, scoop and Chocolatey layouts) in addition to the
+ * well-known fixed install locations.
  */
-export function __setTrustedNpmCliResolver(fn: (() => Promise<string>) | null): void {
-  resolverOverride = fn;
-  trustedNpmCache = null;
-}
+export function __buildNpmCliCandidates(
+  platform: NodeJS.Platform,
+  env: NodeJS.ProcessEnv,
+  execPath: string,
+): string[] {
+  if (platform === 'win32') {
+    // Use path.win32 explicitly so candidate construction is correct (and unit
+    // testable) regardless of the host OS the resolver/test runs on.
+    const win = path.win32;
+    const candidates: string[] = [];
+    const pushNpmCli = (nodeDir: string) => {
+      if (!nodeDir) return;
+      candidates.push(win.join(nodeDir, 'node_modules', 'npm', 'bin', 'npm-cli.js'));
+    };
 
-async function defaultResolveTrustedNpm(): Promise<string> {
-  // SEC-007: resolve via process.execPath sibling, NOT bare PATH.
-  const candidates = [
+    // Electron's process.execPath is the app .exe, but keep this for the rare
+    // case where a real node.exe is the host process.
+    pushNpmCli(win.dirname(execPath));
+    // User-global npm install (npm install -g npm).
+    candidates.push(
+      win.join(env['APPDATA'] ?? '', 'npm', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
+    );
+    // System-wide Node.js installer default.
+    pushNpmCli('C:\\Program Files\\nodejs');
+    pushNpmCli('C:\\Program Files (x86)\\nodejs');
+
+    // where()-style resolution: derive npm-cli.js from any PATH directory that
+    // hosts a Node install (i.e. one that ships an npm.cmd/node.exe shim). This
+    // covers version managers (nvm-windows, fnm, volta) and scoop/choco shims.
+    const pathDirs = (env['PATH'] ?? env['Path'] ?? '').split(win.delimiter).filter(Boolean);
+    for (const dir of pathDirs) {
+      pushNpmCli(dir);
+    }
+    // De-duplicate while preserving order.
+    return [...new Set(candidates)];
+  }
+
+  return [
     path.join(
-      path.dirname(process.execPath),
+      path.dirname(execPath),
       '..',
       'libnode',
       'lib',
@@ -52,6 +89,22 @@ async function defaultResolveTrustedNpm(): Promise<string> {
     '/usr/local/lib/node_modules/npm/bin/npm-cli.js',
     '/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js',
   ];
+}
+
+/**
+ * Test-only: inject a custom resolver. Pass null to restore the default
+ * resolution chain. The function is exported with a `__` prefix to make its
+ * test-only intent explicit.
+ */
+export function __setTrustedNpmCliResolver(fn: (() => Promise<string>) | null): void {
+  resolverOverride = fn;
+  trustedNpmCache = null;
+}
+
+async function defaultResolveTrustedNpm(): Promise<string> {
+  // SEC-007: resolve via known install locations + PATH-derived Node dirs,
+  // NOT a bare PATH lookup of an arbitrary `npm` binary.
+  const candidates = __buildNpmCliCandidates(process.platform, process.env, process.execPath);
   for (const candidate of candidates) {
     try {
       const real = await fs.promises.realpath(candidate);

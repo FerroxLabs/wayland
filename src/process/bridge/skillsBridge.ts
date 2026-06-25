@@ -7,12 +7,15 @@
 import path from 'node:path';
 import { homedir } from 'node:os';
 import { mkdir, writeFile } from 'node:fs/promises';
+import type { ImportSummary, ImportItemResult } from '@/common/adapter/ipcBridge';
 import { ipcBridge } from '@/common';
 import { SkillGuard } from '@process/services/skills/SkillGuard';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
-import { SkillImport } from '@process/services/skills/SkillImport';
+import { SkillImport, type ImportResult } from '@process/services/skills/SkillImport';
 import { SkillQuarantine } from '@process/services/skills/SkillQuarantine';
-import { ProcessConfig } from '@process/utils/initStorage';
+import { importAgentProfile } from '@process/services/skills/agentProfileImport';
+import { parseFrontmatter } from '@process/task/AcpSkillManager';
+import { ProcessConfig, getAssistantsDir } from '@process/utils/initStorage';
 import { loadTeamSkills } from '@process/extensions/data/bundle-vendored/teamSkillMerge';
 import { loadCliSkills } from '@process/services/skills/CliSkillDiscovery';
 import { getDatabase } from '@process/services/database';
@@ -61,6 +64,60 @@ export function initSkillsBridge(): void {
   ipcBridge.skills.import.zip.provider(async ({ zipPath }) => importer.importZip(zipPath));
   ipcBridge.skills.import.singleSkillMd.provider(async ({ srcPath }) => importer.importSingleSkillMd(srcPath));
 
+  // ---------------------------------------------------------------------------
+  // Type-aware import (Assistants + Workflows)
+  // ---------------------------------------------------------------------------
+  // Reuse the hardened SkillImport pipeline, then route each registered entry
+  // by its frontmatter `type:`. Workflows/skills are already in SkillLibrary
+  // (importer registers them under the parsed type); agent-profiles must be
+  // written into the custom-assistant store - the SkillLibrary type filter
+  // does NOT surface them on the Assistants page.
+  const dispatchImport = async (result: ImportResult): Promise<ImportSummary> => {
+    const items: ImportItemResult[] = [];
+
+    for (const entry of result.imported) {
+      if (entry.type === 'agent-profile') {
+        const parsed = parseFrontmatter(entry.body);
+        const name = parsed?.name ?? entry.name;
+        // Sequential by design: each call read-modify-writes the same
+        // ConfigStorage('assistants') array, so parallelizing would drop
+        // writes. A single import batch is tiny, so the cost is negligible.
+        // oxlint-disable-next-line no-await-in-loop
+        const imported = await importAgentProfile(
+          { name, description: parsed?.description },
+          entry.body,
+          {
+            getAssistants: async () => (await ProcessConfig.get('assistants')) ?? [],
+            setAssistants: async (next) => {
+              await ProcessConfig.set('assistants', next);
+            },
+            writeRule: async (assistantId, content) => {
+              await mkdir(getAssistantsDir(), { recursive: true });
+              await writeFile(path.join(getAssistantsDir(), `${assistantId}.en-US.md`), content, 'utf-8');
+            },
+            now: Date.now,
+          }
+        );
+        items.push({
+          name: entry.name,
+          registeredAs: 'agent-profile',
+          verdict: entry.report.verdict,
+          ...(imported ? { assistantId: imported.id } : {}),
+        });
+      } else {
+        items.push({ name: entry.name, registeredAs: entry.type, verdict: entry.report.verdict });
+      }
+    }
+
+    return { items, quarantined: result.quarantined, warnings: result.warnings };
+  };
+
+  ipcBridge.imports.folder.provider(async ({ srcPath }) => dispatchImport(await importer.importFolder(srcPath)));
+  ipcBridge.imports.git.provider(async ({ url }) => dispatchImport(await importer.importGit(url)));
+  ipcBridge.imports.singleSkillMd.provider(async ({ srcPath }) =>
+    dispatchImport(await importer.importSingleSkillMd(srcPath))
+  );
+
   ipcBridge.skills.list.provider(async (req) => {
     // Default to `type: 'skill'` so the existing Skills page (which invokes
     // with no args) sees only the 1,965 + 88 + N skills. Workflows page
@@ -68,6 +125,11 @@ export function initSkillsBridge(): void {
     // via this IPC (they're merged into Workspace > Assistants).
     const lib = SkillLibrary.getInstance();
     return lib.list({ type: req?.type ?? 'skill' });
+  });
+
+  ipcBridge.skills.suggest.provider(async ({ query, limit }) => {
+    const { retrieveSkillSuggestions } = await import('@process/task/agentUtils');
+    return retrieveSkillSuggestions(query, limit ?? 2);
   });
 
   ipcBridge.skills.stats.provider(async () => {
@@ -128,6 +190,11 @@ export function initSkillsBridge(): void {
     });
   });
 
+  ipcBridge.skills.getPinned.provider(async () => {
+    const prefs = await ProcessConfig.get('skills.preferences');
+    return prefs?.pinned ?? [];
+  });
+
   ipcBridge.skills.addToConversation.provider(async ({ conversationId, name }) => {
     const lib = SkillLibrary.getInstance();
     const entry = await lib.get(name);
@@ -186,7 +253,7 @@ export function initSkillsBridge(): void {
     return { skillMd };
   });
 
-  ipcBridge.skills.save.provider(async ({ name, description, category, tags, body }) => {
+  ipcBridge.skills.save.provider(async ({ name, description, category, tags, body, type }) => {
     const kebab = name
       .trim()
       .toLowerCase()
@@ -215,7 +282,7 @@ export function initSkillsBridge(): void {
       {
         name: kebab,
         description,
-        type: 'skill',
+        type: type ?? 'skill',
         source: 'user',
         metadata: { tags, category: category || undefined },
         path: destFile,

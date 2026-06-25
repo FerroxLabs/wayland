@@ -4,12 +4,15 @@
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-1) var(--space-3);
+  /* Transparent accent border by default so toggling .rowAccentActive never
+     shifts the row's layout. */
+  border-left: 2px solid transparent;
   border-radius: var(--radius-card-inner);
   font-size: var(--type-13);
   color: var(--color-text-2);
   cursor: pointer;
   outline: none;
-  transition: background var(--motion-fast), color var(--motion-fast);
+  transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
 }
 
 .row:hover {
@@ -29,6 +32,7 @@
 }
 
 .label {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -40,4 +44,45 @@
   font-size: var(--type-11);
   color: var(--color-text-3);
   font-weight: 400;
+}
+
+/* Leading icon (lucide at size 14). Tertiary tint by default; turns orange in
+   the active accent treatment. */
+.icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--color-text-3);
+}
+
+/* Leading status dot - mutually exclusive with .icon in practice. */
+.dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.dotOk {
+  background: var(--success);
+}
+
+.dotWarn {
+  background: var(--warning);
+}
+
+.dotNeutral {
+  background: var(--color-text-3);
+}
+
+/* MCP accent active treatment: Forge Orange left border + brand-soft bg, with
+   the icon/label tinted orange. Applied only when accent && active, so other
+   consumers keep the default .rowActive (fill-2) look untouched. */
+.rowAccentActive {
+  border-left-color: rgb(var(--primary-6));
+  background: rgb(var(--primary-6) / 0.06);
+  color: var(--color-text-1);
+}
+
+.rowAccentActive .icon {
+  color: rgb(var(--primary-6));
 }

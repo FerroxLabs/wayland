@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import path from 'path';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SkillLibrary } from '@process/services/skills/SkillLibrary';
+import { SkillLibrary, buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 
 // ---------------------------------------------------------------------------
@@ -299,5 +300,29 @@ describe('SkillLibrary.registerSource()', () => {
     const results = await lib.list();
     expect(results.some((e) => e.name === 'early-skill')).toBe(true);
     expect(results.some((e) => e.name === 'kube-deploy')).toBe(true);
+  });
+});
+
+describe('buildResourceDirCandidates (packaged path resolution, #126/#127)', () => {
+  it('probes process.resourcesPath FIRST when it is set (the packaged Windows path)', () => {
+    const candidates = buildResourceDirCandidates('/app/app.asar/out/main', '/install/resources', 'skills-library');
+    expect(candidates[0]).toBe(path.join('/install/resources', 'skills-library'));
+  });
+
+  it('omits the resourcesPath candidate when undefined (stdio subprocess) but keeps disk fallbacks', () => {
+    const candidates = buildResourceDirCandidates('/app/out/main', undefined, 'skills-library');
+    expect(candidates.every((c) => !c.startsWith(path.join('undefined')))).toBe(true);
+    // dev candidate: out/main -> src/process/resources/skills-library
+    expect(candidates).toContain(path.resolve('/app/out/main', '../../src/process/resources/skills-library'));
+  });
+
+  it('resolves the packaged extraResources dir three levels above app.asar.unpacked/out/main', () => {
+    const candidates = buildResourceDirCandidates(
+      `/A${path.sep}app.asar${path.sep}out${path.sep}main`,
+      undefined,
+      'skills-library'
+    );
+    // app.asar -> app.asar.unpacked, then ../../../skills-library == /A/skills-library
+    expect(candidates).toContain(path.resolve(`/A${path.sep}app.asar.unpacked${path.sep}out${path.sep}main`, '../../../skills-library'));
   });
 });

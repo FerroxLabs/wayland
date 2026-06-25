@@ -1,0 +1,67 @@
+/* #252 reframe - opt-in right-side observability panel. Reuses semantic tokens
+   (no hardcoded colors); the activity tree itself is rendered by MessageActivity. */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--color-bg-1);
+  border-left: 1px solid var(--color-border-2);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-3);
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.settings {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border-2);
+}
+
+.settingLabel {
+  font-size: 13px;
+  color: var(--color-text-1);
+}
+
+.settingHint {
+  font-size: 11px;
+  color: var(--color-text-3);
+}

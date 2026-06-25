@@ -120,6 +120,8 @@ export const BudgetsPanel: React.FC = () => {
       Modal.confirm({
         title: t('missionControl.cost.budgets.deleteTitle'),
         content: t('missionControl.cost.budgets.deleteBody'),
+        okText: t('conversation.history.deleteTitle', { defaultValue: 'Delete' }),
+        cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
         okButtonProps: { status: 'danger' },
         onOk: async () => {
           await ipcBridge.cost.deleteBudget.invoke(b.id);

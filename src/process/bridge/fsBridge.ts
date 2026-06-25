@@ -25,6 +25,7 @@ import { readDirectoryRecursive } from '@process/utils';
 import { writeFileAtomic } from '@process/utils/atomicWrite';
 import { getDatabase } from '@process/services/database';
 import { ExtensionRegistry } from '@process/extensions/ExtensionRegistry';
+import { getBuiltinCatalogContext, isBuiltinCatalogId } from '@process/utils/builtinCatalog';
 import { confinePath, registerAuthorizedRoot } from './pathConfinement';
 import { resolveWithinApprovedDirectory } from './userApprovedPaths';
 import type { IWorkspaceFlatFile } from '@/common/adapter/ipcBridge';
@@ -173,6 +174,17 @@ async function readAssistantResource(
       }
     } catch {
       // Registry not initialized - fall through to filename lookup.
+    }
+  }
+
+  // Native built-in catalog (waylandteams): context bodies live in the in-memory
+  // catalog, not on disk. builtin-<id> catalog records have no per-locale .md
+  // file, so the disk lookup below would return '' and spawn with no system
+  // prompt. Serve the catalog context directly - it is the source of truth.
+  if (resourceType === 'rules' && isBuiltinCatalogId(assistantId)) {
+    const context = getBuiltinCatalogContext(assistantId);
+    if (typeof context === 'string' && context.length > 0) {
+      return context;
     }
   }
 
@@ -1013,7 +1025,7 @@ export function initFsBridge(): void {
   });
 
   // Copy files into the workspace
-  ipcBridge.fs.copyFilesToWorkspace.provider(async ({ filePaths, workspace, sourceRoot }) => {
+  ipcBridge.fs.copyFilesToWorkspace.provider(async ({ filePaths, workspace, sourceRoot, allowExternalSource }) => {
     try {
       const copiedFiles: string[] = [];
       const failedFiles: Array<{ path: string; error: string }> = [];
@@ -1036,10 +1048,19 @@ export function initFsBridge(): void {
       for (const filePath of filePaths) {
         try {
           // Confine each source path (SEC-IPC-02): block copying arbitrary
-          // files (e.g. ~/.ssh/id_rsa) into the workspace.
-          const safeFilePath = await confinePath(filePath);
+          // files (e.g. ~/.ssh/id_rsa) into the workspace. A drag-drop/paste is
+          // an explicit user grant of that specific file, so allowExternalSource
+          // permits a source outside the static roots while the
+          // secret/traversal/symlink guards still reject sensitive locations.
+          // The destination workspace above stays strictly confined regardless.
+          const safeFilePath = await confinePath(filePath, { allowOutsideRoots: allowExternalSource === true });
           if (safeFilePath === null) {
-            failedFiles.push({ path: filePath, error: 'Source path is outside the allowed roots' });
+            failedFiles.push({
+              path: filePath,
+              error: allowExternalSource
+                ? 'Blocked: this file is in a protected or unsafe location'
+                : 'Source path is outside the allowed roots',
+            });
             continue;
           }
 

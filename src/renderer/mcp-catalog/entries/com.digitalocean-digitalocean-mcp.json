@@ -1,0 +1,75 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.digitalocean/digitalocean-mcp",
+  "title": "DigitalOcean",
+  "description": "Manage App Platform, droplets, managed databases, Kubernetes, and the container registry - DigitalOcean's official MCP.",
+  "version": "1.0.58",
+  "websiteUrl": "https://docs.digitalocean.com/reference/mcp",
+  "repository": {
+    "url": "https://github.com/digitalocean/digitalocean-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@digitalocean/mcp",
+      "version": "1.0.58",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeArguments": [
+        "--services",
+        "apps,databases,droplets,kubernetes,networking,monitoring"
+      ],
+      "environmentVariables": [
+        {
+          "name": "DIGITALOCEAN_API_TOKEN",
+          "description": "DigitalOcean personal access token.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "infrastructure",
+      "devops"
+    ],
+    "tags": [
+      "digitalocean",
+      "cloud",
+      "hosting"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 200,
+    "installRate": 0,
+    "iconUrl": "icons/com.digitalocean-digitalocean-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#0080FF"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "DigitalOcean",
+      "providerSignupUrl": "https://cloud.digitalocean.com/account/api/tokens"
+    },
+    "setupGuide": {
+      "path": "guides/com.digitalocean-digitalocean-mcp.md",
+      "estimatedMinutes": 4,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

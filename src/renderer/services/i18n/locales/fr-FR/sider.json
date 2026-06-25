@@ -18,6 +18,10 @@
     "wired": {
       "body": "100 derniers : H{{h}} · S{{s}} · O{{o}}",
       "action": "Voir où chaque tour est passé"
+    },
+    "dismiss": {
+      "label": "Masquer l’état Flux",
+      "hint": "État Flux masqué."
     }
   },
   "accordion": {

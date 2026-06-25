@@ -67,6 +67,14 @@ class AutoUpdaterService extends EventEmitter {
   private _eventHandlersSetup = false;
   private _allowPrerelease = false;
   private _statusBroadcastCallback: StatusBroadcastCallback | null = null;
+  /**
+   * True only while a download/install is actually running. Used to decide
+   * whether an electron-updater `error` event is user-facing: a check-phase
+   * error (e.g. "No published versions on GitHub" from the custom per-arch
+   * channel, or a transient GitHub fetch failure) is handled by the check
+   * result + the manual GitHub fallback and must NOT flash "Update failed".
+   */
+  private _downloadInProgress = false;
   /** Stores registered autoUpdater event handlers for cleanup and test access */
   private readonly _autoUpdaterHandlers = new Map<string, (...args: unknown[]) => void>();
 
@@ -227,6 +235,7 @@ class AutoUpdaterService extends EventEmitter {
 
     register('update-downloaded', (info: UpdateInfo) => {
       log.info('Update downloaded');
+      this._downloadInProgress = false;
       this.broadcastStatus({
         status: 'downloaded',
         version: info.version,
@@ -235,6 +244,19 @@ class AutoUpdaterService extends EventEmitter {
 
     register('error', (error: Error) => {
       log.error('Auto-updater error:', error);
+      // A user-facing updater error only makes sense during an actual
+      // download/install. Errors during a CHECK (e.g. "No published versions on
+      // GitHub" from the custom per-arch channel, GitHub rate-limit, transient
+      // feed fetch failures) are already returned by checkForUpdates() and
+      // recovered by the manual GitHub leg - broadcasting them as `error` made
+      // the update modal flash "Update failed" before the manual leg resolved
+      // (it then flipped to "available"). Suppress those; only surface a real
+      // download/install failure.
+      if (!this._downloadInProgress) {
+        log.warn('Auto-updater check-phase error suppressed (handled via check result + manual fallback):', error.message);
+        return;
+      }
+      this._downloadInProgress = false;
       this.broadcastStatus({
         status: 'error',
         error: error.message,
@@ -293,9 +315,11 @@ class AutoUpdaterService extends EventEmitter {
       }
 
       // TODO(v0.1.3): verify GPG-signed .deb.sig artifact before applying - see docs/SECURITY.md for status.
+      this._downloadInProgress = true;
       await autoUpdater.downloadUpdate();
       return { success: true };
     } catch (error) {
+      this._downloadInProgress = false;
       const message = error instanceof Error ? error.message : String(error);
       log.error('Download update failed:', message);
       return {

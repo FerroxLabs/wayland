@@ -23,6 +23,7 @@ import type { AgentCheckResult } from '@/renderer/hooks/agent/useAgentReadinessC
 import ClaudeLogo from '@/renderer/assets/logos/ai-major/claude.svg';
 import CodeBuddyLogo from '@/renderer/assets/logos/tools/coding/codebuddy.svg';
 import CodexLogo from '@/renderer/assets/logos/tools/coding/codex.svg';
+import GrokLogo from '@/renderer/assets/logos/ai-major/xai.svg';
 import OpenCodeLogo from '@/renderer/assets/logos/tools/coding/opencode.svg';
 import GeminiLogo from '@/renderer/assets/logos/ai-major/gemini.svg';
 import QwenLogo from '@/renderer/assets/logos/ai-china/qwen.svg';
@@ -37,6 +38,7 @@ const AGENT_LOGOS: Partial<Record<AgentBackend, string>> = {
   claude: ClaudeLogo,
   codebuddy: CodeBuddyLogo,
   codex: CodexLogo,
+  grok: GrokLogo,
   opencode: OpenCodeLogo,
   gemini: GeminiLogo,
   qwen: QwenLogo,

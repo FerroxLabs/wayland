@@ -67,6 +67,17 @@ vi.mock('electron-log', () => ({
   },
 }));
 
+vi.mock('@/process/services/ijfwSystemService', () => ({
+  ijfwSystemService: {
+    detectLocalInstall: vi.fn(async () => ({
+      installed: false,
+      detectedVia: 'none',
+      pathProbe: { homebrew: false, usrLocal: false, standardPath: false },
+    })),
+    getLatestPublished: vi.fn(async () => null),
+  },
+}));
+
 describe('updateBridge lazy i18n', () => {
   beforeEach(() => {
     vi.resetModules();

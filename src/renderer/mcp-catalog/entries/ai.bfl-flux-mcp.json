@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.bfl/flux-mcp",
+  "title": "Black Forest Labs (FLUX)",
+  "description": "Generate, edit, and vary images with FLUX.2 - text-to-image, inpainting, style transfer, and multi-reference composition. Official Black Forest Labs MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.bfl.ai/api_integration/mcp_integration",
+  "repository": {
+    "url": "https://github.com/black-forest-labs/flux-mcp",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.bfl.ai"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "media"
+    ],
+    "tags": [
+      "flux",
+      "bfl",
+      "image",
+      "generation"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 103,
+    "installRate": 0,
+    "iconUrl": "icons/ai.bfl-flux-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Black Forest Labs",
+      "providerSignupUrl": "https://bfl.ai"
+    },
+    "setupGuide": {
+      "path": "guides/ai.bfl-flux-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

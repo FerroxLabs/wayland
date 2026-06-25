@@ -152,6 +152,41 @@ describe('IjfwArchiveService', () => {
     }
   });
 
+  it('renders global home-brain memories (~/.ijfw/memory) with no registry and no ~/dev (GitHub #137)', async () => {
+    // Reproduces #137: UI importers (Obsidian, claude-mem, drag-drop) and
+    // quickAdd('global') write to ~/.ijfw/memory, but buildIndex only scanned
+    // per-project dirs from registry.md / ~/dev. On a fresh install (no registry,
+    // no ~/dev) the memory tab rendered empty despite files on disk.
+    const fakeHome = path.join(tmpRoot, 'fresh-home');
+    // NOTE: deliberately NO registry.md and NO <fakeHome>/dev — mirrors a
+    // non-developer Windows/macOS user who only ran the in-app importer.
+    const homeMemDir = path.join(fakeHome, '.ijfw', 'memory');
+    writeMemoryFile(homeMemDir, 'obsidian-deadbeef.md', [
+      makeEntry({
+        type: 'observation',
+        summary: 'Imported note from my Obsidian vault',
+        stored: '2026-06-10T09:00:00.000Z',
+        tags: '[obsidian]',
+        body: 'This came from an Obsidian import and must appear in the memory tab.',
+      }),
+    ]);
+
+    const origHome = process.env.HOME;
+    const origUserProfile = process.env.USERPROFILE;
+    process.env.HOME = fakeHome;
+    process.env.USERPROFILE = fakeHome;
+
+    try {
+      service = new IjfwArchiveService(noopWatcherFactory);
+      const result = await service.listEntries({});
+      expect(result.total).toBeGreaterThan(0);
+      expect(result.entries.some((e) => e.summary === 'Imported note from my Obsidian vault')).toBe(true);
+    } finally {
+      restoreEnv('HOME', origHome);
+      restoreEnv('USERPROFILE', origUserProfile);
+    }
+  });
+
   it('getEntry returns null for unknown id', async () => {
     const fakeHome = path.join(tmpRoot, 'fake-home');
     const ijfwHomeDir = path.join(fakeHome, '.ijfw');
@@ -508,6 +543,100 @@ describe('IjfwArchiveService', () => {
       expect(stats.total).toBeGreaterThan(0);
       expect(stats.projects).toBeGreaterThan(0);
       expect(stats.lastIndexedAt).toBeGreaterThan(0);
+    } finally {
+      restoreEnv('HOME', origHome);
+      restoreEnv('USERPROFILE', origUserProfile);
+    }
+  });
+
+  // ----- GitHub #110: archive/wiki UI showed "your memory is empty" because the
+  // reader only read a hardcoded filename allowlist. Real IJFW installs write
+  // durable memory to arbitrarily-named files (devscan-<hash>.md) and nested
+  // dirs (global/preferences.md), which were silently dropped. The reader now
+  // scans every *.md under .ijfw/memory (one subdir level deep). -----
+
+  it('#110: parses arbitrarily-named memory files (not just the legacy allowlist)', async () => {
+    // A project whose ONLY memory file is a dev-scan file with a hash name —
+    // exactly the shape that produced the empty archive on real installs.
+    const scanProject = path.join(tmpRoot, 'scan-project');
+    const scanMemDir = path.join(scanProject, '.ijfw', 'memory');
+    writeMemoryFile(scanMemDir, 'devscan-041ff6242733.md', [
+      makeEntry({
+        type: 'observation',
+        summary: 'Dev-scan recovered this entry',
+        stored: '2026-05-27T09:11:14.255Z',
+        tags: '[devscan]',
+        body: 'This file is not in the legacy MEMORY_FILES allowlist.',
+      }),
+    ]);
+
+    const fakeHome = path.join(tmpRoot, 'fake-home-scan');
+    const ijfwHomeDir = path.join(fakeHome, '.ijfw');
+    fs.mkdirSync(ijfwHomeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(ijfwHomeDir, 'registry.md'),
+      `${scanProject} | abc123 | ${new Date().toISOString()}\n`,
+      'utf8'
+    );
+
+    const origHome = process.env.HOME;
+    const origUserProfile = process.env.USERPROFILE;
+    process.env.HOME = fakeHome;
+    process.env.USERPROFILE = fakeHome;
+
+    try {
+      service = new IjfwArchiveService(noopWatcherFactory);
+      const { entries, total } = await service.listEntries({ limit: 10 });
+      expect(total).toBe(1);
+      expect(entries[0].summary).toBe('Dev-scan recovered this entry');
+    } finally {
+      restoreEnv('HOME', origHome);
+      restoreEnv('USERPROFILE', origUserProfile);
+    }
+  });
+
+  it('#110: parses memory files nested one subdir deep (e.g. global/)', async () => {
+    const nestedProject = path.join(tmpRoot, 'nested-project');
+    const nestedMemDir = path.join(nestedProject, '.ijfw', 'memory');
+    // Root-level flat file with no frontmatter (like project-journal.md) must be
+    // tolerated and yield zero entries, not break the scan.
+    fs.mkdirSync(nestedMemDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(nestedMemDir, 'project-journal.md'),
+      '# IJFW Project Journal\n- [2026-05-13T06:21:59Z] session-end: #1\n',
+      'utf8'
+    );
+    // Real durable entry nested under global/.
+    writeMemoryFile(path.join(nestedMemDir, 'global'), 'preferences.md', [
+      makeEntry({
+        type: 'preference',
+        summary: 'Nested global preference is read',
+        stored: '2026-05-20T12:00:00.000Z',
+        tags: '[global]',
+        body: 'Lives under global/, one subdir deep.',
+      }),
+    ]);
+
+    const fakeHome = path.join(tmpRoot, 'fake-home-nested');
+    const ijfwHomeDir = path.join(fakeHome, '.ijfw');
+    fs.mkdirSync(ijfwHomeDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(ijfwHomeDir, 'registry.md'),
+      `${nestedProject} | abc123 | ${new Date().toISOString()}\n`,
+      'utf8'
+    );
+
+    const origHome = process.env.HOME;
+    const origUserProfile = process.env.USERPROFILE;
+    process.env.HOME = fakeHome;
+    process.env.USERPROFILE = fakeHome;
+
+    try {
+      service = new IjfwArchiveService(noopWatcherFactory);
+      const { entries, total } = await service.listEntries({ limit: 10 });
+      expect(total).toBe(1);
+      expect(entries[0].summary).toBe('Nested global preference is read');
+      expect(entries[0].type).toBe('preference');
     } finally {
       restoreEnv('HOME', origHome);
       restoreEnv('USERPROFILE', origUserProfile);

@@ -21,7 +21,7 @@
  *    silently swallow a workflow mutation.
  */
 
-import type { StepStatus, WorkflowSession } from '@/common/types/workflowTypes';
+import type { StepStatus, WorkflowInteractivity, WorkflowSession } from '@/common/types/workflowTypes';
 import type { WorkflowUpdateSessionStatePatch } from '@/common/adapter/ipcBridge';
 import { ipcBridge } from '@/common';
 import type { WorkflowSessionService } from '@process/services/workflow/WorkflowSessionService';
@@ -36,6 +36,13 @@ export type WorkflowDispatchDeps = {
   workerTaskManager: IWorkerTaskManager;
   telemetry: UsageEventLogger;
   getDefaultModel: () => TProviderWithModel | Promise<TProviderWithModel>;
+  /**
+   * The HAND: send a next-step directive into the parent conversation. Used by
+   * the `acceptStep` handler to drive the next step after the user approves the
+   * current one at the StepReviewBeat. Optional so existing routing tests that
+   * only exercise the dispatch path can omit it.
+   */
+  sendDirective?: (conversationId: string, directive: string) => Promise<void>;
 };
 
 let registered = false;
@@ -54,9 +61,12 @@ function requireService(endpoint: string): WorkflowSessionService {
 /**
  * Dispatch a {@link WorkflowUpdateSessionStatePatch} to the right service
  * method. The IPC patch shape lives in `ipcBridge.ts` (SPEC §6.4); the
- * dispatcher fans the union out into discrete service calls. Renderer-driven
- * patches always carry `source = 'user'` and no dispatch id - worker-driven
- * transitions land via the W5 `dispatchAutonomousStep` path instead.
+ * dispatcher fans the union out into discrete service calls. The transition
+ * `source` is threaded from the renderer when present (`'parent'` for in-chat
+ * agent-narrated `<step>` markers, so the stepCursor leapfrog guard activates;
+ * `'user'` for explicit rail jumps) and defaults to `'user'` when omitted -
+ * the historical behaviour. Worker-driven transitions land via the W5
+ * `dispatchAutonomousStep` path instead and never carry a renderer `source`.
  */
 async function applyPatch(
   service: WorkflowSessionService,
@@ -68,7 +78,7 @@ async function applyPatch(
     return service.applyStepTransition(sessionId, {
       step_n: patch.setStepStatus.n,
       status: patch.setStepStatus.status as StepStatus,
-      source: 'user',
+      source: patch.setStepStatus.source ?? 'user',
       dispatch_id: null,
       timestamp: completedAt,
     });
@@ -85,11 +95,29 @@ async function applyPatch(
   if (patch.setSessionStatus === 'ended') {
     return service.endSession(sessionId);
   }
+  if (patch.setRunMode !== undefined) {
+    // Drive the run-state machine through the lossless service helpers so the
+    // pause/resume invariants (running<->paused, awaiting_input->running) hold:
+    //  - paused  -> pause()   (running -> paused; no-op otherwise)
+    //  - running -> resume()  (paused|awaiting_input -> running; the Continue
+    //                          affordance on a step-mode awaiting_input run)
+    //  - else    -> setRunMode() directly (e.g. terminal `done`)
+    if (patch.setRunMode === 'paused') return service.pause(sessionId);
+    if (patch.setRunMode === 'running') return service.resume(sessionId);
+    return service.setRunMode(sessionId, patch.setRunMode);
+  }
   if (patch.setBeginSent !== undefined) {
     // Forward the renderer's proposed timestamp so the round-trip lets the
     // renderer detect whether its call won the cross-mount race (otherwise
     // duplicate begin sends slip through and the agent sees two kickoffs).
     return service.markBeginSent(sessionId, patch.setBeginSent);
+  }
+  if (patch.setInteractivity !== undefined) {
+    return service.setInteractivity(sessionId, patch.setInteractivity as WorkflowInteractivity);
+  }
+  if (patch.backtrackToStep !== undefined) {
+    const { session } = await service.backtrackToStep(sessionId, patch.backtrackToStep);
+    return session;
   }
   // `setCurrentStep`, `setSessionStatus = 'active' | 'errored'`,
   // `recordAutonomousDispatch`, and `recordAutonomousResult` are reserved
@@ -130,6 +158,12 @@ export function registerWorkflowBridge(): void {
     return { sessions };
   });
 
+  ipcBridge.workflow.findById.provider(async (input) => {
+    const svc = requireService('findById');
+    const session = await svc.findById(input.sessionId);
+    return { session };
+  });
+
   ipcBridge.workflow.countActive.provider(async () => {
     const svc = requireService('countActive');
     return svc.countActive();
@@ -164,6 +198,31 @@ export function registerWorkflowBridge(): void {
       }
     );
     return { dispatchId: result.dispatchId };
+  });
+
+  ipcBridge.workflow.acceptStep.provider(async (input) => {
+    const svc = requireService('acceptStep');
+    const { directive, session } = await svc.acceptStep(input.sessionId);
+    // Send the next-step directive into the parent conversation (the HAND).
+    // Best-effort: a send failure must not fail the accept - the rail has
+    // already advanced, and the parent stall watchdog backstops a missed send.
+    if (directive && liveDispatchDeps?.sendDirective) {
+      try {
+        await liveDispatchDeps.sendDirective(session.conversation_id, directive);
+      } catch (err) {
+        console.warn('[workflowBridge] acceptStep directive send failed:', err);
+      }
+    } else if (directive) {
+      // The session already advanced (next step `now`, run_mode `running`) but
+      // `sendDirective` is not wired, so the agent will never get the
+      // "Proceed to step N" prompt and the run stalls at `running` until the
+      // parent watchdog times out. In production `initWorkflowBridge` always
+      // passes `sendDirective`; this loud error makes a mis-wire debuggable.
+      console.error(
+        '[workflowBridge] acceptStep: directive produced but sendDirective is not wired - next step will not start.'
+      );
+    }
+    return { session };
   });
 }
 

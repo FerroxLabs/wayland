@@ -43,8 +43,13 @@ test('marks autoCompletedByInstall step as done', () => {
   const { container } = render(
     <SetupGuide guide={guide} envValues={{}} onEnvChange={() => {}} onPrimary={() => {}} />,
   );
+  // A completed step renders the Check icon (an <svg>) in its number badge
+  // instead of the numeric index. Assert on that rendered signal rather than a
+  // CSS Module class name (which is hashed at build time).
   const installStep = container.querySelector('[data-step-id="install"]');
-  expect(installStep?.classList.contains('is-done')).toBe(true);
+  const goStep = container.querySelector('[data-step-id="go"]');
+  expect(installStep?.querySelector('svg')).not.toBeNull();
+  expect(goStep?.querySelector('svg')).toBeNull();
 });
 
 test('calls onEnvChange when user types in input', () => {

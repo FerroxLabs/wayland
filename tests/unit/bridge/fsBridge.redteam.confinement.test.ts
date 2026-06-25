@@ -90,7 +90,7 @@ vi.mock('@/common', () => {
 
 // --- Mock confinePath / registerAuthorizedRoot -----------------------------
 vi.mock('../../../src/process/bridge/pathConfinement', () => ({
-  confinePath: (raw: unknown) => h.confinePath(raw),
+  confinePath: (raw: unknown, opts?: { allowOutsideRoots?: boolean }) => h.confinePath(raw, opts),
   registerAuthorizedRoot: vi.fn(),
 }));
 
@@ -144,11 +144,19 @@ const SECRET = '/root/.ssh/id_rsa';
 
 beforeEach(() => {
   vi.clearAllMocks();
-  confinePath.mockImplementation(async (raw: unknown): Promise<string | null> => {
-    if (typeof raw !== 'string') return null;
-    if (raw === ROOT || raw.startsWith(`${ROOT}/`)) return raw;
-    return null;
-  });
+  confinePath.mockImplementation(
+    async (raw: unknown, opts?: { allowOutsideRoots?: boolean }): Promise<string | null> => {
+      if (typeof raw !== 'string') return null;
+      // Model the real sensitive-segment guard: a secret location is rejected
+      // regardless of allowOutsideRoots.
+      if (raw === SECRET || raw.includes('/.ssh/')) return null;
+      if (raw === ROOT || raw.startsWith(`${ROOT}/`)) return raw;
+      // An explicit user gesture (drag-drop/paste/dialog) authorizes a source
+      // outside the static roots; everything else fails closed.
+      if (opts?.allowOutsideRoots) return raw;
+      return null;
+    }
+  );
   // Approved-directory allowlist starts empty; a destination is approved only
   // when it sits inside a directory the test explicitly pushes (mirroring a
   // user dialog/desktop approval). The gate returns the RESOLVED path - tests
@@ -381,6 +389,51 @@ describe('fsBridge confinement red-team', () => {
       })) as { success: boolean };
       expect(fsMock.copyFile).toHaveBeenCalledTimes(2);
       expect(result.success).toBe(true);
+    });
+
+    it('copies an out-of-root source when allowExternalSource is set (explicit user grant) (#67)', async () => {
+      // A file dragged/dialog-picked from outside the static roots attaches when
+      // the explicit-gesture flag is set; the destination workspace stays in-root.
+      fsMock.mkdir.mockResolvedValue(undefined);
+      fsMock.access.mockRejectedValue(new Error('no'));
+      fsMock.copyFile.mockResolvedValue(undefined);
+      const result = (await handlers.copyFilesToWorkspace({
+        filePaths: ['/Users/me/Projects/notes.txt'],
+        workspace: ROOT,
+        sourceRoot: undefined,
+        allowExternalSource: true,
+      })) as { success: boolean };
+      expect(fsMock.copyFile).toHaveBeenCalledTimes(1);
+      expect(fsMock.copyFile).toHaveBeenCalledWith('/Users/me/Projects/notes.txt', expect.any(String));
+      expect(result.success).toBe(true);
+    });
+
+    it('still rejects a sensitive source even with allowExternalSource (#67)', async () => {
+      // allowExternalSource only widens the location; the secret/sensitive guard
+      // must still reject ~/.ssh/id_rsa.
+      fsMock.mkdir.mockResolvedValue(undefined);
+      const result = (await handlers.copyFilesToWorkspace({
+        filePaths: [SECRET],
+        workspace: ROOT,
+        sourceRoot: undefined,
+        allowExternalSource: true,
+      })) as { success: boolean; data?: { failedFiles: unknown[] } };
+      expect(fsMock.copyFile).not.toHaveBeenCalled();
+      expect(result.data?.failedFiles.length).toBe(1);
+      expect(result.success).toBe(false);
+    });
+
+    it('keeps the destination workspace strictly confined even with allowExternalSource (#67)', async () => {
+      // allowExternalSource applies to SOURCE files only; an out-of-root write
+      // destination is still rejected so it can't become an arbitrary-write hole.
+      const result = (await handlers.copyFilesToWorkspace({
+        filePaths: ['/Users/me/Projects/notes.txt'],
+        workspace: '/etc/evil',
+        sourceRoot: undefined,
+        allowExternalSource: true,
+      })) as { success: boolean };
+      expect(result.success).toBe(false);
+      expect(fsMock.copyFile).not.toHaveBeenCalled();
     });
   });
 });

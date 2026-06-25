@@ -100,7 +100,8 @@
       "specialists": "Specialists",
       "builtins": "Built-ins",
       "recents": "Recent chats",
-      "prompts": "Starter prompts"
+      "prompts": "Starter prompts",
+      "actions": "Actions"
     },
     "prompts": {
       "brainstorm": "Brainstorm ideas",
@@ -108,6 +109,28 @@
       "codeReview": "Review code",
       "explain": "Explain a topic",
       "plan": "Draft a plan"
+    },
+    "actions": {
+      "docs": "Search documentation"
+    }
+  },
+  "importFlow": {
+    "sourceFolder": "Local folder",
+    "sourceFile": "Single SKILL.md file",
+    "sourceGit": "Git repository URL",
+    "stepSource": "Source",
+    "stepScan": "Scan",
+    "stepDone": "Done",
+    "run": "Import",
+    "confirm": "Done",
+    "scanning": "Scanning and importing…",
+    "empty": "No importable items were found at that source.",
+    "failed": "Import failed. Check the source and try again.",
+    "itemBlocked": "Blocked by Skill Guard - quarantined, not imported",
+    "registeredAs": {
+      "agent-profile": "Registered as Assistant",
+      "workflow": "Registered as Workflow",
+      "skill": "Registered as Skill"
     }
   }
 }

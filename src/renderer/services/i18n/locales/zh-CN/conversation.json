@@ -86,7 +86,10 @@
     "closeAll": "关闭全部",
     "closeLeft": "关闭左侧",
     "closeRight": "关闭右侧",
-    "closeOthers": "关闭其他"
+    "closeOthers": "关闭其他",
+    "popOut": "弹出窗口",
+    "dockBack": "停靠回来",
+    "poppedOut": "在独立窗口中打开"
   },
   "dropdown": {
     "cliAgents": "CLI Agents",
@@ -230,6 +233,9 @@
       "permissionDenied": "麦克风权限被拒绝",
       "recordingUnsupported": "当前环境不支持直接录音，请改为上传音频文件",
       "transcriptionFailed": "音频转写失败",
+      "authError": "Flux 密钥无效 — 请重新连接 Flux Router 以使用语音输入",
+      "premiumLocked": "Flux Voice 需要付费的 Flux 套餐 — 请升级以使用语音听写",
+      "rateLimited": "请求过于频繁 — 请稍后再试",
       "genericError": "语音输入失败，请重试"
     }
   },
@@ -330,5 +336,89 @@
       "sublabel": "基于你现有的 Claude Code 登录运行——无需额外管理密钥。",
       "action": "使用"
     }
+  },
+  "noModelCta": {
+    "title": "No model configured yet",
+    "bodyDesktop": "Set one up to start chatting.",
+    "bodyRemote": "Connect Flux or set up a model on the server to start chatting.",
+    "button": "Set up a model",
+    "sendTooltip": "Connect a model to start sending"
+  },
+  "acpAuthFailure": {
+    "title": "{{backend}} 无法在此登录",
+    "subscriptionExplainer": "该供应商禁止在此类第三方工具中使用订阅登录。若要在此继续使用 {{backend}}，请通过 Flux Router 进行路由、添加供应商 API 密钥，或直接登录 CLI。",
+    "genericExplainer": "{{backend}} 无法完成身份验证。请通过 Flux Router 进行路由、添加供应商 API 密钥，或登录 CLI 以解决此问题。",
+    "wcoreExplainer": "Wayland Core 无法完成身份验证。推理供应商拒绝了该 API 密钥（401）。与 Claude Code 不同，Wayland Core 没有可回退的订阅登录方式，因此请添加一个可用的供应商密钥，或通过 Flux Router 进行路由。",
+    "flux": {
+      "label": "通过 Flux 路由",
+      "sublabel": "智能路由会为每个任务挑选合适的模型。先用 1 美元额度免费开始，之后按用量付费或选择套餐。",
+      "action": "路由"
+    },
+    "addKey": {
+      "label": "添加 {{provider}} API 密钥",
+      "sublabel": "打开“设置”，粘贴来自供应商控制台的 API 密钥。",
+      "action": "添加密钥",
+      "labelAny": "添加任意提供商的 API 密钥"
+    },
+    "cliLogin": {
+      "label": "登录 CLI",
+      "sublabel": "运行 {{cmd}} 以使用你的订阅登录，然后重新发送消息。",
+      "action": "复制命令",
+      "copied": "命令已复制"
+    },
+    "dismiss": "关闭",
+    "recommended": "（推荐）"
+  },
+  "composerMenu": {
+    "skills": "Skills",
+    "connectors": "Connectors",
+    "countOn": "{{count}} on",
+    "skillsTitle": "Skills on this chat",
+    "skillsSub": "Only these load by default. Everything else stays one search away.",
+    "onThisChat": "On this chat",
+    "searchPlaceholder": "Search skills…",
+    "suggestedFor": "Suggested for “{{draft}}”",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noResults": "No skills match “{{query}}”.",
+    "manageAllSkills": "Manage all skills",
+    "tagBuiltin": "builtin",
+    "tagAdded": "added",
+    "toggleAria": "Toggle {{name}}",
+    "connectorsTitle": "Connectors",
+    "connectorsSub": "Turn a connected MCP server on or off.",
+    "connectorsConnected": "Connected",
+    "toolCount": "{{count}} tools",
+    "noConnectors": "No connectors installed yet.",
+    "addConnector": "Add a connector",
+    "manageConnectors": "Manage connectors"
+  },
+  "modelSelector": {
+    "title": "Model",
+    "subtitle": "Pick a model for this chat. Only what you have connected shows.",
+    "enabledCount": "{{count}} enabled",
+    "recommended": "Recommended",
+    "searchPlaceholder": "Search models…",
+    "modelCount": "{{count}} models",
+    "moreModels": "More models",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noMatch": "No models match “{{query}}”.",
+    "unavailable": "Currently unavailable",
+    "pinAria": "Pin {{name}}",
+    "unpinAria": "Unpin {{name}}",
+    "effort": "Effort",
+    "effortLow": "Low",
+    "effortMedium": "Medium",
+    "effortHigh": "High",
+    "effortLowDesc": "Fast responses with lighter reasoning",
+    "effortMediumDesc": "Balances speed and reasoning depth",
+    "effortHighDesc": "Greater reasoning depth for complex problems",
+    "emptyTitle": "No models yet",
+    "emptySub": "Connect a provider to choose a model.",
+    "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
+    "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
+    "connectProvider": "Connect a provider",
+    "manageModels": "Manage models"
   }
 }

@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.squareup/square-mcp",
+  "title": "Square",
+  "description": "Payments, customers, inventory, bookings, and catalog across the full Square API - Square’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/square/square-mcp-server",
+  "repository": {
+    "url": "https://github.com/square/square-mcp-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "sse",
+      "url": "https://mcp.squareup.com/sse"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "payments",
+      "sales"
+    ],
+    "tags": [
+      "square",
+      "payments",
+      "pos"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 142,
+    "installRate": 0,
+    "iconUrl": "icons/com.squareup-square-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Square",
+      "providerSignupUrl": "https://squareup.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.squareup-square-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

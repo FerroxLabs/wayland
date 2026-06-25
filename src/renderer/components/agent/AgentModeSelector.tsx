@@ -323,7 +323,7 @@ const AgentModeSelector: React.FC<AgentModeSelectorProps> = ({
   // Full mode: logo + name + optional mode label
   const content = (
     <div
-      className={`flex items-center gap-2 bg-2 w-fit rounded-full px-[8px] py-[2px] ${canSwitchMode ? 'cursor-pointer hover:bg-3' : ''}`}
+      className={`flex items-center gap-1.5 bg-2 w-fit rounded-full px-[10px] py-[5px] ${canSwitchMode ? 'cursor-pointer hover:bg-3' : ''}`}
       style={{ opacity: isLoading ? 0.6 : 1, transition: 'opacity 0.2s' }}
     >
       {renderLogo()}

@@ -172,14 +172,14 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
                   <div
                     data-testid={`collapsed-team-item-${team.id}`}
                     className={classNames(
-                      'relative w-full h-40px flex items-center justify-center cursor-pointer transition-colors rd-8px',
+                      'relative w-full h-26px flex items-center justify-center cursor-pointer transition-colors rd-8px',
                       isActive ? '!bg-active' : 'hover:bg-fill-3 active:bg-fill-4'
                     )}
                     onClick={() => handleTeamClick(team.id)}
                   >
                     <Users
                       data-testid={`collapsed-team-icon-${team.id}`}
-                      data-icon-fill={iconColors.primary} size={20} color={iconColors.primary}
+                      data-icon-fill={iconColors.primary} size={16} color={iconColors.primary}
                       style={{ lineHeight: 0 }}
                     />
                     {(teamBadgeCounts.get(team.id) ?? 0) > 0 && (
@@ -229,7 +229,7 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
               const header = (
                 <div className='relative group flex-1 min-w-0'>
                   <SiderItem
-                    icon={<Users size={20} color={iconColors.primary} style={{ lineHeight: 0 }} />}
+                    icon={<Users size={16} color={iconColors.primary} style={{ lineHeight: 0 }} />}
                     name={team.name}
                     selected={pathname.startsWith(`/team/${team.id}`)}
                     pinned={isPinned}

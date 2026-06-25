@@ -30,6 +30,9 @@ export const STORAGE_KEYS = {
 
   /** Language preference */
   LANGUAGE: 'wayland_language',
+
+  /** Flux Status sidebar widget dismissed by the user */
+  FLUX_ENTRY_DISMISSED: 'wayland_flux_entry_dismissed',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

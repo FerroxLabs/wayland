@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { ConfigStorage } from '@/common/config/storage';
 import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
+import { canonicalMcpServerName } from '@/common/mcp';
 
 /**
  * MCP Agent install-status management hook.
@@ -45,13 +46,18 @@ export const useMcpAgentStatus = () => {
       // Build new state from current state to avoid resetting status of other servers
       const installStatus: Record<string, string[]> = { ...agentInstallStatus };
 
-      // Pre-build a server-name -> server-object map to avoid repeated find calls
+      // Pre-build a CANONICAL-name -> server-object map. Each agent CLI rewrites
+      // the server name on write (slash/dot -> dash), so a raw `===` match against
+      // the stored Wayland name never finds it (the install status then shows
+      // "Not synced to any agent" even when every agent has the server). Key the
+      // map by the canonical form so any per-agent rewrite resolves back to the
+      // stored record. installStatus stays keyed by the RAW name the UI reads.
       const serverMap = new Map<string, IMcpServer>();
       const serversToProcess = targetServerName ? servers.filter((s) => s.name === targetServerName) : servers;
 
       serversToProcess.forEach((server) => {
         if (server.enabled) {
-          serverMap.set(server.name, server);
+          serverMap.set(canonicalMcpServerName(server.name), server);
           installStatus[server.name] = [];
         } else {
           // If the target server is disabled, also remove it from status
@@ -62,11 +68,15 @@ export const useMcpAgentStatus = () => {
       // Inspect each agent's MCP config, only checking enabled servers
       agentConfigs.forEach((agentConfig) => {
         agentConfig.servers.forEach((agentServer) => {
-          // Map lookup, O(1) time
-          const localServer = serverMap.get(agentServer.name);
-          // Only show install status when the local server exists and is enabled
-          if (localServer && installStatus[agentServer.name] !== undefined) {
-            installStatus[agentServer.name].push(agentConfig.source);
+          // Resolve the agent's (rewritten) name back to the stored server.
+          const localServer = serverMap.get(canonicalMcpServerName(agentServer.name));
+          // Only show install status when the local server exists and is enabled.
+          // De-dupe sources: a stale slash-named duplicate alongside the sanitized
+          // entry would otherwise list the same agent twice.
+          if (localServer && installStatus[localServer.name] !== undefined) {
+            if (!installStatus[localServer.name].includes(agentConfig.source)) {
+              installStatus[localServer.name].push(agentConfig.source);
+            }
           }
         });
       });
@@ -182,8 +192,13 @@ export const useMcpAgentStatus = () => {
 
       // Only inspect the install status of the specified server
       const installedAgents: string[] = [];
+      const targetCanonical = canonicalMcpServerName(serverName);
       mcpConfigsResponse.data.forEach((agentConfig) => {
-        const hasServer = agentConfig.servers.some((server) => server.name === serverName);
+        // Each agent stores the server under its own rewritten name (slash/dot ->
+        // dash); match by canonical form, not raw equality.
+        const hasServer = agentConfig.servers.some(
+          (server) => canonicalMcpServerName(server.name) === targetCanonical,
+        );
         if (hasServer) {
           installedAgents.push(agentConfig.source);
         }

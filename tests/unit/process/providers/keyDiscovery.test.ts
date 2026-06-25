@@ -66,6 +66,22 @@ describe('KeyDiscovery - environment-variable scan', () => {
     expect(found).toEqual([{ providerId: 'openai', source: 'env:OPENAI_API_KEY' }]);
   });
 
+  it('discovers Moonshot from MOONSHOT_API_KEY (issue #25)', async () => {
+    setEnv({ MOONSHOT_API_KEY: 'sk-moonshot-abc' });
+
+    const found = await new KeyDiscovery().scan();
+
+    expect(found).toEqual([{ providerId: 'moonshot', source: 'env:MOONSHOT_API_KEY' }]);
+  });
+
+  it('discovers NVIDIA from NVIDIA_API_KEY (issue #25)', async () => {
+    setEnv({ NVIDIA_API_KEY: 'nvapi-abc' });
+
+    const found = await new KeyDiscovery().scan();
+
+    expect(found).toEqual([{ providerId: 'nvidia', source: 'env:NVIDIA_API_KEY' }]);
+  });
+
   it('discovers multiple distinct providers from multiple env vars', async () => {
     setEnv({
       OPENAI_API_KEY: 'sk-proj-abc',
@@ -301,5 +317,14 @@ describe('KeyDiscovery - PROVIDER_ENV_VARS map', () => {
   it('lists GEMINI_API_KEY and GOOGLE_API_KEY as candidates for google-gemini', () => {
     expect(PROVIDER_ENV_VARS['google-gemini']).toContain('GEMINI_API_KEY');
     expect(PROVIDER_ENV_VARS['google-gemini']).toContain('GOOGLE_API_KEY');
+  });
+
+  it('covers moonshot and nvidia with their canonical env vars (issue #25)', () => {
+    expect(PROVIDER_ENV_VARS.moonshot).toEqual(['MOONSHOT_API_KEY']);
+    expect(PROVIDER_ENV_VARS.nvidia).toEqual(['NVIDIA_API_KEY']);
+  });
+
+  it('covers minimax with its canonical env var (issue #135)', () => {
+    expect(PROVIDER_ENV_VARS.minimax).toEqual(['MINIMAX_API_KEY']);
   });
 });

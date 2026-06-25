@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.typeform/typeform-mcp",
+  "title": "Typeform",
+  "description": "Read your forms and read or write contacts - Typeform’s official hosted MCP (beta).",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.typeform.com/developers/get-started/mcp/",
+  "repository": {
+    "url": "https://www.typeform.com/developers/get-started/mcp/",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.typeform.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "productivity",
+      "sales"
+    ],
+    "tags": [
+      "typeform",
+      "forms",
+      "surveys"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 150,
+    "installRate": 0,
+    "iconUrl": "icons/com.typeform-typeform-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#262627"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Typeform",
+      "providerSignupUrl": "https://admin.typeform.com/account#/section/tokens"
+    },
+    "setupGuide": {
+      "path": "guides/com.typeform-typeform-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -1,22 +1,14 @@
 import { app, dialog, shell } from 'electron';
 import * as fs from 'fs';
-import * as path from 'path';
 import { ipcBridge } from '@/common';
 import { computeUsage, invalidateUsageCache } from './computeUsage';
 import { backupExport } from './backupExport';
 import { backupImport } from './backupImport';
 import { resetAll } from './resetAll';
+import { clearStorageDir, getLogsDir, getStorageDirs, getUserDataDir } from './storageLocations';
 
 function getUserData(): string {
-  return app.getPath('userData');
-}
-
-function getLogsDir(): string {
-  try {
-    return app.getPath('logs');
-  } catch {
-    return path.join(getUserData(), 'logs');
-  }
+  return getUserDataDir();
 }
 
 export function initStorageBridge(): void {
@@ -28,12 +20,8 @@ export function initStorageBridge(): void {
   // Open a directory in the system file manager
   ipcBridge.storage.openDir.provider(async (kind) => {
     const k = kind as 'workspace' | 'cache' | 'logs';
-    const dirs: Record<string, string> = {
-      workspace: getUserData(),
-      cache: path.join(getUserData(), 'cache'),
-      logs: getLogsDir(),
-    };
-    const dirPath = dirs[k] ?? getUserData();
+    const dirs = getStorageDirs();
+    const dirPath = dirs[k] ?? dirs.workspace;
     if (fs.existsSync(dirPath)) {
       await shell.openPath(dirPath);
     }
@@ -41,16 +29,7 @@ export function initStorageBridge(): void {
 
   // Clear a directory (cache or logs only - workspace not clearable)
   ipcBridge.storage.clearDir.provider(async (kind) => {
-    const k = kind as 'cache' | 'logs';
-    const dirs: Record<string, string> = {
-      cache: path.join(getUserData(), 'cache'),
-      logs: getLogsDir(),
-    };
-    const dirPath = dirs[k];
-    if (!dirPath || !fs.existsSync(dirPath)) return;
-    fs.rmSync(dirPath, { recursive: true, force: true });
-    fs.mkdirSync(dirPath, { recursive: true });
-    invalidateUsageCache();
+    clearStorageDir(kind as 'cache' | 'logs');
   });
 
   // Change workspace directory (opens folder picker, returns chosen path)

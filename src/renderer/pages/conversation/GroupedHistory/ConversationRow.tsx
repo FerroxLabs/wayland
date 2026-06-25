@@ -204,6 +204,25 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
               event.stopPropagation();
             }}
           >
+            {/* #74: a direct one-click pin toggle on row hover so the
+                pin-to-top feature is discoverable, instead of being buried in
+                the overflow menu. Recents still list underneath unchanged. */}
+            <Tooltip
+              content={isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}
+              position='top'
+              mini
+            >
+              <span
+                className='flex-center cursor-pointer hover:bg-fill-2 rd-4px p-4px mr-2px transition-colors text-t-secondary hover:text-t-primary'
+                aria-label={isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onTogglePin(conversation);
+                }}
+              >
+                <Pin size={14} className={classNames({ 'fill-current': isPinned })} />
+              </span>
+            </Tooltip>
             <Dropdown
               droplist={
                 <Menu

@@ -54,10 +54,12 @@ const getAvailabilityMessageKey = (availability: SpeechInputAvailability) => {
   }
 };
 
-const getErrorMessageKey = (errorCode: SpeechInputErrorCode) => {
+export const getErrorMessageKey = (errorCode: SpeechInputErrorCode) => {
   switch (errorCode) {
     case 'audio-capture':
       return 'conversation.chat.speech.audioCaptureError';
+    case 'auth-error':
+      return 'conversation.chat.speech.authError';
     case 'empty-transcript':
       return 'conversation.chat.speech.emptyTranscript';
     case 'file-too-large':
@@ -68,6 +70,10 @@ const getErrorMessageKey = (errorCode: SpeechInputErrorCode) => {
       return 'conversation.chat.speech.notConfigured';
     case 'permission-denied':
       return 'conversation.chat.speech.permissionDenied';
+    case 'premium-locked':
+      return 'conversation.chat.speech.premiumLocked';
+    case 'rate-limited':
+      return 'conversation.chat.speech.rateLimited';
     case 'recording-unsupported':
       return 'conversation.chat.speech.recordingUnsupported';
     case 'transcription-failed':

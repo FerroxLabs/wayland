@@ -48,6 +48,7 @@ const ALLOWED_EVENT_TYPES: ReadonlySet<UsageEventType> = new Set<UsageEventType>
   'workflow.marker_false_strip',
   'workflow.step_transition',
   'workflow.regress_attempt',
+  'workflow.backtrack',
   'workflow.orphaned_ask',
 ]);
 

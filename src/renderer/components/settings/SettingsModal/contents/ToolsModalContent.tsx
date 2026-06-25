@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CheckCircle2, ChevronDown, HelpCircle, Plus, RotateCcw } from 'lucide-react';
+import { CheckCircle2, RotateCcw } from 'lucide-react';
 import {
   ConfigStorage,
   type IConfigStorageRefer,
@@ -13,18 +13,19 @@ import {
 } from '@/common/config/storage';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
 import type { TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
-import { DEFAULT_TTS_CONFIG, normalizeTextToSpeechConfig } from '@/common/types/ttsTypes';
-import { acpConversation, voiceAsset } from '@/common/adapter/ipcBridge';
+import { voiceAsset } from '@/common/adapter/ipcBridge';
+import {
+  isImageModelName,
+  imageModelDisplayLabel,
+  isFluxProviderRow,
+  FLUX_RECOMMENDED_IMAGE_ID,
+} from '@/common/config/imageModels';
 import type { VoiceAsset } from '@/common/types/voiceAsset';
 import {
   Divider,
   Form,
-  Tooltip,
   Message,
   Button,
-  Dropdown,
-  Menu,
-  Modal,
   Switch,
   Input,
   Slider,
@@ -46,8 +47,6 @@ import { useNavigate } from 'react-router-dom';
 import { useSettingsViewMode } from '../settingsViewContext';
 import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneCheck';
 
-type MessageInstance = ReturnType<typeof Message.useMessage>[0];
-
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
 export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
@@ -58,6 +57,12 @@ export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
     baseUrl: '',
     language: '',
     model: 'whisper-1',
+  },
+  fluxVoice: {
+    apiKey: '',
+    baseUrl: '',
+    language: '',
+    model: 'flux-voice',
   },
   deepgram: {
     apiKey: '',
@@ -76,6 +81,10 @@ export const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): Speech
   openai: {
     ...DEFAULT_SPEECH_TO_TEXT_CONFIG.openai,
     ...config?.openai,
+  },
+  fluxVoice: {
+    ...DEFAULT_SPEECH_TO_TEXT_CONFIG.fluxVoice,
+    ...config?.fluxVoice,
   },
   deepgram: {
     ...DEFAULT_SPEECH_TO_TEXT_CONFIG.deepgram,
@@ -311,7 +320,7 @@ export const TextToSpeechSettingsSection: React.FC<{
 
       <Divider className='mt-0px mb-20px' />
 
-      <Form layout='horizontal' labelAlign='left' className='space-y-12px'>
+      <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.textToSpeechProvider')}>
           <div className='flex items-center gap-8px'>
             <WaylandSelect value={config.provider} onChange={handleProviderChange} className='flex-1'>
@@ -486,7 +495,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 
       <Divider className='mt-0px mb-20px' />
 
-      <Form layout='horizontal' labelAlign='left' className='space-y-12px'>
+      <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.speechToTextProvider')}>
           <WaylandSelect value={config.provider} onChange={handleProviderChange}>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>
@@ -504,8 +513,8 @@ export const SpeechToTextSettingsSection: React.FC<{
         {config.provider === 'openai' ? (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>
-              <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex items-center justify-between gap-12px'>
-                <div>
+              <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
+                <div className='min-w-0'>
                   <div className='text-13px font-medium text-t-primary'>
                     {t('settings.voiceProviderKeyDeferTitle', 'Configure your OpenAI key in Providers')}
                   </div>
@@ -516,7 +525,7 @@ export const SpeechToTextSettingsSection: React.FC<{
                     )}
                   </div>
                 </div>
-                <Button size='small' className='' onClick={handleOpenProvidersPage}>
+                <Button size='small' className='w-full sm:w-auto shrink-0' onClick={handleOpenProvidersPage}>
                   {t('settings.voiceProviderKeyDeferCTA', 'Open Providers →')}
                 </Button>
               </div>
@@ -645,22 +654,25 @@ const ToolsModalContent: React.FC = () => {
     ? (agentInstallStatus[builtinImageGenServer.name] ?? [])
     : [];
 
+  const navigate = useNavigate();
+  const handleOpenProvidersPage = useCallback(() => {
+    try {
+      navigate('/settings/models');
+    } catch {
+      if (typeof window !== 'undefined') {
+        window.location.hash = '#/settings/models';
+      }
+    }
+  }, [navigate]);
+
   const imageGenerationModelList = useMemo(() => {
     if (!data) return [];
-    // Filter models that support image generation
-    const isImageModel = (modelName: string) => {
-      const name = modelName.toLowerCase();
-      return name.includes('image') || name.includes('banana') || name.includes('imagine');
-    };
-    return (data || [])
-      .filter((v) => {
-        const filteredModels = v.model.filter(isImageModel);
-        return filteredModels.length > 0;
-      })
-      .map((v) => {
-        const filteredModels = v.model.filter(isImageModel);
-        return Object.assign({}, v, { model: filteredModels });
-      });
+    // Filter to providers exposing image-capable models, then float Flux to the
+    // top so its recommended "Flux Image" default leads the picker.
+    const list = (data || [])
+      .filter((v) => v.model.some(isImageModelName))
+      .map((v) => Object.assign({}, v, { model: v.model.filter(isImageModelName) }));
+    return list.toSorted((a, b) => Number(isFluxProviderRow(b)) - Number(isFluxProviderRow(a)));
   }, [data]);
 
   useEffect(() => {
@@ -903,10 +915,11 @@ const ToolsModalContent: React.FC = () => {
 
             <Divider className='mt-0px mb-20px' />
 
-            <Form layout='horizontal' labelAlign='left' className='space-y-12px'>
+            <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
               <Form.Item label={t('settings.imageGenerationModel')}>
                 {imageGenerationModelList.length > 0 ? (
                   <WaylandSelect
+                    triggerProps={{ className: 'wl-image-model-popup' }}
                     value={
                       imageGenerationModel?.id && imageGenerationModel?.useModel
                         ? `${imageGenerationModel.id}|${imageGenerationModel.useModel}`
@@ -927,41 +940,44 @@ const ToolsModalContent: React.FC = () => {
                       <WaylandSelect.OptGroup label={platform.name} key={platform.id}>
                         {model.map((modelName) => (
                           <WaylandSelect.Option key={platform.id + modelName} value={platform.id + '|' + modelName}>
-                            {modelName}
+                            <span className='inline-flex items-center gap-6px'>
+                              {imageModelDisplayLabel(modelName)}
+                              {modelName === FLUX_RECOMMENDED_IMAGE_ID && (
+                                <span className='text-9px font-700 leading-none tracking-[0.05em] uppercase text-[rgb(var(--primary-6))] bg-[rgb(var(--primary-6)/0.12)] rd-5px px-6px py-2px'>
+                                  {t('settings.imageGenRecommended', 'Recommended')}
+                                </span>
+                              )}
+                            </span>
                           </WaylandSelect.Option>
                         ))}
                       </WaylandSelect.OptGroup>
                     ))}
                   </WaylandSelect>
                 ) : (
-                  <div className='text-t-secondary flex items-center'>
-                    {t('settings.noAvailable')}
-                    <Tooltip
-                      content={
-                        <div>
-                          {t('settings.needHelpTooltip')}
-                          <a
-                            href='https://github.com/FerroxLabs/wayland/wiki/Wayland-Image-Generation-Tool-Model-Configuration-Guide'
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='text-[rgb(var(--primary-6))] hover:text-[rgb(var(--primary-5))] underline ml-4px'
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {t('settings.configGuide')}
-                          </a>
-                        </div>
-                      }
+                  // No image-capable model connected (nothing installed, no key,
+                  // or only a CLI like Claude Code). Image generation stays
+                  // disabled until one is available - recommend Flux, mirroring
+                  // the models panel's Flux hero.
+                  <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
+                    <div className='min-w-0'>
+                      <div className='text-13px font-medium text-t-primary'>
+                        {t('settings.imageGenNoModelTitle', 'No image model connected')}
+                      </div>
+                      <div className='text-12px text-t-secondary'>
+                        {t(
+                          'settings.imageGenNoModelBody',
+                          'Connect Flux Router to generate images. One key, every model, and it picks the right one for each request.'
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      type='primary'
+                      size='small'
+                      className='w-full sm:w-auto shrink-0'
+                      onClick={handleOpenProvidersPage}
                     >
-                      <a
-                        href='https://github.com/FerroxLabs/wayland/wiki/Wayland-Image-Generation-Tool-Model-Configuration-Guide'
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='ml-8px text-[rgb(var(--primary-6))] hover:text-[rgb(var(--primary-5))] cursor-pointer'
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <HelpCircle size={14} />
-                      </a>
-                    </Tooltip>
+                      {t('settings.imageGenNoModelCta', 'Connect Flux')}
+                    </Button>
                   </div>
                 )}
               </Form.Item>

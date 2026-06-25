@@ -130,12 +130,27 @@ function normalizeQuery(req: Request): Record<string, string | undefined> {
   return out;
 }
 
-function buildRequestUrl(req: Request): string {
-  // Twilio signs the full URL. Reconstruct from headers + originalUrl so
-  // proxy paths are preserved.
-  const proto = (req.headers['x-forwarded-proto'] as string) || (req.protocol || 'http');
+// @exported for testing
+export function buildRequestUrl(req: Request): string {
+  // Twilio (and similar) sign the full public URL they POST to, and the HMAC is
+  // computed over that exact string. Reconstruct it from the operator-configured
+  // SERVER_BASE_URL when set — NOT from x-forwarded-host / host, which an
+  // upstream proxy or a direct caller can spoof to make the signature verify
+  // against an attacker-chosen URL (forged signature -> injected channel
+  // message -> command into the channel agent). Fall back to request headers
+  // only when no base URL is configured (local/dev, no proxy in front).
+  const path = req.originalUrl || req.url;
+  const base = (process.env.SERVER_BASE_URL || '').trim();
+  if (base) {
+    try {
+      return `${new URL(base).origin}${path}`;
+    } catch {
+      // Misconfigured base URL — fall through to the header reconstruction.
+    }
+  }
+  const proto = (req.headers['x-forwarded-proto'] as string) || req.protocol || 'http';
   const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || 'localhost';
-  return `${proto}://${host}${req.originalUrl || req.url}`;
+  return `${proto}://${host}${path}`;
 }
 
 // ---------------------------------------------------------------------------

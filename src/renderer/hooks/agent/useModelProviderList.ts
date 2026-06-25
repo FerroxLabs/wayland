@@ -6,9 +6,27 @@ import useSWR from 'swr';
 import { useGeminiGoogleAuthModels } from './useGeminiGoogleAuthModels';
 import type { GeminiModeOption } from './useModeModeList';
 import { hasSpecificModelCapability } from '@/renderer/utils/model/modelCapabilities';
+import { FLUX_MODEL_DISPLAY, isFluxModelId, type FluxModelId } from '@/common/config/flux';
 
 export interface ModelProviderListResult {
   providers: IProvider[];
+  /**
+   * All ENABLED connected providers, BEFORE the "has available models" filter.
+   * This is the source of truth for "is this provider still connected" - the
+   * picker `providers` list hides a provider whose models are all transiently
+   * filtered out (e.g. an OpenRouter refresh), which must NOT be read as a
+   * disconnect (see useWCoreModelSelection's stale-model guard).
+   */
+  connectedProviders: IProvider[];
+  /**
+   * True only during the initial load of the legacy `model.config` view (SWR has
+   * no data yet). Consumers that revalidate a selected model against the provider
+   * lists must wait for this to be false: on a freshly-mounted conversation the
+   * lists are momentarily empty, and clearing a selection during that window
+   * blanks a model the user legitimately picked (the "model vanished after one
+   * message" race).
+   */
+  isLoading: boolean;
   geminiModeLookup: Map<string, GeminiModeOption>;
   getAvailableModels: (provider: IProvider) => string[];
   formatModelLabel: (provider: { platform?: string } | undefined, modelName?: string) => string;
@@ -27,9 +45,11 @@ export const useModelProviderList = (): ModelProviderListResult => {
     return lookup;
   }, [geminiModeOptions]);
 
-  const { data: modelConfig, mutate: mutateModelConfig } = useSWR('model.config.shared', () =>
-    ipcBridge.mode.getModelConfig.invoke()
-  );
+  const {
+    data: modelConfig,
+    mutate: mutateModelConfig,
+    isLoading,
+  } = useSWR('model.config.shared', () => ipcBridge.mode.getModelConfig.invoke());
 
   // Revalidate the legacy `model.config` view whenever the model registry's
   // catalog changes (connect / rekey / per-provider or global refresh emit
@@ -74,7 +94,9 @@ export const useModelProviderList = (): ModelProviderListResult => {
     return result;
   }, []);
 
-  const providers = useMemo(() => {
+  // Enabled, connected providers (NOT yet filtered by available-models). Source
+  // of truth for "still connected" checks.
+  const connectedProviders = useMemo(() => {
     let list: IProvider[] = Array.isArray(modelConfig) ? modelConfig : [];
     // Filter out disabled providers (enabled by default)
     list = list.filter((p) => p.enabled !== false);
@@ -92,13 +114,21 @@ export const useModelProviderList = (): ModelProviderListResult => {
       } as unknown as IProvider;
       list = [googleProvider, ...list];
     }
-    // Filter out providers with no available models
-    return list.filter((p) => getAvailableModels(p).length > 0);
-  }, [geminiModeOptions, getAvailableModels, isGoogleAuth, modelConfig]);
+    return list;
+  }, [geminiModeOptions, isGoogleAuth, modelConfig]);
+
+  // Picker list: also hide providers with no available models.
+  const providers = useMemo(
+    () => connectedProviders.filter((p) => getAvailableModels(p).length > 0),
+    [connectedProviders, getAvailableModels]
+  );
 
   const formatModelLabel = useCallback(
     (provider: { platform?: string } | undefined, modelName?: string) => {
       if (!modelName) return '';
+      // Flux routing aliases (flux-auto, ...) carry a raw id but should read as
+      // their brand name ("Flux Auto") everywhere they surface.
+      if (isFluxModelId(modelName)) return FLUX_MODEL_DISPLAY[modelName as FluxModelId] ?? modelName;
       const isGoogleAuthProvider = provider?.platform?.toLowerCase().includes('gemini-with-google-auth');
       if (isGoogleAuthProvider) {
         return geminiModeLookup.get(modelName)?.label || modelName;
@@ -108,5 +138,5 @@ export const useModelProviderList = (): ModelProviderListResult => {
     [geminiModeLookup]
   );
 
-  return { providers, geminiModeLookup, getAvailableModels, formatModelLabel };
+  return { providers, connectedProviders, isLoading, geminiModeLookup, getAvailableModels, formatModelLabel };
 };

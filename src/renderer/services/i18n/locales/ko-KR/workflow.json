@@ -1,4 +1,20 @@
 {
+  "modelUnavailable": "모델 \"{{model}}\"은(는) {{backend}} 백엔드에서 사용할 수 없습니다(사용 불가 또는 권한 없음). 이 워크플로에 다른 모델을 선택한 후 단계를 다시 실행하세요.",
+  "view": {
+    "workflow": "Workflow view",
+    "conversation": "Conversation view"
+  },
+  "transcript": {
+    "activity": "Activity · {{count}} actions",
+    "you": "You",
+    "assistant": "W",
+    "starting": "Starting...",
+    "stepTag": "Step {{n}} · {{title}}",
+    "stepLabel": "Step {{n}} · {{title}}",
+    "working": "working",
+    "thinking": "Thinking...",
+    "needsYou": "needs you"
+  },
   "complete": {
     "headline": "Workflow Complete",
     "steps": "{{n}} steps",
@@ -7,6 +23,17 @@
     "save": "Save this run",
     "runAgain": "Run again",
     "nextTitle": "Up next"
+  },
+  "resume": {
+    "awaitingTitle": "검토를 위해 일시 중지됨",
+    "awaitingBody": "위 단계를 검토한 후 준비되면 계속하세요.",
+    "continue": "계속"
+  },
+  "clarify": {
+    "title": "Set up {{title}}",
+    "subtitle": "A couple of things before I begin.",
+    "notePlaceholder": "Anything specific I should know before I begin? (optional)",
+    "start": "Start"
   },
   "rail": {
     "inProgress": "in progress",
@@ -22,6 +49,34 @@
     "confirmOk": "Run autonomously",
     "confirmCancel": "Cancel",
     "confirmBody": "Wayland will spawn an autonomous worker to complete Step {{n}} in the background. You can keep chatting on the main session.",
-    "confirmEta": "ETA: 4-8 minutes."
+    "confirmEta": "ETA: 4-8 minutes.",
+    "title": "Steps",
+    "review": "review",
+    "ask": "needs input"
+  },
+  "header": {
+    "stepMode": "Step-by-step",
+    "autoMode": "Auto-run",
+    "pause": "Pause",
+    "resume": "Resume",
+    "modeStepMeta": "Step-by-step",
+    "modeAutoMeta": "Auto-run"
+  },
+  "review": {
+    "title": "Happy with this step?",
+    "subtitle": "Accept to continue, revise this step, or go back.",
+    "accept": "Accept & continue",
+    "revise": "Revise this step",
+    "goBack": "Go back to step {{n}}"
+  },
+  "composer": {
+    "queued": "Working on this step - your message is queued and will steer the next step.",
+    "interrupt": "Interrupt and apply now"
+  },
+  "needsInput": {
+    "title": "Wayland needs your input",
+    "sub": "Type your answer in the message box below and the run picks up where it left off.",
+    "placeholder": "Type your answer to continue…",
+    "send": "Send answer"
   }
 }

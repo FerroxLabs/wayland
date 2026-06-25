@@ -60,7 +60,7 @@ const AcpAuthFailureCard: React.FC<AcpAuthFailureCardProps> = ({
     actions.push({
       key: 'flux',
       icon: <Lightning theme='filled' />,
-      label: t('conversation.acpAuthFailure.flux.label'),
+      label: `${t('conversation.acpAuthFailure.flux.label')} ${t('conversation.acpAuthFailure.recommended')}`,
       subLabel: t('conversation.acpAuthFailure.flux.sublabel'),
       action: t('conversation.acpAuthFailure.flux.action'),
       primary: true,
@@ -68,11 +68,13 @@ const AcpAuthFailureCard: React.FC<AcpAuthFailureCardProps> = ({
     });
   }
 
-  if (remedy.providerKeyLabel && onAddKey) {
+  if ((remedy.providerKeyLabel || remedy.genericProviderKey) && onAddKey) {
     actions.push({
       key: 'addKey',
       icon: <Key />,
-      label: t('conversation.acpAuthFailure.addKey.label', { provider: remedy.providerKeyLabel }),
+      label: remedy.genericProviderKey
+        ? t('conversation.acpAuthFailure.addKey.labelAny')
+        : t('conversation.acpAuthFailure.addKey.label', { provider: remedy.providerKeyLabel }),
       subLabel: t('conversation.acpAuthFailure.addKey.sublabel'),
       action: t('conversation.acpAuthFailure.addKey.action'),
       primary: false,

@@ -644,17 +644,16 @@ If you forgot your admin password in WebUI mode, you can reset it using the `--r
 /Applications/Wayland.app/Contents/MacOS/Wayland --resetpass username
 ```
 
-**Linux:**
+**Linux (headless `getwayland` server):**
+
+The npm launcher uses the `resetpass` subcommand (the `--resetpass` flag is also accepted):
 
 ```bash
-# Using system path
-wayland --resetpass
+# Reset the admin password
+wayland resetpass
 
 # Or for a specific user
-wayland --resetpass username
-
-# Or using full path
-/opt/Wayland/wayland --resetpass
+wayland resetpass username
 ```
 
 ### What happens when you run --resetpass:

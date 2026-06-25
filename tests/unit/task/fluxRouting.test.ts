@@ -134,4 +134,29 @@ describe('resolveFluxRouting', () => {
   it('resolves a config-only/vendor-locked backend (opencode) to unknown, never flux', () => {
     expect(resolveFluxRouting(ctx({ backend: 'opencode' })).routing).toBe('unknown');
   });
+
+  // hermes: scoped-HOME backend. Provider selection lives in HERMES_HOME/config.yaml
+  // (injected by AcpAgentManager); routing here only emits FLUX_API_KEY.
+  it('routes hermes through Flux (scoped-home) and is no longer unknown', () => {
+    const out = resolveFluxRouting(ctx({ backend: 'hermes', selectedModelId: 'flux-auto' }));
+    expect(out.routing).toBe('flux');
+  });
+  it('emits only FLUX_API_KEY for hermes (no OPENAI_* env; base_url lives in HERMES_HOME)', () => {
+    const out = resolveFluxRouting(ctx({ backend: 'hermes' }));
+    expect(out.env.FLUX_API_KEY).toBe('sk-flux-test');
+    expect(out.env.OPENAI_BASE_URL).toBeUndefined();
+    expect(out.env.OPENAI_MODEL).toBeUndefined();
+  });
+  it('strips native provider keys for hermes (mutual exclusivity)', () => {
+    const out = resolveFluxRouting(ctx({ backend: 'hermes' }));
+    expect(out.stripKeys).toContain('OPENROUTER_API_KEY');
+    expect(out.stripKeys).toContain('DEEPSEEK_API_KEY');
+  });
+  it('keeps hermes native when an explicit native model is picked even with the toggle on', () => {
+    const out = resolveFluxRouting(ctx({ backend: 'hermes', selectedModelId: 'anthropic/claude-opus-4.6', routeThroughFlux: true }));
+    expect(out.routing).toBe('native');
+  });
+  it('keeps hermes native when flux is not connected', () => {
+    expect(resolveFluxRouting(ctx({ backend: 'hermes', fluxConnected: false, fluxKey: undefined })).routing).toBe('native');
+  });
 });

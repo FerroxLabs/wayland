@@ -172,6 +172,7 @@ const SHELL_INHERITED_ENV_VARS = [
   'ANTHROPIC_AUTH_TOKEN', // Claude authentication (#776)
   'ANTHROPIC_API_KEY',
   'ANTHROPIC_BASE_URL',
+  'WAYLAND_BASH_SHELL', // User's bash-tool shell selection for the engine (#197)
 ] as const;
 
 /** Cache for shell environment (loaded once per session) */

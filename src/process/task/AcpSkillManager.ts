@@ -298,9 +298,17 @@ export class AcpSkillManager {
         return;
       }
 
+      const enabledSet = new Set(enabledSkills ?? []);
       for (const extSkill of extSkills) {
-        // If enabledSkills is specified, only load enabled extension skills
-        if (enabledSkills && enabledSkills.length > 0 && !enabledSkills.includes(extSkill.name)) {
+        // Extension (team-bundle) skills are NOT always-on. Only the ones the
+        // user explicitly enabled or pinned join the always-on index
+        // (enabledSkills already includes pinned via conversationBridge). When
+        // nothing is enabled, load NONE - the full team set stays discoverable
+        // via `wayland_search_skills` / the per-turn match against SkillLibrary,
+        // instead of injecting ~3,200 tokens of always-on skill list into every
+        // prompt. This restores the documented "native ships builtin + pinned +
+        // enabledSkills; full library via search" contract.
+        if (!enabledSet.has(extSkill.name)) {
           continue;
         }
 

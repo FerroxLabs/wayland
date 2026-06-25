@@ -28,6 +28,15 @@ export const isMacOS = (): boolean => {
 };
 
 /**
+ * Render a modifier-key shortcut label for the current platform: the Command
+ * glyph on macOS, "Ctrl+" elsewhere. Use instead of hardcoding "⌘K" so Windows
+ * and Linux see the correct modifier.
+ */
+export const formatModifierShortcut = (key: string): string => {
+  return isMacOS() ? `⌘${key}` : `Ctrl+${key}`;
+};
+
+/**
  * Check if running on Windows
  */
 export const isWindows = (): boolean => {

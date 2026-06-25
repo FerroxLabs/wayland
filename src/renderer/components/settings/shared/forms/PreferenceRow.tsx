@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 
 type PreferenceRowProps = {
   label: string;
@@ -8,8 +9,15 @@ type PreferenceRowProps = {
 };
 
 const PreferenceRow: React.FC<PreferenceRowProps> = ({ label, help, required, children }) => {
+  const isMobile = useLayoutContext()?.isMobile ?? false;
   return (
-    <div className='flex items-center justify-between gap-16px py-10px min-h-44px'>
+    <div
+      className={
+        isMobile
+          ? 'flex flex-col items-stretch gap-8px py-10px'
+          : 'flex items-center justify-between gap-16px py-10px min-h-44px'
+      }
+    >
       <div className='flex flex-col gap-2px flex-1 min-w-0'>
         <span className='text-13px text-[var(--text-primary)]'>
           {label}
@@ -17,7 +25,7 @@ const PreferenceRow: React.FC<PreferenceRowProps> = ({ label, help, required, ch
         </span>
         {help && <span className='text-12px text-[var(--text-muted)] leading-snug'>{help}</span>}
       </div>
-      <div className='shrink-0 flex items-center'>{children}</div>
+      <div className={isMobile ? 'w-full flex items-center' : 'shrink-0 flex items-center'}>{children}</div>
     </div>
   );
 };

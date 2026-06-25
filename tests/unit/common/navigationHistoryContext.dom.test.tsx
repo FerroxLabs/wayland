@@ -19,6 +19,7 @@ import {
 let mockPathname = '/';
 let mockSearch = '';
 let mockHash = '';
+let mockNavigationType: 'POP' | 'PUSH' | 'REPLACE' = 'PUSH';
 const mockNavigate = vi.fn();
 
 // Track listeners registered by useLocation via useEffect deps.
@@ -31,6 +32,7 @@ vi.mock('react-router-dom', () => ({
     hash: mockHash,
   }),
   useNavigate: () => mockNavigate,
+  useNavigationType: () => mockNavigationType,
 }));
 
 // ---------------------------------------------------------------------------
@@ -46,11 +48,13 @@ function navigateTo(
   hook: ReturnType<typeof renderHook<ReturnType<typeof useNavigationHistory>, unknown>>,
   pathname: string,
   search = '',
-  hash = ''
+  hash = '',
+  navigationType: 'POP' | 'PUSH' | 'REPLACE' = 'PUSH'
 ) {
   mockPathname = pathname;
   mockSearch = search;
   mockHash = hash;
+  mockNavigationType = navigationType;
   hook.rerender(undefined);
 }
 
@@ -63,6 +67,7 @@ describe('NavigationHistoryContext', () => {
     mockPathname = '/';
     mockSearch = '';
     mockHash = '';
+    mockNavigationType = 'PUSH';
     mockNavigate.mockReset();
   });
 
@@ -190,6 +195,39 @@ describe('NavigationHistoryContext', () => {
     }
 
     expect(backCount).toBe(49);
+  });
+
+  it('REPLACE navigations replace the current entry instead of appending (#254)', () => {
+    const hook = renderHook(() => useNavigationHistory(), { wrapper });
+
+    // User is in a chat.
+    navigateTo(hook, '/conversation/abc');
+    // Something navigates to /settings (PUSH), which immediately redirects via
+    // <Navigate to="/settings/models" replace /> (REPLACE). Without the fix,
+    // both /settings and /settings/models land on the stack, so back() returns
+    // to /settings instead of the chat.
+    navigateTo(hook, '/settings', '', '', 'PUSH');
+    navigateTo(hook, '/settings/models', '', '', 'REPLACE');
+
+    // Back from /settings/models must return to the chat, NOT to /settings.
+    act(() => hook.result.current?.back());
+    expect(mockNavigate).toHaveBeenCalledWith('/conversation/abc', { replace: true });
+  });
+
+  it('a chain of REPLACE redirects collapses to a single stack entry (#254)', () => {
+    const hook = renderHook(() => useNavigationHistory(), { wrapper });
+
+    navigateTo(hook, '/conversation/abc');
+    // /settings -> /settings/providers -> /settings/models, all replace redirects.
+    navigateTo(hook, '/settings', '', '', 'PUSH');
+    navigateTo(hook, '/settings/providers', '', '', 'REPLACE');
+    navigateTo(hook, '/settings/models', '', '', 'REPLACE');
+
+    act(() => hook.result.current?.back());
+    expect(mockNavigate).toHaveBeenCalledWith('/conversation/abc', { replace: true });
+    // No forward entries should remain past the chat after collapsing.
+    expect(hook.result.current?.canForward).toBe(true); // forward → /settings/models
+    expect(hook.result.current?.canBack).toBe(true); // back → /
   });
 
   it('tracks search and hash changes as distinct entries', () => {

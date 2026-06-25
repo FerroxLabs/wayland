@@ -256,3 +256,173 @@ jobs:
           prerelease: ${{ steps.version.outputs.is_dev == 'true' || contains(steps.version.outputs.tag_name, 'beta') || contains(steps.version.outputs.tag_name, 'alpha') || contains(steps.version.outputs.tag_name, 'rc') }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  # 发布前体检：在草稿发布上对真实下载件跑用户路径校验，绿了才公开。
+  # The release above is created as a DRAFT. This gate downloads the draft's real
+  # assets and runs the exact user path (Gatekeeper on the dmg the way a browser
+  # download triggers it, plus the live provider-connect probe). It only flips
+  # the draft to PUBLISHED on green — so a broken download can never reach users.
+  # This is what stops the "ship, then find out" cycle.
+  release-smoke-gate:
+    name: Release Smoke Gate (macOS install)
+    runs-on: macos-14
+    needs: [release]
+    # Real tag releases only (dev builds skip the gate).
+    if: |
+      always() && needs.release.result == 'success' &&
+      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps (for the connect probe)
+        run: bun install --frozen-lockfile
+
+      - name: Resolve tag
+        id: tag
+        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: macOS install gate (Gatekeeper on the real dmg)
+        run: bash scripts/release-smoke-macos.sh --tag "${{ steps.tag.outputs.tag_name }}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Provider-connect gate
+        run: bun run scripts/release-smoke-connect.ts
+        env:
+          # Optional: set these repo secrets to gate REAL auth (catches a valid
+          # key rejected by a wrong regional host). Absent = Tier-1 only.
+          SMOKE_KEY_OPENAI: ${{ secrets.SMOKE_KEY_OPENAI }}
+          SMOKE_KEY_ANTHROPIC: ${{ secrets.SMOKE_KEY_ANTHROPIC }}
+          SMOKE_KEY_MINIMAX: ${{ secrets.SMOKE_KEY_MINIMAX }}
+          SMOKE_KEY_MOONSHOT: ${{ secrets.SMOKE_KEY_MOONSHOT }}
+          SMOKE_KEY_OLLAMA_CLOUD: ${{ secrets.SMOKE_KEY_OLLAMA_CLOUD }}
+
+  # Windows mirror of the macOS install gate: download the draft's .exe assets
+  # and verify each is validly Authenticode-signed by Ferrox Labs (Azure Trusted
+  # Signing). An unsigned or wrong-publisher installer fails the release here,
+  # before publish, instead of reaching users.
+  release-smoke-gate-windows:
+    name: Release Smoke Gate (Windows signature)
+    runs-on: windows-2022
+    needs: [release]
+    # Real tag releases only (dev builds skip the gate).
+    if: |
+      always() && needs.release.result == 'success' &&
+      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Windows install gate (Authenticode on the real exe)
+        shell: pwsh
+        run: pwsh scripts/release-smoke-windows.ps1 -Tag "${{ steps.tag.outputs.tag_name }}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  # Publish only after BOTH the macOS and Windows install gates pass. Keeping
+  # publish in its own job (instead of inside the macOS gate) makes the draft ->
+  # published flip depend on a green Windows signature too.
+  publish-release:
+    name: Publish Release (both gates passed)
+    runs-on: ubuntu-latest
+    needs: [release-smoke-gate, release-smoke-gate-windows]
+    if: |
+      always() &&
+      needs.release-smoke-gate.result == 'success' &&
+      needs.release-smoke-gate-windows.result == 'success' &&
+      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    steps:
+      - name: Resolve tag
+        id: tag
+        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish the release (gates passed)
+        # Mark NOT-prerelease + latest so repo visitors see the newest build on
+        # /releases/latest (GitHub refuses to mark a prerelease as "latest").
+        # This mirrors the manual rc.2.1 publish; change the policy here if you
+        # want rc tags to stay flagged as prereleases instead.
+        run: |
+          TAG="${{ steps.tag.outputs.tag_name }}"
+          echo "Both smoke gates green - publishing $TAG (latest, not-prerelease)"
+          # This job does not checkout the repo, so gh has no .git to infer the
+          # repo from; pass --repo explicitly or gh dies "not a git repository"
+          # (which left v0.9.7 stuck as a draft after both gates passed).
+          gh release edit "$TAG" --repo "${{ github.repository }}" --draft=false --latest --prerelease=false
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  # Publish the `getwayland` self-host CLI to npm on every published release.
+  # This is the headless web-server flavor (npm i -g getwayland), built from
+  # installer/ and SEPARATE from the desktop GitHub Release assets above. It was
+  # published manually once at 0.9.6 and then drifted ~5 releases stale; this
+  # job keeps npm in lockstep with the desktop release. build-payload.mjs builds
+  # the server bundle and syncs installer/package.json to the app version, so the
+  # only inputs here are the checkout + an npm automation token.
+  publish-getwayland-npm:
+    name: Publish getwayland to npm
+    runs-on: ubuntu-latest
+    needs: [publish-release]
+    # always() is REQUIRED: on a tag push the create-tag ancestor is skipped, and
+    # without always() GitHub propagates that skip down this chain (the release /
+    # publish-release jobs guard the same way). We still only publish when
+    # publish-release actually succeeded.
+    if: ${{ always() && needs.publish-release.result == 'success' }}
+    steps:
+      - name: Require an npm token
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error title=NPM_TOKEN missing::Add an npm automation token as the NPM_TOKEN repo secret so the getwayland self-host CLI publishes on every release."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build the getwayland payload (syncs version to the release)
+        working-directory: installer
+        run: node scripts/build-payload.mjs
+
+      - name: Publish to npm
+        working-directory: installer
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          case "$VERSION" in
+            *-*) DIST_TAG=next ;;   # prerelease (rc / beta) -> npm `next`
+            *)   DIST_TAG=latest ;; # stable -> npm `latest`
+          esac
+          echo "Publishing getwayland@$VERSION (dist-tag: $DIST_TAG)"
+          # Idempotent: a workflow re-run must not fail on an already-published version.
+          if npm view "getwayland@$VERSION" version >/dev/null 2>&1; then
+            echo "getwayland@$VERSION is already on npm - skipping."
+            exit 0
+          fi
+          npm publish --access public --tag "$DIST_TAG"

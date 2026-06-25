@@ -177,5 +177,8 @@
     "title": "Becerileri kurulu CLI araçlarından yansıt",
     "subtitle": "~/.claude/skills, ~/.codex/skills ve ~/.gemini/skills içindeki becerileri Beceriler sayfanızda görünmeleri için ortaya çıkarın. İsteğe bağlıdır. Etkili olması için yeniden başlatma gerekir.",
     "restartNeeded": "- uygulamak için uygulamayı yeniden başlatın."
+  },
+  "addToChat": {
+    "alreadyAdded": "Added"
   }
 }

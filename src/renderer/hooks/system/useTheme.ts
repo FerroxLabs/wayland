@@ -19,7 +19,11 @@ export type ResolvedTheme = 'light' | 'dark';
  */
 export type Theme = ResolvedTheme;
 
-const DEFAULT_PREFERENCE: ThemePreference = 'system';
+// Wayland defaults to DARK (the brand surface - onboarding and the welcome flow
+// pin a dark palette, so 'system' would flip a light-mode OS to light the moment
+// onboarding ends, breaking visual consistency). Users can still choose
+// 'light' / 'system' in Settings; this only sets the first-run default.
+const DEFAULT_PREFERENCE: ThemePreference = 'dark';
 const THEME_PREFERENCE_CACHE_KEY = '__wayland_theme_preference';
 const PREFERS_DARK_QUERY = '(prefers-color-scheme: dark)';
 

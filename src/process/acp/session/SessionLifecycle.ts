@@ -1,4 +1,5 @@
 import { getFullAutoMode } from '@/common/types/agentModes';
+import { isFluxModelId } from '@/common/config/flux';
 import { parseInitializeResult } from '@/common/types/acpTypes';
 import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
@@ -309,11 +310,20 @@ export class SessionLifecycle {
     const pending = this.host.configTracker.getPendingChanges();
 
     if (pending.model) {
-      try {
-        await this._client.setModel(this._sessionId, pending.model);
+      // A Flux id (flux-auto, ...) is carried by the spawn env
+      // (ANTHROPIC_MODEL/OPENAI_MODEL=flux-auto), not by an in-place set_model.
+      // Pushing it through session/set_model makes the claude binary validate it
+      // against its native catalog and reject it (JSON-RPC -32601). Mark it as
+      // applied so it isn't re-queued, but skip the bridge call.
+      if (isFluxModelId(pending.model)) {
         this.host.configTracker.setCurrentModel(pending.model);
-      } catch {
-        /* best effort */
+      } else {
+        try {
+          await this._client.setModel(this._sessionId, pending.model);
+          this.host.configTracker.setCurrentModel(pending.model);
+        } catch {
+          /* best effort */
+        }
       }
     }
     if (pending.mode) {

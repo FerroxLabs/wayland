@@ -9,6 +9,8 @@ import { AudioLines, ImageIcon, Search, ShieldCheck, Sparkles } from 'lucide-rea
 import { Message, Typography } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
+import { isElectronDesktop } from '@renderer/utils/platform';
+import { deleteToolKeyHttp, setToolKeyHttp } from '@renderer/services/ToolKeyService';
 import ToolKeyCard from '../components/ToolKeyCard';
 import styles from './Panes.module.css';
 
@@ -132,6 +134,13 @@ const BACKEND_GROUPS: readonly BackendGroup[] = [
 const ServicesKeysPane: React.FC = () => {
   const { t } = useTranslation();
   const [presence, setPresence] = useState<Record<string, boolean>>({});
+  // On desktop, tool-key writes go through Electron IPC (`wcoreToolKeys.*`). In a
+  // remote WebUI that IPC is denied (it mutates credential material a remote
+  // caller must not reach), so writes go through the write-only + status HTTP
+  // route instead (remote-secure-config W1.B). The presence list read
+  // (`wcoreToolKeys.list`) is presence-only and stays remote-allowed, so the
+  // pane is now usable from a phone.
+  const desktop = isElectronDesktop();
 
   const refresh = useCallback(async (): Promise<void> => {
     const list = await ipcBridge.wcoreToolKeys.list.invoke();
@@ -144,22 +153,22 @@ const ServicesKeysPane: React.FC = () => {
 
   const handleSave = useCallback(
     async (id: string, key: string): Promise<void> => {
-      const result = await ipcBridge.wcoreToolKeys.set.invoke({ id, key });
-      if (result.ok) {
+      const ok = desktop ? (await ipcBridge.wcoreToolKeys.set.invoke({ id, key })).ok : await setToolKeyHttp(id, key);
+      if (ok) {
         await refresh();
       } else {
         Message.error(t('settings.wcoreConfig.services.saveFailed', { defaultValue: 'Could not save the key.' }));
       }
     },
-    [refresh, t]
+    [desktop, refresh, t]
   );
 
   const handleRemove = useCallback(
     async (id: string): Promise<void> => {
-      const result = await ipcBridge.wcoreToolKeys.delete.invoke({ id });
-      if (result.ok) await refresh();
+      const ok = desktop ? (await ipcBridge.wcoreToolKeys.delete.invoke({ id })).ok : await deleteToolKeyHttp(id);
+      if (ok) await refresh();
     },
-    [refresh]
+    [desktop, refresh]
   );
 
   return (

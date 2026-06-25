@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "tech.qdrant/qdrant-mcp",
+  "title": "Qdrant",
+  "description": "A semantic-memory layer over Qdrant - store and find by meaning - Qdrant’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/qdrant/mcp-server-qdrant",
+  "repository": {
+    "url": "https://github.com/qdrant/mcp-server-qdrant",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "mcp-server-qdrant",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "QDRANT_API_KEY",
+          "description": "Qdrant API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "ml",
+      "database"
+    ],
+    "tags": [
+      "qdrant",
+      "vector",
+      "memory"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 132,
+    "installRate": 0,
+    "iconUrl": "icons/tech.qdrant-qdrant-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#DC244C"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Qdrant",
+      "providerSignupUrl": "https://cloud.qdrant.io"
+    },
+    "setupGuide": {
+      "path": "guides/tech.qdrant-qdrant-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

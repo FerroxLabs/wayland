@@ -12,6 +12,7 @@ import { uuid } from '@/common/utils';
 import { MARQUEE_DEFAULT_RULES } from '@renderer/utils/model/marquee';
 import { useGeminiGoogleAuthModels } from '@/renderer/hooks/agent/useGeminiGoogleAuthModels';
 import { hasAvailableModels } from '../utils/modelUtils';
+import { isFluxModelId } from '@/common/config/flux';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR from 'swr';
 
@@ -176,11 +177,26 @@ export type GuidModelSelectionResult = {
  */
 export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): GuidModelSelectionResult => {
   const { geminiModeOptions, isGoogleAuth } = useGeminiGoogleAuthModels();
-  const { data: modelConfig } = useSWR('model.config.welcome', () => {
+  const { data: modelConfig, mutate: mutateModelConfig } = useSWR('model.config.welcome', () => {
     return ipcBridge.mode.getModelConfig.invoke().then((data) => {
       return (data || []).filter((platform) => !!platform.model.length);
     });
   });
+
+  // Revalidate the home picker's `model.config` view whenever the model
+  // registry's catalog changes (connect / rekey / refresh all emit
+  // `modelRegistry.listChanged`). The first-run onboarding overlay connects
+  // Flux Router as a Modal mounted ON TOP of this already-mounted home page, so
+  // dismissing it never remounts the page — without this subscription the SWR
+  // cache stays on its empty cold-start snapshot, `currentModel` never
+  // resolves, and the brand-new user's first send is silently dropped by the
+  // wcore "no model configured" guard (issue #108). Mirrors the same
+  // revalidation `useModelProviderList` already does for `model.config.shared`.
+  useEffect(() => {
+    return ipcBridge.modelRegistry.listChanged.on(() => {
+      void mutateModelConfig();
+    });
+  }, [mutateModelConfig]);
 
   const geminiModelValues = useMemo(() => geminiModeOptions.map((option) => option.value), [geminiModeOptions]);
 
@@ -265,7 +281,26 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): Gu
       }
 
       const currentKey = selectedModelKeyRef.current || buildModelKey(currentModel?.id, currentModel?.useModel);
-      if (!agentChanged && isModelKeyAvailable(currentKey, modelList)) {
+      // #129 - a just-enabled "Route through Flux" + an available flux-auto must
+      // supersede a stale non-Flux selection. The onboarding Flux connect pins
+      // flux-auto AFTER the home already locked onto whatever model loaded first
+      // (a local Ollama smollm2:135m loads instantly; cloud catalogs + the Flux
+      // virtual models land a beat later). Without this, the lock below keeps the
+      // stale local pick in-session until an app restart re-reads the pin. When a
+      // Flux override is pending we fall through to the full resolution, which
+      // still puts the user's own saved pin first - so this only ever promotes an
+      // unchosen default to flux-auto, never overrides a deliberate pick.
+      const fluxAutoAvailable = modelList.some((p) => p.model?.includes(FLUX_AUTO_MODEL));
+      const currentIsFlux = currentModel?.useModel ? isFluxModelId(currentModel.useModel) : false;
+      let fluxOverridePending = false;
+      if (fluxAutoAvailable && !currentIsFlux) {
+        try {
+          fluxOverridePending = (await ipcBridge.systemSettings.getRouteThroughFlux.invoke()) ?? false;
+        } catch {
+          /* no override on failure - fall through to the normal lock */
+        }
+      }
+      if (!agentChanged && !fluxOverridePending && isModelKeyAvailable(currentKey, modelList)) {
         if (!selectedModelKeyRef.current && currentKey) {
           selectedModelKeyRef.current = currentKey;
         }
@@ -302,11 +337,21 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'gemini'): Gu
         savedPin && !isLikelyExperimentalModel(savedPin.useModel) && !isExperimentalProvider(savedPin.provider)
           ? savedPin
           : null;
-      // Flux Router's Autopilot is the recommended default when connected, but
-      // it sits below real usage signals and a chosen pin - only above the
-      // generic safe default. So a brand-new user with Flux connected lands on
-      // flux-auto, while anyone who has actually picked a model keeps it.
-      const fluxAuto = resolveFluxAuto(modelList);
+      // Flux Router's Autopilot is the recommended default only while "Route
+      // through Flux" is enabled. It sits below real usage signals and a chosen
+      // pin - only above the generic safe default - so a brand-new user (whose
+      // onboarding turns the toggle on when they connect Flux) lands on
+      // flux-auto, while anyone who picked a model keeps it. Crucially, a user
+      // who turns the toggle OFF must escape the flux-auto default here too, not
+      // just in the per-conversation path, or the home picker keeps re-selecting
+      // flux (#160). Mirrors the gating in createConversationParams.
+      let routeThroughFlux = false;
+      try {
+        routeThroughFlux = (await ipcBridge.systemSettings.getRouteThroughFlux.invoke()) ?? false;
+      } catch {
+        /* on failure leave flux-auto out of the default chain */
+      }
+      const fluxAuto = routeThroughFlux ? resolveFluxAuto(modelList) : null;
       const chosen =
         recentMatch ?? savedNonExperimental ?? frequentMatch ?? fluxAuto ?? resolveSafeDefault(modelList) ?? savedPin;
       if (!chosen) return;

@@ -41,10 +41,22 @@ export type PaletteStarterPrompt = {
   text: string;
 };
 
+/**
+ * Action entry surfaced in the palette — a command that does something (opens
+ * a URL, toggles a panel) rather than launching a chat. `label` is an i18n
+ * key; `url` is the external link the action opens, when applicable.
+ */
+export type PaletteAction = {
+  id: string;
+  label: string;
+  url?: string;
+};
+
 export type CommandPaletteSources = {
   assistants: PaletteAssistant[];
   recents: PaletteRecent[];
   prompts: PaletteStarterPrompt[];
+  actions: PaletteAction[];
 };
 
 /**
@@ -62,6 +74,19 @@ const FALLBACK_STARTER_PROMPTS: PaletteStarterPrompt[] = [
 ];
 
 const MAX_RECENT_PALETTE_ROWS = 10;
+
+/**
+ * Canonical Wayland documentation URL opened by the "Search documentation"
+ * palette action.
+ * TODO(docs): confirm this is the live docs URL before release — no docs URL
+ * constant existed elsewhere in the app at the time this was added.
+ */
+const DOCS_URL = 'https://getwayland.com/docs';
+
+/** Static palette actions (commands that are not chat launches). */
+const PALETTE_ACTIONS: PaletteAction[] = [
+  { id: 'docs', label: 'common.cmdk.actions.docs', url: DOCS_URL },
+];
 
 /**
  * Coarse categorization for assistants.
@@ -123,5 +148,6 @@ export function useCommandPaletteSources(): CommandPaletteSources {
     assistants,
     recents,
     prompts: FALLBACK_STARTER_PROMPTS,
+    actions: PALETTE_ACTIONS,
   };
 }

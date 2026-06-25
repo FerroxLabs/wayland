@@ -31,6 +31,7 @@
 
 import path from 'path';
 import { existsSync, readFileSync } from 'fs';
+import { buildResourceDirCandidates } from '@process/services/skills/SkillLibrary';
 import agentProfileSkills from './agentProfileSkills.json';
 
 const TAG = '[AgentProfileMerge]';
@@ -75,23 +76,18 @@ type VendoredAgentProfile = {
 let cached: VendoredAgentProfile[] | null = null;
 
 /**
- * Same path-resolution pattern as `resolveSkillsLibraryDir()` in SkillLibrary.ts -
- * walks the candidate list once to find `index.json` on disk. Inlined here so
- * this overlay has no dependency on the SkillLibrary singleton (the overlay
- * runs at ExtensionRegistry init time, which is before any IPC bridge is up).
+ * Resolve the on-disk skills-library dir, reusing the canonical candidate list
+ * from SkillLibrary.ts. The previous inlined copy omitted the
+ * `process.resourcesPath` probe and used the wrong packaged depth
+ * (`../../resources/skills-library` instead of `../../../skills-library`), so in
+ * a packaged Windows build none of its candidates resolved to the real
+ * `resources/skills-library` - the merge silently disabled itself and only the
+ * built-in assistants loaded (#126 / #127). `buildResourceDirCandidates` is a
+ * pure function (no SkillLibrary singleton), and this overlay runs in the main
+ * process where `process.resourcesPath` is populated.
  */
 function resolveSkillsLibraryDir(): string | null {
-  const myDir = path.dirname(__filename);
-  const baseDir = path.basename(myDir) === 'chunks' ? path.dirname(myDir) : myDir;
-  // ExtensionRegistry lives in `out/main/` (dev) or `app.asar/out/main/`
-  // (packaged); from there walk back to the project / asar-unpacked root.
-  const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
-  const candidates = [
-    path.resolve(baseDirUnpacked, '../../resources/skills-library'),
-    path.resolve(baseDir, '../../src/process/resources/skills-library'),
-    path.resolve(baseDir, '../../resources/skills-library'),
-    path.resolve(baseDir, '../resources/skills-library'),
-  ];
+  const candidates = buildResourceDirCandidates(path.dirname(__filename), process.resourcesPath, 'skills-library');
   for (const c of candidates) {
     if (existsSync(path.join(c, 'index.json'))) return c;
   }

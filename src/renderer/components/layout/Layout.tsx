@@ -24,57 +24,70 @@ import { useMultiAgentDetection } from '@renderer/hooks/agent/useMultiAgentDetec
 import { processCustomCss } from '@renderer/utils/theme/customCssProcessor';
 import { cleanupSiderTooltips } from '@renderer/utils/ui/siderTooltip';
 import { useConversationShortcuts } from '@renderer/hooks/ui/useConversationShortcuts';
+import { useResponsive } from '@renderer/hooks/ui/useResponsive';
+import { useSidebarWidth } from '@renderer/hooks/ui/useSidebarWidth';
 import { useGlobalKeybind } from '@renderer/hooks/settings/useGlobalKeybind';
 import { CommandPalette } from '@renderer/components/cmdk';
-import type {
-  PaletteAssistant,
-  PaletteStarterPrompt,
-} from '@renderer/components/cmdk';
+import BudgetGateModal from '@renderer/components/cost/BudgetGateModal';
+import RunawayHaltModal from '@renderer/components/cost/RunawayHaltModal';
+import type { PaletteAssistant, PaletteStarterPrompt } from '@renderer/components/cmdk';
 import { getAgentKey } from '@renderer/pages/guid/hooks/agentSelectionUtils';
 import type { AcpBackend } from '@/common/types/acpTypes';
 import { isElectronDesktop } from '@renderer/utils/platform';
+import { useIsPopoutMode } from '@renderer/hooks/system/useIsPopoutMode';
 import { computeCssSyncDecision, resolveCssByActiveTheme } from '@renderer/utils/theme/themeCssSync';
 import '@renderer/styles/layout.css';
 
-const useDebug = () => {
-  const [count, setCount] = useState(0);
-  const timer = useRef<any>(null);
-  const onClick = () => {
+// DevTools escape hatch: the only way to open Chrome DevTools in a packaged
+// production build. Gated behind a modifier so a plain logo click never
+// triggers it. Hold Cmd/Ctrl and triple-click the logo within 1 second.
+const useDevToolsEscapeHatch = () => {
+  const count = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const registerModifierClick = useCallback(() => {
     const open = () => {
       ipcBridge.application.openDevTools.invoke().catch((error) => {
         console.error('Failed to open dev tools:', error);
       });
-      setCount(0);
+      count.current = 0;
     };
-    if (count >= 3) {
-      return open();
-    }
-    setCount((prev) => {
-      if (prev >= 2) {
-        open();
-        return 0;
-      }
-      return prev + 1;
-    });
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      clearTimeout(timer.current);
-      setCount(0);
-    }, 1000);
-  };
 
-  return { onClick };
+    if (count.current >= 2) {
+      if (timer.current) clearTimeout(timer.current);
+      open();
+      return;
+    }
+
+    count.current += 1;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      count.current = 0;
+    }, 1000);
+  }, []);
+
+  return { registerModifierClick };
 };
 
 const UpdateModal = React.lazy(() => import('@/renderer/components/settings/UpdateModal'));
 
-const DEFAULT_SIDER_WIDTH = 240;
+// Stable no-op sider setter for pop-out mode (no sider exists to collapse). The
+// Titlebar suppresses its sider toggle in pop-out mode via useIsPopoutMode, so
+// this is never invoked - it just satisfies the LayoutContext shape.
+const noopSetSiderCollapsed = (_value: boolean): void => {};
+
+const DEFAULT_SIDER_WIDTH = 280;
 const DESKTOP_COLLAPSED_WIDTH = 64;
+// Between the mobile overlay breakpoint (768) and this width, the sidebar
+// auto-collapses to the icon rail so a narrowed desktop window keeps a readable
+// content column. At/above this width it expands back to the full sidebar.
+const NARROW_RAIL_MAX_WIDTH = 1024;
 const SIDER_DRAG_SNAP_THRESHOLD = Math.round((DEFAULT_SIDER_WIDTH + DESKTOP_COLLAPSED_WIDTH) / 2);
 const SIDER_DRAG_HYSTERESIS = 6;
-const MOBILE_SIDER_WIDTH_RATIO = 0.67;
-const MOBILE_SIDER_MIN_WIDTH = 260;
-const MOBILE_SIDER_MAX_WIDTH = 420;
+// Overlay drawer width. Kept compact (Claude-style ~300px) and always leaving a
+// content peek on the right so it reads as a floating drawer, not a split pane.
+const MOBILE_SIDER_MIN_WIDTH = 256;
+const MOBILE_SIDER_MAX_WIDTH = 300;
 
 const detectMobileViewportOrTouch = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -101,14 +114,49 @@ const Layout: React.FC<{
     typeof window === 'undefined' ? 390 : window.innerWidth
   );
   const [customCss, setCustomCss] = useState<string>('');
-  const [shouldMountUpdateModal, setShouldMountUpdateModal] = useState(false);
-  const { onClick } = useDebug();
+  const { registerModifierClick } = useDevToolsEscapeHatch();
   const { contextHolder: multiAgentContextHolder } = useMultiAgentDetection();
   const { contextHolder: directorySelectionContextHolder } = useDirectorySelection();
   useDeepLink();
   useNotificationClick();
   const navigate = useNavigate();
   useConversationShortcuts({ navigate });
+  // #27 phase 2: pop-out chat windows render a stripped shell (no sider, no
+  // onboarding, no command palette) - just the custom titlebar + the routed
+  // conversation. Fixed for the window's lifetime.
+  const isPopout = useIsPopoutMode();
+
+  // #47: expose the orthogonal signals alongside the legacy `isMobile` composite
+  // (which is left untouched above) so consumers can pick LAYOUT (isNarrow) vs
+  // INTERACTION (isTouch) intent instead of conflating them.
+  const { isNarrow, isTouch } = useResponsive();
+  // #84: desktop sidebar width comes from the Settings > Theme slider (persisted
+  // + live). Falls back to the legacy default when unset; mobile uses its own
+  // overlay-drawer sizing below and ignores this.
+  const desktopSiderWidth = useSidebarWidth();
+
+  // Logo click: plain click goes home; Cmd/Ctrl + triple-click opens DevTools.
+  const handleLogoClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (event.metaKey || event.ctrlKey) {
+        registerModifierClick();
+        return;
+      }
+      void navigate('/guid');
+    },
+    [navigate, registerModifierClick]
+  );
+
+  // Keyboard activation for the logo button: Enter/Space go home.
+  const handleLogoKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        void navigate('/guid');
+      }
+    },
+    [navigate]
+  );
 
   // --- ⌘K command palette (global) ---
   // Owned at the layout level so the keybind works on every authenticated
@@ -330,6 +378,23 @@ const Layout: React.FC<{
     setCollapsed(true);
   }, [isMobile]);
 
+  // Close the mobile overlay sider on navigation, so tapping a conversation or
+  // nav item dismisses the drawer instead of leaving it covering the new route
+  // (the biggest "feels native" win for the mobile sidebar).
+  useEffect(() => {
+    if (isMobile && !collapsedRef.current) {
+      setCollapsed(true);
+    }
+  }, [location.pathname]);
+
+  // Responsive rail: on a narrowed desktop window (between the mobile overlay
+  // breakpoint and NARROW_RAIL_MAX_WIDTH) auto-collapse to the icon rail, and
+  // expand back when widened. The mobile path (above) owns sub-768 behavior.
+  useEffect(() => {
+    if (isMobile || viewportWidth <= 0) return;
+    setCollapsed(viewportWidth < NARROW_RAIL_MAX_WIDTH);
+  }, [isMobile, viewportWidth]);
+
   // Clean up sider Tooltip leftovers to prevent floating panels stuck in the top-left after mobile route changes
   useEffect(() => {
     cleanupSiderTooltips();
@@ -373,7 +438,6 @@ const Layout: React.FC<{
 
     // Handle pause all tasks request from tray
     const handlePauseAllTasks = async () => {
-      const { ipcBridge } = await import('@/common');
       const result = await ipcBridge.task.stopAll.invoke();
       if (result?.success) {
         // Navigate to settings page to show task status
@@ -409,11 +473,10 @@ const Layout: React.FC<{
   }, [navigate]);
 
   const siderWidth = isMobile
-    ? Math.max(
-        MOBILE_SIDER_MIN_WIDTH,
-        Math.min(MOBILE_SIDER_MAX_WIDTH, Math.round(viewportWidth * MOBILE_SIDER_WIDTH_RATIO))
-      )
-    : DEFAULT_SIDER_WIDTH;
+    ? // Floating drawer: cap at 300px but always leave a >=56px content peek on
+      // the right so it reads as an overlay, not a full split-pane wall.
+      Math.max(MOBILE_SIDER_MIN_WIDTH, Math.min(MOBILE_SIDER_MAX_WIDTH, viewportWidth - 56))
+    : desktopSiderWidth;
   useEffect(() => {
     collapsedRef.current = collapsed;
   }, [collapsed]);
@@ -425,12 +488,12 @@ const Layout: React.FC<{
       dragStateRef.current = {
         active: true,
         startX: event.clientX,
-        startWidth: collapsedRef.current ? DESKTOP_COLLAPSED_WIDTH : DEFAULT_SIDER_WIDTH,
+        startWidth: collapsedRef.current ? DESKTOP_COLLAPSED_WIDTH : desktopSiderWidth,
       };
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
     },
-    [isMobile]
+    [isMobile, desktopSiderWidth]
   );
 
   useEffect(() => {
@@ -473,7 +536,7 @@ const Layout: React.FC<{
         left: 0,
         zIndex: 100,
         transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
-        transition: 'none',
+        transition: 'transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1)',
         pointerEvents: collapsed ? ('none' as const) : ('auto' as const),
       }
     : {
@@ -481,14 +544,38 @@ const Layout: React.FC<{
         overflow: 'visible' as const,
       };
 
+  if (isPopout) {
+    // Pop-out shell: custom Wayland titlebar (standalone, no sider toggle) + the
+    // routed conversation. `setSiderCollapsed` is intentionally omitted so the
+    // Titlebar suppresses its sider toggle and keeps macOS traffic-light spacing.
+    return (
+      <LayoutContext.Provider
+        value={{ isMobile, isNarrow, isTouch, siderCollapsed: true, setSiderCollapsed: noopSetSiderCollapsed }}
+      >
+        <NavigationHistoryProvider>
+          <div className='app-shell app-shell--popout flex flex-col size-full min-h-0'>
+            <Titlebar workspaceAvailable={workspaceAvailable} />
+            <div className='bg-1 layout-content flex flex-col flex-1 min-h-0'>
+              <Outlet />
+              {multiAgentContextHolder}
+              {directorySelectionContextHolder}
+            </div>
+          </div>
+        </NavigationHistoryProvider>
+      </LayoutContext.Provider>
+    );
+  }
+
   return (
-    <LayoutContext.Provider value={{ isMobile, siderCollapsed: collapsed, setSiderCollapsed: setCollapsed }}>
+    <LayoutContext.Provider
+      value={{ isMobile, isNarrow, isTouch, siderCollapsed: collapsed, setSiderCollapsed: setCollapsed }}
+    >
       <NavigationHistoryProvider>
         <div className='app-shell flex flex-col size-full min-h-0'>
           <Titlebar workspaceAvailable={workspaceAvailable} />
           {/* Mobile left sider backdrop */}
           {isMobile && !collapsed && (
-            <div className='fixed inset-0 bg-black/30 z-90' onClick={() => setCollapsed(true)} aria-hidden='true' />
+            <div className='fixed inset-0 bg-black/50 z-90' onClick={() => setCollapsed(true)} aria-hidden='true' />
           )}
 
           <ArcoLayout className={'size-full layout flex-1 min-h-0'}>
@@ -520,8 +607,13 @@ const Layout: React.FC<{
                       'radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.18), transparent 70%), var(--bg-2, #161616)',
                     border: '1px solid var(--border-mid, #353535)',
                     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                    cursor: 'pointer',
                   }}
-                  onClick={onClick}
+                  role='button'
+                  tabIndex={0}
+                  aria-label={t('common.brand')}
+                  onClick={handleLogoClick}
+                  onKeyDown={handleLogoKeyDown}
                 >
                   <svg
                     className={classNames({
@@ -545,7 +637,9 @@ const Layout: React.FC<{
                   </svg>
                 </div>
                 <div className='flex-1 flex flex-col gap-2px collapsed-hidden min-w-0'>
-                  <span className='text-14px font-700 text-t-primary leading-none tracking-[0.01em]'>{t('common.brand')}</span>
+                  <span className='text-14px font-700 text-t-primary leading-none tracking-[0.01em]'>
+                    {t('common.brand')}
+                  </span>
                   <span className='text-10px font-500 uppercase tracking-[0.16em] text-[var(--text-dim,#555)] leading-none'>
                     {t('common.brandTagline')}
                   </span>
@@ -557,24 +651,20 @@ const Layout: React.FC<{
                     onClick={() => setCollapsed(true)}
                     aria-label='Collapse sidebar'
                   >
-                    {collapsed ? (
-                      <PanelLeftOpen size={18} />
-                    ) : (
-                      <PanelLeftClose size={18} />
-                    )}
+                    {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                   </button>
                 )}
                 {/* Sidebar folding handled by Titlebar toggle */}
               </ArcoLayout.Header>
               <ArcoLayout.Content className='pt-8px px-8px pb-0 layout-sider-content'>
                 {React.isValidElement(sider)
-                  ? React.cloneElement(sider, {
+                  ? React.cloneElement(sider as React.ReactElement<{ onSessionClick?: () => void; collapsed?: boolean }>, {
                       onSessionClick: () => {
                         cleanupSiderTooltips();
                         if (isMobile) setCollapsed(true);
                       },
                       collapsed,
-                    } as any)
+                    })
                   : sider}
               </ArcoLayout.Content>
               {!isMobile && (
@@ -616,6 +706,8 @@ const Layout: React.FC<{
                 onResumeChat={handleResumeChat}
                 onFillPrompt={handleFillPrompt}
               />
+              <BudgetGateModal />
+              <RunawayHaltModal />
             </ArcoLayout.Content>
           </ArcoLayout>
         </div>

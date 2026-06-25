@@ -23,10 +23,19 @@
  * directly against the installed CLIs (help text, subcommands, config files -
  * no agent task was run):
  *
- *   - **Codex** is ENUMERABLE: `codex debug models --bundled` dumps the model
- *     catalog as JSON (`{ models: [{ slug, display_name, visibility, ... }] }`).
- *     `--bundled` uses the catalog shipped with the binary, so it needs no
- *     network and is fast and deterministic.
+ *   - **Codex** is ENUMERABLE: `codex debug models` dumps the model catalog as
+ *     JSON (`{ models: [{ slug, display_name, visibility, ... }] }`). Without
+ *     `--bundled` the CLI REFRESHES the catalog against the signed-in account,
+ *     so the result is scoped to what the user's subscription can actually call
+ *     (the `--help` text for `--bundled` is literally "Skip refresh and dump
+ *     only the bundled catalog"). With `--bundled` it dumps the offline,
+ *     account-agnostic catalog baked into the binary - broader, but it can list
+ *     models the account is NOT entitled to call (issue #22: a workflow then
+ *     dispatches to a model the user can't call and the turn fails).
+ *
+ *     This source therefore PREFERS the account-aware (refreshed) command and
+ *     only FALLS BACK to `--bundled` when the refresh is unavailable, errors,
+ *     or returns no models - it never blanks the list. See `listModels()`.
  *   - **Claude Code** is NOT ENUMERABLE: no `models`/`list` subcommand, no
  *     `--list-models` flag, no model declaration in `~/.claude/`. `--model`
  *     accepts an alias or full name but offers no way to discover the set.
@@ -63,8 +72,18 @@ export type CliAgentKey = 'claude' | 'codex' | 'gemini';
 type EnumerableSpec = {
   /** The executable to invoke (resolved on the system PATH). */
   readonly command: string;
-  /** Arguments that make the CLI dump its model catalog as JSON. */
-  readonly args: string[];
+  /**
+   * Account-aware enumeration: arguments that make the CLI refresh its catalog
+   * against the signed-in account, so the result is scoped to what the
+   * subscription can actually call. Tried FIRST.
+   */
+  readonly accountArgs: string[];
+  /**
+   * Offline enumeration: arguments that dump the catalog baked into the binary
+   * (account-agnostic, no network). The graceful FALLBACK when the account-aware
+   * command is missing, errors, or yields no models - so the list is never blank.
+   */
+  readonly bundledArgs: string[];
 };
 
 /** Hard timeout for a CLI invocation - a hung CLI must never stall the catalog. */
@@ -74,13 +93,15 @@ const CLI_TIMEOUT_MS = 10_000;
  * Enumeration spec per enumerable CLI agent. A CLI agent absent from this map is
  * not enumerable.
  *
- * Codex: `codex debug models --bundled` renders the bundled model catalog as
- * JSON without any network call.
+ * Codex: `codex debug models` refreshes the catalog against the signed-in
+ * account (account-aware, preferred); `codex debug models --bundled` renders the
+ * offline catalog baked into the binary (the graceful fallback).
  */
 const ENUMERABLE_AGENTS: Partial<Record<CliAgentKey, EnumerableSpec>> = {
   codex: {
     command: 'codex',
-    args: ['debug', 'models', '--bundled'],
+    accountArgs: ['debug', 'models'],
+    bundledArgs: ['debug', 'models', '--bundled'],
   },
 };
 
@@ -126,30 +147,59 @@ export class CliAgentSource implements CatalogSource {
    * The CLI agent's models as `RawModel[]`.
    *
    * - Not enumerable → `[]` (by design; never a fabricated list).
-   * - Enumerable → runs the CLI's enumeration command and parses the result.
-   *   A missing CLI, a non-zero exit, or unparseable output is treated as "no
-   *   models right now" → `[]`. This method never throws.
+   * - Enumerable → PREFER the account-aware command (scoped to what the
+   *   signed-in subscription can call); if that is missing, errors, or yields no
+   *   models, FALL BACK to the offline bundled catalog. The list is only ever
+   *   `[]` when BOTH paths produce nothing - the fallback never blanks a list
+   *   the account-aware path could have filled, and vice versa.
    *
-   * The `CLI_TIMEOUT_MS` timeout bounds the *promise*: this call always
-   * resolves (or rejects internally, then degrades to `[]`) within ~10s. It is
-   * not a guarantee that a wedged CLI process is reaped - OS-level termination
-   * is best-effort `SIGTERM` via the shared `safeExecFile` helper, and a
-   * non-cooperative process may outlive the resolved promise.
+   * A missing CLI, a non-zero exit, or unparseable output from a single command
+   * is treated as "that command produced no models" and triggers the fallback.
+   * This method never throws.
+   *
+   * The `CLI_TIMEOUT_MS` timeout bounds each invocation; with the fallback the
+   * worst case is two sequential invocations (~20s). It is not a guarantee that
+   * a wedged CLI process is reaped - OS-level termination is best-effort
+   * `SIGTERM` via the shared `safeExecFile` helper, and a non-cooperative
+   * process may outlive the resolved promise.
    */
   async listModels(): Promise<RawModel[]> {
     if (!this.spec) return [];
 
-    let stdout: string;
-    try {
-      const result = await safeExecFile(this.spec.command, this.spec.args, { timeout: CLI_TIMEOUT_MS });
-      stdout = result.stdout;
-    } catch (err) {
-      // Missing CLI (ENOENT), non-zero exit, or a timeout - the CLI could not
-      // produce a catalog. Degrade to an empty list rather than crashing.
-      console.warn(`[CliAgentSource] '${this.spec.command}' enumeration failed:`, describeError(err));
-      return [];
+    // 1. Account-aware (refreshed) catalog - scoped to the subscription.
+    const accountModels = await this.run(this.spec.accountArgs);
+    if (accountModels.length > 0) {
+      console.debug(
+        `[CliAgentSource] '${this.spec.command}' using account-aware catalog (${accountModels.length} models)`
+      );
+      return accountModels;
     }
 
+    // 2. Graceful fallback - offline bundled catalog. Never blank the list when
+    // the binary can still describe its models, even if account-aware failed.
+    const bundledModels = await this.run(this.spec.bundledArgs);
+    console.debug(
+      `[CliAgentSource] '${this.spec.command}' account-aware catalog empty/unavailable; ` +
+        `using bundled fallback (${bundledModels.length} models)`
+    );
+    return bundledModels;
+  }
+
+  /**
+   * Run one enumeration command and parse it. Any failure (missing CLI,
+   * non-zero exit, timeout, unparseable output) degrades to `[]` so the caller
+   * can decide whether to fall back. Never throws.
+   */
+  private async run(args: string[]): Promise<RawModel[]> {
+    const command = this.spec!.command;
+    let stdout: string;
+    try {
+      const result = await safeExecFile(command, args, { timeout: CLI_TIMEOUT_MS });
+      stdout = result.stdout;
+    } catch (err) {
+      console.debug(`[CliAgentSource] '${command} ${args.join(' ')}' failed:`, describeError(err));
+      return [];
+    }
     return parseCodexModels(stdout, this.underlyingProviderId);
   }
 }

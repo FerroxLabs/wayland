@@ -17,6 +17,7 @@ import type {
   IConfigStorageRefer,
   IEnvStorageRefer,
   IMcpServer,
+  IProvider,
   TChatConversation,
   TProviderWithModel,
 } from '@/common/config/storage';
@@ -33,6 +34,8 @@ import {
 } from './utils';
 import { writeFileAtomic } from './atomicWrite';
 import { getOsUserName } from './osUserName';
+import { resolveFluxImageDefault } from './fluxImageDefault';
+import { readConnectedFluxKey } from '../connectors/fluxKey';
 import { getDatabase } from '../services/database/export';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { migrateFromElectronConfig, importConfigFromFile } from './configMigration';
@@ -44,7 +47,7 @@ import {
   BUILTIN_SEARCH_SKILLS_NAME,
 } from '../resources/builtinMcp/constants';
 import { getMcpScriptPath, inspectMcpScripts } from './mcpScriptDir';
-import { getAppDataExtensionsDir, EXTENSION_MANIFEST_FILE } from '../extensions/constants';
+import { getBuiltinCatalogAssistants } from './builtinCatalog';
 // Platform and architecture types (moved from deleted updateConfig)
 type PlatformType = 'win32' | 'darwin' | 'linux';
 type ArchitectureType = 'x64' | 'arm64' | 'ia32' | 'arm';
@@ -66,48 +69,6 @@ const getHomePage = getConfigPath;
 
 const mkdirSync = (path: string) => {
   return _mkdirSync(path, { recursive: true });
-};
-
-/**
- * Sync bundled business-pack extensions into the app-data extensions dir so
- * ExtensionLoader discovers them via the 'appdata' scan source. Mirrors the
- * builtin-skills sync: app-managed, overwrite-on-update, copies only our own
- * per-pack subdirs so user-installed extensions in the same dir are untouched.
- * Packaged-only: dev uses WAYLAND_EXTENSIONS_PATH, not this copy.
- *
- * Source (packaged): <process.resourcesPath>/bundled-extensions  (extraResources)
- * Target:            getAppDataExtensionsDir() = <userData>/extensions
- */
-const initBundledExtensions = async (): Promise<void> => {
-  const platform = getPlatformServices().paths;
-  // Dev resolves extensions via WAYLAND_EXTENSIONS_PATH; only sync when packaged.
-  if (!platform.isPackaged()) return;
-
-  const sourceRoot = path.join(process.resourcesPath, 'bundled-extensions');
-  if (!existsSync(sourceRoot)) return;
-
-  const targetRoot = getAppDataExtensionsDir();
-  if (!existsSync(targetRoot)) {
-    mkdirSync(targetRoot);
-  }
-
-  try {
-    const packs = readdirSync(sourceRoot, { withFileTypes: true });
-    for (const pack of packs) {
-      if (!pack.isDirectory()) continue;
-      const src = path.join(sourceRoot, pack.name);
-      // Only sync trees that are real extensions.
-      if (!existsSync(path.join(src, EXTENSION_MANIFEST_FILE))) continue;
-      // Overwrite the app-managed pack dir on every launch so bundled updates
-      // ship with app updates. We copy ONLY our own per-pack subdirs, so any
-      // user-installed extension sibling in <userData>/extensions is untouched.
-      await copyDirectoryRecursively(src, path.join(targetRoot, pack.name), {
-        overwrite: true,
-      });
-    }
-  } catch (error) {
-    console.warn('[Wayland] Failed to sync bundled extensions:', error);
-  }
 };
 
 /**
@@ -648,7 +609,11 @@ const getBuiltinAssistants = (): AcpBackendConfig[] => {
     });
   }
 
-  return assistants;
+  // Native built-in catalog (waylandteams: 28 specialists + 60 team launchers).
+  // Appended here so they merge into config.assistants through the same prune/
+  // update machinery as the ASSISTANT_PRESETS rows. They carry kind/teammates/
+  // rituals/standing/kickoffs so the renderer surfaces teams on /teams.
+  return [...assistants, ...getBuiltinCatalogAssistants()];
 };
 
 /**
@@ -732,6 +697,27 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
       return env;
     };
 
+    // Default the image MCP to Flux when Flux is connected and the user hasn't
+    // chosen an image model. Seeds only (never clobbers an explicit choice), so
+    // a connected-Flux user gets working image generation with zero setup.
+    let imageConfig = oldConfig;
+    let seededImageConfig = false;
+    if (!oldConfig || !oldConfig.useModel) {
+      try {
+        const fluxKey = await readConnectedFluxKey();
+        const providers = (await configFile.get('model.config').catch((): IProvider[] => [])) || [];
+        const seed = resolveFluxImageDefault({ current: oldConfig, providers, fluxKey });
+        if (seed) {
+          imageConfig = seed;
+          seededImageConfig = true;
+          await configFile.set('tools.imageGenerationModel', seed);
+          console.log('[Wayland] Defaulted image generation to Flux (connected, no model chosen)');
+        }
+      } catch (seedError) {
+        console.error('[Wayland] Flux image-default seeding failed (non-fatal):', seedError);
+      }
+    }
+
     const buildOriginalJson = (scriptPathValue: string, env: Record<string, string>) =>
       JSON.stringify(
         {
@@ -758,24 +744,29 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
         ((existing.transport.args || [])[0] !== scriptPath || needsNameMigration);
 
       const needsMigration = shouldEnable && !existing.enabled;
+      // When we just seeded a Flux image default, push its env onto the
+      // already-existing built-in server so the MCP picks up WAYLAND_IMG_* on
+      // this boot (the env is otherwise only built when the server is created).
+      const needsSeedEnv = seededImageConfig && existing.transport.type === 'stdio';
+      const needsEnvUpdate = needsMigration || needsSeedEnv;
 
-      if (needsNameMigration || needsPathUpdate || needsMigration) {
+      if (needsNameMigration || needsPathUpdate || needsEnvUpdate) {
         let updatedTransport: IMcpServer['transport'] = existing.transport;
 
         if (existing.transport.type === 'stdio') {
-          const mergedEnv = needsMigration
-            ? { ...existing.transport.env, ...buildEnvFromConfig(oldConfig) }
+          const mergedEnv = needsEnvUpdate
+            ? { ...existing.transport.env, ...buildEnvFromConfig(imageConfig) }
             : existing.transport.env;
           updatedTransport = {
             ...existing.transport,
             ...(needsPathUpdate && { args: [scriptPath] }),
-            ...(needsMigration && { env: mergedEnv }),
+            ...(needsEnvUpdate && { env: mergedEnv }),
           };
         }
 
         const newOriginalJson =
-          needsPathUpdate && updatedTransport.type === 'stdio'
-            ? buildOriginalJson(scriptPath, updatedTransport.env ?? {})
+          (needsPathUpdate || needsEnvUpdate) && updatedTransport.type === 'stdio'
+            ? buildOriginalJson(updatedTransport.args?.[0] ?? scriptPath, updatedTransport.env ?? {})
             : existing.originalJson;
 
         mcpServers[existingIdx] = {
@@ -790,7 +781,7 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
       }
     } else {
       // Create new built-in image gen server
-      const env = buildEnvFromConfig(oldConfig);
+      const env = buildEnvFromConfig(imageConfig);
       const newServer: IMcpServer = {
         id: BUILTIN_IMAGE_GEN_ID,
         name: BUILTIN_IMAGE_GEN_NAME,
@@ -1019,9 +1010,10 @@ const initStorage = async () => {
   await ensureBuiltinMcpServers();
   mark('4.2 builtinMcpServers');
 
-  // 4.3 Sync bundled business-pack extensions into <userData>/extensions/ so
-  // ExtensionLoader (appdata scan source) finds them before the renderer asks.
-  await initBundledExtensions();
+  // 4.3 Bundled business-pack extensions are no longer copied out to
+  // <userData>/extensions. ExtensionLoader reads them in place from inside the
+  // app (asar) via the 'bundled' scan source — loose .md skill bodies tripped
+  // AV content heuristics (#275). See getBundledExtensionsDir().
   mark('4.3 bundledExtensions');
 
   // 5. Initialize builtin assistants

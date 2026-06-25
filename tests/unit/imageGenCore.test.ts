@@ -16,7 +16,9 @@ import {
   getFileExtensionFromDataUrl,
   processImageUri,
   executeImageGeneration,
+  executeFluxImageGen,
   isOpenAINativeImageModel,
+  isFluxImagesProvider,
 } from '../../src/common/chat/imageGenCore';
 import type { TProviderWithModel } from '../../src/common/config/storage';
 
@@ -478,5 +480,263 @@ describe('executeImageGeneration - OpenAI native image models', () => {
     expect(createChatCompletion).toHaveBeenCalledOnce();
     expect(createImage).not.toHaveBeenCalled();
     expect(result.success).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// isFluxImagesProvider - detection predicate
+// ---------------------------------------------------------------------------
+
+const FLUX_BASE = 'https://api.fluxrouter.ai/v1';
+
+describe('isFluxImagesProvider', () => {
+  it('matches by the Flux host even when platform is openai-compatible', () => {
+    expect(isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, useModel: 'gpt-image-high' }))).toBe(
+      true
+    );
+    expect(
+      isFluxImagesProvider(makeProvider({ platform: 'openai-compatible', baseUrl: FLUX_BASE, useModel: 'nano-banana' }))
+    ).toBe(true);
+  });
+
+  it('matches by the canonical flux-router platform id', () => {
+    expect(isFluxImagesProvider(makeProvider({ platform: 'flux-router', baseUrl: '', useModel: 'gpt-image-high' }))).toBe(
+      true
+    );
+  });
+
+  it('matches the real bridged Flux row by model id (openai-compatible + empty baseUrl + flux-image)', () => {
+    // The connected Flux provider reaches the MCP subprocess as
+    // platform 'openai-compatible' with an empty baseUrl; only the model id
+    // identifies it.
+    expect(
+      isFluxImagesProvider(makeProvider({ platform: 'openai-compatible', baseUrl: '', useModel: 'flux-image' }))
+    ).toBe(true);
+    expect(
+      isFluxImagesProvider(makeProvider({ platform: 'openai-compatible', baseUrl: '', useModel: 'nano-banana-pro-2k' }))
+    ).toBe(true);
+  });
+
+  it('does NOT match OpenAI native, OpenRouter, or an empty baseUrl with a non-Flux model', () => {
+    expect(isFluxImagesProvider(makeProvider({ baseUrl: 'https://api.openai.com/v1', useModel: 'gpt-image-1' }))).toBe(
+      false
+    );
+    expect(
+      isFluxImagesProvider(makeProvider({ baseUrl: 'https://openrouter.ai/api/v1', useModel: 'openai/gpt-image-1.5' }))
+    ).toBe(false);
+    expect(isFluxImagesProvider(makeProvider({ platform: 'openai', baseUrl: '', useModel: 'gpt-image-1' }))).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// executeImageGeneration - Flux routing
+// ---------------------------------------------------------------------------
+
+describe('executeImageGeneration - Flux Router image provider', () => {
+  beforeEach(() => {
+    vi.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
+    vi.spyOn(fsModule.promises, 'writeFile').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('routes a Flux provider to the images endpoint and never touches the OpenAI/chat clients', async () => {
+    const createImage = vi.fn();
+    const createChatCompletion = vi.fn();
+    const factorySpy = vi.spyOn(ClientFactory, 'createRotatingClient').mockResolvedValue({
+      createImage,
+      createChatCompletion,
+    } as unknown as Awaited<ReturnType<typeof ClientFactory.createRotatingClient>>);
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ data: [{ b64_json: Buffer.from('flux-image').toString('base64') }] }), {
+        status: 200,
+      })
+    );
+
+    const result = await executeImageGeneration(
+      { prompt: 'a red apple' },
+      makeProvider({ platform: 'openai', baseUrl: FLUX_BASE, apiKey: 'flux-key', useModel: 'gpt-image-high' }),
+      '/workspace'
+    );
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe('https://api.fluxrouter.ai/v1/images/generations');
+    expect((init as RequestInit).method).toBe('POST');
+    expect((init as RequestInit).headers).toMatchObject({ Authorization: 'Bearer flux-key' });
+    const body = JSON.parse((init as RequestInit).body as string);
+    expect(body).toEqual({ model: 'gpt-image-high', prompt: 'a red apple', n: 1 });
+    expect(body).not.toHaveProperty('response_format');
+    expect(createImage).not.toHaveBeenCalled();
+    expect(createChatCompletion).not.toHaveBeenCalled();
+    expect(factorySpy).not.toHaveBeenCalled();
+    expect(result.success).toBe(true);
+    expect(result.imagePath).toBe(path.join('/workspace', 'img-1700000000000.png'));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// executeFluxImageGen - direct unit tests (injected fetch)
+// ---------------------------------------------------------------------------
+
+describe('executeFluxImageGen', () => {
+  beforeEach(() => {
+    vi.spyOn(Date, 'now').mockReturnValue(1_700_000_000_000);
+    vi.spyOn(fsModule.promises, 'writeFile').mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const fluxProvider = (useModel: string): TProviderWithModel =>
+    makeProvider({ platform: 'flux-router', baseUrl: FLUX_BASE, apiKey: 'flux-key', useModel });
+
+  it('saves a b64_json image and reports success', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: [{ b64_json: Buffer.from('apple').toString('base64') }] }), { status: 200 })
+    ) as unknown as typeof globalThis.fetch;
+
+    const result = await executeFluxImageGen(
+      { prompt: 'a red apple' },
+      fluxProvider('gpt-image-high'),
+      '/workspace',
+      false,
+      undefined,
+      fetchFn
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.imagePath).toBe(path.join('/workspace', 'img-1700000000000.png'));
+    expect(fsModule.promises.writeFile).toHaveBeenCalledWith(
+      path.join('/workspace', 'img-1700000000000.png'),
+      Buffer.from('apple')
+    );
+  });
+
+  it('sends the recommended "flux-image" entry model-less so Flux applies the account default', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: [{ b64_json: Buffer.from('auto').toString('base64') }] }), { status: 200 })
+    ) as unknown as typeof globalThis.fetch;
+
+    const result = await executeFluxImageGen(
+      { prompt: 'a red apple' },
+      fluxProvider('flux-image'),
+      '/workspace',
+      false,
+      undefined,
+      fetchFn
+    );
+
+    expect(result.success).toBe(true);
+    const init = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
+    const body = JSON.parse(init.body as string);
+    expect(body).toEqual({ prompt: 'a red apple', n: 1 });
+    expect(body).not.toHaveProperty('model');
+    expect(body).not.toHaveProperty('category');
+  });
+
+  it('appends the SynthID notice for Gemini arms', async () => {
+    const notice = 'This image contains an invisible SynthID watermark (Google).';
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({ data: [{ b64_json: Buffer.from('banana').toString('base64') }], _flux: { synthid_notice: notice } }),
+        { status: 200 }
+      )
+    ) as unknown as typeof globalThis.fetch;
+
+    const result = await executeFluxImageGen(
+      { prompt: 'a banana' },
+      fluxProvider('nano-banana-pro-2k'),
+      '/workspace',
+      false,
+      undefined,
+      fetchFn
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.text).toContain(notice);
+  });
+
+  it('surfaces a 402 premium_locked as a clear no-bill paid-feature message', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'image generation requires a paid plan', code: 'premium_locked' } }), {
+        status: 402,
+      })
+    ) as unknown as typeof globalThis.fetch;
+
+    const result = await executeFluxImageGen(
+      { prompt: 'a red apple' },
+      fluxProvider('gpt-image-high'),
+      '/workspace',
+      false,
+      undefined,
+      fetchFn
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('premium_locked');
+    expect(result.text).toMatch(/paid Flux plan/i);
+    expect(result.text).toMatch(/No charge/i);
+    expect(fsModule.promises.writeFile).not.toHaveBeenCalled();
+  });
+
+  it('surfaces a 403 organization_must_be_verified for unverified gpt-image org', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'org must be verified', code: 'organization_must_be_verified' } }), {
+        status: 403,
+      })
+    ) as unknown as typeof globalThis.fetch;
+
+    const result = await executeFluxImageGen(
+      { prompt: 'a red apple' },
+      fluxProvider('gpt-image-high'),
+      '/workspace',
+      false,
+      undefined,
+      fetchFn
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('organization_must_be_verified');
+    expect(result.text).toMatch(/verified OpenAI organization/i);
+  });
+
+  it('surfaces a 402 price_exceeds_max_price', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: 'too pricey', code: 'price_exceeds_max_price' } }), { status: 402 })
+    ) as unknown as typeof globalThis.fetch;
+
+    const result = await executeFluxImageGen(
+      { prompt: 'a red apple' },
+      fluxProvider('nano-banana-pro-4k'),
+      '/workspace',
+      false,
+      undefined,
+      fetchFn
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('price_exceeds_max_price');
+  });
+
+  it('refuses image editing with input images without calling the API', async () => {
+    const fetchFn = vi.fn() as unknown as typeof globalThis.fetch;
+
+    const result = await executeFluxImageGen(
+      { prompt: 'make it blue' },
+      fluxProvider('gpt-image-high'),
+      '/workspace',
+      true,
+      undefined,
+      fetchFn
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('flux-image-edit-unsupported');
+    expect(fetchFn).not.toHaveBeenCalled();
   });
 });

@@ -32,6 +32,15 @@ function formatTime(hour: string, minute: string): string {
   return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
 }
 
+// Parse a `*/N` step expression, returning N when the field is a step over the
+// full wildcard range (e.g. `*/4`). Returns null for anything else.
+function parseStep(field: string): number | null {
+  const match = /^\*\/(\d+)$/.exec(field);
+  if (!match) return null;
+  const step = Number(match[1]);
+  return step > 0 ? step : null;
+}
+
 function formatCronExpr(expr: string, t: TFunction): string | null {
   if (!expr) return t('cron.page.scheduleDesc.manual');
 
@@ -41,6 +50,29 @@ function formatCronExpr(expr: string, t: TFunction): string | null {
   const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
   const normalizedDayOfWeek = dayOfWeek.toUpperCase();
   const normalizedDayOfMonth = dayOfMonth.toUpperCase();
+
+  // Step-value schedules (`*/N`) with no day/month/weekday constraint.
+  if (dayOfMonth === '*' && month === '*' && dayOfWeek === '*') {
+    // Step over the hour field (e.g. `*/4`): every N hours, optionally at a fixed minute.
+    const hourStep = parseStep(hour);
+    if (hourStep !== null) {
+      if (/^\d{1,2}$/.test(minute)) {
+        return t('cron.page.scheduleDesc.everyNHoursAtMinute', {
+          count: hourStep,
+          minute: minute.padStart(2, '0'),
+        });
+      }
+      return t('cron.page.scheduleDesc.everyNHours', { count: hourStep });
+    }
+
+    // Step over the minute field (e.g. `*/15`) with a wildcard hour: every N minutes.
+    if (hour === '*') {
+      const minuteStep = parseStep(minute);
+      if (minuteStep !== null) {
+        return t('cron.page.scheduleDesc.everyNMinutes', { count: minuteStep });
+      }
+    }
+  }
 
   // Every hour: minute fixed, hour wildcard.
   if (hour === '*' && dayOfMonth === '*' && month === '*' && dayOfWeek === '*') {

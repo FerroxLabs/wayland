@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.coda/coda-mcp",
+  "title": "Coda",
+  "description": "Read and write Coda docs, tables, rows, and formulas in natural language - Coda’s official hosted MCP (beta).",
+  "version": "1.0.0",
+  "websiteUrl": "https://help.coda.io/hc/en-us/articles/44722661982989",
+  "repository": {
+    "url": "https://help.coda.io/hc/en-us/articles/44722661982989",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://coda.io/apis/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "productivity",
+      "knowledge"
+    ],
+    "tags": [
+      "coda",
+      "docs",
+      "tables"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 151,
+    "installRate": 0,
+    "iconUrl": "icons/io.coda-coda-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#F46A54"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Coda",
+      "providerSignupUrl": "https://coda.io/account"
+    },
+    "setupGuide": {
+      "path": "guides/io.coda-coda-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

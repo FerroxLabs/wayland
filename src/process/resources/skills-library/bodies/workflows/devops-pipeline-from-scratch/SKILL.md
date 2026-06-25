@@ -31,6 +31,7 @@ metadata:
     runbook-writer incident-responder security-hardener shell-scripter
   disclaimer: none
   difficulty: intermediate
+  interactivity: "auto"
 ---
 # Devops Pipeline From Scratch
 

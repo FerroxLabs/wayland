@@ -77,6 +77,46 @@ describe('sanitizeGeminiSchema', () => {
     expect(sanitizeGeminiSchema(undefined)).toEqual({ type: 'object', properties: {} });
   });
 
+  // Regression for FerroxLabs/wayland#24: no-argument MCP/builtin tools
+  // (ijfw_run, ijfw_update_apply, execute) advertise `{ "type": "object" }` with
+  // no `properties` key. Strict OpenAI-compatible endpoints (LM Studio) reject
+  // that with HTTP 400. The root parameters object must always carry a
+  // `properties` object so the serialized function schema is valid.
+  it('adds an empty properties object to a bare {type:object} parameters schema', () => {
+    const out = sanitizeGeminiSchema({ type: 'object' }) as Record<string, unknown>;
+    expect(out.type).toBe('object');
+    expect(out.properties).toEqual({});
+  });
+
+  it('adds type and properties to an empty parameters schema', () => {
+    const out = sanitizeGeminiSchema({}) as Record<string, unknown>;
+    expect(out.type).toBe('object');
+    expect(out.properties).toEqual({});
+  });
+
+  it('leaves a populated properties object intact while still guaranteeing the key', () => {
+    const out = sanitizeGeminiSchema({
+      type: 'object',
+      properties: { reason: { type: 'string' } },
+    }) as { type: unknown; properties: Record<string, unknown> };
+    expect(out.type).toBe('object');
+    expect(out.properties).toEqual({ reason: { type: 'string' } });
+  });
+
+  // The root-level properties guarantee must NOT leak into nested subschemas:
+  // a property literally named "properties" with no `properties` of its own must
+  // stay as the recursion produced it (no bogus empty map injected).
+  it('does not inject properties into a nested object subschema that lacks it', () => {
+    const out = sanitizeGeminiSchema({
+      type: 'object',
+      properties: {
+        config: { type: 'object', description: 'free-form config' },
+      },
+    }) as { properties: { config: Record<string, unknown> } };
+    expect(out.properties.config).toEqual({ type: 'object', description: 'free-form config' });
+    expect(out.properties.config).not.toHaveProperty('properties');
+  });
+
   // Regression: a tool whose schema has a property literally named "properties"
   // (e.g. Notion's notion-create-pages) must NOT gain a bogus "type":"object"
   // property injected into the properties map. The naive "has properties → add
@@ -98,7 +138,10 @@ describe('sanitizeGeminiSchema', () => {
           },
         },
       },
-    }) as any;
+    }) as {
+      properties: {
+        pages: { items: { properties: Record<string, Record<string, unknown>> } & Record<string, unknown> } };
+    };
     const itemProps = out.properties.pages.items.properties;
     expect(Object.keys(itemProps).sort()).toEqual(['content', 'icon', 'properties']);
     expect(itemProps).not.toHaveProperty('type');
@@ -114,7 +157,7 @@ describe('sanitizeGeminiSchema', () => {
       properties: {
         type: { type: 'string', description: 'a field called type' },
       },
-    }) as any;
+    }) as { properties: { type: Record<string, unknown> } };
     // The child "type" must remain its own subschema object, not be collapsed.
     expect(out.properties.type).toEqual({ type: 'string', description: 'a field called type' });
   });

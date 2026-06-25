@@ -35,6 +35,26 @@ vi.mock('@office-ai/platform', () => ({
   logger: {
     config: (...args: unknown[]) => mocks.loggerConfig(...args),
   },
+  // bridgeAllowlist wraps bridge.buildProvider / buildEmitter, so the platform
+  // mock must expose them or the import graph throws before the test runs.
+  bridge: {
+    buildProvider: vi.fn(() => ({
+      provider: vi.fn(() => vi.fn()),
+      invoke: vi.fn(),
+    })),
+    buildEmitter: vi.fn(() => ({
+      emit: vi.fn(),
+      on: vi.fn(),
+    })),
+  },
+  storage: {
+    buildStorage: () => ({
+      getSync: () => undefined,
+      setSync: () => {},
+      get: () => Promise.resolve(undefined),
+      set: () => Promise.resolve(),
+    }),
+  },
 }));
 
 vi.mock('@process/agent/AgentRegistry', () => ({

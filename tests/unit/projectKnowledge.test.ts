@@ -15,6 +15,7 @@ import {
   loadProjectKnowledgeBlock,
   readProjectKnowledge,
   removeProjectReference,
+  saveProjectReferenceUploads,
   writeProjectKnowledge,
 } from '@process/services/projectKnowledge/knowledge';
 
@@ -97,5 +98,37 @@ describe('project knowledge', () => {
     await fs.writeFile(sentinel, 'do-not-delete');
     await removeProjectReference(ws, '../sentinel.txt');
     await expect(fs.access(sentinel)).resolves.toBeUndefined();
+  });
+
+  // #55 - browser/WebUI upload path: bytes arrive over HTTP, not a host path.
+  it('writes uploaded reference bytes and lists them (collision-safe)', async () => {
+    const after1 = await saveProjectReferenceUploads(ws, [{ name: 'spec.md', data: Buffer.from('hello') }]);
+    expect(after1.map((f) => f.name)).toEqual(['spec.md']);
+
+    // same basename again de-dupes rather than overwriting.
+    const after2 = await saveProjectReferenceUploads(ws, [{ name: 'spec.md', data: Buffer.from('world') }]);
+    expect(after2).toHaveLength(2);
+    expect(after2.some((f) => /^spec-1\.md$/.test(f.name))).toBe(true);
+  });
+
+  it('contains an uploaded filename to the reference dir (no traversal)', async () => {
+    // A traversal name must land as a basename inside reference/, never escape it.
+    const sentinel = path.join(ws, 'sentinel.txt');
+    await fs.writeFile(sentinel, 'do-not-touch');
+    await saveProjectReferenceUploads(ws, [{ name: '../../sentinel.txt', data: Buffer.from('evil') }]);
+    // original sentinel above the dir is untouched...
+    expect(await fs.readFile(sentinel, 'utf8')).toBe('do-not-touch');
+    // ...and the upload landed as a basename inside reference/.
+    const listed = await listProjectReference(ws);
+    expect(listed.map((f) => f.name)).toContain('sentinel.txt');
+  });
+
+  it('skips an oversized upload (over 25 MB) but keeps the rest', async () => {
+    const big = Buffer.alloc(26 * 1024 * 1024); // 26 MB > 25 MB cap
+    const result = await saveProjectReferenceUploads(ws, [
+      { name: 'huge.bin', data: big },
+      { name: 'ok.txt', data: Buffer.from('fine') },
+    ]);
+    expect(result.map((f) => f.name)).toEqual(['ok.txt']);
   });
 });

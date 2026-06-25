@@ -151,31 +151,10 @@ describe('GuidActionRow', () => {
     expect(screen.getByText('ArrowUp')).toBeInTheDocument();
   });
 
-  it('displays skill count when builtin skills are provided', () => {
-    const skills = [
-      { name: 'web-search', description: 'Search the web' },
-      { name: 'code-interpreter', description: 'Run code' },
-    ];
-
-    render(<GuidActionRow {...defaultProps} builtinAutoSkills={skills} />);
-
-    expect(screen.getByText('settings.autoInjectedSkills (2/2)', { exact: false })).toBeInTheDocument();
-  });
-
-  it('calls onToggleBuiltinSkill when skill checkbox is toggled', () => {
-    const skills = [
-      { name: 'web-search', description: 'Search the web' },
-      { name: 'code-interpreter', description: 'Run code' },
-    ];
-    const onToggle = vi.fn();
-
-    render(<GuidActionRow {...defaultProps} builtinAutoSkills={skills} onToggleBuiltinSkill={onToggle} />);
-
-    const checkboxes = screen.getAllByRole('checkbox');
-    fireEvent.click(checkboxes[0]);
-
-    expect(onToggle).toHaveBeenCalledWith('web-search');
-  });
+  // NOTE: builtin-skill count + toggle moved out of GuidActionRow's inline "+"
+  // menu into the shared ComposerAddMenu. That behaviour is now covered by
+  // ComposerAddMenu.dom.test.tsx (count pill) and useComposerSkills.dom.test.ts
+  // (builtin toggle calls onToggleBuiltinSkill).
 
   it('renders standalone workspace button and calls onSelectWorkspace on click', async () => {
     const { ipcBridge } = await import('@/common');

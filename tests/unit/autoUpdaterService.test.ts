@@ -364,12 +364,16 @@ describe('AutoUpdaterService', () => {
       });
     });
 
-    it('should emit update-status event on error', () => {
+    it('should emit update-status event on a download/install error', async () => {
       autoUpdaterService.initialize(mockStatusBroadcast);
 
       const statusListener = vi.fn();
       autoUpdaterService.on('update-status', statusListener);
 
+      // Only a failure during an active download is user-facing. Check-phase
+      // errors are suppressed (see "error event gating" suite below).
+      vi.mocked(autoUpdater.downloadUpdate).mockResolvedValueOnce([] as never);
+      await autoUpdaterService.downloadUpdate();
       autoUpdaterService.triggerEventForTest('error', new Error('Update failed'));
 
       expect(statusListener).toHaveBeenCalledWith({
@@ -509,6 +513,57 @@ describe('AutoUpdaterService', () => {
       expect(() => autoUpdaterService.triggerEventForTest('checking-for-update')).toThrow(
         'No handler registered for autoUpdater event "checking-for-update"'
       );
+    });
+  });
+
+  // Regression: a check-phase electron-updater error (e.g. "No published
+  // versions on GitHub" from the custom per-arch channel) must NOT be broadcast
+  // as a user-facing `error`, because checkForUpdates() returns it and the
+  // manual GitHub leg recovers. Broadcasting it flashed "Update failed" in the
+  // modal before the manual leg resolved. Only a download/install error is real.
+  describe('error event gating (update modal "Update failed" flapping)', () => {
+    it('suppresses an error event during a check (no download in progress)', () => {
+      autoUpdaterService.initialize(mockStatusBroadcast);
+
+      autoUpdaterService.triggerEventForTest('error', new Error('No published versions on GitHub'));
+
+      const errorBroadcasts = mockStatusBroadcast.mock.calls.filter((c: unknown[]) => {
+        const arg = c[0] as { status?: string };
+        return arg?.status === 'error';
+      });
+      expect(errorBroadcasts).toEqual([]);
+    });
+
+    it('surfaces an error event once a download is in progress', async () => {
+      autoUpdaterService.initialize(mockStatusBroadcast);
+
+      // Start a download - flips _downloadInProgress true.
+      vi.mocked(autoUpdater.downloadUpdate).mockResolvedValueOnce([] as never);
+      await autoUpdaterService.downloadUpdate();
+
+      autoUpdaterService.triggerEventForTest('error', new Error('Download failed: ECONNRESET'));
+
+      expect(mockStatusBroadcast).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'error', error: 'Download failed: ECONNRESET' })
+      );
+    });
+
+    it('returns to suppressing errors after a download completes', async () => {
+      autoUpdaterService.initialize(mockStatusBroadcast);
+      vi.mocked(autoUpdater.downloadUpdate).mockResolvedValueOnce([] as never);
+      await autoUpdaterService.downloadUpdate();
+      // Download finishes - resets the in-progress flag.
+      autoUpdaterService.triggerEventForTest('update-downloaded', { version: '0.10.1' });
+      mockStatusBroadcast.mockClear();
+
+      // A subsequent check-phase error must be suppressed again.
+      autoUpdaterService.triggerEventForTest('error', new Error('No published versions on GitHub'));
+
+      const errorBroadcasts = mockStatusBroadcast.mock.calls.filter((c: unknown[]) => {
+        const arg = c[0] as { status?: string };
+        return arg?.status === 'error';
+      });
+      expect(errorBroadcasts).toEqual([]);
     });
   });
 });

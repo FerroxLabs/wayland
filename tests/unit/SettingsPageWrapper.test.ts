@@ -30,6 +30,7 @@ describe('getBuiltinSettingsNavItems', () => {
     expect(items.map((item) => item.id)).toEqual([
       'assistants',
       'skills',
+      'commands',
       'constitution',
       'models',
       'agents',
@@ -39,18 +40,21 @@ describe('getBuiltinSettingsNavItems', () => {
       'webui',
       'channels',
       'mcp-library',
+      'migrate',
       'theme',
       'editor',
       'general',
       'notifications',
       'storage',
       'ijfw',
+      'doctor',
       'about',
     ]);
 
     expect(items.map((item) => item.label)).toEqual([
       'Assistants',
       'Skills & Tools',
+      'Slash Commands',
       'Constitution',
       'Models',
       'Agents',
@@ -60,12 +64,14 @@ describe('getBuiltinSettingsNavItems', () => {
       'WebUI',
       'Channels',
       'MCP Library',
+      'Migrate',
       'Theme & Display',
       'Editor',
       'General',
       'Notifications',
       'Storage',
       'IJFW Memory',
+      'Doctor',
       'About',
     ]);
   });

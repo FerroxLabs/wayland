@@ -16,6 +16,25 @@ import type {
 } from '@/common/types/detectedAgent';
 import { isAgentKind } from '@/common/types/detectedAgent';
 import type { RemoteAgentConfig } from '@process/agent/remote/types';
+import { detectWCore } from '@process/agent/wcore/binaryResolver';
+
+// Resolve the bundled wayland-core version once per app run (the binary doesn't
+// change at runtime) so the Wayland Core settings page shows the REAL engine
+// version instead of a hardcoded pin that silently drifts on every bump.
+// detectWCore() spawns `wayland-core --version` synchronously, so memoize it.
+let cachedWCoreInfo: { version?: string; cliPath?: string } | undefined;
+function getWCoreInfo(): { version?: string; cliPath?: string } {
+  if (cachedWCoreInfo) return cachedWCoreInfo;
+  try {
+    const detected = detectWCore();
+    // detectWCore returns the raw `wayland-core 0.11.0` line; surface a clean vX.Y.Z.
+    const match = detected.version?.match(/(\d+\.\d+\.\d+(?:-[\w.]+)?)/);
+    cachedWCoreInfo = { version: match ? `v${match[1]}` : undefined, cliPath: detected.path };
+  } catch {
+    cachedWCoreInfo = {};
+  }
+  return cachedWCoreInfo;
+}
 
 /**
  * Central registry for ALL detected execution engines.
@@ -69,12 +88,15 @@ class AgentRegistry {
   }
 
   private createWCoreAgent(): WCoreDetectedAgent {
+    const info = getWCoreInfo();
     return {
       id: 'wcore',
       name: 'Wayland Core',
       kind: 'wcore',
       available: true,
       backend: 'wcore',
+      ...(info.version ? { version: info.version } : {}),
+      ...(info.cliPath ? { cliPath: info.cliPath } : {}),
     };
   }
 

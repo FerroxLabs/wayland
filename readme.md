@@ -227,7 +227,7 @@ Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you b
 
 Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 16 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
 
-**Engine-native providers** (Wayland-Core): Anthropic, OpenAI and OpenAI-compatible (including o1/o3 reasoning, DeepSeek, Ollama), AWS Bedrock, Google Vertex AI. Sign in with Anthropic OAuth to use a Claude subscription with no key.
+**Engine-native providers** (Wayland-Core): Anthropic, OpenAI and OpenAI-compatible (including o1/o3 reasoning, DeepSeek, Ollama), AWS Bedrock, Google Vertex AI, each on your provider key. To use a Claude subscription with no key, run the Claude Code backend and sign in with the `claude` CLI.
 
 ## How it works
 
@@ -257,7 +257,7 @@ bun run start
 # Tests, lint, typecheck
 bun run test
 bun run lint
-bunx tsc --noEmit
+bun run typecheck
 ```
 
 Package installers with electron-builder:
@@ -287,14 +287,14 @@ Wayland runs on your provider credentials. There is no required Wayland-hosted b
 
 | What | Where | Notes |
 |---|---|---|
-| Anthropic key | `ANTHROPIC_API_KEY` or in-app | Or sign in with Anthropic OAuth for a Claude subscription, no key |
+| Anthropic key | `ANTHROPIC_API_KEY` or in-app | For a Claude subscription with no key, use the Claude Code backend and sign in with the `claude` CLI |
 | OpenAI key | `OPENAI_API_KEY` or in-app | Covers OpenAI-compatible endpoints (DeepSeek, Ollama, and more) |
 | Other providers | in-app | AWS Bedrock, Google Vertex, per-CLI auth for each ACP backend |
 | Flux Router | `FLUX_API_KEY` (`sk-flux-...`) | Optional. Only needed if you route through Flux |
 | Constitution | `~/.wayland/CONSTITUTION.md` | An editable rulebook prepended to every turn, with per-specialist overrides |
 | Data and memory | SQLite under your OS config dir | Your files, chats, and memory stay on disk |
 
-Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then provider-specific env, then OAuth.
+Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then provider-specific env.
 
 ## FAQ
 
@@ -305,7 +305,7 @@ Yes. Keys are stored in the OS keychain and data lives in SQLite on your disk. T
 Yes. Point the engine at a local Ollama model and Wayland runs with no network at all. Voice dictation runs offline with a bundled Whisper model, and Wayland can read replies back to you with voice output, so you can work hands-free.
 
 **Do I need a Wayland account or subscription?**
-No. Bring your own provider keys, or sign in to Anthropic with OAuth to use a Claude subscription. There is no paywall to do work.
+No. Bring your own provider keys, or use the Claude Code backend with your Claude subscription (sign in with the `claude` CLI). There is no paywall to do work.
 
 **My local models are not showing up.**
 Make sure Ollama is running and reachable on its default port, then refresh the model list in Settings.

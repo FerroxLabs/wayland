@@ -5,6 +5,7 @@
  */
 
 import type { TChatConversation } from '@/common/config/storage';
+import { FLUX_MODEL_DISPLAY, isFluxModelId, type FluxModelId } from '@/common/config/flux';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { Dropdown } from '@arco-design/web-react';
 import { MessageSquare, MoreHorizontal, Star } from 'lucide-react';
@@ -28,7 +29,10 @@ type ResumeCardProps = {
 const ResumeCard: React.FC<ResumeCardProps> = ({ conversation, pinned, timeLabel, onOpen, onAction }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const logo = getAgentLogo(conversation.type);
-  const model = 'model' in conversation ? conversation.model.useModel : '';
+  const rawModel = 'model' in conversation ? conversation.model.useModel : '';
+  // Flux routing aliases (flux-auto, ...) carry a raw id but should read as
+  // their brand name ("Flux Auto") everywhere they surface.
+  const model = isFluxModelId(rawModel) ? FLUX_MODEL_DISPLAY[rawModel as FluxModelId] : rawModel;
 
   const runAction = (action: ConversationMenuAction) => {
     setMenuOpen(false);

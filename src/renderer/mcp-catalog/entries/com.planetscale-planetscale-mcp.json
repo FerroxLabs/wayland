@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.planetscale/planetscale-mcp",
+  "title": "PlanetScale",
+  "description": "Manage organizations, databases, branches, schema, and Insights with destructive-SQL guards - PlanetScale’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://planetscale.com/docs/connect/mcp",
+  "repository": {
+    "url": "https://planetscale.com/docs/connect/mcp",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.pscale.dev/mcp/planetscale"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "database",
+      "developer"
+    ],
+    "tags": [
+      "planetscale",
+      "mysql",
+      "database"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 127,
+    "installRate": 0,
+    "iconUrl": "icons/com.planetscale-planetscale-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "PlanetScale",
+      "providerSignupUrl": "https://planetscale.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.planetscale-planetscale-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

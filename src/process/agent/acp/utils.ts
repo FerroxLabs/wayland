@@ -6,6 +6,7 @@
 
 import type { ChildProcess } from 'child_process';
 import { execFile as execFileCb } from 'child_process';
+import type { AcpModelInfo } from '@/common/types/acpTypes';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import { promises as fsAsync } from 'fs';
@@ -263,6 +264,66 @@ export function getClaudeModelSlot(): 'default' | 'opus' | 'haiku' | null {
   const model = settings?.model?.trim().toLowerCase();
   if (model === 'sonnet') return 'default';
   return model === 'default' || model === 'opus' || model === 'haiku' ? model : null;
+}
+
+/**
+ * The Claude Code model slots Wayland exposes when the ACP bridge returns no
+ * model list of its own. The claude-agent-acp bridge enumerates models from the
+ * Claude Agent SDK init result, but that list comes back EMPTY for some auth
+ * modes (notably Claude subscription / OAuth), leaving the in-chat picker stuck
+ * on a dead "Select Model" (issue #184). Each id here is a valid `--model` /
+ * `ANTHROPIC_MODEL` alias (verified live against the claude CLI: `--model opus`
+ * and `ANTHROPIC_MODEL=opus` both resolve to claude-opus-4-8), so the pick
+ * applies via the bridge `set_model` and is honored on a (re)spawn + `--resume`.
+ */
+export const CLAUDE_SLOT_MODELS: ReadonlyArray<{ id: string; label: string }> = [
+  { id: 'sonnet', label: 'Sonnet' },
+  { id: 'opus', label: 'Opus' },
+  { id: 'haiku', label: 'Haiku' },
+];
+
+/**
+ * Normalize any Claude model id to its Claude Code slot (`sonnet`/`opus`/`haiku`),
+ * or `undefined` if it is not a Claude model.
+ *
+ * The in-chat picker offers the registry catalog ids (`claude-opus-4-8`,
+ * `claude-sonnet-4-6`, ...), but Claude Code's ACP backend has no
+ * `session/set_model` and only honors the three slot aliases via
+ * `ANTHROPIC_MODEL`. So a registry pick MUST be mapped to its slot before it can
+ * take effect — without this the pick falls through to an in-place `set_model`
+ * the CLI rejects with -32601 and the switch silently no-ops (#184).
+ *
+ * Accepts a bare slot id (returned as-is) or a catalog id whose name contains
+ * the slot keyword.
+ */
+export function claudeSlotForModelId(modelId?: string | null): string | undefined {
+  if (!modelId) return undefined;
+  if (CLAUDE_SLOT_MODELS.some((m) => m.id === modelId)) return modelId;
+  const lower = modelId.toLowerCase();
+  for (const { id } of CLAUDE_SLOT_MODELS) {
+    if (lower.includes(id)) return id;
+  }
+  return undefined;
+}
+
+/**
+ * Build the static Claude slot model catalog (Sonnet / Opus / Haiku) used as a
+ * fallback when the bridge advertises no models. `currentModelId` reflects the
+ * user's pick; unknown/absent values default to Sonnet. A registry catalog id
+ * (`claude-opus-4-8`) is normalized to its slot so the picker's pick resolves to
+ * a real slot label instead of falling back to Sonnet (#184).
+ */
+export function buildClaudeSlotModelInfo(currentModelId?: string | null): AcpModelInfo {
+  const current = claudeSlotForModelId(currentModelId) ?? 'sonnet';
+  const label = CLAUDE_SLOT_MODELS.find((m) => m.id === current)?.label ?? current;
+  return {
+    currentModelId: current,
+    currentModelLabel: label,
+    availableModels: CLAUDE_SLOT_MODELS.map((m) => ({ id: m.id, label: m.label })),
+    canSwitch: true,
+    source: 'models',
+    sourceDetail: 'claude-slots',
+  };
 }
 
 // --- CodeBuddy settings support ---

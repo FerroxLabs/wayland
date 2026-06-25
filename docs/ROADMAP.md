@@ -65,23 +65,23 @@ Every milestone below references locked details captured in the project memory.
 Paths are real files; read them before extending any milestone scope.
 
 - Channels Phase 0 foundation:
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/channels-phase0-shipped.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/channels-phase0-shipped.md`
 - Channels Phase 1 Tier 1:
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/channels-phase1-shipped.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/channels-phase1-shipped.md`
 - Channels full expansion plan (Phase 2-5 source-of-truth):
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/channels-expansion-planned.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/channels-expansion-planned.md`
   → `~/dev/wayland/.blackboard/CHANNELS-EXPANSION-PLAN.md`
 - Gemini A2A architecture target:
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/wayland-gemini-a2a-plan.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/wayland-gemini-a2a-plan.md`
 - Teams Library design (PAUSED awaiting content):
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/teams-library-design-paused.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/teams-library-design-paused.md`
 - Settings redesign locked decisions:
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/settings-redesign-locked.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/settings-redesign-locked.md`
 - TipTap editor shipped notes:
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/tiptap-md-editor-plan.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/tiptap-md-editor-plan.md`
 - Sub-agent dispatch methodology (relevant to every "parallel sub-agent" line
   item below):
-  `~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/methodology-17-subagent-bailout-pattern.md`
+  `~/.claude/projects/-Users-you-dev-wayland/memory/methodology-17-subagent-bailout-pattern.md`
 
 In-flight Wave A dispatch artifacts (M1 closeout):
 
@@ -530,7 +530,7 @@ Items explicitly NOT on this roadmap:
   table.
 - When a milestone ships, replace its body with a one-paragraph "What
   shipped" summary linking to the shipped-memory file
-  (`~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/<vX.Y.Z-shipped>.md`).
+  (`~/.claude/projects/-Users-you-dev-wayland/memory/<vX.Y.Z-shipped>.md`).
 - Open questions that get answered move to either the next milestone's
   scope or to a "Decided" log at the bottom of this file (add the section
   when first needed).

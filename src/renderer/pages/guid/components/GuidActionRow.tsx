@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ArrowUp, Brain, FolderOpen, Plus, Shield, Upload, Zap } from 'lucide-react';
+import { ArrowUp, Brain, FolderOpen, Shield } from 'lucide-react';
 import { ipcBridge } from '@/common';
+import ComposerAddMenu, { type ComposerUploadItem } from '@/renderer/pages/conversation/components/composerMenu/ComposerAddMenu';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
 import AcpConfigSelector from '@/renderer/components/agent/AcpConfigSelector';
 import { supportsModeSwitch, type AgentModeOption } from '@/renderer/utils/model/agentModes';
@@ -16,8 +17,8 @@ import { iconColors } from '@/renderer/styles/colors';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import type { AcpBackend, AcpBackendConfig, AvailableAgent } from '../types';
 import PresetAgentTag, { type AgentSwitcherItem } from './PresetAgentTag';
-import { Button, Checkbox, Dropdown, Menu, Message, Tooltip } from '@arco-design/web-react';
-import React, { useCallback, useRef, useState } from 'react';
+import { Button, Message, Tooltip } from '@arco-design/web-react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from '../index.module.css';
 
@@ -56,10 +57,19 @@ type GuidActionRowProps = {
   builtinAutoSkills: Array<{ name: string; description: string }>;
   disabledBuiltinSkills: string[];
   onToggleBuiltinSkill: (name: string) => void;
+  /** Current composer draft, feeds the "+" menu's skill suggestions. */
+  draftText?: string;
+  /** Staged skill picks from the "+" menu, applied to the new conversation on send. */
+  onStagedSkillsChange?: (names: string[]) => void;
 
   // Send button
   loading: boolean;
   isButtonDisabled: boolean;
+  /**
+   * No usable model is configured. When true the Send button is disabled and a
+   * tooltip explains why; the user can still type and explore.
+   */
+  noModelConfigured: boolean;
   speechInputNode?: React.ReactNode;
   onSend: () => void;
 };
@@ -87,15 +97,17 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
   builtinAutoSkills,
   disabledBuiltinSkills,
   onToggleBuiltinSkill,
+  draftText,
+  onStagedSkillsChange,
   hidePresetTag = false,
   loading,
   isButtonDisabled,
+  noModelConfigured,
   speechInputNode,
   onSend,
 }) => {
   const { t } = useTranslation();
   const layout = useLayoutContext();
-  const [isPlusDropdownOpen, setIsPlusDropdownOpen] = useState(false);
   const modeBackend = effectiveModeAgent || selectedAgent;
   const showModeSwitch = supportsModeSwitch(modeBackend);
   const configOptionCount = (modelSelectorNode ? 1 : 0) + (showModeSwitch ? 1 : 0);
@@ -130,109 +142,53 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
 
   const isWebUI = !isElectronDesktop();
 
-  const activeSkillCount = builtinAutoSkills.length - disabledBuiltinSkills.length;
-
-  const menuContent = (
-    <Menu
-      className='min-w-200px'
-      onClickMenuItem={(key) => {
-        if (key === 'file') {
-          ipcBridge.dialog.showOpen
-            .invoke({ properties: ['openFile', 'multiSelections'] })
-            .then((uploadedFiles) => {
-              if (uploadedFiles && uploadedFiles.length > 0) {
-                onFilesUploaded(uploadedFiles);
-              }
-            })
-            .catch((error) => {
-              console.error('Failed to open file dialog:', error);
-            });
-        } else if (key === 'device') {
-          fileInputRef.current?.click();
+  const openHostFilePicker = useCallback(() => {
+    ipcBridge.dialog.showOpen
+      .invoke({ properties: ['openFile', 'multiSelections'] })
+      .then((uploadedFiles) => {
+        if (uploadedFiles && uploadedFiles.length > 0) {
+          onFilesUploaded(uploadedFiles);
         }
-      }}
-    >
-      {isWebUI ? (
-        <>
-          <Menu.Item key='file'>
-            <div className='flex items-center gap-8px'>
-              <Upload size={16} color={iconColors.secondary} style={{ lineHeight: 0 }} />
-              <span>{t('common.fileAttach.hostFiles')}</span>
-            </div>
-          </Menu.Item>
-          <Menu.Item key='device'>
-            <div className='flex items-center gap-8px'>
-              <Upload size={16} color={iconColors.secondary} style={{ lineHeight: 0 }} />
-              <span>{t('common.fileAttach.myDevice')}</span>
-            </div>
-          </Menu.Item>
-        </>
-      ) : (
-        <Menu.Item key='file'>
-          <div className='flex items-center gap-8px'>
-            <Upload size={16} color={iconColors.secondary} style={{ lineHeight: 0 }} />
-            <span>{t('conversation.welcome.uploadFile')}</span>
-          </div>
-        </Menu.Item>
-      )}
-      {builtinAutoSkills.length > 0 && (
-        <Menu.SubMenu
-          key='skills'
-          title={
-            <div className='flex items-center gap-8px'>
-              <Zap size={16} color={iconColors.primary} style={{ lineHeight: 0 }} />
-              <span>
-                {t('settings.autoInjectedSkills')} ({activeSkillCount}/{builtinAutoSkills.length})
-              </span>
-            </div>
-          }
-        >
-          {builtinAutoSkills.map((skill) => (
-            <Menu.Item
-              key={`skill-${skill.name}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleBuiltinSkill(skill.name);
-              }}
-            >
-              <Checkbox
-                checked={!disabledBuiltinSkills.includes(skill.name)}
-                onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                onChange={() => onToggleBuiltinSkill(skill.name)}
-              >
-                <span className='text-13px'>{skill.name}</span>
-              </Checkbox>
-            </Menu.Item>
-          ))}
-        </Menu.SubMenu>
-      )}
-    </Menu>
-  );
+      })
+      .catch((error) => {
+        console.error('Failed to open file dialog:', error);
+      });
+  }, [onFilesUploaded]);
+
+  const uploadItems = useMemo<ComposerUploadItem[]>(() => {
+    if (isWebUI) {
+      return [
+        { key: 'file', label: t('common.fileAttach.hostFiles'), onClick: openHostFilePicker },
+        { key: 'device', label: t('common.fileAttach.myDevice'), onClick: () => fileInputRef.current?.click() },
+      ];
+    }
+    return [{ key: 'file', label: t('conversation.welcome.uploadFile'), onClick: openHostFilePicker }];
+  }, [isWebUI, openHostFilePicker, t]);
 
   return (
     <div className={styles.actionRow}>
       <div className={styles.actionTools}>
         <div className={styles.actionEntry}>
-          <Dropdown trigger='hover' onVisibleChange={setIsPlusDropdownOpen} droplist={menuContent}>
-            <span className='flex items-center gap-4px cursor-pointer lh-[1]'>
-              <Button
-                type='text'
-                shape='circle'
-                className={isPlusDropdownOpen ? styles.plusButtonRotate : ''}
-                icon={<Plus size={14} strokeWidth={2} color={iconColors.primary} />}
-                loading={uploading}
-                disabled={uploading}
-              ></Button>
-              {files.length > 0 && (
-                <Tooltip
-                  className={'!max-w-max'}
-                  content={<span className='whitespace-break-spaces'>{getCleanFileNames(files).join('\n')}</span>}
-                >
-                  <span className='text-t-primary'>File({files.length})</span>
-                </Tooltip>
-              )}
-            </span>
-          </Dropdown>
+          <span className='flex items-center gap-4px lh-[1]'>
+            <ComposerAddMenu
+              mode='staged'
+              draftText={draftText}
+              uploadItems={uploadItems}
+              uploading={uploading}
+              builtinAutoSkills={builtinAutoSkills}
+              disabledBuiltinSkills={disabledBuiltinSkills}
+              onToggleBuiltinSkill={onToggleBuiltinSkill}
+              onStagedSkillsChange={onStagedSkillsChange}
+            />
+            {files.length > 0 && (
+              <Tooltip
+                className={'!max-w-max'}
+                content={<span className='whitespace-break-spaces'>{getCleanFileNames(files).join('\n')}</span>}
+              >
+                <span className='text-t-primary'>File({files.length})</span>
+              </Tooltip>
+            )}
+          </span>
           {isWebUI && (
             <input
               ref={fileInputRef}
@@ -311,19 +267,29 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
       </div>
       <div className={styles.actionSubmit}>
         {speechInputNode}
-        <Button
-          shape='circle'
-          type='primary'
-          loading={loading}
-          disabled={isButtonDisabled}
-          className='send-button-custom'
-          style={{
-            backgroundColor: isButtonDisabled ? undefined : '#000000',
-            borderColor: isButtonDisabled ? undefined : '#000000',
-          }}
-          icon={<ArrowUp size={14} color='white' strokeWidth={5} />}
-          onClick={onSend}
-        />
+        <Tooltip
+          content={noModelConfigured ? t('conversation.noModelCta.sendTooltip') : undefined}
+          disabled={!noModelConfigured}
+        >
+          {/* The span receives hover even while the Button is disabled
+              (Arco sets pointer-events:none on a disabled button), so the
+              no-model tooltip still surfaces. */}
+          <span className='inline-flex'>
+            <Button
+              shape='circle'
+              type='primary'
+              loading={loading}
+              disabled={isButtonDisabled}
+              className='send-button-custom'
+              style={{
+                backgroundColor: isButtonDisabled ? undefined : '#000000',
+                borderColor: isButtonDisabled ? undefined : '#000000',
+              }}
+              icon={<ArrowUp size={14} color='white' strokeWidth={5} />}
+              onClick={onSend}
+            />
+          </span>
+        </Tooltip>
       </div>
     </div>
   );

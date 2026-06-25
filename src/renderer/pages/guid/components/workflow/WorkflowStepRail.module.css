@@ -33,17 +33,7 @@
   height: 8px;
   border-radius: 999px;
   flex-shrink: 0;
-}
-
-.modeDot[data-mode='auto'] {
   background: var(--rail-accent);
-  box-shadow: 0 0 0 0 var(--rail-accent);
-  animation: railPulse 1.8s ease-out infinite;
-}
-
-.modeDot[data-mode='manual'] {
-  background: rgb(245, 158, 11);
-  animation: none;
 }
 
 @keyframes railPulse {
@@ -93,6 +83,13 @@
   border-color: rgba(239, 68, 68, 0.45);
 }
 
+/* Waiting on the user - blue, overriding the yellow "live" highlight so the
+   rail matches the blue "Needs you" beat. */
+.row[data-needsinput='true'] {
+  background: color-mix(in srgb, var(--color-link-6, #3b82f6) 14%, transparent);
+  border-color: color-mix(in srgb, var(--color-link-6, #3b82f6) 55%, transparent);
+}
+
 .bullet {
   display: inline-flex;
   align-items: center;
@@ -109,12 +106,35 @@
   color: var(--rail-accent);
 }
 
+.bullet[data-status='review'] {
+  color: var(--color-warning-6, rgb(245, 158, 11));
+}
+
+.bullet[data-status='ask'] {
+  color: var(--color-link-6, #3b82f6);
+}
+
 .bullet[data-status='errored'] {
   color: rgb(245, 158, 11);
 }
 
 .bullet[data-status='skipped'] {
   color: var(--color-text-4);
+}
+
+/* Numbered circle for not-yet-started steps (mockup: todo shows its number). */
+.numBullet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border-3, var(--color-text-4));
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-3);
 }
 
 .title {

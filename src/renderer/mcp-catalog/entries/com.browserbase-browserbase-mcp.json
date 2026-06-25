@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.browserbase/browserbase-mcp",
+  "title": "Browserbase",
+  "description": "Drive a cloud headless browser - navigate, act, observe, and extract - via Stagehand. Browserbase’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.browserbase.com/integrations/mcp/setup",
+  "repository": {
+    "url": "https://github.com/browserbase/mcp-server-browserbase",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.browserbase.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "automation",
+      "browser"
+    ],
+    "tags": [
+      "browserbase",
+      "browser",
+      "automation"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 134,
+    "installRate": 0,
+    "iconUrl": "icons/com.browserbase-browserbase-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#FF5A1F"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Browserbase",
+      "providerSignupUrl": "https://www.browserbase.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.browserbase-browserbase-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

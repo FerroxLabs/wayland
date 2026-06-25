@@ -45,6 +45,7 @@ import {
   groupAssistantsByEnabled,
   hasBuiltinSkills,
   isExtensionAssistant,
+  isSelectableSpecialist,
   normalizeExtensionAssistants,
   sortAssistants,
 } from '@/renderer/pages/settings/AssistantSettings/assistantUtils';
@@ -363,5 +364,44 @@ describe('hasBuiltinSkills', () => {
 
   it('returns false for an empty string', () => {
     expect(hasBuiltinSkills('')).toBe(false);
+  });
+
+  // S3: native catalog specialists are stored as `builtin-<slug>` records that
+  // are NOT in ASSISTANT_PRESETS but carry their assigned skills inline on
+  // `enabledSkills`. Passing the record lets the Settings editor recognize them
+  // so it stops clearing their skills list.
+  it('returns true for a native catalog specialist (not a preset) that carries enabledSkills', () => {
+    // "research" is not in MOCK_PRESETS, so the preset lookup alone returns false.
+    expect(hasBuiltinSkills('builtin-research')).toBe(false);
+    expect(hasBuiltinSkills('builtin-research', { enabledSkills: ['deep-research'] })).toBe(true);
+  });
+
+  it('returns false when the native record carries an empty enabledSkills array', () => {
+    expect(hasBuiltinSkills('builtin-research', { enabledSkills: [] })).toBe(false);
+  });
+
+  it('still returns true for a preset even when the record carries no skills', () => {
+    expect(hasBuiltinSkills('builtin-alpha', { enabledSkills: [] })).toBe(true);
+  });
+});
+
+describe('isSelectableSpecialist (#115)', () => {
+  const item = (over: Partial<AssistantListItem>): AssistantListItem => ({ id: 'a', ...over }) as AssistantListItem;
+
+  it('includes a native/vendored specialist (_kind === specialist)', () => {
+    expect(isSelectableSpecialist(item({ _kind: 'specialist', isBuiltin: true }))).toBe(true);
+  });
+
+  it('includes a user-created custom assistant (no _kind, not built-in)', () => {
+    // The reported gap: customs save with isBuiltin:false and no kind.
+    expect(isSelectableSpecialist(item({ id: 'custom-123', isBuiltin: false }))).toBe(true);
+  });
+
+  it('excludes a team launcher (_kind === team)', () => {
+    expect(isSelectableSpecialist(item({ _kind: 'team', isBuiltin: true }))).toBe(false);
+  });
+
+  it('excludes a generic built-in preset (built-in, no kind)', () => {
+    expect(isSelectableSpecialist(item({ id: 'translator', isBuiltin: true }))).toBe(false);
   });
 });

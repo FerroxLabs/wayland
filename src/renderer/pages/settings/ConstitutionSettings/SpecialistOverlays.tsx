@@ -8,6 +8,11 @@ import { Button, Input } from '@arco-design/web-react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isElectronDesktop } from '@renderer/utils/platform';
+import {
+  deleteConstitutionSpecialistHttp,
+  writeConstitutionSpecialistHttp,
+} from '@renderer/services/ConstitutionService';
 import SpecialistOverlayEditor from './SpecialistOverlayEditor';
 
 /** Client-side mirror of the bridge's ASSISTANT_ID_PATTERN. */
@@ -69,7 +74,9 @@ const SpecialistOverlays: React.FC = () => {
       );
       return;
     }
-    const ok = (await window.electronAPI?.writeConstitutionSpecialist?.(id, '')) ?? false;
+    const ok = isElectronDesktop()
+      ? ((await window.electronAPI?.writeConstitutionSpecialist?.(id, '')) ?? false)
+      : await writeConstitutionSpecialistHttp(id, '');
     if (!ok) return;
     setAdding(false);
     setNewId('');
@@ -80,7 +87,9 @@ const SpecialistOverlays: React.FC = () => {
 
   const handleDelete = useCallback(
     async (id: string): Promise<void> => {
-      const ok = (await window.electronAPI?.deleteConstitutionSpecialist?.(id)) ?? false;
+      const ok = isElectronDesktop()
+        ? ((await window.electronAPI?.deleteConstitutionSpecialist?.(id)) ?? false)
+        : await deleteConstitutionSpecialistHttp(id);
       if (!ok) return;
       setConfirmDeleteId(null);
       if (editingId === id) setEditingId(null);

@@ -36,6 +36,13 @@ const baseRequest = {
   mimeType: 'audio/webm',
 };
 
+const errorResponse = (status: number) => ({
+  ok: false,
+  status,
+  statusText: 'Error',
+  json: () => Promise.resolve({}),
+});
+
 describe('SpeechToTextService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -129,6 +136,95 @@ describe('SpeechToTextService', () => {
           languageHint: 'en',
         })
       ).rejects.toThrow('STT_REQUEST_FAILED');
+    });
+  });
+
+  describe('typed error mapping (#277)', () => {
+    it('maps OpenAI 401 to STT_REQUEST_FAILED (not the Flux-branded auth code)', async () => {
+      processConfigGetMock.mockResolvedValue(baseConfig);
+      fetchMock.mockResolvedValue(errorResponse(401));
+
+      await expect(SpeechToTextService.transcribe(baseRequest)).rejects.toThrow('STT_REQUEST_FAILED');
+    });
+
+    it('maps OpenAI 429 to STT_RATE_LIMITED', async () => {
+      processConfigGetMock.mockResolvedValue(baseConfig);
+      fetchMock.mockResolvedValue(errorResponse(429));
+
+      await expect(SpeechToTextService.transcribe(baseRequest)).rejects.toThrow('STT_RATE_LIMITED');
+    });
+
+    it('maps Deepgram 401 to STT_REQUEST_FAILED (not the Flux-branded auth code)', async () => {
+      processConfigGetMock.mockResolvedValue({
+        enabled: true,
+        provider: 'deepgram' as const,
+        deepgram: { apiKey: 'dg-test', model: 'nova-2' },
+      });
+      fetchMock.mockResolvedValue(errorResponse(401));
+
+      await expect(SpeechToTextService.transcribe(baseRequest)).rejects.toThrow('STT_REQUEST_FAILED');
+    });
+
+    it('maps Flux Voice 401 to STT_FLUX_AUTH_ERROR', async () => {
+      processConfigGetMock.mockResolvedValue({
+        enabled: true,
+        provider: 'flux-voice' as const,
+        fluxVoice: { apiKey: 'flux-key', baseUrl: 'https://api.fluxrouter.ai/v1', model: 'flux-voice' },
+      });
+      fetchMock.mockResolvedValue(errorResponse(401));
+
+      await expect(SpeechToTextService.transcribe(baseRequest)).rejects.toThrow('STT_FLUX_AUTH_ERROR');
+    });
+
+    it('maps Deepgram 429 to STT_RATE_LIMITED', async () => {
+      processConfigGetMock.mockResolvedValue({
+        enabled: true,
+        provider: 'deepgram' as const,
+        deepgram: { apiKey: 'dg-test', model: 'nova-2' },
+      });
+      fetchMock.mockResolvedValue(errorResponse(429));
+
+      await expect(SpeechToTextService.transcribe(baseRequest)).rejects.toThrow('STT_RATE_LIMITED');
+    });
+  });
+
+  describe('Flux Voice config fallback (#277)', () => {
+    it('reads legacy Flux creds stored under openai when fluxVoice block is absent', async () => {
+      // Legacy persisted config: Flux creds live under `openai` (pre-fluxVoice block).
+      processConfigGetMock.mockResolvedValue({
+        enabled: true,
+        provider: 'flux-voice' as const,
+        openai: { apiKey: 'flux-legacy-key', baseUrl: 'https://api.fluxrouter.ai/v1', model: 'flux-voice' },
+      });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ text: 'hi', language: 'en' }),
+      });
+
+      const result = await SpeechToTextService.transcribe(baseRequest);
+
+      expect(result.provider).toBe('flux-voice');
+      const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+      expect(url).toBe('https://api.fluxrouter.ai/v1/audio/transcriptions');
+      expect((init.headers as Record<string, string>).Authorization).toBe('Bearer flux-legacy-key');
+    });
+
+    it('prefers the dedicated fluxVoice block over openai', async () => {
+      processConfigGetMock.mockResolvedValue({
+        enabled: true,
+        provider: 'flux-voice' as const,
+        openai: { apiKey: 'whisper-key', model: 'whisper-1' },
+        fluxVoice: { apiKey: 'flux-key', baseUrl: 'https://api.fluxrouter.ai/v1', model: 'flux-voice' },
+      });
+      fetchMock.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ text: 'hi', language: 'en' }),
+      });
+
+      await SpeechToTextService.transcribe(baseRequest);
+
+      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+      expect((init.headers as Record<string, string>).Authorization).toBe('Bearer flux-key');
     });
   });
 });

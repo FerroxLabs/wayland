@@ -177,6 +177,29 @@ describe('TeamSessionService.changeAgentBackend', () => {
     expect(repo.update).not.toHaveBeenCalled();
   });
 
+  it('refuses an in-place swap to "wayland-core" (the WCore engine alias) instead of corrupting an acp conversation (#204)', async () => {
+    // The picker offers "wayland-core" as the WCore engine id. Before the fix,
+    // resolveConversationType('wayland-core') wrongly returned 'acp' (missing
+    // alias), so this swap passed the same-type guard, kept the member's 'acp'
+    // conversation, and then spawned via the ACP connector -> "No CLI path for
+    // backend wayland-core". It must be rejected exactly like a swap to 'wcore'.
+    const team = makeTeam(); // slot-1 is claude / conversationType 'acp'
+    const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
+    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+
+    await expect(
+      svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wayland-core' })
+    ).rejects.toThrow(/not supported in place/i);
+    expect(repo.update).not.toHaveBeenCalled();
+
+    // Parity: the canonical id 'wcore' was already rejected; 'wayland-core' must
+    // behave identically now that both resolve to the 'wcore' conversation type.
+    await expect(
+      svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wcore' })
+    ).rejects.toThrow(/not supported in place/i);
+    expect(repo.update).not.toHaveBeenCalled();
+  });
+
   it('refuses to swap while a wake is in progress', async () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });

@@ -148,13 +148,39 @@ export interface UseMcpLibrary {
   getGuide(id: string): SetupGuide;
 }
 
+/**
+ * Hand-curated "Recommended for you" connectors, in deliberate order. These are
+ * the mainstream services most people actually reach for. We pick them by id
+ * rather than sorting on `popularityRank` because that float drifted
+ * platform-specific niches (Apple - macOS only) into the top slots. Apple and
+ * other OS-bound connectors stay fully browsable, just not "recommended".
+ */
+const RECOMMENDED_IDS = [
+  'io.github.taylorwilsdon/google-workspace-mcp', // Google Workspace
+  'com.slack/slack-mcp', // Slack
+  'com.github/github-mcp-server', // GitHub
+  'com.notion/notion-mcp', // Notion
+  'com.linear/linear-mcp', // Linear
+  'com.softeria/ms-365-mcp-server', // Microsoft 365
+];
+const RECOMMENDED_COUNT = 6;
+
 export function useMcpLibrary(): UseMcpLibrary {
   return useMemo(() => {
     const idx = catalog as unknown as CatalogIndex;
-    const entries = [...idx.entries]
-      .sort((a, b) => a.popularityRank - b.popularityRank)
-      .map((e) => ({ ...e, iconUrl: resolveIconUrl(e.iconUrl) ?? e.iconUrl }));
-    const recommended = entries.slice(0, 6);
+    const entries = idx.entries
+      .toSorted((a, b) => a.popularityRank - b.popularityRank)
+      .map((e) => Object.assign({}, e, { iconUrl: resolveIconUrl(e.iconUrl) ?? e.iconUrl }));
+    // Build the recommended row from the curated id list, falling back to
+    // rank order for any id that isn't found so the row is always full.
+    const byId = new Map(entries.map((e) => [e.id, e]));
+    const recommended = RECOMMENDED_IDS.map((id) => byId.get(id)).filter(
+      (e): e is CatalogIndexEntry => e !== undefined,
+    );
+    for (const e of entries) {
+      if (recommended.length >= RECOMMENDED_COUNT) break;
+      if (!recommended.includes(e)) recommended.push(e);
+    }
     const byTier: Record<Tier, CatalogIndexEntry[]> = { core: [], worker: [], builder: [] };
     const byCategory: Record<string, CatalogIndexEntry[]> = {};
     for (const e of entries) {

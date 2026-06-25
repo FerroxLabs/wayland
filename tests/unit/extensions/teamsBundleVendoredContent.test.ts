@@ -45,9 +45,10 @@ const STANDING_IDS = [
 ];
 
 describe('teams bundle (vendored) - content smoke', () => {
-  it('has 55 entries: 27 launchers (kind=team) + 28 specialists (kind=specialist)', () => {
-    expect(bundle.length).toBe(55);
-    expect(bundle.filter((a) => a.kind === 'team').length).toBe(27);
+  it('has 88 entries: 60 launchers (kind=team) + 28 specialists (kind=specialist)', () => {
+    // 2026-06-14: 33 operator-team launchers added (27 original + 33 = 60 teams).
+    expect(bundle.length).toBe(88);
+    expect(bundle.filter((a) => a.kind === 'team').length).toBe(60);
     expect(bundle.filter((a) => a.kind === 'specialist').length).toBe(28);
   });
 

@@ -26,6 +26,7 @@ const ipcMock = vi.hoisted(() => ({
   getCustomAgents: vi.fn(),
   getAssistants: vi.fn(),
   remoteAgentList: vi.fn().mockResolvedValue([]),
+  getClaudeNativeDefault: vi.fn().mockResolvedValue(null),
 }));
 
 // ---------------------------------------------------------------------------
@@ -43,6 +44,9 @@ vi.mock('../../src/common', () => ({
     },
     remoteAgent: {
       list: { invoke: ipcMock.remoteAgentList },
+    },
+    systemSettings: {
+      getClaudeNativeDefaultModelId: { invoke: ipcMock.getClaudeNativeDefault },
     },
   },
 }));
@@ -407,6 +411,81 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
       { id: 'gpt-5', label: 'GPT-5' },
       { id: 'gpt-5-mini', label: 'GPT-5 Mini' },
     ]);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Home-path Claude native default: a fresh Claude chat must default to the
+  // subscription slot, never be left model-less (which lets the global "Route
+  // through Flux" toggle silently route a native-login chat through Flux).
+  // ---------------------------------------------------------------------------
+  describe('Claude native default model resolution', () => {
+    it('defaults selectedAcpModel to the native slot when claude has no saved/cached model', async () => {
+      ipcMock.getClaudeNativeDefault.mockResolvedValue('opus');
+      setupMocks({ cachedModels: {}, acpConfig: {} });
+
+      const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
+      await waitFor(() => expect(result.current.availableAgents).toBeDefined());
+
+      act(() => {
+        result.current.setSelectedAgentKey('claude');
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedAcpModel).toBe('opus');
+      });
+      expect(ipcMock.getClaudeNativeDefault).toHaveBeenCalled();
+    });
+
+    it('leaves selectedAcpModel null when claude has no native login (Flux toggle may then apply)', async () => {
+      ipcMock.getClaudeNativeDefault.mockResolvedValue(null);
+      setupMocks({ cachedModels: {}, acpConfig: {} });
+
+      const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
+      await waitFor(() => expect(result.current.availableAgents).toBeDefined());
+
+      act(() => {
+        result.current.setSelectedAgentKey('claude');
+      });
+
+      await waitFor(() => {
+        expect(ipcMock.getClaudeNativeDefault).toHaveBeenCalled();
+      });
+      expect(result.current.selectedAcpModel).toBeNull();
+    });
+
+    it('an explicit preferredModelId (incl. a flux-* pick) wins over the native default', async () => {
+      ipcMock.getClaudeNativeDefault.mockResolvedValue('opus');
+      setupMocks({ cachedModels: {}, acpConfig: { claude: { preferredModelId: 'flux-auto' } } });
+
+      const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
+      await waitFor(() => expect(result.current.availableAgents).toBeDefined());
+
+      act(() => {
+        result.current.setSelectedAgentKey('claude');
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedAcpModel).toBe('flux-auto');
+      });
+      expect(ipcMock.getClaudeNativeDefault).not.toHaveBeenCalled();
+    });
+
+    it('a cached model still wins over the native default (no extra IPC)', async () => {
+      ipcMock.getClaudeNativeDefault.mockResolvedValue('opus');
+      setupMocks({ cachedModels: { claude: CLAUDE_CACHED_MODEL }, acpConfig: {} });
+
+      const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
+      await waitFor(() => expect(result.current.availableAgents).toBeDefined());
+
+      act(() => {
+        result.current.setSelectedAgentKey('claude');
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedAcpModel).toBe('claude-sonnet-4-5-20250514');
+      });
+      expect(ipcMock.getClaudeNativeDefault).not.toHaveBeenCalled();
+    });
   });
 
   // ---------------------------------------------------------------------------

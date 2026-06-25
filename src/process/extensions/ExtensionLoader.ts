@@ -18,6 +18,14 @@ type ExtensionLoaderOptions = {
   strictMode?: boolean;
 };
 
+/**
+ * Extension names that are now shipped as NATIVE built-ins (loaded into
+ * config.assistants via getBuiltinCatalogAssistants), not through the extension
+ * pipeline. The loader skips them so a leftover dev symlink can't double-load
+ * the same records as both native and extension.
+ */
+const NATIVE_BUILTIN_EXTENSION_NAMES = new Set<string>(['waylandteams-specialist-bundle']);
+
 export class ExtensionLoader {
   private options: ExtensionLoaderOptions;
 
@@ -35,6 +43,10 @@ export class ExtensionLoader {
     for (const { dir, source } of getExtensionScanSources()) {
       const extensions = await this.scanDirectory(dir, source);
       for (const ext of extensions) {
+        if (NATIVE_BUILTIN_EXTENSION_NAMES.has(ext.manifest.name)) {
+          // Shipped as a native built-in instead of an extension - skip.
+          continue;
+        }
         if (seenNames.has(ext.manifest.name)) {
           console.warn(
             `[Extensions] Skipping duplicate extension "${ext.manifest.name}" from ${ext.directory} (already loaded)`

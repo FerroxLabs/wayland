@@ -72,6 +72,17 @@ vi.mock('electron-log', () => ({
   },
 }));
 
+vi.mock('@/process/services/ijfwSystemService', () => ({
+  ijfwSystemService: {
+    detectLocalInstall: vi.fn(async () => ({
+      installed: false,
+      detectedVia: 'none',
+      pathProbe: { homebrew: false, usrLocal: false, standardPath: false },
+    })),
+    getLatestPublished: vi.fn(async () => '1.6.0'),
+  },
+}));
+
 const CANONICAL_REPO = 'FerroxLabs/wayland';
 
 const getCheckHandler = async () => {

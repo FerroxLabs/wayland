@@ -177,5 +177,8 @@
     "metadata": "Métadonnées",
     "body": "Corps",
     "quarantined": "Cette compétence est en quarantaine et ne peut pas être chargée."
+  },
+  "addToChat": {
+    "alreadyAdded": "Added"
   }
 }

@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.airtable/airtable-mcp",
+  "title": "Airtable",
+  "description": "Read and write bases, tables, fields, and records, and discover schema - Airtable’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://support.airtable.com/docs/using-the-airtable-mcp-server",
+  "repository": {
+    "url": "https://support.airtable.com/docs/using-the-airtable-mcp-server",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.airtable.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "productivity",
+      "database"
+    ],
+    "tags": [
+      "airtable",
+      "records",
+      "database"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 120,
+    "installRate": 0,
+    "iconUrl": "icons/com.airtable-airtable-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#FFBF00"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Airtable",
+      "providerSignupUrl": "https://airtable.com/create/tokens"
+    },
+    "setupGuide": {
+      "path": "guides/com.airtable-airtable-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

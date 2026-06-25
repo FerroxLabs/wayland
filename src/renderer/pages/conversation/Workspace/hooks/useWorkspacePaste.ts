@@ -62,7 +62,13 @@ export function useWorkspacePaste(options: UseWorkspacePasteOptions) {
         return;
       }
 
-      const result = await ipcBridge.fs.copyFilesToWorkspace.invoke({ filePaths: selectedFiles, workspace });
+      // Files chosen via the native open dialog are an explicit user grant, so
+      // they may live outside the static roots (still guarded against secrets).
+      const result = await ipcBridge.fs.copyFilesToWorkspace.invoke({
+        filePaths: selectedFiles,
+        workspace,
+        allowExternalSource: true,
+      });
       const copiedFiles = result.data?.copiedFiles ?? [];
       const failedFiles = result.data?.failedFiles ?? [];
 
@@ -73,7 +79,7 @@ export function useWorkspacePaste(options: UseWorkspacePasteOptions) {
       }
 
       if (!result.success || failedFiles.length > 0) {
-        const fallback = failedFiles.length > 0 ? 'Some files failed to copy' : result.msg;
+        const fallback = failedFiles.find((f) => f.error)?.error ?? result.msg;
         messageApi.warning(fallback || t('common.unknownError') || 'Copy failed');
       }
     },
@@ -170,7 +176,11 @@ export function useWorkspacePaste(options: UseWorkspacePasteOptions) {
       if (skipConfirm) {
         try {
           const filePaths = filesMeta.map((f) => f.path);
-          const res = await ipcBridge.fs.copyFilesToWorkspace.invoke({ filePaths, workspace: targetFolderPath });
+          const res = await ipcBridge.fs.copyFilesToWorkspace.invoke({
+            filePaths,
+            workspace: targetFolderPath,
+            allowExternalSource: true,
+          });
           const copiedFiles = res.data?.copiedFiles ?? [];
           const failedFiles = res.data?.failedFiles ?? [];
 
@@ -180,8 +190,9 @@ export function useWorkspacePaste(options: UseWorkspacePasteOptions) {
           }
 
           if (!res.success || failedFiles.length > 0) {
-            // Notify user when any paste fails
-            const fallback = failedFiles.length > 0 ? 'Some files failed to copy' : res.msg;
+            // Surface the specific per-file reason instead of a generic failure
+            // so a blocked/unreadable source doesn't look like the file vanished.
+            const fallback = failedFiles.find((f) => f.error)?.error ?? res.msg;
             messageApi.warning(fallback || t('common.unknownError') || 'Paste failed');
           }
         } catch (error) {
@@ -222,7 +233,11 @@ export function useWorkspacePaste(options: UseWorkspacePasteOptions) {
       const targetFolderPath = targetFolder.fullPath;
 
       const filePaths = pasteConfirm.filesToPaste.map((f) => f.path);
-      const res = await ipcBridge.fs.copyFilesToWorkspace.invoke({ filePaths, workspace: targetFolderPath });
+      const res = await ipcBridge.fs.copyFilesToWorkspace.invoke({
+        filePaths,
+        workspace: targetFolderPath,
+        allowExternalSource: true,
+      });
       const copiedFiles = res.data?.copiedFiles ?? [];
       const failedFiles = res.data?.failedFiles ?? [];
 
@@ -232,7 +247,7 @@ export function useWorkspacePaste(options: UseWorkspacePasteOptions) {
       }
 
       if (!res.success || failedFiles.length > 0) {
-        const fallback = failedFiles.length > 0 ? 'Some files failed to copy' : res.msg;
+        const fallback = failedFiles.find((f) => f.error)?.error ?? res.msg;
         messageApi.warning(fallback || t('common.unknownError') || 'Paste failed');
       }
 

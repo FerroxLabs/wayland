@@ -302,6 +302,10 @@ const AgentsSettings: React.FC = () => {
         />
       )}
 
+      {/* ---- Flux Router: live connection status + route-through toggle ---- */}
+      <div className={styles.sectionLabel}>{t('settings.agentsPage.flux.title')}</div>
+      <FluxRouterCard />
+
       {/* ---- Your agents ---- */}
       <div className={styles.sectionLabel}>{t('settings.agentsPage.yourAgents')}</div>
 
@@ -349,10 +353,6 @@ const AgentsSettings: React.FC = () => {
       {/* ---- Remote agents (OpenClaw, Hermes) ---- */}
       <div className={styles.sectionLabel}>{t('settings.agentsPage.remoteAgents')}</div>
       <RemoteAgents />
-
-      {/* ---- Flux Router: live connection status + route-through toggle ---- */}
-      <div className={styles.sectionLabel}>{t('settings.agentsPage.flux.title')}</div>
-      <FluxRouterCard />
     </SettingsPageShell>
   );
 };

@@ -337,10 +337,29 @@ export class WorkspaceSnapshotService {
 
   /** Parse `git status --porcelain` for git-repo mode → staged + unstaged */
   private async compareGitRepo(workspacePath: string): Promise<CompareResult> {
+    // Flush stale index stat entries so that files whose only difference is
+    // mtime (not content) are not reported as modified.  The `-q` flag
+    // suppresses "needs update" messages; errors are ignored because the repo
+    // may be in a state where this can't run (e.g. empty repo, locked index).
+    await execFileAsync('git', ['update-index', '-q', '--refresh'], {
+      cwd: workspacePath,
+    }).catch(() => {});
+
     const { stdout } = await execFileAsync('git', ['status', '--porcelain'], {
       cwd: workspacePath,
       maxBuffer: 10 * 1024 * 1024,
     });
+
+    // A file whose only difference is the executable/mode bit (e.g. a `chmod`
+    // after extraction or a cross-filesystem checkout) shows up as `M` in
+    // porcelain but has zero added/removed lines.  Surfacing it in the Changes
+    // panel as a +0/-0 "modified" file is noise, so drop modify entries that
+    // have no actual content diff.  Paths with real content changes (including
+    // binary, which numstat reports as `-`) are kept.
+    // When numstat returns null it could not run, so we keep every modify entry
+    // rather than silently dropping real changes (`has` below is short-circuited).
+    const stagedHasContent = await this.pathsWithContentDiff(workspacePath, true);
+    const unstagedHasContent = await this.pathsWithContentDiff(workspacePath, false);
 
     const staged: FileChangeInfo[] = [];
     const unstaged: FileChangeInfo[] = [];
@@ -359,20 +378,56 @@ export class WorkspaceSnapshotService {
       });
 
       // Staged changes (X column)
-      if (x === 'M') staged.push(makeInfo('modify'));
-      else if (x === 'A') staged.push(makeInfo('create'));
+      if (x === 'M') {
+        if (stagedHasContent === null || stagedHasContent.has(filepath)) staged.push(makeInfo('modify'));
+      } else if (x === 'A') staged.push(makeInfo('create'));
       else if (x === 'D') staged.push(makeInfo('delete'));
       else if (x === 'R') staged.push(makeInfo('modify'));
 
       // Unstaged changes (Y column)
-      if (y === 'M') unstaged.push(makeInfo('modify'));
-      else if (y === 'D') unstaged.push(makeInfo('delete'));
+      if (y === 'M') {
+        if (unstagedHasContent === null || unstagedHasContent.has(filepath)) unstaged.push(makeInfo('modify'));
+      } else if (y === 'D') unstaged.push(makeInfo('delete'));
 
       // Untracked files
       if (x === '?' && y === '?') unstaged.push(makeInfo('create'));
     }
 
     return { staged, unstaged };
+  }
+
+  /**
+   * Build the set of relative paths that have an actual content diff. `git diff
+   * --numstat` prints `<added>\t<removed>\t<path>`; a mode-only change is `0 0`,
+   * while binary files are `-`. We keep anything that is not literally `0 0`.
+   * `cached` selects staged (index vs HEAD) vs working-tree (vs index).
+   * Returns `null` if numstat could not run, so callers keep all entries.
+   */
+  private async pathsWithContentDiff(workspacePath: string, cached: boolean): Promise<Set<string> | null> {
+    const result = new Set<string>();
+    const args = ['diff', '--numstat'];
+    if (cached) args.splice(1, 0, '--cached');
+
+    try {
+      const { stdout } = await execFileAsync('git', args, {
+        cwd: workspacePath,
+        maxBuffer: 10 * 1024 * 1024,
+      });
+      for (const line of stdout.split('\n')) {
+        if (!line) continue;
+        const [added, removed, ...rest] = line.split('\t');
+        const filepath = rest.join('\t');
+        if (!filepath) continue;
+        // `-` marks binary (real change); only `0`/`0` is a no-content modify.
+        if (added === '0' && removed === '0') continue;
+        result.add(filepath);
+      }
+    } catch {
+      // If numstat can't run, fall back to trusting porcelain (keep all).
+      return null;
+    }
+
+    return result;
   }
 
   /** Compare snapshot mode - all changes go to unstaged (no staging concept) */

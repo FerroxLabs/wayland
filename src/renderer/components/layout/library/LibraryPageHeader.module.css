@@ -47,3 +47,16 @@
   flex-shrink: 0;
 }
 
+/* Mobile: let the actions wrap below the title instead of overflowing the row
+   when the viewport is too narrow to hold both (#154). Shared by every library
+   page header (Projects, Assistants, Workflows, ...). */
+@media (max-width: 640px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}
+

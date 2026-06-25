@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   closestCenter,
   DndContext,
@@ -71,6 +71,46 @@ const LaunchpadBar: React.FC<LaunchpadBarProps> = ({ onAnchorClick, onViewAll, m
       .map((id) => resolveBarEntry(id, assistants, localeKey))
       .filter((e): e is LaunchpadBarEntry => e !== null);
   }, [barOrder, assistants, localeKey]);
+
+  // One-time heal: the waylandteams catalog moved from extension (`ext-<id>`) to
+  // native built-ins (`builtin-<id>`). Stale `ext-` pins from before the change
+  // no longer resolve, so they vanish from the bar yet still count against the
+  // 10-shortcut cap (the picker would wrongly report "Maximum 10" with far fewer
+  // visible). Remap any `ext-<id>` whose `builtin-<id>` twin now exists in the
+  // live catalogue, de-dupe, and persist once. Runs after the catalogue loads;
+  // a no-op for fresh installs (defaults already use builtin- ids).
+  const healedRef = useRef(false);
+  useEffect(() => {
+    if (!loaded || healedRef.current || assistants.length === 0) return;
+    const knownIds = new Set(assistants.map((a) => a.id));
+    const seen = new Set<string>();
+    const healed: string[] = [];
+    let changed = false;
+    // Structurally-dead pins: double-prefixed ids (e.g. `builtin-ext-sales`,
+    // `ext-ext-x`) left by an earlier add bug. They can never resolve to an
+    // assistant, so they only inflate the cap - drop them. A legitimate
+    // extension pin is a single `ext-<name>`, never double-prefixed.
+    const isDead = (id: string) => /^(builtin-ext-|builtin-builtin-|ext-ext-|ext-builtin-)/.test(id);
+    for (const id of barOrder) {
+      if (isDead(id)) {
+        changed = true;
+        continue;
+      }
+      let next = id;
+      if (id.startsWith('ext-') && knownIds.has(`builtin-${id.slice(4)}`)) {
+        next = `builtin-${id.slice(4)}`;
+        changed = true;
+      }
+      if (seen.has(next)) {
+        changed = true; // drop duplicate produced by the remap
+        continue;
+      }
+      seen.add(next);
+      healed.push(next);
+    }
+    healedRef.current = true;
+    if (changed) setBarOrder(healed);
+  }, [loaded, barOrder, assistants, setBarOrder]);
 
   const sortableIds = useMemo(() => entries.map((e) => e.id), [entries]);
 

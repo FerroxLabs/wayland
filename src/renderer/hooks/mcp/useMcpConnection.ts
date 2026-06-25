@@ -55,7 +55,9 @@ export const useMcpConnection = (
 
           // Check whether authentication is required
           if (result.needsAuth) {
-            await updateServerStatus('disconnected');
+            // Needing auth is not a connection error - clear any stale lastError
+            // so a previous transport failure can't resurface as the reason.
+            await updateServerStatus('disconnected', { lastError: undefined });
             await globalMessageQueue.add(() => {
               message.warning(`${server.name}: ${t('settings.mcpAuthRequired') || 'Authentication required'}`);
             });
@@ -77,6 +79,7 @@ export const useMcpConnection = (
                 ...(tool._meta ? { _meta: tool._meta } : {}),
               })),
               lastConnected: Date.now(),
+              lastError: undefined,
             });
             await globalMessageQueue.add(() => {
               message.success(`${server.name}: ${t('settings.mcpTestConnectionSuccess')}`);
@@ -86,30 +89,33 @@ export const useMcpConnection = (
           } else {
             // Update server status to error and disable install.
             // On failure, automatically set enabled=false to avoid installing a broken service
+            const errorMsg = truncateErrorMessage(result.error || t('settings.mcpError'));
             await updateServerStatus('error', {
               enabled: false,
+              lastError: errorMsg,
             });
-            const errorMsg = truncateErrorMessage(result.error || t('settings.mcpError'));
             await globalMessageQueue.add(() => {
               message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
             });
           }
         } else {
           // IPC call failed; disable install
+          const errorMsg = truncateErrorMessage(response.msg || t('settings.mcpError'));
           await updateServerStatus('error', {
             enabled: false,
+            lastError: errorMsg,
           });
-          const errorMsg = truncateErrorMessage(response.msg || t('settings.mcpError'));
           await globalMessageQueue.add(() => {
             message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
           });
         }
       } catch (error) {
         // Update server status to error and disable install
+        const errorMsg = truncateErrorMessage(error instanceof Error ? error.message : t('settings.mcpError'));
         await updateServerStatus('error', {
           enabled: false,
+          lastError: errorMsg,
         });
-        const errorMsg = truncateErrorMessage(error instanceof Error ? error.message : t('settings.mcpError'));
         await globalMessageQueue.add(() => {
           message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
         });
@@ -157,7 +163,7 @@ export const useMcpConnection = (
             if (response.success && response.data) {
               const result = response.data;
               if (result.needsAuth) {
-                return { id: server.id, patch: { status: 'disconnected' } };
+                return { id: server.id, patch: { status: 'disconnected', lastError: undefined } };
               }
               if (result.success) {
                 return {
@@ -170,15 +176,28 @@ export const useMcpConnection = (
                       ...(tool._meta ? { _meta: tool._meta } : {}),
                     })),
                     lastConnected: Date.now(),
+                    lastError: undefined,
                   },
                 };
               }
               // Probe failed: surface the error state but leave `enabled` alone.
-              return { id: server.id, patch: { status: 'error' } };
+              return {
+                id: server.id,
+                patch: { status: 'error', lastError: truncateErrorMessage(result.error || t('settings.mcpError')) },
+              };
             }
-            return { id: server.id, patch: { status: 'error' } };
-          } catch {
-            return { id: server.id, patch: { status: 'error' } };
+            return {
+              id: server.id,
+              patch: { status: 'error', lastError: truncateErrorMessage(response.msg || t('settings.mcpError')) },
+            };
+          } catch (err) {
+            return {
+              id: server.id,
+              patch: {
+                status: 'error',
+                lastError: truncateErrorMessage(err instanceof Error ? err.message : t('settings.mcpError')),
+              },
+            };
           }
         })
       );
@@ -198,7 +217,7 @@ export const useMcpConnection = (
         });
       }
     },
-    [saveMcpServers]
+    [saveMcpServers, t]
   );
 
   return {

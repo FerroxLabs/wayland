@@ -118,6 +118,12 @@
     "scheduleDesc": {
       "manual": "Вручную",
       "hourly": "Каждый час",
+      "everyNHours_one": "Каждый час",
+      "everyNHours_other": "Каждые {{count}} ч.",
+      "everyNHoursAtMinute_one": "Каждый час в :{{minute}}",
+      "everyNHoursAtMinute_other": "Каждые {{count}} ч. в :{{minute}}",
+      "everyNMinutes_one": "Каждую минуту",
+      "everyNMinutes_other": "Каждые {{count}} мин.",
       "dailyAt": "Каждый день в {{time}}",
       "weekdaysAt": "По будням в {{time}}",
       "weeklyAt": "Каждый {{day}} в {{time}}",

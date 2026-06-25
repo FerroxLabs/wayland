@@ -42,6 +42,17 @@ export type AcpAuthRemedy = {
    * subscription fallback, so the generic "sign in to the CLI" copy is wrong.
    */
   explainerKey?: string;
+  /**
+   * True when the failing backend is ALREADY routed through Flux. Re-routing
+   * through Flux cannot fix it, so the card suppresses the Flux action.
+   */
+  fluxAlreadyRouted?: boolean;
+  /**
+   * True when the backend routes ANY provider (Wayland Core), so the "add a key"
+   * remedy must read generically ("add any provider API key") rather than naming
+   * one vendor.
+   */
+  genericProviderKey?: boolean;
 };
 
 /** Case-insensitive substring match against the generic auth-failure signatures. */
@@ -81,6 +92,13 @@ const BACKEND_REMEDIES: Record<string, Partial<AcpAuthRemedy>> = {
     cliLoginCmd: 'codex login',
     fluxRoutable: true,
   },
+  grok: {
+    backendLabel: 'Grok Build',
+    // Auth is the grok.com OAuth login behind a SuperGrok subscription; the only
+    // fix is re-running the CLI login. Not Flux-routable (xAI's own gateway).
+    cliLoginCmd: 'grok login',
+    fluxRoutable: false,
+  },
   qwen: {
     backendLabel: 'Qwen Code',
     cliLoginCmd: 'qwen',
@@ -99,6 +117,8 @@ const BACKEND_REMEDIES: Record<string, Partial<AcpAuthRemedy>> = {
   wcore: {
     backendLabel: 'Wayland Core',
     fluxRoutable: true,
+    // Wayland Core routes any provider, so the add-key remedy is vendor-neutral.
+    genericProviderKey: true,
     // No CLI login and no subscription fallback - the only fixes are a working
     // provider key or the Flux route. Keep cliLoginCmd undefined so buildRemedy
     // does not synthesize a "wcore login" command.
@@ -112,7 +132,7 @@ function buildRemedy(backend: string, runtimeOverrides?: Partial<AcpAuthRemedy>)
   const override = BACKEND_REMEDIES[backend] ?? {};
   const backendLabel =
     override.backendLabel ?? BACKEND_LABELS[backend] ?? backend.charAt(0).toUpperCase() + backend.slice(1);
-  return {
+  const remedy: AcpAuthRemedy = {
     backend,
     backendLabel,
     subscriptionOAuthBlocked: override.subscriptionOAuthBlocked ?? false,
@@ -120,8 +140,13 @@ function buildRemedy(backend: string, runtimeOverrides?: Partial<AcpAuthRemedy>)
     cliLoginCmd: 'cliLoginCmd' in override ? override.cliLoginCmd : `${backend} login`,
     fluxRoutable: override.fluxRoutable ?? false,
     explainerKey: override.explainerKey,
+    genericProviderKey: override.genericProviderKey,
     ...runtimeOverrides,
   };
+  // A backend already routed through Flux cannot be fixed by routing through
+  // Flux again - hide that action so the user picks a real remedy.
+  if (remedy.fluxAlreadyRouted) remedy.fluxRoutable = false;
+  return remedy;
 }
 
 /**

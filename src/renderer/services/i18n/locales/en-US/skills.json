@@ -177,5 +177,8 @@
     "metadata": "Metadata",
     "body": "Body",
     "quarantined": "This skill is quarantined and cannot be loaded."
+  },
+  "addToChat": {
+    "alreadyAdded": "Added"
   }
 }

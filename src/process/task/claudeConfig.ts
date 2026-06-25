@@ -35,7 +35,9 @@ import { join } from 'path';
  */
 export async function materializeFluxClaudeConfigDir(
   userDataDir: string,
-  realClaudeDir: string = join(homedir(), '.claude')
+  realClaudeDir: string = join(homedir(), '.claude'),
+  /** Per-conversation reasoning effort. When set, overrides the seeded `effortLevel`. */
+  effort?: 'low' | 'medium' | 'high'
 ): Promise<string> {
   const configDir = join(userDataDir, 'flux-claude-home');
   const settingsPath = join(configDir, 'settings.json');
@@ -64,6 +66,8 @@ export async function materializeFluxClaudeConfigDir(
   const settings: Record<string, unknown> = { availableModels };
   if (real.permissions !== undefined) settings.permissions = real.permissions;
   if (real.effortLevel !== undefined) settings.effortLevel = real.effortLevel;
+  // Per-conversation effort takes precedence over the seeded user-level value.
+  if (effort !== undefined) settings.effortLevel = effort;
 
   await mkdir(configDir, { recursive: true });
   await writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf8');

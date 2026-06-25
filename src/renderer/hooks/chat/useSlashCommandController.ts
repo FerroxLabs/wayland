@@ -49,10 +49,16 @@ interface UseSlashCommandControllerOptions {
   commands: SlashCommandItem[];
   onExecuteBuiltin?: (name: string) => void;
   onSelectTemplate?: (name: string) => void;
+  /**
+   * Selecting a user-defined command (source === 'user'). Distinct from
+   * `onSelectTemplate` (which inserts `/name `): user commands expand their
+   * prompt template body into the composer instead. See issue #28.
+   */
+  onSelectUserCommand?: (name: string) => void;
 }
 
 export function useSlashCommandController(options: UseSlashCommandControllerOptions) {
-  const { input, commands, onExecuteBuiltin, onSelectTemplate } = options;
+  const { input, commands, onExecuteBuiltin, onSelectTemplate, onSelectUserCommand } = options;
   const query = useMemo(() => matchSlashQuery(input), [input]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [dismissed, setDismissed] = useState(false);
@@ -84,7 +90,9 @@ export function useSlashCommandController(options: UseSlashCommandControllerOpti
       if (!command) {
         return false;
       }
-      if (getSelectionBehavior(command) === 'insert') {
+      if (command.source === 'user') {
+        onSelectUserCommand?.(command.name);
+      } else if (getSelectionBehavior(command) === 'insert') {
         onSelectTemplate?.(command.name);
       } else if (command.kind === 'builtin') {
         onExecuteBuiltin?.(command.name);
@@ -94,7 +102,7 @@ export function useSlashCommandController(options: UseSlashCommandControllerOpti
       setDismissed(true);
       return true;
     },
-    [filteredCommands, onExecuteBuiltin, onSelectTemplate]
+    [filteredCommands, onExecuteBuiltin, onSelectTemplate, onSelectUserCommand]
   );
 
   const onKeyDown = useCallback(

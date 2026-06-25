@@ -420,7 +420,7 @@
     {
       "id": "com.raindrop/raindrop-mcp",
       "name": "Raindrop",
-      "shortDescription": "Bookmarks, collections, and tags - Raindrop.io's official hosted MCP with OAuth.",
+      "shortDescription": "Bookmarks, collections, and tags - Raindrop.io's official hosted MCP. Connect with a test token.",
       "iconUrl": "icons/raindrop.svg",
       "tier": "worker",
       "categories": [
@@ -980,6 +980,868 @@
       "installRate": 0.12,
       "entryUrl": "entries/com.postman-postman-mcp.json",
       "guideUrl": "guides/com.postman-postman-mcp.md"
+    },
+    {
+      "id": "ai.fal/fal-mcp",
+      "name": "fal.ai",
+      "shortDescription": "One gateway to 1,000+ generative media models - image, video, audio, and voice - through fal's hosted MCP. Search models, run inference, upload files.",
+      "iconUrl": "icons/ai.fal-fal-mcp.svg",
+      "tier": "core",
+      "categories": [
+        "media",
+        "automation"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 100,
+      "installRate": 0,
+      "entryUrl": "entries/ai.fal-fal-mcp.json",
+      "guideUrl": "guides/ai.fal-fal-mcp.md"
+    },
+    {
+      "id": "com.replicate/replicate-mcp",
+      "name": "Replicate",
+      "shortDescription": "Run, search, and compare thousands of community models for image, video, audio, and 3D generation - Replicate’s official hosted MCP.",
+      "iconUrl": "icons/com.replicate-replicate-mcp.svg",
+      "tier": "core",
+      "categories": [
+        "media",
+        "developer"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 101,
+      "installRate": 0,
+      "entryUrl": "entries/com.replicate-replicate-mcp.json",
+      "guideUrl": "guides/com.replicate-replicate-mcp.md"
+    },
+    {
+      "id": "ai.higgsfield/higgsfield-mcp",
+      "name": "Higgsfield",
+      "shortDescription": "Generate cinematic video and images from 30+ models (Soul, Cinema Studio, Seedance, Kling, Veo) - Higgsfield’s official hosted MCP.",
+      "iconUrl": "icons/ai.higgsfield-higgsfield-mcp.svg",
+      "tier": "core",
+      "categories": [
+        "media"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 102,
+      "installRate": 0,
+      "entryUrl": "entries/ai.higgsfield-higgsfield-mcp.json",
+      "guideUrl": "guides/ai.higgsfield-higgsfield-mcp.md"
+    },
+    {
+      "id": "ai.bfl/flux-mcp",
+      "name": "Black Forest Labs (FLUX)",
+      "shortDescription": "Generate, edit, and vary images with FLUX.2 - text-to-image, inpainting, style transfer, and multi-reference composition. Official Black Forest Labs MCP.",
+      "iconUrl": "icons/ai.bfl-flux-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "media"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 103,
+      "installRate": 0,
+      "entryUrl": "entries/ai.bfl-flux-mcp.json",
+      "guideUrl": "guides/ai.bfl-flux-mcp.md"
+    },
+    {
+      "id": "io.elevenlabs/elevenlabs-mcp",
+      "name": "ElevenLabs",
+      "shortDescription": "Text-to-speech, voice cloning, voice design, audio isolation, transcription, and sound effects - ElevenLabs’ official MCP.",
+      "iconUrl": "icons/io.elevenlabs-elevenlabs-mcp.svg",
+      "tier": "core",
+      "categories": [
+        "media"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 104,
+      "installRate": 0,
+      "entryUrl": "entries/io.elevenlabs-elevenlabs-mcp.json",
+      "guideUrl": "guides/io.elevenlabs-elevenlabs-mcp.md"
+    },
+    {
+      "id": "ai.minimax/minimax-mcp",
+      "name": "MiniMax (Hailuo)",
+      "shortDescription": "Hailuo video generation, music, text-to-speech, voice cloning, and image generation - MiniMax’s official MCP.",
+      "iconUrl": "icons/ai.minimax-minimax-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "media"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 105,
+      "installRate": 0,
+      "entryUrl": "entries/ai.minimax-minimax-mcp.json",
+      "guideUrl": "guides/ai.minimax-minimax-mcp.md"
+    },
+    {
+      "id": "ai.recraft/recraft-mcp",
+      "name": "Recraft",
+      "shortDescription": "Generate and edit raster and vector (SVG) images, custom styles, vectorization, background removal, and upscaling - Recraft’s official hosted MCP.",
+      "iconUrl": "icons/ai.recraft-recraft-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "media",
+        "design"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 106,
+      "installRate": 0,
+      "entryUrl": "entries/ai.recraft-recraft-mcp.json",
+      "guideUrl": "guides/ai.recraft-recraft-mcp.md"
+    },
+    {
+      "id": "com.tavily/tavily-mcp",
+      "name": "Tavily",
+      "shortDescription": "AI-native web search plus page extraction, mapping, and crawling - Tavily’s official hosted MCP.",
+      "iconUrl": "icons/com.tavily-tavily-mcp.svg",
+      "tier": "core",
+      "categories": [
+        "search",
+        "research"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 107,
+      "installRate": 0,
+      "entryUrl": "entries/com.tavily-tavily-mcp.json",
+      "guideUrl": "guides/com.tavily-tavily-mcp.md"
+    },
+    {
+      "id": "ai.jina/jina-mcp",
+      "name": "Jina AI",
+      "shortDescription": "Read any URL as clean markdown, search the web and arXiv, capture screenshots, and extract PDFs - Jina AI’s official hosted MCP.",
+      "iconUrl": "icons/ai.jina-jina-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "search",
+        "research"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 108,
+      "installRate": 0,
+      "entryUrl": "entries/ai.jina-jina-mcp.json",
+      "guideUrl": "guides/ai.jina-jina-mcp.md"
+    },
+    {
+      "id": "com.apify/apify-mcp",
+      "name": "Apify",
+      "shortDescription": "Run thousands of ready-made scrapers and automation Actors - social, maps, e-commerce, any site - through Apify’s official hosted MCP.",
+      "iconUrl": "icons/com.apify-apify-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "automation",
+        "search",
+        "data"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 109,
+      "installRate": 0,
+      "entryUrl": "entries/com.apify-apify-mcp.json",
+      "guideUrl": "guides/com.apify-apify-mcp.md"
+    },
+    {
+      "id": "com.ref/ref-tools-mcp",
+      "name": "Ref",
+      "shortDescription": "Token-efficient documentation search and reading across public and private docs - Ref’s official hosted MCP.",
+      "iconUrl": "icons/com.ref-ref-tools-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "developer",
+        "search"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 110,
+      "installRate": 0,
+      "entryUrl": "entries/com.ref-ref-tools-mcp.json",
+      "guideUrl": "guides/com.ref-ref-tools-mcp.md"
+    },
+    {
+      "id": "com.you/you-mcp",
+      "name": "You.com",
+      "shortDescription": "Web and news search plus multi-step research with citations - You.com’s official hosted MCP, with a free no-key tier.",
+      "iconUrl": "icons/com.you-you-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "search",
+        "research"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 111,
+      "installRate": 0,
+      "entryUrl": "entries/com.you-you-mcp.json",
+      "guideUrl": "guides/com.you-you-mcp.md"
+    },
+    {
+      "id": "so.linkup/linkup-mcp",
+      "name": "Linkup",
+      "shortDescription": "Real-time web search, autonomous research, and page fetch - Linkup’s official hosted MCP.",
+      "iconUrl": "icons/so.linkup-linkup-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "search",
+        "research"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 112,
+      "installRate": 0,
+      "entryUrl": "entries/so.linkup-linkup-mcp.json",
+      "guideUrl": "guides/so.linkup-linkup-mcp.md"
+    },
+    {
+      "id": "ai.perplexity/perplexity-mcp",
+      "name": "Perplexity",
+      "shortDescription": "Real-time search plus deep research and reasoning powered by Sonar - Perplexity’s official MCP.",
+      "iconUrl": "icons/ai.perplexity-perplexity-mcp.svg",
+      "tier": "core",
+      "categories": [
+        "search",
+        "research"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 113,
+      "installRate": 0,
+      "entryUrl": "entries/ai.perplexity-perplexity-mcp.json",
+      "guideUrl": "guides/ai.perplexity-perplexity-mcp.md"
+    },
+    {
+      "id": "io.tinyfish/agentql-mcp",
+      "name": "AgentQL",
+      "shortDescription": "Turn a natural-language prompt into structured data from any web page - AgentQL’s official MCP.",
+      "iconUrl": "icons/io.tinyfish-agentql-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "automation",
+        "data"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 114,
+      "installRate": 0,
+      "entryUrl": "entries/io.tinyfish-agentql-mcp.json",
+      "guideUrl": "guides/io.tinyfish-agentql-mcp.md"
+    },
+    {
+      "id": "org.wikipedia/wikipedia-mcp",
+      "name": "Wikipedia",
+      "shortDescription": "Search Wikipedia and read articles, summaries, and key facts. No account needed.",
+      "iconUrl": "icons/org.wikipedia-wikipedia-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "knowledge",
+        "research"
+      ],
+      "maintainerType": "community",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 115,
+      "installRate": 0,
+      "entryUrl": "entries/org.wikipedia-wikipedia-mcp.json",
+      "guideUrl": "guides/org.wikipedia-wikipedia-mcp.md"
+    },
+    {
+      "id": "org.arxiv/arxiv-mcp-server",
+      "name": "arXiv",
+      "shortDescription": "Search, download, and read arXiv research papers. No account needed.",
+      "iconUrl": "icons/org.arxiv-arxiv-mcp-server.svg",
+      "tier": "worker",
+      "categories": [
+        "knowledge",
+        "research"
+      ],
+      "maintainerType": "community",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 116,
+      "installRate": 0,
+      "entryUrl": "entries/org.arxiv-arxiv-mcp-server.json",
+      "guideUrl": "guides/org.arxiv-arxiv-mcp-server.md"
+    },
+    {
+      "id": "com.duckduckgo/duckduckgo-mcp-server",
+      "name": "DuckDuckGo",
+      "shortDescription": "Privacy-friendly web search and content fetch. No account needed.",
+      "iconUrl": "icons/com.duckduckgo-duckduckgo-mcp-server.svg",
+      "tier": "worker",
+      "categories": [
+        "search"
+      ],
+      "maintainerType": "community",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 117,
+      "installRate": 0,
+      "entryUrl": "entries/com.duckduckgo-duckduckgo-mcp-server.json",
+      "guideUrl": "guides/com.duckduckgo-duckduckgo-mcp-server.md"
+    },
+    {
+      "id": "com.grafana/grafana-mcp",
+      "name": "Grafana",
+      "shortDescription": "Query dashboards, datasources, and alerting across Prometheus, Loki, and Tempo - Grafana’s official MCP.",
+      "iconUrl": "icons/com.grafana-grafana-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "observability",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 118,
+      "installRate": 0,
+      "entryUrl": "entries/com.grafana-grafana-mcp.json",
+      "guideUrl": "guides/com.grafana-grafana-mcp.md"
+    },
+    {
+      "id": "com.railway/railway-mcp",
+      "name": "Railway",
+      "shortDescription": "Manage projects, deployments, environment variables, and logs in natural language - Railway’s official hosted MCP.",
+      "iconUrl": "icons/com.railway-railway-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "infrastructure",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 119,
+      "installRate": 0,
+      "entryUrl": "entries/com.railway-railway-mcp.json",
+      "guideUrl": "guides/com.railway-railway-mcp.md"
+    },
+    {
+      "id": "com.airtable/airtable-mcp",
+      "name": "Airtable",
+      "shortDescription": "Read and write bases, tables, fields, and records, and discover schema - Airtable’s official hosted MCP.",
+      "iconUrl": "icons/com.airtable-airtable-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "productivity",
+        "database"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 120,
+      "installRate": 0,
+      "entryUrl": "entries/com.airtable-airtable-mcp.json",
+      "guideUrl": "guides/com.airtable-airtable-mcp.md"
+    },
+    {
+      "id": "com.newrelic/newrelic-mcp",
+      "name": "New Relic",
+      "shortDescription": "Run NRQL, inspect alerts, entities, deployments, and golden metrics - New Relic’s official hosted MCP.",
+      "iconUrl": "icons/com.newrelic-newrelic-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "observability",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 121,
+      "installRate": 0,
+      "entryUrl": "entries/com.newrelic-newrelic-mcp.json",
+      "guideUrl": "guides/com.newrelic-newrelic-mcp.md"
+    },
+    {
+      "id": "com.render/render-mcp",
+      "name": "Render",
+      "shortDescription": "Manage services, Postgres, key-value stores, metrics, and logs - Render’s official hosted MCP.",
+      "iconUrl": "icons/com.render-render-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "infrastructure",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 123,
+      "installRate": 0,
+      "entryUrl": "entries/com.render-render-mcp.json",
+      "guideUrl": "guides/com.render-render-mcp.md"
+    },
+    {
+      "id": "com.heroku/heroku-mcp",
+      "name": "Heroku",
+      "shortDescription": "Manage apps, dynos, add-ons, pipelines, Postgres, and logs - Heroku’s official hosted MCP.",
+      "iconUrl": "icons/com.heroku-heroku-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "infrastructure",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 124,
+      "installRate": 0,
+      "entryUrl": "entries/com.heroku-heroku-mcp.json",
+      "guideUrl": "guides/com.heroku-heroku-mcp.md"
+    },
+    {
+      "id": "com.netlify/netlify-mcp",
+      "name": "Netlify",
+      "shortDescription": "Create, build, deploy, and manage projects, environment variables, and forms - Netlify’s official MCP.",
+      "iconUrl": "icons/com.netlify-netlify-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "infrastructure",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 125,
+      "installRate": 0,
+      "entryUrl": "entries/com.netlify-netlify-mcp.json",
+      "guideUrl": "guides/com.netlify-netlify-mcp.md"
+    },
+    {
+      "id": "io.prisma/prisma-mcp",
+      "name": "Prisma",
+      "shortDescription": "Run migrations and manage Prisma Postgres databases - create, list, query, and back up - Prisma’s official hosted MCP.",
+      "iconUrl": "icons/io.prisma-prisma-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "database",
+        "developer"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 126,
+      "installRate": 0,
+      "entryUrl": "entries/io.prisma-prisma-mcp.json",
+      "guideUrl": "guides/io.prisma-prisma-mcp.md"
+    },
+    {
+      "id": "com.planetscale/planetscale-mcp",
+      "name": "PlanetScale",
+      "shortDescription": "Manage organizations, databases, branches, schema, and Insights with destructive-SQL guards - PlanetScale’s official hosted MCP.",
+      "iconUrl": "icons/com.planetscale-planetscale-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "database",
+        "developer"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 127,
+      "installRate": 0,
+      "entryUrl": "entries/com.planetscale-planetscale-mcp.json",
+      "guideUrl": "guides/com.planetscale-planetscale-mcp.md"
+    },
+    {
+      "id": "com.clickhouse/clickhouse-mcp",
+      "name": "ClickHouse",
+      "shortDescription": "Read-only SQL and schema exploration over ClickHouse and chDB - ClickHouse’s official MCP.",
+      "iconUrl": "icons/com.clickhouse-clickhouse-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "database",
+        "data"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 128,
+      "installRate": 0,
+      "entryUrl": "entries/com.clickhouse-clickhouse-mcp.json",
+      "guideUrl": "guides/com.clickhouse-clickhouse-mcp.md"
+    },
+    {
+      "id": "com.redis/redis-mcp",
+      "name": "Redis",
+      "shortDescription": "A natural-language interface over Redis strings, hashes, lists, sets, streams, JSON, and vector search - Redis’ official MCP.",
+      "iconUrl": "icons/com.redis-redis-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "database",
+        "data"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 129,
+      "installRate": 0,
+      "entryUrl": "entries/com.redis-redis-mcp.json",
+      "guideUrl": "guides/com.redis-redis-mcp.md"
+    },
+    {
+      "id": "io.pinecone/pinecone-mcp",
+      "name": "Pinecone",
+      "shortDescription": "Manage indexes, upsert records, run cascading vector search, and rerank - Pinecone’s official MCP.",
+      "iconUrl": "icons/io.pinecone-pinecone-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "ml",
+        "database"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 131,
+      "installRate": 0,
+      "entryUrl": "entries/io.pinecone-pinecone-mcp.json",
+      "guideUrl": "guides/io.pinecone-pinecone-mcp.md"
+    },
+    {
+      "id": "tech.qdrant/qdrant-mcp",
+      "name": "Qdrant",
+      "shortDescription": "A semantic-memory layer over Qdrant - store and find by meaning - Qdrant’s official MCP.",
+      "iconUrl": "icons/tech.qdrant-qdrant-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "ml",
+        "database"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 132,
+      "installRate": 0,
+      "entryUrl": "entries/tech.qdrant-qdrant-mcp.json",
+      "guideUrl": "guides/tech.qdrant-qdrant-mcp.md"
+    },
+    {
+      "id": "ai.trychroma/chroma-mcp",
+      "name": "Chroma",
+      "shortDescription": "Collection management plus vector and full-text search over Chroma - the official chroma-mcp server.",
+      "iconUrl": "icons/ai.trychroma-chroma-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "ml",
+        "database"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 133,
+      "installRate": 0,
+      "entryUrl": "entries/ai.trychroma-chroma-mcp.json",
+      "guideUrl": "guides/ai.trychroma-chroma-mcp.md"
+    },
+    {
+      "id": "com.browserbase/browserbase-mcp",
+      "name": "Browserbase",
+      "shortDescription": "Drive a cloud headless browser - navigate, act, observe, and extract - via Stagehand. Browserbase’s official hosted MCP.",
+      "iconUrl": "icons/com.browserbase-browserbase-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "automation",
+        "browser"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 134,
+      "installRate": 0,
+      "entryUrl": "entries/com.browserbase-browserbase-mcp.json",
+      "guideUrl": "guides/com.browserbase-browserbase-mcp.md"
+    },
+    {
+      "id": "com.circleci/circleci-mcp",
+      "name": "CircleCI",
+      "shortDescription": "Analyze build failures, run pipelines, and detect flaky tests - CircleCI’s official MCP.",
+      "iconUrl": "icons/com.circleci-circleci-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "devops",
+        "developer"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 136,
+      "installRate": 0,
+      "entryUrl": "entries/com.circleci-circleci-mcp.json",
+      "guideUrl": "guides/com.circleci-circleci-mcp.md"
+    },
+    {
+      "id": "com.buildkite/buildkite-mcp",
+      "name": "Buildkite",
+      "shortDescription": "Inspect pipelines, builds, jobs, and test runs - Buildkite’s official hosted MCP.",
+      "iconUrl": "icons/com.buildkite-buildkite-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "devops",
+        "developer"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 137,
+      "installRate": 0,
+      "entryUrl": "entries/com.buildkite-buildkite-mcp.json",
+      "guideUrl": "guides/com.buildkite-buildkite-mcp.md"
+    },
+    {
+      "id": "co.axiom/axiom-mcp",
+      "name": "Axiom",
+      "shortDescription": "Query and analyze logs and events with APL - Axiom’s official hosted MCP.",
+      "iconUrl": "icons/co.axiom-axiom-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "observability",
+        "data"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 138,
+      "installRate": 0,
+      "entryUrl": "entries/co.axiom-axiom-mcp.json",
+      "guideUrl": "guides/co.axiom-axiom-mcp.md"
+    },
+    {
+      "id": "dev.jam/jam-mcp",
+      "name": "Jam.dev",
+      "shortDescription": "Pull bug-recording context - console logs, network requests, errors, and video - into your AI tools. Jam’s official hosted MCP.",
+      "iconUrl": "icons/dev.jam-jam-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "developer",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 140,
+      "installRate": 0,
+      "entryUrl": "entries/dev.jam-jam-mcp.json",
+      "guideUrl": "guides/dev.jam-jam-mcp.md"
+    },
+    {
+      "id": "com.paypal/paypal-mcp",
+      "name": "PayPal",
+      "shortDescription": "Create and manage invoices, transactions, subscriptions, disputes, and orders - PayPal’s official hosted MCP.",
+      "iconUrl": "icons/com.paypal-paypal-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "payments",
+        "sales"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 141,
+      "installRate": 0,
+      "entryUrl": "entries/com.paypal-paypal-mcp.json",
+      "guideUrl": "guides/com.paypal-paypal-mcp.md"
+    },
+    {
+      "id": "com.squareup/square-mcp",
+      "name": "Square",
+      "shortDescription": "Payments, customers, inventory, bookings, and catalog across the full Square API - Square’s official hosted MCP.",
+      "iconUrl": "icons/com.squareup-square-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "payments",
+        "sales"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 142,
+      "installRate": 0,
+      "entryUrl": "entries/com.squareup-square-mcp.json",
+      "guideUrl": "guides/com.squareup-square-mcp.md"
+    },
+    {
+      "id": "com.canva/canva-mcp",
+      "name": "Canva",
+      "shortDescription": "Create and edit designs with Canva AI, autofill brand templates, manage assets, and export to PDF, image, or video - Canva’s official hosted MCP.",
+      "iconUrl": "icons/com.canva-canva-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "design",
+        "media"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 143,
+      "installRate": 0,
+      "entryUrl": "entries/com.canva-canva-mcp.json",
+      "guideUrl": "guides/com.canva-canva-mcp.md"
+    },
+    {
+      "id": "com.plaid/plaid-mcp",
+      "name": "Plaid",
+      "shortDescription": "Debug Items, inspect Item health and Link conversion, and read usage analytics - Plaid’s official Dashboard MCP.",
+      "iconUrl": "icons/com.plaid-plaid-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "payments",
+        "data"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 144,
+      "installRate": 0,
+      "entryUrl": "entries/com.plaid-plaid-mcp.json",
+      "guideUrl": "guides/com.plaid-plaid-mcp.md"
+    },
+    {
+      "id": "com.webflow/webflow-mcp",
+      "name": "Webflow",
+      "shortDescription": "Read and write site data, CMS collections and schemas, and generate code - Webflow’s official hosted MCP.",
+      "iconUrl": "icons/com.webflow-webflow-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "design",
+        "productivity"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 145,
+      "installRate": 0,
+      "entryUrl": "entries/com.webflow-webflow-mcp.json",
+      "guideUrl": "guides/com.webflow-webflow-mcp.md"
+    },
+    {
+      "id": "com.resend/resend-mcp",
+      "name": "Resend",
+      "shortDescription": "Send emails and manage contacts, broadcasts, domains, and webhooks - Resend’s official MCP.",
+      "iconUrl": "icons/com.resend-resend-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "communication",
+        "productivity"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 146,
+      "installRate": 0,
+      "entryUrl": "entries/com.resend-resend-mcp.json",
+      "guideUrl": "guides/com.resend-resend-mcp.md"
+    },
+    {
+      "id": "com.customerio/customerio-mcp",
+      "name": "Customer.io",
+      "shortDescription": "Build segments from real customer data, inspect profiles and journeys, and search campaigns - Customer.io’s official hosted MCP.",
+      "iconUrl": "icons/com.customerio-customerio-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "communication",
+        "sales"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 147,
+      "installRate": 0,
+      "entryUrl": "entries/com.customerio-customerio-mcp.json",
+      "guideUrl": "guides/com.customerio-customerio-mcp.md"
+    },
+    {
+      "id": "com.dropbox/dropbox-mcp",
+      "name": "Dropbox",
+      "shortDescription": "Browse, search, and read your Dropbox files and folders - Dropbox’s official hosted MCP (beta).",
+      "iconUrl": "icons/com.dropbox-dropbox-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "files-and-docs",
+        "productivity"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 149,
+      "installRate": 0,
+      "entryUrl": "entries/com.dropbox-dropbox-mcp.json",
+      "guideUrl": "guides/com.dropbox-dropbox-mcp.md"
+    },
+    {
+      "id": "com.typeform/typeform-mcp",
+      "name": "Typeform",
+      "shortDescription": "Read your forms and read or write contacts - Typeform’s official hosted MCP (beta).",
+      "iconUrl": "icons/com.typeform-typeform-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "productivity",
+        "sales"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 150,
+      "installRate": 0,
+      "entryUrl": "entries/com.typeform-typeform-mcp.json",
+      "guideUrl": "guides/com.typeform-typeform-mcp.md"
+    },
+    {
+      "id": "io.coda/coda-mcp",
+      "name": "Coda",
+      "shortDescription": "Read and write Coda docs, tables, rows, and formulas in natural language - Coda’s official hosted MCP (beta).",
+      "iconUrl": "icons/io.coda-coda-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "productivity",
+        "knowledge"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 151,
+      "installRate": 0,
+      "entryUrl": "entries/io.coda-coda-mcp.json",
+      "guideUrl": "guides/io.coda-coda-mcp.md"
+    },
+    {
+      "id": "com.digitalocean/digitalocean-mcp",
+      "name": "DigitalOcean",
+      "shortDescription": "Manage App Platform, droplets, managed databases, Kubernetes, and the container registry - DigitalOcean's official MCP.",
+      "iconUrl": "icons/com.digitalocean-digitalocean-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "infrastructure",
+        "devops"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 200,
+      "installRate": 0,
+      "entryUrl": "entries/com.digitalocean-digitalocean-mcp.json",
+      "guideUrl": "guides/com.digitalocean-digitalocean-mcp.md"
+    },
+    {
+      "id": "com.upstash/upstash-mcp",
+      "name": "Upstash",
+      "shortDescription": "Manage Upstash Redis, QStash, and Workflow resources in natural language - Upstash's official MCP.",
+      "iconUrl": "icons/com.upstash-upstash-mcp.svg",
+      "tier": "builder",
+      "categories": [
+        "database",
+        "infrastructure"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 201,
+      "installRate": 0,
+      "entryUrl": "entries/com.upstash-upstash-mcp.json",
+      "guideUrl": "guides/com.upstash-upstash-mcp.md"
+    },
+    {
+      "id": "com.twilio/twilio-mcp",
+      "name": "Twilio",
+      "shortDescription": "Send SMS, place calls, and reach the full Twilio API surface - Twilio Alpha's official MCP.",
+      "iconUrl": "icons/com.twilio-twilio-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "communication"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 202,
+      "installRate": 0,
+      "entryUrl": "entries/com.twilio-twilio-mcp.json",
+      "guideUrl": "guides/com.twilio-twilio-mcp.md"
+    },
+    {
+      "id": "com.xero/xero-mcp",
+      "name": "Xero",
+      "shortDescription": "Accounting in natural language - invoices, contacts, P&L and balance-sheet reports, bank transactions - Xero's official MCP.",
+      "iconUrl": "icons/com.xero-xero-mcp.svg",
+      "tier": "worker",
+      "categories": [
+        "payments",
+        "productivity"
+      ],
+      "maintainerType": "official",
+      "verifiedByWayland": "2026-06-13",
+      "popularityRank": 203,
+      "installRate": 0,
+      "entryUrl": "entries/com.xero-xero-mcp.json",
+      "guideUrl": "guides/com.xero-xero-mcp.md"
     }
   ]
 }

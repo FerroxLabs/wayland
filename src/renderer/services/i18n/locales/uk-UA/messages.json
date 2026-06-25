@@ -3,6 +3,7 @@
   "fileChanges": "Зміни у файлах",
   "fileChangesCount": "Зміни у файлах: {{count}}",
   "conversationInProgress": "Наразі триває діалог...",
+  "working": "Working...",
   "confirm": "Підтвердити",
   "canceledExecution": "Виконання скасовано",
   "openLinkFailed": "Не вдалося відкрити посилання",
@@ -69,5 +70,12 @@
   },
   "copyLastOutput": {
     "empty": "Ще немає відповіді для копіювання"
+  },
+  "slash.customBadge": "Custom",
+  "runaway": {
+    "title": "Stopped a runaway loop",
+    "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
+    "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
+    "dismiss": "Got it"
   }
 }

@@ -108,7 +108,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
   // Whether skills section should be visible
   const showSkills =
     isCreating ||
-    (activeAssistantId !== null && hasBuiltinSkills(activeAssistantId)) ||
+    (activeAssistantId !== null && hasBuiltinSkills(activeAssistantId, activeAssistant)) ||
     (activeAssistant !== null && !activeAssistant.isBuiltin);
 
   const agentOptions = availableBackends;

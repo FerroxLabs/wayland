@@ -21,7 +21,7 @@ export const PROVIDER_ENDPOINTS: Partial<Record<ProviderId, string>> = {
   xai: 'https://api.x.ai/v1/models',
   mistral: 'https://api.mistral.ai/v1/models',
   cohere: 'https://api.cohere.com/v1/models',
-  perplexity: 'https://api.perplexity.ai/models',
+  perplexity: 'https://api.perplexity.ai/v1/models',
   together: 'https://api.together.xyz/v1/models',
   fireworks: 'https://api.fireworks.ai/inference/v1/models',
   cerebras: 'https://api.cerebras.ai/v1/models',
@@ -35,6 +35,8 @@ export const PROVIDER_ENDPOINTS: Partial<Record<ProviderId, string>> = {
   // probing `.io` matches the global audience (mirrors the Moonshot `.cn`/`.ai`
   // split above). Inference already uses the `.io` host via models.dev.
   minimax: 'https://api.minimax.io/v1/models',
+  // Sakana AI (Japan) - OpenAI-compatible; keys are prefixed `fish_`.
+  sakana: 'https://api.sakana.ai/v1/models',
   deepgram: 'https://api.deepgram.com/v1/models',
   assemblyai: 'https://api.assemblyai.com/v1/models',
   elevenlabs: 'https://api.elevenlabs.io/v1/models',

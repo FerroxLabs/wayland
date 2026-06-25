@@ -14,8 +14,9 @@
  * those roots (including symlink-escape attempts).
  *
  * Allowed roots match the producer sites of `toAssetUrl(...)`:
- *   - User / appdata / env-configured extension directories
- *     (see `getExtensionScanSources`).
+ *   - Every extension scan source (env / user / appData / bundled-in-asar),
+ *     iterated from `getExtensionScanSources` so this list can never drift
+ *     from where extensions are actually loaded.
  *   - The bundled hub resources directory (`<resources>/hub`).
  */
 
@@ -23,10 +24,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {
   EXTENSION_MANIFEST_FILE,
-  getAppDataExtensionsDir,
-  getEnvExtensionsDirs,
+  getExtensionScanSources,
   getHubResourcesDir,
-  getUserExtensionsDir,
   getVoiceModelsDir,
 } from '../constants';
 import { isPathWithinDirectory } from '../sandbox/pathSafety';
@@ -51,9 +50,11 @@ export function buildAssetAllowlist(): string[] {
     roots.push(resolved);
   };
 
-  for (const envDir of getEnvExtensionsDirs()) push(envDir);
-  push(getUserExtensionsDir());
-  push(getAppDataExtensionsDir());
+  // Iterate the same scan sources ExtensionLoader uses (env / user / appData /
+  // bundled-in-asar) so the serving allowlist can never drift from where
+  // extensions are actually loaded from. `push` resolves + dedupes; the
+  // bundled source dir may be '' (no app path), which `push` skips.
+  for (const { dir } of getExtensionScanSources()) push(dir);
   push(getHubResourcesDir());
   // Bundled voice STT model - the renderer's transformers.js worker fetches
   // the Whisper-tiny ONNX files through wayland-asset://.

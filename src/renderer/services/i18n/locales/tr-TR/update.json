@@ -19,6 +19,14 @@
   "readyToInstallDesc": "Güncelleme indirildi. Yeniden başlatmak ve güncellemeyi yüklemek için aşağıdaki düğmeye tıklayın.",
   "installNow": "Şimdi yükle ve yeniden başlat",
   "autoUpdateMode": "Otomatik güncelleme modu",
+  "ijfw": {
+    "availableTitle": "IJFW güncellemesi mevcut",
+    "pathIssueTitle": "IJFW komut yolu ilgilenilmeyi gerektiriyor",
+    "pathIssueBody": "IJFW yüklü, ancak ijfw komutu PATH üzerinde değil. Wayland yine de yerel kurulumu kullanabilir.",
+    "updateButton": "IJFW'yi güncelle",
+    "updateStarted": "IJFW güncellemesi başlatıldı. Yeni sürümü hazırladıktan sonra Wayland'ı yeniden başlatın.",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "Klasörde göster",
   "openFile": "Dosyayı aç",
   "errorTitle": "Güncelleme başarısız",
@@ -27,5 +35,11 @@
     "metadataMissing": "Bu sürüm için imzalı güncelleme meta verisi (latest.yml) bulunamadı. Doğrulanmamış bir yükleyici açılmayacak.",
     "assetNotInMetadata": "İndirilen \"{{name}}\" dosyası imzalı güncelleme meta verisinde listelenmiyor. Doğrulanmamış bir yükleyici açılmayacak.",
     "checksumMismatch": "İndirilen güncelleme bütünlük doğrulamasından (sağlama toplamı uyuşmazlığı) geçemedi ve silindi. Çalıştırmayın. Lütfen yeniden deneyin veya Releases sayfasından indirin."
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

@@ -18,6 +18,7 @@ import DroidLogo from '@/renderer/assets/logos/brand/droid.svg';
 import GeminiLogo from '@/renderer/assets/logos/ai-major/gemini.svg';
 import GitHubLogo from '@/renderer/assets/logos/tools/github.svg';
 import GooseLogo from '@/renderer/assets/logos/tools/goose.svg';
+import GrokLogo from '@/renderer/assets/logos/ai-major/xai.svg';
 import HermesLogo from '@/renderer/assets/logos/brand/hermes.svg';
 import SnowLogo from '@/renderer/assets/logos/tools/coding/snow.png';
 import KimiLogo from '@/renderer/assets/logos/ai-china/kimi.svg';
@@ -40,6 +41,7 @@ const AGENT_LOGO_MAP = {
   gemini: GeminiLogo,
   qwen: QwenLogo,
   codex: CodexLogo,
+  grok: GrokLogo,
   codebuddy: CodeBuddyLogo,
   droid: DroidLogo,
   goose: GooseLogo,
@@ -92,7 +94,7 @@ export function getAgentLogo(agent: string | undefined | null): string | null {
  * codebuddy, hermes, nanobot, openclaw, vibe) are deliberately excluded so their
  * brand colour is never flattened.
  */
-const MONOCHROME_DARK_AGENT_LOGOS = new Set(['codex', 'copilot', 'goose', 'auggie', 'kimi']);
+const MONOCHROME_DARK_AGENT_LOGOS = new Set(['codex', 'copilot', 'goose', 'auggie', 'kimi', 'grok']);
 
 /**
  * On the dark theme, whether this agent's logo needs forcing to a white

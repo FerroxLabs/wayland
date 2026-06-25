@@ -131,8 +131,11 @@ export class ModelRefreshScheduler {
     this.lastRefreshedAt = await this.deps.getLastRefreshedAt();
 
     if (!this.hooksBound) {
-      app.on('before-quit', () => this.stop());
-      powerMonitor.on('resume', () => void this.maybeRefresh('resume'));
+      // Electron's `app` / `powerMonitor` are undefined in the headless server
+      // (bun, no Electron). Bind the lifecycle hooks only when present; the
+      // interval poll below still drives auto-refresh in headless mode.
+      if (typeof app?.on === 'function') app.on('before-quit', () => this.stop());
+      if (typeof powerMonitor?.on === 'function') powerMonitor.on('resume', () => void this.maybeRefresh('resume'));
       this.hooksBound = true;
     }
 

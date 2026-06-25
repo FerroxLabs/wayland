@@ -78,6 +78,20 @@ export const ANTHROPIC_FLUX_BACKENDS = ['claude'] as const;
 export const RESPONSES_FLUX_BACKENDS = ['codex'] as const;
 
 /**
+ * Backends that route through Flux via a Wayland-scoped config HOME (R13-safe)
+ * rather than env alone. hermes speaks the OpenAI chat_completions surface but
+ * cannot be pointed at Flux by env: it selects its provider from
+ * `<HERMES_HOME>/config.yaml` (`model.provider = "custom"`, `base_url` = the
+ * Flux openai surface, `api_mode = "chat_completions"`, `key_env =
+ * FLUX_API_KEY`). The scoped HERMES_HOME is materialized + injected per-spawn by
+ * AcpAgentManager (mirroring codex's CODEX_HOME), so the user's real ~/.hermes
+ * config is never pinned to flux. The routing decision here only emits the
+ * `FLUX_API_KEY` hermes reads at request time and strips native provider keys
+ * for mutual exclusivity. Proven end-to-end against hermes v0.14.0 (2026-06-12).
+ */
+export const SCOPED_HOME_FLUX_BACKENDS = ['hermes'] as const;
+
+/**
  * Native codex/OpenAI key vars stripped before a flux-routed codex spawn, so it
  * never also carries the user's native credentials (mutual exclusivity).
  * FLUX_API_KEY is deliberately NOT here.
@@ -121,7 +135,8 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
   const isOpenAi = (GENERIC_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
   const isAnthropic = (ANTHROPIC_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
   const isResponses = (RESPONSES_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
-  if (!isOpenAi && !isAnthropic && !isResponses) return UNKNOWN();
+  const isScopedHome = (SCOPED_HOME_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
+  if (!isOpenAi && !isAnthropic && !isResponses && !isScopedHome) return UNKNOWN();
   if (!ctx.fluxConnected || !ctx.fluxKey) return NATIVE();
 
   // L3 (R5 rule 1: an explicit per-chat pick wins). The picker now feeds explicit
@@ -134,6 +149,19 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
   //    only routes chats that have no explicit per-chat model).
   const wantsFlux = isFluxModelId(ctx.selectedModelId) || (ctx.routeThroughFlux && !ctx.selectedModelId);
   if (!wantsFlux) return NATIVE();
+
+  if (isScopedHome) {
+    // Scoped-HOME backends (hermes): the Flux base_url + provider selection live
+    // in a Wayland-scoped config HOME (materialized + injected as HERMES_HOME by
+    // AcpAgentManager). Here we only emit the FLUX_API_KEY hermes reads at
+    // request time (its config.yaml `key_env: FLUX_API_KEY`) and strip native
+    // provider keys so a flux spawn never also carries native credentials.
+    return {
+      routing: 'flux',
+      env: { FLUX_API_KEY: ctx.fluxKey },
+      stripKeys: [...NATIVE_PROVIDER_KEY_VARS],
+    };
+  }
 
   if (isResponses) {
     // Responses surface (R1): codex reads FLUX_API_KEY for its bearer at request

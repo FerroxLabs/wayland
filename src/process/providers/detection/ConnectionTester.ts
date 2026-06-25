@@ -32,6 +32,7 @@
  * `{ ok: false, error }`.
  */
 
+import { fetchWithRetry } from '../../utils/fetchWithRetry';
 import type { ConnectError, ProviderId } from '../types';
 import { PROVIDER_ENDPOINTS } from './providerEndpoints';
 import type { AuthStrategy } from './providerAuth';
@@ -67,12 +68,18 @@ const TEST_MODEL: Partial<Record<ProviderId, string>> = {
   openrouter: 'openai/gpt-4o-mini',
   mistral: 'mistral-small-latest',
   deepseek: 'deepseek-chat',
-  xai: 'grok-2',
+  xai: 'grok-3-mini',
   together: 'meta-llama/Llama-3.2-3B-Instruct-Turbo',
   fireworks: 'accounts/fireworks/models/llama-v3p1-8b-instruct',
   cerebras: 'llama3.1-8b',
   perplexity: 'sonar',
   moonshot: 'moonshot-v1-8k',
+  // NVIDIA NIM is OpenAI-compatible (bearer auth, /v1/chat/completions). Without
+  // a test model, connect falls through to the /v1/models auth check, which
+  // NVIDIA answers 200 even for an invalid token - a false-positive connect
+  // (issue #45). `meta/llama-3.1-8b-instruct` is a small, long-standing NIM chat
+  // model, so a real one-token probe distinguishes a good key from a bad one.
+  nvidia: 'meta/llama-3.1-8b-instruct',
   'flux-router': 'flux-fast',
 };
 
@@ -86,6 +93,21 @@ export class ConnectionTester {
    */
   async test(providerId: ProviderId, creds: TestCreds, customBaseUrl?: string): Promise<TestResult> {
     const apiKey = extractKey(creds);
+
+    // A user-supplied custom base URL means the request must reach THAT host, not
+    // the provider's canonical one. This is the Flux-via-`openai` path
+    // (`OPENAI_BASE_URL=https://api.fluxrouter.ai/v1`): the key is scoped to the
+    // gateway's own models, so the canonical `openai` test model (`gpt-4o-mini`)
+    // is rejected with a 401 and the probe would wrongly report `unauthorized`.
+    // Probe the custom base's `/models` endpoint for an auth-only check instead -
+    // a 200 there proves the key authenticates against the host it will actually
+    // use, and `ApiProviderSource` already builds the catalog from the same base.
+    if (apiKey) {
+      const customModelsEndpoint = deriveModelsEndpoint(customBaseUrl);
+      if (customModelsEndpoint) {
+        return this.probeModelsEndpoint(providerId, apiKey, customModelsEndpoint);
+      }
+    }
 
     const testModel = TEST_MODEL[providerId];
     if (testModel && apiKey) {
@@ -180,7 +202,7 @@ export class ConnectionTester {
 
     let res: Response;
     try {
-      res = await this.fetchWithTimeout(url, { method: 'GET', headers: authHeaders(auth, apiKey) });
+      res = await this.fetchWithTimeout(url, { method: 'GET', headers: authHeaders(auth, apiKey) }, providerId);
     } catch {
       return { ok: false, error: 'offline' };
     }
@@ -197,15 +219,14 @@ export class ConnectionTester {
 
   // ─── fetch with timeout ─────────────────────────────────────────────────────
 
-  /** `fetch` bounded by `FETCH_TIMEOUT_MS`; a timeout aborts and rejects. */
-  private async fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-    try {
-      return await fetch(url, { ...init, signal: controller.signal });
-    } finally {
-      clearTimeout(timer);
-    }
+  /**
+   * `fetch` bounded by `FETCH_TIMEOUT_MS` with a bounded retry on transient
+   * faults (dropped sockets, timeouts, 429/5xx). `providerId` is passed only on
+   * model-list GETs (`probeModelsEndpoint`) so the OpenAI-family false-404 retry
+   * never delays the stale-model fallback in `probeInference`.
+   */
+  private async fetchWithTimeout(url: string, init: RequestInit, providerId?: ProviderId): Promise<Response> {
+    return fetchWithRetry(url, init, { timeoutMs: FETCH_TIMEOUT_MS, providerId });
   }
 }
 

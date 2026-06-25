@@ -30,6 +30,16 @@ vi.mock('@/common/utils', () => ({
   uuid: vi.fn(() => 'mocked-uuid'),
 }));
 
+const mockGetProject = vi.hoisted(() => vi.fn(async (_id: string) => null as { workspace?: string } | null));
+vi.mock('../../src/process/services/database/SqliteProjectRepository', () => ({
+  SqliteProjectRepository: class {
+    getProject = mockGetProject;
+  },
+}));
+vi.mock('../../src/process/services/projectKnowledge/knowledge', () => ({
+  loadProjectKnowledgeBlock: vi.fn(async () => null),
+}));
+
 function makeRepo(overrides: Partial<IConversationRepository> = {}): IConversationRepository {
   return {
     getConversation: vi.fn(),
@@ -433,6 +443,54 @@ describe('ConversationServiceImpl.createConversation', () => {
     expect(result.extra).toMatchObject({
       cronJobId: 'job-123',
     });
+  });
+
+  it('fills an empty workspace from the project for a project chat (#30)', async () => {
+    const { createGeminiAgent } = await import('../../src/process/utils/initAgent');
+    mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
+    const repo = makeRepo();
+    const svc = new ConversationServiceImpl(repo);
+
+    await svc.createConversation({
+      type: 'gemini',
+      model: { provider: 'gemini', model: 'gemini-2.0-flash' } as any,
+      extra: { projectId: 'p1', workspace: '' },
+    });
+
+    // The factory must receive the project workspace, not an empty value that
+    // would drift to a wcore-temp-* directory.
+    expect(vi.mocked(createGeminiAgent).mock.calls[0][1]).toBe('/projects/alpha');
+  });
+
+  it('never overwrites a user-chosen custom workspace for a project chat (#30)', async () => {
+    const { createGeminiAgent } = await import('../../src/process/utils/initAgent');
+    mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
+    const repo = makeRepo();
+    const svc = new ConversationServiceImpl(repo);
+
+    await svc.createConversation({
+      type: 'gemini',
+      model: { provider: 'gemini', model: 'gemini-2.0-flash' } as any,
+      extra: { projectId: 'p1', workspace: '/my/custom/ws', customWorkspace: true },
+    });
+
+    expect(vi.mocked(createGeminiAgent).mock.calls[0][1]).toBe('/my/custom/ws');
+  });
+
+  it('corrects a project chat that arrives pointed at a non-project workspace (#30)', async () => {
+    const { createGeminiAgent } = await import('../../src/process/utils/initAgent');
+    mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
+    const repo = makeRepo();
+    const svc = new ConversationServiceImpl(repo);
+
+    await svc.createConversation({
+      type: 'gemini',
+      model: { provider: 'gemini', model: 'gemini-2.0-flash' } as any,
+      // Non-empty, non-custom: a drifted workspace must still be pinned to the project.
+      extra: { projectId: 'p1', workspace: '/tmp/wcore-temp-123' },
+    });
+
+    expect(vi.mocked(createGeminiAgent).mock.calls[0][1]).toBe('/projects/alpha');
   });
 
   it('does not overwrite factory-produced extra fields with params extra', async () => {

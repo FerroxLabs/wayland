@@ -1,0 +1,266 @@
+/* Composer "+" two-pane menu (Upload / Skills / Connectors).
+   Matches the locked mockup app/.planning/skills-ui/composer-mockup.html using
+   Wayland's theme-aware semantic tokens (no hardcoded hex). */
+
+.menuWrap {
+  display: flex;
+  /* align-items is set inline by the panel based on the resolved open direction
+     (Arco's position class is unreliable - it stays "tl" even when flipped
+     downward), so the short left pane always anchors to the "+". */
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* Our panel brings its own surfaces; strip the Arco dropdown popup chrome. */
+:global(.composer-add-popup),
+:global(.composer-add-popup.arco-dropdown),
+:global(.composer-add-popup .arco-dropdown) {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* "+" trigger button rotation when the menu is open */
+.plusOpen :global(.arco-btn) {
+  transform: rotate(45deg);
+  transition: transform 0.16s ease;
+}
+.plusBtn :global(.arco-btn) {
+  transition: transform 0.16s ease;
+}
+
+/* Left list pane */
+.menu {
+  background: var(--color-bg-4);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 6px;
+  width: 228px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--color-text-1);
+  font-size: 14px;
+  transition: background 0.12s;
+}
+.menuItem:hover,
+.menuItemActive {
+  background: var(--color-fill-3);
+}
+.menuLead {
+  color: var(--color-text-2);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  flex-shrink: 0;
+}
+.menuLabel {
+  flex: 1;
+  min-width: 0;
+}
+.countPill {
+  font-family: var(--mono, ui-monospace, Menlo, monospace);
+  font-size: 11px;
+  color: var(--color-text-2);
+  background: var(--color-fill-2);
+  border-radius: 100px;
+  padding: 1px 8px;
+}
+.menuSep {
+  height: 1px;
+  background: var(--color-border-2);
+  margin: 5px 8px;
+}
+
+/* Right flyout pane */
+.flyout {
+  background: var(--color-bg-4);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  width: 340px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* FIXED height (not max-height): the Skills and Connectors flyouts must be the
+     same size so switching panes never resizes the popup - a resize makes Arco
+     re-evaluate placement and flip the whole menu up/down (the "jumps down the
+     page" bug). Inner sections scroll within this. */
+  height: 400px;
+  flex-shrink: 0;
+}
+.flyoutHead {
+  padding: 13px 14px 10px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+.flyoutTitle {
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-1);
+}
+.flyoutSub {
+  color: var(--color-text-3);
+  font-size: 11.5px;
+  margin-top: 3px;
+  line-height: 1.45;
+}
+.sectionLabel {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+  padding: 12px 14px 6px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.hintDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--primary-6));
+  flex-shrink: 0;
+}
+.flyoutScroll {
+  overflow-y: auto;
+  padding-bottom: 4px;
+}
+.flyoutScroll::-webkit-scrollbar {
+  width: 8px;
+}
+.flyoutScroll::-webkit-scrollbar-thumb {
+  background: var(--color-fill-3);
+  border-radius: 8px;
+}
+
+/* Rows */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 14px;
+  transition: background 0.12s;
+}
+.row:hover {
+  background: var(--color-fill-2);
+}
+.tile {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--color-fill-3);
+  color: var(--color-text-2);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.meta {
+  min-width: 0;
+  flex: 1;
+}
+.name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-text-1);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.srcTag {
+  font-family: var(--mono, ui-monospace, Menlo, monospace);
+  font-size: 9.5px;
+  color: var(--color-text-3);
+  background: var(--color-border-2);
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+.desc {
+  font-size: 11.5px;
+  color: var(--color-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
+}
+
+/* Search field */
+.searchBox {
+  padding: 10px 12px 6px;
+}
+
+/* Add pill */
+.addBtn {
+  flex-shrink: 0;
+}
+.addedTag {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgb(var(--success-6, 0 180 42));
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Footer */
+.foot {
+  border-top: 1px solid var(--color-border-2);
+  padding: 4px;
+}
+.footItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  color: var(--color-text-2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.footItem:hover {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+}
+.footChev {
+  margin-left: auto;
+  color: var(--color-text-3);
+  display: inline-flex;
+}
+.empty {
+  color: var(--color-text-3);
+  font-size: 12.5px;
+  text-align: center;
+  padding: 20px 14px;
+}
+
+/* Arco overrides scoped to this menu */
+.menuWrap :global(.arco-switch-checked) {
+  background-color: rgb(var(--primary-6));
+}
+.menuWrap :global(.arco-input-inner-wrapper),
+.menuWrap :global(.arco-input-group-wrapper) {
+  background: var(--color-bg-2);
+}

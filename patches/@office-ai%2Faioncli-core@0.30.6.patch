@@ -1,9 +1,3 @@
-diff --git a/node_modules/@office-ai/aioncli-core/.bun-tag-a322f8e24a95bb08 b/.bun-tag-a322f8e24a95bb08
-new file mode 100644
-index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
-diff --git a/node_modules/@office-ai/aioncli-core/.bun-tag-e430e8d9d3acdb6c b/.bun-tag-e430e8d9d3acdb6c
-new file mode 100644
-index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/dist/src/core/openaiContentGenerator.js b/dist/src/core/openaiContentGenerator.js
 index 2bdb1c5b9306902dabe47a5aedcf0e49bb954db6..80918bee2859cf26fc1b89e64794396b6e8a0d4d 100644
 --- a/dist/src/core/openaiContentGenerator.js
@@ -69,6 +63,184 @@ index 2bdb1c5b9306902dabe47a5aedcf0e49bb954db6..80918bee2859cf26fc1b89e64794396b
          }
          return params;
      }
+diff --git a/dist/src/mcp/oauth-provider.js b/dist/src/mcp/oauth-provider.js
+index 51ed8492791864445208fef3d0a38801ba0978bd..ee53d4244ce04e64950884b239ddf387c01b062a 100644
+--- a/dist/src/mcp/oauth-provider.js
++++ b/dist/src/mcp/oauth-provider.js
+@@ -147,6 +147,18 @@ export class MCPOAuthProvider {
+      * @returns Object containing the port (available immediately) and a promise for the auth response
+      */
+     startCallbackServer(expectedState, port) {
++        // Wayland: the callback server is pinned to a single port (57000), so a
++        // retried or concurrent OAuth login would collide with EADDRINUSE and
++        // wedge the port for 5 minutes ("Authorization failed: address already
++        // in use"). Close any prior in-flight login's server before binding so a
++        // new attempt always supersedes a stale one.
++        if (this._activeCallbackServer) {
++            try {
++                this._activeCallbackServer.close();
++            }
++            catch (e) { /* already closed */ }
++            this._activeCallbackServer = null;
++        }
+         let portResolve;
+         let portReject;
+         const portPromise = new Promise((resolve, reject) => {
+@@ -168,16 +180,46 @@ export class MCPOAuthProvider {
+                     const error = url.searchParams.get('error');
+                     if (error) {
+                         res.writeHead(HTTP_OK, { 'Content-Type': 'text/html' });
+-                        res.end(`
+-              <html>
+-                <body>
+-                  <h1>Authentication Failed</h1>
+-                  <p>Error: ${error.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+-                  <p>${(url.searchParams.get('error_description') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+-                  <p>You can close this window.</p>
+-                </body>
+-              </html>
+-            `);
++                        res.end(`<!doctype html>
++<html lang="en">
++<head>
++<meta charset="utf-8" />
++<meta name="viewport" content="width=device-width, initial-scale=1" />
++<title>Connection didn't complete</title>
++<style>
++*{box-sizing:border-box}html,body{height:100%;margin:0}
++body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
++background:radial-gradient(900px 520px at 50% -4%,rgba(255,90,90,.10),transparent 60%),#0a0a0a;
++color:#f5f5f5;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
++.card{width:100%;max-width:460px;text-align:center;padding:48px 40px;border-radius:22px;
++background:rgba(255,255,255,.02);border:1px solid rgba(255,90,90,.20);
++box-shadow:0 30px 90px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.02) inset}
++.mark{width:78px;height:78px;margin:0 auto 26px;position:relative}
++.mark .ring{position:absolute;inset:0;border-radius:50%;
++background:radial-gradient(circle at 50% 42%,rgba(255,90,90,.26),rgba(255,90,90,.05) 70%);
++box-shadow:0 0 44px rgba(255,90,90,.30)}
++.mark svg{position:absolute;inset:0;margin:auto}
++.brand{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8a8a8a}
++.brand b{color:#fff;font-weight:700;letter-spacing:.02em;text-transform:none;font-size:15px}
++h1{font-size:22px;font-weight:700;margin:16px 0 0;color:#fff}
++p{margin:10px 0 0;font-size:14px;line-height:1.55;color:#9a9a9a;word-break:break-word}
++.detail{margin-top:14px;font-size:12.5px;color:#ff7b7b;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
++</style>
++</head>
++<body>
++<div class="card">
++<div class="mark"><div class="ring"></div>
++<svg width="78" height="78" viewBox="0 0 78 78" fill="none">
++<circle cx="39" cy="39" r="23" stroke="#ff5a5a" stroke-width="2.4" opacity=".9"/>
++<path d="M32 32l14 14M46 32l-14 14" stroke="#ff5a5a" stroke-width="3.2" stroke-linecap="round"/>
++</svg></div>
++<div class="brand">Connecting to <b>Wayland</b></div>
++<h1>Connection didn't complete</h1>
++<p>Head back to Wayland and try connecting again.</p>
++<div class="detail">${error.replace(/</g, '&lt;').replace(/>/g, '&gt;')}${(url.searchParams.get('error_description') ? ' &middot; ' + url.searchParams.get('error_description') : '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
++</div>
++</body>
++</html>`);
+                         server.close();
+                         reject(new Error(`OAuth error: ${error}`));
+                         return;
+@@ -196,15 +238,49 @@ export class MCPOAuthProvider {
+                     }
+                     // Send success response to browser
+                     res.writeHead(HTTP_OK, { 'Content-Type': 'text/html' });
+-                    res.end(`
+-            <html>
+-              <body>
+-                <h1>Authentication Successful!</h1>
+-                <p>You can close this window and return to Gemini CLI.</p>
+-                <script>window.close();</script>
+-              </body>
+-            </html>
+-          `);
++                    res.end(`<!doctype html>
++<html lang="en">
++<head>
++<meta charset="utf-8" />
++<meta name="viewport" content="width=device-width, initial-scale=1" />
++<title>Connected to Wayland</title>
++<style>
++*{box-sizing:border-box}html,body{height:100%;margin:0}
++body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
++background:radial-gradient(900px 520px at 50% -4%,rgba(255,107,53,.12),transparent 60%),#0a0a0a;
++color:#f5f5f5;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
++.card{width:100%;max-width:460px;text-align:center;padding:48px 40px;border-radius:22px;
++background:rgba(255,255,255,.02);border:1px solid rgba(255,107,53,.18);
++box-shadow:0 30px 90px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.02) inset}
++.mark{width:78px;height:78px;margin:0 auto 26px;position:relative}
++.mark .ring{position:absolute;inset:0;border-radius:50%;
++background:radial-gradient(circle at 50% 42%,rgba(255,107,53,.30),rgba(255,107,53,.05) 70%);
++box-shadow:0 0 44px rgba(255,107,53,.38)}
++.mark svg{position:absolute;inset:0;margin:auto}
++.brand{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8a8a8a}
++.brand b{color:#fff;font-weight:700;letter-spacing:.02em;text-transform:none;font-size:15px}
++h1{font-size:22px;font-weight:700;margin:16px 0 0;color:#fff}
++p{margin:10px 0 0;font-size:14.5px;line-height:1.55;color:#9a9a9a}
++.hint{margin-top:22px;font-size:12.5px;color:#5f5f5f}
++.tag{margin-top:28px;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#3f3f3f}
++</style>
++</head>
++<body>
++<div class="card">
++<div class="mark"><div class="ring"></div>
++<svg width="78" height="78" viewBox="0 0 78 78" fill="none">
++<circle cx="39" cy="39" r="23" stroke="#ff6b35" stroke-width="2.4" opacity=".9"/>
++<path d="M29.5 39.6l6.6 6.6L49 32.4" stroke="#ff6b35" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
++</svg></div>
++<div class="brand">Connected to <b>Wayland</b></div>
++<h1>Connection successful</h1>
++<p>This integration is now linked to Wayland.<br/>You can close this tab and head back to the app.</p>
++<div class="hint">This window will close automatically.</div>
++<div class="tag">Perceives &middot; Reasons &middot; Acts &middot; Evolves</div>
++</div>
++<script>setTimeout(function(){try{window.close()}catch(e){}},2200)</script>
++</body>
++</html>`);
+                     server.close();
+                     resolve({ code, state });
+                 }
+@@ -213,6 +289,7 @@ export class MCPOAuthProvider {
+                     reject(error);
+                 }
+             });
++            this._activeCallbackServer = server;
+             server.on('error', (error) => {
+                 portReject(error);
+                 reject(error);
+@@ -707,11 +784,18 @@ ${authUrl}
+             debugLogger.debug(`Returning valid token for server: ${serverName}`);
+             return token.accessToken;
+         }
+-        // Try to refresh if we have a refresh token
+-        if (token.refreshToken && config.clientId && credentials.tokenUrl) {
++        // Try to refresh if we have a refresh token. The clientId is required to
++        // call the token endpoint; prefer the caller-supplied one but fall back to
++        // the clientId persisted alongside the token. Wayland calls getValidToken
++        // with just { enabled: true }, so without this fallback an expired hosted
++        // token (Notion/Canva/...) is never refreshed and stays invalid forever,
++        // surfacing as "invalid_token" and an endless re-authorize loop.
++        const refreshClientId = config.clientId || credentials.clientId;
++        if (token.refreshToken && refreshClientId && credentials.tokenUrl) {
+             try {
++                const refreshConfig = { ...config, clientId: refreshClientId };
+                 debugLogger.log(`Refreshing expired token for MCP server: ${serverName}`);
+-                const newTokenResponse = await this.refreshAccessToken(config, token.refreshToken, credentials.tokenUrl, credentials.mcpServerUrl);
++                const newTokenResponse = await this.refreshAccessToken(refreshConfig, token.refreshToken, credentials.tokenUrl, credentials.mcpServerUrl);
+                 // Update stored token
+                 const newToken = {
+                     accessToken: newTokenResponse.access_token,
+@@ -722,7 +806,7 @@ ${authUrl}
+                 if (newTokenResponse.expires_in) {
+                     newToken.expiresAt = Date.now() + newTokenResponse.expires_in * 1000;
+                 }
+-                await this.tokenStorage.saveToken(serverName, newToken, config.clientId, credentials.tokenUrl, credentials.mcpServerUrl);
++                await this.tokenStorage.saveToken(serverName, newToken, refreshClientId, credentials.tokenUrl, credentials.mcpServerUrl);
+                 return newToken.accessToken;
+             }
+             catch (error) {
 diff --git a/package.json b/package.json
 index e9d3a992a9c3ffb35080509fbfff8224274e8d14..87b394208f6a9e1e73e855f6f1b85cc2b43e3e66 100644
 --- a/package.json

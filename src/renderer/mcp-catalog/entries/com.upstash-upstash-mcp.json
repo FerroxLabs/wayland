@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.upstash/upstash-mcp",
+  "title": "Upstash",
+  "description": "Manage Upstash Redis, QStash, and Workflow resources in natural language - Upstash's official MCP.",
+  "version": "0.2.3",
+  "websiteUrl": "https://github.com/upstash/mcp-server",
+  "repository": {
+    "url": "https://github.com/upstash/mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@upstash/mcp-server",
+      "version": "0.2.3",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeArguments": [
+        "--email",
+        "{{UPSTASH_EMAIL}}",
+        "--api-key",
+        "{{UPSTASH_API_KEY}}"
+      ],
+      "environmentVariables": [
+        {
+          "name": "UPSTASH_EMAIL",
+          "description": "Upstash account email.",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "UPSTASH_API_KEY",
+          "description": "Upstash management API key.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "database",
+      "infrastructure"
+    ],
+    "tags": [
+      "upstash",
+      "redis",
+      "qstash"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 201,
+    "installRate": 0,
+    "iconUrl": "icons/com.upstash-upstash-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#00E9A3"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Upstash",
+      "providerSignupUrl": "https://console.upstash.com/account/api"
+    },
+    "setupGuide": {
+      "path": "guides/com.upstash-upstash-mcp.md",
+      "estimatedMinutes": 4,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

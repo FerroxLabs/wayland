@@ -13,6 +13,9 @@ export const BUILTIN_IMAGE_GEN_LEGACY_NAMES = ['Wayland Image Generation', BUILT
 export const BUILTIN_SEARCH_SKILLS_ID = 'builtin-search-skills';
 export const BUILTIN_SEARCH_SKILLS_NAME = 'wayland-search-skills';
 export const BUILTIN_SEARCH_SKILLS_TOOL_NAME = 'wayland_search_skills';
+// Second tool on the same stdio server: paginated body reader, so search can
+// return lightweight metadata and bodies are fetched on demand (issue #199).
+export const BUILTIN_READ_SKILL_TOOL_NAME = 'wayland_read_skill';
 
 // Bundled @wayland MCP servers shipped with the installer (no npm publish).
 // Each catalog entry's transport stores the bare filename as args[0]; the

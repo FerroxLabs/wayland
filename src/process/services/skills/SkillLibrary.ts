@@ -28,89 +28,85 @@ import { SkillGuard } from './SkillGuard';
 const TAG = '[SkillLibrary]';
 
 /**
+ * Build the ordered list of candidate directories for a bundled resource dir
+ * (`skills-library` or `bundled-workflows`), given the bundle file's directory
+ * and the Electron `resourcesPath` (which is `undefined` outside the main
+ * process - notably in the spawned `wayland_search_skills` stdio subprocess).
+ *
+ * Pure and side-effect free so the candidate order is unit-testable without a
+ * packaged build. The first existing candidate wins; see the resolvers below.
+ *
+ * Packaging layout (extraResources, electron-builder.yml):
+ *   Contents/Resources/skills-library/index.json          ← the real location
+ *   Contents/Resources/app.asar.unpacked/out/main/<bundle> ← __dirname here
+ * so the resource dir is THREE levels above the bundle dir, beside
+ * `app.asar.unpacked`. The pre-fix candidate list only walked two levels up,
+ * which is why packaged skill search failed with ENOENT (issue #22).
+ *
+ * The `app.asar` → `app.asar.unpacked` rewrite is separator-bounded so it
+ * cannot match inside an already-unpacked path and double the suffix (the
+ * `app.asar.unpacked.unpacked` bug). Mirrors `resolveMcpScriptDir()`.
+ */
+export function buildResourceDirCandidates(
+  bundleDir: string,
+  resourcesPath: string | undefined,
+  resourceName: 'skills-library' | 'bundled-workflows'
+): string[] {
+  // `out/main/chunks/` when electron-vite code-splits → collapse to `out/main/`.
+  const baseDir = path.basename(bundleDir) === 'chunks' ? path.dirname(bundleDir) : bundleDir;
+  // Separator-bounded so it only fires when `app.asar` is a real path segment
+  // and never matches the `app.asar.unpacked` we are trying to produce.
+  const baseDirUnpacked = baseDir.replace(`${path.sep}app.asar${path.sep}`, `${path.sep}app.asar.unpacked${path.sep}`);
+
+  return [
+    // Main-process context: Electron resolves `resourcesPath` directly.
+    ...(resourcesPath ? [path.join(resourcesPath, resourceName)] : []),
+    // Packaged subprocess: extraResources sits beside `app.asar.unpacked`, three
+    // levels above out/main (app.asar.unpacked/out/main → Resources/<name>).
+    path.resolve(baseDirUnpacked, `../../../${resourceName}`),
+    // Dev build: out/main/ → repo root → src/process/resources/<name>.
+    path.resolve(baseDir, `../../src/process/resources/${resourceName}`),
+    // Headless getwayland payload: the bundle ships at payload/dist-server (one
+    // level deep, not two like dev's out/main), with the builtin resources at
+    // payload/src/process/resources/<name>. build-payload.mjs copies them there.
+    path.resolve(baseDir, `../src/process/resources/${resourceName}`),
+    // Legacy asarUnpack target (never populated; kept for back-compat).
+    path.resolve(baseDirUnpacked, `../../resources/${resourceName}`),
+    // Pre-fix legacy defaults - kept last so an existing prod layout still works.
+    path.resolve(baseDir, `../../resources/${resourceName}`),
+    path.resolve(baseDir, `../resources/${resourceName}`),
+  ];
+}
+
+/**
  * Resolve the on-disk directory that holds `index.json` + `bodies/`.
  *
- * The vendored library lives at `src/process/resources/skills-library/` in
- * the source tree. After packaging, `electron-builder.yml` asarUnpack's
- * `resources/skills-library/**\/*` so it ends up at
- * `app.asar.unpacked/resources/skills-library/`. The main process bundle
- * itself lives in `out/main/` (or `out/main/chunks/` when code-split), and
- * the same dir holds the stdio subprocess bundle for `wayland_search_skills`.
- *
- * We probe a small list of candidates with `existsSync(index.json)` and
- * return the first hit. This handles three environments without an explicit
- * `isPackaged` flag:
- *
- *   - Dev:     `<repo>/out/main/<bundle>.js`   → walk up to `<repo>/src/process/resources/skills-library`
- *   - Packaged: `app.asar/out/main/<bundle>.js` → swap to `app.asar.unpacked/resources/skills-library`
- *   - Stdio subprocess: same `out/main/` anchor as the main bundle
- *
- * If no candidate exists, the first candidate is returned so the eventual
- * `readFile(index.json)` failure includes a real path the user can grep for.
+ * Anchors on `__dirname` (the bundle file's directory) - NOT `require.main`,
+ * which in Electron resolves to the app dir passed on the command line. The
+ * candidate order (see {@link buildResourceDirCandidates}) handles dev, the
+ * packaged main process, and the packaged stdio subprocess (where
+ * `process.resourcesPath` is `undefined`) without an explicit `isPackaged`
+ * flag. If no candidate exists, the first is returned so the eventual
+ * `readFile(index.json)` failure surfaces a concrete path to grep for.
  */
 function resolveSkillsLibraryDir(): string {
-  // Anchor on __dirname (the bundle file's directory) - NOT require.main.
-  // In Electron, `require.main?.filename` resolves to the app directory
-  // passed on the command line (`.`), which walks up further than the
-  // actual bundle and lands the library lookup outside the project. Inside
-  // the esbuild-bundled main process, __dirname is the bundle's directory,
-  // which is `out/main/` (dev) or `app.asar/out/main/` (packaged), or
-  // `out/main/chunks/` when electron-vite code-splits. The `chunks/`
-  // basename collapse handles the split case.
-  const myDir = path.dirname(__filename);
-  const baseDir = path.basename(myDir) === 'chunks' ? path.dirname(myDir) : myDir;
-  const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
-
-  const candidates = [
-    // Packaged build: extraResources copies to Contents/Resources/skills-library.
-    ...(process.resourcesPath ? [path.join(process.resourcesPath, 'skills-library')] : []),
-    // Legacy asarUnpack target (never populated; kept for back-compat).
-    path.resolve(baseDirUnpacked, '../../resources/skills-library'),
-    // Dev build: out/main/ → repo root → src/process/resources/skills-library.
-    path.resolve(baseDir, '../../src/process/resources/skills-library'),
-    // Pre-fix legacy default - kept last so an existing prod layout still works.
-    path.resolve(baseDir, '../../resources/skills-library'),
-    path.resolve(baseDir, '../resources/skills-library'),
-  ];
-
+  const candidates = buildResourceDirCandidates(path.dirname(__filename), process.resourcesPath, 'skills-library');
   for (const candidate of candidates) {
     if (existsSync(path.join(candidate, 'index.json'))) return candidate;
   }
-  // No candidate exists; return the first so the next readFile() surfaces a
-  // concrete path in the error rather than a misleading-but-resolvable one.
   return candidates[0];
 }
 
 /**
  * Resolve the on-disk directory that holds the Wayland built-in workflows
  * (`index.json` + `bodies/`). These are Wayland-original workflows kept
- * separate from the vendored skills-library, at
- * `src/process/resources/bundled-workflows/` in the source tree and
- * `app.asar.unpacked/resources/bundled-workflows/` once packaged.
- *
- * Mirrors {@link resolveSkillsLibraryDir}'s dev / packaged / standalone probe
- * order. If no candidate exists the first is returned so a later read failure
- * surfaces a concrete path. Unlike the skills-library this folder may legitimately
- * be empty (an `index.json` of `[]`), so callers must no-op gracefully when the
- * index is absent.
+ * separate from the vendored skills-library. Mirrors
+ * {@link resolveSkillsLibraryDir}'s probe order. Unlike the skills-library this
+ * folder may legitimately be empty (an `index.json` of `[]`), so callers must
+ * no-op gracefully when the index is absent.
  */
 function resolveBundledWorkflowsDir(): string {
-  const myDir = path.dirname(__filename);
-  const baseDir = path.basename(myDir) === 'chunks' ? path.dirname(myDir) : myDir;
-  const baseDirUnpacked = baseDir.replace('app.asar', 'app.asar.unpacked');
-
-  const candidates = [
-    // Packaged build: extraResources copies to Contents/Resources/bundled-workflows.
-    ...(process.resourcesPath ? [path.join(process.resourcesPath, 'bundled-workflows')] : []),
-    // Legacy asarUnpack target (never populated; kept for back-compat).
-    path.resolve(baseDirUnpacked, '../../resources/bundled-workflows'),
-    // Dev build: out/main/ → repo root → src/process/resources/bundled-workflows.
-    path.resolve(baseDir, '../../src/process/resources/bundled-workflows'),
-    // Pre-fix legacy default - kept last so an existing prod layout still works.
-    path.resolve(baseDir, '../../resources/bundled-workflows'),
-    path.resolve(baseDir, '../resources/bundled-workflows'),
-  ];
-
+  const candidates = buildResourceDirCandidates(path.dirname(__filename), process.resourcesPath, 'bundled-workflows');
   for (const candidate of candidates) {
     if (existsSync(path.join(candidate, 'index.json'))) return candidate;
   }
@@ -259,21 +255,40 @@ export class SkillLibrary {
 
   /**
    * Merge additional skill entries into the library.
-   * On name collision the later registration wins; a warning is logged.
+   *
+   * Collision policy:
+   *  - Imported entries CANNOT overwrite trusted sources ('wayland-library',
+   *    'team'). The incoming entry is skipped and a warning is returned so the
+   *    caller can surface "skipped — name collides with a built-in" to the user.
+   *  - All other collisions: later registration wins (existing behavior).
+   *
+   * @returns Array of human-readable warning strings for any skipped entries.
    */
-  registerSource(incoming: SkillIndexEntry[]): void {
+  registerSource(incoming: SkillIndexEntry[]): string[] {
+    const collisionWarnings: string[] = [];
+    const TRUSTED_SOURCES: ReadonlySet<SkillSource> = new Set(['wayland-library', 'team']);
+
     for (const entry of incoming) {
       if (this.byName.has(entry.name)) {
-        const prev = this.byName.get(entry.name)?.source;
+        const existing = this.byName.get(entry.name)!;
+        // Imported entry must not shadow a trusted built-in/vendor entry.
+        if (entry.source === 'imported' && TRUSTED_SOURCES.has(existing.source)) {
+          const warning = `Skipped '${entry.name}': name collides with a built-in (${existing.source}) — import not applied`;
+          collisionWarnings.push(warning);
+          console.warn(`${TAG} ${warning}`);
+          continue;
+        }
         console.warn(
           `${TAG} Skill name collision on registerSource - '${entry.name}' overwritten`,
-          { prev, next: entry.source }
+          { prev: existing.source, next: entry.source }
         );
         this.entries = this.entries.filter((e) => e.name !== entry.name);
       }
       this.entries.push(entry);
       this.byName.set(entry.name, entry);
     }
+
+    return collisionWarnings;
   }
 
   /**

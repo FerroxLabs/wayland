@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatModifierShortcut } from '@/renderer/utils/platform';
 import styles from './HomeHintBar.module.css';
 
 const HIDE_AFTER_CHATS = 5;
@@ -28,7 +29,7 @@ export const HomeHintBar: React.FC<HomeHintBarProps> = ({ chatStartedCount }) =>
     <div className={styles.bar} data-testid='home-hint-bar'>
       <span className={styles.hint}>
         {searchLabel}
-        <kbd className={styles.kbd}>⌘K</kbd>
+        <kbd className={styles.kbd}>{formatModifierShortcut('K')}</kbd>
       </span>
       <span className={styles.sep}>·</span>
       <span className={styles.hint}>
@@ -37,7 +38,7 @@ export const HomeHintBar: React.FC<HomeHintBarProps> = ({ chatStartedCount }) =>
       </span>
       <span className={styles.sep}>·</span>
       <span className={styles.hint}>
-        <kbd className={styles.kbd}>⌘N</kbd>
+        <kbd className={styles.kbd}>{formatModifierShortcut('N')}</kbd>
         {newChatLabel}
       </span>
     </div>

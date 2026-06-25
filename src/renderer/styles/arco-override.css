@@ -454,3 +454,14 @@ body[arco-theme='dark'] .arco-message-error {
     background: var(--color-primary);
   }
 }
+
+/* Image-model picker: indent options beneath their provider group header so the
+   hierarchy reads clearly (e.g. Flux Router > Flux Image > the pinnable arms).
+   Scoped to the image select's popup via triggerProps className, so it never
+   touches the closed value box or other selects. */
+.wl-image-model-popup .arco-select-group-title {
+  padding-left: 12px;
+}
+.wl-image-model-popup .arco-select-option {
+  padding-left: 28px;
+}

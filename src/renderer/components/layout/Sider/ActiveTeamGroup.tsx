@@ -71,7 +71,7 @@ const ActiveTeamGroup: React.FC<ActiveTeamGroupProps> = ({
                     tabIndex={0}
                     data-testid={`team-group-teammate-${team.id}-${agent.slotId}`}
                     className={classNames(
-                      'h-28px rd-6px flex items-center gap-6px px-8px cursor-pointer transition-colors min-w-0',
+                      'h-26px rd-6px flex items-center gap-6px px-8px cursor-pointer transition-colors min-w-0',
                       isActiveTeammate
                         ? 'bg-[rgba(var(--primary-6),0.14)] text-t-primary'
                         : 'text-t-secondary hover:bg-fill-3 hover:text-t-primary'

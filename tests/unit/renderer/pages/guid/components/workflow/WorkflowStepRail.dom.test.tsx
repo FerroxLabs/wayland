@@ -95,6 +95,8 @@ vi.mock('lucide-react', () => {
     CircleDot: make('CircleDot'),
     AlertCircle: make('AlertCircle'),
     MinusCircle: make('MinusCircle'),
+    Edit2: make('Edit2'),
+    HelpCircle: make('HelpCircle'),
   };
 });
 
@@ -113,7 +115,7 @@ const buildStep = (overrides: Partial<StepState> & Pick<StepState, 'n'>): StepSt
   autonomous_run: overrides.autonomous_run ?? null,
 });
 
-const buildSession = (steps: StepState[]): WorkflowSession => ({
+const buildSession = (steps: StepState[], overrides: Partial<WorkflowSession> = {}): WorkflowSession => ({
   id: 'session-abc',
   workflow_name: 'automate-business-workflows',
   workflow_title: 'Automate Business Workflows',
@@ -129,6 +131,10 @@ const buildSession = (steps: StepState[]): WorkflowSession => ({
   created_at: 0,
   updated_at: 0,
   completed_at: null,
+  begin_sent_at: null,
+  run_mode: 'running',
+  interactivity: 'step',
+  ...overrides,
 });
 
 const SIX_STEP_SESSION = (): WorkflowSession =>
@@ -169,7 +175,7 @@ const SIX_STEP_SESSION = (): WorkflowSession =>
 describe('WorkflowStepRail', () => {
   it('renders one row per step', () => {
     const session = SIX_STEP_SESSION();
-    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} onRunAutonomously={vi.fn()} />);
+    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} />);
 
     const rows = screen.getAllByTestId('workflow-step-rail-row');
     expect(rows).toHaveLength(6);
@@ -177,92 +183,45 @@ describe('WorkflowStepRail', () => {
     expect(screen.getByText('Measure ROI & monitor')).toBeInTheDocument();
   });
 
-  it('renders the auto-driven title strip by default', () => {
+  it('renders "Steps" as the title strip label', () => {
     const session = SIX_STEP_SESSION();
-    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} onRunAutonomously={vi.fn()} />);
+    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} />);
 
     const title = screen.getByTestId('workflow-step-rail-title');
-    expect(title).toHaveTextContent(/auto-driven/i);
-    expect(screen.getByTestId('workflow-step-rail-mode-dot')).toHaveAttribute('data-mode', 'auto');
-  });
-
-  it('renders the manual title + amber dot when mode is manual', () => {
-    const session = SIX_STEP_SESSION();
-    render(
-      <WorkflowStepRail
-        session={session}
-        mode='manual'
-        onJumpToStep={vi.fn()}
-        onRunAutonomously={vi.fn()}
-      />
-    );
-
-    expect(screen.getByTestId('workflow-step-rail-title')).toHaveTextContent(/manual/i);
-    expect(screen.getByTestId('workflow-step-rail-mode-dot')).toHaveAttribute('data-mode', 'manual');
+    expect(title).toHaveTextContent(/steps/i);
   });
 
   it('calls onJumpToStep with the right n when a row is clicked', () => {
     const session = SIX_STEP_SESSION();
     const onJump = vi.fn();
-    render(<WorkflowStepRail session={session} onJumpToStep={onJump} onRunAutonomously={vi.fn()} />);
+    render(<WorkflowStepRail session={session} onJumpToStep={onJump} />);
 
     const rows = screen.getAllByTestId('workflow-step-rail-row');
     fireEvent.click(rows[3]); // step 4
     expect(onJump).toHaveBeenCalledWith(4);
   });
 
-  it('does not show a ▶ Run autonomously button on done / skipped steps', () => {
+  it('does not show a run autonomously button on any step (removed in collaborative model)', () => {
     const session = SIX_STEP_SESSION();
-    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} onRunAutonomously={vi.fn()} />);
+    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} />);
 
-    const rows = screen.getAllByTestId('workflow-step-rail-row');
-    // Step 1 is done - no run button
-    expect(within(rows[0]).queryByTestId('workflow-step-rail-run-btn')).toBeNull();
-    // Step 3 is now - run button present
-    expect(within(rows[2]).getByTestId('workflow-step-rail-run-btn')).toBeInTheDocument();
-    // Step 4 is todo - run button present
-    expect(within(rows[3]).getByTestId('workflow-step-rail-run-btn')).toBeInTheDocument();
+    // No run buttons anywhere in the rail
+    expect(screen.queryAllByTestId('workflow-step-rail-run-btn')).toHaveLength(0);
   });
 
-  it('opens a confirmation modal when ▶ Run autonomously is clicked, and confirming fires onRunAutonomously', () => {
+  it('renders review bullet on the current step when run_mode is awaiting_input', () => {
     const session = SIX_STEP_SESSION();
-    const onRun = vi.fn();
-    const onJump = vi.fn();
-    render(<WorkflowStepRail session={session} onJumpToStep={onJump} onRunAutonomously={onRun} />);
+    const reviewSession = { ...session, run_mode: 'awaiting_input' as const };
+    render(<WorkflowStepRail session={reviewSession} onJumpToStep={vi.fn()} />);
 
-    // Modal not visible yet
-    expect(screen.queryByTestId('arco-modal')).toBeNull();
-
+    // Current step (step 3, index 2) should show review status
     const rows = screen.getAllByTestId('workflow-step-rail-row');
-    const runBtn = within(rows[3]).getByTestId('workflow-step-rail-run-btn');
-    fireEvent.click(runBtn);
-
-    const dialog = screen.getByTestId('arco-modal');
-    expect(dialog).toBeInTheDocument();
-    expect(dialog).toHaveTextContent(/autonomous worker/i);
-    expect(dialog).toHaveTextContent(/Step 4/);
-
-    // Clicking the row's run button must NOT also fire onJumpToStep
-    expect(onJump).not.toHaveBeenCalled();
-
-    fireEvent.click(screen.getByTestId('arco-modal-ok'));
-    expect(onRun).toHaveBeenCalledWith(4);
+    const currentRow = rows[2]; // step 3 is current
+    const bullet = currentRow.querySelector('[data-status="review"]');
+    expect(bullet).toBeInTheDocument();
   });
 
-  it('does not fire onRunAutonomously when the confirmation modal is cancelled', () => {
-    const session = SIX_STEP_SESSION();
-    const onRun = vi.fn();
-    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} onRunAutonomously={onRun} />);
-
-    const rows = screen.getAllByTestId('workflow-step-rail-row');
-    fireEvent.click(within(rows[4]).getByTestId('workflow-step-rail-run-btn'));
-
-    fireEvent.click(screen.getByTestId('arco-modal-cancel'));
-    expect(onRun).not.toHaveBeenCalled();
-    expect(screen.queryByTestId('arco-modal')).toBeNull();
-  });
-
-  it('renders a running row (no ▶ button) when the step has an autonomous_run in running state', () => {
+  it('renders a running row when the step has an autonomous_run in running state', () => {
     const baseSteps = SIX_STEP_SESSION().steps;
     baseSteps[3] = {
       ...baseSteps[3],
@@ -274,7 +233,7 @@ describe('WorkflowStepRail', () => {
     };
     const session = buildSession(baseSteps);
 
-    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} onRunAutonomously={vi.fn()} />);
+    render(<WorkflowStepRail session={session} onJumpToStep={vi.fn()} />);
 
     const rows = screen.getAllByTestId('workflow-step-rail-row');
     const runningRow = rows[3];
@@ -288,11 +247,7 @@ describe('WorkflowStepRail', () => {
   it('renders the children prop as the bottom slot', () => {
     const session = SIX_STEP_SESSION();
     render(
-      <WorkflowStepRail
-        session={session}
-        onJumpToStep={vi.fn()}
-        onRunAutonomously={vi.fn()}
-      >
+      <WorkflowStepRail session={session} onJumpToStep={vi.fn()}>
         <div data-testid='status-bar-slot'>status here</div>
       </WorkflowStepRail>
     );

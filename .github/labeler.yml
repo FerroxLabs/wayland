@@ -1,0 +1,23 @@
+# Path-based auto-labeling for pull requests (actions/labeler@v5).
+# Best-effort area tagging so PRs sort the same way issues do.
+'area:core':
+  - changed-files:
+      - any-glob-to-any-file: ['src/process/**', 'src/common/**']
+'area:desktop-ui':
+  - changed-files:
+      - any-glob-to-any-file: ['src/renderer/**']
+'area:headless':
+  - changed-files:
+      - any-glob-to-any-file: ['src/server/**', 'scripts/build-server*', 'src/webui/**']
+'area:mcp':
+  - changed-files:
+      - any-glob-to-any-file: ['**/mcp/**', '**/*mcp*']
+'area:workflows':
+  - changed-files:
+      - any-glob-to-any-file: ['**/workflow/**', '**/workflows/**']
+'area:docs':
+  - changed-files:
+      - any-glob-to-any-file: ['docs/**', '**/*.md']
+'area:packaging':
+  - changed-files:
+      - any-glob-to-any-file: ['.github/workflows/**', 'electron-builder*', 'scripts/*sign*', 'scripts/*notar*', 'build/**']

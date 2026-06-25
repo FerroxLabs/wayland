@@ -6,6 +6,8 @@
 
 import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 import { useModelProviderList } from '@/renderer/hooks/agent/useModelProviderList';
+import { useModelDisplayName } from '@/renderer/hooks/agent/useModelDisplayName';
+import { isFluxModelId } from '@/common/config/flux';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type WCoreModelSelection = {
@@ -31,13 +33,88 @@ export const useWCoreModelSelection = ({
     setCurrentModel(initialModel);
   }, [initialModel?.id, initialModel?.useModel]);
 
-  const { providers: allProviders, getAvailableModels, formatModelLabel } = useModelProviderList();
+  const {
+    providers: allProviders,
+    connectedProviders: allConnectedProviders,
+    isLoading: providerListLoading,
+    getAvailableModels,
+  } = useModelProviderList();
+
+  // Resolve a picked model id to its catalog display name ("Claude Haiku 4.5"),
+  // the same source the picker reads. The legacy `formatModelLabel` only knew
+  // Flux aliases, so a real model surfaced its raw id in the header + send box.
+  const resolveModelDisplayName = useModelDisplayName('wcore');
 
   // WaylandCLI does not support Google Auth - filter it out
   const providers = useMemo(
     () => allProviders.filter((p) => !p.platform?.toLowerCase().includes('gemini-with-google-auth')),
     [allProviders]
   );
+
+  // Unfiltered connected list (before the "has available models" cut) for the
+  // still-connected guard below. A provider whose models are transiently all
+  // filtered out (e.g. an OpenRouter catalog refresh) stays here, so we don't
+  // mistake the empty picker list for a disconnect and clear a live selection.
+  const connectedProviders = useMemo(
+    () => (allConnectedProviders ?? []).filter((p) => !p.platform?.toLowerCase().includes('gemini-with-google-auth')),
+    [allConnectedProviders]
+  );
+
+  // #64: drop a stale selection whose provider was disconnected/removed (the
+  // composer otherwise keeps showing a dead model like "gpt-5.5" that fails on
+  // send). flux-auto is exempt: the Flux Router provider is intentionally
+  // filtered out of `providers` (no function_calling models) yet is always a
+  // valid route, so never treat a flux id as stale.
+  //
+  // #124: validate by MODEL MEMBERSHIP across all connected providers, not by
+  // `provider.id`. A freshly-spawned chat carries the model registry's
+  // ProviderId (e.g. 'openai'), which never equals the opaque legacy storage
+  // `provider.id`, so an id-only match wrongly cleared a perfectly valid model -
+  // blanking the picker and blocking sends until a manual reselect. When the
+  // model is still offered but under a different (registry) id, re-bind to the
+  // owning legacy provider so send resolves real credentials.
+  useEffect(() => {
+    if (!currentModel) return;
+    if (currentModel.useModel && isFluxModelId(currentModel.useModel)) return;
+    // Don't revalidate until the provider list has actually loaded. On a freshly
+    // mounted conversation `model.config` (SWR) is briefly undefined, so both
+    // `providers` and `connectedProviders` are empty for a tick. Running the
+    // stale-model clear in that window wrongly drops a model the user just picked
+    // on the new-chat screen - it runs one turn, then the composer blanks to "No
+    // model selected" until a manual reselect (the "vanished after one message"
+    // race). Once loaded, a genuinely-disconnected provider still clears (#64).
+    if (providerListLoading) return;
+    const useModel = currentModel.useModel ?? '';
+    const owner =
+      providers.find((p) => p.id === currentModel.id && getAvailableModels(p).includes(useModel)) ??
+      providers.find((p) => getAvailableModels(p).includes(useModel));
+    if (!owner) {
+      // The model isn't in any provider's *curated* available list. Before
+      // dropping it, check whether its OWN provider is still connected.
+      // Dynamic-catalog providers (e.g. OpenRouter) expose brand-new models
+      // like `z-ai/glm-5.2` that models.dev hasn't enriched yet, so the Curator
+      // filters them out of `getAvailableModels` even though the provider is
+      // connected and the model works. Clearing there blanks the picker
+      // mid-conversation ("No model selected"), blocking a model the user just
+      // used successfully. Only drop the selection when the provider itself is
+      // gone (#64); when it's still connected, keep the used model bound to it.
+      // Check against the UNFILTERED connected list, not the picker `providers`
+      // (which hides a provider whose models are transiently all filtered out -
+      // exactly the OpenRouter "model vanished after one message" case).
+      const providerStillConnected = connectedProviders.some(
+        (p) =>
+          p.id === currentModel.id ||
+          (!!currentModel.platform &&
+            p.platform === currentModel.platform &&
+            (p.baseUrl ?? '') === (currentModel.baseUrl ?? ''))
+      );
+      if (!providerStillConnected) {
+        setCurrentModel(undefined);
+      }
+    } else if (owner.id !== currentModel.id) {
+      setCurrentModel({ ...(owner as unknown as TProviderWithModel), useModel });
+    }
+  }, [providers, connectedProviders, currentModel, getAvailableModels, providerListLoading]);
 
   const handleSelectModel = useCallback(
     async (provider: IProvider, modelName: string) => {
@@ -56,11 +133,11 @@ export const useWCoreModelSelection = ({
   const getDisplayModelName = useCallback(
     (modelName?: string) => {
       if (!modelName) return '';
-      const label = formatModelLabel(currentModel, modelName);
+      const label = resolveModelDisplayName(modelName);
       const maxLength = 20;
       return label.length > maxLength ? `${label.slice(0, maxLength)}...` : label;
     },
-    [currentModel, formatModelLabel]
+    [resolveModelDisplayName]
   );
 
   return {

@@ -112,21 +112,92 @@ describe('modelBridge fetchModelList', () => {
     initModelBridge();
   });
 
-  it('returns the MiniMax hardcoded list including MiniMax-M2.7 and MiniMax-M2.5', async () => {
-    const fetchModelList = getFetchModelListHandler();
+  it('fetches the LIVE MiniMax model list from /v1/models (incl. MiniMax-M3)', async () => {
+    const origFetch = global.fetch;
+    global.fetch = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ data: [{ id: 'MiniMax-M3' }, { id: 'MiniMax-M2.7-highspeed' }, { id: 'MiniMax-M2.5' }] }),
+    })) as unknown as typeof fetch;
+    try {
+      const fetchModelList = getFetchModelListHandler();
+      const result = await fetchModelList({ base_url: 'https://api.minimax.io/v1', api_key: 'minimax-key' });
+      expect(result).toEqual({
+        success: true,
+        data: { mode: ['MiniMax-M3', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5'] },
+      });
+      // It hit /v1/models with a bearer token, not the OpenAI SDK.
+      const calledUrl = (global.fetch as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][0];
+      expect(calledUrl).toBe('https://api.minimax.io/v1/models');
+      expect(mockModelsList).not.toHaveBeenCalled();
+    } finally {
+      global.fetch = origFetch;
+    }
+  });
 
-    const result = await fetchModelList({
-      base_url: 'https://api.minimaxi.com/v1',
-      api_key: 'minimax-key',
-    });
+  it('falls back to the current static MiniMax list when /v1/models fails (dead models gone)', async () => {
+    const origFetch = global.fetch;
+    global.fetch = vi.fn(async () => ({ ok: false, status: 500, statusText: 'err', json: async () => ({}) })) as unknown as typeof fetch;
+    try {
+      const fetchModelList = getFetchModelListHandler();
+      const result = await fetchModelList({ base_url: 'https://api.minimax.io/v1', api_key: 'minimax-key' });
+      expect(result.success).toBe(true);
+      expect(result.data?.mode).toContain('MiniMax-M3'); // current generation present in fallback
+      expect(result.data?.mode).not.toContain('M2-her'); // stale model never returns
+      expect(result.data?.mode).not.toContain('MiniMax-M2.1-lightning');
+    } finally {
+      global.fetch = origFetch;
+    }
+  });
 
-    expect(result).toEqual({
-      success: true,
-      data: {
-        mode: ['MiniMax-M2.7', 'MiniMax-M2.5', 'MiniMax-M2.1', 'MiniMax-M2.1-lightning', 'MiniMax-M2', 'M2-her'],
-      },
-    });
-    expect(mockModelsList).not.toHaveBeenCalled();
+  it('fetches the LIVE DashScope coding-plan list from /v1/models (incl. qwen3.7-plus)', async () => {
+    const origFetch = global.fetch;
+    global.fetch = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ data: [{ id: 'qwen3-coder-plus' }, { id: 'qwen3.7-plus' }, { id: 'glm-5' }] }),
+    })) as unknown as typeof fetch;
+    try {
+      const fetchModelList = getFetchModelListHandler();
+      const result = await fetchModelList({ base_url: 'https://coding.dashscope.aliyuncs.com/v1', api_key: 'ds-key' });
+      expect(result).toEqual({ success: true, data: { mode: ['qwen3-coder-plus', 'qwen3.7-plus', 'glm-5'] } });
+      const calledUrl = (global.fetch as unknown as { mock: { calls: unknown[][] } }).mock.calls[0][0];
+      expect(calledUrl).toBe('https://coding.dashscope.aliyuncs.com/v1/models');
+    } finally {
+      global.fetch = origFetch;
+    }
+  });
+
+  it('returns an auth error for an invalid DashScope key (401 preserved)', async () => {
+    const origFetch = global.fetch;
+    global.fetch = vi.fn(async () => ({
+      ok: false,
+      status: 401,
+      json: async () => ({ error: { message: 'Invalid API key' } }),
+    })) as unknown as typeof fetch;
+    try {
+      const fetchModelList = getFetchModelListHandler();
+      const result = await fetchModelList({ base_url: 'https://coding.dashscope.aliyuncs.com/v1', api_key: 'bad' });
+      expect(result.success).toBe(false);
+      expect(result.msg).toBe('Invalid API key');
+    } finally {
+      global.fetch = origFetch;
+    }
+  });
+
+  it('falls back to the current static DashScope list on a network failure (incl. the new qwen3.7-plus)', async () => {
+    const origFetch = global.fetch;
+    global.fetch = vi.fn(async () => {
+      throw new Error('network down');
+    }) as unknown as typeof fetch;
+    try {
+      const fetchModelList = getFetchModelListHandler();
+      const result = await fetchModelList({ base_url: 'https://coding.dashscope.aliyuncs.com/v1', api_key: 'ds-key' });
+      expect(result.success).toBe(true);
+      expect(result.data?.mode).toContain('qwen3.7-plus');
+      expect(result.data?.mode).toContain('qwen3.6-plus');
+    } finally {
+      global.fetch = origFetch;
+    }
   });
 
   it('returns error when apiKey is empty for new-api platform (Fixes ELECTRON-6X)', async () => {

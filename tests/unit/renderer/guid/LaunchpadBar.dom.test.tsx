@@ -83,13 +83,13 @@ describe('LaunchpadBar', () => {
     render(<LaunchpadBar onAnchorClick={onAnchorClick} onViewAll={vi.fn()} />);
     await flushLoad();
 
-    const writeCard = document.querySelector('[data-quicklaunch-id="ext-copy"]') as HTMLButtonElement;
+    const writeCard = document.querySelector('[data-quicklaunch-id="builtin-copy"]') as HTMLButtonElement;
     expect(writeCard).toBeTruthy();
     fireEvent.click(writeCard);
 
     expect(onAnchorClick).toHaveBeenCalledTimes(1);
     expect(onAnchorClick.mock.calls[0]?.[0]).toMatchObject({
-      assistantId: 'ext-copy',
+      assistantId: 'builtin-copy',
       label: 'Write copy',
       prefill: 'Draft me ',
     });
@@ -102,13 +102,13 @@ describe('LaunchpadBar', () => {
 
     expect(document.querySelectorAll('[data-launchpad-entry]')).toHaveLength(6);
 
-    const removeBtn = screen.getByTestId('launchpad-remove-ext-quiet-money');
+    const removeBtn = screen.getByTestId('launchpad-remove-builtin-quiet-money');
     fireEvent.click(removeBtn);
 
     expect(document.querySelectorAll('[data-launchpad-entry]')).toHaveLength(5);
     expect(setMock).toHaveBeenCalledWith(
       'launchpad.barOrder',
-      expect.not.arrayContaining(['ext-quiet-money'])
+      expect.not.arrayContaining(['builtin-quiet-money'])
     );
   });
 
@@ -153,7 +153,14 @@ describe('LaunchpadBar', () => {
     expect(document.querySelectorAll('[data-launchpad-entry]')).toHaveLength(6);
     expect(setMock).toHaveBeenCalledWith(
       'launchpad.barOrder',
-      expect.arrayContaining(['builtin-cowork', 'ext-copy', 'ext-sales', 'ext-product-launch', 'ext-coin', 'ext-quiet-money'])
+      expect.arrayContaining([
+        'builtin-cowork',
+        'builtin-copy',
+        'builtin-sales',
+        'builtin-product-launch',
+        'builtin-coin',
+        'builtin-quiet-money',
+      ])
     );
   });
 
@@ -193,8 +200,8 @@ describe('LaunchpadBar', () => {
     await flushLoad();
 
     const cowork = document.querySelector('[data-quicklaunch-id="builtin-cowork"]') as HTMLButtonElement;
-    const writeCopy = document.querySelector('[data-quicklaunch-id="ext-copy"]') as HTMLButtonElement;
-    const numbers = document.querySelector('[data-quicklaunch-id="ext-coin"]') as HTMLButtonElement;
+    const writeCopy = document.querySelector('[data-quicklaunch-id="builtin-copy"]') as HTMLButtonElement;
+    const numbers = document.querySelector('[data-quicklaunch-id="builtin-coin"]') as HTMLButtonElement;
     expect(cowork).toBeTruthy();
     expect(writeCopy).toBeTruthy();
     expect(numbers).toBeTruthy();

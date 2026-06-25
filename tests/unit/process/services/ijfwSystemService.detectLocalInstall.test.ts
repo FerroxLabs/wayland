@@ -61,6 +61,7 @@ describe('ijfwSystemService.detectLocalInstall', () => {
     const mcp = path.join(tmpHome, '.ijfw', 'mcp-server');
     fs.mkdirSync(mcp, { recursive: true });
     fs.writeFileSync(path.join(mcp, 'package.json'), JSON.stringify({ name: '@ijfw/mcp-server', version: '1.5.4' }));
+    spawnSyncSpy.mockReturnValue({ status: 1, stdout: '', stderr: '' });
     const result = await ijfwSystemService.detectLocalInstall();
     expect(result.installed).toBe(true);
     expect(result.version).toBe('1.5.4');
@@ -71,6 +72,7 @@ describe('ijfwSystemService.detectLocalInstall', () => {
   it('returns installed=true without version when package.json is missing', async () => {
     const mcp = path.join(tmpHome, '.ijfw', 'mcp-server');
     fs.mkdirSync(mcp, { recursive: true });
+    spawnSyncSpy.mockReturnValue({ status: 1, stdout: '', stderr: '' });
     const result = await ijfwSystemService.detectLocalInstall();
     expect(result.installed).toBe(true);
     expect(result.version).toBeUndefined();
@@ -89,6 +91,7 @@ describe('ijfwSystemService.detectLocalInstall', () => {
     fs.mkdirSync(path.join(tmpHome, '.ijfw'), { recursive: true });
     const linkPath = path.join(tmpHome, '.ijfw', 'mcp-server');
     fs.symlinkSync(realDir, linkPath, 'junction');
+    spawnSyncSpy.mockReturnValue({ status: 1, stdout: '', stderr: '' });
     const result = await ijfwSystemService.detectLocalInstall();
     expect(result.installed).toBe(true);
     expect(result.version).toBe('1.6.0');
@@ -125,5 +128,52 @@ describe('ijfwSystemService.detectLocalInstall', () => {
     expect(opts.env).toBeDefined();
     expect(opts.env!.WAYLAND_FAKE_SECRET).toBeUndefined();
     expect(opts.env!.PATH).toBeDefined();
+  });
+
+  // Bug #179: directory/symlink installs must still run the PATH probe so
+  // cliOnPath is populated and pathHealthy is computable.
+  it('runs PATH probe even when a directory install is present, populates cliOnPath', async () => {
+    const mcp = path.join(tmpHome, '.ijfw', 'mcp-server');
+    fs.mkdirSync(mcp, { recursive: true });
+    fs.writeFileSync(path.join(mcp, 'package.json'), JSON.stringify({ version: '1.5.4' }));
+    spawnSyncSpy.mockReturnValue({
+      status: 0,
+      stdout: '/opt/homebrew/bin/ijfw\n',
+      stderr: '',
+    });
+    const result = await ijfwSystemService.detectLocalInstall();
+    expect(result.installed).toBe(true);
+    expect(result.detectedVia).toBe('directory');
+    expect(result.cliOnPath).toBe(true);
+    // spawnSync was called (probe was NOT skipped)
+    expect(spawnSyncSpy).toHaveBeenCalled();
+  });
+
+  it('runs PATH probe even when a symlink install is present, populates cliOnPath', async () => {
+    const realDir = path.join(tmpHome, 'real-mcp');
+    fs.mkdirSync(realDir, { recursive: true });
+    fs.writeFileSync(path.join(realDir, 'package.json'), JSON.stringify({ version: '1.6.0' }));
+    fs.mkdirSync(path.join(tmpHome, '.ijfw'), { recursive: true });
+    fs.symlinkSync(realDir, path.join(tmpHome, '.ijfw', 'mcp-server'), 'junction');
+    spawnSyncSpy.mockReturnValue({
+      status: 0,
+      stdout: '/usr/local/bin/ijfw\n',
+      stderr: '',
+    });
+    const result = await ijfwSystemService.detectLocalInstall();
+    expect(result.installed).toBe(true);
+    expect(result.detectedVia).toBe('symlink');
+    expect(result.cliOnPath).toBe(true);
+    expect(spawnSyncSpy).toHaveBeenCalled();
+  });
+
+  it('directory install with PATH probe failing leaves cliOnPath undefined', async () => {
+    const mcp = path.join(tmpHome, '.ijfw', 'mcp-server');
+    fs.mkdirSync(mcp, { recursive: true });
+    spawnSyncSpy.mockReturnValue({ status: 1, stdout: '', stderr: '' });
+    const result = await ijfwSystemService.detectLocalInstall();
+    expect(result.installed).toBe(true);
+    expect(result.detectedVia).toBe('directory');
+    expect(result.cliOnPath).toBeUndefined();
   });
 });

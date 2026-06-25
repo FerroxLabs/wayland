@@ -1,0 +1,177 @@
+/* #252 - activity-tree card. Adapted from Foundry ForgeRenderers.module.css to
+   Wayland orange/dark tokens (NOT Foundry teal). */
+
+@keyframes activityFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes activityHeartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+.container {
+  width: 100%;
+  border-left: 3px solid var(--color-aou-6-brand, rgb(var(--primary-6)));
+  padding-left: 12px;
+  animation: activityFadeIn 0.3s ease-in;
+}
+
+.heartbeat {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-aou-6-brand, rgb(var(--primary-6)));
+  animation: activityHeartbeat 1.5s ease-in-out infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--color-text-2);
+  user-select: none;
+}
+
+.header:hover {
+  color: var(--color-text-1);
+}
+
+.count {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-3);
+  padding-top: 4px;
+}
+
+.list {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-2);
+  font-size: 13px;
+}
+
+.statusText {
+  font-size: 11px;
+  color: var(--color-text-3);
+}
+
+.kindTag {
+  font-size: 11px;
+  border-color: var(--color-aou-6-brand, rgb(var(--primary-6)));
+  color: var(--color-aou-6-brand, rgb(var(--primary-6)));
+  background: var(--color-aou-1, rgba(var(--primary-6), 0.08));
+}
+
+.nodeName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duration {
+  font-size: 12px;
+  color: var(--color-text-3);
+  margin-left: auto;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail {
+  padding: 6px 0 6px 20px;
+  border-left: 2px solid var(--color-border-2);
+  margin-left: 10px;
+  animation: activityFadeIn 0.2s ease-out;
+}
+
+.detailText {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow: auto;
+  font-family: var(--font-mono, monospace);
+}
+
+/* #252 Phase 2 - nested sub-agent subtree: indented under its parent node, with
+   a left rail in the Wayland brand tint to read as a depth-N branch. */
+.childTree {
+  margin: 6px 0 6px 14px;
+  padding-left: 12px;
+  border-left: 2px solid var(--color-aou-3, rgba(var(--primary-6), 0.3));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: activityFadeIn 0.2s ease-out;
+}
+
+.cost {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border-2);
+  margin-top: 4px;
+}
+
+.costRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.costModel {
+  color: var(--color-text-2);
+}
+
+.costProvider {
+  color: var(--color-text-3);
+}
+
+.costValue {
+  margin-left: auto;
+  color: var(--color-aou-6-brand, rgb(var(--primary-6)));
+  font-variant-numeric: tabular-nums;
+}

@@ -1,5 +1,9 @@
-import { PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { PanelRightClose, PanelRightOpen, PictureInPicture2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
+import { isElectronDesktop } from '@/renderer/utils/platform';
+import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
 import AgentBadge from '@/renderer/components/agent/AgentBadge';
 import type { PresetAssistantInfo } from '@/renderer/hooks/agent/usePresetAssistantInfo';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
@@ -61,7 +65,14 @@ const ChatLayout: React.FC<{
   hideHeader?: boolean;
 }> = (props) => {
   const { conversationId, workspacePath } = props;
-  const { backend, presetAssistant, agentName, workspaceEnabled = true } = props;
+  const { backend, presetAssistant, agentName } = props;
+  const { t } = useTranslation();
+  // #27 phase 2: in a pop-out window, hide the tab bar and surface a Dock-back
+  // action. The workspace COMES WITH the chat (the conversation's workspace is
+  // its working context), so the panel + its toggle stay enabled in the pop-out;
+  // only the tab bar is removed.
+  const isPopout = useIsPopoutMode();
+  const workspaceEnabled = props.workspaceEnabled ?? true;
   const layout = useLayoutContext();
   const isMacRuntime = isMacEnvironment();
   const isWindowsRuntime = isWindowsEnvironment();
@@ -189,6 +200,17 @@ const ChatLayout: React.FC<{
     dynamicChatMaxRatio,
   });
 
+  const handleDockBack = React.useCallback(() => {
+    if (!conversationId) return;
+    void ipcBridge.conversation.dockBack.invoke({ conversation_id: conversationId }).catch((error) => {
+      console.error('[Popout] Dock-back failed:', error);
+    });
+  }, [conversationId]);
+
+  // Pop-out chats force the tab bar off; the main window keeps the caller's
+  // tabsSlot (or the default ConversationTabs).
+  const resolvedTabsSlot = isPopout ? null : props.tabsSlot !== undefined ? props.tabsSlot : <ConversationTabs />;
+
   const headerBlock = (
     <>
       <ArcoLayout.Header
@@ -216,6 +238,17 @@ const ChatLayout: React.FC<{
           {(hasTabs || layout?.isMobile) && <ConversationTitleMinimap conversationId={conversationId} hideTrigger />}
         </FlexFullContainer>
         <div className='flex items-center gap-12px shrink-0'>
+          {isPopout && isElectronDesktop() && (
+            <button
+              type='button'
+              className='workspace-header__toggle'
+              aria-label={t('conversation.tabs.dockBack')}
+              title={t('conversation.tabs.dockBack')}
+              onClick={handleDockBack}
+            >
+              <PictureInPicture2 size={16} />
+            </button>
+          )}
           {props.headerExtra}
           {(backend || presetAssistant) && (
             <AgentBadge
@@ -238,7 +271,7 @@ const ChatLayout: React.FC<{
           )}
         </div>
       </ArcoLayout.Header>
-      {props.tabsSlot !== undefined ? props.tabsSlot : <ConversationTabs />}
+      {resolvedTabsSlot}
     </>
   );
 

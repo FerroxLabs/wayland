@@ -5,13 +5,15 @@
  */
 
 import { Command } from 'cmdk';
-import { Bot, Clock, Search, Sparkles, Users } from 'lucide-react';
+import { BookOpen, Bot, Clock, Search, Sparkles, Users } from 'lucide-react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { openExternalUrl } from '@/renderer/utils/platform';
 import PaletteRow from './PaletteRow';
 import {
   useCommandPaletteSources,
+  type PaletteAction,
   type PaletteAssistant,
   type PaletteRecent,
   type PaletteStarterPrompt,
@@ -42,6 +44,7 @@ const VALUE_PREFIX = {
   assistant: 'assistant:',
   recent: 'recent:',
   prompt: 'prompt:',
+  action: 'action:',
 } as const;
 
 const makeValue = (kind: keyof typeof VALUE_PREFIX, id: string): string => `${VALUE_PREFIX[kind]}${id}`;
@@ -55,6 +58,9 @@ const parseValue = (value: string): { kind: keyof typeof VALUE_PREFIX | null; id
   }
   if (value.startsWith(VALUE_PREFIX.prompt)) {
     return { kind: 'prompt', id: value.slice(VALUE_PREFIX.prompt.length) };
+  }
+  if (value.startsWith(VALUE_PREFIX.action)) {
+    return { kind: 'action', id: value.slice(VALUE_PREFIX.action.length) };
   }
   return { kind: null, id: '' };
 };
@@ -80,7 +86,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
   onFillPrompt,
 }) => {
   const { t } = useTranslation();
-  const { assistants, recents, prompts } = useCommandPaletteSources();
+  const { assistants, recents, prompts, actions = [] } = useCommandPaletteSources();
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Maps for O(1) lookup in the unified selection handler. Recomputed only
@@ -102,6 +108,12 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
     for (const p of prompts) m.set(p.id, p);
     return m;
   }, [prompts]);
+
+  const actionById = useMemo(() => {
+    const m = new Map<string, PaletteAction>();
+    for (const a of actions ?? []) m.set(a.id, a);
+    return m;
+  }, [actions]);
 
   // Esc closes the palette. cmdk owns arrow + Enter, but Esc is on us so
   // the dialog can dismiss without competing with cmdk's vim bindings.
@@ -145,6 +157,14 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
         onFillPrompt(prompt);
         onClose();
       }
+      return;
+    }
+    if (kind === 'action') {
+      const action = actionById.get(id);
+      if (action?.url) {
+        void openExternalUrl(action.url);
+        onClose();
+      }
     }
   };
 
@@ -162,10 +182,12 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
     | { kind: 'assistant'; row: PaletteAssistant }
     | { kind: 'recent'; row: PaletteRecent }
     | { kind: 'prompt'; row: PaletteStarterPrompt }
+    | { kind: 'action'; row: PaletteAction }
   > = [
     ...assistants.map((row) => ({ kind: 'assistant' as const, row })),
     ...recents.map((row) => ({ kind: 'recent' as const, row })),
     ...prompts.map((row) => ({ kind: 'prompt' as const, row })),
+    ...actions.map((row) => ({ kind: 'action' as const, row })),
   ];
 
   const content = (
@@ -237,16 +259,30 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
                       </Command.Item>
                     );
                   }
-                  const p = candidate.row;
+                  if (candidate.kind === 'prompt') {
+                    const p = candidate.row;
+                    return (
+                      <Command.Item
+                        key={`best-${makeValue('prompt', p.id)}`}
+                        value={`best-${makeValue('prompt', p.id)}`}
+                        keywords={[p.text]}
+                        onSelect={() => handleSelect(makeValue('prompt', p.id))}
+                        className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
+                      >
+                        <PaletteRow icon={<Sparkles size={16} />} title={t(p.label)} subtitle={p.text} />
+                      </Command.Item>
+                    );
+                  }
+                  const action = candidate.row;
                   return (
                     <Command.Item
-                      key={`best-${makeValue('prompt', p.id)}`}
-                      value={`best-${makeValue('prompt', p.id)}`}
-                      keywords={[p.text]}
-                      onSelect={() => handleSelect(makeValue('prompt', p.id))}
+                      key={`best-${makeValue('action', action.id)}`}
+                      value={`best-${makeValue('action', action.id)}`}
+                      keywords={[t(action.label)]}
+                      onSelect={() => handleSelect(makeValue('action', action.id))}
                       className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
                     >
-                      <PaletteRow icon={<Sparkles size={16} />} title={t(p.label)} subtitle={p.text} />
+                      <PaletteRow icon={<BookOpen size={16} />} title={t(action.label)} />
                     </Command.Item>
                   );
                 })}
@@ -328,6 +364,22 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
                     className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
                   >
                     <PaletteRow icon={<Sparkles size={16} />} title={t(p.label)} subtitle={p.text} />
+                  </Command.Item>
+                ))}
+              </Command.Group>
+            )}
+
+            {actions.length > 0 && (
+              <Command.Group heading={t('common.cmdk.groups.actions')}>
+                {actions.map((a) => (
+                  <Command.Item
+                    key={makeValue('action', a.id)}
+                    value={makeValue('action', a.id)}
+                    keywords={[t(a.label)]}
+                    onSelect={handleSelect}
+                    className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
+                  >
+                    <PaletteRow icon={<BookOpen size={16} />} title={t(a.label)} />
                   </Command.Item>
                 ))}
               </Command.Group>

@@ -32,6 +32,10 @@
             "required": ["type"],
             "properties": { "type": { "enum": ["stdio", "streamable-http", "sse"] } }
           },
+          "runtimeArguments": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
           "environmentVariables": {
             "type": "array",
             "items": {
@@ -78,6 +82,8 @@
             "method": { "enum": ["none", "api-key", "oauth2-byo", "local-credentials"] },
             "providerName": { "type": "string" },
             "providerSignupUrl": { "type": "string", "format": "uri" },
+            "header": { "type": "string" },
+            "queryParam": { "type": "string" },
             "scopes": {
               "type": "array",
               "items": {

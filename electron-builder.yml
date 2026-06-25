@@ -101,6 +101,11 @@ files:
     to: assistant
   - from: out/main/static
     to: static
+  # Bundled business-pack extensions: read in place from inside the asar via the
+  # 'bundled' scan source (#275 — no longer copied out as loose .md files that
+  # tripped AV content heuristics). viteStaticCopy emits out/main/bundled-extensions.
+  - from: out/main/bundled-extensions
+    to: bundled-extensions
 
 extraResources:
   - from: public
@@ -114,12 +119,6 @@ extraResources:
     to: bundled-wayland-core
   - from: resources/hub
     to: hub
-  # Bundled business-pack extensions (real aion-extension.json trees).
-  # Copied into <userData>/extensions/<pack>/ on first run by initStorage so
-  # ExtensionLoader discovers them via the 'appdata' scan source. Ships outside
-  # app.asar so on-disk paths are real for fs scanning + SKILL.md reads.
-  - from: resources/bundled-extensions
-    to: bundled-extensions
   # Skills library + Wayland built-in workflows: shipped as real on-disk
   # Resources so SkillLibrary can read them in packaged builds. The previous
   # asarUnpack entries for these never worked: the source lives under
@@ -162,41 +161,22 @@ win:
     - zip
   icon: resources/app.ico # Use the checked-in Windows icon resource for executable metadata/icon patching
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
-  # Code signing (UPD-01). Signing engages only when the credential env is
-  # present, and is MANDATORY on release tags (see verifyUpdateCodeSignature
-  # below + the CI gate that must fail the build when these are empty on a tag).
-  #
-  # Subject-name signing drives signtool against an OV/EV certificate that has
-  # been imported into the Windows certificate store on the signing host (the
-  # same approach electron-builder documents for HSM-backed EV tokens, which
-  # cannot export a CSC_LINK .pfx). When WIN_CSC_SUBJECT_NAME is empty the
-  # macro resolves to '' and electron-builder skips signing - so unsigned dev
-  # builds still succeed, while release CI sets it and signs.
-  #
-  # Alternatively, electron-builder reads WIN_CSC_LINK + CSC_KEY_PASSWORD from
-  # the environment automatically for a .pfx-based OV cert; leaving those set
-  # also works without touching this file.
-  # Windows code signing is DISABLED until the OV/EV certificate is available
-  # (waiting on Microsoft). NOTE: electron-builder's `${env.WIN_CSC_SUBJECT_NAME}`
-  # macro does NOT collapse to '' when the env var is undefined - it stays
-  # literal, so signtool engages and fails with
-  #   ⨯ Cannot find certificate ${env.WIN_CSC_SUBJECT_NAME}
-  # With no signtoolOptions, electron-builder produces an unsigned (but valid)
-  # Windows build. RESTORE this block (nested under signtoolOptions for
-  # electron-builder 26) once the WIN_CSC_SUBJECT_NAME / WIN_PUBLISHER_NAME /
-  # WIN_TIMESTAMP_URL secrets exist, and flip verifyUpdateCodeSignature back on:
-  #   signtoolOptions:
-  #     certificateSubjectName: ${env.WIN_CSC_SUBJECT_NAME}
-  #     timeStampServer: ${env.WIN_TIMESTAMP_URL}
-  #     rfc3161TimeStampServer: ${env.WIN_TIMESTAMP_URL}
-  #     signingHashAlgorithms:
-  #       - sha256
-  #     publisherName:
-  #       - ${env.WIN_PUBLISHER_NAME}
-  # Unsigned builds can't satisfy an Authenticode check, so the Windows
-  # auto-update signature gate stays OFF until signing is restored above
-  # (Windows install still works; Windows auto-update lands with the cert).
-  verifyUpdateCodeSignature: false
+  # Code signing (UPD-01) via Azure Trusted Signing (electron-builder 26 native
+  # support). The values below are non-secret (the signature reveals the
+  # publisher anyway). Authentication is supplied at build time through the
+  # Azure EnvironmentCredential, which reads AZURE_TENANT_ID / AZURE_CLIENT_ID /
+  # AZURE_CLIENT_SECRET from the environment - those three are CI secrets, never
+  # committed. The CI build step injects them only for the Windows build, and a
+  # release-tag guard fails the build if AZURE_CLIENT_SECRET is empty so we never
+  # silently ship unsigned again. electron-builder installs the TrustedSigning
+  # PowerShell module itself on the windows-2022 runner.
+  azureSignOptions:
+    publisherName: "Ferrox Labs, LLC"
+    endpoint: https://eus.codesigning.azure.net/
+    codeSigningAccountName: ferrox-labs-signing
+    certificateProfileName: ferroxlabs
+  # Signed builds now satisfy the Windows auto-update Authenticode check.
+  verifyUpdateCodeSignature: true
 
 nsis:
   oneClick: false
@@ -211,6 +191,11 @@ nsis:
   createStartMenuShortcut: true
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
+  # #138: wipe the app's per-user data (config, cache, DB) on uninstall so a later
+  # reinstall starts clean instead of a stale DB shadowing the new build. Scope is
+  # the Electron userData dirs only; home dotfiles (~/.wayland, ~/.codex, ~/.grok)
+  # are user-owned and intentionally left in place.
+  deleteAppDataOnUninstall: true
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
   differentialPackage: false
 
@@ -247,6 +232,9 @@ dmg:
 
 afterPack: scripts/afterPack.js
 afterSign: scripts/afterSign.js
+# afterSign staples the .app; this staples the .dmg (a separate ticket) so a
+# browser-downloaded disk image isn't rejected by Gatekeeper as "damaged".
+afterAllArtifactBuild: scripts/notarizeDmg.js
 
 linux:
   # XP-BUILD-LINUX-01: ship distro-agnostic AppImage + rpm alongside deb so

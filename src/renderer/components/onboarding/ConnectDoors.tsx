@@ -11,7 +11,11 @@ import { ipcBridge } from '@/common';
 import type { ConnectFluxResult, DetectionResult } from '@/common/types/onboarding';
 import type { ProviderId } from '@process/providers/types';
 import { providerLabel } from './providerLabel';
+import { openExternalUrl } from '@renderer/utils/platform';
 import styles from './OnboardingFlow.module.css';
+
+/** Google AI Studio - where you mint a free Gemini API key. */
+const AI_STUDIO_KEY_URL = 'https://aistudio.google.com/apikey';
 
 /** Inline Google "G" mark - brand colors are intentional literals. */
 const GoogleMark: React.FC = () => (
@@ -69,27 +73,15 @@ const ConnectDoors: React.FC<ConnectDoorsProps> = ({ detection, onConnected, onP
     }
   }, [busy, onConnected]);
 
-  const connectGoogle = useCallback(async () => {
+  // Google retired the free OAuth Gemini path (June 2026), so a one-click
+  // "Continue with Google" can no longer mint a working free key. Send the user
+  // to Google AI Studio for a real key and advance to the paste step to enter
+  // it - the honest, working path (matches the cold-start AI Studio link).
+  const getGeminiKey = useCallback(() => {
     if (busy) return;
-    setBusy('google');
-    setErrorKey(null);
-    try {
-      const auth = await ipcBridge.googleAuth.login.invoke({});
-      if (!auth.success) {
-        setErrorKey('onboarding.doors.error.unknown');
-        return;
-      }
-      const res = await ipcBridge.modelRegistry.connect
-        .invoke({ providerId: 'google-gemini', creds: { useGoogleAuth: true } })
-        .catch(() => ({ ok: false as const, error: 'unknown' as const }));
-      if (res.ok) return onConnected();
-      setErrorKey('onboarding.doors.error.unknown');
-    } catch {
-      setErrorKey('onboarding.doors.error.unknown');
-    } finally {
-      setBusy(null);
-    }
-  }, [busy, onConnected]);
+    void openExternalUrl(AI_STUDIO_KEY_URL);
+    onPasteKey();
+  }, [busy, onPasteKey]);
 
   const connectDetected = useCallback(async () => {
     if (busy || !detectedProvider) return;
@@ -139,21 +131,22 @@ const ConnectDoors: React.FC<ConnectDoorsProps> = ({ detection, onConnected, onP
           <ArrowRight size={18} className={styles.doorArrow} />
         </button>
 
-        {/* Free door - Google → Gemini. */}
+        {/* Gemini key door - get a free key from Google AI Studio, then paste it
+            (the old one-click OAuth free-tier path was retired June 2026). */}
         <button
           type='button'
           data-testid='connect-door-google'
           className={styles.door}
-          onClick={() => void connectGoogle()}
+          onClick={() => getGeminiKey()}
           disabled={busy !== null}
         >
-          <span className={styles.doorIcon}>{busy === 'google' ? <Loader2 size={20} className='animate-spin' /> : <GoogleMark />}</span>
+          <span className={styles.doorIcon}><GoogleMark /></span>
           <span className={styles.doorMain}>
-            <span className={styles.doorTitle}>{t('onboarding.doors.google.title', { defaultValue: 'Continue with Google' })}</span>
+            <span className={styles.doorTitle}>{t('onboarding.doors.google.title', { defaultValue: 'Get a free Gemini key' })}</span>
             <span className={styles.doorBody}>
-              {t('onboarding.doors.google.body', { defaultValue: 'One click puts the Gemini models in your picker.' })}
+              {t('onboarding.doors.google.body', { defaultValue: 'Grab a free API key from Google AI Studio, then paste it in.' })}
             </span>
-            <span className={styles.doorFoot}>{t('onboarding.doors.google.foot', { defaultValue: 'Free with your Google account' })}</span>
+            <span className={styles.doorFoot}>{t('onboarding.doors.google.foot', { defaultValue: 'Free key · opens Google AI Studio' })}</span>
           </span>
           <ArrowRight size={18} className={styles.doorArrow} />
         </button>

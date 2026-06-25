@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useConversationListSync } from '@/renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync';
 import type { GroupedHistoryResult } from '@/renderer/pages/conversation/GroupedHistory/types';
 import { buildGroupedHistory } from '@/renderer/pages/conversation/GroupedHistory/utils/groupingHelpers';
+import { useProjects } from '@/renderer/pages/projects/hooks/useProjects';
 
 export type ConversationHistoryContextValue = ReturnType<typeof useConversationListSync> & {
   groupedHistory: GroupedHistoryResult;
@@ -19,10 +20,11 @@ const ConversationHistoryContext = createContext<ConversationHistoryContextValue
 export const ConversationHistoryProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation();
   const conversationListSync = useConversationListSync();
+  const { projects } = useProjects();
 
   const groupedHistory = useMemo(() => {
-    return buildGroupedHistory(conversationListSync.conversations, t);
-  }, [conversationListSync.conversations, t]);
+    return buildGroupedHistory(conversationListSync.conversations, t, projects);
+  }, [conversationListSync.conversations, t, projects]);
 
   const value = useMemo<ConversationHistoryContextValue>(() => {
     return {

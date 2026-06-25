@@ -14,11 +14,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .titleZone {
-  flex: 1;
-  min-width: 0;
+  /* Guarantee the title/meta a readable width so the controls never squeeze it
+     to a single ellipsized character; the control cluster wraps below instead. */
+  flex: 1 1 220px;
+  min-width: 180px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -39,7 +42,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .live {
@@ -65,6 +69,15 @@
 .ctrl {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+/* Interactivity mode toggle (Step-by-step / Auto-run) */
+.modeToggle {
   flex-shrink: 0;
 }
 

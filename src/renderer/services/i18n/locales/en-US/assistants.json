@@ -39,5 +39,11 @@
       "office": "Office",
       "general": "General"
     }
+  },
+  "import": {
+    "cta": "Import assistant",
+    "title": "Import assistant",
+    "sourcePrompt": "Choose where to import an assistant from. Files are scanned for risky patterns before they land.",
+    "done": "{{count}} assistant imported."
   }
 }

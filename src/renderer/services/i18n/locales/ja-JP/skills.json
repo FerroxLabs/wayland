@@ -177,5 +177,8 @@
     "title": "インストール済みの CLI ツールからスキルをミラーリング",
     "subtitle": "~/.claude/skills、~/.codex/skills、~/.gemini/skills のスキルを表示して、スキルページに表示します。オプトイン式です。反映には再起動が必要です。",
     "restartNeeded": "- 反映するにはアプリを再起動してください。"
+  },
+  "addToChat": {
+    "alreadyAdded": "Added"
   }
 }

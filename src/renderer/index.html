@@ -55,5 +55,51 @@
     </script>
     <div id="root"></div>
     <script type="module" src="./main.tsx"></script>
+    <script>
+      // Web-only blank-root recovery (#53). If the shell HTML loads but #root
+      // never mounts -- a stale/broken cached bundle, or the service worker
+      // having served a bad navigation -- clear the service worker + caches and
+      // reload exactly once. Gated on an existing SW registration, which only
+      // exists in web/PWA mode (Electron never registers one), so this can
+      // never fire on desktop. A sessionStorage one-shot makes a reload loop
+      // impossible: a second consecutive blank survives to show the error.
+      (function () {
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker) return;
+        var KEY = '__wayland_blankRootRecovered';
+        setTimeout(function () {
+          try {
+            var root = document.getElementById('root');
+            if (root && root.childElementCount > 0) return;
+            if (sessionStorage.getItem(KEY)) return;
+            navigator.serviceWorker
+              .getRegistrations()
+              .then(function (regs) {
+                if (!regs || regs.length === 0) return;
+                sessionStorage.setItem(KEY, '1');
+                return Promise.all(
+                  regs.map(function (r) {
+                    return r.unregister();
+                  })
+                )
+                  .then(function () {
+                    return window.caches ? caches.keys() : [];
+                  })
+                  .then(function (keys) {
+                    return Promise.all(
+                      (keys || []).map(function (k) {
+                        return caches.delete(k);
+                      })
+                    );
+                  })
+                  .catch(function () {})
+                  .then(function () {
+                    location.reload();
+                  });
+              })
+              .catch(function () {});
+          } catch (e) {}
+        }, 4000);
+      })();
+    </script>
   </body>
 </html>

@@ -38,7 +38,8 @@ import SkillConfirmModals from '@/renderer/pages/settings/AssistantSettings/Skil
 import { resolveAvatarImageSrc } from '@/renderer/pages/settings/AssistantSettings/assistantUtils';
 import { Button, Message } from '@arco-design/web-react';
 import { Download, LayoutGrid, Plus } from 'lucide-react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import ImportModal from '@/renderer/components/import/ImportModal';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
@@ -77,9 +78,13 @@ type CardEntry = {
 const TEAM_CATEGORIES: ReadonlySet<AssistantCategory> = new Set<AssistantCategory>(['sell', 'run']);
 
 const classifyAssistant = (assistant: AssistantListItem, category: AssistantCategory): AssistantCardType => {
-  if (assistant.isBuiltin) return 'builtin';
+  // `_kind` wins over `isBuiltin`: native built-in catalog records (waylandteams)
+  // are isBuiltin AND carry a kind, and must group as Team / Specialist - not be
+  // swept into the Built-ins bucket. The 31 ASSISTANT_PRESETS carry no kind and
+  // fall through to 'builtin' unchanged.
   if (assistant._kind === 'team') return 'team';
   if (assistant._kind === 'specialist') return 'specialist';
+  if (assistant.isBuiltin) return 'builtin';
   // Legacy fallback for bundles that didn't declare `kind`.
   if (TEAM_CATEGORIES.has(category)) return 'team';
   return 'specialist';
@@ -331,18 +336,12 @@ const AssistantsLibraryPage: React.FC = () => {
   // Built-ins group always renders because BuildMyOwnCard lives at its tail.
   const showBuildCardInBuiltins = selectedType === 'all' || selectedType === 'builtin';
 
-  const handleImport = useCallback(() => {
-    // Import wiring is paralleled in the Workflows page - the Skill Import
-    // flow detects type via frontmatter, so a future pass reuses it for
-    // assistants. Placeholder until that wire lands.
-    // eslint-disable-next-line no-alert
-    window.alert(
-      t('assistants.import.placeholder', {
-        defaultValue:
-          'Import wiring lands next: folder / git URL / SKILL.md with type:agent-profile auto-detected via frontmatter, scanned by Skill Guard, and registered as an Assistant.',
-      })
-    );
-  }, [t]);
+  const [importOpen, setImportOpen] = useState(false);
+  const handleImport = useCallback(() => setImportOpen(true), []);
+  const handleImportDone = useCallback(() => {
+    void loadAssistants();
+    void refreshAgentDetection();
+  }, [loadAssistants, refreshAgentDetection]);
 
   return (
     <PageShell
@@ -421,6 +420,13 @@ const AssistantsLibraryPage: React.FC = () => {
           showBuildCardInBuiltins
         )}
       </div>
+
+      <ImportModal
+        visible={importOpen}
+        kind='assistant'
+        onCancel={() => setImportOpen(false)}
+        onDone={handleImportDone}
+      />
 
       <AssistantEditDrawer
         editor={editor}

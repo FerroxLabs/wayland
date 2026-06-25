@@ -349,6 +349,22 @@ export interface IConfigStorageRefer {
   // Ambient Mode: persisted bubble window position (displayId used for multi-monitor recovery)
   'ambient.bubblePosition'?: { x: number; y: number; displayId: number };
   /**
+   * Pop-out chat window bounds (#27 phase 2). A single shared bounds record
+   * reused for every pop-out so the user's last sizing/placement (e.g. parked on
+   * a second monitor) is honored on the next pop-out. Ephemeral per the owner
+   * decision - this persists only the geometry, never the window-to-conversation
+   * mapping (pop-outs are not restored on relaunch).
+   */
+  'conversation.popoutBounds'?: { x: number; y: number; width: number; height: number; displayId: number };
+  /**
+   * User-defined slash commands (issue #28). Each entry expands a prompt
+   * template into the composer and surfaces in the slash menu alongside
+   * agent-provided commands. Shape mirrors `UserSlashCommand` in
+   * `src/common/chat/slash/userCommands.ts` - declared as an import type so
+   * src/common/config stays free of chat-feature deps.
+   */
+  'slash.customCommands'?: import('@/common/chat/slash/userCommands').UserSlashCommand[];
+  /**
    * Wayland Core "raw engine mode" power-user toggle. When true, the embedded
    * engine should run on its OWN `config.toml` and NOT be overridden with
    * Desktop's per-session model / skills / overlay injection. Off by default.
@@ -479,6 +495,8 @@ export type TChatConversation =
           cronJobId?: string;
           /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
           projectId?: string;
+          /** Per-conversation reasoning effort (Claude-ACP `effortLevel`). Absent => backend default. */
+          effort?: 'low' | 'medium' | 'high';
         }
       >,
       'model'
@@ -512,6 +530,8 @@ export type TChatConversation =
           cronJobId?: string;
           /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
           projectId?: string;
+          /** Per-conversation reasoning effort (Codex `model_reasoning_effort`). Absent => backend default. */
+          effort?: 'low' | 'medium' | 'high';
         }
       >,
       'model'
@@ -654,6 +674,8 @@ export type TChatConversation =
         cronJobId?: string;
         /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
         projectId?: string;
+        /** Per-conversation reasoning effort (WCore `set_config.effort`). Absent => backend default. */
+        effort?: 'low' | 'medium' | 'high';
       }
     >;
 
@@ -688,6 +710,16 @@ export interface IProvider {
   baseUrl: string;
   apiKey: string;
   model: string[];
+  /**
+   * Image-generation model ids for this provider, sourced from the
+   * auto-refreshing model catalog (see `legacyModelConfigBridge`). Kept
+   * separate from `model` (which is text-only, for the chat pickers) so the
+   * image-tool picker can read current image models without polluting the chat
+   * dropdowns. Absent for providers the registry mirror skips (e.g. Google-auth
+   * Gemini) or manually-added legacy rows; the picker falls back to scanning
+   * `model` and a curated floor in those cases.
+   */
+  imageModels?: string[];
   /**
    * List of model capability tags. A tag's presence means the capability is supported; absence means it is not.
    */
@@ -799,6 +831,13 @@ export interface IMcpServer {
   tools?: IMcpTool[];
   status?: 'connected' | 'disconnected' | 'error' | 'testing'; // Connection status (also indicates service availability)
   lastConnected?: number;
+  /**
+   * Human-readable reason the last connection attempt failed (set when
+   * status === 'error'). Persisted so the Installed row can show WHY a server
+   * is broken and how to fix it, instead of a bare "Error" badge. Cleared on a
+   * successful connect.
+   */
+  lastError?: string;
   createdAt: number;
   updatedAt: number;
   originalJson: string; // Stores the raw JSON config for accurate display when editing

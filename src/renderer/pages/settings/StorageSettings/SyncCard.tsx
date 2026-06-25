@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Tag } from '@arco-design/web-react';
+import { Message, Tag } from '@arco-design/web-react';
 import { Cloud, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Card from '@renderer/components/settings/shared/cards/Card';
@@ -7,6 +7,7 @@ import ConfirmDialog from '@renderer/components/settings/shared/dialogs/ConfirmD
 import { useSyncStatus } from '@renderer/hooks/useSyncStatus';
 import { sync } from '@/common/adapter/ipcBridge';
 import SyncPassphraseDialog from './SyncPassphraseDialog';
+import DesktopActionButton from './DesktopActionButton';
 
 const formatRelative = (ts: number | undefined, label: string): string => {
   if (!ts) return label;
@@ -47,9 +48,9 @@ const SyncCard: React.FC = () => {
               {t('settings.storagePage.sync.disabledDescription')}
             </div>
             <div className='flex justify-end'>
-              <Button type='primary' onClick={() => setEnableOpen(true)}>
+              <DesktopActionButton type='primary' onClick={() => setEnableOpen(true)}>
                 {t('settings.storagePage.sync.enableButton')}
-              </Button>
+              </DesktopActionButton>
             </div>
           </div>
         </Card>
@@ -67,14 +68,24 @@ const SyncCard: React.FC = () => {
     try {
       await sync.forceSync.invoke();
       await refresh();
+      Message.success(t('settings.storagePage.sync.syncNowSuccess'));
+    } catch (error) {
+      console.error('Sync now failed:', error);
+      Message.error(t('settings.storagePage.sync.syncNowFailed'));
     } finally {
       setSyncing(false);
     }
   };
 
   const handleDisable = async () => {
-    await sync.disable.invoke();
-    await refresh();
+    try {
+      await sync.disable.invoke();
+      await refresh();
+      Message.success(t('settings.storagePage.sync.disableSuccess'));
+    } catch (error) {
+      console.error('Sync disable failed:', error);
+      Message.error(t('settings.storagePage.sync.disableFailed'));
+    }
   };
 
   return (
@@ -101,12 +112,12 @@ const SyncCard: React.FC = () => {
             )}
           </div>
           <div className='flex justify-end gap-8px'>
-            <Button onClick={() => setDisableConfirmOpen(true)}>
+            <DesktopActionButton onClick={() => setDisableConfirmOpen(true)}>
               {t('settings.storagePage.sync.disableButton')}
-            </Button>
-            <Button type='primary' loading={syncing} onClick={handleSyncNow}>
+            </DesktopActionButton>
+            <DesktopActionButton type='primary' loading={syncing} onClick={handleSyncNow}>
               {t('settings.storagePage.sync.syncNow')}
-            </Button>
+            </DesktopActionButton>
           </div>
         </div>
       </Card>

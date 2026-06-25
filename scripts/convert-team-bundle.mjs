@@ -10,9 +10,9 @@
  *   node scripts/convert-team-bundle.mjs personas [--assistants <path>] [--agents <path>] [--out <dir>]
  *
  * Defaults:
- *   --bundle      /Users/seandonahoe/dev/waylandteams/contributes/skills.json
+ *   --bundle      /Users/you/dev/waylandteams/contributes/skills.json
  *   --out         ./out/team-skills
- *   --assistants  /Users/seandonahoe/dev/waylandteams/contributes/assistants.json
+ *   --assistants  /Users/you/dev/waylandteams/contributes/assistants.json
  *   --agents      (none)
  *   --out (personas mode)  ./out/team-personas
  *
@@ -29,7 +29,7 @@ import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node
 import { join, dirname, resolve } from 'node:path';
 import { argv } from 'node:process';
 
-const DEFAULT_BUNDLE = '/Users/seandonahoe/dev/waylandteams/contributes/skills.json';
+const DEFAULT_BUNDLE = '/Users/you/dev/waylandteams/contributes/skills.json';
 const DEFAULT_OUT = './out/team-skills';
 
 /** Convert a name string to kebab-case. */
@@ -121,7 +121,7 @@ export function convertTeamBundle(entries, teamsRoot, outDir, opts = {}) {
   return { count: entries.length };
 }
 
-const DEFAULT_ASSISTANTS = '/Users/seandonahoe/dev/waylandteams/contributes/assistants.json';
+const DEFAULT_ASSISTANTS = '/Users/you/dev/waylandteams/contributes/assistants.json';
 const DEFAULT_PERSONAS_OUT = './out/team-personas';
 
 /**

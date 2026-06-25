@@ -103,4 +103,38 @@ describe('extensions/ExtensionLoader', () => {
 
     expect(loadedNames).toEqual(['env-only']);
   });
+
+  it('discovers all bundled business packs from the read-only bundled (asar) source', async () => {
+    // #275: bundled packs ship inside the app and are read in place from the
+    // 'bundled' scan source rather than copied out as loose files. Point the
+    // loader at the real on-disk resources/bundled-extensions tree.
+    const bundledDir = path.resolve(__dirname, '../../../resources/bundled-extensions');
+    expect(fs.existsSync(bundledDir)).toBe(true);
+
+    const constants = await import('../../../src/process/extensions/constants');
+    const spy = vi
+      .spyOn(constants, 'getExtensionScanSources')
+      .mockReturnValue([{ dir: bundledDir, source: 'bundled' }]);
+
+    try {
+      const loaded = await new ExtensionLoader().loadAll();
+      const names = loaded.map((e) => e.manifest.name).toSorted();
+      // 10 business packs ship bundled (see resources/bundled-extensions/*).
+      expect(names).toEqual([
+        'business-commerce',
+        'business-content',
+        'business-conversion',
+        'business-finance',
+        'business-funnels',
+        'business-hr',
+        'business-legal',
+        'business-marketing',
+        'business-sales',
+        'business-support',
+      ]);
+      expect(loaded.every((e) => e.source === 'bundled')).toBe(true);
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });

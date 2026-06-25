@@ -23,6 +23,10 @@ type WorkspaceContextMenuProps = {
   handleDeleteNode: (node: IDirOrFile) => void;
   openRenameModal: (node: IDirOrFile) => void;
   closeContextMenu: () => void;
+  // Favorites (project Files only). When `onToggleFavorite` is provided and the
+  // node is a file, a Favorite/Unfavorite item is shown (#142).
+  isFavorite?: boolean;
+  onToggleFavorite?: (node: IDirOrFile) => void;
 };
 
 const MENU_BUTTON_BASE =
@@ -43,6 +47,8 @@ const WorkspaceContextMenu: React.FC<WorkspaceContextMenuProps> = ({
   handleDeleteNode,
   openRenameModal,
   closeContextMenu,
+  isFavorite,
+  onToggleFavorite,
 }) => {
   if (!visible || !node || !style) return null;
 
@@ -70,6 +76,22 @@ const WorkspaceContextMenu: React.FC<WorkspaceContextMenuProps> = ({
         >
           {t('conversation.workspace.contextMenu.addToChat')}
         </button>
+        {isFile && onToggleFavorite && (
+          <button
+            type='button'
+            className={MENU_BUTTON_BASE}
+            onClick={() => {
+              onToggleFavorite(node);
+              closeContextMenu();
+            }}
+          >
+            {t(
+              isFavorite
+                ? 'conversation.workspace.contextMenu.unfavorite'
+                : 'conversation.workspace.contextMenu.favorite'
+            )}
+          </button>
+        )}
         <button
           type='button'
           className={MENU_BUTTON_BASE}

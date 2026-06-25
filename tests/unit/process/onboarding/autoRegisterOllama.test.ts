@@ -59,6 +59,17 @@ describe('autoRegisterOllamaInRepo', () => {
     expect(catalog[0].family).toBe('llama3');
   });
 
+  it('filters out local vision/VLM models a chat agent cannot drive', () => {
+    const repo = makeRepo();
+    const outcome = autoRegisterOllamaInRepo(repo, {
+      running: true,
+      models: ['llama3:latest', 'llava:13b', 'qwen2.5-vl:7b', 'moondream:latest', 'mistral:7b'],
+    });
+
+    expect(outcome).toEqual({ action: 'created', models: 2 });
+    expect(repo.catalogs.get('ollama-local')?.map((m) => m.id)).toEqual(['llama3:latest', 'mistral:7b']);
+  });
+
   it('does nothing when Ollama is not running', () => {
     const repo = makeRepo();
     const outcome = autoRegisterOllamaInRepo(repo, { running: false, models: [] });

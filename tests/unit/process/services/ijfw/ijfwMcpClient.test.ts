@@ -5,7 +5,7 @@
  *
  * Unit tests for `ijfwMcpClient` - covers wire-protocol multiplexing, timeout
  * rejection, decode-error → kill, stdin-write-error → null process, crash
- * detection → degraded mode, and shutdown SIGTERM/SIGKILL escalation.
+ * detection → degraded mode, and shutdown delegating to killChild (#139).
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -25,6 +25,14 @@ vi.mock('electron', () => ({
 
 vi.mock('@process/services/ijfw/entryResolver', () => ({
   resolveEntry: vi.fn(async () => '/tmp/fake-ijfw-entry.js'),
+}));
+
+// #139: shutdown delegates child-tree teardown to the cross-platform killChild
+// helper (covered in depth by acpKillChild.test.ts). Mock it here so we assert
+// delegation without re-running its real ps/taskkill/process.kill logic.
+const killChildSpy = vi.fn(async () => {});
+vi.mock('@process/agent/acp/utils', () => ({
+  killChild: (...args: unknown[]) => killChildSpy(...args),
 }));
 
 // Build a fake ChildProcess we can drive from inside each test. Tracks all
@@ -86,6 +94,7 @@ beforeEach(() => {
   vi.resetModules();
   tmpHome = path.join(os.tmpdir(), `ijfw-mcp-client-test-${Date.now()}`);
   spawnSpy.mockClear();
+  killChildSpy.mockClear();
   writeShouldError = false;
   currentChild = null;
 });
@@ -376,44 +385,29 @@ describe('ijfwMcpClient', () => {
     if (result.ok) expect(result.data).toBe('not-json-payload');
   });
 
-  it('shutdown sends SIGTERM and waits for exit', async () => {
+  it('shutdown delegates child-tree teardown to killChild and nulls the child', async () => {
     const { ijfwMcpClient } = await loadClient();
     void ijfwMcpClient.invoke('memory_recall', {});
     await new Promise((r) => setImmediate(r));
 
     const child = currentChild!;
-    const shutdownPromise = ijfwMcpClient.shutdown();
-    await new Promise((r) => setImmediate(r));
-    expect(child.killSignals).toContain('SIGTERM');
+    await ijfwMcpClient.shutdown();
 
-    child.emit('exit', 0, null);
-    await shutdownPromise;
-  });
+    // #139: kill the whole tree cross-platform (taskkill /T /F on win32, POSIX
+    // descendant sweep) instead of a bare SIGTERM that orphans children.
+    expect(killChildSpy).toHaveBeenCalledTimes(1);
+    expect(killChildSpy).toHaveBeenCalledWith(child, false);
 
-  it('shutdown escalates to SIGKILL when child does not exit', async () => {
-    vi.useFakeTimers();
-    const { ijfwMcpClient } = await loadClient();
+    // Child handle is dropped so the next invoke respawns.
     void ijfwMcpClient.invoke('memory_recall', {});
-    await Promise.resolve();
-    // Allow spawn callback to register.
-    await vi.advanceTimersByTimeAsync(0);
-
-    const child = currentChild!;
-    const shutdownPromise = ijfwMcpClient.shutdown(50);
-    await vi.advanceTimersByTimeAsync(0);
-    expect(child.killSignals).toContain('SIGTERM');
-
-    // Don't emit exit - let timeout fire.
-    await vi.advanceTimersByTimeAsync(100);
-    expect(child.killSignals).toContain('SIGKILL');
-
-    child.emit('exit', 137, 'SIGKILL');
-    await shutdownPromise;
+    await new Promise((r) => setImmediate(r));
+    expect(spawnSpy).toHaveBeenCalledTimes(2);
   });
 
   it('shutdown when no child running is a no-op', async () => {
     const { ijfwMcpClient } = await loadClient();
     await expect(ijfwMcpClient.shutdown()).resolves.toBeUndefined();
+    expect(killChildSpy).not.toHaveBeenCalled();
   });
 
   it('waitForExit resolves true when child has exited', async () => {

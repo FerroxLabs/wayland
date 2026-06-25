@@ -61,7 +61,25 @@ vi.mock('@arco-design/web-react', () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, {}, children),
 }));
 
-import SpeechInputButton from '@/renderer/components/chat/SpeechInputButton';
+import SpeechInputButton, { getErrorMessageKey } from '@/renderer/components/chat/SpeechInputButton';
+
+describe('getErrorMessageKey', () => {
+  it('maps premium-locked to the premiumLocked i18n key (not genericError)', () => {
+    expect(getErrorMessageKey('premium-locked')).toBe('conversation.chat.speech.premiumLocked');
+  });
+
+  it('maps auth-error to the authError i18n key', () => {
+    expect(getErrorMessageKey('auth-error')).toBe('conversation.chat.speech.authError');
+  });
+
+  it('maps rate-limited to the rateLimited i18n key', () => {
+    expect(getErrorMessageKey('rate-limited')).toBe('conversation.chat.speech.rateLimited');
+  });
+
+  it('maps not-configured to the notConfigured i18n key', () => {
+    expect(getErrorMessageKey('not-configured')).toBe('conversation.chat.speech.notConfigured');
+  });
+});
 
 describe('SpeechInputButton', () => {
   beforeEach(() => {

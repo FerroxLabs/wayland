@@ -11,11 +11,24 @@ export type ExportOptions = {
   passphrase?: string;
 };
 
+/**
+ * Per-install secret-key filename (mirror of SECRET_KEY_FILE in
+ * secrets/fileKeyStore.ts). This file is the AES key that decrypts stored
+ * credentials; it must NEVER be written into a backup archive. Bundling it
+ * alongside the (encrypted) credential blobs would make an export equivalent to
+ * plaintext secret exfiltration, defeating the write-only invariant
+ * (cross-audit 2026-06-15). It currently lives at the workspace root, which
+ * addDir does not walk - this is the belt-and-braces guarantee that a future
+ * directory-layout change can never start leaking it.
+ */
+const NEVER_EXPORT_FILES = new Set(['.secret-key']);
+
 /** Recursively add a directory's contents into a JSZip folder. */
 async function addDir(zip: JSZip, dir: string, zipPath: string): Promise<void> {
   if (!fs.existsSync(dir)) return;
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
+    if (NEVER_EXPORT_FILES.has(entry.name)) continue;
     const srcFull = path.join(dir, entry.name);
     const zipFull = `${zipPath}/${entry.name}`;
     if (entry.isDirectory()) {

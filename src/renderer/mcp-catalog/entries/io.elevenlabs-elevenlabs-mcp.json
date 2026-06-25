@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.elevenlabs/elevenlabs-mcp",
+  "title": "ElevenLabs",
+  "description": "Text-to-speech, voice cloning, voice design, audio isolation, transcription, and sound effects - ElevenLabs’ official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://elevenlabs.io/docs/mcp",
+  "repository": {
+    "url": "https://github.com/elevenlabs/elevenlabs-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "elevenlabs-mcp",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "ELEVENLABS_API_KEY",
+          "description": "ElevenLabs API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "core",
+    "categories": [
+      "media"
+    ],
+    "tags": [
+      "elevenlabs",
+      "voice",
+      "tts",
+      "audio"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 104,
+    "installRate": 0,
+    "iconUrl": "icons/io.elevenlabs-elevenlabs-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "ElevenLabs",
+      "providerSignupUrl": "https://elevenlabs.io/app/settings/api-keys"
+    },
+    "setupGuide": {
+      "path": "guides/io.elevenlabs-elevenlabs-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

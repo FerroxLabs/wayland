@@ -4,6 +4,7 @@ import { resolveLocaleKey } from '@/common/utils';
 import {
   isExtensionAssistant as isExtensionAssistantUtil,
   normalizeExtensionAssistants,
+  normalizeStoredAssistant,
   sortAssistants as sortAssistantsUtil,
 } from '@/renderer/pages/settings/AssistantSettings/assistantUtils';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
@@ -40,8 +41,12 @@ export const useAssistantList = () => {
 
   const loadAssistants = useCallback(async () => {
     try {
-      // Read stored assistants from config (includes builtin and user-defined)
-      const localAgents: AssistantListItem[] = (await ConfigStorage.get('assistants')) || [];
+      // Read stored assistants from config (includes builtin and user-defined).
+      // Map native catalog records' kind/teammates/rituals/standing/kickoffs onto
+      // the `_`-prefixed fields the library + /teams surfaces read.
+      const localAgents: AssistantListItem[] = ((await ConfigStorage.get('assistants')) || []).map(
+        normalizeStoredAssistant
+      );
 
       const mergedAgents = [...localAgents];
       for (const extAssistant of normalizedExtAssistants) {

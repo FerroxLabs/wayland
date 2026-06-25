@@ -12,7 +12,7 @@ import type {
   PendingSkill,
   SkillInfo,
 } from '@/renderer/pages/settings/AssistantSettings/types';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type UseAssistantEditorParams = {
@@ -65,6 +65,7 @@ export const useAssistantEditor = ({
   // Builtin auto-injected skills state
   const [builtinAutoSkills, setBuiltinAutoSkills] = useState<BuiltinAutoSkill[]>([]);
   const [disabledBuiltinSkills, setDisabledBuiltinSkills] = useState<string[]>([]);
+  const editingAssistantRef = useRef<AssistantListItem | null>(null);
 
   // Load assistant rule content from file
   const loadAssistantContext = useCallback(
@@ -95,6 +96,7 @@ export const useAssistantEditor = ({
   );
 
   const handleEdit = async (assistant: AssistantListItem) => {
+    editingAssistantRef.current = assistant;
     setIsCreating(false);
     setActiveAssistantId(assistant.id);
     setEditName(assistant.name || '');
@@ -135,8 +137,12 @@ export const useAssistantEditor = ({
       setEditContext(context);
       setEditSkills(skills);
 
-      // Load skills list for builtin assistants with skillFiles and all custom assistants
-      if (hasBuiltinSkills(assistant.id) || !assistant.isBuiltin) {
+      // Load skills list for builtin assistants with skillFiles and all custom
+      // assistants. Native catalog specialists (builtin-<slug> records not in
+      // ASSISTANT_PRESETS) carry their skills inline on `enabledSkills`; pass
+      // the record so hasBuiltinSkills recognizes them and the editor stops
+      // clearing their skills list.
+      if (hasBuiltinSkills(assistant.id, assistant) || !assistant.isBuiltin) {
         const skillsList = await ipcBridge.fs.listAvailableSkills.invoke();
         setAvailableSkills(skillsList);
         setSelectedSkills(assistant.enabledSkills || []);
@@ -158,6 +164,7 @@ export const useAssistantEditor = ({
 
   // Create assistant function
   const handleCreate = async () => {
+    editingAssistantRef.current = null;
     setIsCreating(true);
     setActiveAssistantId(null);
     setEditName('');
@@ -189,6 +196,7 @@ export const useAssistantEditor = ({
 
   // Duplicate assistant function
   const handleDuplicate = async (assistant: AssistantListItem) => {
+    editingAssistantRef.current = null;
     setIsCreating(true);
     setActiveAssistantId(null);
     setEditName(`${assistant.nameI18n?.[localeKey] || assistant.name} (Copy)`);
@@ -268,6 +276,7 @@ export const useAssistantEditor = ({
       }
 
       const agents = (await ConfigStorage.get('assistants')) || [];
+      const customAgents = (await ConfigStorage.get('acp.customAgents')) || [];
 
       // Calculate final customSkills: merge existing + pending
       const pendingSkillNames = pendingSkills.map((s) => s.name);
@@ -283,6 +292,10 @@ export const useAssistantEditor = ({
           avatar: editAvatar,
           isPreset: true,
           isBuiltin: false,
+          // A user-created assistant is a single-role Specialist. Stamping `kind`
+          // makes it classify as one everywhere (library + Teams pickers, #115)
+          // via the kind-wins path, instead of relying on a category heuristic.
+          kind: 'specialist',
           presetAgentType: editAgent,
           enabled: true,
           enabledSkills: selectedSkills,
@@ -306,10 +319,14 @@ export const useAssistantEditor = ({
         message.success(t('common.createSuccess', { defaultValue: 'Created successfully' }));
       } else {
         // Update existing assistant
-        if (!activeAssistant) return;
+        const targetAssistant = activeAssistant || editingAssistantRef.current;
+        if (!targetAssistant) {
+          message.error(t('common.failed', { defaultValue: 'Failed' }));
+          return;
+        }
 
         const updatedAgent: AcpBackendConfig = {
-          ...activeAssistant,
+          ...targetAssistant,
           name: editName,
           description: editDescription,
           avatar: editAvatar,
@@ -322,14 +339,28 @@ export const useAssistantEditor = ({
         // Save rule file (if changed)
         if (editContext.trim()) {
           await ipcBridge.fs.writeAssistantRule.invoke({
-            assistantId: activeAssistant.id,
+            assistantId: targetAssistant.id,
             locale: localeKey,
             content: editContext,
           });
         }
 
-        const updatedAgents = agents.map((agent) => (agent.id === activeAssistant.id ? updatedAgent : agent));
-        await ConfigStorage.set('assistants', updatedAgents);
+        const assistantIndex = agents.findIndex((agent) => agent.id === targetAssistant.id);
+        if (assistantIndex >= 0) {
+          const updatedAgents = [...agents];
+          updatedAgents[assistantIndex] = updatedAgent;
+          await ConfigStorage.set('assistants', updatedAgents);
+        } else {
+          const customIndex = customAgents.findIndex((agent) => agent.id === targetAssistant.id);
+          if (customIndex >= 0) {
+            const updatedCustomAgents = [...customAgents];
+            updatedCustomAgents[customIndex] = updatedAgent;
+            await ConfigStorage.set('acp.customAgents', updatedCustomAgents);
+          } else {
+            message.error(t('common.failed', { defaultValue: 'Failed' }));
+            return;
+          }
+        }
         await loadAssistants();
         message.success(t('common.saveSuccess', { defaultValue: 'Saved successfully' }));
       }

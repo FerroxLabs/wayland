@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.netlify/netlify-mcp",
+  "title": "Netlify",
+  "description": "Create, build, deploy, and manage projects, environment variables, and forms - Netlify’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/netlify/netlify-mcp",
+  "repository": {
+    "url": "https://github.com/netlify/netlify-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@netlify/mcp",
+      "version": "latest",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "NETLIFY_PERSONAL_ACCESS_TOKEN",
+          "description": "Netlify API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "infrastructure",
+      "devops"
+    ],
+    "tags": [
+      "netlify",
+      "deploy",
+      "hosting"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 125,
+    "installRate": 0,
+    "iconUrl": "icons/com.netlify-netlify-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#00AD9F"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Netlify",
+      "providerSignupUrl": "https://app.netlify.com/user/applications"
+    },
+    "setupGuide": {
+      "path": "guides/com.netlify-netlify-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

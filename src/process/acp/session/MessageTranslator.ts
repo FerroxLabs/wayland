@@ -77,6 +77,29 @@ export function mapToolLocations(locations: ToolCallLocation[] | null | undefine
 export class MessageTranslator {
   /** SDK messageId → generated UUID (scoped to current turn, cleared on onTurnEnd) */
   private messageMap = new Map<string, string>();
+  /** resolved msg_id → text accumulated so far (to emit only net-new deltas) */
+  private accumulated = new Map<string, string>();
+  /** last SDK messageId seen this turn, so undefined-id chunks join the right message */
+  private lastMessageId: string | null = null;
+  /**
+   * Full visible agent text emitted so far in the CURRENT logical response.
+   * Spans the onTurnEnd wipe and mid-turn tool/plan clears (so a late real-id
+   * full-text restate is recognized as a duplicate), but is reset at the START
+   * of each new user prompt via onTurnStart() — so two separate identical
+   * prompts both emit (#184 doubling).
+   */
+  private lastEmittedText = '';
+  /** Same dedup window, tracked separately for thought chunks. */
+  private lastEmittedThought = '';
+  /**
+   * Stable per-turn msg_id for the plan/todo block, kept OUTSIDE messageMap so
+   * the mid-turn `messageMap.clear()` calls (the tool_call handler, and the one
+   * in handlePlan that isolates surrounding text) cannot orphan it. Without this
+   * every TodoWrite update minted a fresh id via resolveMsgId('plan') and the
+   * renderer APPENDED instead of merging, stacking N "To do list" cards. Reset
+   * per turn in onTurnEnd()/reset() so each new turn gets its own plan card.
+   */
+  private planMsgId: string | null = null;
 
   constructor(private readonly conversationId: string) {}
 
@@ -112,10 +135,29 @@ export class MessageTranslator {
 
   onTurnEnd(): void {
     this.messageMap.clear();
+    this.accumulated.clear();
+    this.lastMessageId = null;
+    this.planMsgId = null;
+  }
+
+  /**
+   * Called at the START of each new user prompt (PromptExecutor.execute).
+   * Opens a fresh dedup window so a genuinely new turn whose text is
+   * byte-identical to the previous turn still emits. Does NOT touch
+   * messageMap/accumulated — onTurnEnd already cleared those.
+   */
+  onTurnStart(): void {
+    this.lastEmittedText = '';
+    this.lastEmittedThought = '';
   }
 
   reset(): void {
     this.messageMap.clear();
+    this.accumulated.clear();
+    this.lastMessageId = null;
+    this.lastEmittedText = '';
+    this.lastEmittedThought = '';
+    this.planMsgId = null;
   }
 
   /** Get or create a stable UUID for a SDK messageId within the current turn. */
@@ -128,12 +170,82 @@ export class MessageTranslator {
     return msgId;
   }
 
+  /**
+   * Return only the NET-NEW text for a message, normalizing two streaming
+   * shapes into appended deltas:
+   * - incremental deltas (each chunk is a new fragment) -> appended as-is
+   * - cumulative / repeated full-text chunks (chunk restates everything so far,
+   *   e.g. claude-code-acp re-emits the full message under a real messageId
+   *   after streaming it under messageId=undefined) -> only the unseen tail is
+   *   emitted, so a repeat adds nothing instead of doubling the text.
+   */
+  private netNewDelta(msgId: string, text: string): string {
+    const prev = this.accumulated.get(msgId) ?? '';
+    if (text.startsWith(prev)) {
+      this.accumulated.set(msgId, text);
+      return text.slice(prev.length);
+    }
+    this.accumulated.set(msgId, prev + text);
+    return text;
+  }
+
+  /**
+   * Safe cross-message dedup for the doubling bug (#184). `fullMsgText` is this
+   * message's full accumulated text; `delta` is what the handler would emit.
+   * Compares against the running visible text of the whole logical response
+   * (`window`) so a late full-text restate under a fresh msg_id (after the
+   * onTurnEnd wipe, a Flux non-prefix restate, or a plan/tool clear) emits
+   * nothing. Returns the delta to actually emit ('' = suppress) + the new window.
+   *
+   * It does NOT dedup across user prompts: onTurnStart() resets `window` to ''
+   * at the start of every turn, so an identical NEW prompt sees window='',
+   * fails the restate check, and emits normally.
+   */
+  private dedupAgainstWindow(window: string, fullMsgText: string, delta: string): { emit: string; window: string } {
+    if (fullMsgText && (window === fullMsgText || window.endsWith(fullMsgText))) {
+      return { emit: '', window };
+    }
+    return { emit: delta, window: window + delta };
+  }
+
+  /**
+   * Resolve the bucket key for a text/thought chunk, coalescing the two shapes
+   * claude-code-acp uses for ONE logical message: streamed deltas under
+   * messageId=undefined, then the full text repeated under a real messageId.
+   * - undefined id -> the current message (last real id, else a 'default' bucket)
+   * - real id whose text continues an in-flight 'default' bucket -> adopt that
+   *   bucket so the repeat merges instead of forming a second message.
+   */
+  private resolveRunKey(rawMessageId: string | undefined, text: string, prefix: string): string {
+    if (!rawMessageId) {
+      return prefix + (this.lastMessageId ?? 'default');
+    }
+    const realKey = prefix + rawMessageId;
+    const defaultKey = prefix + 'default';
+    const pending = this.messageMap.get(defaultKey);
+    if (pending && !this.messageMap.has(realKey)) {
+      const acc = this.accumulated.get(pending) ?? '';
+      if (acc && text.startsWith(acc)) {
+        this.messageMap.set(realKey, pending);
+        this.messageMap.delete(defaultKey);
+      }
+    }
+    return realKey;
+  }
+
   private handleAgentMessageChunk(update: ContentChunk): IMessageText[] {
-    const messageId = update.messageId ?? 'default';
+    if (update.messageId) this.lastMessageId = update.messageId;
     const text = update.content.type === 'text' ? update.content.text : '';
     if (!text) return [];
 
-    const msgId = this.resolveMsgId(messageId);
+    const msgId = this.resolveMsgId(this.resolveRunKey(update.messageId, text, ''));
+    const delta = this.netNewDelta(msgId, text);
+    if (!delta) return [];
+
+    const fullMsgText = this.accumulated.get(msgId) ?? '';
+    const { emit, window } = this.dedupAgainstWindow(this.lastEmittedText, fullMsgText, delta);
+    this.lastEmittedText = window;
+    if (!emit) return [];
 
     return [
       {
@@ -141,7 +253,7 @@ export class MessageTranslator {
         msg_id: msgId,
         conversation_id: this.conversationId,
         type: 'text',
-        content: { content: text },
+        content: { content: emit },
         position: 'left',
         status: 'work',
       },
@@ -149,11 +261,18 @@ export class MessageTranslator {
   }
 
   private handleThoughtChunk(update: ContentChunk): IMessageThinking[] {
-    const messageId = `thought-${update.messageId ?? 'default'}`;
+    if (update.messageId) this.lastMessageId = update.messageId;
     const text = update.content.type === 'text' ? update.content.text : '';
     if (!text) return [];
 
-    const msgId = this.resolveMsgId(messageId);
+    const msgId = this.resolveMsgId(this.resolveRunKey(update.messageId, text, 'thought-'));
+    const delta = this.netNewDelta(msgId, text);
+    if (!delta) return [];
+
+    const fullMsgText = this.accumulated.get(msgId) ?? '';
+    const { emit, window } = this.dedupAgainstWindow(this.lastEmittedThought, fullMsgText, delta);
+    this.lastEmittedThought = window;
+    if (!emit) return [];
 
     return [
       {
@@ -161,7 +280,7 @@ export class MessageTranslator {
         msg_id: msgId,
         conversation_id: this.conversationId,
         type: 'thinking',
-        content: { content: text, status: 'thinking' },
+        content: { content: emit, status: 'thinking' },
         position: 'left',
         status: 'work',
       },
@@ -172,6 +291,8 @@ export class MessageTranslator {
     // Tool call interrupts the current text stream - clear text msg_id mappings
     // so subsequent text chunks start a new message (matching old AcpAdapter behavior).
     this.messageMap.clear();
+    this.accumulated.clear();
+    this.lastMessageId = null;
 
     const toolCallId = update.toolCallId ?? crypto.randomUUID();
 
@@ -243,8 +364,12 @@ export class MessageTranslator {
     // SDK Plan type has entries at top level: { entries: PlanEntry[] }
     if (!plan.entries || plan.entries.length === 0) return [];
 
-    // Use stable per-turn ID so the renderer merges plan updates within a turn
-    const planMsgId = this.resolveMsgId('plan');
+    // Stable per-turn id from a dedicated field — NOT resolveMsgId('plan'), whose
+    // entry the clear() above (and the tool_call clear) would wipe, minting a
+    // fresh id per update and stacking duplicate "To do list" cards. Reusing one
+    // id lets the renderer merge every TodoWrite update into a single card.
+    this.planMsgId ??= crypto.randomUUID();
+    const planMsgId = this.planMsgId;
 
     return [
       {

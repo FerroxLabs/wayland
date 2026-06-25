@@ -15,6 +15,11 @@ const ipcMock = vi.hoisted(() => ({
   getModelConfig: vi.fn().mockResolvedValue([]),
   registryList: vi.fn(),
   registryListChanged: vi.fn(() => () => {}),
+  // The unified flyout's view model resolves the curated catalog + recent usage.
+  // These vendor/native cases return [] so `hasCuratedModels` is false and the
+  // native Arco menu (Flux tiers + the agent's own models) is exercised.
+  curatedForAgent: vi.fn().mockResolvedValue([]),
+  queryRecentlyUsedModels: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock('@/common', () => ({
@@ -27,14 +32,23 @@ vi.mock('@/common', () => ({
     mode: {
       getModelConfig: { invoke: ipcMock.getModelConfig },
     },
+    usage: {
+      queryRecentlyUsedModels: { invoke: ipcMock.queryRecentlyUsedModels },
+    },
+    // useModelEffort reads/writes per-conversation effort.
+    conversation: {
+      get: { invoke: vi.fn().mockResolvedValue(null) },
+      update: { invoke: vi.fn().mockResolvedValue(true) },
+    },
   },
 }));
 
-// useFluxConnected reads `modelRegistry` directly from this module.
+// useFluxConnected + useModelRegistry read `modelRegistry` directly from this module.
 vi.mock('@/common/adapter/ipcBridge', () => ({
   modelRegistry: {
     list: { invoke: ipcMock.registryList },
     listChanged: { on: ipcMock.registryListChanged },
+    curatedForAgent: { invoke: ipcMock.curatedForAgent },
   },
 }));
 
@@ -54,7 +68,11 @@ vi.mock('swr', () => ({
   default: () => ({ data: [], error: undefined, mutate: vi.fn() }),
 }));
 
+import { MemoryRouter } from 'react-router-dom';
 import AcpModelSelector from '../../../src/renderer/components/agent/AcpModelSelector';
+
+/** AcpModelSelector now calls `useNavigate` (Manage models footer), so render under a Router. */
+const renderSelector = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
 
 const NATIVE_INFO = {
   success: true,
@@ -87,7 +105,7 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     // flux-router is a connected provider.
     ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);
 
-    render(<AcpModelSelector conversationId='conv-1' backend='qwen' />);
+    renderSelector(<AcpModelSelector conversationId='conv-1' backend='qwen' />);
 
     await waitFor(() => {
       expect(screen.getAllByText('Qwen Max').length).toBeGreaterThan(0);
@@ -122,7 +140,7 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);
 
     // `copilot` has fluxCompat: 'vendor' - not Flux-capable.
-    render(<AcpModelSelector conversationId='conv-2' backend='copilot' />);
+    renderSelector(<AcpModelSelector conversationId='conv-2' backend='copilot' />);
 
     await waitFor(() => {
       expect(screen.getAllByText('Copilot Model').length).toBeGreaterThan(0);
@@ -140,7 +158,7 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     ipcMock.getModelInfo.mockResolvedValue(NATIVE_INFO);
     ipcMock.registryList.mockResolvedValue([]); // no flux-router provider
 
-    render(<AcpModelSelector conversationId='conv-3' backend='qwen' />);
+    renderSelector(<AcpModelSelector conversationId='conv-3' backend='qwen' />);
 
     await waitFor(() => {
       expect(screen.getAllByText('Qwen Max').length).toBeGreaterThan(0);
@@ -158,7 +176,7 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     ipcMock.getModelInfo.mockResolvedValue(NATIVE_INFO);
     ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);
 
-    render(<AcpModelSelector conversationId='conv-4' backend='qwen' />);
+    renderSelector(<AcpModelSelector conversationId='conv-4' backend='qwen' />);
 
     await waitFor(() => {
       expect(screen.getAllByText('Qwen Max').length).toBeGreaterThan(0);

@@ -64,6 +64,18 @@ describe('resolveSpawnSecretsFromRepo', () => {
     expect(secrets?.baseUrl).toBe('http://127.0.0.1:11434/v1');
   });
 
+  // Flux: a connected flux-router provider resolves to Flux's OpenAI-compatible
+  // base URL even though the stored creds carry no baseUrl. hydrateModelForSpawn
+  // routes flux bindings here by FLUX_PROVIDER_ID (their legacy mirror id is a
+  // uuid), so the engine gets api.fluxrouter.ai instead of falling back to
+  // api.openai.com (which made flux-auto turns hang with no response).
+  it('resolves the Flux base URL for a connected flux-router provider', () => {
+    const repo = makeRepo({ 'flux-router': { connected: true, creds: { key: 'sk-flux' } } });
+    const secrets = resolveSpawnSecretsFromRepo(repo, { providerId: 'flux-router', modelId: 'flux-auto' });
+    expect(secrets?.apiKey).toBe('sk-flux');
+    expect(secrets?.baseUrl).toBe('https://api.fluxrouter.ai/v1');
+  });
+
   it('picks up a re-keyed provider on the next call (late resolution)', () => {
     const rows: Record<string, Row> = { openai: { connected: true, creds: { key: 'sk-old' } } };
     const repo = makeRepo(rows);

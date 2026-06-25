@@ -1,0 +1,59 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.you/you-mcp",
+  "title": "You.com",
+  "description": "Web and news search plus multi-step research with citations - You.com’s official hosted MCP, with a free no-key tier.",
+  "version": "1.0.0",
+  "websiteUrl": "https://you.com/docs/build-with-agents/mcp-server",
+  "repository": {
+    "url": "https://you.com/docs/build-with-agents/mcp-server",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.you.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "search",
+      "research"
+    ],
+    "tags": [
+      "you",
+      "search",
+      "news",
+      "research"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 111,
+    "installRate": 0,
+    "iconUrl": "icons/com.you-you-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#7C3AED"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "You.com",
+      "providerSignupUrl": "https://you.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.you-you-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -18,6 +18,10 @@
     "wired": {
       "body": "最近 100：H{{h}} · S{{s}} · O{{o}}",
       "action": "查看每个请求的去向"
+    },
+    "dismiss": {
+      "label": "隐藏 Flux 状态",
+      "hint": "已隐藏 Flux 状态。"
     }
   },
   "accordion": {

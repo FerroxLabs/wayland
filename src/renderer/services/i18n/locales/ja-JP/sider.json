@@ -18,6 +18,10 @@
     "wired": {
       "body": "直近100: H{{h}} · S{{s}} · O{{o}}",
       "action": "各ターンの行き先を見る"
+    },
+    "dismiss": {
+      "label": "Flux ステータスを非表示",
+      "hint": "Flux ステータスを非表示にしました。"
     }
   },
   "accordion": {

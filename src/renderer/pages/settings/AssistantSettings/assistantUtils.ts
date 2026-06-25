@@ -7,9 +7,21 @@ export type AssistantSource = 'builtin' | 'custom' | 'extension';
 
 /**
  * Check if a builtin assistant has skills config (defaultEnabledSkills or skillFiles).
+ *
+ * The optional `record` lets callers also qualify native catalog specialists
+ * (waylandteams), which are stored as `builtin-<slug>` records that are NOT in
+ * ASSISTANT_PRESETS but carry their assigned skills inline on `enabledSkills`.
+ * Without this the Settings editor cleared their skills list (they failed the
+ * preset lookup), so native specialists could not view/edit their skills.
  */
-export const hasBuiltinSkills = (assistantId: string): boolean => {
+export const hasBuiltinSkills = (
+  assistantId: string,
+  record?: { enabledSkills?: string[] | null } | null
+): boolean => {
   if (!assistantId.startsWith('builtin-')) return false;
+  if (record && Array.isArray(record.enabledSkills) && record.enabledSkills.length > 0) {
+    return true;
+  }
   const presetId = assistantId.replace('builtin-', '');
   const preset = ASSISTANT_PRESETS.find((p) => p.id === presetId);
   if (!preset) return false;
@@ -165,6 +177,47 @@ export const normalizeExtensionAssistants = (extensionAssistants: Record<string,
     })
     .filter((item): item is AssistantListItem => item !== null);
 };
+
+/**
+ * Map a stored (config.assistants) record's native-catalog fields onto the
+ * renderer's `_`-prefixed fields. Native built-in catalog records (waylandteams)
+ * carry `kind`/`teammates`/`rituals`/`standing`/`kickoffs` on the base config;
+ * the library + /teams surfaces read `_kind`/`_teammates`/... (the shape the
+ * extension path produced). This bridges the two so a native team launcher
+ * surfaces on /teams identically to how it did when loaded as an extension.
+ * No-op for records that carry no `kind` (e.g. the 31 ASSISTANT_PRESETS rows).
+ */
+export const normalizeStoredAssistant = (assistant: AssistantListItem): AssistantListItem => {
+  const a = assistant as AssistantListItem & {
+    kind?: 'team' | 'specialist';
+    teammates?: string[];
+    rituals?: Array<{ name: string; cadence: string }>;
+    standing?: boolean;
+    kickoffs?: unknown;
+  };
+  if (!a.kind) return assistant;
+  return {
+    ...assistant,
+    _kind: a._kind ?? a.kind,
+    _teammates: a._teammates ?? a.teammates,
+    _rituals: a._rituals ?? a.rituals,
+    _standing: a._standing ?? a.standing,
+    _kickoffs: a._kickoffs ?? normalizeKickoffs(a.kickoffs),
+  };
+};
+
+/**
+ * True when an assistant should be offered as a Team leader / teammate.
+ *
+ * Specialists (native waylandteams + vendored agent-profiles carry
+ * `_kind === 'specialist'`) and user-created custom assistants both qualify;
+ * team launchers (`_kind === 'team'`) and the 31 generic built-in presets do
+ * not. The `!isBuiltin` clause is what surfaces custom Specialists (#115) -
+ * including ones saved before they were stamped with `kind: 'specialist'`, which
+ * carry no `_kind` at all.
+ */
+export const isSelectableSpecialist = (assistant: AssistantListItem): boolean =>
+  assistant._kind === 'specialist' || (assistant._kind !== 'team' && !assistant.isBuiltin);
 
 /**
  * Check if an assistant originates from an extension or another bundle-vendored

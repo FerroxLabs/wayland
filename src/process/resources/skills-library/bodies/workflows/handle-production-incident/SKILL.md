@@ -21,6 +21,7 @@ metadata:
   depends: incident-response logging-patterns monitoring-alerting technical-documentation retrospective-facilitator
   disclaimer: none
   difficulty: advanced
+  interactivity: "auto"
 ---
 
 # Handle Production Incident

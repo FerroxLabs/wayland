@@ -93,7 +93,10 @@
     "closeAll": "すべて閉じる",
     "closeLeft": "左側を閉じる",
     "closeRight": "右側を閉じる",
-    "closeOthers": "他を閉じる"
+    "closeOthers": "他を閉じる",
+    "popOut": "別ウィンドウで開く",
+    "dockBack": "元に戻す",
+    "poppedOut": "別ウィンドウで開いています"
   },
   "workspace": {
     "title": "ワークスペース",
@@ -230,6 +233,9 @@
       "permissionDenied": "マイク権限が拒否されました",
       "recordingUnsupported": "この環境では直接録音できません。音声ファイルをアップロードしてください",
       "transcriptionFailed": "音声の文字起こしに失敗しました",
+      "authError": "Flux キーが無効です。音声入力を使うには Flux Router を再接続してください",
+      "premiumLocked": "Flux Voice には有料の Flux プランが必要です。音声入力を使うにはアップグレードしてください",
+      "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください",
       "genericError": "音声入力に失敗しました。もう一度お試しください"
     }
   },
@@ -330,5 +336,89 @@
       "sublabel": "既存の Claude Code ログインで実行——追加のキー管理は不要です。",
       "action": "使う"
     }
+  },
+  "noModelCta": {
+    "title": "No model configured yet",
+    "bodyDesktop": "Set one up to start chatting.",
+    "bodyRemote": "Connect Flux or set up a model on the server to start chatting.",
+    "button": "Set up a model",
+    "sendTooltip": "Connect a model to start sending"
+  },
+  "acpAuthFailure": {
+    "title": "{{backend}} はここではサインインできません",
+    "subscriptionExplainer": "プロバイダーは、このようなサードパーティ製ツール内でのサブスクリプションによるログインをブロックしています。ここで {{backend}} を引き続き使用するには、Flux Router 経由でルーティングするか、プロバイダーの API キーを追加するか、CLI に直接サインインしてください。",
+    "genericExplainer": "{{backend}} の認証に失敗しました。Flux Router 経由でルーティングするか、プロバイダーの API キーを追加するか、CLI にサインインして解決してください。",
+    "wcoreExplainer": "Wayland Core の認証に失敗しました。推論プロバイダーが API キーを拒否しました（401）。Claude Code とは異なり、Wayland Core にはフォールバックできるサブスクリプションのサインインがありません。有効なプロバイダーキーを追加するか、Flux Router 経由でルーティングしてください。",
+    "flux": {
+      "label": "Flux 経由でルーティング",
+      "sublabel": "スマートルーティングが各タスクに最適なモデルを選びます。1 ドルのクレジットで無料で始められ、その後は従量課金またはプランを選択できます。",
+      "action": "ルーティング"
+    },
+    "addKey": {
+      "label": "{{provider}} の API キーを追加",
+      "sublabel": "設定を開き、プロバイダーのコンソールから取得した API キーを貼り付けてください。",
+      "action": "キーを追加",
+      "labelAny": "任意のプロバイダーの API キーを追加"
+    },
+    "cliLogin": {
+      "label": "CLI にサインイン",
+      "sublabel": "{{cmd}} を実行してサブスクリプションでサインインし、メッセージをもう一度送信してください。",
+      "action": "コマンドをコピー",
+      "copied": "コマンドをコピーしました"
+    },
+    "dismiss": "閉じる",
+    "recommended": "（推奨）"
+  },
+  "composerMenu": {
+    "skills": "Skills",
+    "connectors": "Connectors",
+    "countOn": "{{count}} on",
+    "skillsTitle": "Skills on this chat",
+    "skillsSub": "Only these load by default. Everything else stays one search away.",
+    "onThisChat": "On this chat",
+    "searchPlaceholder": "Search skills…",
+    "suggestedFor": "Suggested for “{{draft}}”",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noResults": "No skills match “{{query}}”.",
+    "manageAllSkills": "Manage all skills",
+    "tagBuiltin": "builtin",
+    "tagAdded": "added",
+    "toggleAria": "Toggle {{name}}",
+    "connectorsTitle": "Connectors",
+    "connectorsSub": "Turn a connected MCP server on or off.",
+    "connectorsConnected": "Connected",
+    "toolCount": "{{count}} tools",
+    "noConnectors": "No connectors installed yet.",
+    "addConnector": "Add a connector",
+    "manageConnectors": "Manage connectors"
+  },
+  "modelSelector": {
+    "title": "Model",
+    "subtitle": "Pick a model for this chat. Only what you have connected shows.",
+    "enabledCount": "{{count}} enabled",
+    "recommended": "Recommended",
+    "searchPlaceholder": "Search models…",
+    "modelCount": "{{count}} models",
+    "moreModels": "More models",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noMatch": "No models match “{{query}}”.",
+    "unavailable": "Currently unavailable",
+    "pinAria": "Pin {{name}}",
+    "unpinAria": "Unpin {{name}}",
+    "effort": "Effort",
+    "effortLow": "Low",
+    "effortMedium": "Medium",
+    "effortHigh": "High",
+    "effortLowDesc": "Fast responses with lighter reasoning",
+    "effortMediumDesc": "Balances speed and reasoning depth",
+    "effortHighDesc": "Greater reasoning depth for complex problems",
+    "emptyTitle": "No models yet",
+    "emptySub": "Connect a provider to choose a model.",
+    "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
+    "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
+    "connectProvider": "Connect a provider",
+    "manageModels": "Manage models"
   }
 }

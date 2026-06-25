@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { ArrowLeftCircle, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Plus } from 'lucide-react';
+import {
+  ArrowLeftCircle,
+  ChevronLeft,
+  ChevronRight,
+  PanelRightClose,
+  PanelRightOpen,
+  Plus,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -12,6 +19,8 @@ import type { WorkspaceStateDetail } from '@renderer/utils/workspace/workspaceEv
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useNavigationHistory } from '@/renderer/hooks/context/NavigationHistoryContext';
 import { isElectronDesktop, isMacOS } from '@/renderer/utils/platform';
+import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
+import UpdatePill from './UpdatePill';
 // Full brand lockups (orbit mark + wordmark + ™). Dark wordmark shows on light
 // theme, white wordmark on dark theme - toggled purely via CSS on [data-theme].
 import lockupDark from '@renderer/assets/logos/brand/wayland-lockup-dark.png';
@@ -79,6 +88,9 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
   const [mobileCenterTitle, setMobileCenterTitle] = useState(appTitle);
   const [mobileCenterOffset, setMobileCenterOffset] = useState(0);
   const layout = useLayoutContext();
+  // #27 phase 2: in a pop-out window there is no sider, so the titlebar renders
+  // standalone - suppress the sider toggle but preserve macOS traffic-light spacing.
+  const isPopout = useIsPopoutMode();
   const navigationHistory = useNavigationHistory();
   const location = useLocation();
   const navigate = useNavigate();
@@ -121,8 +133,9 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
   // Desktop uses slimmer strokes to match macOS-native chrome aesthetics;
   // mobile keeps the default weight so icons stay legible at larger sizes.
   const desktopIconStroke = layout?.isMobile ? undefined : 2.5;
-  // Always expose sidebar toggle on titlebar left side
-  const showSiderToggle = Boolean(layout?.setSiderCollapsed) && !(layout?.isMobile && isSettingsRoute);
+  // Always expose sidebar toggle on titlebar left side - except in a pop-out
+  // window, which has no sider to toggle.
+  const showSiderToggle = !isPopout && Boolean(layout?.setSiderCollapsed) && !(layout?.isMobile && isSettingsRoute);
   const showBackToChatButton = Boolean(layout?.isMobile && isSettingsRoute);
   const showNewConversationButton = Boolean(layout?.isMobile && workspaceAvailable);
   const siderTooltip = layout?.siderCollapsed
@@ -266,14 +279,18 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
     : undefined;
 
   const menuStyle: React.CSSProperties = useMemo(() => {
-    if (!isMacRuntime || !showSiderToggle) return {};
-    // macOS: sit the menu buttons right next to the traffic lights (which occupy ~70px).
-    // Mobile keeps its own layout (no traffic lights).
-    const marginLeft = layout?.isMobile ? '0px' : '76px';
+    // Reserve room for the macOS traffic lights whenever the menu sits to their
+    // right: normally that's when the sider toggle shows, but a pop-out window
+    // has no sider toggle yet still has traffic lights, so reserve there too.
+    if (!isMacRuntime || (!showSiderToggle && !isPopout && !showBackToChatButton)) return {};
+    // macOS: sit the menu buttons right next to the traffic lights (which occupy
+    // ~70px). This block only runs in the macOS desktop app, where the traffic
+    // lights are present at every window width - including a narrow window that
+    // trips isMobile - so always reserve the room (else the toggle overlaps them).
     return {
-      marginLeft,
+      marginLeft: '76px',
     };
-  }, [isMacRuntime, showSiderToggle, layout?.isMobile]);
+  }, [isMacRuntime, showSiderToggle, isPopout, showBackToChatButton]);
 
   return (
     <div
@@ -294,7 +311,9 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
             onClick={handleBackToChat}
             aria-label={backToChatTooltip}
           >
-            <ArrowLeftCircle size={iconSize} />
+            {/* Match the sidebar toggle's compact 18px size; don't balloon to
+                24px on mobile (it read as clunky against the macOS controls). */}
+            <ArrowLeftCircle size={18} />
           </button>
         )}
         {showSiderToggle && (
@@ -304,15 +323,9 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
             onClick={handleSiderToggle}
             aria-label={siderTooltip}
           >
-            {layout?.isMobile ? (
-              layout?.siderCollapsed ? (
-                <PanelLeftOpen size={iconSize} />
-              ) : (
-                <PanelLeftClose size={iconSize} />
-              )
-            ) : (
-              <SidebarIcon size={iconSize} strokeWidth={desktopIconStroke} />
-            )}
+            {/* Same sidebar glyph + size at every width - the toggle should not
+                swap icon or grow on a narrow window. */}
+            <SidebarIcon size={18} strokeWidth={2.5} />
           </button>
         )}
         {showHistoryNav && (
@@ -340,6 +353,7 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
           </>
         )}
       </div>
+      <UpdatePill />
       <div
         className='app-titlebar__brand'
         aria-label={layout?.isMobile ? mobileCenterTitle : appTitle}
@@ -352,8 +366,20 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
           </span>
         ) : (
           <span className='app-titlebar__brand-desktop'>
-            <img src={lockupDark} alt={appTitle} className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-light' aria-hidden='true' draggable={false} />
-            <img src={lockupWhite} alt={appTitle} className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-dark' aria-hidden='true' draggable={false} />
+            <img
+              src={lockupDark}
+              alt={appTitle}
+              className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-light'
+              aria-hidden='true'
+              draggable={false}
+            />
+            <img
+              src={lockupWhite}
+              alt={appTitle}
+              className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-dark'
+              aria-hidden='true'
+              draggable={false}
+            />
             <span className='app-titlebar__brand-tagline'>Perceives · Reasons · Acts · Evolves</span>
           </span>
         )}
@@ -376,11 +402,7 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
             onClick={handleWorkspaceToggle}
             aria-label={workspaceTooltip}
           >
-            {workspaceCollapsed ? (
-              <PanelRightOpen size={iconSize} />
-            ) : (
-              <PanelRightClose size={iconSize} />
-            )}
+            {workspaceCollapsed ? <PanelRightOpen size={iconSize} /> : <PanelRightClose size={iconSize} />}
           </button>
         )}
         {showWindowControls && <WindowControls />}

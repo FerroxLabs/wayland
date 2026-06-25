@@ -90,4 +90,15 @@ describe('getAcpAuthRemedy', () => {
     expect(remedy.providerKeyLabel).toBe('Anthropic');
     expect(remedy.cliLoginCmd).toBeUndefined();
   });
+
+  it('marks wcore as genericProviderKey (any provider key, not vendor-locked)', () => {
+    // Wayland Core routes any provider, so the add-key remedy must read generically.
+    expect(getAcpAuthRemedy('wcore').genericProviderKey).toBe(true);
+    expect(getAcpAuthRemedy('claude').genericProviderKey).toBeUndefined();
+  });
+
+  it('suppresses the Flux action when the backend is already flux-routed', () => {
+    expect(getAcpAuthRemedy('wcore', { fluxAlreadyRouted: true }).fluxRoutable).toBe(false);
+    expect(getAcpAuthRemedy('wcore', { fluxAlreadyRouted: false }).fluxRoutable).toBe(true);
+  });
 });

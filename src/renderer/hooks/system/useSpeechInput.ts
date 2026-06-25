@@ -14,11 +14,14 @@ export type SpeechInputStatus = 'idle' | 'recording' | 'transcribing' | 'error';
 export type SpeechInputErrorCode =
   | 'aborted'
   | 'audio-capture'
+  | 'auth-error'
   | 'empty-transcript'
   | 'file-too-large'
   | 'network'
   | 'not-configured'
   | 'permission-denied'
+  | 'premium-locked'
+  | 'rate-limited'
   | 'recording-unsupported'
   | 'transcription-failed'
   | 'unknown';
@@ -122,7 +125,7 @@ export const pickRecordingMimeType = (): string => {
   return RECORDING_MIME_TYPES.find((mimeType) => MediaRecorder.isTypeSupported(mimeType)) || '';
 };
 
-const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
+export const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
   if (error instanceof DOMException) {
     switch (error.name) {
       case 'NotAllowedError':
@@ -140,7 +143,17 @@ const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
 
   const message = error instanceof Error ? error.message : String(error);
 
+  if (message.includes('STT_FLUX_PREMIUM_LOCKED')) {
+    return 'premium-locked';
+  }
+  if (message.includes('STT_FLUX_AUTH_ERROR')) {
+    return 'auth-error';
+  }
+  if (message.includes('STT_RATE_LIMITED')) {
+    return 'rate-limited';
+  }
   if (
+    message.includes('STT_FLUX_NOT_CONFIGURED') ||
     message.includes('STT_OPENAI_NOT_CONFIGURED') ||
     message.includes('STT_DEEPGRAM_NOT_CONFIGURED') ||
     message.includes('STT_DISABLED')

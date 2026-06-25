@@ -8,6 +8,13 @@ import { Button } from '@arco-design/web-react';
 import { RotateCcw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
+import { isElectronDesktop } from '@renderer/utils/platform';
+import {
+  readConstitutionHttp,
+  resetConstitutionHttp,
+  writeConstitutionHttp,
+} from '@renderer/services/ConstitutionService';
 import type { SaveState } from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
@@ -55,6 +62,7 @@ const parseToc = (markdown: string): TocEntry[] => {
 
 const ConstitutionSettings: React.FC = () => {
   const { t } = useTranslation();
+  const isMobile = useLayoutContext()?.isMobile ?? false;
 
   const [value, setValue] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -73,17 +81,22 @@ const ConstitutionSettings: React.FC = () => {
     let cancelled = false;
     void (async () => {
       const api = window.electronAPI;
-      if (!api?.readConstitution || !api?.resetConstitution) {
-        // Non-Electron / preload not ready - leave the editor empty with a
-        // neutral state. The Reset action below is also gated.
-        if (!cancelled) setLoading(false);
-        return;
-      }
-      let text = await api.readConstitution();
-      if (!text) {
-        // First-install seed: materialize the default Constitution to disk
-        // so the editor isn't blank on a brand-new install.
-        text = await api.resetConstitution();
+      let text: string;
+      if (isElectronDesktop() && api?.readConstitution && api?.resetConstitution) {
+        text = await api.readConstitution();
+        if (!text) {
+          // First-install seed: materialize the default Constitution to disk
+          // so the editor isn't blank on a brand-new install.
+          text = await api.resetConstitution();
+        }
+      } else {
+        // Headless WebUI: the constitution is not a secret, so read it over the
+        // token-authed GET. Seed the default on first install via reset, then
+        // re-read since reset returns status only (never the body).
+        text = await readConstitutionHttp();
+        if (!text && (await resetConstitutionHttp())) {
+          text = await readConstitutionHttp();
+        }
       }
       if (cancelled) return;
       setValue(text);
@@ -107,7 +120,9 @@ const ConstitutionSettings: React.FC = () => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setSaveState('saving');
     saveTimer.current = setTimeout(async () => {
-      const ok = (await window.electronAPI?.writeConstitution?.(md)) ?? false;
+      const ok = isElectronDesktop()
+        ? ((await window.electronAPI?.writeConstitution?.(md)) ?? false)
+        : await writeConstitutionHttp(md);
       setSaveState(ok ? 'saved' : 'error');
       if (ok) {
         if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
@@ -117,7 +132,13 @@ const ConstitutionSettings: React.FC = () => {
   }, []);
 
   const handleReset = useCallback(async (): Promise<void> => {
-    const next = await window.electronAPI?.resetConstitution?.();
+    let next: string | undefined;
+    if (isElectronDesktop()) {
+      next = await window.electronAPI?.resetConstitution?.();
+    } else if (await resetConstitutionHttp()) {
+      // Reset returns status only; re-read the restored prose over the GET.
+      next = await readConstitutionHttp();
+    }
     if (typeof next !== 'string') return;
     hydrating.current = true;
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -213,7 +234,7 @@ const ConstitutionSettings: React.FC = () => {
           {t('settings.constitutionPage.loading', 'Loading…')}
         </div>
       ) : (
-        <div className='flex gap-16px items-start'>
+        <div className={isMobile ? 'flex flex-col gap-16px items-stretch' : 'flex gap-16px items-start'}>
           <div className='flex-1 min-w-0 flex flex-col gap-8px'>
             <div className='flex flex-col gap-2px'>
               <span className={`text-12px font-medium ${tokenCountClass}`}>
@@ -242,7 +263,13 @@ const ConstitutionSettings: React.FC = () => {
               <TipTapMarkdownEditor key={editorKey} value={value} onChange={handleChange} />
             </div>
           </div>
-          <aside className='w-200px shrink-0 sticky top-16px max-h-[calc(100vh-180px)] overflow-y-auto'>
+          <aside
+            className={
+              isMobile
+                ? 'w-full max-h-none overflow-visible'
+                : 'w-200px shrink-0 sticky top-16px max-h-[calc(100vh-180px)] overflow-y-auto'
+            }
+          >
             <div className='text-11px font-medium text-t-tertiary uppercase tracking-wider mb-8px px-8px'>
               {t('settings.constitutionPage.tocTitle', 'Sections')}
             </div>

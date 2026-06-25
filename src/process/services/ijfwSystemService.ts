@@ -73,6 +73,25 @@ async function detectLocalInstallImpl(): Promise<IjfwDetectionResult> {
   const target = path.join(home, '.ijfw', 'mcp-server');
   const pathProbe = { homebrew: false, usrLocal: false, standardPath: false };
 
+  // SEC-006: filtered env, not raw process.env. Run PATH probe unconditionally
+  // so directory/symlink installs also populate cliOnPath (fixes #179).
+  const augmentedPath = [process.env.PATH ?? '', ...HOMEBREW_PATHS].join(path.delimiter);
+  const cmd = process.platform === 'win32' ? 'where' : 'which';
+  const which = spawnSync(cmd, ['ijfw'], {
+    encoding: 'utf-8',
+    env: buildChildEnv({ PATH: augmentedPath }),
+  });
+  let cliOnPath: boolean | undefined;
+  if (which.status === 0 && typeof which.stdout === 'string' && which.stdout.trim().length > 0) {
+    const resolved = which.stdout.trim().split(/\r?\n/)[0]!;
+    pathProbe.homebrew = resolved.includes('homebrew') || resolved.includes('linuxbrew');
+    pathProbe.usrLocal = resolved.includes('/usr/local/');
+    pathProbe.standardPath = (process.env.PATH ?? '')
+      .split(path.delimiter)
+      .some((p) => p.length > 0 && resolved.startsWith(p));
+    cliOnPath = true;
+  }
+
   try {
     const stat = await fs.promises.lstat(target);
     let resolvedPath = target;
@@ -92,6 +111,7 @@ async function detectLocalInstallImpl(): Promise<IjfwDetectionResult> {
         installed: true,
         ...(version ? { version } : {}),
         mcpServerPath: resolvedPath,
+        ...(cliOnPath !== undefined ? { cliOnPath } : {}),
         detectedVia: via,
         pathProbe,
       };
@@ -99,28 +119,16 @@ async function detectLocalInstallImpl(): Promise<IjfwDetectionResult> {
       return {
         installed: true,
         mcpServerPath: resolvedPath,
+        ...(cliOnPath !== undefined ? { cliOnPath } : {}),
         detectedVia: via,
         pathProbe,
       };
     }
   } catch {
-    /* fall through to PATH probe */
+    /* fall through - no directory/symlink install found */
   }
 
-  // SEC-006: filtered env, not raw process.env.
-  const augmentedPath = [process.env.PATH ?? '', ...HOMEBREW_PATHS].join(path.delimiter);
-  const cmd = process.platform === 'win32' ? 'where' : 'which';
-  const which = spawnSync(cmd, ['ijfw'], {
-    encoding: 'utf-8',
-    env: buildChildEnv({ PATH: augmentedPath }),
-  });
-  if (which.status === 0 && typeof which.stdout === 'string' && which.stdout.trim().length > 0) {
-    const resolved = which.stdout.trim().split(/\r?\n/)[0]!;
-    pathProbe.homebrew = resolved.includes('homebrew') || resolved.includes('linuxbrew');
-    pathProbe.usrLocal = resolved.includes('/usr/local/');
-    pathProbe.standardPath = (process.env.PATH ?? '')
-      .split(path.delimiter)
-      .some((p) => p.length > 0 && resolved.startsWith(p));
+  if (cliOnPath) {
     return {
       installed: true,
       cliOnPath: true,

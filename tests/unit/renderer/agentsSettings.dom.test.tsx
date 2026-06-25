@@ -148,6 +148,10 @@ vi.mock('../../../src/renderer/utils/model/agentLogo', () => ({
 }));
 vi.mock('../../../src/renderer/utils/platform', () => ({
   resolveExtensionAssetUrl: () => undefined,
+  // FluxRouterCard (rendered by AgentsSettings) now calls isElectronDesktop();
+  // a factory mock replaces the whole module, so this export must be present or
+  // the card throws on render. The suite asserts the desktop card behaviour.
+  isElectronDesktop: () => true,
 }));
 
 // Import after the mocks are registered.

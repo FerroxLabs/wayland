@@ -13,4 +13,6 @@ export {
   type EncryptedString,
 } from './safeStorage';
 
+export { FILE_CIPHER_PREFIX } from './fileKeyStore';
+
 export { SENSITIVE_FIELD_NAMES, isSensitiveField } from './fieldClassification';

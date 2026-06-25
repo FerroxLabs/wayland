@@ -1,0 +1,47 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * QueuedSteeringChip - informational chip above the composer during an
+ * active step run. Mirrors the mockup `.qchip` design using the app's
+ * semantic tokens.
+ */
+
+.root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-bottom: 6px;
+  color: var(--color-warning-6, rgb(245, 158, 11));
+  font-size: 11.5px;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.interruptBtn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--color-border-2);
+  border-radius: 6px;
+  padding: 2px 9px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 11.5px;
+  font-family: inherit;
+  color: var(--color-text-2);
+  transition: background 120ms ease;
+}
+
+.interruptBtn:hover:not(:disabled) {
+  background: var(--color-fill-2);
+}
+
+.interruptBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

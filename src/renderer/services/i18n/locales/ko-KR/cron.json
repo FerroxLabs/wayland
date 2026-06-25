@@ -119,6 +119,12 @@
     "scheduleDesc": {
       "manual": "수동",
       "hourly": "매시간 실행",
+      "everyNHours_one": "매시간",
+      "everyNHours_other": "{{count}}시간마다",
+      "everyNHoursAtMinute_one": "매시간 :{{minute}}분",
+      "everyNHoursAtMinute_other": "{{count}}시간마다 :{{minute}}분",
+      "everyNMinutes_one": "매분",
+      "everyNMinutes_other": "{{count}}분마다",
       "dailyAt": "매일 {{time}}에 실행",
       "weekdaysAt": "평일 {{time}}에 실행",
       "weeklyAt": "매주 {{day}} {{time}}에 실행",

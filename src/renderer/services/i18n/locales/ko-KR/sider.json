@@ -18,6 +18,10 @@
     "wired": {
       "body": "최근 100: H{{h}} · S{{s}} · O{{o}}",
       "action": "각 턴의 경로 보기"
+    },
+    "dismiss": {
+      "label": "Flux 상태 숨기기",
+      "hint": "Flux 상태를 숨겼습니다."
     }
   },
   "accordion": {

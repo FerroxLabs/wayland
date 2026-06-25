@@ -100,7 +100,8 @@
       "specialists": "Spécialistes",
       "builtins": "Intégrés",
       "recents": "Chats récents",
-      "prompts": "Prompts de démarrage"
+      "prompts": "Prompts de démarrage",
+      "actions": "Actions"
     },
     "prompts": {
       "brainstorm": "Réfléchir à des idées",
@@ -108,6 +109,9 @@
       "codeReview": "Relire du code",
       "explain": "Expliquer un sujet",
       "plan": "Rédiger un plan"
+    },
+    "actions": {
+      "docs": "Search documentation"
     }
   }
 }

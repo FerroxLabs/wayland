@@ -12,6 +12,8 @@ import { transcribeLocally } from '@/renderer/services/voice/localWhisper';
 
 const MAX_AUDIO_FILE_SIZE_MB = 30;
 const MAX_AUDIO_FILE_SIZE_BYTES = MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024;
+const FLUX_VOICE_MAX_AUDIO_FILE_SIZE_MB = 8;
+const FLUX_VOICE_MAX_AUDIO_FILE_SIZE_BYTES = FLUX_VOICE_MAX_AUDIO_FILE_SIZE_MB * 1024 * 1024;
 
 const getAudioExtension = (mimeType: string) => {
   switch (mimeType) {
@@ -35,8 +37,10 @@ const createAudioFileName = (mimeType: string) => {
   return `speech-input.${getAudioExtension(mimeType)}`;
 };
 
-const ensureAudioSize = (blob: Blob) => {
-  if (blob.size > MAX_AUDIO_FILE_SIZE_BYTES) {
+const ensureAudioSize = (blob: Blob, provider?: string) => {
+  const limitBytes =
+    provider === 'flux-voice' ? FLUX_VOICE_MAX_AUDIO_FILE_SIZE_BYTES : MAX_AUDIO_FILE_SIZE_BYTES;
+  if (blob.size > limitBytes) {
     throw new Error('STT_FILE_TOO_LARGE');
   }
 };
@@ -56,8 +60,6 @@ const parseWebResponse = async (response: XMLHttpRequest): Promise<SpeechToTextR
 };
 
 export async function transcribeAudioBlob(blob: Blob, languageHint?: string): Promise<SpeechToTextResult> {
-  ensureAudioSize(blob);
-
   const mimeType = blob.type || 'audio/webm';
   const fileName = createAudioFileName(mimeType);
 
@@ -68,6 +70,10 @@ export async function transcribeAudioBlob(blob: Blob, languageHint?: string): Pr
   // as "use the bundled local engine".
   const sttConfig = await ConfigStorage.get('tools.speechToText').catch((): undefined => undefined);
   const provider = sttConfig?.provider;
+
+  // Enforce provider-specific file size limit before upload.
+  ensureAudioSize(blob, provider);
+
   if (!provider || provider === 'whisper-local') {
     const text = await transcribeLocally(blob);
     return { text, provider: 'whisper-local', model: 'whisper-tiny', language: languageHint };

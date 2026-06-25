@@ -21,7 +21,9 @@
     "noAgent": "No backend selected"
   },
   "import": {
-    "placeholder": "Import wiring lands next: folder / git URL / SKILL.md with type:workflow auto-detected via frontmatter, scanned by Skill Guard, and registered as source:imported."
+    "title": "Import workflow",
+    "sourcePrompt": "Choose where to import a workflow from. Files are scanned for risky patterns before they land.",
+    "done": "{{count}} workflow imported."
   },
   "build": {
     "placeholder": "Workflow builder coming next: describe it in plain language → AI drafts a SKILL.md with category + depends inferred from the live skill library → review + save."

@@ -45,6 +45,20 @@ interface SafeExecOptions {
 }
 
 /**
+ * Human-readable detail for a failed safeExec/safeExecFile rejection. The
+ * rejection Error carries `stderr`/`stdout`/`code` (see the `close` handlers),
+ * but `console.warn(msg, error)` only prints the Error message ("Command failed
+ * with exit code 1") and drops them - hiding the real CLI reason. Use this to
+ * surface what the tool actually said.
+ */
+export function execErrorDetail(error: unknown): string {
+  const e = error as { stderr?: string; stdout?: string; code?: number; message?: string };
+  const out = (e?.stderr || e?.stdout || '').trim();
+  const code = typeof e?.code === 'number' ? `exit ${e.code}` : 'failed';
+  return out ? `${code}: ${out.slice(0, 600)}` : `${code}: ${e?.message ?? String(error)}`;
+}
+
+/**
  * ⚠️ DANGER - this runs the given string through `sh -c` (POSIX) or
  * `cmd.exe /c` (Windows). The shell interprets `$(...)`, backticks, `;`, `|`,
  * `&`, quote-breakout, `%VAR%`, etc. Double-quoting interpolated values does

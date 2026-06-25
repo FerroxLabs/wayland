@@ -134,7 +134,7 @@ export const SERVER_CONFIG = {
  * X-Forwarded-Proto is intentionally NOT read directly: without trust proxy it
  * would be spoofable. Use SERVER_BASE_URL or trust proxy + req.secure instead.
  */
-function detectHttps(req?: Request): boolean {
+export function detectHttps(req?: Request): boolean {
   if (process.env.WAYLAND_HTTPS === 'true' || (process.env.NODE_ENV === 'production' && process.env.HTTPS === 'true')) {
     return true;
   }

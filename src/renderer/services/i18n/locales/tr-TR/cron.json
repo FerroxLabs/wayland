@@ -131,6 +131,12 @@
     "scheduleDesc": {
       "manual": "Manuel",
       "hourly": "Her saat çalıştır",
+      "everyNHours_one": "Her saat",
+      "everyNHours_other": "Her {{count}} saatte bir",
+      "everyNHoursAtMinute_one": "Her saat :{{minute}}",
+      "everyNHoursAtMinute_other": "Her {{count}} saatte bir :{{minute}}",
+      "everyNMinutes_one": "Her dakika",
+      "everyNMinutes_other": "Her {{count}} dakikada bir",
       "dailyAt": "Her gün {{time}}'de çalıştır",
       "weekdaysAt": "Hafta içi {{time}}'de çalıştır",
       "weeklyAt": "Her {{day}} {{time}}'de çalıştır",

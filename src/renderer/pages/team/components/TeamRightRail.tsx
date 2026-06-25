@@ -20,6 +20,7 @@ import { ChevronLeft, ChevronRight, Crown, Plus, RotateCw, Users } from 'lucide-
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
+import { isSelectableSpecialist } from '@/renderer/pages/settings/AssistantSettings/assistantUtils';
 import type { TeamAgent, TeammateStatus } from '@/common/types/teamTypes';
 import { useAssistantList } from '@/renderer/hooks/assistant';
 import { getAgentLogo } from '@renderer/utils/model/agentLogo';
@@ -238,7 +239,7 @@ const TeamRightRail: React.FC<Props> = ({
   const [pickerVisible, setPickerVisible] = useState(false);
   const [collapsed, toggleCollapsed] = useRightRailCollapsed();
   const { assistants, localeKey } = useAssistantList();
-  const specialists = useMemo(() => assistants.filter((a) => a._kind === 'specialist'), [assistants]);
+  const specialists = useMemo(() => assistants.filter(isSelectableSpecialist), [assistants]);
   const specialistsById = useMemo(() => {
     const map = new Map<string, AssistantListItem>();
     for (const s of specialists) map.set(s.id, s);

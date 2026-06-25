@@ -1,0 +1,454 @@
+/* Unified model selector flyout. Matches the locked mockup
+   app/.planning/model-selector-ui/mockup.html and reuses the composer "+" menu
+   chrome (ComposerAddMenu.module.css) via Wayland's theme-aware semantic tokens
+   - no hardcoded hex. Sibling of ConnectorsFlyout/SkillsFlyout. */
+
+.flyout {
+  background: var(--color-bg-4);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  width: 360px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* FIXED height (not max-height): the flyout must keep one size so toggling
+     "More models" / search never resizes the popup - a resize makes Arco
+     re-evaluate placement and flip the whole menu (the "jumps down the page"
+     bug). Inner sections scroll within this. */
+  height: 460px;
+  flex-shrink: 0;
+}
+.flyoutHead {
+  padding: 13px 14px 10px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+.flyoutTitle {
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-1);
+}
+.countPill {
+  margin-left: auto;
+  font-family: var(--mono, ui-monospace, Menlo, monospace);
+  font-size: 11px;
+  color: var(--color-text-2);
+  background: var(--color-fill-2);
+  border-radius: 100px;
+  padding: 1px 8px;
+}
+.flyoutSub {
+  color: var(--color-text-3);
+  font-size: 11.5px;
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+.flyoutScroll {
+  overflow-y: auto;
+  padding-bottom: 4px;
+}
+.flyoutScroll::-webkit-scrollbar {
+  width: 8px;
+}
+.flyoutScroll::-webkit-scrollbar-thumb {
+  background: var(--color-fill-3);
+  border-radius: 8px;
+}
+
+.searchBox {
+  padding: 10px 12px 6px;
+}
+
+.sectionLabel {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+  padding: 12px 14px 6px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.hintDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--primary-6));
+  flex-shrink: 0;
+}
+.grpPill {
+  margin-left: auto;
+  font-family: var(--mono, ui-monospace, Menlo, monospace);
+  font-size: 9.5px;
+  color: var(--color-text-3);
+  background: var(--color-border-2);
+  border-radius: 5px;
+  padding: 1px 6px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Flux Auto hero */
+.hero {
+  margin: 10px 12px 2px;
+  padding: 12px 13px;
+  border-radius: 11px;
+  cursor: pointer;
+  background: color-mix(in srgb, rgb(var(--primary-6)) 16%, transparent);
+  border: 1px solid color-mix(in srgb, rgb(var(--primary-6)) 50%, transparent);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: filter 0.12s;
+}
+.hero:hover {
+  filter: brightness(1.08);
+}
+.heroIc {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(var(--primary-6));
+  color: #fff;
+}
+.heroMeta {
+  min-width: 0;
+  flex: 1;
+}
+.heroName {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--color-text-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.recPill {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--primary-6));
+  background: color-mix(in srgb, rgb(var(--primary-6)) 22%, transparent);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+.heroDesc {
+  font-size: 11.5px;
+  color: var(--color-text-2);
+  margin-top: 2px;
+}
+.heroCheck {
+  color: rgb(var(--primary-6));
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+/* Model rows */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+.row:hover {
+  background: var(--color-fill-2);
+}
+.rowActive {
+  background: var(--color-fill-3);
+}
+.tile {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--color-fill-3);
+  color: var(--color-text-2);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.meta {
+  min-width: 0;
+  flex: 1;
+}
+.name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-text-1);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.srcTag {
+  font-family: var(--mono, ui-monospace, Menlo, monospace);
+  font-size: 9.5px;
+  color: var(--color-text-3);
+  background: var(--color-border-2);
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+.desc {
+  font-size: 11.5px;
+  color: var(--color-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.tier {
+  font-family: var(--mono, ui-monospace, Menlo, monospace);
+  font-size: 11px;
+  color: var(--success);
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+.tier2 {
+  color: var(--warning);
+}
+.tier3 {
+  color: rgb(var(--primary-6));
+}
+.check {
+  color: rgb(var(--primary-6));
+  flex-shrink: 0;
+  display: inline-flex;
+}
+.pin {
+  flex-shrink: 0;
+  color: var(--color-text-3);
+  opacity: 0;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    opacity 0.12s,
+    background 0.12s,
+    color 0.12s;
+}
+.row:hover .pin {
+  opacity: 1;
+}
+.pin:hover {
+  background: var(--color-border-2);
+  color: var(--color-text-1);
+}
+.pinned {
+  opacity: 1;
+  color: rgb(var(--primary-6));
+}
+
+/* Unavailable rows */
+.unavail {
+  cursor: default;
+  opacity: 0.5;
+}
+.unavail:hover {
+  background: transparent;
+}
+.unavail .tile {
+  background: var(--color-border-2);
+}
+.unavailNote {
+  font-size: 11px;
+  color: var(--color-text-3);
+  flex-shrink: 0;
+}
+
+/* More-models overflow */
+.moreToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  color: var(--color-text-2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+.moreToggle:hover {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+}
+.moreChev {
+  margin-left: auto;
+  color: var(--color-text-3);
+  display: inline-flex;
+  transition: transform 0.16s;
+}
+.moreChevOpen {
+  transform: rotate(90deg);
+}
+
+/* Footer */
+.foot {
+  border-top: 1px solid var(--color-border-2);
+  padding: 4px;
+}
+.footItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  color: var(--color-text-2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.footItem:hover {
+  background: var(--color-fill-2);
+  color: var(--color-text-1);
+}
+.footChev {
+  margin-left: auto;
+  color: var(--color-text-3);
+  display: inline-flex;
+}
+
+.empty {
+  color: var(--color-text-3);
+  font-size: 12.5px;
+  text-align: center;
+  padding: 20px 14px;
+}
+
+/* Empty state card (no provider connected) */
+.emptyCard {
+  padding: 28px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.emptyIc {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--color-fill-3);
+  color: var(--color-text-3);
+}
+.emptyTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+.emptySub {
+  font-size: 12px;
+  color: var(--color-text-3);
+  margin: 6px 0 16px;
+  line-height: 1.5;
+}
+.emptyFlux {
+  font-size: 11.5px;
+  color: var(--color-text-3);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+
+/* Effort sub-row */
+.effortRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 2px 14px 6px 51px;
+  padding: 7px 11px;
+  border-radius: 9px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  cursor: pointer;
+  transition: border-color 0.12s;
+  width: calc(100% - 65px);
+  text-align: left;
+}
+.effortRow:hover {
+  border-color: color-mix(in srgb, rgb(var(--primary-6)) 50%, transparent);
+}
+.effortLbl {
+  font-size: 12px;
+  color: var(--color-text-2);
+}
+.effortVal {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  margin-left: auto;
+}
+.effortChev {
+  color: var(--color-text-3);
+  display: inline-flex;
+}
+.effortPop {
+  min-width: 240px;
+  padding: 4px;
+  /* Opaque, elevated surface matching the flyout chrome. Without a solid
+     background + border + shadow the Arco popup content was see-through, so the
+     model list rendered straight through the Effort submenu (overlap bug). */
+  background: var(--color-bg-4);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+.effortOpt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.effortOpt:hover {
+  background: var(--color-fill-2);
+}
+.effortOptOn {
+  background: color-mix(in srgb, rgb(var(--primary-6)) 16%, transparent);
+}
+.effortOptName {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+.effortOptDesc {
+  font-size: 11px;
+  color: var(--color-text-3);
+}
+.effortOptCheck {
+  margin-left: auto;
+  color: rgb(var(--primary-6));
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+/* Arco overrides scoped to this flyout */
+.flyout :global(.arco-input-inner-wrapper),
+.flyout :global(.arco-input-group-wrapper) {
+  background: var(--color-bg-2);
+}

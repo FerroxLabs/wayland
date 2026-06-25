@@ -187,19 +187,33 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       )
     );
 
-    void Promise.all([minBeat, wiring]).then(([, results]) => {
+    void Promise.all([minBeat, wiring]).then(async ([, results]) => {
       if (cancelled) return;
       clearInterval(logTimer);
       setWiredProviders(results.filter((r) => r.ok).map((r) => r.pid));
       setWireFailed(results.filter((r) => !r.ok).map((r) => r.pid));
-      setScanDone(true);
+      // Flux detected already-connected: pin Flux Auto as the default so the
+      // first-run user lands on the best model (the smart router), not whatever
+      // local model happens to sort first (e.g. a tiny Ollama smollm2:135m).
+      // Mirrors the manual connectFlux pin; non-fatal.
+      if (detection.fluxConnected) {
+        try {
+          const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+          await ConfigStorage.set('wcore.defaultModel', pin);
+          await ConfigStorage.set('gemini.defaultModel', pin);
+          await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+        } catch (err) {
+          console.warn('[OnboardingFlow] flux auto-detect default pin failed', err);
+        }
+      }
+      if (!cancelled) setScanDone(true);
     });
 
     return () => {
       cancelled = true;
       clearInterval(logTimer);
     };
-  }, [screen, detection.envKeys]);
+  }, [screen, detection.envKeys, detection.fluxConnected]);
 
   const connectFlux = useCallback(async () => {
     if (busy) return;
@@ -264,6 +278,22 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       if (res.ok) {
         setSuccessMsg(t('onboarding.flow.key.detected', { label: providerLabel(res.providerId) }));
         setAddedProviders((prev) => (prev.includes(res.providerId) ? prev : [...prev, res.providerId]));
+        // A pasted Flux Router key is intent to route through Flux - pin Flux Auto
+        // as the default and turn routing on, exactly like the detected-at-scan
+        // and one-click Flux-door paths above. Without this the home default
+        // chain lands on whatever local model sorts first (a tiny Ollama
+        // smollm2:135m), because Ollama populates the curated list instantly
+        // while the Flux virtual models arrive a beat later (#129). Non-fatal.
+        if (res.providerId === FLUX_PROVIDER_ID) {
+          try {
+            const pin = { id: FLUX_PROVIDER_ID, useModel: FLUX_AUTO_MODEL };
+            await ConfigStorage.set('wcore.defaultModel', pin);
+            await ConfigStorage.set('gemini.defaultModel', pin);
+            await ipcBridge.systemSettings.setRouteThroughFlux.invoke({ enabled: true });
+          } catch (err) {
+            console.warn('[OnboardingFlow] flux pasted-key pin failed', err);
+          }
+        }
         return true;
       }
       setErrorMsg(
@@ -525,27 +555,30 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   if (screen === 'scan') {
     const noFindings = agentChips.length === 0 && modelChips.length === 0;
     return (
-      <div className={styles.shell}>
+      <div className={`${styles.shell} ${styles.shellScan}`}>
         <Header step={1} />
-        <h1 className={styles.headline}>
-          {scanDone
-            ? noFindings
-              ? t('onboarding.flow.scan.headlineCleanSlate')
+        {/* Scrollable body so a long detected-tools list never pushes the
+            Continue action below the fold - the footer stays pinned + visible. */}
+        <div className={styles.scanScroll}>
+          <h1 className={styles.headline}>
+            {scanDone
+              ? noFindings
+                ? t('onboarding.flow.scan.headlineCleanSlate')
+                : name
+                  ? t('onboarding.flow.scan.headlineFoundNamed', { name })
+                  : t('onboarding.flow.scan.headlineFound')
               : name
-                ? t('onboarding.flow.scan.headlineFoundNamed', { name })
-                : t('onboarding.flow.scan.headlineFound')
-            : name
-              ? t('onboarding.flow.scan.headlineScanningNamed', { name })
-              : t('onboarding.flow.scan.headlineScanning')}
-          <span className={styles.pt}>{scanDone ? '.' : '…'}</span>
-        </h1>
-        <p className={styles.sub}>
-          {scanDone
-            ? noFindings
-              ? t('onboarding.flow.scan.subCleanSlate')
-              : t('onboarding.flow.scan.subFound')
-            : t('onboarding.flow.scan.subScanning')}
-        </p>
+                ? t('onboarding.flow.scan.headlineScanningNamed', { name })
+                : t('onboarding.flow.scan.headlineScanning')}
+            <span className={styles.pt}>{scanDone ? '.' : '…'}</span>
+          </h1>
+          <p className={styles.sub}>
+            {scanDone
+              ? noFindings
+                ? t('onboarding.flow.scan.subCleanSlate')
+                : t('onboarding.flow.scan.subFound')
+              : t('onboarding.flow.scan.subScanning')}
+          </p>
 
         {!scanDone && (
           <div className={styles.scanwrap}>
@@ -575,16 +608,15 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
           </div>
         )}
 
+        </div>
+
         {scanDone && (
-          <>
-            <div className={styles.grow} />
-            <div className={styles.actions}>
-              <span className={styles.ghost}>{t('onboarding.flow.scan.timeNote')}</span>
-              <button type='button' className={styles.btn} onClick={() => setScreen('outcome')}>
-                {t('onboarding.flow.scan.continue')} <ArrowRight size={15} />
-              </button>
-            </div>
-          </>
+          <div className={`${styles.actions} ${styles.actionsPinned}`}>
+            <span className={styles.ghost}>{t('onboarding.flow.scan.timeNote')}</span>
+            <button type='button' className={styles.btn} onClick={() => setScreen('outcome')}>
+              {t('onboarding.flow.scan.continue')} <ArrowRight size={15} />
+            </button>
+          </div>
         )}
       </div>
     );
@@ -699,7 +731,19 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
                 {keyStatus()}
                 <p className={styles.keyhint}>
                   {t('onboarding.flow.outcome.geminiKeyHint')}{' '}
-                  <a href='https://aistudio.google.com/apikey' target='_blank' rel='noreferrer'>
+                  <a
+                    href='https://aistudio.google.com/apikey'
+                    rel='noreferrer'
+                    onClick={(e) => {
+                      // In the Electron renderer a bare target=_blank anchor opens
+                      // nothing (no system browser, no new window), so the link was
+                      // dead on desktop (#202). Route through openExternalUrl, which
+                      // uses shell.openExternal on desktop and window.open in the
+                      // WebUI. href stays for right-click-copy / accessibility.
+                      e.preventDefault();
+                      void openExternalUrl('https://aistudio.google.com/apikey');
+                    }}
+                  >
                     {t('onboarding.flow.outcome.geminiKeyLink')}
                   </a>
                 </p>

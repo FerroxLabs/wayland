@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.prisma/prisma-mcp",
+  "title": "Prisma",
+  "description": "Run migrations and manage Prisma Postgres databases - create, list, query, and back up - Prisma’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.prisma.io/docs/cli/mcp",
+  "repository": {
+    "url": "https://www.prisma.io/docs/cli/mcp",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.prisma.io/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "database",
+      "developer"
+    ],
+    "tags": [
+      "prisma",
+      "orm",
+      "postgres"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 126,
+    "installRate": 0,
+    "iconUrl": "icons/io.prisma-prisma-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#2D3748"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Prisma",
+      "providerSignupUrl": "https://console.prisma.io"
+    },
+    "setupGuide": {
+      "path": "guides/io.prisma-prisma-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

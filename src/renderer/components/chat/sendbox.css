@@ -447,6 +447,12 @@
     line-height: 24px !important;
   }
 
+  /* Lift the composer above the phone home indicator / gesture bar. No-op on
+     devices without a safe-area inset (resolves to 0px). */
+  .sendbox-panel {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   .speech-input-feedback {
     grid-template-columns: clamp(56px, 20vw, 92px) auto;
     gap: 8px;
@@ -496,4 +502,37 @@
 .sendbox-panel input:focus-visible {
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Running indicator — a subtle pulsing dot plus a label shown next to the
+   composer tools while the agent is still working, so a long file-writing
+   turn never looks frozen. Brand-coloured via semantic tokens only. */
+.sendbox-running {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-3);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.sendbox-running-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary-6);
+  animation: sendbox-running-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes sendbox-running-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

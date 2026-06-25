@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.grafana/grafana-mcp",
+  "title": "Grafana",
+  "description": "Query dashboards, datasources, and alerting across Prometheus, Loki, and Tempo - Grafana’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/grafana/mcp-grafana",
+  "repository": {
+    "url": "https://github.com/grafana/mcp-grafana",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "mcp-grafana",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+          "description": "Grafana API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "observability",
+      "devops"
+    ],
+    "tags": [
+      "grafana",
+      "dashboards",
+      "monitoring"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 118,
+    "installRate": 0,
+    "iconUrl": "icons/com.grafana-grafana-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#F46800"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Grafana",
+      "providerSignupUrl": "https://grafana.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.grafana-grafana-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -12,7 +12,7 @@
  * one-shot hidden begin send.
  */
 
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -36,6 +36,12 @@ vi.mock('@/common', () => ({
   },
 }));
 
+// The surface reads "is the agent generating?" from the shared store. Stub it
+// so the test does not touch the live ipcBridge emitters / DB.
+vi.mock('@/renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync', () => ({
+  useConversationListSync: () => ({ isConversationGenerating: () => false }),
+}));
+
 // Capture the props each leaf component was rendered with so behavioral
 // assertions stay focused on the composer's wiring contract, not the leaf
 // internals (which have their own coverage in sibling spec files).
@@ -54,7 +60,7 @@ vi.mock('@/renderer/pages/guid/components/workflow/WorkflowHeader', () => ({
     return (
       <div data-testid='mock-workflow-header' data-paused={paused ? 'true' : 'false'}>
         <button onClick={props.onPauseToggle as () => void}>
-          {paused ? 'Resume auto-advance' : 'Pause auto-advance'}
+          {paused ? 'Resume' : 'Pause'}
         </button>
         <button onClick={props.onEnd as () => void}>End workflow</button>
       </div>
@@ -69,11 +75,26 @@ vi.mock('@/renderer/pages/guid/components/workflow/WorkflowStepRail', () => ({
     return (
       <div data-testid='mock-workflow-rail'>
         <button onClick={() => (props.onJumpToStep as (n: number) => void)(4)}>jump-4</button>
-        <button onClick={() => (props.onRunAutonomously as (n: number) => void)(2)}>run-2</button>
         <div>{props.children}</div>
       </div>
     );
   },
+  default: () => null,
+}));
+
+vi.mock('@/renderer/pages/guid/components/workflow/StepReviewBeat', () => ({
+  StepReviewBeat: (props: CapturedProps) => (
+    <div data-testid='mock-step-review-beat'>
+      <button onClick={props.onAccept as () => void} data-testid='review-beat-accept'>Accept</button>
+      <button onClick={props.onRevise as () => void} data-testid='review-beat-revise'>Revise</button>
+      <button onClick={props.onGoBack as () => void} data-testid='review-beat-go-back'>Go back</button>
+    </div>
+  ),
+  default: () => null,
+}));
+
+vi.mock('@/renderer/pages/guid/components/workflow/QueuedSteeringChip', () => ({
+  QueuedSteeringChip: () => <div data-testid='mock-queued-chip' />,
   default: () => null,
 }));
 
@@ -126,11 +147,52 @@ vi.mock('@/renderer/pages/guid/components/workflow/AskCard', () => ({
   default: () => null,
 }));
 
+vi.mock('@/renderer/pages/guid/components/workflow/WorkflowClarifyCard', () => ({
+  WorkflowClarifyCard: (props: CapturedProps) => (
+    <div data-testid='mock-workflow-clarify-card'>
+      <button
+        data-testid='mock-clarify-start'
+        onClick={() => (props.onStart as (note: string) => void)('')}
+      >
+        Start
+      </button>
+      <button
+        data-testid='mock-clarify-start-with-note'
+        onClick={() => (props.onStart as (note: string) => void)('use the spec in ./feature-1')}
+      >
+        Start with note
+      </button>
+    </div>
+  ),
+  default: () => null,
+}));
+
 // Arco Modal.confirm is a side-effecting imperative API; stub it so we can
 // observe end-workflow confirmation without rendering a real dialog tree.
 const modalConfirmMock = vi.fn();
 vi.mock('@arco-design/web-react', () => ({
   Modal: { confirm: (...a: unknown[]) => modalConfirmMock(...a) },
+  Button: ({ children, onClick, ...rest }: { children?: React.ReactNode; onClick?: () => void }) => (
+    <button type='button' onClick={onClick} {...rest}>
+      {children}
+    </button>
+  ),
+  Radio: Object.assign(
+    ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
+    {
+      Group: ({
+        children,
+        value,
+      }: {
+        children?: React.ReactNode;
+        value?: string;
+      }) => (
+        <div data-testid='mock-radio-group' data-value={value}>
+          {children}
+        </div>
+      ),
+    }
+  ),
 }));
 
 // useWorkflowSession is the hook under composition. Stub it with a
@@ -143,8 +205,12 @@ type HookOverrides = {
   answerAsk?: ReturnType<typeof vi.fn>;
   pause?: ReturnType<typeof vi.fn>;
   resume?: ReturnType<typeof vi.fn>;
+  resumeRun?: ReturnType<typeof vi.fn>;
+  acceptStep?: ReturnType<typeof vi.fn>;
   end?: ReturnType<typeof vi.fn>;
   markBeginSent?: ReturnType<typeof vi.fn>;
+  setInteractivity?: ReturnType<typeof vi.fn>;
+  backtrackToStep?: ReturnType<typeof vi.fn>;
 };
 
 let hookOverrides: HookOverrides = {};
@@ -160,6 +226,8 @@ vi.mock('@/renderer/hooks/workflow/useWorkflowSession', () => ({
     answerAsk: hookOverrides.answerAsk ?? vi.fn().mockResolvedValue(undefined),
     pause: hookOverrides.pause ?? vi.fn(),
     resume: hookOverrides.resume ?? vi.fn(),
+    resumeRun: hookOverrides.resumeRun ?? vi.fn().mockResolvedValue(undefined),
+    acceptStep: hookOverrides.acceptStep ?? vi.fn().mockResolvedValue(undefined),
     end: hookOverrides.end ?? vi.fn().mockResolvedValue(undefined),
     refresh: vi.fn().mockResolvedValue(undefined),
     applyStepMarker: vi.fn().mockResolvedValue(undefined),
@@ -169,6 +237,9 @@ vi.mock('@/renderer/hooks/workflow/useWorkflowSession', () => ({
         ...hookOverrides.data,
         begin_sent_at: at,
       })),
+    setInteractivity: hookOverrides.setInteractivity ?? vi.fn().mockResolvedValue(undefined),
+    backtrackToStep: hookOverrides.backtrackToStep ?? vi.fn().mockResolvedValue(undefined),
+    remove: vi.fn().mockResolvedValue(undefined),
   }),
 }));
 
@@ -223,14 +294,19 @@ const buildSession = (overrides: Partial<WorkflowSession> = {}): WorkflowSession
   updated_at: NOW,
   completed_at: null,
   begin_sent_at: null,
+  run_mode: 'running',
+  interactivity: 'step',
   ...overrides,
 });
 
 // Render with the overlay already dismissed - clicks the mock overlay's
-// "finish-overlay" button which fires onComplete synchronously.
+// "finish-overlay" button which fires onComplete synchronously. For fresh
+// sessions (begin_sent_at null), also clicks the clarify card's Start button
+// to advance past it. Pass `skipClarify: false` to stop before Start.
 const renderPostOverlay = (
   session: WorkflowSession,
-  extraProps: Partial<React.ComponentProps<typeof WorkflowSurface>> = {}
+  extraProps: Partial<React.ComponentProps<typeof WorkflowSurface>> = {},
+  opts: { skipClarify?: boolean } = {}
 ): ReturnType<typeof render> => {
   hookOverrides.data = session;
   const utils = render(
@@ -241,6 +317,16 @@ const renderPostOverlay = (
   act(() => {
     fireEvent.click(screen.getByTestId('mock-overlay-complete'));
   });
+  // For fresh sessions, advance past the clarify card unless caller opts out.
+  const skipClarify = opts.skipClarify ?? true;
+  if (skipClarify && session.begin_sent_at === null) {
+    const startBtn = screen.queryByTestId('mock-clarify-start');
+    if (startBtn) {
+      act(() => {
+        fireEvent.click(startBtn);
+      });
+    }
+  }
   return utils;
 };
 
@@ -279,6 +365,43 @@ describe('WorkflowSurface', () => {
     expect(overlayCalls[0].totalSteps).toBe(4);
   });
 
+  it('shows clarify card after overlay completes for a fresh session; hides children until Start', () => {
+    hookOverrides.data = buildSession({ begin_sent_at: null });
+    render(
+      <WorkflowSurface sessionId='sess-1' initialSession={hookOverrides.data}>
+        <div data-testid='caller-children'>chat-tape</div>
+      </WorkflowSurface>
+    );
+    act(() => {
+      fireEvent.click(screen.getByTestId('mock-overlay-complete'));
+    });
+
+    expect(screen.getByTestId('mock-workflow-clarify-card')).toBeTruthy();
+    expect(screen.queryByTestId('caller-children')).toBeNull();
+
+    act(() => {
+      fireEvent.click(screen.getByTestId('mock-clarify-start'));
+    });
+
+    expect(screen.queryByTestId('mock-workflow-clarify-card')).toBeNull();
+    expect(screen.getByTestId('caller-children')).toBeTruthy();
+  });
+
+  it('resumed session (begin_sent_at set) skips the clarify card', () => {
+    hookOverrides.data = buildSession({ begin_sent_at: NOW - 1000 });
+    render(
+      <WorkflowSurface sessionId='sess-1' initialSession={hookOverrides.data}>
+        <div data-testid='caller-children'>chat-tape</div>
+      </WorkflowSurface>
+    );
+    act(() => {
+      fireEvent.click(screen.getByTestId('mock-overlay-complete'));
+    });
+
+    expect(screen.queryByTestId('mock-workflow-clarify-card')).toBeNull();
+    expect(screen.getByTestId('caller-children')).toBeTruthy();
+  });
+
   it('after overlay onComplete, renders header + rail + status bar + children slot', () => {
     renderPostOverlay(buildSession());
 
@@ -290,23 +413,46 @@ describe('WorkflowSurface', () => {
     expect(railCalls.length).toBeGreaterThan(0);
   });
 
+  it('shows the StepReviewBeat only when run_mode === "awaiting_input"', () => {
+    // Running run: no review beat.
+    const { unmount } = renderPostOverlay(buildSession({ run_mode: 'running' } as Partial<WorkflowSession>));
+    expect(screen.queryByTestId('mock-step-review-beat')).toBeNull();
+    unmount();
+
+    // awaiting_input run: review beat present.
+    renderPostOverlay(buildSession({ run_mode: 'awaiting_input' } as Partial<WorkflowSession>));
+    expect(screen.getByTestId('mock-step-review-beat')).toBeTruthy();
+  });
+
+  it('clicking Accept on StepReviewBeat calls acceptStep (marks active step done + advances)', () => {
+    const acceptStep = vi.fn().mockResolvedValue(undefined);
+    const resumeRun = vi.fn().mockResolvedValue(undefined);
+    hookOverrides.acceptStep = acceptStep;
+    hookOverrides.resumeRun = resumeRun;
+    renderPostOverlay(buildSession({ run_mode: 'awaiting_input' } as Partial<WorkflowSession>));
+    fireEvent.click(screen.getByTestId('review-beat-accept'));
+    expect(acceptStep).toHaveBeenCalledTimes(1);
+    // The old bare resumeRun (gate-only, never marked the step done) is gone.
+    expect(resumeRun).not.toHaveBeenCalled();
+  });
+
   it('renders WorkflowCompleteCard instead of the rail when status === "complete"', () => {
-    const onRunAgain = vi.fn();
-    const onLaunchNext = vi.fn();
+    const onLaunchWorkflow = vi.fn();
     renderPostOverlay(buildSession({ status: 'complete', completed_at: NOW }), {
-      onRunAgain,
-      onLaunchNext,
+      onLaunchWorkflow,
       suggestedNext: [{ slug: 'next-wf', display: 'Next Workflow' }],
     });
 
     expect(screen.getByTestId('mock-workflow-complete')).toBeTruthy();
     expect(screen.queryByTestId('mock-workflow-rail')).toBeNull();
 
+    // "Run again" relaunches THIS session's own workflow by name (#82).
     fireEvent.click(screen.getByText('run-again'));
-    expect(onRunAgain).toHaveBeenCalledTimes(1);
+    expect(onLaunchWorkflow).toHaveBeenCalledWith('automate-business-workflows');
 
+    // "Up next" relaunches the suggested slug.
     fireEvent.click(screen.getByText('launch-next'));
-    expect(onLaunchNext).toHaveBeenCalledWith('next-wf');
+    expect(onLaunchWorkflow).toHaveBeenCalledWith('next-wf');
 
     expect(completeCalls[0].suggestedNext).toEqual([{ slug: 'next-wf', display: 'Next Workflow' }]);
   });
@@ -389,6 +535,10 @@ describe('WorkflowSurface', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('mock-overlay-complete'));
     });
+    // Click Start on the clarify card to release the begin-send gate.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('mock-clarify-start'));
+    });
 
     // markBeginSent was called (we tried to claim the slot)
     expect(markBeginSent).toHaveBeenCalledTimes(1);
@@ -405,11 +555,11 @@ describe('WorkflowSurface', () => {
     expect(headerCalls.at(-1)?.paused).toBe(false);
 
     act(() => {
-      fireEvent.click(screen.getByText('Pause auto-advance'));
+      fireEvent.click(screen.getByText('Pause'));
     });
     expect(pause).toHaveBeenCalledTimes(1);
     expect(headerCalls.at(-1)?.paused).toBe(true);
-    expect(screen.getByText('Resume auto-advance')).toBeTruthy();
+    expect(screen.getByText('Resume')).toBeTruthy();
   });
 
   it('End workflow shows a confirm modal; confirming triggers session.end()', () => {
@@ -428,18 +578,13 @@ describe('WorkflowSurface', () => {
     expect(end).toHaveBeenCalledTimes(1);
   });
 
-  it('wires rail callbacks: onJumpToStep → session.jumpToStep, onRunAutonomously → session.runStepAutonomously', () => {
+  it('wires rail callback: onJumpToStep -> session.jumpToStep', () => {
     const jumpToStep = vi.fn().mockResolvedValue(undefined);
-    const runStepAutonomously = vi.fn().mockResolvedValue({ dispatchId: 'd' });
     hookOverrides.jumpToStep = jumpToStep;
-    hookOverrides.runStepAutonomously = runStepAutonomously;
     renderPostOverlay(buildSession());
 
     fireEvent.click(screen.getByText('jump-4'));
     expect(jumpToStep).toHaveBeenCalledWith(4);
-
-    fireEvent.click(screen.getByText('run-2'));
-    expect(runStepAutonomously).toHaveBeenCalledWith(2);
   });
 
   it('fresh launch (begin_sent_at null, all steps todo): calls markBeginSent then sendMessage', async () => {
@@ -457,6 +602,10 @@ describe('WorkflowSurface', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('mock-overlay-complete'));
     });
+    // Click Start on the clarify card to release the begin-send gate.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('mock-clarify-start'));
+    });
 
     // The hook's markBeginSent wraps the IPC + updates local data synchronously.
     // Routing through the hook (not raw ipcBridge) is what closes the
@@ -472,6 +621,33 @@ describe('WorkflowSurface', () => {
     };
     expect(msgPayload.conversation_id).toBe('conv-1');
     expect(msgPayload.input).toContain('automate-business-workflows');
+  });
+
+  it('#121: sends the optional context note as a SECOND message AFTER begin (not racing begin_sent_at)', async () => {
+    const session = buildSession({ begin_sent_at: null });
+    const markBeginSent = vi.fn().mockImplementation(async (at: number) => ({ ...session, begin_sent_at: at }));
+    hookOverrides.data = session;
+    hookOverrides.markBeginSent = markBeginSent;
+    render(
+      <WorkflowSurface sessionId='sess-1' initialSession={session}>
+        <div data-testid='caller-children'>chat-tape</div>
+      </WorkflowSurface>
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('mock-overlay-complete'));
+    });
+    // Start WITH a context note - the note must follow the begin send, not race it.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('mock-clarify-start-with-note'));
+    });
+
+    await waitFor(() => expect(sendMessageMock).toHaveBeenCalledTimes(2));
+    const first = sendMessageMock.mock.calls[0][0] as { input: string };
+    const second = sendMessageMock.mock.calls[1][0] as { input: string };
+    // Order matters: begin first (so the session is active), note second.
+    expect(first.input).toContain('automate-business-workflows');
+    expect(second.input).toBe('use the spec in ./feature-1');
   });
 
   it('session with begin_sent_at already set: neither markBeginSent nor sendMessage fires on mount', async () => {
@@ -509,6 +685,10 @@ describe('WorkflowSurface', () => {
 
     await act(async () => {
       fireEvent.click(screen.getByTestId('mock-overlay-complete'));
+    });
+    // Click Start on the clarify card to release the begin-send gate.
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('mock-clarify-start'));
     });
 
     // markBeginSent fires to mark the session so future mounts skip.

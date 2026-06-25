@@ -23,6 +23,7 @@
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
+import { killChild } from '@process/agent/acp/utils';
 import { ensureCloudflaredBinary } from './cloudflaredBinary';
 import { parseCloudflaredUrl, parseNgrokJsonLine } from './parseTunnelUrl';
 import { DEFAULT_TUNNEL_PROVIDER, type StartTunnelOptions, type TunnelHandle, type TunnelProvider } from './types';
@@ -56,7 +57,7 @@ export async function startTunnel(options: StartTunnelOptions): Promise<TunnelHa
 /** Tear down every tunnel we have started. Call on app shutdown. */
 export async function stopAllTunnels(): Promise<void> {
   const children = Array.from(liveChildren);
-  await Promise.all(children.map((child) => killChild(child)));
+  await Promise.all(children.map((child) => reapChild(child)));
 }
 
 /**
@@ -159,7 +160,7 @@ function spawnAndParse(opts: SpawnAndParseArgs): Promise<TunnelHandle> {
         provider: opts.provider,
         publicUrl: url,
         stop: async () => {
-          await killChild(child);
+          await reapChild(child);
         },
       });
     };
@@ -168,7 +169,7 @@ function spawnAndParse(opts: SpawnAndParseArgs): Promise<TunnelHandle> {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      void killChild(child);
+      void reapChild(child);
       reject(new Error(message));
     };
 
@@ -199,34 +200,21 @@ function spawnAndParse(opts: SpawnAndParseArgs): Promise<TunnelHandle> {
   });
 }
 
-/** SIGTERM a child, escalate to SIGKILL after a grace period, and untrack it. */
-function killChild(child: ChildProcess): Promise<void> {
-  return new Promise<void>((resolve) => {
-    if (child.exitCode !== null || child.signalCode !== null) {
-      liveChildren.delete(child);
-      resolve();
-      return;
-    }
-    const done = (): void => {
-      liveChildren.delete(child);
-      clearTimeout(killTimer);
-      resolve();
-    };
-    child.once('close', done);
-    const killTimer = setTimeout(() => {
-      try {
-        child.kill('SIGKILL');
-      } catch {
-        /* already gone */
-      }
-    }, 2_000);
-    if (typeof killTimer.unref === 'function') killTimer.unref();
-    try {
-      child.kill('SIGTERM');
-    } catch {
-      done();
-    }
-  });
+/**
+ * Kill a tracked tunnel child cross-platform and untrack it.
+ *
+ * Delegates to the shared {@link killChild} helper so Windows gets a `taskkill
+ * /T /F` tree kill and POSIX gets a descendant sweep (SIGTERM → SIGKILL) - a
+ * bare `child.kill()` orphans cloudflared/ngrok grandchildren. Children are
+ * spawned non-detached, so `isDetached` is false. The shared helper does not
+ * manage our `liveChildren` set, so we untrack here.
+ */
+async function reapChild(child: ChildProcess): Promise<void> {
+  try {
+    await killChild(child, false);
+  } finally {
+    liveChildren.delete(child);
+  }
 }
 
 /** Run a short-lived command to completion; reject on non-zero exit. */

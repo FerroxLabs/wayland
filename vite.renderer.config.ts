@@ -3,10 +3,31 @@
  * Used by `bun run build:renderer:web` for server/container deployments.
  * Outputs to out/renderer/ (same location as electron-vite build).
  */
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import UnoCSS from 'unocss/vite';
 import unoConfig from './uno.config.ts';
+
+// Stamp the service-worker cache version with the app version at build time.
+// public/sw.js carries a `__WAYLAND_SW_VERSION__` token; replacing it per
+// release gives every deploy a unique CACHE_NAME, so the SW's activate cleanup
+// purges old caches and a stale bundle can never be served after an update
+// (#47). Web build only; the desktop build never registers the SW.
+function swVersionInjector(): Plugin {
+  const version = JSON.parse(readFileSync(resolve('package.json'), 'utf8')).version as string;
+  return {
+    name: 'wayland-sw-version-injector',
+    apply: 'build',
+    closeBundle() {
+      const swPath = resolve('out/renderer/sw.js');
+      if (!existsSync(swPath)) return;
+      const src = readFileSync(swPath, 'utf8');
+      const out = src.replace(/__WAYLAND_SW_VERSION__/g, version);
+      if (out !== src) writeFileSync(swPath, out);
+    },
+  };
+}
 
 // Icon Park transform plugin REMOVED in Wave 4B.
 // See electron.vite.config.ts for context - `IconParkHOC` no longer exists,
@@ -30,7 +51,7 @@ export default defineConfig({
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.css'],
     dedupe: ['react', 'react-dom', 'react-router-dom'],
   },
-  plugins: [UnoCSS(unoConfig)],
+  plugins: [UnoCSS(unoConfig), swVersionInjector()],
   build: {
     outDir: resolve('out/renderer'),
     emptyOutDir: true,

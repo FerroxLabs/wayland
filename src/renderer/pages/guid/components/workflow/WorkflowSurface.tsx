@@ -34,18 +34,25 @@
  * send a normal "begin" message - W4 will add the hidden flag (TODO).
  */
 
-import { Modal } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Modal, Radio } from '@arco-design/web-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ipcBridge } from '@/common';
-import type { WorkflowSession } from '@/common/types/workflowTypes';
+import type { WorkflowInteractivity, WorkflowSession } from '@/common/types/workflowTypes';
 import { useWorkflowSession } from '@/renderer/hooks/workflow/useWorkflowSession';
+import { useConversationListSync } from '@/renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync';
 import { AskCard } from '@/renderer/pages/guid/components/workflow/AskCard';
+import { QueuedSteeringChip } from '@/renderer/pages/guid/components/workflow/QueuedSteeringChip';
+import { WorkflowNeedsInputCard } from '@/renderer/pages/guid/components/workflow/WorkflowNeedsInputCard';
+import { StepReviewBeat } from '@/renderer/pages/guid/components/workflow/StepReviewBeat';
+import { WorkflowClarifyCard } from '@/renderer/pages/guid/components/workflow/WorkflowClarifyCard';
 import { WorkflowCompleteCard } from '@/renderer/pages/guid/components/workflow/WorkflowCompleteCard';
 import { WorkflowHeader } from '@/renderer/pages/guid/components/workflow/WorkflowHeader';
 import { WorkflowLaunchOverlay } from '@/renderer/pages/guid/components/workflow/WorkflowLaunchOverlay';
 import { WorkflowStatusBar } from '@/renderer/pages/guid/components/workflow/WorkflowStatusBar';
 import { WorkflowStepRail } from '@/renderer/pages/guid/components/workflow/WorkflowStepRail';
+import { WorkflowViewModeProvider, useWorkflowViewModeState } from '@/renderer/pages/guid/components/workflow/workflowViewMode';
 
 import styles from './WorkflowSurface.module.css';
 
@@ -56,10 +63,12 @@ export type WorkflowSurfaceProps = {
   children: React.ReactNode;
   /** Suggested next workflows for the Complete card. Optional - caller can derive from category. */
   suggestedNext?: Array<{ slug: string; display: string }>;
-  /** Fired when the user picks "Run again" on the Complete card. */
-  onRunAgain?: () => void;
-  /** Fired when the user clicks a suggested-next card. */
-  onLaunchNext?: (slug: string) => void;
+  /**
+   * Launch a workflow by its slug/name. Backs both Complete-card CTAs:
+   * "Run again" passes this session's own `workflow_name`, "Up next" passes
+   * the suggested slug. The caller (ChatConversation) routes to the launcher.
+   */
+  onLaunchWorkflow?: (workflowName: string) => void;
 };
 
 const isFreshLaunch = (session: WorkflowSession): boolean => {
@@ -87,14 +96,103 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
   initialSession,
   children,
   suggestedNext,
-  onRunAgain,
-  onLaunchNext,
+  onLaunchWorkflow,
 }) => {
+  const { t } = useTranslation();
   const session = useWorkflowSession(sessionId, initialSession);
   const [launched, setLaunched] = useState(false);
+  const [clarified, setClarified] = useState(false);
+  const contextNoteRef = useRef<string>('');
+  const noteSentRef = useRef(false);
   const [paused, setPaused] = useState(false);
+  const viewModeValue = useWorkflowViewModeState();
 
   const data = session.data;
+
+  // "Is the agent currently producing output for this conversation?" - read from
+  // the shared generating-conversations store (fed by responseStream /
+  // turnCompleted). When it is NOT generating and the step is not done, the run
+  // is waiting on the user. Debounce the idle edge so the brief gap between the
+  // user sending and the agent's first chunk does not flash the "Needs you"
+  // beat.
+  const { isConversationGenerating } = useConversationListSync();
+  const responding = data ? isConversationGenerating(data.conversation_id) : false;
+  const [idleStable, setIdleStable] = useState(false);
+  useEffect(() => {
+    if (responding) {
+      setIdleStable(false);
+      return;
+    }
+    const id = window.setTimeout(() => setIdleStable(true), 600);
+    return () => window.clearTimeout(id);
+  }, [responding]);
+
+  const liveStep = data?.steps.find((s) => s.n === data.current_step);
+  const currentStepTerminal = liveStep
+    ? liveStep.status === 'done' || liveStep.status === 'skipped' || liveStep.status === 'errored'
+    : false;
+  // The "spinning forever" case: the run is nominally `running` but the agent
+  // has gone idle without completing the step - it asked the user something in
+  // prose (no structured marker), so the engine never flipped to awaiting_input.
+  // Surface the blue "Needs you" beat. (A formal awaiting_input is handled by
+  // the StepReviewBeat below - that's the step-complete Accept/Revise/Go-back
+  // gate, a different kind of "your move".)
+  const needsInput =
+    !!data &&
+    data.status === 'active' &&
+    data.begin_sent_at !== null &&
+    data.run_mode === 'running' &&
+    !currentStepTerminal &&
+    idleStable;
+
+  // There is exactly ONE input - the conversation composer at the bottom. When
+  // the run needs the user, jump them to it: scroll the end of the question
+  // into view and focus the composer. The blue notice points here; clicking it
+  // does the same. No second input, so the user is never asked "which box?".
+  const composerHostRef = useRef<HTMLDivElement>(null);
+  const focusComposer = useCallback(() => {
+    const root = composerHostRef.current;
+    if (!root) return;
+    const panels = root.querySelectorAll('section[data-step]');
+    const lastPanel = panels[panels.length - 1];
+    if (lastPanel) lastPanel.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    const textarea = root.querySelector('.sendbox-panel textarea');
+    if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+  }, []);
+  useEffect(() => {
+    if (!needsInput) return;
+    const id = window.setTimeout(focusComposer, 160);
+    return () => window.clearTimeout(id);
+  }, [needsInput, focusComposer]);
+
+  // Thread step titles + the live session + the needs-input flag into the
+  // view-mode context so the WorkflowTranscript (mounted deep inside the chat
+  // tree) can render the step-panel surface and the blue "Needs you" treatment.
+  const viewModeProviderValue = useMemo(
+    () => ({
+      ...viewModeValue,
+      stepTitles: (data?.steps ?? []).map((s) => s.title),
+      session: data ?? undefined,
+      needsInput,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [viewModeValue.mode, viewModeValue.isWorkflow, data, needsInput]
+  );
+
+  const handleClarifyStart = useCallback((note: string) => {
+    contextNoteRef.current = note.trim();
+    setClarified(true);
+  }, []);
+
+  const handleContinue = useCallback(() => {
+    // StepReviewBeat "Accept & continue": mark the active step done, advance to
+    // the next step, and let the main side send the next-step directive. This
+    // replaces the old bare resumeRun (which only re-armed the gate and nudged
+    // the agent, never marking the step terminal - so the run sat `now` forever).
+    void session.acceptStep().catch((err) => {
+      console.warn('[WorkflowSurface] acceptStep failed:', err);
+    });
+  }, [session]);
 
   const handleOverlayComplete = useCallback(() => {
     setLaunched(true);
@@ -147,12 +245,37 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
     [session]
   );
 
-  const handleRunAutonomously = useCallback(
-    (n: number) => {
-      void session.runStepAutonomously(n);
+  const handleSetInteractivity = useCallback(
+    (mode: WorkflowInteractivity) => {
+      void session.setInteractivity(mode).catch((err) => {
+        console.warn('[WorkflowSurface] setInteractivity failed:', err);
+      });
     },
     [session]
   );
+
+  const handleRevise = useCallback(() => {
+    const conversationId = data?.conversation_id;
+    const stepN = data?.current_step ?? 1;
+    if (!conversationId) return;
+    void ipcBridge.conversation.sendMessage
+      .invoke({
+        input: `Please revise step ${stepN} and show the updated result.`,
+        msg_id: `workflow-revise-${sessionId}-${stepN}-${Date.now()}`,
+        conversation_id: conversationId,
+      })
+      .catch((err: unknown) => {
+        console.warn('[WorkflowSurface] revise send failed:', err);
+      });
+  }, [data?.conversation_id, data?.current_step, sessionId]);
+
+  const handleGoBack = useCallback(() => {
+    const currentStep = data?.current_step;
+    if (currentStep == null || currentStep <= 1) return;
+    void session.backtrackToStep(currentStep - 1).catch((err) => {
+      console.warn('[WorkflowSurface] backtrackToStep failed:', err);
+    });
+  }, [session, data?.current_step]);
 
   const handleAskSubmit = useCallback(
     (askId: string, answer: string) => {
@@ -218,6 +341,7 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
   const inFlightRef = useRef(false);
   useEffect(() => {
     if (!launched || !data) return;
+    if (!clarified) return;
     if (data.begin_sent_at !== null) return;
     if (inFlightRef.current) return;
     inFlightRef.current = true;
@@ -239,11 +363,33 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
         // (Confirmed needed: conversation layer does NOT dedup by msg_id,
         // so deterministic msg_id alone wouldn't stop the duplicate.)
         if (updated.begin_sent_at !== at) return;
-        return ipcBridge.conversation.sendMessage.invoke({
-          input: `begin ${workflowName}`,
-          msg_id: buildBeginMessageId(sessionDataId),
-          conversation_id: conversationId,
-        });
+        return ipcBridge.conversation.sendMessage
+          .invoke({
+            input: `begin ${workflowName}`,
+            msg_id: buildBeginMessageId(sessionDataId),
+            conversation_id: conversationId,
+          })
+          .then(() => {
+            // #121: send the optional context note as a SECOND message only
+            // AFTER the begin send is accepted. `sendMessage` resolves once the
+            // agent session is active, so the note no longer races the session
+            // bootstrap into a "cannot send in prompting state" rejection (which
+            // dropped the note and left the agent hunting for context).
+            // Best-effort: a failure is logged, never fatal.
+            const note = contextNoteRef.current;
+            if (!note || noteSentRef.current) return;
+            noteSentRef.current = true;
+            contextNoteRef.current = '';
+            return ipcBridge.conversation.sendMessage
+              .invoke({
+                input: note,
+                msg_id: `workflow-clarify-note-${sessionDataId}-${at}`,
+                conversation_id: conversationId,
+              })
+              .catch((err: unknown) => {
+                console.warn('[WorkflowSurface] clarify note send failed:', err);
+              });
+          });
       })
       .catch((err: unknown) => {
         // Roll back the in-flight guard so the user can retry by reloading
@@ -253,7 +399,7 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
         inFlightRef.current = false;
         console.warn('[WorkflowSurface] begin send failed:', err);
       });
-  }, [launched, data, session]);
+  }, [launched, clarified, data, session]);
 
   if (!data) {
     return null;
@@ -277,53 +423,108 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
     );
   }
 
-  return (
-    <div className={rootClass} data-testid='workflow-surface' data-launched='true' data-status={data.status}>
-      <div className={styles.body}>
-        <div className={styles.main}>
-          <div className={styles.headerSlot}>
-            <WorkflowHeader
-              session={data}
-              paused={paused}
-              onPauseToggle={handlePauseToggle}
-              onEnd={handleEnd}
-              onDelete={handleDelete}
-            />
-          </div>
-          {pendingAsks.length > 0 && (
-            <div className={styles.asks} data-testid='workflow-surface-asks'>
-              {pendingAsks.map((ask) => (
-                <AskCard
-                  key={ask.id}
-                  ask={ask}
-                  onSubmit={(answer) => handleAskSubmit(ask.id, answer)}
-                  onSkip={() => handleAskSkip(ask.id)}
-                />
-              ))}
-            </div>
-          )}
-          <div className={styles.children}>{children}</div>
-        </div>
+  // Show the clarify card only for fresh sessions (begin_sent_at null) that
+  // have not yet been confirmed by the user. Resumed sessions bypass it.
+  const showClarifyCard = data.begin_sent_at === null && !clarified;
 
-        <div className={styles.right} data-testid='workflow-surface-right'>
-          {isComplete ? (
-            <WorkflowCompleteCard
-              session={data}
-              suggestedNext={suggestedNext}
-              onSaveRun={() => {
-                // Save-run defaults to no-op for v1; W4 wires persistence.
-              }}
-              onRunAgain={() => onRunAgain?.()}
-              onLaunchNext={(slug) => onLaunchNext?.(slug)}
-            />
-          ) : (
-            <WorkflowStepRail session={data} onJumpToStep={handleJumpToStep} onRunAutonomously={handleRunAutonomously}>
-              <WorkflowStatusBar session={data} />
-            </WorkflowStepRail>
-          )}
+  return (
+    <WorkflowViewModeProvider value={viewModeProviderValue}>
+      <div className={rootClass} data-testid='workflow-surface' data-launched='true' data-status={data.status}>
+        <div className={styles.body}>
+          <div className={styles.main}>
+            <div className={styles.headerSlot}>
+              <WorkflowHeader
+                session={data}
+                paused={paused}
+                onPauseToggle={handlePauseToggle}
+                onEnd={handleEnd}
+                onDelete={handleDelete}
+                onSetInteractivity={handleSetInteractivity}
+              />
+            </div>
+            <div className={styles.viewToggle}>
+              <Radio.Group
+                type='button'
+                size='small'
+                value={viewModeValue.mode}
+                onChange={(v) => viewModeValue.setMode(v as 'workflow' | 'conversation')}
+              >
+                <Radio value='workflow'>{t('workflow.view.workflow')}</Radio>
+                <Radio value='conversation'>{t('workflow.view.conversation')}</Radio>
+              </Radio.Group>
+            </div>
+            {showClarifyCard ? (
+              <WorkflowClarifyCard
+                workflowTitle={data.workflow_title}
+                mode={data.interactivity}
+                onSetMode={(m) => void session.setInteractivity(m).catch((err) => {
+                  console.warn('[WorkflowSurface] setInteractivity failed:', err);
+                })}
+                onStart={handleClarifyStart}
+              />
+            ) : (
+              <>
+                {pendingAsks.length > 0 && (
+                  <div className={styles.asks} data-testid='workflow-surface-asks'>
+                    {pendingAsks.map((ask) => (
+                      <AskCard
+                        key={ask.id}
+                        ask={ask}
+                        onSubmit={(answer) => handleAskSubmit(ask.id, answer)}
+                        onSkip={() => handleAskSkip(ask.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+                {/* Engine-flagged step gate → review beat (Accept / Revise / Go back).
+                    Running-but-idle (asked in prose) → the blue Needs-you card below. */}
+                {data.run_mode === 'awaiting_input' && (
+                  <StepReviewBeat
+                    currentStep={data.current_step}
+                    totalSteps={data.total_steps}
+                    onAccept={handleContinue}
+                    onRevise={handleRevise}
+                    onGoBack={handleGoBack}
+                  />
+                )}
+                <div
+                  className={styles.children}
+                  ref={composerHostRef}
+                  data-needsinput={needsInput ? 'true' : undefined}
+                >
+                  {needsInput ? (
+                    <WorkflowNeedsInputCard onActivate={focusComposer} />
+                  ) : (
+                    data.run_mode === 'running' && (
+                      <QueuedSteeringChip
+                        // TODO(W5): wire onInterrupt to conversation stop IPC when available
+                        onInterrupt={undefined}
+                      />
+                    )
+                  )}
+                  {children}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className={styles.right} data-testid='workflow-surface-right'>
+            {isComplete ? (
+              <WorkflowCompleteCard
+                session={data}
+                suggestedNext={suggestedNext}
+                onRunAgain={() => onLaunchWorkflow?.(data.workflow_name)}
+                onLaunchNext={(slug) => onLaunchWorkflow?.(slug)}
+              />
+            ) : (
+              <WorkflowStepRail session={data} needsInput={needsInput} onJumpToStep={handleJumpToStep}>
+                <WorkflowStatusBar session={data} />
+              </WorkflowStepRail>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </WorkflowViewModeProvider>
   );
 };
 

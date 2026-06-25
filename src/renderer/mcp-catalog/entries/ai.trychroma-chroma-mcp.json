@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.trychroma/chroma-mcp",
+  "title": "Chroma",
+  "description": "Collection management plus vector and full-text search over Chroma - the official chroma-mcp server.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/chroma-core/chroma-mcp",
+  "repository": {
+    "url": "https://github.com/chroma-core/chroma-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "chroma-mcp",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "CHROMA_API_KEY",
+          "description": "Chroma API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "ml",
+      "database"
+    ],
+    "tags": [
+      "chroma",
+      "vector",
+      "embeddings"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 133,
+    "installRate": 0,
+    "iconUrl": "icons/ai.trychroma-chroma-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#327EFF"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Chroma",
+      "providerSignupUrl": "https://trychroma.com"
+    },
+    "setupGuide": {
+      "path": "guides/ai.trychroma-chroma-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

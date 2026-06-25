@@ -96,7 +96,8 @@
       "specialists": "[TODO:translate] Specialists",
       "builtins": "[TODO:translate] Built-ins",
       "recents": "[TODO:translate] Recent chats",
-      "prompts": "[TODO:translate] Starter prompts"
+      "prompts": "[TODO:translate] Starter prompts",
+      "actions": "Actions"
     },
     "prompts": {
       "brainstorm": "[TODO:translate] Brainstorm ideas",
@@ -104,6 +105,9 @@
       "codeReview": "[TODO:translate] Review code",
       "explain": "[TODO:translate] Explain a topic",
       "plan": "[TODO:translate] Draft a plan"
+    },
+    "actions": {
+      "docs": "Search documentation"
     }
   },
   "unit": {

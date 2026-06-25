@@ -16,7 +16,12 @@ import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
 import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
-import { buildSystemInstructionsWithSkillsIndex } from './agentUtils';
+import {
+  buildSystemInstructionsWithSkillsIndex,
+  buildTurnSkillContext,
+  consumePendingSessionSkills,
+  mergeLoadedSkillsExtra,
+} from './agentUtils';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
 import { isProviderKeyAuthFailure } from '@process/providers/detection/authFailure';
@@ -32,6 +37,8 @@ import { ConversationTurnCompletionService } from './ConversationTurnCompletionS
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
+import { getBudgetController } from '@process/services/cost/BudgetController';
+import { RunawayMonitor } from '@process/services/runaway/RunawayMonitor';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -105,6 +112,8 @@ type WCoreManagerData = {
   sessionMode?: string;
   sessionId?: string;
   resume?: string;
+  /** Per-conversation reasoning effort (sent to the engine via set_config). Absent => engine default. */
+  effort?: 'low' | 'medium' | 'high';
   teamMcpStdioConfig?: {
     name: string;
     command: string;
@@ -113,18 +122,59 @@ type WCoreManagerData = {
   };
 };
 
+/**
+ * Net-new tail of a streamed reasoning chunk, given what has already accumulated.
+ *
+ * The wcore engine streams `thought` reasoning events as CUMULATIVE restates (the
+ * full thought-so-far on each chunk), not incremental deltas. Appending them
+ * verbatim doubled the text ("The userThe user wants…"). Both the persisted
+ * thinking content and the renderer's live append consume this delta, so they
+ * stay in sync. Cases, in order:
+ * The engine streams a thought as incremental deltas, then re-emits the WHOLE
+ * thought as one cumulative restate — and that restate can DIVERGE slightly from
+ * the incrementally-built text (e.g. "what make money" -> "what to make money"),
+ * so an exact prefix check misses it and the thought doubles. Cases, in order:
+ *  - `incoming` extends `prev` exactly (prefix)  -> the part past `prev`
+ *  - `incoming` already contained in `prev`      -> '' (stale/shorter restate)
+ *  - `incoming` shares a long head with `prev`   -> a (possibly divergent) restate:
+ *      append only the positional tail past what we already have, never the whole
+ *      thing, so the thought can't double
+ *  - otherwise (a genuine incremental delta)     -> `incoming` unchanged
+ *
+ * A real incremental delta is a short continuation that shares ~no common prefix
+ * with `prev`, so it falls through to the last case and is appended whole.
+ */
+export function dedupeThinkingDelta(prev: string, incoming: string): string {
+  if (!incoming) return '';
+  if (incoming.startsWith(prev)) return incoming.slice(prev.length);
+  if (prev.includes(incoming)) return '';
+  let common = 0;
+  const max = Math.min(prev.length, incoming.length);
+  while (common < max && prev[common] === incoming[common]) common++;
+  const isRestate = common >= 10 || (prev.length > 0 && common >= prev.length * 0.5);
+  if (isRestate) return incoming.length > prev.length ? incoming.slice(prev.length) : '';
+  return incoming;
+}
+
 export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   workspace: string;
   model: TProviderWithModel;
   readonly approvalStore = new WCoreApprovalStore();
   private agent: WCoreAgent | null = null;
   private agentReady: Promise<void>;
+  /** Captured failure from `start()`, so a failed bootstrap surfaces an honest
+   * error+finish on the next `sendMessage` instead of silently hanging the turn. */
+  private startError: unknown = null;
   private currentMode: string = 'default';
   private _capabilities: WCoreCapabilities | null = null;
   private _configSentAt: number | null = null;
   private _messageSentAt: number | null = null;
   private currentMsgId: string | null = null;
   private currentMsgContent: string = '';
+  // #252 - the most recent turn's msg_id, retained past stream finish so the
+  // end-of-session `session_cost` event (which fires after currentMsgId is
+  // cleared) can be stamped onto the correct turn's activity card.
+  private _lastTurnMsgId: string | null = null;
 
   // Heartbeat state
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
@@ -137,8 +187,16 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private thinkingMsgId: string | null = null;
   private thinkingStartTime: number | null = null;
   private thinkingContent: string = '';
+  /** How much of `thinkingContent` has already been flushed to the DB. The DB sync
+   *  is 'accumulate' (append), so each flush must send only the unflushed tail —
+   *  sending the full content every tick re-appended it and doubled the stored
+   *  thought ("LetLet me think…"). */
+  private lastFlushedThinkingLen = 0;
   private thinkingDbFlushTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly streamDbFlushIntervalMs: number = 120;
+
+  /** Runaway-loop detector (circuit-breaker Phase 2). Reset each turn. */
+  private readonly runawayMonitor = new RunawayMonitor();
 
   // Stream text DB write buffer
   private readonly bufferedStreamTexts = new Map<
@@ -156,8 +214,14 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // enableFork=false skips auto-init in ForkTask, so init manually
     this.init();
 
-    // Start the agent bootstrap - store promise so sendMessage can await it
-    this.agentReady = this.start().catch(() => {});
+    // Start the agent bootstrap - store promise so sendMessage can await it.
+    // Capture (don't swallow) a failed start: agentReady still resolves so the
+    // sendMessage path is reached, where startError is surfaced as a real
+    // error+finish instead of hanging the turn with no reply (S2).
+    this.agentReady = this.start().catch((error) => {
+      this.startError = error;
+      mainError('[WCoreManager]', 'agent bootstrap (start) failed', error);
+    });
   }
 
   /**
@@ -244,6 +308,35 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     await agent.start();
     this.agent = agent;
     this._capabilities = agent.capabilities ?? null;
+
+    // Per-conversation reasoning effort: forward to the engine via set_config on
+    // spawn so the first (and every subsequent) turn runs at the selected effort.
+    // Omitted => the engine keeps its own default.
+    if (mergedData.effort) {
+      agent.setConfig({ effort: mergedData.effort });
+    }
+
+    // #50: On resume, seed recent persisted history so the rebuilt engine keeps
+    // prior context. The engine's --resume does not reliably restore history
+    // (and falls back to a fresh session on failure), so mirror the proven
+    // Gemini precedent and replay the last messages over the existing
+    // init_history channel. New sessions have nothing to replay. The current
+    // user turn is not persisted yet at start(), so it is not double-injected.
+    if (sessionArgs.resume) {
+      try {
+        const historyDb = await getDatabase();
+        const history = historyDb.getConversationMessages(this.conversation_id, 0, 10000);
+        const lines = (history.data ?? [])
+          .filter((m): m is Extract<TMessage, { type: 'text' }> => m.type === 'text')
+          .slice(-20)
+          .map((m) => `${m.position === 'right' ? 'User' : 'Assistant'}: ${m.content.content || ''}`);
+        const text = lines.join('\n').slice(-4000);
+        if (text) await agent.injectConversationHistory(text);
+      } catch {
+        // Best-effort: resume still proceeds without seeded history.
+      }
+    }
+
     // Mirror the resolved CLI budget (which may be the reasoning-model default
     // from envBuilder) into manager data so detectTruncation can compare
     // output_tokens against the real budget. Only fill the gap - never
@@ -301,6 +394,28 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   async sendMessage(data: { content: string; msg_id: string; files?: string[] }) {
+    // Runaway circuit-breaker Phase 1: pre-turn budget pause gate. If a 'pause'
+    // budget for this model/backend is already over its limit, hold the turn
+    // before anything is persisted or dispatched (no tokens spent) and surface a
+    // resumable card carrying the held message. Default (no pause budget) allows.
+    const gate = getBudgetController()?.canStartTurn({ modelId: this.model?.useModel, backend: 'wcore' });
+    if (gate && !gate.allowed && gate.budget) {
+      ipcBridge.cost.budgetGateBlocked.emit({
+        conversationId: this.conversation_id,
+        content: data.content,
+        files: data.files,
+        budgetId: gate.budget.id,
+        scope: gate.budget.scope,
+        scopeKey: gate.budget.scopeKey,
+        limitUsd: gate.budget.limitUsd,
+        spentUsd: gate.spentUsd ?? gate.budget.limitUsd,
+        period: gate.budget.period,
+      });
+      return;
+    }
+    // Fresh turn: clear the runaway-loop counters so detection is per-turn.
+    this.runawayMonitor.resetTurn();
+
     const message: TMessage = {
       id: data.msg_id,
       type: 'text',
@@ -319,10 +434,44 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     this._lastActivityAt = Date.now();
     // Wait for agent bootstrap to complete before sending
     await this.agentReady;
+
+    // S2: if bootstrap failed, the turn would otherwise hang forever (this.agent
+    // is null -> the send below is skipped, no reply/error/finish ever emitted).
+    // Surface an honest error + finish so the UI shows a real failure instead of
+    // an infinite spinner. Triggers on missing/old wcore binary, auth failure,
+    // or bad model config.
+    if (this.startError || !this.agent) {
+      this.emitStartFailure(data.msg_id, this.startError);
+      return;
+    }
+
     this._messageSentAt = Date.now();
     mainLog('[WCoreManager]', `message sent: msg_id=${data.msg_id}`);
+
+    // Per-turn skill context, unified with the ACP backend so WCore chats also
+    // get (a) skills the user added to this conversation from the composer
+    // (injected once) and (b) the smart per-turn match advert + clear-winner
+    // auto-load. This - not the always-on index - is how the lean default
+    // surfaces the right skill on demand without bulk-injecting the library.
+    let contentToSend = data.content;
+    try {
+      const pending = await consumePendingSessionSkills(this.conversation_id);
+      if (pending) {
+        contentToSend = `${pending}\n\n${contentToSend}`;
+      }
+      const turnSkill = await buildTurnSkillContext(data.content);
+      if (turnSkill.advert) {
+        contentToSend = `${turnSkill.advert}\n\n${contentToSend}`;
+      }
+      if (turnSkill.autoLoaded.length > 0) {
+        await mergeLoadedSkillsExtra(this.conversation_id, turnSkill.autoLoaded);
+      }
+    } catch (error) {
+      mainWarn('[WCoreManager]', 'per-turn skill context failed', error);
+    }
+
     if (this.agent) {
-      await this.agent.send(data.content, data.msg_id, data.files);
+      await this.agent.send(contentToSend, data.msg_id, data.files);
     }
   }
 
@@ -403,10 +552,16 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       this.thinkingMsgId = uuid();
       this.thinkingStartTime = Date.now();
       this.thinkingContent = '';
+      this.lastFlushedThinkingLen = 0;
     }
 
-    if (status === 'thinking') {
-      this.thinkingContent += content;
+    // The engine re-streams reasoning as cumulative restates, so emit/persist only
+    // the net-new tail — otherwise both the DB content and the renderer's append
+    // double it ("The userThe user wants…").
+    let delta = content;
+    if (status === 'thinking' && content) {
+      delta = dedupeThinkingDelta(this.thinkingContent, content);
+      this.thinkingContent += delta;
     }
 
     const duration = status === 'done' && this.thinkingStartTime ? Date.now() - this.thinkingStartTime : undefined;
@@ -416,7 +571,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       conversation_id: this.conversation_id,
       msg_id: this.thinkingMsgId,
       data: {
-        content,
+        content: delta,
         duration,
         status,
       },
@@ -437,6 +592,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       this.thinkingDbFlushTimer = null;
     }
     if (!this.thinkingMsgId) return;
+    // 'accumulate' appends, so send only the tail written since the last flush.
+    const tail = this.thinkingContent.slice(this.lastFlushedThinkingLen);
+    this.lastFlushedThinkingLen = this.thinkingContent.length;
     const tMessage: TMessage = {
       id: this.thinkingMsgId,
       msg_id: this.thinkingMsgId,
@@ -444,7 +602,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       position: 'left',
       conversation_id: this.conversation_id,
       content: {
-        content: this.thinkingContent,
+        content: tail,
         duration,
         status,
       },
@@ -457,6 +615,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     this.thinkingMsgId = null;
     this.thinkingStartTime = null;
     this.thinkingContent = '';
+    this.lastFlushedThinkingLen = 0;
   }
 
   private queueBufferedStreamText(message: Extract<TMessage, { type: 'text' }>): void {
@@ -614,6 +773,40 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     });
   }
 
+  /**
+   * Feed completed tool results to the runaway detector (circuit-breaker P2).
+   * On a trip (same content re-read N times, or a command failing N times in a
+   * row), gracefully stop the looping turn - agent.stop() sends a 'stop' command
+   * so the session stays alive and the user can continue - and tell the renderer
+   * why, so the user is not silently burning tokens in a loop.
+   */
+  private checkRunaway(message: IMessageToolGroup): void {
+    const items = Array.isArray(message.content) ? message.content : [];
+    for (const item of items) {
+      if (item.status !== 'Success' && item.status !== 'Error') continue;
+      const rd = item.resultDisplay;
+      const outputText = typeof rd === 'string' ? rd : ((rd as { fileDiff?: string } | undefined)?.fileDiff ?? '');
+      const trip = this.runawayMonitor.observe({
+        name: item.name ?? '',
+        success: item.status === 'Success',
+        outputText,
+      });
+      if (trip) {
+        mainWarn(
+          '[WCoreManager]',
+          `runaway detected (${trip.kind} x${trip.count}); halting turn for ${this.conversation_id}`
+        );
+        void this.stop();
+        ipcBridge.conversation.runawayHalted.emit({
+          conversationId: this.conversation_id,
+          kind: trip.kind,
+          count: trip.count,
+        });
+        return;
+      }
+    }
+  }
+
   private handleProcessExit(code: number | null, activeMsgId: string): void {
     mainError('[WCoreManager]', `wcore process exited unexpectedly (code=${code}) during active turn ${activeMsgId}`);
 
@@ -625,6 +818,37 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
       data: `Agent process exited unexpectedly (code ${code})`,
+    };
+    ipcBridge.conversation.responseStream.emit(errorMessage);
+    this.emitToEventBuses(errorMessage);
+
+    const finishMessage: IResponseMessage = {
+      type: 'finish',
+      conversation_id: this.conversation_id,
+      msg_id: uuid(),
+      data: null,
+    };
+    ipcBridge.conversation.responseStream.emit(finishMessage);
+    this.emitToEventBuses(finishMessage);
+  }
+
+  /**
+   * S2: Surface a failed agent bootstrap as a real error + finish for the held
+   * turn, so the UI shows a failure instead of hanging on an infinite spinner.
+   * Mirrors handleProcessExit's emit pattern.
+   */
+  private emitStartFailure(activeMsgId: string, error: unknown): void {
+    mainError('[WCoreManager]', `agent bootstrap failed; turn ${activeMsgId} cannot start`, error);
+
+    this.status = 'finished';
+    cronBusyGuard.setProcessing(this.conversation_id, false);
+
+    const detail = error instanceof Error ? error.message : String(error ?? 'unknown error');
+    const errorMessage: IResponseMessage = {
+      type: 'error',
+      conversation_id: this.conversation_id,
+      msg_id: activeMsgId,
+      data: `Agent failed to start: ${detail}`,
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);
@@ -704,7 +928,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     if (this.heartbeatMissedCount >= this.heartbeatMaxMissed) {
       mainError('[WCoreManager]', `wcore process unresponsive after ${this.heartbeatMaxMissed} missed pongs, killing`);
-      this.agent?.kill();
+      void this.agent?.kill();
       return;
     }
 
@@ -749,6 +973,44 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         return;
       }
 
+      // W7 S4 HITL: wcore forwards `approval_required` typed (index.ts) so a
+      // future renderer can show an approval modal. There is no such UI nor any
+      // `approval_resume` sender yet, so consume it here to avoid the
+      // "Unsupported message type" warning in transformMessage (chatLib has no
+      // `approval_required` case → default branch). Mirrors config_changed /
+      // sub_agent_event pre-processing above.
+      //
+      // `reason` is an opaque engine string. In auto-approve (yolo) runs it is
+      // an info signal and dropping it is correct. A non-'info' reason means the
+      // engine is genuinely gated on a resume the app cannot send — log loudly
+      // so a hung turn is diagnosable rather than silent. Renderer wiring +
+      // approval_resume are out of scope (tracked separately).
+      if (data.type === 'approval_required') {
+        const reason = (data.data as { reason?: string } | undefined)?.reason;
+        if (reason && reason !== 'info') {
+          mainError('[WCoreManager]', `approval_required reason='${reason}' but no approval UI; dropping`, data.data);
+        } else {
+          mainLog('[WCoreManager]', 'approval_required (auto-approve info)', data.data);
+        }
+        return;
+      }
+
+      // #252 - session_cost is end-of-session metadata that fires AFTER the
+      // turn's stream finishes, so its msg_id is already empty/cleared and the
+      // empty-msg_id guard below would drop it. Force-forward it stamped with
+      // the last turn's msg_id so the renderer attaches the per-turn cost rows
+      // to that turn's activity card (mirrors the sub_agent_event pass-through).
+      if (data.type === 'session_cost') {
+        const turnMsgId = data.msg_id || this._lastTurnMsgId || '';
+        ipcBridge.conversation.responseStream.emit({
+          type: 'session_cost',
+          conversation_id: this.conversation_id,
+          msg_id: turnMsgId,
+          data: data.data,
+        });
+        return;
+      }
+
       // When the inference provider rejects the key (401 / invalid x-api-key),
       // flip that provider off "connected" so the UI stops showing it healthy
       // and the next spawn does not reuse the dead key. Side-effect only: the
@@ -782,6 +1044,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.heartbeatActive = true;
         this.heartbeatMissedCount = 0;
         this.currentMsgId = data.msg_id ?? null;
+        this._lastTurnMsgId = data.msg_id ?? this._lastTurnMsgId;
         this.currentMsgContent = '';
 
         // Reset thinking state on new turn
@@ -844,6 +1107,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       if (processedData.type === 'finish') {
         const total = this._messageSentAt ? `${Date.now() - this._messageSentAt}ms` : 'n/a';
         mainLog('[WCoreManager]', `stream_end: msg_id=${processedData.msg_id}, total=${total}`, processedData.data);
+        // Mark the turn terminal. `this.status` is otherwise only set to 'finished'
+        // on a content/tool_group frame, so an error-only turn (provider rejects the
+        // request, 0 content) was left 'running' forever — `conversation.get` returns
+        // `task.status` (conversationBridge), so the renderer's mount/resume hydration
+        // kept restoring a stuck "Processing" spinner that blocked further sends.
+        this.status = 'finished';
         this._messageSentAt = null;
         this.heartbeatActive = false;
         this.heartbeatMissedCount = 0;
@@ -893,6 +1162,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
           if (tMessage.type === 'tool_group') {
             this.handleConformationMessage(tMessage);
+            this.checkRunaway(tMessage);
           }
         }
       }
@@ -1036,16 +1306,18 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  override kill(): Promise<void> {
+  override async kill(): Promise<void> {
     if (this.agent) {
       try {
-        this.agent.kill();
+        // Await the engine tree-kill (taskkill /T on Windows) before tearing
+        // down the worker, so WorkerTaskManager.clear() on quit doesn't return
+        // before wayland-core's child tree is actually gone (#139).
+        await this.agent.kill();
       } catch {
         // best-effort
       }
     }
-    // super.kill() is async (ForkTask M18); return its promise so callers
-    // (WorkerTaskManager.clear) can await child exit.
-    return Promise.resolve(super.kill());
+    // super.kill() is async (ForkTask M18); await child exit.
+    await super.kill();
   }
 }

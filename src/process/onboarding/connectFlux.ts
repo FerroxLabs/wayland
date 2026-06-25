@@ -44,11 +44,14 @@ import type { ConnectFluxResult } from '@/common/types/onboarding';
 import { connectModelRegistryProvider } from '@process/providers/ipc/modelRegistryIpc';
 
 /** Flux desktop authorize page (system browser opens here). */
-const AUTHORIZE_URL = 'https://fluxrouter.ai/desktop/authorize';
+export const FLUX_AUTHORIZE_URL = 'https://fluxrouter.ai/desktop/authorize';
 /** Flux desktop PKCE token-exchange endpoint. */
-const TOKEN_URL = 'https://fluxrouter.ai/api/desktop/token';
+export const FLUX_TOKEN_URL = 'https://fluxrouter.ai/api/desktop/token';
+/** Local aliases (the desktop flow body reads the short names). */
+const AUTHORIZE_URL = FLUX_AUTHORIZE_URL;
+const TOKEN_URL = FLUX_TOKEN_URL;
 /** Registry provider id the minted key is connected as. */
-const FLUX_PROVIDER_ID = 'flux-router';
+export const FLUX_PROVIDER_ID = 'flux-router';
 
 /** Overall flow timeout - the user has this long to complete the browser sign-in. */
 const FLOW_TIMEOUT_MS = 3 * 60 * 1000;
@@ -56,23 +59,23 @@ const FLOW_TIMEOUT_MS = 3 * 60 * 1000;
 const TOKEN_TIMEOUT_MS = 20 * 1000;
 
 /** Stable error reasons surfaced to the renderer (matches `ConnectFluxResult`). */
-type ConnectFluxError = 'cancelled' | 'timeout' | 'unauthorized' | 'no-credit' | 'offline' | 'unknown';
+export type ConnectFluxError = 'cancelled' | 'timeout' | 'unauthorized' | 'no-credit' | 'offline' | 'unknown';
 
 /** Shape the Flux `/api/desktop/token` route returns on success. */
-type FluxTokenResponse = {
+export type FluxTokenResponse = {
   api_key: string;
   key_prefix: string;
   name: string;
 };
 
 /** PKCE material for one flow. */
-type Pkce = { verifier: string; challenge: string; state: string };
+export type Pkce = { verifier: string; challenge: string; state: string };
 
 /** Outcome of waiting on the loopback callback. */
 type CallbackOutcome = { kind: 'code'; code: string } | { kind: 'error'; error: ConnectFluxError };
 
 /** Generate the PKCE verifier (43-char base64url), its S256 challenge, and CSRF state. */
-function createPkce(): Pkce {
+export function createPkce(): Pkce {
   // 32 random bytes → 43-char base64url verifier, within the RFC 7636 43–128
   // range and the Flux token route's `min(43).max(128)` Zod bound.
   const verifier = randomBytes(32).toString('base64url');
@@ -86,7 +89,7 @@ function createPkce(): Pkce {
  * route reads: `response_type=code`, `code_challenge`, `code_challenge_method=S256`,
  * `state`, `redirect_uri`, and a short `device` label.
  */
-function buildAuthorizeUrl(challenge: string, state: string, redirectUri: string, device: string): string {
+export function buildAuthorizeUrl(challenge: string, state: string, redirectUri: string, device: string): string {
   const url = new URL(AUTHORIZE_URL);
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('code_challenge', challenge);
@@ -217,7 +220,7 @@ function authorizeViaLoopback(pkce: Pkce, device: string): Promise<{ outcome: Ca
  * Exchange the authorization code for a freshly-minted key. Maps Flux's error
  * responses onto the renderer-facing reasons and never throws.
  */
-async function exchangeCode(
+export async function exchangeCode(
   code: string,
   verifier: string,
   redirectUri: string
@@ -266,7 +269,7 @@ function mapTokenError(status: number): ConnectFluxError {
 }
 
 /** Narrow a model-registry `ConnectError` onto the onboarding error union. */
-function narrowConnectError(error: string | undefined): ConnectFluxError {
+export function narrowConnectError(error: string | undefined): ConnectFluxError {
   switch (error) {
     case 'unauthorized':
       return 'unauthorized';
@@ -290,6 +293,41 @@ function safeDeviceLabel(): string {
 }
 
 /**
+ * Exchange an authorization code for a minted Flux key and persist it through
+ * the existing model-registry connect path (tested, keychained, catalog built,
+ * legacy mirror written, open pickers revalidated). Shared by the desktop
+ * loopback flow AND the remote WebUI route (W4a) so both run identical token
+ * exchange + persistence with one redirect_uri contract.
+ *
+ * WRITE-ONLY: the minted `api_key` is consumed here and never returned to the
+ * caller - the result is status only (`{ ok }` + a stable error reason). The
+ * `redirectUri` MUST be the exact value the authorize step used (the Flux token
+ * route validates it server-side).
+ *
+ * Never rejects: maps any failure onto the `ConnectFluxError` union.
+ */
+export async function connectFluxRemoteExchange(input: {
+  code: string;
+  verifier: string;
+  redirectUri: string;
+}): Promise<{ ok: true } | { ok: false; error: ConnectFluxError }> {
+  try {
+    const exchanged = await exchangeCode(input.code, input.verifier, input.redirectUri);
+    if ('error' in exchanged) {
+      return { ok: false, error: exchanged.error };
+    }
+
+    const connected = await connectModelRegistryProvider(FLUX_PROVIDER_ID, { key: exchanged.api_key });
+    if (!connected.ok) {
+      return { ok: false, error: narrowConnectError(connected.error) };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'unknown' };
+  }
+}
+
+/**
  * Run the full Flux one-click connect flow. Resolves with a renderer-safe
  * `ConnectFluxResult` and never rejects.
  *
@@ -307,19 +345,13 @@ export async function connectFlux(): Promise<ConnectFluxResult> {
     }
 
     // The token route validates redirect_uri against what was stored at authorize
-    // time, so we echo the exact value the loopback step used.
-    const exchanged = await exchangeCode(outcome.code, pkce.verifier, redirectUri);
-    if ('error' in exchanged) {
-      return { ok: false, error: exchanged.error };
-    }
-
-    // Persist through the existing connect path: tested, keychained, catalog built,
-    // legacy mirror written, open pickers revalidated.
-    const connected = await connectModelRegistryProvider(FLUX_PROVIDER_ID, { key: exchanged.api_key });
-    if (!connected.ok) {
-      return { ok: false, error: narrowConnectError(connected.error) };
-    }
-    return { ok: true };
+    // time, so we echo the exact value the loopback step used. Exchange + persist
+    // share the remote core so both flows are identical past the code.
+    return await connectFluxRemoteExchange({
+      code: outcome.code,
+      verifier: pkce.verifier,
+      redirectUri,
+    });
   } catch {
     return { ok: false, error: 'unknown' };
   }

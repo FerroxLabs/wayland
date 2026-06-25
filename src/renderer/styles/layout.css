@@ -162,6 +162,10 @@
   .layout-sider {
     /* Fixed positioning from top */
     top: 0 !important;
+    /* Floating drawer: drop the hard right-edge seam for a soft shadow so it
+       reads as an overlay above the content, not a split pane. */
+    border-right: none !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.32) !important;
     /* dvh automatically accounts for browser chrome on mobile */
     height: 100vh !important;
     height: 100dvh !important;
@@ -175,10 +179,10 @@
   }
 
   .layout-sider-header--mobile {
-    min-height: 72px !important;
-    padding-top: 14px !important;
-    padding-bottom: 12px !important;
-    gap: 14px !important;
+    min-height: 48px !important;
+    padding-top: 8px !important;
+    padding-bottom: 6px !important;
+    gap: 10px !important;
   }
 
   /* Mobile-only: clip overflow instead of allowing scroll */
@@ -193,23 +197,26 @@
     padding-bottom: 20px;
   }
 
+  /* Match the desktop sider density exactly (SiderItem = 26px row, 8px gap,
+     8px inline padding, 8px radius) so the overlay and full sidebar are
+     visually identical - no separate, airier mobile sizing. */
   .sider-action-btn-mobile {
-    height: 44px !important;
-    gap: 12px !important;
-    padding-inline: 14px !important;
-    border-radius: 10px !important;
+    height: 26px !important;
+    gap: 8px !important;
+    padding-inline: 8px !important;
+    border-radius: 8px !important;
   }
 
   .sider-action-icon-btn-mobile {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 10px !important;
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 8px !important;
   }
 
   .sider-footer-btn-mobile {
-    min-height: 44px !important;
-    padding: 10px 14px !important;
-    border-radius: 10px !important;
+    min-height: 28px !important;
+    padding: 4px 8px !important;
+    border-radius: 8px !important;
   }
 
   /* Mobile: remove left padding for message wrapper */
@@ -217,14 +224,14 @@
     padding-left: 0;
   }
 
-  /* Sidebar conversation title + secondary timeline text */
+  /* Sidebar conversation title + secondary timeline text - match desktop. */
   .chat-history__item-name {
-    font-size: 15px !important;
-    line-height: 24px !important;
+    font-size: 12px !important;
+    line-height: 20px !important;
   }
 
   .chat-history__section {
-    font-size: 14px !important;
-    line-height: 20px !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
   }
 }

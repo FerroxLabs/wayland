@@ -119,6 +119,12 @@
     "scheduleDesc": {
       "manual": "手动触发",
       "hourly": "每小时执行",
+      "everyNHours_one": "每小时",
+      "everyNHours_other": "每 {{count}} 小时",
+      "everyNHoursAtMinute_one": "每小时的 :{{minute}}",
+      "everyNHoursAtMinute_other": "每 {{count}} 小时的 :{{minute}}",
+      "everyNMinutes_one": "每分钟",
+      "everyNMinutes_other": "每 {{count}} 分钟",
       "dailyAt": "每天 {{time}} 执行",
       "weekdaysAt": "工作日 {{time}} 执行",
       "weeklyAt": "每周{{day}} {{time}} 执行",

@@ -177,5 +177,8 @@
     "title": "설치된 CLI 도구에서 스킬 미러링",
     "subtitle": "~/.claude/skills, ~/.codex/skills, ~/.gemini/skills의 스킬을 노출하여 스킬 페이지에 표시합니다. 선택적으로 사용합니다. 적용하려면 재시작이 필요합니다.",
     "restartNeeded": "- 적용하려면 앱을 재시작하세요."
+  },
+  "addToChat": {
+    "alreadyAdded": "Added"
   }
 }

@@ -15,7 +15,7 @@ import { CodexMcpAgent } from './agents/CodexMcpAgent';
 import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
 import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
-import { validateMcpServer } from './validateMcpServer';
+import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
 
 /**
  * MCP service - coordinates the MCP operation protocol across agents
@@ -244,7 +244,13 @@ export class McpService {
     // Use the first available agent to test the connection; the test logic in the base class is generic
     const firstAgent = this.agents.values().next().value;
     if (firstAgent) {
-      return await firstAgent.testMcpConnection(server);
+      // Reuse Wayland's stored OAuth bearer for the test, exactly like
+      // syncMcpToAgents does. Without it, an already-authorized hosted server
+      // (Notion/Canva/...) 401s here, reports needsAuth, and the stored status
+      // never advances to 'connected' - so the Library UI shows "Not connected"
+      // even though every agent CLI has the server connected.
+      const authedServer = await this.attachOAuthToken(server);
+      return await firstAgent.testMcpConnection(authedServer);
     }
     return {
       success: false,
@@ -263,8 +269,14 @@ export class McpService {
       cliPath?: string;
     }>
   ): Promise<McpSyncResult> {
-    // Only sync enabled MCP servers
-    const enabledServers = mcpServers.filter((server) => server.enabled);
+    // Only sync enabled MCP servers. Sanitize each name into the conservative
+    // identifier the agent CLIs require BEFORE validating - a stored server can
+    // carry a raw catalog id with a slash (e.g. "com.slack/slack-mcp") that
+    // older installs / JSON imports never sanitized, which would otherwise crash
+    // every sync. removeMcpFromAgents applies the same transform so the keys match.
+    const enabledServers = mcpServers
+      .filter((server) => server.enabled)
+      .map((server) => ({ ...server, name: sanitizeMcpServerName(server.name) }));
 
     if (enabledServers.length === 0) {
       return Promise.resolve({ success: true, results: [] });
@@ -280,6 +292,15 @@ export class McpService {
       // Ensure native Gemini CLI is also in the sync list
       const allAgents = this.addNativeGeminiIfNeeded(agents);
 
+      // Attach the OAuth bearer for already-authorized servers so the agent
+      // CLIs reuse Wayland's token instead of starting their OWN ephemeral-port
+      // OAuth flow. That second flow's callback server is torn down before the
+      // user finishes authorizing in the browser, so the redirect hits a dead
+      // port (ERR_CONNECTION_REFUSED) and the MCP never connects even though
+      // Wayland's own login succeeded. Injecting the token we already hold makes
+      // the engine skip its OAuth entirely.
+      const authedServers = await this.attachOAuthTokens(enabledServers);
+
       // Run MCP sync across all agents concurrently
       const promises = allAgents.map(async (agent) => {
         try {
@@ -293,7 +314,7 @@ export class McpService {
             };
           }
 
-          const result = await agentInstance.installMcpServers(enabledServers);
+          const result = await agentInstance.installMcpServers(authedServers);
           return {
             agent: agent.name,
             success: result.success,
@@ -317,6 +338,68 @@ export class McpService {
   }
 
   /**
+   * Attach the stored OAuth bearer to http/sse/streamable_http servers that
+   * Wayland has already authorized, so the agent CLIs reuse it instead of
+   * starting their own OAuth. Servers with no stored token, and servers that
+   * already carry an explicit Authorization header (BYO), are returned
+   * unchanged. The original server objects are never mutated.
+   */
+  /**
+   * Public: return the servers with each one's CURRENT (refreshed) OAuth bearer
+   * attached to its transport headers. Used by the ACP session builder to pass a
+   * live-tokened hosted MCP into `session/new`, so the chat connects with a fresh
+   * token instead of the stale one baked into a CLI/engine config at sync time.
+   */
+  attachOAuthTokens(servers: IMcpServer[]): Promise<IMcpServer[]> {
+    return Promise.all(servers.map((server) => this.attachOAuthToken(server)));
+  }
+
+  /**
+   * Single-server variant of {@link attachOAuthTokens}. Returns the server with
+   * the stored OAuth bearer attached when one is held and no explicit
+   * Authorization header is already present; otherwise returns it unchanged.
+   * Never mutates the input.
+   */
+  private async attachOAuthToken(server: IMcpServer): Promise<IMcpServer> {
+    const transport = server.transport;
+    if (
+      transport.type !== 'http' &&
+      transport.type !== 'sse' &&
+      transport.type !== 'streamable_http'
+    ) {
+      return server;
+    }
+    const headers = transport.headers ?? {};
+    // Prefer a FRESH OAuth token from Wayland's token store over any Authorization
+    // header already baked into the record. The connect flow persists the bearer
+    // into the server's transport; once it expires, leaving it in place both masks
+    // the refresh (we'd skip getValidToken) and keeps sending the dead token, which
+    // the server rejects as invalid_token - the endless "sign in again" loop. Since
+    // getValidToken refreshes an expired token, this keeps the bearer current. Only
+    // when there is NO stored OAuth token do we respect a user-supplied (BYO)
+    // Authorization header as-is. The original server object is never mutated.
+    //
+    // Import McpOAuthService dynamically (not at module top level): it pulls the
+    // aioncli-core OAuth chain whose OAuthCredentialStorage static initializer
+    // references HybridTokenStorage, and a top-level import triggers a
+    // module-init TDZ ("Cannot access 'HybridTokenStorage' before initialization")
+    // in any module that imports McpService. Deferring the import past the
+    // non-http early return keeps the chain out of module load.
+    const { mcpOAuthService } = await import('./McpOAuthService');
+    const token = await mcpOAuthService.getValidToken(server).catch((): string | null => null);
+    if (!token) {
+      return server;
+    }
+    const nonAuthHeaders = Object.fromEntries(
+      Object.entries(headers).filter(([k]) => k.toLowerCase() !== 'authorization')
+    );
+    return {
+      ...server,
+      transport: { ...transport, headers: { ...nonAuthHeaders, Authorization: `Bearer ${token}` } },
+    };
+  }
+
+  /**
    * Remove MCP configuration from all detected agents
    */
   removeMcpFromAgents(
@@ -327,6 +410,10 @@ export class McpService {
       cliPath?: string;
     }>
   ): Promise<McpSyncResult> {
+    // Match the key syncMcpToAgents wrote so a server installed under a
+    // sanitized name (e.g. com.slack/slack-mcp -> com.slack-slack-mcp) is
+    // actually found and removed from each agent config.
+    const safeName = sanitizeMcpServerName(mcpServerName);
     return this.withServiceLock(async () => {
       // Ensure native Gemini CLI is also in the removal list
       const allAgents = this.addNativeGeminiIfNeeded(agents);
@@ -344,7 +431,7 @@ export class McpService {
             };
           }
 
-          const result = await agentInstance.removeMcpServer(mcpServerName);
+          const result = await agentInstance.removeMcpServer(safeName);
           return {
             agent: `${agent.backend}:${agent.name}`,
             success: result.success,
@@ -361,7 +448,12 @@ export class McpService {
 
       const results = await Promise.all(promises);
 
-      return { success: true, results };
+      // S12: mirror the sync path (syncMcpToAgents) - a per-agent removal that
+      // failed is captured in results[] with success:false, but returning a
+      // hardcoded `success: true` hid it, so the renderer reported "deleted"
+      // while the server stayed in that agent's CLI config (Claude/Codex/wcore
+      // drift). Reflect overall success from the per-agent results.
+      return { success: results.every((r) => r.success), results };
     });
   }
 }

@@ -20,8 +20,15 @@ import type {
 // import type { IAcpSessionRepository } from '@process/services/database/IAcpSessionRepository';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability';
 import { ProcessConfig } from '@process/utils/initStorage';
+import type { IMcpServer } from '@/common/config/storage';
 
-const DEFAULT_IDLE_TIMEOUT_MS = 300_000; // 5 minutes
+// 30 minutes. 5 minutes was far too aggressive for interactive chat: normal
+// think-time between messages exceeds it, so the agent process was killed and
+// cold-respawned mid-conversation. That re-billed the full base context every
+// turn (prompt caching is lost when the process dies, cachedReadTokens drops to
+// 0) and stacked a new "Active session" banner per respawn. Reclaim still runs
+// for genuinely abandoned sessions; override via RuntimeOptions.idleTimeoutMs.
+const DEFAULT_IDLE_TIMEOUT_MS = 1_800_000; // 30 minutes
 const DEFAULT_CHECK_INTERVAL_MS = 30_000; // 30 seconds
 
 type StreamEventHandler = (convId: string, message: TMessage) => void;
@@ -93,8 +100,27 @@ export class AcpRuntime {
     const rawMcpServers = await ProcessConfig.get('mcp.config');
     if (Array.isArray(rawMcpServers) && rawMcpServers.length > 0) {
       const cachedInit = await ProcessConfig.get('acp.cachedInitializeResult');
-      const caps = cachedInit?.[config.agentBackend]?.capabilities?.mcpCapabilities;
-      const userServers = McpConfig.fromStorageConfig(rawMcpServers, caps);
+      const rawCaps = cachedInit?.[config.agentBackend]?.capabilities?.mcpCapabilities;
+      // Hosted (http) MCP servers must reach the session for an OAuth connector
+      // like Notion to be callable in a chat. Agents default http to false in
+      // their advertised caps, which dropped every hosted connector; enable
+      // http/sse here (an agent that can't use an http session server ignores
+      // it). This is the only path that makes a hosted connector a chat tool.
+      const caps = { stdio: rawCaps?.stdio ?? true, http: true, sse: true };
+      // Attach the CURRENT (refreshed) OAuth bearer so the session connects with
+      // a live token instead of the stale one baked into the agent's CLI/engine
+      // config at sync time (the cause of "401 invalid token" / a connector that
+      // silently drops out of the session). Dynamic import avoids an OAuth
+      // module-init cycle (HybridTokenStorage TDZ); on failure fall back to the
+      // stored headers (no worse than before).
+      let freshened = rawMcpServers as IMcpServer[];
+      try {
+        const { mcpService } = await import('@process/services/mcpServices/McpService');
+        freshened = await mcpService.attachOAuthTokens(freshened);
+      } catch (err) {
+        console.warn('[AcpRuntime] attachOAuthTokens failed; using stored MCP headers:', err);
+      }
+      const userServers = McpConfig.fromStorageConfig(freshened, caps);
       if (userServers.length > 0) {
         config.mcpServers = [...(config.mcpServers || []), ...userServers];
       }
@@ -208,9 +234,21 @@ export class AcpRuntime {
     this.sessions.clear();
   }
 
+  /**
+   * Refresh a session's idle clock on any agent activity. Without this the
+   * IdleReclaimer only ever sees lastActiveAt updated on send, so a session
+   * that is actively streaming (or that the user is reading) gets suspended
+   * after the idle timeout mid-conversation, killing the bridge. See #60.
+   */
+  private touchActivity(convId: string): void {
+    const entry = this.sessions.get(convId);
+    if (entry) entry.lastActiveAt = Date.now();
+  }
+
   private buildCallbacks(convId: string): SessionCallbacks {
     return {
       onMessage: (message) => {
+        this.touchActivity(convId);
         this.onStreamEvent(convId, message);
       },
       onSessionId: (_sessionId) => {
@@ -218,6 +256,7 @@ export class AcpRuntime {
         // this.acpSessionRepo.updateSessionId(convId, sessionId);
       },
       onStatusChange: (status) => {
+        this.touchActivity(convId);
         // TODO(ACP Discovery): Re-enable after fixing agent_id.
         // this.persistStatus(convId, status);
         this.onSignalEvent(convId, { type: 'status_change', status });

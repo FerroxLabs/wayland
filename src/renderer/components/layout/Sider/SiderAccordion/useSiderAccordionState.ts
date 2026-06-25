@@ -62,12 +62,13 @@ export function useSiderAccordionState() {
     };
   }, []);
 
-  const toggle = useCallback((key: AccordionKey) => {
-    // Always re-read from localStorage so we merge against the freshest
-    // shared state - protects against the v0.6.2 audit-flagged stale-state
-    // clobber when multiple instances of this hook mount in parallel.
+  // Re-read + write helper shared by toggle/setOpen so both merge against the
+  // freshest shared state - protects against the v0.6.2 audit-flagged stale-
+  // state clobber when multiple instances of this hook mount in parallel.
+  const write = useCallback((key: AccordionKey, value: boolean) => {
     const fresh = readStoredState();
-    const next = { ...fresh, [key]: !fresh[key] };
+    if (fresh[key] === value) return;
+    const next = { ...fresh, [key]: value };
     try {
       localStorage.setItem(ACCORDION_STORAGE_KEY, JSON.stringify(next));
     } catch {
@@ -78,5 +79,20 @@ export function useSiderAccordionState() {
     window.dispatchEvent(new Event(ACCORDION_CHANGE_EVENT));
   }, []);
 
-  return { state, toggle };
+  const toggle = useCallback(
+    (key: AccordionKey) => {
+      write(key, !readStoredState()[key]);
+    },
+    [write]
+  );
+
+  /**
+   * Set a section's open state explicitly. Used for route-aware auto-expand:
+   * navigating into a section's route opens it ONCE (on the route-entry
+   * transition), but - unlike forcing `open` true in the render computation -
+   * the user can still collapse it via the chevron and it stays collapsed.
+   */
+  const setOpen = write;
+
+  return { state, toggle, setOpen };
 }

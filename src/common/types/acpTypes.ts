@@ -4,10 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+// These versions are FALLBACK floors only. At spawn time the connectors resolve
+// the LATEST published version of each bridge via bridgeVersionResolver (so new
+// models/features land automatically); these pins are used only when the npm
+// registry is unreachable. Keep them at a recent known-good version.
 export const CODEX_ACP_BRIDGE_VERSION = '0.9.5';
 export const CODEX_ACP_NPX_PACKAGE = `@zed-industries/codex-acp@${CODEX_ACP_BRIDGE_VERSION}`;
 
-export const CLAUDE_ACP_BRIDGE_VERSION = '0.33.1';
+export const CLAUDE_ACP_BRIDGE_VERSION = '0.44.0';
 export const CLAUDE_ACP_NPX_PACKAGE = `@agentclientprotocol/claude-agent-acp@${CLAUDE_ACP_BRIDGE_VERSION}`;
 
 export const CODEBUDDY_ACP_BRIDGE_VERSION = '2.73.0';
@@ -42,6 +46,7 @@ export type AcpBackendAll =
   // | 'gemini' // Google Gemini - not an ACP agent, handled by AgentRegistry directly
   | 'qwen' // Qwen Code ACP
   | 'codex' // OpenAI Codex ACP (via codex-acp bridge)
+  | 'grok' // xAI Grok Build CLI (native ACP via `grok agent stdio`)
   | 'codebuddy' // Tencent CodeBuddy Code CLI
   | 'droid' // Factory Droid CLI (ACP via `droid exec --output-format acp`)
   | 'goose' // Block's Goose CLI
@@ -278,6 +283,38 @@ export interface AcpBackendConfig {
    * Unset means no Flux compatibility is claimed (no chip shown).
    */
   fluxCompat?: 'env' | 'setup' | 'vendor';
+
+  // ---- Native catalog (builtin-catalog) fields ----
+  // Let a native built-in record carry the library-grouping + team-launcher
+  // metadata that previously only existed on extension-contributed records.
+  // They round-trip through config storage as plain JSON and are mapped to the
+  // renderer's `_kind`/`_teammates`/... fields by useAssistantList.
+
+  /** Library grouping: 'team' composes multiple roles (launcher / standing company), 'specialist' is a single role. Drives /assistants + /teams classification. */
+  kind?: 'team' | 'specialist';
+
+  /** Dominant action category (sell | write | research | build | run | office | general). */
+  category?: string;
+
+  /** Team launcher roster - specialist assistant ids this team composes (kind === 'team'). */
+  teammates?: string[];
+
+  /** Recurring rituals declared by a standing team (e.g. weekly rollup). */
+  rituals?: Array<{ name: string; cadence: string }>;
+
+  /** Standing Company flag - always-on multi-role org (kind === 'team'). */
+  standing?: boolean;
+
+  /** SuggestionEngine kickoff cards shown on the new-chat empty state. */
+  kickoffs?: Array<{
+    id: string;
+    text: string;
+    prefill: string;
+    scenario: string;
+    timeBucket?: string;
+    requiresRitualOutput?: boolean;
+    beginnerSafe?: boolean;
+  }>;
 }
 
 // All backend configurations - including temporarily disabled ones
@@ -317,6 +354,20 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     // Needs the config-writing setup connector: codex routes through Flux's
     // Responses surface via a [model_providers.flux] table in its TOML config.
     fluxCompat: 'setup',
+  },
+  grok: {
+    id: 'grok',
+    name: 'Grok Build',
+    cliCommand: 'grok',
+    // Auth is CLI-owned: `grok login` (grok.com OAuth, SuperGrok subscription).
+    // Wayland spawns the binary and it uses its cached credentials.
+    authRequired: true,
+    enabled: true, // ✅ xAI Grok Build CLI, native ACP v1 via `grok agent stdio` (proven: initialize/session/new/session/prompt)
+    supportsStreaming: true, // streams agent_thought_chunk / agent_message_chunk over session/update
+    acpArgs: ['agent', 'stdio'],
+    skillsDirs: ['.grok/skills'],
+    // Talks to xAI's own gateway (grok.com); not Flux-routable.
+    fluxCompat: 'vendor',
   },
   qwen: {
     id: 'qwen',
@@ -458,6 +509,7 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true, // ✅ Nous Research Hermes Agent, launched via `hermes acp`
     supportsStreaming: false,
     acpArgs: ['acp'], // hermes uses the acp subcommand
+    fluxCompat: 'setup',
   },
   snow: {
     id: 'snow',
@@ -1027,7 +1079,8 @@ export type AcpModelInfoSourceDetail =
   | 'acp-config-option'
   | 'acp-models'
   | 'persisted-model'
-  | 'codex-stream';
+  | 'codex-stream'
+  | 'claude-slots';
 
 export interface AcpModelInfo {
   /** Currently active model ID */

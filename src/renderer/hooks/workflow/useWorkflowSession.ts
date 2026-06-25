@@ -28,7 +28,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ipcBridge } from '@/common';
-import type { StepStatus, StepTransitionSource, WorkflowSession } from '@/common/types/workflowTypes';
+import type {
+  StepStatus,
+  StepTransitionSource,
+  WorkflowInteractivity,
+  WorkflowSession,
+} from '@/common/types/workflowTypes';
 
 export type UseWorkflowSessionReturn = {
   data: WorkflowSession | null;
@@ -46,6 +51,20 @@ export type UseWorkflowSessionReturn = {
   pause: () => void;
   /** Local-only resume flag - does not call IPC. */
   resume: () => void;
+  /**
+   * The Continue affordance for an `awaiting_input` step-mode run. Flips
+   * `run_mode` back to `running` via IPC (the bridge routes this to
+   * `service.resume`) and sends a "continue" prompt so the parent driver loop
+   * advances the next step on the resulting turn. Best-effort send.
+   */
+  resumeRun: () => Promise<void>;
+  /**
+   * Step-mode "Accept & continue" at the StepReviewBeat. Marks the active step
+   * done, advances to the next step, and the main side sends the next-step
+   * directive into the conversation. Hydrates local data with the resulting
+   * session. Guarded against double-fire.
+   */
+  acceptStep: () => Promise<void>;
   /** Sends setSessionStatus='ended' via IPC. */
   end: () => Promise<void>;
   /** Permanently deletes the session via IPC (distinct from `end`, which only flips status). */
@@ -63,6 +82,16 @@ export type UseWorkflowSessionReturn = {
    * persistence has both landed AND been reflected in local state.
    */
   markBeginSent: (at?: number) => Promise<WorkflowSession | null>;
+  /**
+   * Flip the interactivity mode (step-by-step vs fully-autonomous). Routes to
+   * `service.setInteractivity` via IPC. Idempotent.
+   */
+  setInteractivity: (mode: WorkflowInteractivity) => Promise<void>;
+  /**
+   * Regress the run to step N. Routes to `service.backtrackToStep` via IPC.
+   * Local data is updated with the resulting session.
+   */
+  backtrackToStep: (n: number) => Promise<void>;
 };
 
 const ACTIVE_STATUSES: ReadonlySet<WorkflowSession['status']> = new Set(['active', 'errored']);
@@ -84,12 +113,38 @@ export function useWorkflowSession(
   // the actual reading happens via WorkflowStepRail's own state since the
   // hook intentionally never persists it.
   const pausedRef = useRef<boolean>(false);
+  // Guards resumeRun against double-fire (a double-clicked Continue would
+  // otherwise send two "Continue" turns and drive the step twice).
+  const resumeInFlightRef = useRef<boolean>(false);
+  // Guards acceptStep against double-fire (a double-clicked Accept would
+  // otherwise advance two steps).
+  const acceptInFlightRef = useRef<boolean>(false);
 
   // Stale-guard: keep the most recent sessionId so an in-flight refresh
   // doesn't overwrite state after the consumer switches sessions.
   const activeSessionIdRef = useRef<string | undefined>(sessionId);
   useEffect(() => {
     activeSessionIdRef.current = sessionId;
+  }, [sessionId]);
+
+  // Re-fetch a SINGLE session by id regardless of status. Unlike `refresh`
+  // (findAllActive, which excludes completed/ended sessions), this resolves a
+  // run even after it has finished - the path the live-sync subscription and
+  // the initial mount need so a completed workflow shows its Complete card
+  // instead of a frozen mid-run snapshot.
+  const fetchById = useCallback(async () => {
+    if (!sessionId) return;
+    try {
+      const result = await ipcBridge.workflow.findById.invoke({ sessionId });
+      if (activeSessionIdRef.current !== sessionId) return;
+      if (result.session) {
+        setData(result.session);
+        setError(null);
+      }
+    } catch (err) {
+      if (activeSessionIdRef.current !== sessionId) return;
+      setError(toError(err));
+    }
   }, [sessionId]);
 
   const refresh = useCallback(async () => {
@@ -113,31 +168,61 @@ export function useWorkflowSession(
     }
   }, [sessionId]);
 
-  // Initial fetch when no seed is provided but a sessionId is present.
+  // Initial fetch when no seed is provided but a sessionId is present. Use the
+  // by-id path (not findAllActive) so re-opening an already-completed workflow
+  // hydrates its terminal state rather than coming back empty.
   useEffect(() => {
     if (!sessionId || initialSession) return;
-    void refresh();
+    setLoading(true);
+    void fetchById().finally(() => {
+      if (activeSessionIdRef.current === sessionId) setLoading(false);
+    });
     // initialSession is intentionally excluded: we only want to fetch when the
     // consumer mounts us without a seed. Subsequent re-renders should NOT
     // re-trigger a fetch just because the caller passes a new seed reference.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId, refresh]);
+  }, [sessionId, fetchById]);
+
+  // Live-sync. The main-process driver loop (parentTurnDriver -> continueRun)
+  // and the autonomous-step worker mutate the session SERVER-SIDE and emit
+  // `sessionChanged`. The renderer holds `data` locally and otherwise only
+  // updates it from its own mutation calls, so without this subscription a run
+  // advancing or completing under the driver would never reach the rail,
+  // header, or Complete card - the surface would freeze on the seed. Re-fetch by
+  // id on every change to THIS session (delete clears it). This is the renderer
+  // half of the auto-progression fix; the main half is the local-emitter
+  // fan-out in ConversationTurnCompletionService.
+  useEffect(() => {
+    if (!sessionId) return;
+    const unsubscribe = ipcBridge.workflow.sessionChanged.on((event) => {
+      if (event.session_id !== sessionId) return;
+      if (event.action === 'delete') {
+        if (activeSessionIdRef.current === sessionId) setData(null);
+        return;
+      }
+      void fetchById();
+    });
+    return () => {
+      unsubscribe?.();
+    };
+  }, [sessionId, fetchById]);
 
   const applyStepMarker = useCallback(
     async (
       stepN: number,
       status: StepStatus,
-      // `source` is forwarded for telemetry symmetry with the worker path; the
-      // main-side patch dispatcher always stamps renderer-driven transitions
-      // as `source = 'user'` regardless. Default kept so callers can omit it.
-      _source: StepTransitionSource = 'user'
+      // `source` is threaded to the main-side patch dispatcher so the stepCursor
+      // no-forward-leapfrog guard can distinguish agent-narrated `<step>` markers
+      // (`'parent'`) from explicit user rail jumps (`'user'`). Defaults to
+      // `'user'` so callers may omit it (rail-jump callers do).
+      source: StepTransitionSource = 'user'
     ) => {
       if (!sessionId) return;
       try {
         const result = await ipcBridge.workflow.updateSessionState.invoke({
           sessionId,
           patch: {
-            setStepStatus: { n: stepN, status, completed_at: Date.now() },
+            setStepStatus: { n: stepN, status, completed_at: Date.now(), source },
           },
         });
         if (activeSessionIdRef.current !== sessionId) return;
@@ -266,6 +351,102 @@ export function useWorkflowSession(
     pausedRef.current = false;
   }, []);
 
+  const resumeRun = useCallback(async () => {
+    if (!sessionId) return;
+    if (resumeInFlightRef.current) return;
+    resumeInFlightRef.current = true;
+    // Flip the persisted run gate back to `running` (bridge → service.resume),
+    // then nudge the agent so the parent driver loop fires on the next turn.
+    try {
+      const result = await ipcBridge.workflow.updateSessionState.invoke({
+        sessionId,
+        patch: { setRunMode: 'running' },
+      });
+      if (activeSessionIdRef.current === sessionId) {
+        setData(result.session);
+        setError(null);
+      }
+    } catch (err) {
+      if (activeSessionIdRef.current === sessionId) setError(toError(err));
+      resumeInFlightRef.current = false;
+      throw err;
+    }
+    const conversationId = data?.conversation_id;
+    if (!conversationId) {
+      resumeInFlightRef.current = false;
+      return;
+    }
+    try {
+      await ipcBridge.conversation.sendMessage.invoke({
+        input: 'Continue with the next step.',
+        msg_id: `workflow-continue-${sessionId}-${Date.now()}`,
+        conversation_id: conversationId,
+      });
+    } catch (err) {
+      console.warn('[useWorkflowSession] resumeRun send failed:', err);
+    } finally {
+      resumeInFlightRef.current = false;
+    }
+  }, [sessionId, data?.conversation_id]);
+
+  const acceptStep = useCallback(async () => {
+    if (!sessionId) return;
+    if (acceptInFlightRef.current) return;
+    acceptInFlightRef.current = true;
+    try {
+      const result = await ipcBridge.workflow.acceptStep.invoke({ sessionId });
+      if (activeSessionIdRef.current === sessionId) {
+        setData(result.session);
+        setError(null);
+      }
+    } catch (err) {
+      if (activeSessionIdRef.current === sessionId) setError(toError(err));
+      throw err;
+    } finally {
+      acceptInFlightRef.current = false;
+    }
+  }, [sessionId]);
+
+  const setInteractivity = useCallback(
+    async (mode: WorkflowInteractivity) => {
+      if (!sessionId) return;
+      try {
+        const result = await ipcBridge.workflow.updateSessionState.invoke({
+          sessionId,
+          patch: { setInteractivity: mode },
+        });
+        if (activeSessionIdRef.current !== sessionId) return;
+        setData(result.session);
+        setError(null);
+      } catch (err) {
+        if (activeSessionIdRef.current !== sessionId) return;
+        setError(toError(err));
+        throw err;
+      }
+    },
+    [sessionId]
+  );
+
+  const backtrackToStep = useCallback(
+    async (n: number) => {
+      if (!sessionId) return;
+      try {
+        const result = await ipcBridge.workflow.updateSessionState.invoke({
+          sessionId,
+          patch: { backtrackToStep: n },
+        });
+        if (activeSessionIdRef.current !== sessionId) return;
+        setData(result.session);
+        setError(null);
+      } catch (err) {
+        if (activeSessionIdRef.current !== sessionId) return;
+        setError(toError(err));
+        throw err;
+      }
+    },
+    [sessionId]
+  );
+
   const isActive = useCallback(() => {
     return data !== null && ACTIVE_STATUSES.has(data.status);
   }, [data]);
@@ -280,10 +461,14 @@ export function useWorkflowSession(
     answerAsk,
     pause,
     resume,
+    resumeRun,
+    acceptStep,
     end,
     remove,
     refresh,
     applyStepMarker,
     markBeginSent,
+    setInteractivity,
+    backtrackToStep,
   };
 }

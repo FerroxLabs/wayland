@@ -96,11 +96,10 @@ export class NanobotAgent {
 
   /** Stop/kill any running nanobot process */
   stop(): Promise<void> {
-    this.connection.kill();
-    return Promise.resolve();
+    return this.connection.kill();
   }
 
   kill(): void {
-    this.connection.kill();
+    void this.connection.kill();
   }
 }

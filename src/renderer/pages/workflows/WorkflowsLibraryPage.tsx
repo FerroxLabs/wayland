@@ -26,6 +26,7 @@ import { Button } from '@arco-design/web-react';
 import { Download, Sparkles, Workflow } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { ipcBridge } from '@/common';
 import {
   LibraryFilterRail,
@@ -33,6 +34,7 @@ import {
   LibrarySectionHeader,
 } from '@/renderer/components/layout/library';
 import PageShell from '@/renderer/components/layout/PageShell';
+import ImportModal from '@/renderer/components/import/ImportModal';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import BuildWorkflowModal from './BuildWorkflowModal';
 import WorkflowCard from './WorkflowCard';
@@ -86,6 +88,8 @@ const WorkflowsLibraryPage: React.FC = () => {
   const [selected, setSelected] = useState<SkillIndexEntry | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [buildOpen, setBuildOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const refreshWorkflows = useCallback(() => {
     void ipcBridge.skills.list.invoke({ type: 'workflow' }).then((list) => setWorkflows(list));
@@ -94,6 +98,22 @@ const WorkflowsLibraryPage: React.FC = () => {
   useEffect(() => {
     refreshWorkflows();
   }, [refreshWorkflows]);
+
+  // Open the launcher pre-targeted to a workflow when navigated via
+  // `/workflows?workflow=<name>` - the Complete-card "Run again" / "Up next"
+  // CTAs route here (issue #82, mirrors `/scheduled?workflow=`). Wait for the
+  // entry list to load, resolve the entry by name, open the detail modal,
+  // then clear the param so a manual reload doesn't re-fire it.
+  useEffect(() => {
+    const name = searchParams.get('workflow');
+    if (!name) return;
+    if (workflows.length === 0) return; // entries still loading - retry on next load
+    const entry = workflows.find((w) => w.name === name);
+    if (entry) setSelected(entry);
+    const next = new URLSearchParams(searchParams);
+    next.delete('workflow');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, workflows]);
 
   const searching = query.trim().length > 0;
 
@@ -165,15 +185,7 @@ const WorkflowsLibraryPage: React.FC = () => {
           <Button
             type='secondary'
             icon={<Download size={14} />}
-            onClick={() => {
-              // eslint-disable-next-line no-alert
-              window.alert(
-                t(
-                  'import.placeholder',
-                  'Import wiring lands next: folder / git URL / SKILL.md with type:workflow auto-detected via frontmatter, scanned by Skill Guard, and registered as source:imported.',
-                ),
-              );
-            }}
+            onClick={() => setImportOpen(true)}
           >
             {t('actions.import', 'Import workflow')}
           </Button>
@@ -289,6 +301,12 @@ const WorkflowsLibraryPage: React.FC = () => {
         visible={buildOpen}
         onClose={() => setBuildOpen(false)}
         onSaved={refreshWorkflows}
+      />
+      <ImportModal
+        visible={importOpen}
+        kind='workflow'
+        onCancel={() => setImportOpen(false)}
+        onDone={refreshWorkflows}
       />
     </PageShell>
   );

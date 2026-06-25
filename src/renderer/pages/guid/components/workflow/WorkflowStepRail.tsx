@@ -19,26 +19,25 @@
  * so the parent owns the IPC layer.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Modal } from '@arco-design/web-react';
-import { AlertCircle, CheckCircle2, Circle, CircleDot, Loader2, MinusCircle, Play } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { AlertCircle, CheckCircle2, Circle, CircleDot, Edit2, HelpCircle, Loader2, MinusCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { StepState, WorkflowSession } from '@/common/types/workflowTypes';
+import type { StepState, WorkflowRunMode, WorkflowSession } from '@/common/types/workflowTypes';
 import styles from './WorkflowStepRail.module.css';
 
 export type WorkflowStepRailProps = {
   session: WorkflowSession;
-  /** Whether auto-advance compliance dropped - title flips to "manual" + amber dot. */
-  mode?: 'auto' | 'manual';
   /** Click on a step row → jump to that step. */
   onJumpToStep: (n: number) => void;
-  /** Click on autonomous run pill → dispatch sub-agent (after confirmation). */
-  onRunAutonomously: (n: number) => void;
+  /** True when the run is waiting on the user - the live step shows a blue "?" not a spinner. */
+  needsInput?: boolean;
   /** Bottom slot - `WorkflowStatusBar` is composed in by the parent (W3.J) via children prop. */
   children?: React.ReactNode;
 };
 
-type BulletProps = { status: StepState['status'] };
+type BulletStatus = StepState['status'] | 'review' | 'ask';
+
+type BulletProps = { status: BulletStatus };
 
 const Bullet: React.FC<BulletProps> = ({ status }) => {
   const iconSize = 14;
@@ -47,6 +46,10 @@ const Bullet: React.FC<BulletProps> = ({ status }) => {
       return <CheckCircle2 size={iconSize} aria-hidden='true' />;
     case 'now':
       return <CircleDot size={iconSize} aria-hidden='true' />;
+    case 'review':
+      return <Edit2 size={iconSize} aria-hidden='true' />;
+    case 'ask':
+      return <HelpCircle size={iconSize} aria-hidden='true' />;
     case 'errored':
       return <AlertCircle size={iconSize} aria-hidden='true' />;
     case 'skipped':
@@ -108,11 +111,14 @@ type StepRowProps = {
   step: StepState;
   /** True when this is the workflow's current step (session.current_step). */
   isCurrent: boolean;
+  /** The session run_mode - used to determine review/ask bullet state. */
+  runMode: WorkflowRunMode;
+  /** True when the run is waiting on the user (current step shows a blue "?"). */
+  needsInput: boolean;
   onJump: (n: number) => void;
-  onRequestRun: (n: number) => void;
 };
 
-const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, onJump, onRequestRun }) => {
+const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, runMode, needsInput, onJump }) => {
   const { t } = useTranslation();
   const autonomousRunning = step.autonomous_run?.state === 'running';
   // The live step: the workflow's current step while it's still todo/now. The
@@ -120,16 +126,24 @@ const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, onJump, onRequestRun
   // emitted), so current_step is the reliable signal for "which step is live".
   const isActiveStep = isCurrent && (step.status === 'todo' || step.status === 'now');
   const runningElapsedSec = useElapsedSeconds(autonomousRunning ? step.autonomous_run!.started_at : null);
-  const canRunAutonomously = !autonomousRunning && (step.status === 'todo' || step.status === 'now');
   const sub = computeSubLine(step, t);
+
+  // Derive display status: review/ask overlay the standard status for the current step.
+  // The current step's own status often lags at 'todo' (the 'now' transition is
+  // not always emitted), so treat the current step as live while the run is
+  // actively running - that's what makes the rail show real progress.
+  const displayStatus: BulletStatus = (() => {
+    // Waiting on the user wins: the live step reads as a question, not work.
+    if (isCurrent && needsInput) return 'ask';
+    if (isCurrent && runMode === 'awaiting_input') return 'review';
+    if (autonomousRunning) return 'now';
+    if (isCurrent && runMode === 'running' && (step.status === 'todo' || step.status === 'now')) return 'now';
+    return step.status;
+  })();
+  const showSpinner = (autonomousRunning || displayStatus === 'now') && displayStatus !== 'ask';
 
   const handleRowClick = () => {
     onJump(step.n);
-  };
-  const handleRunClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent the row click handler from also firing a jump request.
-    e.stopPropagation();
-    onRequestRun(step.n);
   };
 
   return (
@@ -141,6 +155,7 @@ const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, onJump, onRequestRun
       data-status={step.status}
       data-running={autonomousRunning ? 'true' : undefined}
       data-active={isActiveStep ? 'true' : undefined}
+      data-needsinput={isCurrent && needsInput ? 'true' : undefined}
       className={styles.row}
       aria-label={t('workflow.rail.jumpToStep', {
         defaultValue: 'Jump to step {{n}}: {{title}}',
@@ -148,18 +163,20 @@ const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, onJump, onRequestRun
         title: step.title,
       })}
     >
-      <span className={styles.bullet} data-status={step.status} aria-hidden='true'>
-        {autonomousRunning ? (
+      <span className={styles.bullet} data-status={displayStatus} aria-hidden='true'>
+        {showSpinner ? (
           <Loader2 size={14} className={styles.spinner} aria-hidden='true' />
+        ) : displayStatus === 'todo' ? (
+          <span className={styles.numBullet}>{step.n}</span>
         ) : (
-          <Bullet status={step.status} />
+          <Bullet status={displayStatus} />
         )}
       </span>
       <span className='flex-1 min-w-0 flex flex-col'>
         {autonomousRunning ? (
           <span className={styles.runningLabel} data-testid='workflow-step-rail-running-label'>
             {t('workflow.rail.runningLabel', {
-              defaultValue: 'Running… ({{elapsed}})',
+              defaultValue: 'Running... ({{elapsed}})',
               elapsed: formatMmSs(runningElapsedSec),
             })}
           </span>
@@ -173,29 +190,6 @@ const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, onJump, onRequestRun
           </span>
         )}
         {!autonomousRunning && sub && <span className={styles.sub}>{sub}</span>}
-        {canRunAutonomously && (
-          <span
-            role='button'
-            tabIndex={-1}
-            data-testid='workflow-step-rail-run-btn'
-            className={styles.runBtn}
-            onClick={(e) => handleRunClick(e as unknown as React.MouseEvent<HTMLButtonElement>)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                e.stopPropagation();
-                onRequestRun(step.n);
-              }
-            }}
-            aria-label={t('workflow.rail.runAutonomouslyAria', {
-              defaultValue: 'Run step {{n}} autonomously',
-              n: step.n,
-            })}
-          >
-            <Play size={10} aria-hidden='true' />
-            {t('workflow.rail.runAutonomously', { defaultValue: 'Run autonomously' })}
-          </span>
-        )}
       </span>
     </button>
   );
@@ -203,52 +197,24 @@ const StepRow: React.FC<StepRowProps> = ({ step, isCurrent, onJump, onRequestRun
 
 export const WorkflowStepRail: React.FC<WorkflowStepRailProps> = ({
   session,
-  mode = 'auto',
   onJumpToStep,
-  onRunAutonomously,
+  needsInput = false,
   children,
 }) => {
   const { t } = useTranslation();
-  const [pendingStep, setPendingStep] = useState<number | null>(null);
-
-  const titleLabel = useMemo(
-    () =>
-      mode === 'manual'
-        ? t('workflow.rail.titleManual', { defaultValue: 'Workflow steps · manual' })
-        : t('workflow.rail.titleAuto', { defaultValue: 'Workflow steps · auto-driven' }),
-    [mode, t]
-  );
 
   const handleRowJump = (n: number) => {
     onJumpToStep(n);
-  };
-  const handleRequestRun = (n: number) => {
-    setPendingStep(n);
-  };
-  const handleConfirmRun = () => {
-    if (pendingStep != null) {
-      onRunAutonomously(pendingStep);
-    }
-    setPendingStep(null);
-  };
-  const handleCancelRun = () => {
-    setPendingStep(null);
   };
 
   return (
     <aside
       data-testid='workflow-step-rail'
-      data-mode={mode}
       className={`${styles.rail} w-280px shrink-0 h-full flex flex-col overflow-y-auto border-l border-solid border-[color:var(--border-base)] bg-[color:var(--color-bg-2)] p-16px gap-6px`}
     >
       <div className={styles.titleStrip} data-testid='workflow-step-rail-title'>
-        <span
-          className={styles.modeDot}
-          data-mode={mode}
-          data-testid='workflow-step-rail-mode-dot'
-          aria-hidden='true'
-        />
-        <span>{titleLabel}</span>
+        <span className={styles.modeDot} aria-hidden='true' />
+        <span>{t('workflow.rail.title', { defaultValue: 'Steps' })}</span>
       </div>
 
       <div className='flex flex-col gap-2px'>
@@ -257,8 +223,9 @@ export const WorkflowStepRail: React.FC<WorkflowStepRailProps> = ({
             key={step.n}
             step={step}
             isCurrent={step.n === session.current_step}
+            runMode={session.run_mode}
+            needsInput={needsInput}
             onJump={handleRowJump}
-            onRequestRun={handleRequestRun}
           />
         ))}
       </div>
@@ -267,29 +234,6 @@ export const WorkflowStepRail: React.FC<WorkflowStepRailProps> = ({
       <div className='mt-auto pt-12px' data-testid='workflow-step-rail-bottom-slot'>
         {children}
       </div>
-
-      <Modal
-        visible={pendingStep != null}
-        onOk={handleConfirmRun}
-        onCancel={handleCancelRun}
-        title={t('workflow.rail.confirmTitle', {
-          defaultValue: 'Run Step {{n}} autonomously?',
-          n: pendingStep ?? 0,
-        })}
-        okText={t('workflow.rail.confirmOk', { defaultValue: 'Run autonomously' })}
-        cancelText={t('workflow.rail.confirmCancel', { defaultValue: 'Cancel' })}
-      >
-        <div className={styles.confirmBody}>
-          {t('workflow.rail.confirmBody', {
-            defaultValue:
-              'Wayland will spawn an autonomous worker to complete Step {{n}} in the background. You can keep chatting on the main session.',
-            n: pendingStep ?? 0,
-          })}
-          <div className={styles.confirmEta}>
-            {t('workflow.rail.confirmEta', { defaultValue: 'ETA: 4-8 minutes.' })}
-          </div>
-        </div>
-      </Modal>
     </aside>
   );
 };

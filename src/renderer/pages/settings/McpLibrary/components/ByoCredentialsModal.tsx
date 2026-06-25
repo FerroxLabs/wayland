@@ -4,6 +4,7 @@ import { ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MarkdownView from '@renderer/components/Markdown';
 import { openExternalUrl } from '@renderer/utils/platform';
+import styles from './ByoCredentialsModal.module.css';
 
 export interface ByoVendorHint {
   /** URL of the vendor's "create OAuth app" console (e.g. https://api.slack.com/apps). */
@@ -22,6 +23,12 @@ interface Props {
   /** Vendor-specific catalog hint when known; undefined triggers the universal fallback UI. */
   vendorHint?: ByoVendorHint;
   onCancel: () => void;
+  /**
+   * Abort an in-flight login triggered by onSubmit. Called when the user clicks
+   * Cancel WHILE submitting (bug #242: a never-arriving OAuth callback used to
+   * leave Cancel disabled and the user stuck). Closes the modal too.
+   */
+  onCancelInFlight?: () => void;
   onSubmit: (clientId: string, clientSecret: string | undefined) => Promise<void>;
 }
 
@@ -48,6 +55,7 @@ export function ByoCredentialsModal({
   redirectUri,
   vendorHint,
   onCancel,
+  onCancelInFlight,
   onSubmit,
 }: Props) {
   const { t } = useTranslation();
@@ -71,7 +79,14 @@ export function ByoCredentialsModal({
   };
 
   const handleCancel = () => {
-    if (submitting) return;
+    // Cancel is ALWAYS available (bug #242): when a sign-in is in flight, abort
+    // it so a never-arriving OAuth callback can't trap the user. Otherwise just
+    // close the modal.
+    if (submitting) {
+      setSubmitting(false);
+      onCancelInFlight?.();
+      return;
+    }
     onCancel();
   };
 
@@ -84,18 +99,18 @@ export function ByoCredentialsModal({
       cancelText={t('mcpLibrary.byo.cancel', 'Cancel')}
       onOk={handleSubmit}
       okButtonProps={{ disabled: !canSubmit, loading: submitting }}
-      cancelButtonProps={{ disabled: submitting }}
+      cancelButtonProps={{ disabled: false }}
       maskClosable={!submitting}
       autoFocus
       simple={false}
     >
-      <div className="mcp-byo-body">
+      <div className={styles.body}>
         {vendorHint?.guide ? (
-          <div className="mcp-byo-vendor-guide">
+          <div className={styles.vendorGuide}>
             <MarkdownView>{vendorHint.guide}</MarkdownView>
           </div>
         ) : (
-          <div className="mcp-byo-universal-guide">
+          <div className={styles.universalGuide}>
             <p>
               {t(
                 'mcpLibrary.byo.universalIntro',
@@ -109,7 +124,7 @@ export function ByoCredentialsModal({
         {vendorHint?.registrationUrl && (
           <button
             type="button"
-            className="mcp-byo-open-console"
+            className={styles.openConsole}
             onClick={() => void openExternalUrl(vendorHint.registrationUrl)}
           >
             <ExternalLink size={14} />
@@ -117,14 +132,14 @@ export function ByoCredentialsModal({
           </button>
         )}
 
-        <div className="mcp-byo-redirect">
-          <div className="mcp-byo-redirect-label">
+        <div className={styles.redirect}>
+          <div className={styles.redirectLabel}>
             {t('mcpLibrary.byo.redirectLabel', 'Redirect URI to paste in the vendor console:')}
           </div>
-          <code className="mcp-byo-redirect-uri">{redirectUri}</code>
+          <code className={styles.redirectUri}>{redirectUri}</code>
         </div>
 
-        <div className="mcp-byo-input">
+        <div className={styles.input}>
           <label htmlFor="mcp-byo-client-id">
             {t('mcpLibrary.byo.clientIdLabel', 'Client ID')}
           </label>
@@ -140,7 +155,7 @@ export function ByoCredentialsModal({
         </div>
 
         {requiresSecret && (
-          <div className="mcp-byo-input">
+          <div className={styles.input}>
             <label htmlFor="mcp-byo-client-secret">
               {t('mcpLibrary.byo.clientSecretLabel', 'Client secret')}
             </label>

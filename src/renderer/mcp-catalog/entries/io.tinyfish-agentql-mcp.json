@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "io.tinyfish/agentql-mcp",
+  "title": "AgentQL",
+  "description": "Turn a natural-language prompt into structured data from any web page - AgentQL’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/tinyfish-io/agentql-mcp",
+  "repository": {
+    "url": "https://github.com/tinyfish-io/agentql-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "agentql-mcp",
+      "version": "latest",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "AGENTQL_API_KEY",
+          "description": "AgentQL API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "automation",
+      "data"
+    ],
+    "tags": [
+      "agentql",
+      "extraction",
+      "scraping"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 114,
+    "installRate": 0,
+    "iconUrl": "icons/io.tinyfish-agentql-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#2D7FF9"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "AgentQL",
+      "providerSignupUrl": "https://dev.agentql.com"
+    },
+    "setupGuide": {
+      "path": "guides/io.tinyfish-agentql-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

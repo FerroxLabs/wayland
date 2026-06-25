@@ -40,6 +40,8 @@ function makeSession(steps: StepState[], id = 'sess-1'): { session: WorkflowSess
       updated_at: NOW,
       completed_at: null,
       begin_sent_at: NOW,
+      run_mode: 'running',
+      interactivity: 'step',
     },
   };
 }

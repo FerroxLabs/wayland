@@ -44,6 +44,36 @@
   font-weight: 600;
 }
 
+/* ---- Headless / remote operator notice (replaces the connect hero) ---- */
+.headlessNotice {
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.headlessNoticeTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  margin: 0 0 8px;
+}
+
+.headlessNoticeBody {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--color-text-2);
+  margin: 0;
+}
+
+.headlessNoticeBody code {
+  font-family: var(--font-code, monospace);
+  font-size: 12px;
+  background: var(--color-fill-2);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
 /* ---- Detected-keys strip ---- */
 .detected {
   display: flex;
@@ -106,6 +136,25 @@
 }
 
 .connectError svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.connectNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--warning-soft-bg);
+  border: 1px solid var(--warning-soft-border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--warning);
+  line-height: 1.45;
+}
+
+.connectNotice svg {
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -250,6 +299,12 @@
   color: var(--color-text-2);
   padding: 0 4px;
   white-space: nowrap;
+}
+
+/* Provider on/off toggle at the far right of a connected row (#54). */
+.providerToggle {
+  flex-shrink: 0;
+  margin-left: 2px;
 }
 
 /* ---- Empty state ---- */

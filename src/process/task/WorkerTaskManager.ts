@@ -12,6 +12,7 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { TChatConversation } from '@/common/config/storage';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { enforceProjectWorkspace } from '@process/services/projectWorkspace';
 
 /** Default idle timeout: 5 minutes. Overridden by user config 'acp.agentIdleTimeout' (in minutes). */
 const DEFAULT_IDLE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -84,7 +85,22 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     }
 
     const conversation = await this.repo.getConversation(id);
-    if (conversation) return this._buildAndCache(conversation, options);
+    if (conversation) {
+      // #30 NO-DRIFT: a project chat must spawn in its project workspace. Correct
+      // any row that drifted off it (pre-0.9.7 chats stuck in a temp dir, rows
+      // brought in via the file->DB migration that bypasses create-time
+      // reconcile) before the agent factory reads extra.workspace, and persist
+      // the correction so the fix sticks across restarts.
+      const corrected = await enforceProjectWorkspace(conversation.extra as Record<string, unknown> | undefined);
+      if (corrected) {
+        try {
+          await this.repo.updateConversation(conversation.id, { extra: conversation.extra });
+        } catch (err) {
+          console.error('[WorkerTaskManager] failed to persist #30 workspace correction:', err);
+        }
+      }
+      return this._buildAndCache(conversation, options);
+    }
 
     throw new Error(`Conversation not found: ${id}`);
   }

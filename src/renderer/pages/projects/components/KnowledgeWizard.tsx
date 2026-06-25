@@ -6,6 +6,8 @@
 
 import { ipcBridge } from '@/common';
 import Markdown from '@/renderer/components/Markdown';
+import { generateKnowledgeDraftHttp } from '@/renderer/services/ProjectDraftService';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import { Button, Input, Message, Modal, Spin, Tag } from '@arco-design/web-react';
 import { FileText, RefreshCw, Sparkles, Upload, X } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -49,6 +51,9 @@ const KnowledgeWizard: React.FC<{
   const [draft, setDraft] = useState('');
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<'no-model' | 'failed' | null>(null);
+  // Underlying provider cause for a 'failed' draft (e.g. '401: invalid key'), so
+  // the user sees WHY instead of a dead-end message (#221).
+  const [genDetail, setGenDetail] = useState<string | null>(null);
 
   const AUDIENCE_CHIPS = useMemo(
     () => [
@@ -104,9 +109,10 @@ const KnowledgeWizard: React.FC<{
   const generate = useCallback(async () => {
     setGenerating(true);
     setGenError(null);
+    setGenDetail(null);
     try {
       const constraintText = [...constraints, extra.trim()].filter(Boolean).join('; ');
-      const { draft: out, error } = await ipcBridge.project.generateKnowledgeDraft.invoke({
+      const params = {
         name: projectName,
         description: projectDescription,
         kind,
@@ -115,9 +121,20 @@ const KnowledgeWizard: React.FC<{
         relatedKnowledge: relatedKnowledge?.trim() || undefined,
         audience: audience.length > 0 ? audience.join(', ') : undefined,
         constraints: constraintText || undefined,
-      });
-      if (error) setGenError(error);
-      else if (out) setDraft(out);
+      };
+      // Desktop uses Electron IPC; headless/remote WebUI uses the token-authed
+      // HTTP route (#234). Both return the same shape, including #221's `detail`.
+      const {
+        draft: out,
+        error,
+        detail,
+      } = isElectronDesktop()
+        ? await ipcBridge.project.generateKnowledgeDraft.invoke(params)
+        : await generateKnowledgeDraftHttp(params);
+      if (error) {
+        setGenError(error);
+        setGenDetail(detail ?? null);
+      } else if (out) setDraft(out);
       else setGenError('failed');
     } catch {
       setGenError('failed');
@@ -136,8 +153,7 @@ const KnowledgeWizard: React.FC<{
     t('projects.wizard.step.questions'),
     t('projects.wizard.step.draft'),
   ];
-  const heading =
-    kind === 'rules' ? t('projects.wizard.titleRules') : t('projects.wizard.titleInstructions');
+  const heading = kind === 'rules' ? t('projects.wizard.titleRules') : t('projects.wizard.titleInstructions');
 
   const next = () => setStep((s) => Math.min(2, s + 1));
   const back = () => setStep((s) => Math.max(0, s - 1));
@@ -282,10 +298,13 @@ const KnowledgeWizard: React.FC<{
                 ) : genError ? (
                   <div className='flex flex-col items-center justify-center gap-8px py-36px text-center'>
                     <span className='text-13px text-t-secondary'>
-                      {genError === 'no-model'
-                        ? t('projects.wizard.draft.noModel')
-                        : t('projects.wizard.draft.failed')}
+                      {genError === 'no-model' ? t('projects.wizard.draft.noModel') : t('projects.wizard.draft.failed')}
                     </span>
+                    {genError === 'failed' && genDetail && (
+                      <span className='max-w-340px text-11px text-t-tertiary'>
+                        {t('projects.wizard.draft.failedReason', { detail: genDetail })}
+                      </span>
+                    )}
                     {genError === 'failed' && (
                       <Button size='small' icon={<RefreshCw size={13} />} onClick={() => void generate()}>
                         {t('projects.wizard.draft.retry')}

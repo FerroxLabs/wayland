@@ -18,6 +18,10 @@
     "wired": {
       "body": "Last 100: H{{h}} · S{{s}} · O{{o}}",
       "action": "See where each turn went"
+    },
+    "dismiss": {
+      "label": "Dismiss Flux Status",
+      "hint": "Flux Status hidden."
     }
   },
   "accordion": {

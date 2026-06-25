@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.tavily/tavily-mcp",
+  "title": "Tavily",
+  "description": "AI-native web search plus page extraction, mapping, and crawling - Tavily’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.tavily.com/documentation/mcp",
+  "repository": {
+    "url": "https://github.com/tavily-ai/tavily-mcp",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.tavily.com/mcp/"
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": [
+      "search",
+      "research"
+    ],
+    "tags": [
+      "tavily",
+      "search",
+      "extract"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 107,
+    "installRate": 0,
+    "iconUrl": "icons/com.tavily-tavily-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#0EA5A4"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Tavily",
+      "providerSignupUrl": "https://app.tavily.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.tavily-tavily-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

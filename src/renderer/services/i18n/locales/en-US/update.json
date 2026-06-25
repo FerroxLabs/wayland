@@ -19,6 +19,14 @@
   "readyToInstallDesc": "Update has been downloaded. Click the button below to restart and install the update.",
   "installNow": "Install and restart",
   "autoUpdateMode": "Auto-update mode",
+  "ijfw": {
+    "availableTitle": "IJFW update available",
+    "pathIssueTitle": "IJFW command path needs attention",
+    "pathIssueBody": "IJFW is installed, but the ijfw command is not on PATH. Wayland can still use the local install.",
+    "updateButton": "Update IJFW",
+    "updateStarted": "IJFW update started. Restart Wayland after it stages the new version.",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "Show in folder",
   "openFile": "Open file",
   "errorTitle": "Update failed",
@@ -26,6 +34,25 @@
     "missingTag": "Cannot verify this update: the release tag is missing. Please update from the Releases page.",
     "metadataMissing": "Could not find signed update metadata (latest.yml) for this release. Refusing to open an unverified installer.",
     "assetNotInMetadata": "The downloaded file \"{{name}}\" is not listed in the signed update metadata. Refusing to open an unverified installer.",
-    "checksumMismatch": "The downloaded update failed integrity verification (checksum mismatch) and was discarded. Do not run it. Please retry or download from the Releases page."
+    "checksumMismatch": "The downloaded update failed integrity verification (checksum mismatch) and was discarded. Do not run it. Please retry or download from the Releases page.",
+    "githubApiFailed": "Could not reach the update server (GitHub returned {{status}}). This is often a temporary rate limit. Please try again in a few minutes or check the Releases page.",
+    "githubApiNotArray": "The update server returned an unexpected response. Please try again later or check the Releases page.",
+    "githubApiTimeout": "The update check timed out. Please check your connection and try again.",
+    "githubRateLimited": "Too many update checks from your network right now. Please wait a few minutes and try again, or download from the Releases page.",
+    "downloadFailed": "The update download failed (server returned {{status}}). Please try again or download from the Releases page.",
+    "downloadNoBody": "The update download returned no data. Please try again or download from the Releases page.",
+    "invalidUrl": "The update download address is invalid. Please download from the Releases page.",
+    "httpsOnly": "Refusing to download the update over an insecure connection. Please download from the Releases page.",
+    "hostNotAllowed": "The update download host \"{{host}}\" is not trusted. Please download from the Releases page.",
+    "redirectNoLocation": "The update download was redirected without a destination. Please download from the Releases page.",
+    "tooManyRedirects": "The update download followed too many redirects. Please download from the Releases page.",
+    "missingUrl": "No download is available for this update. Please download from the Releases page.",
+    "checkReturnedNull": "Couldn't check for updates right now. Please try again later."
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

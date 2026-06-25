@@ -36,7 +36,7 @@ import { BluebubblesPlugin } from '../plugins/tier3/bluebubbles/BluebubblesPlugi
 import { ImessagePlugin } from '../plugins/tier2/imessage/ImessagePlugin';
 import { SignalPlugin } from '../plugins/tier1/signal/SignalPlugin';
 import { MsTeamsPlugin } from '../plugins/tier2/ms-teams/MsTeamsPlugin';
-import { isBuiltinChannelPlatform, resolveChannelConvType } from '../types';
+import { resolveChannelConvType } from '../types';
 import type { ChannelPlatform, IChannelPluginConfig, PluginType } from '../types';
 import { getTokenStore, registerWebhookDispatcher } from '../webhook';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -895,18 +895,22 @@ export class ChannelManager {
     try {
       const { convType: newType } = resolveChannelConvType(agent.backend);
 
-      // For gemini + model info: update existing conversations' model field
+      // For gemini + model info: update existing conversations' model field.
+      // Existing channel conversations store `source = platform` for EVERY wired
+      // channel (Slack/Discord/WhatsApp/Signal/Matrix/... as well as the five
+      // built-ins), so a model change must propagate to all of them - not just
+      // the built-in platforms. The DB column is a plain string; the narrow
+      // typed signature is the only reason this was gated, so we widen it here.
       if (newType === 'gemini' && model?.id && model?.useModel) {
-        if (isBuiltinChannelPlatform(platform)) {
-          const builtinPlatform: 'telegram' | 'lark' | 'dingtalk' | 'weixin' | 'wecom' = platform;
-          const fullModel = await getChannelDefaultModel(builtinPlatform);
-          const db = await getDatabase();
-          const result = db.updateChannelConversationModel(builtinPlatform, 'gemini', fullModel);
-          if (result.success) {
-            console.log(`[ChannelManager] Updated ${result.data} gemini conversation(s) for ${builtinPlatform}`);
-          }
-        } else {
-          console.log(`[ChannelManager] Skip conversation model sync for extension platform: ${platform}`);
+        const fullModel = await getChannelDefaultModel(platform);
+        const db = await getDatabase();
+        const result = db.updateChannelConversationModel(
+          platform as 'telegram' | 'lark' | 'dingtalk' | 'weixin' | 'wecom',
+          'gemini',
+          fullModel
+        );
+        if (result.success) {
+          console.log(`[ChannelManager] Updated ${result.data} gemini conversation(s) for ${platform}`);
         }
       }
 

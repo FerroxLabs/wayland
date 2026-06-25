@@ -7,6 +7,7 @@
 import BetterSqlite3 from 'better-sqlite3';
 import type Database from 'better-sqlite3';
 import type { AcpModelInfo } from '@/common/types/acpTypes';
+import { claudeSlotForModelId } from '@process/agent/acp/utils';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -203,6 +204,36 @@ export function readClaudeModelInfoFromCcSwitch(paths?: Partial<CcSwitchPaths>):
   } finally {
     db?.close();
   }
+}
+
+/**
+ * The native Claude default model SLOT for a brand-new Claude Code chat, or null
+ * when there is no native Claude login to default to (so the caller keeps its
+ * Flux/other default). A native login is present when cc-switch holds a Claude
+ * provider config OR the user has a `~/.claude/settings.json` (the Claude Code
+ * CLI is set up). Honors the user's configured slot (e.g. settings.model
+ * `"opus[1m]"` -> `"opus"`), falling back to the cc-switch current slot, then
+ * Opus (the "Claude Opus 4.8" product default — a real slot id so
+ * `ANTHROPIC_MODEL=opus` is set at spawn instead of the CLI's own Sonnet
+ * fallback).
+ *
+ * Used so a Claude Code chat defaults to the subscription (native, e.g. Opus 4.8)
+ * instead of flux-auto when "Route all agents through Flux" is globally on. A
+ * native Claude login must not be silently routed through Flux: defaulting to a
+ * native slot id makes `resolveFluxRouting`'s explicit-native-pick rule keep the
+ * chat native, with no flux<->native respawn (which is what crashed the in-chat
+ * model switch).
+ */
+export function getClaudeNativeDefaultModelId(homeDir = os.homedir()): string | null {
+  const paths = getCcSwitchPaths(homeDir);
+  const ccSwitchInfo = readClaudeModelInfoFromCcSwitch(paths);
+  const hasClaudeSettings = fs.existsSync(paths.claudeSettingsPath);
+  if (!ccSwitchInfo && !hasClaudeSettings) return null;
+
+  const settings = hasClaudeSettings
+    ? parseJsonObject<ClaudeSettings>(fs.readFileSync(paths.claudeSettingsPath, 'utf-8'))
+    : null;
+  return claudeSlotForModelId(settings?.model) ?? ccSwitchInfo?.currentModelId ?? 'opus';
 }
 
 export function readClaudeProviderEnvFromCcSwitch(paths?: Partial<CcSwitchPaths>): ClaudeProviderEnv {

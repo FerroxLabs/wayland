@@ -1,6 +1,6 @@
 {
   "name": "getwayland",
-  "version": "0.9.6-rc.2",
+  "version": "0.10.3-rc.2",
   "description": "Self-host Wayland - your always-on AI agent - on any Linux box or VPS. Headless web server, reachable from your phone.",
   "type": "module",
   "license": "AGPL-3.0-or-later",

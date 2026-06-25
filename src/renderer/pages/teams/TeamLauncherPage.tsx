@@ -35,6 +35,7 @@ import { useAssistantList } from '@/renderer/hooks/assistant';
 import { useAvailableBackends } from '@/renderer/hooks/assistant/useAvailableBackends';
 import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
+import { isSelectableSpecialist } from '@/renderer/pages/settings/AssistantSettings/assistantUtils';
 import type { TTeam, TeamAgent } from '@/common/types/teamTypes';
 import type {
   SuggestRosterResult,
@@ -57,6 +58,21 @@ type LauncherState = {
 };
 
 const SPECIALIST_PREFIX = 'ext-';
+const BUILTIN_PREFIX = 'builtin-';
+
+/**
+ * Candidate stored assistant ids for a raw team/specialist id taken from a URL
+ * param or a launcher's `_teammates` list. Native catalog records are stored as
+ * `builtin-<slug>`, custom user records as `ext-<slug>`, while the URL/teammate
+ * value may carry the full id OR a bare slug. Match the id as-is first, then try
+ * each prefix. The previous code assumed a single `ext-` prefix, which
+ * double-prefixed `builtin-` teams (`ext-builtin-...`) so EVERY native team
+ * failed to load ("Failed to load this team.").
+ */
+function idCandidates(raw: string): string[] {
+  if (raw.startsWith(SPECIALIST_PREFIX) || raw.startsWith(BUILTIN_PREFIX)) return [raw];
+  return [raw, `${BUILTIN_PREFIX}${raw}`, `${SPECIALIST_PREFIX}${raw}`];
+}
 
 const TeamLauncherPage: React.FC = () => {
   const { t } = useTranslation();
@@ -68,27 +84,32 @@ const TeamLauncherPage: React.FC = () => {
 
   const isBuildMyOwn = !teamId;
 
-  // Lookup tables.
-  const specialists = useMemo(
-    () => assistants.filter((a) => a._kind === 'specialist'),
-    [assistants]
-  );
+  // Lookup tables. Custom user-created Specialists must be selectable too (#115),
+  // not only the native/vendored ones tagged `_kind === 'specialist'`.
+  const specialists = useMemo(() => assistants.filter(isSelectableSpecialist), [assistants]);
 
+  // Identity-resolution map over the FULL assistant list (not just selectable
+  // specialists). Some native team rosters (e.g. Book Publishing House) list
+  // teammates that are generic ASSISTANT_PRESETS stored as `builtin-<slug>`
+  // with no `kind` - `isSelectableSpecialist` filters those out, so they were
+  // absent from this map and the roster + launched team fell back to showing
+  // their raw id (#A1). Building the lookup from the full list resolves their
+  // friendly name without making the 31 generic presets selectable in the
+  // picker (which reads the separate `specialists` array below).
   const specialistsById = useMemo(() => {
     const map = new Map<string, AssistantListItem>();
-    for (const s of specialists) map.set(s.id, s);
+    for (const a of assistants) map.set(a.id, a);
     return map;
-  }, [specialists]);
+  }, [assistants]);
 
   const launcher = useMemo<AssistantListItem | null>(() => {
     if (!teamId) return null;
-    // TeamsLibraryPage navigates with the already-prefixed assistant id
-    // (`/teams/${team.id}/launch` where team.id is `ext-<slug>`). Older
-    // call sites may pass the bare slug. Accept both shapes - never
-    // double-prefix - so the launcher resolves in either flow. Mirrors
-    // the teammate-id normalization a few lines down.
-    const launcherId = teamId.startsWith(SPECIALIST_PREFIX) ? teamId : `${SPECIALIST_PREFIX}${teamId}`;
-    return assistants.find((a) => a.id === launcherId && a._kind === 'team') ?? null;
+    // TeamsLibraryPage navigates with the assistant's real stored id
+    // (`/teams/${team.id}/launch`), which is `builtin-<slug>` for native teams
+    // and `ext-<slug>` for custom ones; older call sites may pass a bare slug.
+    // Match across all id shapes so the launcher resolves in every flow.
+    const candidates = idCandidates(teamId);
+    return assistants.find((a) => a._kind === 'team' && candidates.includes(a.id)) ?? null;
   }, [assistants, teamId]);
 
   // Hydrate initial state from URL params + bundle.
@@ -102,16 +123,18 @@ const TeamLauncherPage: React.FC = () => {
     const launcherName =
       launcher.nameI18n?.[localeKey] || launcher.nameI18n?.['en-US'] || launcher.name || teamId || '';
     const teammateIds = launcher._teammates ?? [];
-    const resolvedIds = teammateIds.map((rawId) =>
-      rawId.startsWith(SPECIALIST_PREFIX) ? rawId : `${SPECIALIST_PREFIX}${rawId}`
-    );
 
     let leader: RosterEntry | null = null;
     const teammates: RosterEntry[] = [];
-    for (const id of resolvedIds) {
-      const spec = specialistsById.get(id);
+    for (const rawId of teammateIds) {
+      // Native team rosters list teammates by bare slug; the stored specialist
+      // id is `builtin-<slug>`. Resolve across id shapes (same fix as the
+      // launcher lookup) so built-in teammates bind to their real specialist.
+      const candidates = idCandidates(rawId);
+      const spec = candidates.map((c) => specialistsById.get(c)).find(Boolean);
+      const specialistId = spec?.id ?? (rawId.startsWith(SPECIALIST_PREFIX) ? rawId : `${SPECIALIST_PREFIX}${rawId}`);
       const backend = recommend(spec?.presetAgentType);
-      const entry: RosterEntry = { specialistId: id, backend, slotName: '' };
+      const entry: RosterEntry = { specialistId, backend, slotName: '' };
       if (!leader) leader = entry;
       else teammates.push(entry);
     }
@@ -371,6 +394,18 @@ const TeamLauncherPage: React.FC = () => {
         Message.error(t('teams.launcher.launchError', { defaultValue: 'Failed to launch the team.' }));
         resetForRetry();
         return;
+      }
+
+      // Auto-start the team with the user's brief. Without this the team lands
+      // on an empty "Describe your goal" screen and never begins. Post the brief
+      // to the leader via the same path the in-team composer uses
+      // (getOrStartSession lazily spawns the leader). Fire-and-forget so the
+      // user reaches the team page immediately while the leader boots.
+      const kickoff = state.goalText.trim();
+      if (kickoff) {
+        void ipcBridge.team.sendMessage
+          .invoke({ teamId: team.id, content: kickoff })
+          .catch((error) => console.error('Team kickoff send failed:', error));
       }
 
       void Promise.resolve(navigate(`/team/${team.id}`)).catch((error) => {

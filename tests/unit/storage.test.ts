@@ -164,4 +164,17 @@ describe('backupExport / backupImport round-trip', () => {
     await backupImport({ userData: restore, srcPath: zipPath, passphrase: undefined });
     expect(fs.existsSync(path.join(restore, 'keys.json'))).toBe(false);
   });
+
+  // Cross-audit 2026-06-15: the per-install .secret-key decrypts stored
+  // credentials. It must never be bundled into an export, or a backup becomes
+  // plaintext secret exfiltration. Guard it even when it sits inside a walked dir.
+  it('never exports the per-install .secret-key', async () => {
+    writeFixture(src, 'config/settings.json', '{"theme":"dark"}');
+    writeFixture(src, 'config/.secret-key', 'TOP-SECRET-AES-KEY');
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'pw' });
+    await backupImport({ userData: restore, srcPath: zipPath, passphrase: 'pw' });
+    // The benign config file round-trips; the secret key never lands in the restore.
+    expect(fs.existsSync(path.join(restore, 'config/settings.json'))).toBe(true);
+    expect(fs.existsSync(path.join(restore, 'config/.secret-key'))).toBe(false);
+  });
 });

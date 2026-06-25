@@ -62,7 +62,38 @@ const mockAssistants = vi.hoisted(() => {
     _source: 'extension',
     _kind: 'specialist',
   }));
-  return [launcher, ...specialists];
+  // A native built-in team: stored id is `builtin-<slug>` and its `_teammates`
+  // are BARE slugs that resolve to `builtin-<slug>` specialists. This mirrors
+  // the shipped catalog shape and reproduces the "Failed to load this team."
+  // double-prefix bug when the launcher assumes only the `ext-` prefix.
+  const builtinTeam = {
+    id: 'builtin-quiet-money-council',
+    name: 'The Quiet Money Council',
+    nameI18n: { 'en-US': 'The Quiet Money Council' },
+    descriptionI18n: { 'en-US': 'Native standing company.' },
+    isBuiltin: true,
+    isPreset: true,
+    presetAgentType: 'gemini',
+    _source: 'builtin',
+    _kind: 'team',
+    _teammates: ['quiet-money-position-auditor', 'quiet-money-career-strategist'],
+    _standing: true,
+  };
+  const builtinSpecialists = [
+    { id: 'builtin-quiet-money-position-auditor', name: 'Position Auditor' },
+    { id: 'builtin-quiet-money-career-strategist', name: 'Career Strategist' },
+  ].map((s) => ({
+    id: s.id,
+    name: s.name,
+    nameI18n: { 'en-US': s.name },
+    descriptionI18n: { 'en-US': `${s.name} description` },
+    isBuiltin: true,
+    isPreset: true,
+    presetAgentType: 'gemini',
+    _source: 'builtin',
+    _kind: 'specialist',
+  }));
+  return [launcher, ...specialists, builtinTeam, ...builtinSpecialists];
 });
 
 const navigateMock = vi.hoisted(() => vi.fn());
@@ -232,6 +263,24 @@ describe('TeamLauncherPage', () => {
       renderPreconfigured('marketing-agency');
       await waitFor(() => screen.getByTestId('launcher-roster-card'));
       expect(screen.queryByTestId('launcher-goal-card')).toBeNull();
+    });
+  });
+
+  describe('native built-in teams (regression: "Failed to load this team.")', () => {
+    it('loads a builtin-<slug> team and resolves bare teammate slugs to builtin- specialists', async () => {
+      renderAt('/teams/builtin-quiet-money-council/launch', '/teams/:teamId/launch');
+      // The launcher resolves the built-in id instead of dead-ending on the
+      // "Failed to load this team." banner (the ext-builtin- double-prefix bug).
+      await waitFor(() => screen.getByTestId('launcher-roster-card'));
+      expect(screen.queryByTestId('launcher-load-error')).toBeNull();
+      // Leader + teammate hydrate from BARE teammate slugs, resolved to their
+      // real builtin- specialist ids (not the broken ext-builtin- form).
+      expect(screen.getByTestId('launcher-row-leader').getAttribute('data-specialist-id')).toBe(
+        'builtin-quiet-money-position-auditor'
+      );
+      expect(screen.getByTestId('launcher-row-teammate-0').getAttribute('data-specialist-id')).toBe(
+        'builtin-quiet-money-career-strategist'
+      );
     });
   });
 

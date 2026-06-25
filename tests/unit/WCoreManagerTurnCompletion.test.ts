@@ -321,4 +321,22 @@ describe('GAP-9: WCoreManager Turn Completion Service', () => {
       expect(calls[1][0]).toBe('conv-tc-2');
     });
   });
+
+  // ── AC-6: An error-only turn ends in a terminal status ───────────
+  // A provider error with no content used to leave `status` stuck on 'running'
+  // (it was only set to 'finished' on a content/tool_group frame). conversation.get
+  // returns task.status, so the renderer kept restoring a stuck "Processing" spinner
+  // that locked the composer. `finish` must mark the turn terminal regardless.
+
+  describe('AC-6: error-only turn marks status finished', () => {
+    it("sets status to 'finished' after start -> error -> finish with no content", async () => {
+      emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'error', data: 'Provider error: 400 tool calling not supported', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'finish', data: { finish_reason: 'error' }, msg_id: 'msg-1' });
+
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect((manager as unknown as { status: string }).status).toBe('finished');
+    });
+  });
 });

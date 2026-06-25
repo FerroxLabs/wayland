@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { execSync } from 'child_process';
+
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { POTENTIAL_ACP_CLIS } from '@/common/types/acpTypes';
 import type { AcpDetectedAgent } from '@/common/types/detectedAgent';
@@ -30,10 +32,46 @@ import { getEnhancedEnv } from '@process/utils/shellEnv';
  */
 class AcpDetector {
   private enhancedEnv: NodeJS.ProcessEnv | undefined;
+  /** Memoized "is a usable WSL distro present" result (undefined = not probed yet). */
+  private wslAvailable: boolean | undefined;
 
   /** Clear cached environment so newly installed/removed CLIs are detected. */
   clearEnvCache(): void {
     this.enhancedEnv = undefined;
+    this.wslAvailable = undefined;
+  }
+
+  /**
+   * Memoized check for whether a usable WSL distro exists. Runs a single fast
+   * `wsl.exe -l -q` (list installed distros) at most once per instance and
+   * caches the result. Returns true only if wsl.exe exists AND at least one
+   * distro is listed. Any error/timeout is treated as "WSL not available".
+   *
+   * This gates the per-CLI `command -v` WSL probes so a WSL-less (or
+   * distro-stopped) Windows box does not pay N synchronous `wsl.exe` spawns
+   * on the startup detection path (#258).
+   */
+  private isWslAvailable(): boolean {
+    if (this.wslAvailable !== undefined) return this.wslAvailable;
+    if (process.platform !== 'win32') {
+      this.wslAvailable = false;
+      return false;
+    }
+    try {
+      const out = execSync('wsl.exe -l -q', {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+        timeout: 1500,
+        env: this.enhancedEnv,
+      });
+      // `wsl.exe -l -q` emits UTF-16; Node decodes it with embedded NULs.
+      this.wslAvailable = out.split('\0').join('').trim().length > 0;
+    } catch (err) {
+      // wsl.exe missing / no distro / timeout - treat as not available.
+      console.info('[AcpDetector] WSL presence check: not available:', (err as Error).message);
+      this.wslAvailable = false;
+    }
+    return this.wslAvailable;
   }
 
   /** Check if a single CLI command is available on the system PATH (sync). */
@@ -100,11 +138,54 @@ class AcpDetector {
         }
       })
     );
-    return new Set(
+    const found = new Set(
       results
         .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled' && r.value !== null)
         .map((r) => r.value)
     );
+
+    // CLIs installed inside WSL are invisible to the Windows PATH (`where`/
+    // PowerShell only see Windows executables). Probe the WSL login-shell PATH
+    // for anything still missing so WSL-installed agents (claude, hermes, ...)
+    // are discovered too. Silently falls through if WSL is not installed.
+    const stillMissing = safe.filter((cmd) => !found.has(cmd));
+    if (stillMissing.length > 0 && this.isWslAvailable()) {
+      for (const cmd of await this.batchCheckCliAvailabilityWsl(stillMissing)) {
+        found.add(cmd);
+      }
+    }
+    return found;
+  }
+
+  /**
+   * Probe a WSL distro's login-shell PATH for each command via
+   * `wsl.exe -- bash -lc 'command -v <cli>'`. The login shell (`-l`) sources
+   * the user's profile so PATH matches an interactive WSL session.
+   *
+   * Returns the subset of `commands` found inside WSL. Returns an empty set
+   * (never throws) when WSL is not installed or no default distro exists, so
+   * callers fall through to "not found".
+   *
+   * Only meaningful on Windows; callers gate on `process.platform === 'win32'`.
+   */
+  private async batchCheckCliAvailabilityWsl(commands: string[]): Promise<Set<string>> {
+    if (commands.length === 0) return new Set();
+    // commands are already validated against /^[a-zA-Z0-9_.-]+$/ by the caller,
+    // so single-quoting inside the bash script cannot break out.
+    const checks = commands.map((cmd) => `command -v '${cmd}' >/dev/null 2>&1 && echo '${cmd}'`);
+    const script = checks.join('; ') + '; true';
+    try {
+      const { stdout } = await safeExecFile('wsl.exe', ['-e', 'bash', '-lc', script], {
+        timeout: 2000,
+        env: this.enhancedEnv,
+      });
+      return new Set(stdout.trim().split('\n').filter(Boolean));
+    } catch (err) {
+      // WSL not installed / no default distro / bash missing - not an error,
+      // just means no WSL-side CLIs to add.
+      console.info('[AcpDetector] WSL probe skipped:', (err as Error).message);
+      return new Set();
+    }
   }
 
   /**
@@ -120,7 +201,6 @@ class AcpDetector {
       this.enhancedEnv = getEnhancedEnv();
     }
 
-    const { execSync } = require('child_process') as typeof import('child_process');
     const isWindows = process.platform === 'win32';
     const whichCommand = isWindows ? 'where' : 'which';
     const found = new Set<string>();
@@ -140,8 +220,26 @@ class AcpDetector {
           { encoding: 'utf-8', stdio: 'pipe', timeout: 5000, env: this.enhancedEnv }
         );
         found.add(cmd);
+        continue;
       } catch (err) {
         console.warn(`[AcpDetector] sync PowerShell '${cmd}' failed:`, (err as Error).message);
+      }
+      // WSL-installed CLIs are invisible to the Windows PATH; probe the WSL
+      // login-shell PATH - but only when a usable distro exists, so a WSL-less
+      // box does not pay a synchronous wsl.exe spawn per missing CLI (#258).
+      // Single-quoting is safe: cmd is validated above.
+      if (!this.isWslAvailable()) continue;
+      try {
+        execSync(`wsl.exe -e bash -lc "command -v '${cmd}'"`, {
+          encoding: 'utf-8',
+          stdio: 'pipe',
+          timeout: 2000,
+          env: this.enhancedEnv,
+        });
+        found.add(cmd);
+      } catch (err) {
+        // WSL installed but CLI not in WSL either - leave as not found.
+        console.info(`[AcpDetector] sync WSL probe '${cmd}' not found:`, (err as Error).message);
       }
     }
     return found;

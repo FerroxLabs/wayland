@@ -188,4 +188,39 @@ describe('applyVendoredOverlay', () => {
     // No `_kickoffs` renaming - the field must be bare.
     expect((assistants[0] as { _kickoffs?: unknown })._kickoffs).toBeUndefined();
   });
+
+  // -- Operator-teams blitz (2026-06-14): 33 ad-hoc team launchers added to
+  // the vendored manifest. Each must inject a non-empty teammates roster and
+  // standing:false onto a bare live record.
+  it('injects teammates + standing:false for all 33 operator-team launchers', async () => {
+    const TEAM_IDS = [
+      'email-lifecycle-crew', 'paid-ads-war-room', 'seo-content-engine', 'lead-gen-outbound',
+      'local-seo-reviews', 'review-article-factory', 'offer-vetting-desk', 'comparison-roundup-builder',
+      'link-disclosure-custodian', 'content-refresh-crew', 'promo-calendar-war-room', 'listing-forge',
+      'back-office-crew', 'winning-product-war-room', 'review-engine', 'ad-account-mechanic',
+      'repurpose-engine', 'hook-lab', 'reply-desk', 'caption-carousel-studio', 'trend-desk',
+      'validation-cell', 'lead-magnet-forge', 'template-factory', 'lesson-scripting-crew',
+      'student-support-desk', 'cohort-ops-control-tower', 'daily-briefing', 'war-room',
+      'pre-mortem-room', 'fine-print-guard', 'pricing-tribunal', 'cold-pitch-bench',
+    ];
+    const assistants: Record<string, unknown>[] = TEAM_IDS.map((id) => ({ id: `ext-${id}`, kind: 'team' }));
+    await applyVendoredOverlay(assistants);
+    for (const a of assistants) {
+      expect(Array.isArray(a.teammates), `${a.id} teammates`).toBe(true);
+      expect((a.teammates as string[]).length, `${a.id} teammates length`).toBeGreaterThanOrEqual(3);
+      expect(a.standing, `${a.id} standing`).toBe(false);
+    }
+  });
+
+  it('injects the exact rosters for representative operator teams (leader first)', async () => {
+    const assistants: Record<string, unknown>[] = [
+      { id: 'ext-email-lifecycle-crew', kind: 'team' },
+      { id: 'ext-war-room', kind: 'team' },
+      { id: 'ext-listing-forge', kind: 'team' },
+    ];
+    await applyVendoredOverlay(assistants);
+    expect(assistants[0].teammates).toEqual(['beacon', 'copy', 'lens', 'research']);
+    expect(assistants[1].teammates).toEqual(['helm', 'coin', 'beacon', 'sentry', 'sales']);
+    expect(assistants[2].teammates).toEqual(['vault', 'research', 'copy', 'verdict']);
+  });
 });

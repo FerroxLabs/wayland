@@ -1,4 +1,20 @@
 {
+  "modelUnavailable": "Le modèle \"{{model}}\" n’est pas disponible sur le backend {{backend}} (indisponible ou non autorisé). Choisissez un autre modèle pour ce workflow et relancez l’étape.",
+  "view": {
+    "workflow": "Workflow view",
+    "conversation": "Conversation view"
+  },
+  "transcript": {
+    "activity": "Activity · {{count}} actions",
+    "you": "You",
+    "assistant": "W",
+    "starting": "Starting...",
+    "stepTag": "Step {{n}} · {{title}}",
+    "stepLabel": "Step {{n}} · {{title}}",
+    "working": "working",
+    "thinking": "Thinking...",
+    "needsYou": "needs you"
+  },
   "complete": {
     "headline": "Workflow terminé",
     "steps": "{{n}} étapes",
@@ -7,6 +23,17 @@
     "save": "Enregistrer cette exécution",
     "runAgain": "Relancer",
     "nextTitle": "À suivre"
+  },
+  "resume": {
+    "awaitingTitle": "En pause pour votre relecture",
+    "awaitingBody": "Vérifiez l'étape ci-dessus, puis continuez quand vous êtes prêt.",
+    "continue": "Continuer"
+  },
+  "clarify": {
+    "title": "Set up {{title}}",
+    "subtitle": "A couple of things before I begin.",
+    "notePlaceholder": "Anything specific I should know before I begin? (optional)",
+    "start": "Start"
   },
   "rail": {
     "inProgress": "en cours",
@@ -22,6 +49,34 @@
     "confirmOk": "Exécuter de façon autonome",
     "confirmCancel": "Annuler",
     "confirmBody": "Wayland va lancer un agent autonome pour terminer l'étape {{n}} en arrière-plan. Vous pouvez continuer à discuter dans la session principale.",
-    "confirmEta": "Durée estimée : 4 à 8 minutes."
+    "confirmEta": "Durée estimée : 4 à 8 minutes.",
+    "title": "Steps",
+    "review": "review",
+    "ask": "needs input"
+  },
+  "header": {
+    "stepMode": "Step-by-step",
+    "autoMode": "Auto-run",
+    "pause": "Pause",
+    "resume": "Resume",
+    "modeStepMeta": "Step-by-step",
+    "modeAutoMeta": "Auto-run"
+  },
+  "review": {
+    "title": "Happy with this step?",
+    "subtitle": "Accept to continue, revise this step, or go back.",
+    "accept": "Accept & continue",
+    "revise": "Revise this step",
+    "goBack": "Go back to step {{n}}"
+  },
+  "composer": {
+    "queued": "Working on this step - your message is queued and will steer the next step.",
+    "interrupt": "Interrupt and apply now"
+  },
+  "needsInput": {
+    "title": "Wayland needs your input",
+    "sub": "Type your answer in the message box below and the run picks up where it left off.",
+    "placeholder": "Type your answer to continue…",
+    "send": "Send answer"
   }
 }

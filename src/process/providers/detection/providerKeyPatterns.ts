@@ -28,6 +28,13 @@ export const PROVIDER_KEY_PATTERNS: PatternRule[] = [
     priority: 100,
   },
   {
+    // Sakana AI ("sakana" = fish): keys are prefixed `fish_`.
+    provider: 'sakana',
+    test: (k) => k.startsWith('fish_'),
+    match: 'unique',
+    priority: 100,
+  },
+  {
     provider: 'openrouter',
     test: (k) => k.startsWith('sk-or-'),
     match: 'unique',
@@ -35,13 +42,19 @@ export const PROVIDER_KEY_PATTERNS: PatternRule[] = [
   },
   {
     provider: 'openai',
-    test: (k) => k.startsWith('sk-proj-'),
+    // Project keys (`sk-proj-`), plus service-account (`sk-svcacct-`) and Admin
+    // API (`sk-admin-`) keys - all OpenAI-issued, all distinct from the bare
+    // legacy `sk-` shape handled structurally below (#224 audit).
+    test: (k) => k.startsWith('sk-proj-') || k.startsWith('sk-svcacct-') || k.startsWith('sk-admin-'),
     match: 'unique',
     priority: 100,
   },
   {
     provider: 'google-gemini',
-    test: (k) => k.startsWith('AIza'),
+    // Google AI Studio issues two key formats: the classic `AIza` "traffic"
+    // keys and the newer `AQ.` "authentication" keys that some accounts now get
+    // exclusively. Both are valid Generative Language API keys (#224).
+    test: (k) => k.startsWith('AIza') || k.startsWith('AQ.'),
     match: 'unique',
     priority: 100,
   },
@@ -106,23 +119,20 @@ export const PROVIDER_KEY_PATTERNS: PatternRule[] = [
     priority: 100,
   },
   {
-    provider: 'deepgram',
-    test: (k) => k.startsWith('dg_'),
+    // GitHub Models inference gateway authenticates with a GitHub PAT - classic
+    // `ghp_` or fine-grained `github_pat_`. A PAT pasted into the model-key field
+    // signals model intent, so route it to the connectable github-models catalog
+    // provider (#224 audit).
+    provider: 'github-models',
+    test: (k) => k.startsWith('ghp_') || k.startsWith('github_pat_'),
     match: 'unique',
     priority: 100,
   },
-  {
-    provider: 'assemblyai',
-    test: (k) => k.startsWith('aai_'),
-    match: 'unique',
-    priority: 100,
-  },
-  {
-    provider: 'elevenlabs',
-    test: (k) => k.startsWith('xi-api-'),
-    match: 'unique',
-    priority: 100,
-  },
+  // NOTE: deepgram (`dg_`), assemblyai (`aai_`), and elevenlabs (`xi-api-`) prefix
+  // rules were removed - those were never real key prefixes (Deepgram/AssemblyAI
+  // keys are prefix-less; `xi-api-key` is ElevenLabs' HEADER name, not the key),
+  // so the rules could never match a real key. Those providers stay connectable
+  // via Browse (#224 audit).
 
   // --- Structural sk- variants (priority 95) ---
   // These are bare-sk shapes with enough structural signal to resolve to a

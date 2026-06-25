@@ -74,7 +74,7 @@ const DeleteTeamConfirmModal: React.FC<Props> = ({
         className='flex flex-col gap-12px p-24px'
         data-testid='delete-team-confirm-modal'
       >
-        <p className='text-13px text-t-secondary m-0'>
+        <p className='text-12px text-t-secondary m-0'>
           {t('team.sider.deleteConfirmBody', {
             teamName,
             defaultValue:

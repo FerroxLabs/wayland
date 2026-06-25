@@ -19,6 +19,14 @@
   "readyToInstallDesc": "更新のダウンロードが完了しました。下のボタンをクリックして再起動し、更新をインストールしてください。",
   "installNow": "今すぐインストール",
   "autoUpdateMode": "自動更新モード",
+  "ijfw": {
+    "availableTitle": "IJFW の更新が利用可能です",
+    "pathIssueTitle": "IJFW コマンドのパスに注意が必要です",
+    "pathIssueBody": "IJFW はインストールされていますが、ijfw コマンドが PATH にありません。Wayland はローカルインストールを引き続き使用できます。",
+    "updateButton": "IJFW を更新",
+    "updateStarted": "IJFW の更新を開始しました。新しいバージョンが準備された後、Wayland を再起動してください。",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "フォルダーで表示",
   "openFile": "ファイルを開く",
   "errorTitle": "更新に失敗しました",
@@ -27,5 +35,11 @@
     "metadataMissing": "このリリースの署名付き更新メタデータ (latest.yml) が見つかりません。検証されていないインストーラーは開きません。",
     "assetNotInMetadata": "ダウンロードしたファイル「{{name}}」は署名付き更新メタデータに記載されていません。検証されていないインストーラーは開きません。",
     "checksumMismatch": "ダウンロードした更新は整合性検証 (チェックサム不一致) に失敗したため破棄されました。実行しないでください。再試行するか Releases ページからダウンロードしてください。"
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

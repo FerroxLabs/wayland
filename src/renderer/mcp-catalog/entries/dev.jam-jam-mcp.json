@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "dev.jam/jam-mcp",
+  "title": "Jam.dev",
+  "description": "Pull bug-recording context - console logs, network requests, errors, and video - into your AI tools. Jam’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://jam.dev/docs/debug-a-jam/mcp",
+  "repository": {
+    "url": "https://jam.dev/docs/debug-a-jam/mcp",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.jam.dev/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "developer",
+      "devops"
+    ],
+    "tags": [
+      "jam",
+      "debugging",
+      "bug-reports"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 140,
+    "installRate": 0,
+    "iconUrl": "icons/dev.jam-jam-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#FF6213"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Jam.dev",
+      "providerSignupUrl": "https://jam.dev"
+    },
+    "setupGuide": {
+      "path": "guides/dev.jam-jam-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

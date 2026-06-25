@@ -43,20 +43,28 @@ export const useCustomAgentsLoader = ({
         ConfigStorage.get('assistant.presetAgentTypeOverrides'),
       ]);
       const overrides = (presetAgentTypeOverrides || {}) as Record<string, string>;
-      const list: AcpBackendConfig[] = [
-        ...((presetAssistants || []) as AcpBackendConfig[]).filter((a) => a.isPreset),
-        ...((userCustomAgents || []) as AcpBackendConfig[]).filter((a) => availableCustomAgentIds.has(a.id)),
-      ];
+      // User-created custom agents are always included (gated by availability);
+      // they are the safe default that keeps the launch list non-empty.
+      const userAgents = ((userCustomAgents || []) as AcpBackendConfig[]).filter((a) =>
+        availableCustomAgentIds.has(a.id)
+      );
+      // Only enabled presets surface as launch choices - a disabled preset is
+      // template inventory the user turned off, not something to launch.
+      const enabledPresets = ((presetAssistants || []) as AcpBackendConfig[]).filter(
+        (a) => a.isPreset && a.enabled !== false
+      );
+      const list: AcpBackendConfig[] = [...enabledPresets, ...userAgents];
       for (const ext of extAssistants) {
         const id = typeof ext.id === 'string' ? ext.id : '';
-        if (!id || list.some((a) => a.id === id)) continue;
+        // Skip disabled extension assistants instead of force-enabling them.
+        if (!id || ext.enabled === false || list.some((a) => a.id === id)) continue;
         list.push({
           id,
           name: typeof ext.name === 'string' ? ext.name : id,
           nameI18n: ext.nameI18n as Record<string, string> | undefined,
           avatar: typeof ext.avatar === 'string' ? ext.avatar : undefined,
           isPreset: true,
-          enabled: true,
+          enabled: ext.enabled !== false,
           presetAgentType:
             overrides[id] ?? (typeof ext.presetAgentType === 'string' ? ext.presetAgentType : undefined),
           context: typeof ext.context === 'string' ? ext.context : undefined,
@@ -65,6 +73,13 @@ export const useCustomAgentsLoader = ({
           prompts: Array.isArray(ext.prompts) ? (ext.prompts as string[]) : undefined,
           promptsI18n: ext.promptsI18n as Record<string, string[]> | undefined,
         } as AcpBackendConfig);
+      }
+      // Fallback guard: if filtering left nothing AND there is preset inventory,
+      // surface the presets unfiltered so the picker is never empty.
+      if (list.length === 0) {
+        const allPresets = ((presetAssistants || []) as AcpBackendConfig[]).filter((a) => a.isPreset);
+        setCustomAgents(allPresets);
+        return;
       }
       setCustomAgents(list);
     } catch (error) {

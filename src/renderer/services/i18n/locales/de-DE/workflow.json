@@ -1,4 +1,20 @@
 {
+  "modelUnavailable": "Das Modell \"{{model}}\" ist im {{backend}}-Backend nicht verfügbar (nicht verfügbar oder nicht berechtigt). Wählen Sie ein anderes Modell für diesen Workflow und führen Sie den Schritt erneut aus.",
+  "view": {
+    "workflow": "Workflow view",
+    "conversation": "Conversation view"
+  },
+  "transcript": {
+    "activity": "Activity · {{count}} actions",
+    "you": "You",
+    "assistant": "W",
+    "starting": "Starting...",
+    "stepTag": "Step {{n}} · {{title}}",
+    "stepLabel": "Step {{n}} · {{title}}",
+    "working": "working",
+    "thinking": "Thinking...",
+    "needsYou": "needs you"
+  },
   "complete": {
     "headline": "Workflow abgeschlossen",
     "steps": "{{n}} Schritte",
@@ -8,10 +24,43 @@
     "runAgain": "Erneut ausführen",
     "nextTitle": "Als Nächstes"
   },
+  "resume": {
+    "awaitingTitle": "Pausiert zur Überprüfung",
+    "awaitingBody": "Prüfen Sie den obigen Schritt und fahren Sie fort, wenn Sie bereit sind.",
+    "continue": "Fortfahren"
+  },
+  "header": {
+    "stepMode": "Step-by-step",
+    "autoMode": "Auto-run",
+    "pause": "Pause",
+    "resume": "Resume",
+    "modeStepMeta": "Step-by-step",
+    "modeAutoMeta": "Auto-run"
+  },
+  "review": {
+    "title": "Happy with this step?",
+    "subtitle": "Accept to continue, revise this step, or go back.",
+    "accept": "Accept & continue",
+    "revise": "Revise this step",
+    "goBack": "Go back to step {{n}}"
+  },
+  "composer": {
+    "queued": "Working on this step - your message is queued and will steer the next step.",
+    "interrupt": "Interrupt and apply now"
+  },
+  "clarify": {
+    "title": "Set up {{title}}",
+    "subtitle": "A couple of things before I begin.",
+    "notePlaceholder": "Anything specific I should know before I begin? (optional)",
+    "start": "Start"
+  },
   "rail": {
+    "title": "Steps",
     "inProgress": "in Bearbeitung",
     "errored": "erfordert Aufmerksamkeit",
     "skipped": "übersprungen",
+    "review": "review",
+    "ask": "needs input",
     "jumpToStep": "Zu Schritt {{n}} springen: {{title}}",
     "runningLabel": "Läuft… ({{elapsed}})",
     "runAutonomouslyAria": "Schritt {{n}} autonom ausführen",
@@ -23,5 +72,11 @@
     "confirmCancel": "Abbrechen",
     "confirmBody": "Wayland startet einen autonomen Worker, um Schritt {{n}} im Hintergrund abzuschließen. Du kannst in der Hauptsitzung weiterchatten.",
     "confirmEta": "Voraussichtliche Dauer: 4–8 Minuten."
+  },
+  "needsInput": {
+    "title": "Wayland needs your input",
+    "sub": "Type your answer in the message box below and the run picks up where it left off.",
+    "placeholder": "Type your answer to continue…",
+    "send": "Send answer"
   }
 }

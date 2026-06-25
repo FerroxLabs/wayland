@@ -4,11 +4,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, BookOpen, Brain, Globe, Link2, Server, Shield, Sparkles, Users, Wrench, Zap } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Button, Progress } from '@arco-design/web-react';
+import {
+  ArrowRight,
+  BookOpen,
+  Brain,
+  CheckCircle2,
+  Download,
+  Globe,
+  Link2,
+  Server,
+  Shield,
+  Sparkles,
+  Users,
+  Wrench,
+  Zap,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
+import type { WCoreUpdateCheck, WCoreUpdateProgress } from '@/common/update/wcoreUpdateTypes';
 import { useModelRegistry } from '@/renderer/hooks/useModelRegistry';
 import styles from './Panes.module.css';
 
@@ -50,6 +66,13 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
   const [engineAvailable, setEngineAvailable] = useState<boolean | null>(null);
   const { providers } = useModelRegistry();
 
+  // In-app engine update state: a newer wayland-core release, the live install
+  // progress, and the installed version once an update has been staged.
+  const [updateInfo, setUpdateInfo] = useState<WCoreUpdateCheck | null>(null);
+  const [installing, setInstalling] = useState(false);
+  const [progress, setProgress] = useState<WCoreUpdateProgress | null>(null);
+  const [installedVersion, setInstalledVersion] = useState<string | null>(null);
+
   useEffect(() => {
     void ipcBridge.acpConversation.getAvailableAgents.invoke().then((result) => {
       if (result.success) {
@@ -57,6 +80,60 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
       }
     });
   }, []);
+
+  // Check for a newer engine release on mount (best-effort; a network failure
+  // just leaves the card hidden).
+  useEffect(() => {
+    void ipcBridge.wcoreUpdate.check
+      .invoke()
+      .then(setUpdateInfo)
+      .catch(() => {});
+  }, []);
+
+  // Stream install progress from the main process.
+  useEffect(() => {
+    return ipcBridge.wcoreUpdate.progress.on((p) => {
+      setProgress(p);
+      if (p.phase === 'done') {
+        setInstalling(false);
+        setInstalledVersion(p.message ?? null);
+      } else if (p.phase === 'error') {
+        setInstalling(false);
+      }
+    });
+  }, []);
+
+  const handleInstall = useCallback(async () => {
+    const tag = updateInfo?.tag;
+    if (!tag) return;
+    setInstalling(true);
+    setProgress({ phase: 'downloading', percent: 0 });
+    try {
+      const res = await ipcBridge.wcoreUpdate.install.invoke({ tag });
+      if (res.ok) setInstalledVersion(res.version);
+    } finally {
+      setInstalling(false);
+    }
+  }, [updateInfo]);
+
+  /** Human label for the current install phase. */
+  const phaseLabel = (phase: WCoreUpdateProgress['phase']): string => {
+    switch (phase) {
+      case 'verifying':
+        return t('settings.wcoreConfig.overview.update.phaseVerifying', { defaultValue: 'Verifying checksum…' });
+      case 'extracting':
+        return t('settings.wcoreConfig.overview.update.phaseExtracting', { defaultValue: 'Extracting…' });
+      case 'installing':
+        return t('settings.wcoreConfig.overview.update.phaseInstalling', { defaultValue: 'Installing…' });
+      case 'error':
+        return t('settings.wcoreConfig.overview.update.phaseError', {
+          defaultValue: 'Update failed. Please try again.',
+        });
+      default:
+        return t('settings.wcoreConfig.overview.update.phaseDownloading', { defaultValue: 'Downloading…' });
+    }
+  };
+  const showUpdateCard = !!updateInfo?.updateAvailable || installing || !!installedVersion;
 
   const goDesktop = (route: string): void => {
     void navigate(`/settings/${route}`, { replace: true });
@@ -182,6 +259,73 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
           <div className={`${styles.scMeta} ${styles.scMetaMono}`}>{DEFAULT_PROFILE_PATH}</div>
         </div>
       </div>
+
+      {/* In-app engine update: a newer wayland-core release can be installed in
+          place (download + SHA-256 verify + swap), without a full app update. */}
+      {showUpdateCard && (
+        <div className={styles.section}>
+          <div className={`${styles.updateCard} ${installedVersion ? styles.updateCardDone : ''}`}>
+            <span className={styles.updateIcon}>
+              {installedVersion ? <CheckCircle2 size={18} /> : <Download size={18} />}
+            </span>
+            <div className={styles.updateText}>
+              {installedVersion ? (
+                <>
+                  <div className={styles.updateTitle}>
+                    {t('settings.wcoreConfig.overview.update.installedTitle', {
+                      defaultValue: 'Wayland Core {{version}} installed',
+                      version: installedVersion,
+                    })}
+                  </div>
+                  <div className={styles.updateBody}>
+                    {t('settings.wcoreConfig.overview.update.restartHint', {
+                      defaultValue: 'Restart the app to start using the new engine.',
+                    })}
+                  </div>
+                </>
+              ) : installing ? (
+                <>
+                  <div className={styles.updateTitle}>
+                    {t('settings.wcoreConfig.overview.update.installingTitle', {
+                      defaultValue: 'Updating Wayland Core…',
+                    })}
+                  </div>
+                  <div className={styles.updateBody}>{phaseLabel(progress?.phase ?? 'downloading')}</div>
+                  {progress?.phase === 'downloading' && typeof progress.percent === 'number' && (
+                    <Progress percent={progress.percent} size='small' className={styles.updateProgress} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className={styles.updateTitle}>
+                    {t('settings.wcoreConfig.overview.update.availableTitle', {
+                      defaultValue: 'Wayland Core {{version}} is available',
+                      version: updateInfo?.latest ?? '',
+                    })}
+                  </div>
+                  <div className={styles.updateBody}>
+                    {t('settings.wcoreConfig.overview.update.availableBody', {
+                      defaultValue: 'You are on {{current}}. Update the engine in place — no full app reinstall.',
+                      current: updateInfo?.current ?? '',
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+            {!installedVersion && !installing && updateInfo?.updateAvailable && (
+              <Button
+                type='primary'
+                size='small'
+                icon={<Download size={14} aria-hidden='true' />}
+                onClick={() => void handleInstall()}
+                className={styles.updateBtn}
+              >
+                {t('settings.wcoreConfig.overview.update.cta', { defaultValue: 'Update now' })}
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Inherited from Wayland Desktop (read-only, deep-links back) */}
       <div className={styles.section}>

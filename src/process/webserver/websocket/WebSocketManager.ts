@@ -14,6 +14,13 @@ import { SHOW_OPEN_REQUEST_EVENT } from '@/common/adapter/constant';
 interface ClientInfo {
   token: string;
   lastPing: number;
+  /**
+   * Direct socket peer (`req.socket.remoteAddress`) captured at connection time.
+   * AUDIT ONLY (remote-secure-config W0): this is recorded for forensic logging
+   * and is NOT consulted in any allow/deny decision - the WS bridge stays
+   * denial-only (adapter.ts authorization is untouched).
+   */
+  ip: string | null;
 }
 
 /**
@@ -83,7 +90,8 @@ export class WebSocketManager {
         return;
       }
 
-      this.addClient(ws, token!);
+      // AUDIT ONLY: capture the direct socket peer. Not used in any allow/deny.
+      this.addClient(ws, token!, req.socket.remoteAddress ?? null);
       processMessage = this.buildMessageProcessor(ws, onMessage);
       this.setupCloseHandler(ws);
       this.setupErrorHandler(ws);
@@ -133,10 +141,11 @@ export class WebSocketManager {
   /**
    * Add client
    */
-  private addClient(ws: WebSocket, token: string): void {
+  private addClient(ws: WebSocket, token: string, ip: string | null): void {
     this.clients.set(ws, {
       token,
       lastPing: Date.now(),
+      ip,
     });
   }
 

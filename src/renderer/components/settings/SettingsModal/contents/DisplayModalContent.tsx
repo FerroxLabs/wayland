@@ -17,14 +17,17 @@ import LaunchpadBar from '@/renderer/pages/guid/components/newChatStarter/Launch
 import { launchAssistant } from '@/renderer/pages/assistants/utils/launchAssistant';
 import type { QuickLaunchAnchor } from '@/renderer/pages/guid/quickLaunchAnchors';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import {
+  readSidebarWidth,
+  SIDEBAR_WIDTH_MAX,
+  SIDEBAR_WIDTH_MIN,
+  writeSidebarWidth,
+} from '@renderer/utils/ui/sidebarWidth';
 
 const STORAGE_KEYS = {
   reduceMotion: 'wayland:reduce-motion',
   density: 'wayland:density',
-  sidebarWidth: 'wayland:sidebar-width',
 } as const;
-
-const DEFAULT_SIDEBAR_WIDTH = 260;
 
 /** Apply reduce-motion preference to document.body */
 const applyReduceMotion = (enabled: boolean) => {
@@ -81,11 +84,11 @@ const DisplayModalContent: React.FC = () => {
     }
   };
 
-  const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem(STORAGE_KEYS.reduceMotion) === 'true');
+  // Reduce Motion defaults ON (calmer, faster-feeling UI; matches the brand's
+  // "no ceremony" stance) - on unless the user has explicitly turned it off.
+  const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem(STORAGE_KEYS.reduceMotion) !== 'false');
   const [densityCompact, setDensityCompact] = useState(() => localStorage.getItem(STORAGE_KEYS.density) === 'compact');
-  const [sidebarWidth, setSidebarWidth] = useState(() =>
-    parseInt(localStorage.getItem(STORAGE_KEYS.sidebarWidth) ?? String(DEFAULT_SIDEBAR_WIDTH), 10)
-  );
+  const [sidebarWidth, setSidebarWidth] = useState(readSidebarWidth);
 
   // Apply persisted values on mount
   useEffect(() => {
@@ -106,9 +109,10 @@ const DisplayModalContent: React.FC = () => {
   };
 
   const onSidebarWidthChange = (value: number) => {
-    setSidebarWidth(value);
-    localStorage.setItem(STORAGE_KEYS.sidebarWidth, String(value));
-    document.documentElement.style.setProperty('--sidebar-width', `${value}px`);
+    // Persist + clamp + mirror to the CSS var + fire the live-update event so
+    // the main sidebar resizes immediately (#84). Reflect the clamped value back
+    // into the slider so it can't drift out of range.
+    setSidebarWidth(writeSidebarWidth(value));
   };
 
   // Display items configuration
@@ -193,8 +197,8 @@ const DisplayModalContent: React.FC = () => {
               <PreferenceRow label={t('settings.displayPage.sidebarWidth')}>
                 <div className='w-full max-w-200px'>
                   <Slider
-                    min={200}
-                    max={400}
+                    min={SIDEBAR_WIDTH_MIN}
+                    max={SIDEBAR_WIDTH_MAX}
                     step={4}
                     value={sidebarWidth}
                     onChange={(v) => onSidebarWidthChange(v as number)}

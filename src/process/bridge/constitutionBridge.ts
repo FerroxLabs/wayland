@@ -224,7 +224,7 @@ const resolveConstitutionPaths = (): ResolvedPaths => {
   };
 };
 
-const readConstitution = (): string => {
+export const readConstitution = (): string => {
   const { path, legacy } = resolveConstitutionPaths();
   const src = existsSync(path) ? path : existsSync(legacy) ? legacy : null;
   if (!src) return '';
@@ -235,7 +235,7 @@ const readConstitution = (): string => {
   }
 };
 
-const writeConstitution = (content: string): boolean => {
+export const writeConstitution = (content: string): boolean => {
   if (!isValidWriteContent(content)) return false;
   const { dir, path, legacy } = resolveConstitutionPaths();
   try {
@@ -261,7 +261,7 @@ const writeConstitution = (content: string): boolean => {
   }
 };
 
-const resetConstitution = (): string => {
+export const resetConstitution = (): string => {
   writeConstitution(DEFAULT_CONSTITUTION);
   return DEFAULT_CONSTITUTION;
 };
@@ -347,7 +347,7 @@ const readConstitutionSpecialist = (id: string): string => {
  * directory if needed. The `id` is sanitized against path traversal.
  * Returns `false` on an invalid id or any IO failure.
  */
-const writeConstitutionSpecialist = (id: string, content: string): boolean => {
+export const writeConstitutionSpecialist = (id: string, content: string): boolean => {
   if (!isValidWriteContent(content)) return false;
   const resolved = resolveSpecialistPath(id);
   if (!resolved) return false;
@@ -370,7 +370,7 @@ const writeConstitutionSpecialist = (id: string, content: string): boolean => {
  * success. The `id` is sanitized against path traversal. Returns `false` on
  * an invalid id or any IO failure.
  */
-const deleteConstitutionSpecialist = (id: string): boolean => {
+export const deleteConstitutionSpecialist = (id: string): boolean => {
   const resolved = resolveSpecialistPath(id);
   if (!resolved) return false;
   const { overlayPath } = resolved;

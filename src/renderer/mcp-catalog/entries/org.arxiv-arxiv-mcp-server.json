@@ -1,0 +1,61 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "org.arxiv/arxiv-mcp-server",
+  "title": "arXiv",
+  "description": "Search, download, and read arXiv research papers. No account needed.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/blazickjp/arxiv-mcp-server",
+  "repository": {
+    "url": "https://github.com/blazickjp/arxiv-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "arxiv-mcp-server",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "knowledge",
+      "research"
+    ],
+    "tags": [
+      "arxiv",
+      "papers",
+      "science"
+    ],
+    "maintainerType": "community",
+    "license": "MIT",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 116,
+    "installRate": 0,
+    "iconUrl": "icons/org.arxiv-arxiv-mcp-server.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#B31B1B"
+    },
+    "auth": {
+      "method": "none"
+    },
+    "setupGuide": {
+      "path": "guides/org.arxiv-arxiv-mcp-server.md",
+      "estimatedMinutes": 1,
+      "stepCount": 1
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

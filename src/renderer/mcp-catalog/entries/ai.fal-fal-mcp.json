@@ -1,0 +1,60 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.fal/fal-mcp",
+  "title": "fal.ai",
+  "description": "One gateway to 1,000+ generative media models - image, video, audio, and voice - through fal's hosted MCP. Search models, run inference, upload files.",
+  "version": "1.0.0",
+  "websiteUrl": "https://fal.ai/docs/documentation/setting-up/mcp",
+  "repository": {
+    "url": "https://github.com/fal-ai/fal-mcp",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.fal.ai/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": [
+      "media",
+      "automation"
+    ],
+    "tags": [
+      "fal",
+      "image",
+      "video",
+      "audio",
+      "generation"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 100,
+    "installRate": 0,
+    "iconUrl": "icons/ai.fal-fal-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#0099FF"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "fal.ai",
+      "providerSignupUrl": "https://fal.ai/dashboard/keys"
+    },
+    "setupGuide": {
+      "path": "guides/ai.fal-fal-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

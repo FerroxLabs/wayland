@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.canva/canva-mcp",
+  "title": "Canva",
+  "description": "Create and edit designs with Canva AI, autofill brand templates, manage assets, and export to PDF, image, or video - Canva’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.canva.dev/docs/mcp/",
+  "repository": {
+    "url": "https://www.canva.dev/docs/mcp/",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.canva.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "design",
+      "media"
+    ],
+    "tags": [
+      "canva",
+      "design",
+      "templates"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 143,
+    "installRate": 0,
+    "iconUrl": "icons/com.canva-canva-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#00C4CC"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Canva",
+      "providerSignupUrl": "https://www.canva.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.canva-canva-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

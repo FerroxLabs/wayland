@@ -31,6 +31,7 @@ import type { WorkflowSession } from '@/common/types/workflowTypes';
 import { WorkflowResumePrompt } from '@renderer/pages/guid/components/workflow/WorkflowResumePrompt';
 import { toDisplayName } from '@renderer/pages/settings/SkillsSettings/displayName';
 import { getAgentKey } from '@renderer/pages/guid/hooks/agentSelectionUtils';
+import { resolveSelectedProvider } from '@renderer/components/model/modelSelector/resolveSelectedProvider';
 import { fetchDetectedAgents } from '@renderer/utils/model/agentTypes';
 import type { AvailableAgent } from '@renderer/utils/model/agentTypes';
 import type { AcpBackendAll } from '@/common/types/acpTypes';
@@ -80,7 +81,7 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
   // Picker state - loaded on modal open from ConfigStorage + fetchDetectedAgents
   const [availableAgents, setAvailableAgents] = useState<AvailableAgent[] | null>(null);
   const [selectedAgentKey, setSelectedAgentKey] = useState<string>('claude');
-  const [modelOptions, setModelOptions] = useState<Array<{ id: string; label: string }>>([]);
+  const [modelOptions, setModelOptions] = useState<Array<{ id: string; label: string; providerId?: string }>>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
 
   const depends = useMemo(() => parseDepends(entry?.metadata?.depends), [entry]);
@@ -103,7 +104,24 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
       ]);
 
       const modelInfo = cachedModels?.[backend];
-      const models = modelInfo?.availableModels ?? [];
+      let models: Array<{ id: string; label: string; providerId?: string }> = modelInfo?.availableModels ?? [];
+
+      // The ACP cache only fills as a side-effect of running that backend in a
+      // chat, so a backend the user hasn't opened yet (commonly Wayland Core or
+      // Gemini) shows an empty picker. Fall back to the model registry's curated
+      // set for the backend - the same source the home picker uses - so the
+      // picker is self-sufficient and never dead-ends the launch.
+      if (models.length === 0) {
+        try {
+          const curated = await ipcBridge.modelRegistry.curatedForAgent.invoke({ agentKey: backend });
+          // Keep providerId so buildLaunchTarget can resolve the real connected
+          // provider (e.g. 'openai', 'perplexity') instead of a synthetic
+          // backend-keyed row that useWCoreModelSelection later clears (#198).
+          models = curated.map((m) => ({ id: m.id, label: m.displayName, providerId: m.providerId }));
+        } catch {
+          // Registry unavailable - leave empty; the picker shows the connect hint.
+        }
+      }
       setModelOptions(models);
 
       const backendConfig = acpConfig?.[backend as AcpBackendAll] as Record<string, unknown> | undefined;
@@ -132,11 +150,11 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
     // previous workflow.
     setResumeCandidate(null);
     setLoading(true);
-    void ipcBridge.skills.getReport
+    void ipcBridge.skills.getBody
       .invoke({ name: entry.name })
-      .then(() => {
+      .then((md) => {
         if (cancelled) return;
-        setBody(null);
+        setBody(md);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -235,7 +253,20 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
     try {
       const providers = await ConfigStorage.get('model.config');
       const providerList = Array.isArray(providers) ? providers : [];
-      const match = providerList.find((p) => p.platform === backend || p.id === backend);
+      // Resolve the REAL provider that owns the selected model. The picker
+      // carries the registry providerId (e.g. 'openai', 'perplexity'); match on
+      // that first - via the same resolver the WCore model selector uses - so a
+      // Wayland Core model binds to its actual connected provider. Matching only
+      // on `platform === backend` failed for wcore (backend 'wcore' never equals
+      // a provider platform like 'openai'), so the launcher built a synthetic
+      // 'wcore-fallback' row that useWCoreModelSelection then cleared as stale,
+      // leaving the send box stuck on "No model selected" (#198). The legacy
+      // backend match stays as the fallback for options with no providerId (an
+      // ACP-cache model for a backend the user already opened).
+      const selectedProviderId = modelOptions.find((m) => m.id === selectedModelId)?.providerId ?? '';
+      const match =
+        resolveSelectedProvider(providerList, (p) => p.model ?? [], resolvedModelId, selectedProviderId) ??
+        providerList.find((p) => p.platform === backend || p.id === backend);
       if (match) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { model: _modelArr, ...rest } = match;
@@ -529,7 +560,7 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
                 <span className='text-12px italic' style={{ color: 'var(--color-text-3)' }}>
                   {availableAgents === null
                     ? t('picker.loadingModels', 'Loading models…')
-                    : t('picker.noModelsForBackend', 'No models cached - open this agent in /guid to populate')}
+                    : t('picker.noModelsForBackend', 'No models yet — connect a provider in Settings → Models')}
                 </span>
               )}
             </div>

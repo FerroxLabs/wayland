@@ -355,7 +355,14 @@ export const useGuidAgentSelection = ({
     };
   }, [selectedAgentKey, isPresetAgent, currentEffectiveAgentInfo.agentType]);
 
-  // Reset selected ACP model when agent changes: prefer saved preference, fallback to cached default
+  // Reset selected ACP model when the agent changes. Precedence: explicit saved
+  // pick > last cached model > (native Claude login) subscription slot > none.
+  // The Claude branch is load-bearing: a fresh Claude chat must NOT be left with
+  // no model, or the global "Route through Flux" toggle would silently route a
+  // native-login chat through Flux. Defaulting to the subscription slot keeps it
+  // native (explicit-native-pick rule in resolveFluxRouting); the user can still
+  // choose Flux from the picker's Flux group. Mirrors createConversationParams
+  // (the workspace-tab creation path) so both new-chat entry points agree.
   useEffect(() => {
     // For preset agents, resolve to the actual backend type for config lookup
     const backend = isPresetAgent
@@ -365,25 +372,52 @@ export const useGuidAgentSelection = ({
         : selectedAgentKey;
 
     let cancelled = false;
-    // Read preferred model from acp.config[backend], fallback to cached model list default
-    void ConfigStorage.get('acp.config')
-      .then((config) => {
+
+    const resolveAcpModel = async () => {
+      // 1. Explicit per-backend pick (a native slot OR a deliberate flux-* id) wins.
+      try {
+        const config = await ConfigStorage.get('acp.config');
         if (cancelled) return;
         const preferred = (config?.[backend as AcpBackendAll] as Record<string, unknown>)?.preferredModelId as
           | string
           | undefined;
         if (preferred) {
           _setSelectedAcpModel(preferred);
-        } else {
-          const cachedInfo = acpCachedModels[backend];
-          _setSelectedAcpModel(cachedInfo?.currentModelId ?? null);
+          return;
         }
-      })
-      .catch(() => {
-        if (cancelled) return;
-        const cachedInfo = acpCachedModels[backend];
-        _setSelectedAcpModel(cachedInfo?.currentModelId ?? null);
-      });
+      } catch {
+        /* fall through to cached / native default */
+      }
+      if (cancelled) return;
+
+      // 2. Last model the ACP bridge cached for this backend.
+      const cachedModelId = acpCachedModels[backend]?.currentModelId;
+      if (cachedModelId) {
+        _setSelectedAcpModel(cachedModelId);
+        return;
+      }
+
+      // 3. Claude with a native login and no pick yet: default to the subscription
+      // slot (honors ~/.claude/settings.json model, e.g. Opus) so the chat runs
+      // native instead of being silently routed through Flux.
+      if (backend === 'claude') {
+        try {
+          const nativeDefault = await ipcBridge.systemSettings.getClaudeNativeDefaultModelId.invoke();
+          if (cancelled) return;
+          if (nativeDefault) {
+            _setSelectedAcpModel(nativeDefault);
+            return;
+          }
+        } catch {
+          /* no native Claude login — fall through to none */
+        }
+      }
+
+      // 4. No signal (non-claude backend, or claude without a native login).
+      if (!cancelled) _setSelectedAcpModel(null);
+    };
+
+    void resolveAcpModel();
 
     return () => {
       cancelled = true;

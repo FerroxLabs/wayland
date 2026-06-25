@@ -9,6 +9,12 @@ import type { IChannelPluginStatus } from '@process/channels/types';
 import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 import { channel, webui, type IWebUIStatus } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
+import { isElectronDesktop } from '@renderer/utils/platform';
+import {
+  disablePluginHttp,
+  enablePluginHttp,
+  syncChannelSettingsHttp,
+} from '@renderer/services/ChannelConfigService';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
 import { useModelProviderList } from '@/renderer/hooks/agent/useModelProviderList';
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
@@ -24,6 +30,75 @@ import LarkConfigForm from './chat/LarkConfigForm';
 import TelegramConfigForm from './chat/TelegramConfigForm';
 import WeixinConfigForm from './chat/WeixinConfigForm';
 import WecomConfigForm from './chat/WecomConfigForm';
+
+/**
+ * The full registered channel roster, mirroring the `/settings/channels`
+ * ChannelsIndex page so the modal surface shows the SAME wired channels rather
+ * than a stale hardcoded pair. Each id is the plugin type; the 5 channels that
+ * the modal renders with a full inline config form (telegram/lark/dingtalk/
+ * weixin/wecom) and any extension-contributed type are filtered out at build
+ * time, so the remainder are surfaced as real, set-up-able channels (NOT falsely
+ * "coming soon"). `displayName` is the en-US fallback; `titleKey` localizes it.
+ */
+const REGISTERED_CHANNELS: ReadonlyArray<{ id: string; titleKey: string; displayName: string }> = [
+  { id: 'slack', titleKey: 'settings.channels.slackTitle', displayName: 'Slack' },
+  { id: 'discord', titleKey: 'settings.channels.discordTitle', displayName: 'Discord' },
+  { id: 'whatsapp', titleKey: 'settings.channels.whatsappTitle', displayName: 'WhatsApp' },
+  { id: 'sms-twilio', titleKey: 'settings.channels.smsTwilioTitle', displayName: 'SMS (Twilio)' },
+  { id: 'webhook', titleKey: 'settings.channels.webhookTitle', displayName: 'Webhook' },
+  { id: 'signal', titleKey: 'settings.channels.signalTitle', displayName: 'Signal' },
+  { id: 'email-agentmail', titleKey: 'settings.channels.emailAgentMailTitle', displayName: 'Email (AgentMail)' },
+  { id: 'email-imap', titleKey: 'settings.channels.emailImapTitle', displayName: 'Email (IMAP/SMTP)' },
+  { id: 'matrix', titleKey: 'settings.channels.matrixTitle', displayName: 'Matrix' },
+  { id: 'ms-teams', titleKey: 'settings.channels.msteamsTitle', displayName: 'MS Teams' },
+  { id: 'line', titleKey: 'settings.channels.lineTitle', displayName: 'LINE' },
+  { id: 'imessage', titleKey: 'settings.channels.imessageTitle', displayName: 'iMessage' },
+  { id: 'wechat', titleKey: 'settings.channels.wechatTitle', displayName: 'WeChat' },
+  { id: 'mattermost', titleKey: 'settings.channels.mattermostTitle', displayName: 'Mattermost' },
+  { id: 'google-chat', titleKey: 'settings.channels.googleChatTitle', displayName: 'Google Chat' },
+  { id: 'nextcloud-talk', titleKey: 'settings.channels.nextcloudTalkTitle', displayName: 'Nextcloud Talk' },
+  { id: 'irc', titleKey: 'settings.channels.ircTitle', displayName: 'IRC' },
+  { id: 'nostr', titleKey: 'settings.channels.nostrTitle', displayName: 'Nostr' },
+  { id: 'twitch', titleKey: 'settings.channels.twitchTitle', displayName: 'Twitch' },
+  { id: 'synology-chat', titleKey: 'settings.channels.synologyChatTitle', displayName: 'Synology Chat' },
+  { id: 'bluebubbles', titleKey: 'settings.channels.bluebubblesTitle', displayName: 'BlueBubbles' },
+];
+
+/**
+ * Channel config writes fork desktop vs hosted WebUI (remote-secure-config
+ * W3.E). On desktop they go through Electron IPC; in a hosted WebUI those IPC
+ * channels are denied to remote callers (R2), so they post through the
+ * token-authed + CSRF'd HTTP routes via ChannelConfigService instead. The
+ * desktop path keeps the upstream error message; the HTTP path collapses to a
+ * boolean (the routes are write-only / status-only).
+ */
+async function enablePluginForked(
+  pluginId: string,
+  config: Record<string, unknown>
+): Promise<{ success: boolean; msg?: string }> {
+  if (isElectronDesktop()) {
+    return channel.enablePlugin.invoke({ pluginId, config });
+  }
+  return { success: await enablePluginHttp(pluginId, config) };
+}
+
+async function disablePluginForked(pluginId: string): Promise<{ success: boolean; msg?: string }> {
+  if (isElectronDesktop()) {
+    return channel.disablePlugin.invoke({ pluginId });
+  }
+  return { success: await disablePluginHttp(pluginId) };
+}
+
+async function syncChannelSettingsForked(args: {
+  platform: string;
+  agent: { backend: string; customAgentId?: string; name?: string };
+  model?: { id: string; useModel: string };
+}): Promise<{ success: boolean }> {
+  if (isElectronDesktop()) {
+    return channel.syncChannelSettings.invoke(args);
+  }
+  return { success: await syncChannelSettingsHttp(args.platform, args.agent, args.model) };
+}
 
 type ChannelModelConfigKey =
   | 'assistant.telegram.defaultModel'
@@ -131,19 +206,17 @@ const useChannelModelSelection = (configKey: ChannelModelConfigKey): GeminiModel
           | 'wecom';
         const agentKey = `assistant.${platform}.agent` as const;
         const currentAgent = await ConfigStorage.get(agentKey);
-        await channel.syncChannelSettings
-          .invoke({
-            platform,
-            agent: (currentAgent as {
-              backend: string;
-              customAgentId?: string;
-              name?: string;
-            }) || {
-              backend: 'gemini',
-            },
-            model: modelRef,
-          })
-          .catch((err) => console.warn(`[ChannelSettings] syncChannelSettings failed for ${platform}:`, err));
+        await syncChannelSettingsForked({
+          platform,
+          agent: (currentAgent as {
+            backend: string;
+            customAgentId?: string;
+            name?: string;
+          }) || {
+            backend: 'gemini',
+          },
+          model: modelRef,
+        }).catch((err) => console.warn(`[ChannelSettings] syncChannelSettings failed for ${platform}:`, err));
 
         Message.success(t('settings.assistant.modelSwitched', 'Model switched successfully'));
         return true;
@@ -323,10 +396,7 @@ const ChannelModalContent: React.FC = () => {
           return;
         }
 
-        const result = await channel.enablePlugin.invoke({
-          pluginId: 'telegram_default',
-          config: pendingToken ? { token: pendingToken } : {},
-        });
+        const result = await enablePluginForked('telegram_default', pendingToken ? { token: pendingToken } : {});
 
         if (result.success) {
           Message.success(t('settings.assistant.pluginEnabled', 'Telegram bot enabled'));
@@ -335,9 +405,7 @@ const ChannelModalContent: React.FC = () => {
           Message.error(result.msg || t('settings.assistant.enableFailed', 'Failed to enable plugin'));
         }
       } else {
-        const result = await channel.disablePlugin.invoke({
-          pluginId: 'telegram_default',
-        });
+        const result = await disablePluginForked('telegram_default');
 
         if (result.success) {
           Message.success(t('settings.assistant.pluginDisabled', 'Telegram bot disabled'));
@@ -365,10 +433,7 @@ const ChannelModalContent: React.FC = () => {
           return;
         }
 
-        const result = await channel.enablePlugin.invoke({
-          pluginId: 'lark_default',
-          config: {},
-        });
+        const result = await enablePluginForked('lark_default', {});
 
         if (result.success) {
           Message.success(t('settings.lark.pluginEnabled', 'Lark bot enabled'));
@@ -377,9 +442,7 @@ const ChannelModalContent: React.FC = () => {
           Message.error(result.msg || t('settings.lark.enableFailed', 'Failed to enable Lark plugin'));
         }
       } else {
-        const result = await channel.disablePlugin.invoke({
-          pluginId: 'lark_default',
-        });
+        const result = await disablePluginForked('lark_default');
 
         if (result.success) {
           Message.success(t('settings.lark.pluginDisabled', 'Lark bot disabled'));
@@ -406,10 +469,7 @@ const ChannelModalContent: React.FC = () => {
           return;
         }
 
-        const result = await channel.enablePlugin.invoke({
-          pluginId: 'dingtalk_default',
-          config: {},
-        });
+        const result = await enablePluginForked('dingtalk_default', {});
 
         if (result.success) {
           Message.success(t('settings.dingtalk.pluginEnabled', 'DingTalk bot enabled'));
@@ -418,9 +478,7 @@ const ChannelModalContent: React.FC = () => {
           Message.error(result.msg || t('settings.dingtalk.enableFailed', 'Failed to enable DingTalk plugin'));
         }
       } else {
-        const result = await channel.disablePlugin.invoke({
-          pluginId: 'dingtalk_default',
-        });
+        const result = await disablePluginForked('dingtalk_default');
 
         if (result.success) {
           Message.success(t('settings.dingtalk.pluginDisabled', 'DingTalk bot disabled'));
@@ -446,10 +504,7 @@ const ChannelModalContent: React.FC = () => {
           setWeixinEnableLoading(false);
           return;
         }
-        const result = await channel.enablePlugin.invoke({
-          pluginId: 'weixin_default',
-          config: {},
-        });
+        const result = await enablePluginForked('weixin_default', {});
         if (result.success) {
           Message.success(t('settings.weixin.pluginEnabled', 'WeChat channel enabled'));
           await loadPluginStatus();
@@ -457,9 +512,7 @@ const ChannelModalContent: React.FC = () => {
           Message.error(result.msg || t('settings.weixin.enableFailed', 'Failed to enable WeChat plugin'));
         }
       } else {
-        const result = await channel.disablePlugin.invoke({
-          pluginId: 'weixin_default',
-        });
+        const result = await disablePluginForked('weixin_default');
         if (result.success) {
           Message.success(t('settings.weixin.pluginDisabled', 'WeChat channel disabled'));
           await loadPluginStatus();
@@ -483,10 +536,7 @@ const ChannelModalContent: React.FC = () => {
           setWecomEnableLoading(false);
           return;
         }
-        const result = await channel.enablePlugin.invoke({
-          pluginId: 'wecom_default',
-          config: {},
-        });
+        const result = await enablePluginForked('wecom_default', {});
         if (result.success) {
           Message.success(t('settings.wecom.pluginEnabled', 'WeCom channel enabled'));
           await loadPluginStatus();
@@ -494,9 +544,7 @@ const ChannelModalContent: React.FC = () => {
           Message.error(result.msg || t('settings.wecom.enableFailed', 'Failed to enable WeCom channel'));
         }
       } else {
-        const result = await channel.disablePlugin.invoke({
-          pluginId: 'wecom_default',
-        });
+        const result = await disablePluginForked('wecom_default');
         if (result.success) {
           Message.success(t('settings.wecom.pluginDisabled', 'WeCom channel disabled'));
           await loadPluginStatus();
@@ -548,10 +596,7 @@ const ChannelModalContent: React.FC = () => {
             return;
           }
 
-          const result = await channel.enablePlugin.invoke({
-            pluginId: status.id || pluginType,
-            config: fieldValues,
-          });
+          const result = await enablePluginForked(status.id || pluginType, fieldValues);
 
           if (result.success) {
             Message.success(
@@ -569,9 +614,7 @@ const ChannelModalContent: React.FC = () => {
             );
           }
         } else {
-          const result = await channel.disablePlugin.invoke({
-            pluginId: status.id || pluginType,
-          });
+          const result = await disablePluginForked(status.id || pluginType);
           if (result.success) {
             Message.success(
               t('settings.channels.extension.disabled', {
@@ -824,38 +867,40 @@ const ChannelModalContent: React.FC = () => {
       }));
 
     const extensionTypeSet = new Set(extensionChannels.map((channel) => String(channel.id).toLowerCase()));
-    const comingSoonChannels: ChannelConfig[] = [
-      {
-        id: 'slack',
-        title: t('settings.channels.slackTitle', 'Slack'),
-        description: t('settings.channels.slackDesc', 'Chat with Wayland assistant via Slack'),
-        status: 'coming_soon' as const,
+    // The 5 channels above are rendered with a full inline config form; never
+    // re-list them as a generic entry.
+    const builtinTypeSet = new Set(['telegram', 'lark', 'dingtalk', 'weixin', 'wecom']);
+
+    // Surface the rest of the REAL registered channel roster (Slack, Discord,
+    // WhatsApp, Signal, Matrix, ...) - the same set the /settings/channels page
+    // shows. These are wired and auto-started, so they are honest `active`
+    // set-up entries pointing at the full Channels settings, NOT a hardcoded
+    // Slack/Discord pair falsely marked "coming soon". Anything already covered
+    // by a built-in form or an installed extension is filtered out.
+    const otherChannels: ChannelConfig[] = REGISTERED_CHANNELS.filter(
+      (c) => !builtinTypeSet.has(c.id) && !extensionTypeSet.has(c.id.toLowerCase())
+    ).map((c) => {
+      const name = t(c.titleKey, c.displayName);
+      return {
+        id: c.id,
+        title: name,
+        description: t('settings.channels.genericDesc', {
+          defaultValue: 'Chat with your Wayland assistant via {{channel}}',
+          channel: name,
+        }),
+        status: 'active' as const,
         enabled: false,
-        disabled: true,
+        isConnected: false,
         content: (
           <div className='text-14px text-t-secondary py-12px'>
-            {t('settings.channels.comingSoonDesc', 'Support for {{channel}} is coming soon', {
-              channel: t('settings.channels.slackTitle', 'Slack'),
+            {t('settings.channels.openFullSettingsDesc', {
+              defaultValue: 'Open Settings -> Channels to connect {{channel}}.',
+              channel: name,
             })}
           </div>
         ),
-      },
-      {
-        id: 'discord',
-        title: t('settings.channels.discordTitle', 'Discord'),
-        description: t('settings.channels.discordDesc', 'Chat with Wayland assistant via Discord'),
-        status: 'coming_soon' as const,
-        enabled: false,
-        disabled: true,
-        content: (
-          <div className='text-14px text-t-secondary py-12px'>
-            {t('settings.channels.comingSoonDesc', 'Support for {{channel}} is coming soon', {
-              channel: t('settings.channels.discordTitle', 'Discord'),
-            })}
-          </div>
-        ),
-      },
-    ].filter((channel) => !extensionTypeSet.has(String(channel.id).toLowerCase()));
+      };
+    });
 
     return [
       telegramChannel,
@@ -864,7 +909,7 @@ const ChannelModalContent: React.FC = () => {
       weixinChannel,
       wecomChannel,
       ...extensionChannels,
-      ...comingSoonChannels,
+      ...otherChannels,
     ];
   }, [
     pluginStatus,

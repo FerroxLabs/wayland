@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.plaid/plaid-mcp",
+  "title": "Plaid",
+  "description": "Debug Items, inspect Item health and Link conversion, and read usage analytics - Plaid’s official Dashboard MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://plaid.com/docs/resources/mcp/",
+  "repository": {
+    "url": "https://plaid.com/docs/resources/mcp/",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.dashboard.plaid.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "payments",
+      "data"
+    ],
+    "tags": [
+      "plaid",
+      "fintech",
+      "diagnostics"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 144,
+    "installRate": 0,
+    "iconUrl": "icons/com.plaid-plaid-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Plaid",
+      "providerSignupUrl": "https://dashboard.plaid.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.plaid-plaid-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -2,9 +2,10 @@ import { test, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useMcpLibrary } from '@renderer/pages/settings/McpLibrary/hooks/useMcpLibrary';
 
-test('returns 56 entries sorted by popularityRank', () => {
+test('returns the full catalog sorted by popularityRank', () => {
   const { result } = renderHook(() => useMcpLibrary());
-  expect(result.current.entries.length).toBe(56);
+  // Count-agnostic so the catalog can grow without breaking this test.
+  expect(result.current.entries.length).toBeGreaterThanOrEqual(100);
   expect(result.current.entries[0].popularityRank).toBeLessThanOrEqual(result.current.entries[1].popularityRank);
 });
 
@@ -14,11 +15,14 @@ test('recommended returns first 6 by rank', () => {
   expect(result.current.recommended[0].id).toContain('google-workspace');
 });
 
-test('byTier groups correctly', () => {
+test('byTier groups every entry into a tier', () => {
   const { result } = renderHook(() => useMcpLibrary());
-  expect(result.current.byTier.core.length).toBe(11);
-  expect(result.current.byTier.worker.length).toBe(21);
-  expect(result.current.byTier.builder.length).toBe(24);
+  const { core, worker, builder } = result.current.byTier;
+  expect(core.length).toBeGreaterThan(0);
+  expect(worker.length).toBeGreaterThan(0);
+  expect(builder.length).toBeGreaterThan(0);
+  // No entry falls outside a tier.
+  expect(core.length + worker.length + builder.length).toBe(result.current.entries.length);
 });
 
 test('getEntry returns full detail for a known id', () => {

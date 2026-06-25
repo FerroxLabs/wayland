@@ -185,14 +185,18 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'skills.rescan-all',
   'skills.scan',
   'skills.set-pinned',
-  // --- Model registry secret/write IPC (audit C4). `resolveForChatStart`
-  //     returns a DECRYPTED plaintext provider key; connect/rekey/detectKeys
-  //     mutate or disclose stored credentials. A paired WebUI must never reach
-  //     these or it can harvest every stored provider key. ---
+  // --- Model registry secret/write IPC. connect/rekey/detectKeys mutate or
+  //     disclose stored credentials, so a paired WebUI must never reach them.
+  //     `resolveForChatStart` is deliberately NOT denied here: audit C4 hardened
+  //     it to return ONLY a non-secret chat-start handle (id / platform /
+  //     modelId / baseUrl) - the decrypted key is dropped and re-resolved in the
+  //     main process at spawn, never crossing IPC (proven by the
+  //     "never returns decrypted secrets" handler test). A remote/headless WebUI
+  //     MUST reach it to bind a chat to a model; denying it left every remote
+  //     model pick unresolved ("No model configured yet" - cannot chat). ---
   'modelRegistry.connect',
   'modelRegistry.rekey',
   'modelRegistry.detectKeys',
-  'modelRegistry.resolveForChatStart',
   // --- Wayland Core tool-backend key mutation (plant/clear a search API key) ---
   'wcoreToolKeys.set',
   'wcoreToolKeys.delete',
@@ -203,6 +207,11 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // Also deny the read: it discloses the engine's security/tools posture to a
   // paired WebUI client (no secret values, but defence-in-depth — SEC review F2).
   'wcoreConfig.getSection',
+  // --- In-app engine updater. `install` downloads + stages a native binary the
+  //     next engine spawn executes; a remote caller reaching it is an RCE chain.
+  //     `check` hits the network + discloses the engine version. HUMAN-only. ---
+  'wcoreUpdate.check',
+  'wcoreUpdate.install',
   // --- Wayland Core profile fs mutation (create/clone/activate/delete profile
   //     directories under the profiles root). Remote-denied (SEC-4). ---
   'wcoreProfiles.create',
@@ -268,6 +277,19 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     stays allowed. ---
   'onboarding.connect-pasted-key',
   'onboarding.connect-flux',
+  // --- Native xAI "Sign in with X (Grok)" OAuth. Both mint/persist the `xai`
+  //     provider credential via the model-registry connect path - same class as
+  //     connect-flux above. A remote WS caller must never drive an OAuth mint or
+  //     trigger a refresh-token exchange. ---
+  'xai.auth.login',
+  'xai.auth.refresh',
+  'xai.auth.submit-code',
+  // --- Native "Sign in with ChatGPT" OAuth. Both mint/persist the
+  //     `chatgpt-subscription` provider bundle (refresh + access tokens) via the
+  //     OAuth flow - same credential-minting class as xai.auth.* above. A remote
+  //     WS caller must never drive an OAuth mint or a refresh-token exchange. ---
+  'chatgpt.auth.login',
+  'chatgpt.auth.refresh',
   // --- Cost observability (WS-D / WS-F). The whole cost.* namespace is already
   //     denied to remote callers via the `cost.` prefix above; these exact keys
   //     are enumerated for documentation + defence-in-depth. byConversation +
@@ -283,6 +305,7 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'mcp.sync-to-agents',
   'mcp.remove-from-agents',
   'mcp.login-oauth',
+  'mcp.cancel-oauth',
   'mcp.logout-oauth',
   'mcp.set-byo-oauth-credentials',
   // --- Project knowledge draft (reads arbitrary filePaths to feed the model) ---
@@ -302,6 +325,12 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'open-file',
   'open-dev-tools',
   'show-item-in-folder',
+  // --- Doctor / health-check (issue #35). The report enumerates the host's
+  //     provider connectivity verdicts, MCP server reachability, detected
+  //     backends, workspace paths, and config posture. None of it is a raw
+  //     secret, but disclosing the full diagnostic posture to a paired WebUI is
+  //     a reconnaissance aid — deny it to remote callers (defence-in-depth). ---
+  'doctor.run',
 ]);
 
 /**

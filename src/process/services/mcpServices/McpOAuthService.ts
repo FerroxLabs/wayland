@@ -75,6 +75,9 @@ const originalFetchProtectedResourceMetadata =
 // so the comparison passes. Only applies when advertised is a genuine prefix -
 // any other mismatch still throws.
 const originalDiscoverOAuthConfig = OAuthUtils.discoverOAuthConfig.bind(OAuthUtils);
+const originalDiscoverOAuthFromWWWAuthenticate =
+  OAuthUtils.discoverOAuthFromWWWAuthenticate.bind(OAuthUtils);
+
 function isSameOriginPrefix(advertised: string, requested: string): boolean {
   try {
     const a = new URL(advertised);
@@ -87,36 +90,74 @@ function isSameOriginPrefix(advertised: string, requested: string): boolean {
     return false;
   }
 }
-(
-  OAuthUtils as unknown as {
-    discoverOAuthConfig: (serverUrl: string) => Promise<unknown>;
-  }
-).discoverOAuthConfig = async (serverUrl: string) => {
+
+// Shared recovery for the RFC 9728 §7.3 strict-equality resource check. When a
+// server advertises a protected-resource that is a same-origin PREFIX of the
+// URL we connect to - connect to https://host/mcp, but the OAuth boundary is
+// advertised as the bare origin https://host (Linear, Higgsfield, ...) - the
+// upstream throws ResourceMismatchError. On that specific mismatch we re-run
+// with a temporary buildResourceParameter override that returns the advertised
+// form so the strict compare passes; any other mismatch still throws.
+//
+// This must wrap BOTH discovery entry points:
+//   - discoverOAuthConfig            -> the login() pre-probe
+//   - discoverOAuthFromWWWAuthenticate -> used INSIDE authenticate() when the
+//     first request comes back 401 + WWW-Authenticate
+// Higgsfield reaches the second path, so patching only the first (the original
+// Linear-only fix) left the bare-origin OAuth servers failing with
+// "Protected resource <origin> does not match expected <origin>/mcp".
+async function withSameOriginPrefixRecovery<T>(
+  serverUrl: string | undefined,
+  run: () => Promise<T>,
+): Promise<T> {
   try {
-    return await originalDiscoverOAuthConfig(serverUrl);
+    return await run();
   } catch (err) {
     const advertised =
       err && typeof err === 'object' && 'message' in err
         ? String((err as { message: string }).message).match(/Protected resource (\S+)/)?.[1]
         : undefined;
-    const isMismatch =
-      err instanceof Error && err.name === 'ResourceMismatchError' && !!advertised;
-    if (!isMismatch || !isSameOriginPrefix(advertised!, serverUrl)) {
+    const recoverable =
+      err instanceof Error &&
+      err.name === 'ResourceMismatchError' &&
+      !!advertised &&
+      !!serverUrl &&
+      isSameOriginPrefix(advertised, serverUrl);
+    if (!recoverable) {
       throw err;
     }
-    // Temporarily override buildResourceParameter to return the advertised
-    // (prefix) form so the strict compare inside discoverOAuthConfig passes.
+    // Force the advertised (prefix/origin) form so the strict compare passes,
+    // then restore so other servers keep their own canonical resource.
     const saved = OAuthUtils.buildResourceParameter;
     const advForced = canonicalizeRootResource(advertised!);
     (OAuthUtils as unknown as { buildResourceParameter: (u: string) => string }).buildResourceParameter =
       () => advForced;
     try {
-      return await originalDiscoverOAuthConfig(serverUrl);
+      return await run();
     } finally {
       (OAuthUtils as unknown as { buildResourceParameter: typeof saved }).buildResourceParameter = saved;
     }
   }
-};
+}
+
+(
+  OAuthUtils as unknown as {
+    discoverOAuthConfig: (serverUrl: string) => Promise<unknown>;
+  }
+).discoverOAuthConfig = (serverUrl: string) =>
+  withSameOriginPrefixRecovery(serverUrl, () => originalDiscoverOAuthConfig(serverUrl));
+
+(
+  OAuthUtils as unknown as {
+    discoverOAuthFromWWWAuthenticate: (
+      wwwAuthenticate: string,
+      mcpServerUrl?: string,
+    ) => Promise<unknown>;
+  }
+).discoverOAuthFromWWWAuthenticate = (wwwAuthenticate: string, mcpServerUrl?: string) =>
+  withSameOriginPrefixRecovery(mcpServerUrl, () =>
+    originalDiscoverOAuthFromWWWAuthenticate(wwwAuthenticate, mcpServerUrl),
+  );
 
 // Pin the OAuth callback server port. Upstream picks a random OS-assigned port
 // unless OAUTH_CALLBACK_PORT is set, which is fine for DCR flows (the freshly-
@@ -130,6 +171,14 @@ export const WAYLAND_OAUTH_REDIRECT_URI = `http://localhost:${WAYLAND_OAUTH_CALL
 if (!process.env.OAUTH_CALLBACK_PORT) {
   process.env.OAUTH_CALLBACK_PORT = WAYLAND_OAUTH_CALLBACK_PORT;
 }
+
+// Max time a single BYO/DCR login() is allowed to wait for the loopback OAuth
+// callback before we give up and return control to the renderer. The upstream
+// MCPOAuthProvider only rejects on its own 5-minute timer, which is far too
+// long - the user sees a frozen "Save & sign in" with no way out. Cap the wait
+// so a never-arriving callback (wrong redirect URI, closed browser tab) fails
+// in ~2 minutes with a structured 'timeout' result instead of hanging.
+const OAUTH_LOGIN_TIMEOUT_MS = 120_000;
 
 export interface OAuthStatus {
   isAuthenticated: boolean;
@@ -145,7 +194,7 @@ export type OAuthLoginResult =
        * Stable failure-code the renderer can branch on. Add new codes here
        * as new failure modes are discovered.
        */
-      code: 'needs_byo' | 'transport_unsupported' | 'no_url' | 'cancelled' | 'unknown';
+      code: 'needs_byo' | 'transport_unsupported' | 'no_url' | 'cancelled' | 'timeout' | 'unknown';
       error?: string;
       /** When code='needs_byo', the redirect URI the user must register on the vendor. */
       redirectUri?: string;
@@ -163,6 +212,14 @@ export class McpOAuthService {
   private oauthProvider: MCPOAuthProvider;
   private tokenStorage: MCPOAuthTokenStorage;
   private eventEmitter: EventEmitter;
+
+  /**
+   * In-flight login()s keyed by server name, so cancel(serverName) can abort a
+   * specific login (or cancel() with no arg aborts all). Each entry's abort()
+   * settles the login()'s Promise.race with a 'cancelled' result and closes the
+   * upstream loopback callback server to free port 57000.
+   */
+  private inflightLogins = new Map<string, { abort: () => void }>();
 
   constructor() {
     this.tokenStorage = new MCPOAuthTokenStorage();
@@ -304,6 +361,15 @@ export class McpOAuthService {
 
     const config: MCPOAuthConfig = oauthConfig ? { ...oauthConfig } : { enabled: true };
 
+    // Thread the catalog-declared OAuth scopes (e.g. GitHub's repo / read:org /
+    // workflow) into the config so the authorization request actually asks for
+    // them. Without this the vendor grants only its default scope set and the
+    // connector silently lacks the access the catalog advertised. The caller
+    // (renderer login() -> loginMcpOAuth IPC) passes them via oauthConfig.scopes.
+    if (oauthConfig?.scopes && oauthConfig.scopes.length > 0) {
+      config.scopes = oauthConfig.scopes;
+    }
+
     // Step 2: BYO credentials short-circuit. If the user has previously pasted
     // client_id/secret for this server, populate them so MCPOAuthProvider skips
     // its DCR attempt.
@@ -338,8 +404,49 @@ export class McpOAuthService {
       }
     }
 
+    // Race authenticate() against a timeout / explicit cancel so a never-arriving
+    // loopback callback can't hang the renderer for the upstream 5-minute timer.
+    // authenticate() itself isn't AbortSignal-aware, so on timeout/cancel we
+    // resolve the race with a structured failure AND close the upstream callback
+    // server to free port 57000; the orphaned authenticate() promise is left to
+    // settle on the upstream timer (it can no longer affect the UI).
+    let settleAbort: ((reason: 'cancelled' | 'timeout') => void) | undefined;
+    const abortPromise = new Promise<{ aborted: 'cancelled' | 'timeout' }>((resolve) => {
+      settleAbort = (reason) => resolve({ aborted: reason });
+    });
+    const timer = setTimeout(() => settleAbort?.('timeout'), OAUTH_LOGIN_TIMEOUT_MS);
+    if (timer.unref) timer.unref();
+
+    const closeCallbackServer = () => {
+      try {
+        (
+          this.oauthProvider as unknown as { _activeCallbackServer?: { close?: () => void } }
+        )._activeCallbackServer?.close?.();
+      } catch {
+        /* already closed */
+      }
+    };
+
+    this.inflightLogins.set(server.name, { abort: () => settleAbort?.('cancelled') });
+
     try {
-      await this.oauthProvider.authenticate(server.name, config, url);
+      const outcome = await Promise.race([
+        this.oauthProvider.authenticate(server.name, config, url).then(() => ({ ok: true as const })),
+        abortPromise,
+      ]);
+
+      if ('aborted' in outcome) {
+        closeCallbackServer();
+        return {
+          success: false,
+          code: outcome.aborted,
+          error:
+            outcome.aborted === 'timeout'
+              ? `OAuth login timed out after ${Math.round(OAUTH_LOGIN_TIMEOUT_MS / 1000)}s waiting for the authorization callback.`
+              : 'OAuth login was cancelled.',
+        };
+      }
+
       console.log(`[McpOAuthService] OAuth login successful for ${server.name}`);
       return { success: true };
     } catch (error) {
@@ -364,6 +471,27 @@ export class McpOAuthService {
 
       console.error('[McpOAuthService] OAuth login failed:', error);
       return { success: false, code: 'unknown', error: msg };
+    } finally {
+      clearTimeout(timer);
+      this.inflightLogins.delete(server.name);
+    }
+  }
+
+  /**
+   * Abort an in-flight login(). With a serverName, aborts only that login; with
+   * no arg, aborts every in-flight login. The aborted login() resolves with a
+   * `{ success: false, code: 'cancelled' }` result and its upstream loopback
+   * callback server is closed (freeing port 57000). Safe to call when nothing is
+   * in flight - it's a no-op. Lets the renderer's Cancel button unstick a user
+   * waiting on a callback that will never arrive.
+   */
+  cancel(serverName?: string): void {
+    if (serverName) {
+      this.inflightLogins.get(serverName)?.abort();
+      return;
+    }
+    for (const entry of this.inflightLogins.values()) {
+      entry.abort();
     }
   }
 

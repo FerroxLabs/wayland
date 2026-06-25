@@ -118,6 +118,12 @@
     "scheduleDesc": {
       "manual": "Manual",
       "hourly": "Cada hora",
+      "everyNHours_one": "Cada hora",
+      "everyNHours_other": "Cada {{count}} horas",
+      "everyNHoursAtMinute_one": "Cada hora a los :{{minute}}",
+      "everyNHoursAtMinute_other": "Cada {{count}} horas a los :{{minute}}",
+      "everyNMinutes_one": "Cada minuto",
+      "everyNMinutes_other": "Cada {{count}} minutos",
       "dailyAt": "Todos los días a las {{time}}",
       "weekdaysAt": "Días laborables a las {{time}}",
       "weeklyAt": "Cada {{day}} a las {{time}}",

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import useSWR, { useSWRConfig } from 'swr';
 import { useAuth } from '@renderer/hooks/context/AuthContext';
+import { useLayoutContext } from '@renderer/hooks/context/LayoutContext';
 import { ipcBridge } from '@/common';
 import type { TeamAgent, TTeam } from '@/common/types/teamTypes';
 import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/config/storage';
@@ -58,7 +59,7 @@ const WCoreHeaderModelSelector: React.FC<{ conversationId: string; initialModel?
     [conversationId]
   );
   const modelSelection = useWCoreModelSelection({ initialModel, onSelectModel });
-  return <WCoreModelSelector selection={modelSelection} />;
+  return <WCoreModelSelector selection={modelSelection} conversationId={conversationId} />;
 };
 
 /** Fetches conversation for a single agent and renders TeamChatView */
@@ -216,6 +217,11 @@ const AgentChatSlot: React.FC<{
 const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam }) => {
   const { t } = useTranslation();
   const { agents, activeSlotId, statusMap, switchTab } = useTeamTabs();
+  // Narrow viewports (mobile + small windows) can't fit the side-by-side agent
+  // columns (each has a 400px floor), so they horizontally overflow/cram. On
+  // narrow, show one agent pane full-width and let the top tabs switch agents.
+  const layout = useLayoutContext();
+  const isNarrow = !!layout?.isNarrow;
   const [, messageContext] = Message.useMessage({ maxCount: 1 });
   // Resolve specialist palettes for each slot so AgentChatSlot can color its
   // identity tile from the same source the launcher uses (keeps a specialist's
@@ -577,6 +583,26 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({ team, onRenameTeam })
                       isLeader={isLeaderSlot}
                       isFullscreen
                       onToggleFullscreen={() => setFullscreenSlotId(null)}
+                      onRemove={() => handleRemoveAgent(agent.slotId)}
+                      palette={paletteBySlotId.get(agent.slotId)}
+                    />
+                  </div>
+                );
+              })()
+            ) : isNarrow ? (
+              // Narrow: a single full-width agent pane; the top tabs switch which
+              // agent is shown (no side-by-side columns, no horizontal overflow).
+              (() => {
+                const agent = activeAgent ?? agents[0];
+                if (!agent) return null;
+                const isLeaderSlot = agent.slotId === leadAgent?.slotId;
+                return (
+                  <div className='flex-1 min-w-0 h-full'>
+                    <AgentChatSlot
+                      agent={agent}
+                      teamId={team.id}
+                      isLeader={isLeaderSlot}
+                      onToggleFullscreen={() => setFullscreenSlotId(agent.slotId)}
                       onRemove={() => handleRemoveAgent(agent.slotId)}
                       palette={paletteBySlotId.get(agent.slotId)}
                     />

@@ -102,7 +102,13 @@
       "pauseHint": "Pausing is opt-in and resumable: turns are gated only while over budget, and you can resume from the alert.",
       "pauseActionHint": "Pause gates new turns for this scope while over budget. It is resumable at any time and reserved for scheduled or team work.",
       "alertTitle": "Budget exceeded",
-      "alertBody": "Spent {{spent}} of the {{limit}} limit."
+      "alertBody": "Spent {{spent}} of the {{limit}} limit.",
+      "gateTitle": "Spend cap reached",
+      "gateBody": "This conversation hit your spend cap. You've spent {{spent}} of your {{limit}} budget. Raise the cap and continue, or stop here to avoid spending more.",
+      "gateRaiseAndContinue": "Raise to {{limit}} and continue",
+      "gateStop": "Stop",
+      "gateRaised": "Budget raised to {{limit}}",
+      "gateError": "Couldn't raise the budget"
     }
   }
 }

@@ -21,8 +21,10 @@ import ProfilesPane from './panes/ProfilesPane';
 import RuntimePane from './panes/RuntimePane';
 import styles from './WCoreConfig.module.css';
 
-/** The pinned engine build, shown until a live version is reported. */
-const PINNED_VERSION = 'v0.9.6-rc.1';
+/** The pinned engine build, shown only as a fallback until the live detected
+ *  version is reported by getAvailableAgents. Keep in lockstep with
+ *  DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js. */
+const PINNED_VERSION = 'v0.12.8';
 
 type RailEntry = {
   key: WCoreRailKey;

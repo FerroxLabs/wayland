@@ -5,6 +5,7 @@
  */
 
 import type { IMcpServer } from '@/common/config/storage';
+import { canonicalMcpServerName } from '@/common/mcp';
 
 /**
  * MCP server names that are interpolated into per-CLI agent commands must be a
@@ -12,6 +13,42 @@ import type { IMcpServer } from '@/common/config/storage';
  * abused by a CLI that re-parses the name.
  */
 const SAFE_MCP_NAME = /^[A-Za-z0-9_.-]+$/;
+
+/**
+ * Coerce an arbitrary MCP server name into the conservative identifier that
+ * {@link validateMcpServer} (and every per-CLI agent config writer) requires.
+ *
+ * Catalog ids carry characters the agent CLIs reject - notably the reverse-DNS
+ * slash in `com.slack/slack-mcp`. The renderer install flow sanitizes at
+ * add-time, but a server can reach the sync path with an unsanitized name (older
+ * installs, JSON import, one-click). Applying the SAME transform at the sync /
+ * remove chokepoint guarantees the agent-config key is always valid and that
+ * sync and remove derive the identical key, so a server can be cleanly removed.
+ *
+ * Any character outside `[A-Za-z0-9_.-]` becomes `-`. Result always satisfies
+ * SAFE_MCP_NAME for any non-empty input.
+ */
+export function sanitizeMcpServerName(name: string): string {
+  return name.replace(/[^A-Za-z0-9_.-]/g, '-');
+}
+
+/**
+ * Stricter still: a name safe for CLI agents that reject the dot the app's own
+ * {@link SAFE_MCP_NAME} tolerates. Claude Code ("Names can only contain letters,
+ * numbers, hyphens, and underscores") and Codex ("use letters, numbers, '-',
+ * '_'") both reject dotted names, so a catalog id like
+ * `com.upstash/context7-mcp` (sanitized to `com.upstash-context7-mcp`) fails
+ * `claude mcp add` / `codex mcp add` with exit 1. Collapse every char outside
+ * `[A-Za-z0-9_-]` (dots included) to `-`. Apply at the claude/codex add AND
+ * remove chokepoints so both derive the identical key and a server can be
+ * cleanly removed. Result always matches `^[A-Za-z0-9_-]+$` for non-empty input.
+ */
+export function cliSafeMcpServerName(name: string): string {
+  // Same transform as the renderer-shared canonical form (single source of
+  // truth in @/common/mcp), so the install-status UI and the agent config
+  // writers can never disagree on a server's identity.
+  return canonicalMcpServerName(name);
+}
 
 /**
  * Environment variable KEYS that ride into per-CLI agent argv (e.g. as

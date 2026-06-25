@@ -20,6 +20,8 @@ import { OpenAIRotatingClient } from '@/common/api/OpenAIRotatingClient';
 import type { TProviderWithModel } from '@/common/config/storage';
 import type { UnifiedChatCompletionResponse } from '@/common/api/RotatingApiClient';
 import { getProviderAuthType } from '@/common/utils/platformAuthType';
+import { FLUX_PROVIDER_ID } from '@/common/config/flux';
+import { FLUX_RECOMMENDED_IMAGE_ID, FLUX_IMAGE_ARMS } from '@/common/config/imageModels';
 import { IMAGE_EXTENSIONS, MIME_TYPE_MAP, MIME_TO_EXT_MAP, DEFAULT_IMAGE_EXTENSION } from '@/common/config/constants';
 
 // Copyright 2026 Ferrox Labs
@@ -372,6 +374,197 @@ async function executeOpenAINativeImageGen(
   };
 }
 
+// ===== Flux Router image provider =====
+
+/** FluxRouter's host. Flux images ride a dedicated OpenAI-Images-compatible endpoint. */
+const FLUX_IMAGE_HOST = 'api.fluxrouter.ai';
+
+/**
+ * True when the provider is FluxRouter. Flux serves images on a dedicated
+ * `POST /v1/images/generations` endpoint (OpenAI-Images-shaped), NOT on
+ * chat/completions, and its host is never `api.openai.com` so it fails
+ * `isOpenAINativeImageModel`.
+ *
+ * The MCP subprocess only sees `platform`/`baseUrl`/`useModel` from env, and the
+ * real connected Flux provider arrives as `platform: 'openai-compatible'` with
+ * an EMPTY baseUrl - so host/platform alone do not identify it. The reliable
+ * signal here is the model id: `flux-image` and the Flux arm ids are
+ * Flux-specific. (Host/platform still match direct or differently-shaped rows.)
+ */
+export function isFluxImagesProvider(provider: TProviderWithModel): boolean {
+  if ((provider.platform || '') === FLUX_PROVIDER_ID) return true;
+  if ((FLUX_IMAGE_ARMS as readonly string[]).includes(provider.useModel || '')) return true;
+  const baseUrl = provider.baseUrl || '';
+  try {
+    return new URL(baseUrl).host.toLowerCase() === FLUX_IMAGE_HOST;
+  } catch {
+    return false;
+  }
+}
+
+type FluxImageErrorBody = { error?: { message?: string; code?: string } | string };
+
+function fluxImageError(text: string, error: string): ImageGenResult {
+  return { success: false, text, error };
+}
+
+/**
+ * Maps a non-2xx Flux images response to a clear, honest result. Per the
+ * capabilities contract (§3.6) the gating failures (402/403/502) are
+ * **no-bill** - the message says so explicitly so a misconfigured key or arm
+ * reads as a clear paid-feature/setup problem rather than a silent dead end.
+ */
+function mapFluxImageError(status: number, body: FluxImageErrorBody | undefined): ImageGenResult {
+  const errObj = body?.error;
+  const code = typeof errObj === 'object' && errObj ? errObj.code : undefined;
+  const apiMsg =
+    typeof errObj === 'object' && errObj ? errObj.message : typeof errObj === 'string' ? errObj : undefined;
+
+  if (status === 401) {
+    return fluxImageError(
+      'Flux key is invalid or expired. Reconnect Flux in Settings > Providers.',
+      'flux-unauthorized'
+    );
+  }
+  if (status === 402 && code === 'premium_locked') {
+    return fluxImageError(
+      'Image generation needs a paid Flux plan with a cleared charge. Upgrade or clear a charge, then try again. No charge was made.',
+      'premium_locked'
+    );
+  }
+  if (status === 402 && (code === 'price_exceeds_max_price' || (apiMsg ? /price/i.test(apiMsg) : false))) {
+    return fluxImageError(
+      'The image exceeded the price ceiling and was not generated. No charge was made.',
+      'price_exceeds_max_price'
+    );
+  }
+  if (status === 402 && code === 'spend_ceiling_unresolved') {
+    return fluxImageError(
+      'This Flux account needs a payment method before it can generate images. No charge was made.',
+      'spend_ceiling_unresolved'
+    );
+  }
+  if (status === 402) {
+    return fluxImageError(
+      `Image generation requires a paid Flux plan${apiMsg ? `: ${apiMsg}` : '.'} No charge was made.`,
+      'premium_locked'
+    );
+  }
+  if (status === 403) {
+    return fluxImageError(
+      'This image arm needs a verified OpenAI organization behind Flux. Pick a non gpt-image arm (e.g. Nano Banana) or verify the organization. No charge was made.',
+      'organization_must_be_verified'
+    );
+  }
+  if (status === 502 || status === 503) {
+    return fluxImageError('The Flux image provider failed. No charge was made. Try again.', 'flux-image-provider-error');
+  }
+  return fluxImageError(
+    `Flux image generation failed (${status})${apiMsg ? `: ${apiMsg}` : ''}.`,
+    `flux-image-${status}`
+  );
+}
+
+/**
+ * Generation via FluxRouter's images endpoint (`POST /v1/images/generations`).
+ * Raw fetch (not the OpenAI SDK) so we keep full control of the per-arm
+ * `data[i]` shape, the `_flux.synthid_notice` watermark echo (Gemini arms), and
+ * the typed 402/403 bodies the SDK would swallow. We send only `model/prompt/n`
+ * and never `response_format` (gpt-image arms reject it; b64_json is the default
+ * for every arm) and keep `n=1` (contract §3.7: ~60s sync timeout per call).
+ */
+export async function executeFluxImageGen(
+  params: ImageGenParams,
+  provider: TProviderWithModel,
+  workspaceDir: string,
+  hasInputImages: boolean,
+  signal?: AbortSignal,
+  fetchFn: typeof globalThis.fetch = globalThis.fetch
+): Promise<ImageGenResult> {
+  if (hasInputImages) {
+    return fluxImageError(
+      `Flux image generation does not support editing input images yet. Remove the input image to generate from a prompt, or use a Gemini image model for edits. Model: ${provider.useModel}`,
+      'flux-image-edit-unsupported'
+    );
+  }
+
+  const baseUrl = (provider.baseUrl || `https://${FLUX_IMAGE_HOST}/v1`).replace(/\/+$/, '');
+  const endpoint = `${baseUrl}/images/generations`;
+
+  // "Flux Image" (the recommended default) is not a literal arm - it means
+  // "use whatever the user set as their default in the Flux members area". So
+  // omit the model entirely and let Flux resolve the account default. A pinned
+  // concrete arm id is sent verbatim instead. Either way: n=1, never
+  // response_format (gpt-image arms reject it).
+  const isAccountDefault = provider.useModel === FLUX_RECOMMENDED_IMAGE_ID;
+  const requestBody = isAccountDefault
+    ? { prompt: params.prompt, n: 1 }
+    : { model: provider.useModel, prompt: params.prompt, n: 1 };
+
+  let response: Response;
+  try {
+    response = await fetchFn(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.apiKey}` },
+      body: JSON.stringify(requestBody),
+      signal,
+    });
+  } catch (error) {
+    if (signal?.aborted) {
+      return fluxImageError('Image generation was cancelled.', 'cancelled');
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    return fluxImageError(`Flux image request failed: ${message}`, 'flux-image-network');
+  }
+
+  if (!response.ok) {
+    let body: FluxImageErrorBody | undefined;
+    try {
+      body = (await response.json()) as FluxImageErrorBody;
+    } catch {
+      body = undefined;
+    }
+    return mapFluxImageError(response.status, body);
+  }
+
+  const json = (await response.json()) as {
+    data?: Array<{ b64_json?: string; url?: string }>;
+    _flux?: { synthid_notice?: string };
+  };
+
+  const first = json.data?.[0];
+  if (!first) {
+    return fluxImageError('Flux images API returned no image data.', 'flux-image-empty');
+  }
+
+  let dataUrl: string;
+  if (first.b64_json) {
+    dataUrl = `data:image/png;base64,${first.b64_json}`;
+  } else if (first.url) {
+    const fetchResponse = await fetchFn(first.url, { signal });
+    if (!fetchResponse.ok) {
+      return fluxImageError(
+        `Failed to download generated image (${fetchResponse.status}).`,
+        `flux-image-download-${fetchResponse.status}`
+      );
+    }
+    const arrayBuffer = await fetchResponse.arrayBuffer();
+    dataUrl = `data:image/png;base64,${Buffer.from(arrayBuffer).toString('base64')}`;
+  } else {
+    return fluxImageError('Flux images API returned neither b64_json nor url.', 'flux-image-no-payload');
+  }
+
+  const imagePath = await saveGeneratedImage(dataUrl, workspaceDir);
+  const relativeImagePath = path.relative(workspaceDir, imagePath);
+
+  const synthIdNotice = json._flux?.synthid_notice;
+  const text =
+    `Image generated successfully.\n\nGenerated image saved to: ${imagePath}` +
+    (synthIdNotice ? `\n\n${synthIdNotice}` : '');
+
+  return { success: true, text, imagePath, relativeImagePath };
+}
+
 /**
  * Core image generation function shared between MCP server and Gemini tool.
  */
@@ -399,6 +592,14 @@ export async function executeImageGeneration(
     }
 
     const hasImages = imageUris.length > 0;
+
+    // FluxRouter serves images on its own OpenAI-Images-compatible endpoint
+    // (`/v1/images/generations`), never on chat/completions. Route it first -
+    // its host (`api.fluxrouter.ai`) excludes it from the OpenAI-native path
+    // below, and the chat path can't produce an image for it.
+    if (isFluxImagesProvider(provider)) {
+      return await executeFluxImageGen(params, provider, workspaceDir, hasImages, signal);
+    }
 
     // OpenAI native image models (gpt-image-*, dall-e-*, chatgpt-image-*) use the
     // Images API, not chat/completions (which 404s for them). Route them before

@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
+  padding: 4px 8px;
   cursor: pointer;
   color: var(--color-text-3);
   border-radius: 7px;

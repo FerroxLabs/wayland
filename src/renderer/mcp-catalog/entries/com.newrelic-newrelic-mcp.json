@@ -1,0 +1,59 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.newrelic/newrelic-mcp",
+  "title": "New Relic",
+  "description": "Run NRQL, inspect alerts, entities, deployments, and golden metrics - New Relic’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.newrelic.com/docs/agentic-ai/mcp/overview",
+  "repository": {
+    "url": "https://docs.newrelic.com/docs/agentic-ai/mcp/overview",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.newrelic.com/mcp/"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "observability",
+      "devops"
+    ],
+    "tags": [
+      "newrelic",
+      "monitoring",
+      "nrql"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 121,
+    "installRate": 0,
+    "iconUrl": "icons/com.newrelic-newrelic-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#1CE783"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "New Relic",
+      "providerSignupUrl": "https://one.newrelic.com/api-keys",
+      "header": "Api-Key"
+    },
+    "setupGuide": {
+      "path": "guides/com.newrelic-newrelic-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

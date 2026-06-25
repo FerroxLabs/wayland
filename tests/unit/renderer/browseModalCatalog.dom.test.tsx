@@ -60,6 +60,10 @@ vi.mock('react-i18next', () => ({
 const mockList = vi.fn();
 const mockConnect = vi.fn();
 const mockGetProviderCatalog = vi.fn();
+// The single-key connect (catalog + openai-compatible) now routes through the
+// parent's headless-aware `connectKey(providerId, key, baseUrl?)` prop (#71);
+// BrowseModal's contract is to invoke it, so these tests assert against it.
+const mockConnectKey = vi.fn();
 
 vi.mock('../../../src/common/adapter/ipcBridge', () => ({
   modelRegistry: {
@@ -105,6 +109,7 @@ const CATALOG_ENTRY = 'settings.modelsPage.browse.catalog.entry';
 beforeEach(() => {
   mockList.mockReset().mockResolvedValue([]);
   mockConnect.mockReset().mockResolvedValue({ ok: true });
+  mockConnectKey.mockReset().mockResolvedValue({ ok: true });
   mockGetProviderCatalog.mockReset().mockResolvedValue(catalogEntries);
 });
 
@@ -112,7 +117,8 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-const renderModal = (onClose: () => void = vi.fn()) => render(<BrowseModal visible onClose={onClose} />);
+const renderModal = (onClose: () => void = vi.fn()) =>
+  render(<BrowseModal visible onClose={onClose} connectKey={mockConnectKey} />);
 
 /** Open the catalog view from the grid. */
 const openCatalog = async () => {
@@ -202,12 +208,8 @@ describe('BrowseModal — named-provider catalog', () => {
     fireEvent.change(keyInput, { target: { value: 'sk-novita-key' } });
     fireEvent.click(screen.getByText('settings.modelsPage.browse.connect'));
 
-    await waitFor(() =>
-      expect(mockConnect).toHaveBeenCalledWith({
-        providerId: 'novita',
-        creds: { key: 'sk-novita-key' },
-      })
-    );
+    // Routes through `connectKey` with no baseUrl (the engine resolves it).
+    await waitFor(() => expect(mockConnectKey).toHaveBeenCalledWith('novita', 'sk-novita-key', undefined));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
@@ -246,11 +248,9 @@ describe('BrowseModal — named-provider catalog', () => {
     fireEvent.change(baseUrlInput, { target: { value: 'https://my-endpoint.example/v1' } });
     fireEvent.click(screen.getByText('settings.modelsPage.browse.connect'));
 
+    // The manual baseUrl is threaded through `connectKey` as its third arg.
     await waitFor(() =>
-      expect(mockConnect).toHaveBeenCalledWith({
-        providerId: 'openai-compatible',
-        creds: { key: 'sk-custom', baseUrl: 'https://my-endpoint.example/v1' },
-      })
+      expect(mockConnectKey).toHaveBeenCalledWith('openai-compatible', 'sk-custom', 'https://my-endpoint.example/v1')
     );
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });

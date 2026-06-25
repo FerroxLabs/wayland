@@ -36,12 +36,21 @@ const { mockSafeStorage } = vi.hoisted(() => ({
 
 vi.mock('electron', () => ({ safeStorage: mockSafeStorage }));
 
+// The chatgpt-subscription catalog now fetches the live Codex model list. Mock
+// the network layer so these tests stay hermetic: default to a non-200 so the
+// live fetch fails and the catalog falls back to the static snapshot (the path
+// most of these tests exercise). Individual tests override per-case.
+vi.mock('@process/utils/fetchWithRetry', () => ({
+  fetchWithRetry: vi.fn(async () => ({ ok: false, json: async () => ({}) })),
+}));
+
 import {
   createModelRegistryHandlers,
   CloudRegistrySource,
   resolveSpawnSecretsFromRepo,
 } from '@process/providers/ipc/modelRegistryIpc';
 import type { ModelRegistryDeps, SpawnHandle } from '@process/providers/ipc/modelRegistryIpc';
+import { fetchWithRetry } from '@process/utils/fetchWithRetry';
 
 describe('CloudRegistrySource - google-auth Gemini catalog (zero-models regression)', () => {
   // A google-auth Gemini connection routes through the cloud-synthesis path but
@@ -54,7 +63,7 @@ describe('CloudRegistrySource - google-auth Gemini catalog (zero-models regressi
     } as never;
     const src = new CloudRegistrySource('google-gemini' as never, registry);
     const models = await src.listModels();
-    expect(models.map((m) => m.id).sort()).toEqual(['gemini-2.5-pro', 'gemini-flash-latest']);
+    expect(models.map((m) => m.id).toSorted()).toEqual(['gemini-2.5-pro', 'gemini-flash-latest']);
   });
 });
 import type { CatalogModel, ProviderId } from '@process/providers/types';
@@ -268,6 +277,20 @@ describe('modelRegistry IPC - connect', () => {
     expect(repo.getRegistryCatalog('openai').map((m) => m.id)).toEqual(['gpt-4o']);
   });
 
+  it('threads the catalog baseUrl when a catalog provider has no hardcoded endpoint (#63)', async () => {
+    const { deps, test } = makeFakes();
+    const h = createModelRegistryHandlers(deps);
+
+    // opencode-go is a "100+ more" catalog provider (no PROVIDER_ENDPOINTS entry);
+    // its endpoint must be resolved from the bundled catalog or the connection
+    // test has no URL to probe and always fails "unknown".
+    await h.connect({ providerId: 'opencode-go' as ProviderId, creds: { key: 'sk-test' } });
+
+    const call = test.mock.calls.find((c) => c[0] === 'opencode-go');
+    expect(call).toBeDefined();
+    expect(call?.[2]).toBe('https://opencode.ai/zen/go/v1');
+  });
+
   it('returns the ConnectError and does not persist when the test fails', async () => {
     const { deps, repo } = makeFakes({ testResult: { ok: false, error: 'unauthorized' } });
     const h = createModelRegistryHandlers(deps);
@@ -426,7 +449,25 @@ describe('modelRegistry IPC - testConnection', () => {
     expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
   });
 
-  it('marks the provider in error state on a failed test', async () => {
+  it('marks the provider in error state on a hard-failed test', async () => {
+    const { deps, repo } = makeFakes({ testResult: { ok: false, error: 'invalid-key' } });
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'sk-stored' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.testConnection({ providerId: 'openai' });
+
+    expect(result).toEqual({ ok: false, error: 'invalid-key' });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('error');
+  });
+
+  it('keeps the provider connected on a no-credit test result (#100)', async () => {
+    // A no-credit key still authenticates - it must NOT flip the provider to
+    // error (it sits connected-but-switched-off), consistent with connect (#100).
     const { deps, repo } = makeFakes({ testResult: { ok: false, error: 'no-credit' } });
     repo.upsertRegistryProvider({
       providerId: 'openai',
@@ -439,7 +480,7 @@ describe('modelRegistry IPC - testConnection', () => {
     const result = await h.testConnection({ providerId: 'openai' });
 
     expect(result).toEqual({ ok: false, error: 'no-credit' });
-    expect(repo.getRegistryProvider('openai')?.state).toBe('error');
+    expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
   });
 
   it('returns unrecognized when the provider is not connected', async () => {
@@ -598,12 +639,34 @@ describe('modelRegistry IPC - curatedForAgent', () => {
     expect(ids).toContain('gpt-4o');
   });
 
-  it('claude stays vendor-locked: only its underlying provider, else empty', async () => {
+  it('claude stays vendor-locked: never unions sibling providers', async () => {
     const { deps } = twoProviderRepo();
     const h = createModelRegistryHandlers(deps);
-    // anthropic is not connected in this repo, so claude returns nothing
-    // (it must NOT union openai/flux-router).
+    // anthropic is not connected and the (mock) models.dev registry is empty, so
+    // claude returns nothing here - and critically must NOT union openai /
+    // flux-router. The populated-registry fallback is covered below (#125).
     expect(await h.curatedForAgent({ agentKey: 'claude' })).toEqual([]);
+  });
+
+  it('claude (#125): synthesizes the anthropic family from models.dev when no API key is connected', async () => {
+    const { deps, getRegistry } = twoProviderRepo();
+    // A Claude Pro/Max CLI user has no Anthropic API key, so anthropic is not a
+    // connected provider. The picker must still show models, sourced from the
+    // models.dev registry - and only anthropic models, never openai/flux.
+    getRegistry.mockResolvedValue({
+      anthropic: {
+        id: 'anthropic',
+        name: 'Anthropic',
+        env: [],
+        models: {
+          'claude-opus-4-8': { id: 'claude-opus-4-8', name: 'Claude Opus 4.8' },
+        },
+      },
+    });
+    const h = createModelRegistryHandlers(deps);
+    const curated = await h.curatedForAgent({ agentKey: 'claude' });
+    expect(curated.map((m) => m.id)).toContain('claude-opus-4-8');
+    expect(curated.every((m) => m.providerId === 'anthropic')).toBe(true);
   });
 });
 
@@ -660,6 +723,109 @@ describe('modelRegistry IPC - refresh', () => {
 
     expect(result).toEqual({ ok: false });
     expect(repo.getRegistryProvider('openai')?.state).toBe('error');
+  });
+
+  it('on refresh, falls back to the current static snapshot when the live fetch fails (never wipes, never the generic API source)', async () => {
+    // The ChatGPT subscription token can't be listed via `/v1/models`, so the
+    // generic API source is never used. The catalog now fetches the live Codex
+    // model list; when that fetch fails (here: the mocked non-200), it falls back
+    // to the CURRENT static snapshot rather than wiping to []. The dead pre-5.3
+    // slugs must never come back.
+    const { deps, repo, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'ChatGPT subscription',
+      state: 'connected',
+      creds: { key: 'access-token', baseUrl: 'https://chatgpt.com/backend-api' },
+    });
+    repo.replaceRegistryCatalog('chatgpt-subscription', [
+      catalogModel({ id: 'gpt-5.5', providerId: 'chatgpt-subscription' }),
+    ]);
+    apiListModels.mockResolvedValue([]);
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.refresh({ providerId: 'chatgpt-subscription' });
+
+    expect(result).toEqual({ ok: true });
+    const ids = repo.getRegistryCatalog('chatgpt-subscription').map((m) => m.id);
+    expect(ids.length).toBeGreaterThan(0); // not wiped
+    expect(ids).toContain('gpt-5.5'); // current static fallback
+    expect(ids).not.toContain('gpt-5.2'); // dead slug never returns
+    // chatgpt-subscription never routes through the generic /v1/models source.
+    expect(apiListModels).not.toHaveBeenCalled();
+  });
+
+  it('on refresh, persists the LIVE Codex model list when the endpoint responds', async () => {
+    const { deps, repo, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'ChatGPT subscription',
+      state: 'connected',
+      creds: { key: 'access-token', baseUrl: 'https://chatgpt.com/backend-api' },
+    });
+    vi.mocked(fetchWithRetry).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        models: [
+          { slug: 'gpt-5.5', display_name: 'GPT-5.5', visibility: 'list' },
+          { slug: 'gpt-5.4-mini', display_name: 'GPT-5.4-Mini', visibility: 'list' },
+        ],
+      }),
+    } as unknown as Response);
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.refresh({ providerId: 'chatgpt-subscription' });
+
+    expect(result).toEqual({ ok: true });
+    const ids = repo.getRegistryCatalog('chatgpt-subscription').map((m) => m.id);
+    expect(ids).toEqual(['gpt-5.5', 'gpt-5.4-mini']);
+    expect(apiListModels).not.toHaveBeenCalled();
+  });
+
+  it('falls back to the models.dev slice when an OAuth bearer (xai) lists no models', async () => {
+    // Regression: "Sign in with X" gives a bearer that works for inference but
+    // returns nothing from `/v1/models`, so xai's catalog was persisted empty
+    // and its provider toggle went dead. Synthesize the CURRENT catalog from the
+    // models.dev registry instead (no hardcoded grok ids - this self-updates).
+    const { deps, repo, apiListModels, getRegistry } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'xai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'oauth-bearer' },
+    });
+    // The live listing returns nothing (the OAuth-bearer limitation)...
+    apiListModels.mockResolvedValue([]);
+    // ...but models.dev tracks the current grok line.
+    getRegistry.mockResolvedValue({ xai: { models: { 'grok-4': {}, 'grok-3': {} } } });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.refresh({ providerId: 'xai' });
+
+    expect(result).toEqual({ ok: true });
+    const ids = repo.getRegistryCatalog('xai').map((m) => m.id).toSorted();
+    expect(ids).toContain('grok-4');
+    expect(ids).toContain('grok-3');
+  });
+
+  it('does NOT use the models.dev fallback when the live listing is non-empty (api key wins)', async () => {
+    // An API-key xai with a working `/v1/models` keeps its real account models;
+    // the fallback must not overwrite them with the broader registry slice.
+    const { deps, repo, apiListModels, getRegistry } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'xai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'real-api-key' },
+    });
+    apiListModels.mockResolvedValue([{ id: 'grok-4-fast', providerId: 'xai' }]);
+    getRegistry.mockResolvedValue({ xai: { models: { 'grok-4': {}, 'grok-3': {} } } });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.refresh({ providerId: 'xai' });
+
+    expect(result).toEqual({ ok: true });
+    expect(repo.getRegistryCatalog('xai').map((m) => m.id)).toEqual(['grok-4-fast']);
   });
 });
 
@@ -1454,11 +1620,11 @@ describe('connect - baseUrl persistence (Fix B2)', () => {
   });
 });
 
-describe('resolveSpawnSecretsFromRepo - keyless local provider (Ollama)', () => {
-  function handle(over: Partial<SpawnHandle> = {}): SpawnHandle {
-    return { providerId: 'ollama-local', modelId: 'llama3:latest', ...over };
-  }
+function spawnHandle(over: Partial<SpawnHandle> = {}): SpawnHandle {
+  return { providerId: 'ollama-local', modelId: 'llama3:latest', ...over };
+}
 
+describe('resolveSpawnSecretsFromRepo - keyless local provider (Ollama)', () => {
   it('resolves a payload (empty apiKey + local baseUrl) for ollama-local with no key', () => {
     const repo = new FakeRepo();
     repo.upsertRegistryProvider({
@@ -1468,7 +1634,7 @@ describe('resolveSpawnSecretsFromRepo - keyless local provider (Ollama)', () => 
       creds: { key: '', baseUrl: 'http://127.0.0.1:11434/v1' },
     });
 
-    const secrets = resolveSpawnSecretsFromRepo(repo as never, handle());
+    const secrets = resolveSpawnSecretsFromRepo(repo as never, spawnHandle());
     // Finding 2: a keyless local provider carries NO credential - represented as
     // `apiKey: undefined`, NOT `''`, so the spawn merge can never inherit a
     // stale legacy key.
@@ -1484,7 +1650,7 @@ describe('resolveSpawnSecretsFromRepo - keyless local provider (Ollama)', () => 
       creds: { key: '', baseUrl: 'http://localhost:1234/v1' },
     });
 
-    const secrets = resolveSpawnSecretsFromRepo(repo as never, handle({ providerId: 'openai-compatible' }));
+    const secrets = resolveSpawnSecretsFromRepo(repo as never, spawnHandle({ providerId: 'openai-compatible' }));
     // Finding 2: keyless local resolves to `apiKey: undefined` (no credential).
     expect(secrets).toEqual({ apiKey: undefined, baseUrl: 'http://localhost:1234/v1' });
   });
@@ -1500,7 +1666,7 @@ describe('resolveSpawnSecretsFromRepo - keyless local provider (Ollama)', () => 
 
     // openai resolves to the cloud base url; an empty key there stays
     // undecryptable, so the spawn resolver returns null.
-    expect(resolveSpawnSecretsFromRepo(repo as never, handle({ providerId: 'openai' }))).toBeNull();
+    expect(resolveSpawnSecretsFromRepo(repo as never, spawnHandle({ providerId: 'openai' }))).toBeNull();
   });
 
   it('returns the real key for a cloud provider that HAS a key', () => {
@@ -1512,7 +1678,7 @@ describe('resolveSpawnSecretsFromRepo - keyless local provider (Ollama)', () => 
       creds: { key: 'sk-real' },
     });
 
-    const secrets = resolveSpawnSecretsFromRepo(repo as never, handle({ providerId: 'openai' }));
+    const secrets = resolveSpawnSecretsFromRepo(repo as never, spawnHandle({ providerId: 'openai' }));
     expect(secrets?.apiKey).toBe('sk-real');
     expect(secrets?.baseUrl).toBe('https://api.openai.com/v1');
   });
@@ -1585,5 +1751,47 @@ describe('modelRegistry IPC - refreshAllOnce SSRF gate (ollama-local exemption)'
     expect(probeOllama).not.toHaveBeenCalled();
     expect(summary.failed).toContain('ollama-local');
     expect(summary.succeeded).not.toContain('ollama-local');
+  });
+});
+
+describe('modelRegistry IPC - resolveForChatStart (#243 ChatGPT subscription)', () => {
+  it('resolves a connected ChatGPT subscription to platform openai-compatible with no key, no bounce (#243)', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'oauth',
+      state: 'connected',
+      creds: {}, // keyless: the OAuth token lives in the engine's own ~/.codex/auth.json
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'chatgpt-subscription', modelId: 'gpt-5.2-codex' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // Dispatched as `openai-compatible` (the legacy chat-start platform) so the
+      // `v2:chatgpt-subscription` bridge tag survives and envBuilder re-routes to
+      // the native `--provider openai-chatgpt`. The chatgpt identity is carried by
+      // `providerId` below, not the platform field (see CHAT_START_PLATFORM, #243).
+      expect(result.provider.platform).toBe('openai-compatible');
+      expect(result.provider.providerId).toBe('chatgpt-subscription');
+      expect(result.provider.name).toBe('ChatGPT');
+      expect(result.provider.baseUrl).toBe('');
+    }
+  });
+
+  it('still returns unsupported for a connected provider with no chat-start arm (negative control)', async () => {
+    const { deps, repo } = makeFakes();
+    // azure is intentionally absent from CHAT_START_PLATFORM - it must still bounce.
+    repo.upsertRegistryProvider({
+      providerId: 'azure',
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: 'sk-azure' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'azure', modelId: 'gpt-4o' });
+    expect(result).toEqual({ ok: false, error: 'unsupported' });
   });
 });

@@ -32,6 +32,7 @@ import { Button, Input, Message } from '@arco-design/web-react';
 import type { RefInputType } from '@arco-design/web-react/es/Input/interface';
 import { Archive, Search, Import as ImportIcon, Settings2, Plus } from 'lucide-react';
 import { ipcBridge } from '@/common';
+import { formatModifierShortcut } from '@/renderer/utils/platform';
 import { memory as memoryBridge, ijfw as ijfwBridge } from '@/common/adapter/ipcBridge';
 import type { IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 import type { LastDream, ListFilter, MemoryType } from '@/common/types/memory';
@@ -451,7 +452,7 @@ const FullPanelShell: React.FC = () => {
             prefix={<Search size={14} />}
             suffix={
               <kbd className={styles.searchKbd} data-testid='memory-search-kbd'>
-                ⌘K
+                {formatModifierShortcut('K')}
               </kbd>
             }
             placeholder={t('archive.filter.searchPlaceholder', 'Search memories… (type:decision tag:design)')}

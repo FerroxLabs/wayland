@@ -85,10 +85,30 @@ function sanitizeSchema(node: unknown): unknown {
  * Deep-clone and normalize a tool parameter schema for the Gemini backend.
  * Returns a fresh object - never mutates the input. Non-object input yields a
  * minimal valid object schema (matching the library's OpenAI-path behaviour).
+ *
+ * Root-level guarantee: a tool's `parameters` must be a complete object schema.
+ * Strict OpenAI-compatible endpoints (LM Studio) reject `function.parameters`
+ * that is `{ "type": "object" }` with no `properties` key (HTTP 400). MCP tools
+ * with no arguments (e.g. `ijfw_run`, `ijfw_update_apply`, `execute`) advertise
+ * exactly that bare schema, so ensure the root carries `type: 'object'` and a
+ * `properties` object. This applies ONLY to the root parameters object - nested
+ * subschemas are left as the recursion produced them, so a property literally
+ * named `properties` is never given a bogus empty map (see Notion regression).
  */
 export function sanitizeGeminiSchema(schema: unknown): unknown {
   if (typeof schema !== 'object' || schema === null) {
     return { type: 'object', properties: {} };
   }
-  return sanitizeSchema(JSON.parse(JSON.stringify(schema)));
+  const sanitized = sanitizeSchema(JSON.parse(JSON.stringify(schema)));
+  if (sanitized === null || typeof sanitized !== 'object' || Array.isArray(sanitized)) {
+    return { type: 'object', properties: {} };
+  }
+  const result = sanitized as Record<string, unknown>;
+  if (result.type === undefined || result.type === null) {
+    result.type = 'object';
+  }
+  if (result.type === 'object' && result.properties === undefined) {
+    result.properties = {};
+  }
+  return result;
 }

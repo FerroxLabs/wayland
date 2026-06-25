@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { isQuotaErrorMessage, isApiKeyError, isApiErrorMessage } from '../../src/renderer/utils/model/errorDetection';
+import {
+  isQuotaErrorMessage,
+  isApiKeyError,
+  isApiErrorMessage,
+  isToolUnsupportedErrorMessage,
+} from '../../src/renderer/utils/model/errorDetection';
 
 describe('isQuotaErrorMessage', () => {
   // Requires BOTH a quota-related keyword AND a limit/exceeded indicator
@@ -227,5 +232,37 @@ describe('isApiErrorMessage', () => {
 
   it('returns false for empty string', () => {
     expect(isApiErrorMessage('')).toBe(false);
+  });
+});
+
+describe('isToolUnsupportedErrorMessage', () => {
+  it('returns true for the OpenRouter 404 tool-use signature', () => {
+    expect(isToolUnsupportedErrorMessage('API error 404: No endpoints found that support tool use')).toBe(true);
+  });
+
+  it('returns true for the Compound/Groq "tool calling is not supported" variant', () => {
+    expect(isToolUnsupportedErrorMessage('Provider error: tool calling is not supported')).toBe(true);
+  });
+
+  it('returns true for the backtick-quoted "`tool calling` is not supported" variant', () => {
+    expect(isToolUnsupportedErrorMessage('API error 400: `tool calling` is not supported')).toBe(true);
+  });
+
+  it('returns true for case-insensitive match', () => {
+    expect(isToolUnsupportedErrorMessage('NO ENDPOINTS FOUND THAT SUPPORT TOOL USE')).toBe(true);
+  });
+
+  it('returns false for an unrelated 404', () => {
+    expect(isToolUnsupportedErrorMessage('API error 404: not found')).toBe(false);
+  });
+
+  it('returns false for a normal message', () => {
+    expect(isToolUnsupportedErrorMessage('Hello, how can I help you?')).toBe(false);
+  });
+
+  it('returns false for non-string data', () => {
+    expect(isToolUnsupportedErrorMessage({ error: 'No endpoints found that support tool use' })).toBe(false);
+    expect(isToolUnsupportedErrorMessage(null)).toBe(false);
+    expect(isToolUnsupportedErrorMessage(undefined)).toBe(false);
   });
 });

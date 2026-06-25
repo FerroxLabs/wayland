@@ -13,9 +13,17 @@ const ipcMock = vi.hoisted(() => ({
   setModel: vi.fn(),
   onResponseStream: vi.fn(() => () => {}),
   getModelConfig: vi.fn().mockResolvedValue([]),
+  // The unified flyout view model + per-conversation effort hook the selector
+  // now mounts. These resolve empty so the existing native-menu cases stand.
+  curatedForAgent: vi.fn().mockResolvedValue([]),
+  queryRecentlyUsedModels: vi.fn().mockResolvedValue([]),
+  registryList: vi.fn().mockResolvedValue([]),
+  registryListChanged: vi.fn(() => () => {}),
+  conversationGet: vi.fn().mockResolvedValue(null),
+  conversationUpdate: vi.fn().mockResolvedValue(true),
 }));
 
-let responseHandler: ((message: any) => void) | null = null;
+let responseHandler: ((message: unknown) => void) | null = null;
 
 vi.mock('@/common', () => ({
   ipcBridge: {
@@ -27,7 +35,28 @@ vi.mock('@/common', () => ({
     mode: {
       getModelConfig: { invoke: ipcMock.getModelConfig },
     },
+    usage: {
+      queryRecentlyUsedModels: { invoke: ipcMock.queryRecentlyUsedModels },
+    },
+    conversation: {
+      get: { invoke: ipcMock.conversationGet },
+      update: { invoke: ipcMock.conversationUpdate },
+    },
   },
+}));
+
+// useFluxConnected + useModelRegistry read `modelRegistry` directly from this module.
+vi.mock('@/common/adapter/ipcBridge', () => ({
+  modelRegistry: {
+    list: { invoke: ipcMock.registryList },
+    listChanged: { on: ipcMock.registryListChanged },
+    curatedForAgent: { invoke: ipcMock.curatedForAgent },
+  },
+}));
+
+// The selector now calls `useNavigate` (Manage models footer).
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
 }));
 
 vi.mock('@/common/config/storage', () => ({
@@ -52,7 +81,7 @@ describe('AcpModelSelector', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     responseHandler = null;
-    ipcMock.onResponseStream.mockImplementation((handler: (message: any) => void) => {
+    ipcMock.onResponseStream.mockImplementation((handler: (message: unknown) => void) => {
       responseHandler = handler;
       return () => {};
     });

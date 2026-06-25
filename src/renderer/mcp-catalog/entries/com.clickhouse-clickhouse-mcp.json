@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.clickhouse/clickhouse-mcp",
+  "title": "ClickHouse",
+  "description": "Read-only SQL and schema exploration over ClickHouse and chDB - ClickHouse’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/ClickHouse/mcp-clickhouse",
+  "repository": {
+    "url": "https://github.com/ClickHouse/mcp-clickhouse",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "mcp-clickhouse",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "CLICKHOUSE_PASSWORD",
+          "description": "ClickHouse API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "database",
+      "data"
+    ],
+    "tags": [
+      "clickhouse",
+      "analytics",
+      "sql"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 128,
+    "installRate": 0,
+    "iconUrl": "icons/com.clickhouse-clickhouse-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#FFCC00"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "ClickHouse",
+      "providerSignupUrl": "https://clickhouse.com/cloud"
+    },
+    "setupGuide": {
+      "path": "guides/com.clickhouse-clickhouse-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -1,5 +1,12 @@
 const { execSync } = require('child_process');
 const path = require('path');
+const { runBounded, isNotaryStall, markNotaryStalled } = require('./signingExec');
+
+// notarytool --wait window for the .app ticket. Kept in step with notarizeDmg's
+// (15 min): a healthy submission returns in 1-5 min, and a near-full-window burn
+// is treated as a stalled Apple queue so the dmg notarize that follows skips
+// straight to a single attempt instead of stacking a second full window.
+const NOTARY_WAIT_TIMEOUT_MIN = 15;
 
 exports.default = async function afterSign(context) {
   const { electronPlatformName, appOutDir } = context;
@@ -63,15 +70,33 @@ exports.default = async function afterSign(context) {
       `--team-id "${teamId}"`,
       '--password "$NOTARYTOOL_PWD"',
       '--wait',
-      '--timeout 20m',
+      `--timeout ${NOTARY_WAIT_TIMEOUT_MIN}m`,
     ].join(' ');
-    execSync(submitCmd, {
-      stdio: 'inherit',
-      env: { ...process.env, NOTARYTOOL_PWD: appleIdPassword },
-    });
+    const startedAt = Date.now();
+    try {
+      execSync(submitCmd, {
+        stdio: 'inherit',
+        env: { ...process.env, NOTARYTOOL_PWD: appleIdPassword },
+      });
+    } catch (submitError) {
+      // A near-full-window failure means Apple's notary queue is stalled (not a
+      // fast connection blip). Flag it so the dmg notarize that follows on the
+      // same queue degrades immediately instead of burning a second full window.
+      if (isNotaryStall(Date.now() - startedAt, NOTARY_WAIT_TIMEOUT_MIN * 60000)) {
+        markNotaryStalled();
+        console.warn(
+          `afterSign: ${appName} notarize ran the full window before failing — Apple's notary queue is stalled; flagging so the dmg notarize degrades fast.`
+        );
+      }
+      throw submitError;
+    }
 
-    // Staple the ticket to the .app so Gatekeeper validates offline.
-    execSync(`xcrun stapler staple "${appPath}"`, { stdio: 'inherit' });
+    // Staple the ticket to the .app so Gatekeeper validates offline. `stapler`
+    // contacts Apple's ticket servers with no client timeout, so bound it (same
+    // unbounded-Apple-call class as the dmg-codesign hang that wedged v0.9.7).
+    if (!runBounded('xcrun', ['stapler', 'staple', appPath], { timeoutMs: 300000, label: `afterSign: stapling ${appName}` })) {
+      throw new Error('stapler staple failed or timed out');
+    }
     console.log('Notarization + stapling completed successfully');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

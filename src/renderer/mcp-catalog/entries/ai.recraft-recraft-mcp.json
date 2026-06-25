@@ -1,0 +1,59 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.recraft/recraft-mcp",
+  "title": "Recraft",
+  "description": "Generate and edit raster and vector (SVG) images, custom styles, vectorization, background removal, and upscaling - Recraft’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.recraft.ai/docs/mcp-reference/getting-started",
+  "repository": {
+    "url": "https://github.com/recraft-ai/mcp-recraft-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.recraft.ai/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "media",
+      "design"
+    ],
+    "tags": [
+      "recraft",
+      "image",
+      "vector",
+      "svg"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 106,
+    "installRate": 0,
+    "iconUrl": "icons/ai.recraft-recraft-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Recraft",
+      "providerSignupUrl": "https://www.recraft.ai"
+    },
+    "setupGuide": {
+      "path": "guides/ai.recraft-recraft-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

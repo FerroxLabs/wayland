@@ -58,6 +58,18 @@ function createImageFile(name: string, size = 100): File {
   return new File([data], name, { type: 'image/png' });
 }
 
+/**
+ * An image File that also carries a `path` (the Electron extra property).
+ * This mirrors a cropped screenshot where the crop tool puts both the cropped
+ * image bytes AND a file URL pointing at the original (uncropped) file on the
+ * pasteboard.
+ */
+function createImageFileWithPath(name: string, path: string, size = 100): File {
+  const file = createImageFile(name, size);
+  Object.defineProperty(file, 'path', { value: path, configurable: true });
+  return file;
+}
+
 describe('PasteService.handlePaste - filename deduplication', () => {
   let PasteService: typeof import('@/renderer/services/PasteService').PasteService;
   let tempFileCounter: number;
@@ -90,23 +102,35 @@ describe('PasteService.handlePaste - filename deduplication', () => {
   });
 
   it('assigns unique filenames when pasting multiple images with the same generated name', async () => {
-    // Two system-generated screenshots pasted at the same time
-    // Names matching /^[a-zA-Z]?_?\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}/ are detected as system-generated
-    const file1 = createImageFile('a_2026-03-30_14-30-25.png');
-    const file2 = createImageFile('b_2026-03-30_14-30-25.png');
+    // Both screenshots are system-generated, so PasteService rebuilds their
+    // names as `pasted_image_<timeStr>` from `new Date()` (computed per file).
+    // That millisecond-precision timestamp normally differs between the two
+    // files, so freeze the clock (Date only - real timers/promises still run)
+    // to force the SAME base name. That collision is exactly what the `_2`
+    // dedup path resolves; without the freeze the dedup never runs and this
+    // test is timing-flaky.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-03-30T14:30:25.123Z'));
+    try {
+      // Names matching /^[a-zA-Z]?_?\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}/ are detected as system-generated
+      const file1 = createImageFile('a_2026-03-30_14-30-25.png');
+      const file2 = createImageFile('b_2026-03-30_14-30-25.png');
 
-    const event = createMockClipboardEvent([file1, file2]);
-    const addedFiles: FileMetadata[] = [];
+      const event = createMockClipboardEvent([file1, file2]);
+      const addedFiles: FileMetadata[] = [];
 
-    await PasteService.handlePaste(event, [], (files) => {
-      addedFiles.push(...files);
-    });
+      await PasteService.handlePaste(event, [], (files) => {
+        addedFiles.push(...files);
+      });
 
-    expect(addedFiles).toHaveLength(2);
-    // The two files must have different names
-    expect(addedFiles[0].name).not.toBe(addedFiles[1].name);
-    // Second file should have _2 suffix
-    expect(addedFiles[1].name).toMatch(/_2\.png$/);
+      expect(addedFiles).toHaveLength(2);
+      // The two files must have different names
+      expect(addedFiles[0].name).not.toBe(addedFiles[1].name);
+      // Second file should have _2 suffix
+      expect(addedFiles[1].name).toMatch(/_2\.png$/);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('keeps original names when they are already unique', async () => {
@@ -141,6 +165,60 @@ describe('PasteService.handlePaste - filename deduplication', () => {
     const names = addedFiles.map((f) => f.name);
     // All names must be unique
     expect(new Set(names).size).toBe(3);
+  });
+
+  it('uses the cropped clipboard bytes, not the original file path, for images carrying a path (privacy, #19)', async () => {
+    // Cropped screenshot: clipboard has the cropped image bytes, but the crop tool
+    // also placed a file URL for the original uncropped file on the pasteboard, so
+    // the File exposes a `path`. Attaching that path would leak the uncropped image.
+    const file = createImageFileWithPath('cropped.png', '/Users/me/Desktop/original-uncropped.png', 128);
+
+    const event = createMockClipboardEvent([file]);
+    const addedFiles: FileMetadata[] = [];
+
+    await PasteService.handlePaste(event, [], (files) => {
+      addedFiles.push(...files);
+    });
+
+    expect(addedFiles).toHaveLength(1);
+    // Must NOT attach the original on-disk path
+    expect(addedFiles[0].path).not.toBe('/Users/me/Desktop/original-uncropped.png');
+    // Must write the clipboard image bytes to a temp file instead
+    expect(ipcBridge.fs.createUploadFile.invoke).toHaveBeenCalledTimes(1);
+    expect(ipcBridge.fs.writeFile.invoke).toHaveBeenCalledTimes(1);
+    expect(addedFiles[0].path).toMatch(/^\/tmp\/upload-/);
+  });
+
+  it('renames the generic clipboard image name so repeated pastes do not collapse (#19)', async () => {
+    // Chromium hands every pasted clipboard image the constant name `image.png`.
+    // If kept verbatim, the on-disk `_wayland_<ts>` de-dup suffix is later
+    // stripped before the path reaches the agent, so every paste collapses back
+    // to the FIRST `image.png` on disk. The fix gives the generic name a unique
+    // timestamped base instead.
+    const event = createMockClipboardEvent([createImageFile('image.png')]);
+    const addedFiles: FileMetadata[] = [];
+
+    await PasteService.handlePaste(event, [], (files) => {
+      addedFiles.push(...files);
+    });
+
+    expect(addedFiles).toHaveLength(1);
+    expect(addedFiles[0].name).not.toBe('image.png');
+    expect(addedFiles[0].name).toMatch(/^pasted_image_\d+\.png$/);
+  });
+
+  it('keeps a descriptive clipboard name (only the generic image.* is renamed) (#19)', async () => {
+    // A non-generic name like `clipboard.png` is already distinct enough to
+    // survive, so it must be preserved (no needless renaming).
+    const event = createMockClipboardEvent([createImageFile('clipboard.png')]);
+    const addedFiles: FileMetadata[] = [];
+
+    await PasteService.handlePaste(event, [], (files) => {
+      addedFiles.push(...files);
+    });
+
+    expect(addedFiles).toHaveLength(1);
+    expect(addedFiles[0].name).toBe('clipboard.png');
   });
 
   it('tracks upload progress for WebUI pasted images', async () => {

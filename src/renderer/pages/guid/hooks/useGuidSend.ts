@@ -52,6 +52,12 @@ export type GuidSendDeps = {
     agentInfo: { backend: AcpBackend; customAgentId?: string } | undefined
   ) => string[] | undefined;
   guidDisabledBuiltinSkills: string[] | undefined;
+  /**
+   * Skills the user added in the composer "+" menu before the conversation
+   * existed (staged mode). Threaded into the new conversation's
+   * extra.sessionSkills so consumePendingSessionSkills injects them on turn 1.
+   */
+  stagedSessionSkills?: string[];
   currentEffectiveAgentInfo: EffectiveAgentInfo;
   isGoogleAuth: boolean;
 
@@ -94,6 +100,15 @@ export type GuidSendResult = {
    */
   sendMessageHandler: (opts?: { onSent?: () => void }) => void;
   isButtonDisabled: boolean;
+  /**
+   * True when no usable model is configured for the current agent. This is the
+   * exact predicate the send handler uses to reject a send with the
+   * `conversation.noModelConfigured` warning (Gemini works with a connected
+   * Google account, so `isGoogleAuth` counts as usable). Shared so the
+   * new-chat CTA card and the disabled Send button stay in lockstep with the
+   * send-time validation instead of duplicating the check.
+   */
+  noModelConfigured: boolean;
 };
 
 /**
@@ -124,6 +139,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     resolveEnabledSkills,
     resolveDisabledBuiltinSkills,
     guidDisabledBuiltinSkills,
+    stagedSessionSkills,
     currentEffectiveAgentInfo,
     isGoogleAuth,
     setMentionOpen,
@@ -144,6 +160,12 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     // Stamped into every create path's extra when the composer runs inside a
     // project. Omitted from extra when undefined so it never pollutes a normal chat.
     const projectExtra = projectId ? { projectId } : {};
+    // Skills staged in the composer "+" menu. Injected on turn 1 by
+    // consumePendingSessionSkills (all backends). A chosen assistant's own
+    // assigned skills are merged in centrally by buildAgentConversationParams
+    // (so the in-chat "new tab" path gets them too). Omitted when empty.
+    const sessionSkillsExtra =
+      stagedSessionSkills && stagedSessionSkills.length > 0 ? { sessionSkills: stagedSessionSkills } : {};
 
     const agentInfo = selectedAgentInfo;
     const isPreset = isPresetAgent;
@@ -197,6 +219,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           extra: {
             defaultFiles: files,
             ...projectExtra,
+            ...sessionSkillsExtra,
             excludeBuiltinSkills,
             webSearchEngine:
               placeholderModel.platform === 'gemini-with-google-auth' ||
@@ -252,6 +275,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         extra: {
           defaultFiles: files,
           ...projectExtra,
+          ...sessionSkillsExtra,
           runtimeValidation: {
             expectedWorkspace: finalWorkspace,
             expectedBackend: openclawAgentInfo?.backend,
@@ -311,6 +335,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         extra: {
           defaultFiles: files,
           ...projectExtra,
+          ...sessionSkillsExtra,
           enabledSkills: isPreset ? enabledSkills : undefined,
           excludeBuiltinSkills,
         },
@@ -361,6 +386,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           extra: {
             defaultFiles: files,
             ...projectExtra,
+            ...sessionSkillsExtra,
             workspace: finalWorkspace,
             customWorkspace: isCustomWorkspace,
             presetRules: isPreset ? presetRules : undefined,
@@ -444,6 +470,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         extra: {
           defaultFiles: files,
           ...projectExtra,
+          ...sessionSkillsExtra,
           excludeBuiltinSkills,
         },
       });
@@ -517,6 +544,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     resolveEnabledSkills,
     resolveDisabledBuiltinSkills,
     guidDisabledBuiltinSkills,
+    stagedSessionSkills,
     navigate,
     closeAllTabs,
     openTab,
@@ -561,10 +589,23 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     setDir,
   ]);
 
+  // No usable model configured. Mirrors the send-time validation: only the
+  // model-backed backends actually reject on a missing model - the Gemini path
+  // (unless a Google account is connected, `isGoogleAuth`) and the Wayland Core
+  // path. ACP/CLI agents (Claude Code, Codex, custom adapters) spawn their own
+  // model and send fine without one, so a missing model must NOT gate their
+  // Send button or show the no-model CTA (#119 - the button was dead for Claude
+  // Code while Enter, which skips this gate, worked). Drives both the new-chat
+  // CTA card and the disabled Send button so they never diverge from the gate.
+  const effectiveBackend = isPresetAgent ? currentEffectiveAgentInfo.agentType : selectedAgent;
+  const modelGatedBackend = !effectiveBackend || effectiveBackend === 'gemini' || effectiveBackend === 'wcore';
+  const noModelConfigured = modelGatedBackend && !currentModel && !isGoogleAuth;
+
   // Calculate button disabled state
   const isButtonDisabled =
     loading ||
     !input.trim() ||
+    noModelConfigured ||
     ((((!selectedAgent || selectedAgent === 'gemini') && !isPresetAgent) ||
       (isPresetAgent && currentEffectiveAgentInfo.agentType === 'gemini' && currentEffectiveAgentInfo.isAvailable)) &&
       !currentModel &&
@@ -574,5 +615,6 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     handleSend,
     sendMessageHandler,
     isButtonDisabled,
+    noModelConfigured,
   };
 };

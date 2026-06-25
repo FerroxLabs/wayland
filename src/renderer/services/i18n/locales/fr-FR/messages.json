@@ -3,6 +3,7 @@
   "fileChanges": "Modifications de fichiers",
   "fileChangesCount": "{{count}} modifications de fichiers",
   "conversationInProgress": "Une conversation est en cours...",
+  "working": "Working...",
   "confirm": "Confirmer",
   "canceledExecution": "Exécution annulée",
   "openLinkFailed": "Échec de l'ouverture du lien",
@@ -67,5 +68,12 @@
     "yesAlwaysAllowTool": "Oui, toujours autoriser l'outil « {{toolName}} » du serveur « {{serverName}} »",
     "yesAlwaysAllowServer": "Oui, toujours autoriser tous les outils du serveur « {{serverName}} »",
     "no": "Non (échap)"
+  },
+  "slash.customBadge": "Custom",
+  "runaway": {
+    "title": "Stopped a runaway loop",
+    "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",
+    "failingCommandBody": "A command failed {{count}} times in a row, so this turn was stopped to avoid burning tokens retrying it. You can send a new message to continue.",
+    "dismiss": "Got it"
   }
 }

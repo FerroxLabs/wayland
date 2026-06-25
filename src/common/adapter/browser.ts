@@ -199,8 +199,15 @@ if (win.electronAPI) {
     });
   };
 
-  // 4. Ensure a connection has been initiated before sending or subscribing
+  // 4. Ensure a connection has been initiated before sending or subscribing.
+  //    Respect `shouldReconnect`: once the server has rejected us (auth-expired
+  //    or 1008 policy close) reconnection is disabled until re-login. Without
+  //    this guard, the app's ongoing IPC emits each re-open a socket the server
+  //    immediately rejects - a reconnect storm that re-mounts the tree and reads
+  //    as the WebUI "reloading like crazy" during the redirect-to-login window.
+  //    Queued messages flush on the next successful connect after re-login.
   const ensureSocket = () => {
+    if (!shouldReconnect) return;
     if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
       connect();
     }

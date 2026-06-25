@@ -8,6 +8,8 @@ import { Button } from '@arco-design/web-react';
 import { ChevronDown } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isElectronDesktop } from '@renderer/utils/platform';
+import { writeConstitutionSpecialistHttp } from '@renderer/services/ConstitutionService';
 import type { SaveState } from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import SavedIndicator from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
@@ -70,7 +72,9 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, o
       if (saveTimer.current) clearTimeout(saveTimer.current);
       setSaveState('saving');
       saveTimer.current = setTimeout(async () => {
-        const ok = (await window.electronAPI?.writeConstitutionSpecialist?.(id, md)) ?? false;
+        const ok = isElectronDesktop()
+          ? ((await window.electronAPI?.writeConstitutionSpecialist?.(id, md)) ?? false)
+          : await writeConstitutionSpecialistHttp(id, md);
         setSaveState(ok ? 'saved' : 'error');
         if (ok) {
           if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);

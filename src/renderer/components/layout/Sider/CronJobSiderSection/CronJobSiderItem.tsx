@@ -5,7 +5,7 @@
  */
 
 import { ChevronDown } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DndContext } from '@dnd-kit/core';
@@ -67,10 +67,14 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
 
   const [expanded, setExpanded] = useState(false);
 
+  // Auto-expand ONLY on the transition into the active route (false -> true), not
+  // for the whole time the route stays active - otherwise collapsing the row via
+  // the chevron while still viewing this job/conversation would never stick.
+  const wasActiveRef = useRef(false);
   useEffect(() => {
-    if (isActiveChild || isActiveDetail) {
-      setExpanded(true);
-    }
+    const active = isActiveChild || isActiveDetail;
+    if (active && !wasActiveRef.current) setExpanded(true);
+    wasActiveRef.current = active;
   }, [isActiveChild, isActiveDetail]);
 
   // --- ConversationRow action state ---
@@ -298,12 +302,12 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
       {/* Header - arrow toggles expand, text navigates to detail */}
       <div
         className={classNames(
-          'flex items-center gap-8px h-40px px-10px rd-8px transition-colors min-w-0',
+          'flex items-center gap-8px h-26px px-8px rd-8px transition-colors min-w-0',
           pathname === `/scheduled/${job.id}` ? 'bg-[rgba(var(--primary-6),0.12)]' : 'hover:bg-fill-3 active:bg-fill-4'
         )}
       >
-        {/* Expand/collapse arrow - fixed 28px column to align with sibling rows' icons */}
-        <span className='w-28px h-28px flex items-center justify-center shrink-0 text-[color:var(--color-text-2)]'>
+        {/* Expand/collapse arrow - fixed 20px column to align with sibling rows' icons */}
+        <span className='w-20px h-20px flex items-center justify-center shrink-0 text-[color:var(--color-text-2)]'>
           {hasChildren && (
             <ChevronDown
               size={16}
@@ -324,7 +328,7 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
           className='flex-1 min-w-0 overflow-hidden cursor-pointer'
           onClick={() => onNavigate(`/scheduled/${job.id}`)}
         >
-          <div className='flex items-center gap-8px text-14px min-w-0'>
+          <div className='flex items-center gap-8px text-12px min-w-0'>
             <span className='font-medium truncate flex-1 text-t-primary min-w-0'>{job.name}</span>
           </div>
         </div>
@@ -343,7 +347,7 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
                   onToggle={() => toggleWorkspace(ws)}
                   siderCollapsed={false}
                   header={
-                    <div className='flex items-center gap-8px text-14px min-w-0'>
+                    <div className='flex items-center gap-8px text-12px min-w-0'>
                       <span className='font-medium truncate flex-1 text-t-primary min-w-0'>
                         {getWorkspaceDisplayName(ws)}
                       </span>

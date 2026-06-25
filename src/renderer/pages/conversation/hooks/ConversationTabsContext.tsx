@@ -7,7 +7,9 @@
 import type { TChatConversation } from '@/common/config/storage';
 import { STORAGE_KEYS } from '@/common/config/storageKeys';
 import { addEventListener } from '@/renderer/utils/emitter';
+import { isPopoutModeNow } from '@renderer/hooks/system/useIsPopoutMode';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { reorderByIndex } from '../utils/tabReorder';
 
 /** Conversation Tab data structure */
 export interface ConversationTab {
@@ -46,11 +48,21 @@ export interface ConversationTabsContextValue {
   closeTabsToRight: (conversationId: string) => void;
   // Close all tabs except the specified one
   closeOtherTabs: (conversationId: string) => void;
+  // Reorder tabs by moving the tab at fromIndex to toIndex (view state only)
+  reorderTabs: (fromIndex: number, toIndex: number) => void;
   // Update tab name
   updateTabName: (conversationId: string, newName: string) => void;
 }
 
 const ConversationTabsContext = createContext<ConversationTabsContextValue | null>(null);
+
+/**
+ * Browser-like soft cap on open tabs. Every chat you open becomes a tab; without
+ * a cap the bar would flood as you click through recent chats. When opening a new
+ * chat would exceed this, the oldest tab that is not the one being opened is
+ * evicted (the just-opened tab becomes active, so the active tab is never lost).
+ */
+const MAX_OPEN_TABS = 12;
 
 // Restore state from localStorage
 const loadPersistedState = (): { openTabs: ConversationTab[]; activeTabId: string | null } => {
@@ -73,13 +85,22 @@ const loadPersistedState = (): { openTabs: ConversationTab[]; activeTabId: strin
 };
 
 export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Restore initial state from localStorage
-  const persistedState = loadPersistedState();
+  // CRITICAL (#27 phase 2): localStorage is shared across windows (same origin).
+  // A pop-out window must NEVER read or write `wayland_conversation_tabs`, or it
+  // would clobber the main window's tab set. Detect pop-out mode once at mount
+  // (it is fixed for the window's lifetime) and use it to (a) start from an empty
+  // tab set instead of hydrating the shared key and (b) skip the persistence
+  // effect entirely. `openTab` is also a no-op in pop-out mode (below).
+  const isPopout = isPopoutModeNow();
+
+  // Restore initial state from localStorage (main window only).
+  const persistedState = isPopout ? { openTabs: [], activeTabId: null } : loadPersistedState();
   const [openTabs, setOpenTabs] = useState<ConversationTab[]>(persistedState.openTabs);
   const [activeTabId, setActiveTabId] = useState<string | null>(persistedState.activeTabId);
 
-  // Persist state to localStorage
+  // Persist state to localStorage - GUARDED off in pop-out mode (see above).
   useEffect(() => {
+    if (isPopout) return;
     try {
       localStorage.setItem(
         STORAGE_KEYS.CONVERSATION_TABS,
@@ -91,32 +112,21 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
     } catch {
       // Ignore storage errors (e.g., quota exceeded)
     }
-  }, [openTabs, activeTabId]);
+  }, [openTabs, activeTabId, isPopout]);
 
   // Get active tab
   const activeTab = openTabs.find((tab) => tab.id === activeTabId) || null;
 
-  const openTab = useCallback((conversation: TChatConversation) => {
-    // Only show tabs for user-specified workspaces, not temporary workspaces
-    const customWorkspace = conversation.extra?.customWorkspace;
-
-    if (!customWorkspace) {
-      // Don't add temporary workspace conversations to tabs
-      // Close all tabs when leaving the group
-      setOpenTabs([]);
-      // But need to update activeTabId to keep in sync
-      setActiveTabId(conversation.id);
-      return;
-    }
-
+  const openTabImpl = useCallback((conversation: TChatConversation) => {
+    // Browser-like tabs: EVERY chat opened (new or existing) becomes a tab, not
+    // just custom-workspace ones. Opening a chat that already has a tab just
+    // re-activates it; a new one is appended (with a soft cap, see below).
     setOpenTabs((prev) => {
       const exists = prev.find((tab) => tab.id === conversation.id);
       if (exists) {
-        // Already exists, don't add duplicate
         return prev;
       }
-      // Add new tab
-      return [
+      const appended: ConversationTab[] = [
         ...prev,
         {
           id: conversation.id,
@@ -125,10 +135,28 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
           type: conversation.type,
         },
       ];
+      if (appended.length > MAX_OPEN_TABS) {
+        // Evict the oldest tab that is NOT the one just opened. The opened tab
+        // becomes active immediately below, so the active tab is never evicted.
+        const evictIdx = appended.findIndex((tab) => tab.id !== conversation.id);
+        if (evictIdx !== -1) {
+          appended.splice(evictIdx, 1);
+        }
+      }
+      return appended;
     });
     // Switch to this tab
     setActiveTabId(conversation.id);
   }, []);
+
+  const openTab = useCallback(
+    (conversation: TChatConversation) => {
+      // Pop-out windows have no tab bar and must not touch the shared tab state.
+      if (isPopout) return;
+      openTabImpl(conversation);
+    },
+    [isPopout, openTabImpl]
+  );
 
   const closeTab = useCallback(
     (conversationId: string) => {
@@ -214,6 +242,10 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
     });
   }, []);
 
+  const reorderTabs = useCallback((fromIndex: number, toIndex: number) => {
+    setOpenTabs((prev) => reorderByIndex(prev, fromIndex, toIndex));
+  }, []);
+
   const updateTabName = useCallback((conversationId: string, newName: string) => {
     setOpenTabs((prev) =>
       prev.map((tab) => {
@@ -245,6 +277,7 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
         closeTabsToLeft,
         closeTabsToRight,
         closeOtherTabs,
+        reorderTabs,
         updateTabName,
       }}
     >

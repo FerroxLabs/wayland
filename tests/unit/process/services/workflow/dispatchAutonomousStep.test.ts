@@ -279,6 +279,42 @@ describe('dispatchAutonomousStep', () => {
     expect(createArg.extra.sessionMode).toBe('bypassPermissions');
   });
 
+  it('inherits the parent selected model id so the child does not fall back to the codex default (GitHub #111)', async () => {
+    // Codex reads `extra.currentModelId` at spawn. Without inheriting it, the
+    // child worker runs on the codex CLI default (gpt-5.3-codex), which a
+    // ChatGPT-account user cannot use. The parent here is a codex conversation
+    // the user launched on gpt-5.1-codex-mini.
+    const fakes = buildFakes({
+      parentConv: makeParentConversation({
+        extra: {
+          workspace: '',
+          backend: 'codex',
+          cliPath: 'codex',
+          currentModelId: 'gpt-5.1-codex-mini',
+        },
+      } as unknown as Partial<TChatConversation>),
+    });
+
+    await dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps);
+
+    const createArg = fakes.conversationService.createConversation.mock.calls[0][0];
+    expect(createArg.extra.backend).toBe('codex');
+    expect(createArg.extra.currentModelId).toBe('gpt-5.1-codex-mini');
+  });
+
+  it('omits currentModelId in the child when the parent carries none (no forced default)', async () => {
+    const fakes = buildFakes({
+      parentConv: makeParentConversation({
+        extra: { workspace: '', backend: 'codex', cliPath: 'codex' },
+      } as unknown as Partial<TChatConversation>),
+    });
+
+    await dispatchAutonomousStep({ parentSessionId: 'sess-1', stepN: 1 }, fakes.deps);
+
+    const createArg = fakes.conversationService.createConversation.mock.calls[0][0];
+    expect(createArg.extra.currentModelId).toBeUndefined();
+  });
+
   it('records `running` BEFORE sending, so a hung worker stays watchdog-visible (FINDING-2b)', async () => {
     // sendMessage awaits the whole agent turn; if `running` were recorded after,
     // a hung turn would leave the step `todo`/`autonomous_run=null` - invisible to

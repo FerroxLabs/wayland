@@ -262,11 +262,19 @@ async function realpathExistingPrefix(resolved: string): Promise<string> {
  * Confine a renderer-supplied filesystem path to the app's authorized roots.
  *
  * @param rawPath - The path string as received from the renderer/WebUI.
+ * @param opts.allowOutsideRoots - When true, a path that passes every
+ *   form/traversal/symlink/sensitive-location guard is accepted even if it is
+ *   not inside a registered root. Reserved for an explicit local user gesture
+ *   (a drag-drop / paste of a specific file) on a remote-denied IPC; it only
+ *   widens the permitted *source location*, never the dangerous-path checks.
  * @returns The fully resolved, realpath-collapsed absolute path when it is safe
  *   to operate on, or `null` when the path must be rejected (out of every
  *   authorized root, a traversal/UNC/device/ADS form, or a sensitive location).
  */
-export async function confinePath(rawPath: unknown): Promise<string | null> {
+export async function confinePath(
+  rawPath: unknown,
+  opts?: { allowOutsideRoots?: boolean }
+): Promise<string | null> {
   if (typeof rawPath !== 'string') return null;
 
   const raw = rawPath.trim();
@@ -296,6 +304,14 @@ export async function confinePath(rawPath: unknown): Promise<string | null> {
   // conversation workspaces from the DB (throttled) and retry once.
   await discoverWorkspaceRoots();
   if (isAuthorized(real)) return real;
+
+  // An explicit user gesture (drag-drop / paste of a specific file) authorizes
+  // THAT file even outside the static roots. Every form/traversal/symlink/
+  // sensitive-location guard above has already passed, so a secret like
+  // ~/.ssh/id_rsa is still rejected; this only widens where a deliberately
+  // chosen file may be read from. Opted into solely by the remote-denied
+  // copy-files-to-workspace path.
+  if (opts?.allowOutsideRoots) return real;
 
   console.warn(`[pathConfinement] Rejected out-of-root fs path: ${resolved}`);
   return null;

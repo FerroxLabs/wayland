@@ -210,6 +210,7 @@ export const PROTOCOL_SIGNATURES: ProtocolSignature[] = [
       /api\.minimaxi\.com/, // MiniMax China
       /api\.minimax\.io/, // MiniMax Global
       /platform\.minimaxi\.com/, // MiniMax Platform
+      /api\.sakana\.ai/, // Sakana AI
       /localhost/, // Local service
       /127\.0\.0\.1/, // Local service
       /0\.0\.0\.0/, // Local service

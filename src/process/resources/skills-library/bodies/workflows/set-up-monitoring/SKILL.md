@@ -29,6 +29,7 @@ metadata:
     resilience-engineer chaos-engineer cicd-architect shell-scripter
   disclaimer: none
   difficulty: intermediate
+  interactivity: "auto"
 ---
 # Set Up Monitoring
 

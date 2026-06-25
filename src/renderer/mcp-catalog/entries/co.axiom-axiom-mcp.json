@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "co.axiom/axiom-mcp",
+  "title": "Axiom",
+  "description": "Query and analyze logs and events with APL - Axiom’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://axiom.co/docs/console/intelligence/mcp-server",
+  "repository": {
+    "url": "https://axiom.co/docs/console/intelligence/mcp-server",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.axiom.co/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "observability",
+      "data"
+    ],
+    "tags": [
+      "axiom",
+      "logs",
+      "apl"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 138,
+    "installRate": 0,
+    "iconUrl": "icons/co.axiom-axiom-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Axiom",
+      "providerSignupUrl": "https://app.axiom.co"
+    },
+    "setupGuide": {
+      "path": "guides/co.axiom-axiom-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

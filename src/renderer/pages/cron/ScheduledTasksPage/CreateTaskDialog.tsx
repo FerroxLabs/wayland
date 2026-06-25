@@ -80,7 +80,7 @@ const WEEKDAYS = [
  * Infer frequency type and time/weekday from a cron expression for edit mode.
  * Returns 'custom' for expressions that don't match our preset formats.
  */
-function parseCronExpr(expr: string): { frequency: FrequencyType; time: string; weekday: string } {
+export function parseCronExpr(expr: string): { frequency: FrequencyType; time: string; weekday: string } {
   if (!expr) return { frequency: 'manual', time: '09:00', weekday: 'MON' };
 
   const parts = expr.trim().split(/\s+/);
@@ -104,12 +104,19 @@ function parseCronExpr(expr: string): { frequency: FrequencyType; time: string; 
   // Weekly: min hour * * DAY
   if (dow !== '*' && day === '*' && month === '*') {
     const dayUpper = dow.toUpperCase();
-    const matched = WEEKDAYS.find((d) => d.value === dayUpper);
-    if (matched) {
+    let weekday = WEEKDAYS.find((d) => d.value === dayUpper)?.value;
+    // Numeric day-of-week (0-7, where 0 and 7 both mean Sunday). The 12
+    // bundled routines use numeric DOW (e.g. '0 10 * * 3'); without this they
+    // fall through to daily 09:00 and silently lose their weekly schedule.
+    if (!weekday && /^[0-7]$/.test(dow)) {
+      const NUMERIC_DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+      weekday = NUMERIC_DOW[Number(dow)];
+    }
+    if (weekday) {
       const hh = String(hour).padStart(2, '0');
       const mm = String(min).padStart(2, '0');
       const time = `${hh}:${mm}`;
-      return { frequency: 'weekly', time, weekday: dayUpper };
+      return { frequency: 'weekly', time, weekday };
     }
     return { frequency: 'daily', time: '09:00', weekday: 'MON' };
   }

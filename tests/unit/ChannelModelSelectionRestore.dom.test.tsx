@@ -125,8 +125,15 @@ describe('useChannelModelSelection restore retry limit', () => {
   // Unmount the previous test's component so its retry effects can't leak calls
   // into the next test (under full-suite scheduling this double-counted
   // ConfigStorage.get). vi.clearAllMocks resets call counts, not the mounted DOM.
-  afterEach(() => {
+  // After unmount, fully drain any in-flight restore chains (async
+  // ConfigStorage.get -> setState -> re-render) so a previous test's late calls
+  // land in THIS test's window and get cleared by the next beforeEach, rather
+  // than bleeding into the next test's count under parallel-suite load.
+  afterEach(async () => {
     cleanup();
+    await act(async () => {
+      for (let i = 0; i < 10; i++) await Promise.resolve();
+    });
   });
 
   it('should stop retrying ConfigStorage.get after MAX_RESTORE_RETRIES when provider is stale', async () => {
@@ -166,7 +173,9 @@ describe('useChannelModelSelection restore retry limit', () => {
     // Without the fix, this would be 5 × 10+ = 50+ calls.
     const totalCalls = mockConfigStorageGet.mock.calls.length;
     expect(totalCalls).toBeLessThanOrEqual(5 * 5);
-  });
+    // The real-timer re-render loop above is slow under full-suite parallel load;
+    // give it headroom so it never trips the default 10s timeout.
+  }, 30000);
 
   it('should restore successfully when provider exists', async () => {
     mockConfigStorageGet.mockResolvedValue({ id: 'provider-1', useModel: 'model-a' });
@@ -179,9 +188,14 @@ describe('useChannelModelSelection restore retry limit', () => {
     await act(async () => {
       render(<ChannelModalContent />);
     });
+    // Let the restore effect settle (provider exists -> restored=true on the
+    // first get, so no retries follow and the count stabilizes at 5).
+    await act(async () => {
+      for (let i = 0; i < 5; i++) await Promise.resolve();
+    });
 
     // Each of the 5 channels should call ConfigStorage.get exactly once
     // (restored=true after finding the provider, so no retries)
     expect(mockConfigStorageGet).toHaveBeenCalledTimes(5);
-  });
+  }, 30000);
 });

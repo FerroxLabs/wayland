@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   appendSpeechTranscript,
   getSpeechInputAvailabilityForEnvironment,
+  mapSpeechInputError,
   pickRecordingMimeType,
   useSpeechInput,
 } from '@/renderer/hooks/system/useSpeechInput';
@@ -57,6 +58,28 @@ const installRecordingEnvironment = ({ getUserMedia }: { getUserMedia: () => Pro
 
   vi.stubGlobal('MediaRecorder', MockMediaRecorder);
 };
+
+describe('mapSpeechInputError', () => {
+  it('maps STT_FLUX_PREMIUM_LOCKED to premium-locked (not unknown)', () => {
+    expect(mapSpeechInputError(new Error('STT_FLUX_PREMIUM_LOCKED'))).toBe('premium-locked');
+  });
+
+  it('maps STT_FLUX_AUTH_ERROR to auth-error', () => {
+    expect(mapSpeechInputError(new Error('STT_FLUX_AUTH_ERROR'))).toBe('auth-error');
+  });
+
+  it('maps STT_RATE_LIMITED to rate-limited', () => {
+    expect(mapSpeechInputError(new Error('STT_RATE_LIMITED'))).toBe('rate-limited');
+  });
+
+  it('maps STT_FLUX_NOT_CONFIGURED to not-configured', () => {
+    expect(mapSpeechInputError(new Error('STT_FLUX_NOT_CONFIGURED'))).toBe('not-configured');
+  });
+
+  it('falls through to unknown for unrecognised error messages', () => {
+    expect(mapSpeechInputError(new Error('STT_SOMETHING_UNKNOWN'))).toBe('unknown');
+  });
+});
 
 describe('appendSpeechTranscript', () => {
   it('appends trimmed speech text on a new line when base content exists', () => {

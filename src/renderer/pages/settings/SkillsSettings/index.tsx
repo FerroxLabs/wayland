@@ -8,6 +8,7 @@ import { Button, Input, Switch } from '@arco-design/web-react';
 import { Download, Sparkles } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useSearchParams } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import { ipcBridge } from '@/common';
@@ -23,6 +24,7 @@ import './SkillsSettings.module.css';
 
 const SkillsSettings: React.FC = () => {
   const { t } = useTranslation(undefined, { keyPrefix: 'skills' });
+  const isMobile = useLayoutContext()?.isMobile ?? false;
 
   const [entries, setEntries] = useState<SkillIndexEntry[]>([]);
   const [stats, setStats] = useState<SkillStats | null>(null);
@@ -49,12 +51,17 @@ const SkillsSettings: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
-    const [list, s] = await Promise.all([
+    const [list, s, pinned] = await Promise.all([
       ipcBridge.skills.list.invoke({ type: 'skill' }),
       ipcBridge.skills.stats.invoke(),
+      ipcBridge.skills.getPinned.invoke(),
     ]);
     setEntries(list);
     setStats(s);
+    // Hydrate the pin stars from persisted prefs. Without this the stars reset
+    // to unchecked on every mount while the stats count still reflects the real
+    // pinned total - the desync reported in #72.
+    setPinnedNames(new Set(pinned));
   }, []);
 
   useEffect(() => {
@@ -80,7 +87,9 @@ const SkillsSettings: React.FC = () => {
     // Text search
     if (query.trim()) {
       const q = query.toLowerCase();
-      result = result.filter((e) => e.name.toLowerCase().includes(q) || e.description.toLowerCase().includes(q));
+      result = result.filter(
+        (e) => (e.name ?? '').toLowerCase().includes(q) || (e.description ?? '').toLowerCase().includes(q)
+      );
     }
 
     // Source filter (empty = show all)
@@ -180,12 +189,12 @@ const SkillsSettings: React.FC = () => {
         </div>
       ) : null}
 
-      <div className='flex items-center gap-10px'>
+      <div className='flex items-center gap-10px flex-wrap'>
         <Input.Search
           placeholder={t('search.placeholder')}
           value={query}
           onChange={(v) => setQuery(v)}
-          style={{ flex: 1, maxWidth: 'unset' }}
+          style={isMobile ? { flex: '1 1 100%', maxWidth: 'unset' } : { flex: 1, maxWidth: 'unset' }}
           allowClear
         />
         <Button
@@ -254,7 +263,7 @@ const SkillsSettings: React.FC = () => {
       />
 
       <div
-        className='skills-shell rd-12px overflow-hidden flex'
+        className={isMobile ? 'skills-shell rd-12px overflow-hidden flex flex-col' : 'skills-shell rd-12px overflow-hidden flex'}
         style={{
           background: 'var(--color-bg-2)',
           border: '1px solid var(--color-border-2)',

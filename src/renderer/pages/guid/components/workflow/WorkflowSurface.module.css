@@ -42,6 +42,15 @@
   background-color: var(--color-bg-2);
 }
 
+.viewToggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-base);
+  background-color: var(--color-bg-2);
+}
+
 .asks {
   display: flex;
   flex-direction: column;
@@ -56,6 +65,50 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* Inset the body content (notice + transcript + composer) from the sidebar
+     and the rail so it does not butt against the window edges. The header /
+     view-toggle dividers above stay full-width. */
+  padding: 0 24px;
+}
+
+/* When the run is waiting on the user, highlight the ONE composer in blue so it
+   is obvious where to type (paired with the blue "Needs you" notice + auto-focus). */
+.children[data-needsinput='true'] :global(.sendbox-panel) {
+  border-color: var(--color-link-6, #3b82f6) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-link-6, #3b82f6) 22%, transparent) !important;
+}
+
+/* Continue affordance for an `awaiting_input` step-mode run (Phase 2c). A
+ * non-blocking banner above the chat tape; the user reviews the just-completed
+ * step, then clicks Continue to resume the driver loop. */
+.continueBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 16px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--color-primary-light-3);
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--color-primary-light-1) 30%, var(--color-bg-2));
+}
+
+.continueText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.continueText strong {
+  font-size: 13px;
+  color: var(--color-text-1);
+}
+
+.continueText span {
+  font-size: 12px;
+  color: var(--color-text-3);
 }
 
 .right {

@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { GuidSendDeps } from '../../src/renderer/pages/guid/hooks/useGuidSend';
+import type { TProviderWithModel } from '../../src/common/config/storage';
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks
@@ -231,21 +232,54 @@ describe('useGuidSend', () => {
   });
 
   describe('isButtonDisabled', () => {
+    // A minimal connected-model binding so the input-gate tests isolate input
+    // from the no-model gate that drives the new-chat CTA + disabled send (#52).
+    const MODEL = { useModel: 'test-model', name: 'Test', platform: 'remote' } as unknown as TProviderWithModel;
+
     it('is true when input is empty', () => {
-      const deps = makeDeps({ input: '' });
+      const deps = makeDeps({ input: '', currentModel: MODEL });
       const { result } = renderHook(() => useGuidSend(deps));
       expect(result.current.isButtonDisabled).toBe(true);
     });
 
     it('is true when input is whitespace only', () => {
-      const deps = makeDeps({ input: '   ' });
+      const deps = makeDeps({ input: '   ', currentModel: MODEL });
       const { result } = renderHook(() => useGuidSend(deps));
       expect(result.current.isButtonDisabled).toBe(true);
     });
 
     it('is false when input has content', () => {
-      const deps = makeDeps({ input: 'hello' });
+      const deps = makeDeps({ input: 'hello', currentModel: MODEL });
       const { result } = renderHook(() => useGuidSend(deps));
+      expect(result.current.isButtonDisabled).toBe(false);
+    });
+
+    it('is true when no model is configured on a model-gated backend (wcore)', () => {
+      const deps = makeDeps({
+        input: 'hello',
+        selectedAgent: 'wcore',
+        currentEffectiveAgentInfo: { agentType: 'wcore', isAvailable: true },
+        currentModel: undefined,
+        isGoogleAuth: false,
+      });
+      const { result } = renderHook(() => useGuidSend(deps));
+      expect(result.current.isButtonDisabled).toBe(true);
+      expect(result.current.noModelConfigured).toBe(true);
+    });
+
+    it('is false for an ACP/CLI agent with no model (#119 - Claude Code)', () => {
+      // ACP/CLI agents spawn their own model and the send path never rejects on
+      // a missing one, so the no-model gate must not disable the Send button.
+      const deps = makeDeps({
+        input: 'hello',
+        selectedAgent: 'claude',
+        isPresetAgent: false,
+        currentEffectiveAgentInfo: { agentType: 'claude', isAvailable: true },
+        currentModel: undefined,
+        isGoogleAuth: false,
+      });
+      const { result } = renderHook(() => useGuidSend(deps));
+      expect(result.current.noModelConfigured).toBe(false);
       expect(result.current.isButtonDisabled).toBe(false);
     });
   });

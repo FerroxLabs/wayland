@@ -5,6 +5,7 @@
  */
 
 import type { TChatConversation } from '@/common/config/storage';
+import type { IProject } from '@/common/types/project';
 import { getActivityTime } from '@/renderer/utils/chat/timeline';
 import { getWorkspaceDisplayName } from '@/renderer/utils/workspace/workspace';
 import { getWorkspaceUpdateTime } from '@/renderer/utils/workspace/workspaceHistory';
@@ -32,8 +33,14 @@ export const getConversationPinnedAt = (conversation: TChatConversation): number
 
 export const groupConversationsByWorkspace = (
   conversations: TChatConversation[],
-  t: (key: string) => string
+  t: (key: string) => string,
+  projects: IProject[] = []
 ): TimelineSection[] => {
+  // Build a lookup from workspace path → project name so workspace groups show
+  // the user-defined project name instead of the raw folder basename.
+  const projectNameByWorkspace = new Map<string, string>(
+    projects.filter((p) => p.workspace).map((p) => [p.workspace as string, p.name])
+  );
   const allWorkspaceGroups = new Map<string, TChatConversation[]>();
   const withoutWorkspaceConvs: TChatConversation[] = [];
 
@@ -63,7 +70,7 @@ export const groupConversationsByWorkspace = (
       time,
       workspaceGroup: {
         workspace,
-        displayName: getWorkspaceDisplayName(workspace),
+        displayName: getWorkspaceDisplayName(workspace, undefined, projectNameByWorkspace.get(workspace)),
         conversations: sortedConvs,
       },
     });
@@ -97,7 +104,8 @@ const isScopedConversation = (conversation: TChatConversation): boolean => {
 
 export const buildGroupedHistory = (
   conversations: TChatConversation[],
-  t: (key: string) => string
+  t: (key: string) => string,
+  projects: IProject[] = []
 ): GroupedHistoryResult => {
   // Filter out scoped conversations; they are only visible via their owning surface.
   const visibleConversations = conversations.filter((conv) => !isScopedConversation(conv));
@@ -119,6 +127,6 @@ export const buildGroupedHistory = (
 
   return {
     pinnedConversations,
-    timelineSections: groupConversationsByWorkspace(normalConversations, t),
+    timelineSections: groupConversationsByWorkspace(normalConversations, t, projects),
   };
 };

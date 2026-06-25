@@ -85,35 +85,37 @@ describe('renderer i18n localStorage guards', () => {
     vi.restoreAllMocks();
   });
 
+  // The dynamic import re-evaluates the i18n module graph (vi.resetModules), which
+  // is slow under full-suite parallel load; poll for the async init to settle via
+  // vi.waitFor instead of a fixed number of microtask flushes, and give each test
+  // headroom over the default 10s timeout.
   it('initializes without localStorage and still loads the saved language', async () => {
     await import('@/renderer/services/i18n');
-    await Promise.resolve();
-    await Promise.resolve();
 
-    expect(mockI18n.init).toHaveBeenCalledWith(
-      expect.objectContaining({
-        lng: 'en-US',
-      })
+    await vi.waitFor(
+      () => {
+        expect(mockI18n.init).toHaveBeenCalledWith(expect.objectContaining({ lng: 'en-US' }));
+        expect(mockI18n.changeLanguage).toHaveBeenCalledWith('ja-JP');
+      },
+      { timeout: 5000 }
     );
-    expect(mockI18n.changeLanguage).toHaveBeenCalledWith('ja-JP');
-  });
+  }, 30000);
 
   it('updates language from the main-process broadcast without touching localStorage', async () => {
     await import('@/renderer/services/i18n');
-    await Promise.resolve();
+    await vi.waitFor(() => expect(mockOnLanguageChanged.handler).toBeDefined(), { timeout: 5000 });
 
     await mockOnLanguageChanged.handler?.({ language: 'ko-KR' });
 
     expect(mockI18n.changeLanguage).toHaveBeenCalledWith('ko-KR');
-  });
+  }, 30000);
 
   it('persists language through ConfigStorage even when localStorage is unavailable', async () => {
     const module = await import('@/renderer/services/i18n');
-    await Promise.resolve();
 
     await module.changeLanguage('tr');
 
     expect(mockConfigStorageSet).toHaveBeenCalledWith('language', 'tr-TR');
     expect(mockChangeLanguageInvoke).toHaveBeenCalledWith({ language: 'tr-TR' });
-  });
+  }, 30000);
 });

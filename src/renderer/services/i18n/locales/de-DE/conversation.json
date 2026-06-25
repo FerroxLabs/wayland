@@ -86,7 +86,10 @@
     "closeAll": "Alle schließen",
     "closeLeft": "Nach links schließen",
     "closeRight": "Nach rechts schließen",
-    "closeOthers": "Andere schließen"
+    "closeOthers": "Andere schließen",
+    "popOut": "Abdocken",
+    "dockBack": "Andocken",
+    "poppedOut": "In separatem Fenster geöffnet"
   },
   "dropdown": {
     "cliAgents": "CLI-Agenten",
@@ -230,6 +233,9 @@
       "permissionDenied": "Mikrofonberechtigung wurde verweigert",
       "recordingUnsupported": "Live-Aufnahme wird hier nicht unterstützt. Bitte stattdessen eine Audiodatei hochladen",
       "transcriptionFailed": "Audiotranskription fehlgeschlagen",
+      "authError": "Flux-Schlüssel ist ungültig – verbinde Flux Router erneut, um die Spracheingabe zu nutzen",
+      "premiumLocked": "Flux Voice erfordert ein kostenpflichtiges Flux-Abo – führe ein Upgrade durch, um zu diktieren",
+      "rateLimited": "Zu viele Anfragen – bitte versuche es in Kürze erneut",
       "genericError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen"
     }
   },
@@ -330,5 +336,89 @@
       "sublabel": "Läuft über deine bestehende Claude-Code-Anmeldung – kein zusätzlicher Schlüssel nötig.",
       "action": "Verwenden"
     }
+  },
+  "noModelCta": {
+    "title": "No model configured yet",
+    "bodyDesktop": "Set one up to start chatting.",
+    "bodyRemote": "Connect Flux or set up a model on the server to start chatting.",
+    "button": "Set up a model",
+    "sendTooltip": "Connect a model to start sending"
+  },
+  "acpAuthFailure": {
+    "title": "{{backend}} kann sich hier nicht anmelden",
+    "subscriptionExplainer": "Der Anbieter blockiert Abo-Anmeldungen in Tools von Drittanbietern wie diesem. Um {{backend}} hier weiter zu nutzen, leite es über Flux Router, füge einen Provider-API-Schlüssel hinzu oder melde dich direkt in der CLI an.",
+    "genericExplainer": "{{backend}} konnte nicht authentifiziert werden. Leite es über Flux Router, füge einen Provider-API-Schlüssel hinzu oder melde dich in der CLI an, um das zu beheben.",
+    "wcoreExplainer": "Wayland Core konnte nicht authentifiziert werden. Der Inferenzanbieter hat den API-Schlüssel abgelehnt (401). Anders als Claude Code hat Wayland Core keine Abo-Anmeldung als Rückfallebene. Füge daher einen funktionierenden Provider-Schlüssel hinzu oder leite es über Flux Router.",
+    "flux": {
+      "label": "Über Flux leiten",
+      "sublabel": "Intelligentes Routing wählt das richtige Modell für jede Aufgabe. Starte kostenlos mit einem Guthaben von 1 $, dann zahle nach Verbrauch oder wähle einen Tarif.",
+      "action": "Leiten"
+    },
+    "addKey": {
+      "label": "{{provider}}-API-Schlüssel hinzufügen",
+      "sublabel": "Öffne die Einstellungen und füge einen API-Schlüssel aus der Konsole deines Anbieters ein.",
+      "action": "Schlüssel hinzufügen",
+      "labelAny": "Beliebigen Anbieter-API-Schlüssel hinzufügen"
+    },
+    "cliLogin": {
+      "label": "In der CLI anmelden",
+      "sublabel": "Führe {{cmd}} aus, um dich mit deinem Abo anzumelden, und sende die Nachricht dann erneut.",
+      "action": "Befehl kopieren",
+      "copied": "Befehl kopiert"
+    },
+    "dismiss": "Schließen",
+    "recommended": "(empfohlen)"
+  },
+  "composerMenu": {
+    "skills": "Skills",
+    "connectors": "Connectors",
+    "countOn": "{{count}} on",
+    "skillsTitle": "Skills on this chat",
+    "skillsSub": "Only these load by default. Everything else stays one search away.",
+    "onThisChat": "On this chat",
+    "searchPlaceholder": "Search skills…",
+    "suggestedFor": "Suggested for “{{draft}}”",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noResults": "No skills match “{{query}}”.",
+    "manageAllSkills": "Manage all skills",
+    "tagBuiltin": "builtin",
+    "tagAdded": "added",
+    "toggleAria": "Toggle {{name}}",
+    "connectorsTitle": "Connectors",
+    "connectorsSub": "Turn a connected MCP server on or off.",
+    "connectorsConnected": "Connected",
+    "toolCount": "{{count}} tools",
+    "noConnectors": "No connectors installed yet.",
+    "addConnector": "Add a connector",
+    "manageConnectors": "Manage connectors"
+  },
+  "modelSelector": {
+    "title": "Model",
+    "subtitle": "Pick a model for this chat. Only what you have connected shows.",
+    "enabledCount": "{{count}} enabled",
+    "recommended": "Recommended",
+    "searchPlaceholder": "Search models…",
+    "modelCount": "{{count}} models",
+    "moreModels": "More models",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noMatch": "No models match “{{query}}”.",
+    "unavailable": "Currently unavailable",
+    "pinAria": "Pin {{name}}",
+    "unpinAria": "Unpin {{name}}",
+    "effort": "Effort",
+    "effortLow": "Low",
+    "effortMedium": "Medium",
+    "effortHigh": "High",
+    "effortLowDesc": "Fast responses with lighter reasoning",
+    "effortMediumDesc": "Balances speed and reasoning depth",
+    "effortHighDesc": "Greater reasoning depth for complex problems",
+    "emptyTitle": "No models yet",
+    "emptySub": "Connect a provider to choose a model.",
+    "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
+    "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
+    "connectProvider": "Connect a provider",
+    "manageModels": "Manage models"
   }
 }

@@ -21,6 +21,7 @@ metadata:
   depends: ci-cd-pipeline-design github-actions docker-engineer deployment-strategies monitoring-alerting
   disclaimer: none
   difficulty: intermediate
+  interactivity: "auto"
 ---
 
 # Set Up CI/CD Pipeline

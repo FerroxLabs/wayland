@@ -22,6 +22,7 @@ import {
   CODEX_ACP_BRIDGE_VERSION,
   CODEX_ACP_NPX_PACKAGE,
 } from '@/common/types/acpTypes';
+import { resolveBridgePackage } from './bridgeVersionResolver';
 import {
   findSuitableNodeBin,
   getEnhancedEnv,
@@ -682,15 +683,21 @@ export function connectClaude(
   hooks: NpxConnectHooks,
   customEnv?: Record<string, string>
 ): Promise<void> {
-  return connectNpxBackend({
-    backend: 'claude',
-    npxPackage: CLAUDE_ACP_NPX_PACKAGE,
-    prepareFn: prepareClaude,
-    workingDir,
-    ...hooks,
-    customEnv,
-    detached: process.platform !== 'win32',
-  });
+  return (async () => {
+    // Resolve the LATEST published claude-agent-acp at spawn time (new models /
+    // features) instead of a stale pin; falls back to CLAUDE_ACP_NPX_PACKAGE
+    // offline. Cached for hours so this is a no-op after the first spawn.
+    const npxPackage = await resolveBridgePackage(CLAUDE_ACP_NPX_PACKAGE);
+    return connectNpxBackend({
+      backend: 'claude',
+      npxPackage,
+      prepareFn: prepareClaude,
+      workingDir,
+      ...hooks,
+      customEnv,
+      detached: process.platform !== 'win32',
+    });
+  })();
 }
 
 /** Connect to Codex ACP bridge via npx. */
@@ -701,10 +708,13 @@ export function connectCodex(
 ): Promise<void> {
   return (async () => {
     const codexPlatformPackage = resolvePreferredCodexAcpPlatformPackage();
+    // Resolve the latest published codex-acp at spawn time (fallback to the
+    // pinned CODEX_ACP_NPX_PACKAGE offline).
+    const codexAcpPackage = await resolveBridgePackage(CODEX_ACP_NPX_PACKAGE);
     const preferDirectPackage = codexPlatformPackage !== null && shouldPreferDirectCodexAcpPackage();
     const codexPackageCandidates = preferDirectPackage
-      ? [codexPlatformPackage, CODEX_ACP_NPX_PACKAGE]
-      : [CODEX_ACP_NPX_PACKAGE, ...(codexPlatformPackage ? [codexPlatformPackage] : [])];
+      ? [codexPlatformPackage, codexAcpPackage]
+      : [codexAcpPackage, ...(codexPlatformPackage ? [codexPlatformPackage] : [])];
 
     let lastError: Error | null = null;
 
@@ -730,7 +740,7 @@ export function connectCodex(
           index === 0 &&
           !preferDirectPackage &&
           codexPlatformPackage !== null &&
-          npxPackage === CODEX_ACP_NPX_PACKAGE &&
+          npxPackage === codexAcpPackage &&
           isCodexMetaPackageOptionalDependencyError(lastError.message);
         const hasRemainingCandidates = index < codexPackageCandidates.length - 1;
 
@@ -768,13 +778,16 @@ export function connectCodex(
 
 /** Connect to CodeBuddy ACP via npx. */
 export function connectCodebuddy(workingDir: string, hooks: NpxConnectHooks): Promise<void> {
-  return connectNpxBackend({
-    backend: 'codebuddy',
-    npxPackage: CODEBUDDY_ACP_NPX_PACKAGE,
-    prepareFn: prepareCodebuddy,
-    workingDir,
-    ...hooks,
-    extraArgs: ['--acp'],
-    detached: process.platform !== 'win32',
-  });
+  return (async () => {
+    const npxPackage = await resolveBridgePackage(CODEBUDDY_ACP_NPX_PACKAGE);
+    return connectNpxBackend({
+      backend: 'codebuddy',
+      npxPackage,
+      prepareFn: prepareCodebuddy,
+      workingDir,
+      ...hooks,
+      extraArgs: ['--acp'],
+      detached: process.platform !== 'win32',
+    });
+  })();
 }

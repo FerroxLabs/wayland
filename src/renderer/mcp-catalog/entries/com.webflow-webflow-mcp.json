@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.webflow/webflow-mcp",
+  "title": "Webflow",
+  "description": "Read and write site data, CMS collections and schemas, and generate code - Webflow’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://developers.webflow.com/mcp/reference/getting-started",
+  "repository": {
+    "url": "https://github.com/webflow/mcp-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.webflow.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "design",
+      "productivity"
+    ],
+    "tags": [
+      "webflow",
+      "cms",
+      "website"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 145,
+    "installRate": 0,
+    "iconUrl": "icons/com.webflow-webflow-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#146EF5"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Webflow",
+      "providerSignupUrl": "https://webflow.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.webflow-webflow-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

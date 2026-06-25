@@ -1,0 +1,73 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.twilio/twilio-mcp",
+  "title": "Twilio",
+  "description": "Send SMS, place calls, and reach the full Twilio API surface - Twilio Alpha's official MCP.",
+  "version": "0.7.0",
+  "websiteUrl": "https://github.com/twilio-labs/mcp",
+  "repository": {
+    "url": "https://github.com/twilio-labs/mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@twilio-alpha/mcp",
+      "version": "0.7.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeArguments": [
+        "{{TWILIO_CREDENTIALS}}"
+      ],
+      "environmentVariables": [
+        {
+          "name": "TWILIO_CREDENTIALS",
+          "description": "AccountSID/APIKeySID:APIKeySecret",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "communication"
+    ],
+    "tags": [
+      "twilio",
+      "sms",
+      "voice"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 202,
+    "installRate": 0,
+    "iconUrl": "icons/com.twilio-twilio-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#F22F46"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Twilio",
+      "providerSignupUrl": "https://console.twilio.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.twilio-twilio-mcp.md",
+      "estimatedMinutes": 4,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

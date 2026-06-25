@@ -38,6 +38,7 @@
 import { randomUUID } from 'crypto';
 import type { TProviderWithModel } from '@/common/config/storage';
 import type { AgentBackend } from '@/common/types/acpTypes';
+import { mapDispatchErrorToModelUnavailable } from '@process/utils/modelAvailabilityError';
 import type { CreateConversationParams, IConversationService } from '../IConversationService';
 import type { UsageEventLogger } from '../usage/UsageEventLogger';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
@@ -93,13 +94,7 @@ export async function dispatchAutonomousStep(
   deps: AutonomousDispatchDeps
 ): Promise<AutonomousDispatchResult> {
   const { parentSessionId, stepN } = params;
-  const {
-    workflowSessionService,
-    conversationService,
-    workerTaskManager,
-    telemetry,
-    getDefaultModel,
-  } = deps;
+  const { workflowSessionService, conversationService, workerTaskManager, telemetry, getDefaultModel } = deps;
 
   // 1. Load parent session.
   const parent = await workflowSessionService.findById(parentSessionId);
@@ -110,9 +105,7 @@ export async function dispatchAutonomousStep(
   // 2. Resolve target step.
   const step = parent.steps.find((s) => s.n === stepN);
   if (step === undefined) {
-    throw new Error(
-      `dispatchAutonomousStep: step ${stepN} not found in session ${parentSessionId}`
-    );
+    throw new Error(`dispatchAutonomousStep: step ${stepN} not found in session ${parentSessionId}`);
   }
 
   // 2b. Double-dispatch guard (W2). A step that already has a running worker, or
@@ -127,9 +120,7 @@ export async function dispatchAutonomousStep(
     );
   }
   if (step.status === 'done') {
-    throw new Error(
-      `dispatchAutonomousStep: step ${stepN} in session ${parentSessionId} is already done`
-    );
+    throw new Error(`dispatchAutonomousStep: step ${stepN} in session ${parentSessionId} is already done`);
   }
 
   // 3. Reuse the parent conversation's backend type so the child runs on
@@ -139,9 +130,7 @@ export async function dispatchAutonomousStep(
   //    same source `WorkflowSessionService.start()` uses.
   const parentConv = await conversationService.getConversation(parent.conversation_id);
   if (parentConv === undefined) {
-    throw new Error(
-      `dispatchAutonomousStep: parent conversation ${parent.conversation_id} not found`
-    );
+    throw new Error(`dispatchAutonomousStep: parent conversation ${parent.conversation_id} not found`);
   }
   const childType = parentConv.type as CreateConversationParams['type'];
   const childModel = await getDefaultModel();
@@ -153,13 +142,16 @@ export async function dispatchAutonomousStep(
   // undefined") - the step never runs. Carry the parent's backend identity
   // through. (FINDING-2.)
   const parentExtra = (parentConv.extra ?? {}) as Record<string, unknown>;
-  const inheritedBackend =
-    typeof parentExtra.backend === 'string' ? (parentExtra.backend as AgentBackend) : undefined;
+  const inheritedBackend = typeof parentExtra.backend === 'string' ? (parentExtra.backend as AgentBackend) : undefined;
   const inheritedCliPath = typeof parentExtra.cliPath === 'string' ? parentExtra.cliPath : undefined;
-  const inheritedAgentName =
-    typeof parentExtra.agentName === 'string' ? parentExtra.agentName : undefined;
-  const inheritedSessionMode =
-    typeof parentExtra.sessionMode === 'string' ? parentExtra.sessionMode : undefined;
+  const inheritedAgentName = typeof parentExtra.agentName === 'string' ? parentExtra.agentName : undefined;
+  const inheritedSessionMode = typeof parentExtra.sessionMode === 'string' ? parentExtra.sessionMode : undefined;
+  // Inherit the model the user selected for the workflow. ACP backends (codex
+  // in particular) read this at spawn; without it the child worker falls back
+  // to the CLI default model (e.g. gpt-5.3-codex), which a ChatGPT-account
+  // user cannot use. (GitHub #111.)
+  const inheritedModelId =
+    typeof parentExtra.currentModelId === 'string' ? parentExtra.currentModelId : undefined;
 
   const dispatchId = randomUUID();
   const childName = `${parent.workflow_title} - Step ${stepN}`;
@@ -177,6 +169,7 @@ export async function dispatchAutonomousStep(
       cliPath: inheritedCliPath,
       agentName: inheritedAgentName,
       sessionMode: inheritedSessionMode,
+      ...(inheritedModelId ? { currentModelId: inheritedModelId } : {}),
       autonomousDispatch: {
         parentWorkflowSessionId: parentSessionId,
         stepN,
@@ -215,16 +208,18 @@ export async function dispatchAutonomousStep(
   //    30 min later.
   const directive = composeDirective(stepN, step.title, step.body_excerpt);
   const task = await workerTaskManager.getOrBuildTask(childConversationId);
-  try {
-    await task.sendMessage({
-      input: directive,
-      msg_id: randomUUID(),
-      conversation_id: childConversationId,
-      content: directive,
-      files: [],
-      agentContent: directive,
-    });
-  } catch (err) {
+
+  // Fail the step fast (errored) and surface a clear cause on any send failure
+  // instead of leaving it `running` for the 30-min watchdog. Two failure shapes
+  // must be handled (Issue #22):
+  //   - THROWN: session-start timeout, transport crash, etc. → caught below.
+  //   - RETURNED: the agent manager catches a failed turn internally and returns
+  //     `{ success: false, msg }` WITHOUT throwing (an over-listed/unavailable
+  //     model makes the backend reject with model_not_found here). That returned
+  //     failure was previously ignored, so the step sat `running` and the
+  //     Workflows tab broke with no cause. Inspect the result and treat
+  //     `success === false` as a dispatch failure too.
+  const failStepAndMapError = async (err: unknown): Promise<never> => {
     await workflowSessionService.recordAutonomousCompletion(parentSessionId, stepN, false);
     await workflowSessionService.applyStepTransition(parentSessionId, {
       step_n: stepN,
@@ -233,7 +228,38 @@ export async function dispatchAutonomousStep(
       dispatch_id: dispatchId,
       timestamp: Date.now(),
     });
-    throw err;
+    // When the chosen model is rejected as not-found/unavailable, the raw backend
+    // error is opaque ("model_not_found", a 404, "无可用渠道"). Map it to a clear,
+    // actionable error naming the model + backend so the user knows to pick
+    // another model. Any other failure (auth, network, timeout) is re-thrown
+    // unchanged - those have their own handling.
+    const modelError = mapDispatchErrorToModelUnavailable(err, {
+      modelId: childModel.useModel,
+      backend: inheritedBackend ?? childType,
+    });
+    throw modelError ?? (err instanceof Error ? err : new Error(String(err)));
+  };
+
+  try {
+    // `IAgentManager.sendMessage` is typed `Promise<void>`, but concrete managers
+    // (e.g. AcpAgentManager) resolve a `{ success, msg }` result on a turn that
+    // failed without throwing. Read it back defensively.
+    const sendResult = (await task.sendMessage({
+      input: directive,
+      msg_id: randomUUID(),
+      conversation_id: childConversationId,
+      content: directive,
+      files: [],
+      agentContent: directive,
+    })) as { success?: boolean; msg?: string; message?: string; error?: { message?: string } } | void;
+
+    if (sendResult && sendResult.success === false) {
+      const detail =
+        sendResult.error?.message ?? sendResult.msg ?? sendResult.message ?? 'The agent could not complete this step.';
+      await failStepAndMapError(new Error(detail));
+    }
+  } catch (err) {
+    await failStepAndMapError(err);
   }
 
   // 7. Telemetry.

@@ -231,6 +231,26 @@ describe('WorkspaceSnapshotService', () => {
       expect(modified!.operation).toBe('modify');
     });
 
+    // #251: a file whose only change is its executable/mode bit (no content
+    // diff) must NOT be reported as modified in the Changes panel.
+    it('compare ignores a mode-only change with no content diff', async () => {
+      await service.init(tmpDir);
+      await fs.chmod(path.join(tmpDir, 'initial.txt'), 0o755);
+
+      const { staged, unstaged } = await service.compare(tmpDir);
+      expect(unstaged.find((c) => c.relativePath === 'initial.txt')).toBeUndefined();
+      expect(staged.find((c) => c.relativePath === 'initial.txt')).toBeUndefined();
+    });
+
+    it('compare still reports a file changed in both mode and content', async () => {
+      await service.init(tmpDir);
+      await fs.chmod(path.join(tmpDir, 'initial.txt'), 0o755);
+      await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'changed content');
+
+      const { unstaged } = await service.compare(tmpDir);
+      expect(unstaged.find((c) => c.relativePath === 'initial.txt')).toBeDefined();
+    });
+
     it('compare shows untracked file as unstaged create', async () => {
       await service.init(tmpDir);
       await fs.writeFile(path.join(tmpDir, 'newfile.txt'), 'new');

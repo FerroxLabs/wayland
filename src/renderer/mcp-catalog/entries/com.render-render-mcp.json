@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.render/render-mcp",
+  "title": "Render",
+  "description": "Manage services, Postgres, key-value stores, metrics, and logs - Render’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://render.com/docs/mcp-server",
+  "repository": {
+    "url": "https://github.com/render-oss/render-mcp-server",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.render.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "infrastructure",
+      "devops"
+    ],
+    "tags": [
+      "render",
+      "deploy",
+      "hosting"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 123,
+    "installRate": 0,
+    "iconUrl": "icons/com.render-render-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#5E5BFF"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Render",
+      "providerSignupUrl": "https://dashboard.render.com/u/settings/api-keys"
+    },
+    "setupGuide": {
+      "path": "guides/com.render-render-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

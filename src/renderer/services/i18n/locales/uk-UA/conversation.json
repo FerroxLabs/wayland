@@ -86,7 +86,10 @@
     "closeAll": "Закрити всі",
     "closeLeft": "Закрити зліва",
     "closeRight": "Закрити справа",
-    "closeOthers": "Закрити інші"
+    "closeOthers": "Закрити інші",
+    "popOut": "В окреме вікно",
+    "dockBack": "Повернути на місце",
+    "poppedOut": "Відкрито в окремому вікні"
   },
   "dropdown": {
     "cliAgents": "CLI Агенти",
@@ -229,6 +232,9 @@
       "permissionDenied": "Доступ до мікрофона відхилено",
       "recordingUnsupported": "Запис у реальному часі не підтримується. Будь ласка, завантажте аудіофайл",
       "transcriptionFailed": "Не вдалося транскрибувати аудіо",
+      "authError": "Ключ Flux недійсний — повторно під’єднайте Flux Router, щоб користуватися голосовим вводом",
+      "premiumLocked": "Flux Voice потребує платного тарифу Flux — оновіть його, щоб користуватися диктуванням",
+      "rateLimited": "Забагато запитів — спробуйте ще раз трохи згодом",
       "genericError": "Помилка голосового введення. Спробуйте ще раз",
       "emptyTranscript": "Мовлення не виявлено"
     }
@@ -330,5 +336,89 @@
       "sublabel": "Працює з вашим наявним входом у Claude Code — без додаткових ключів.",
       "action": "Використати"
     }
+  },
+  "noModelCta": {
+    "title": "No model configured yet",
+    "bodyDesktop": "Set one up to start chatting.",
+    "bodyRemote": "Connect Flux or set up a model on the server to start chatting.",
+    "button": "Set up a model",
+    "sendTooltip": "Connect a model to start sending"
+  },
+  "acpAuthFailure": {
+    "title": "{{backend}} не може ввійти тут",
+    "subscriptionExplainer": "Постачальник блокує вхід за підпискою всередині сторонніх інструментів, як-от цей. Щоб продовжити користуватися {{backend}} тут, спрямуйте його через Flux Router, додайте API-ключ постачальника або ввійдіть безпосередньо в CLI.",
+    "genericExplainer": "Не вдалося автентифікувати {{backend}}. Спрямуйте його через Flux Router, додайте API-ключ постачальника або ввійдіть у CLI, щоб це виправити.",
+    "wcoreExplainer": "Не вдалося автентифікувати Wayland Core. Постачальник інференсу відхилив API-ключ (401). На відміну від Claude Code, у Wayland Core немає входу за підпискою як запасного варіанта, тож додайте робочий ключ постачальника або спрямуйте його через Flux Router.",
+    "flux": {
+      "label": "Спрямувати через Flux",
+      "sublabel": "Розумна маршрутизація обирає потрібну модель для кожного завдання. Почніть безкоштовно з кредитом у 1 $, потім платіть за використання або оберіть тарифний план.",
+      "action": "Спрямувати"
+    },
+    "addKey": {
+      "label": "Додати API-ключ {{provider}}",
+      "sublabel": "Відкрийте «Налаштування» та вставте API-ключ із консолі вашого постачальника.",
+      "action": "Додати ключ",
+      "labelAny": "Додайте API-ключ будь-якого провайдера"
+    },
+    "cliLogin": {
+      "label": "Увійти в CLI",
+      "sublabel": "Виконайте {{cmd}}, щоб увійти за своєю підпискою, а потім надішліть повідомлення ще раз.",
+      "action": "Скопіювати команду",
+      "copied": "Команду скопійовано"
+    },
+    "dismiss": "Закрити",
+    "recommended": "(рекомендовано)"
+  },
+  "composerMenu": {
+    "skills": "Skills",
+    "connectors": "Connectors",
+    "countOn": "{{count}} on",
+    "skillsTitle": "Skills on this chat",
+    "skillsSub": "Only these load by default. Everything else stays one search away.",
+    "onThisChat": "On this chat",
+    "searchPlaceholder": "Search skills…",
+    "suggestedFor": "Suggested for “{{draft}}”",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noResults": "No skills match “{{query}}”.",
+    "manageAllSkills": "Manage all skills",
+    "tagBuiltin": "builtin",
+    "tagAdded": "added",
+    "toggleAria": "Toggle {{name}}",
+    "connectorsTitle": "Connectors",
+    "connectorsSub": "Turn a connected MCP server on or off.",
+    "connectorsConnected": "Connected",
+    "toolCount": "{{count}} tools",
+    "noConnectors": "No connectors installed yet.",
+    "addConnector": "Add a connector",
+    "manageConnectors": "Manage connectors"
+  },
+  "modelSelector": {
+    "title": "Model",
+    "subtitle": "Pick a model for this chat. Only what you have connected shows.",
+    "enabledCount": "{{count}} enabled",
+    "recommended": "Recommended",
+    "searchPlaceholder": "Search models…",
+    "modelCount": "{{count}} models",
+    "moreModels": "More models",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noMatch": "No models match “{{query}}”.",
+    "unavailable": "Currently unavailable",
+    "pinAria": "Pin {{name}}",
+    "unpinAria": "Unpin {{name}}",
+    "effort": "Effort",
+    "effortLow": "Low",
+    "effortMedium": "Medium",
+    "effortHigh": "High",
+    "effortLowDesc": "Fast responses with lighter reasoning",
+    "effortMediumDesc": "Balances speed and reasoning depth",
+    "effortHighDesc": "Greater reasoning depth for complex problems",
+    "emptyTitle": "No models yet",
+    "emptySub": "Connect a provider to choose a model.",
+    "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
+    "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
+    "connectProvider": "Connect a provider",
+    "manageModels": "Manage models"
   }
 }

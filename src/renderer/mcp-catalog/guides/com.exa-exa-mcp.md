@@ -3,13 +3,12 @@ guideVersion: 1.1.0
 estimatedMinutes: 2
 steps:
   - id: install
-    title: Install the MCP server
+    title: Connect the hosted server
     estSeconds: 30
     autoCompletedByInstall: true
     body: |
-      Wayland fetches `exa-mcp-server` from npm via `npx` on first launch -
-      no manual install needed. If the server fails to start later,
-      reinstall from this page.
+      Exa runs as a hosted MCP server at `mcp.exa.ai` - nothing to install or
+      run locally. Wayland connects directly once you add your API key below.
   - id: api-key
     title: Paste your Exa API key
     estSeconds: 60

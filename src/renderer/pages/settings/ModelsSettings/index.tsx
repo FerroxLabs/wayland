@@ -13,6 +13,8 @@ import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageS
 import SettingsPageWrapper from '@renderer/pages/settings/components/SettingsPageWrapper';
 import { ModelRegistryProvider, useModelRegistry, useRefreshState } from '@renderer/hooks/useModelRegistry';
 import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
+import { isElectronDesktop } from '@renderer/utils/platform';
+import { connectProviderHttp } from '@renderer/services/ProviderKeyService';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
@@ -94,8 +96,15 @@ export function getPendingDeepLinkSeed(): { apiKey?: string; baseUrl?: string } 
  */
 const ModelsSettingsInner: React.FC = () => {
   const { t } = useTranslation();
-  const { providers, loading, error, connect, detectKeys, refreshAll } = useModelRegistry();
+  const { providers, loading, error, connect, detectKeys, refreshAll, reload } = useModelRegistry();
   const refreshState = useRefreshState();
+
+  // In a remote/WebUI (headless) session the bridge denylist blocks
+  // `modelRegistry.connect` / `detectKeys` (they would return a decrypted key to
+  // a remote caller), so the key-entry and connect controls can never succeed.
+  // Rather than let them spin forever, replace them with operator guidance and
+  // keep only the read-only list + refresh path (which remains remote-allowed).
+  const headless = !isElectronDesktop();
 
   // Local in-flight flag for the header button (the click owns the spinner;
   // the scheduler-driven `refreshState.refreshing` covers background runs).
@@ -177,6 +186,9 @@ const ModelsSettingsInner: React.FC = () => {
   // Auto-discover keys already on the machine (spec §4.4). Surfaced as the
   // consent strip - never used silently.
   useEffect(() => {
+    // `detectKeys` is denied to remote callers - skip the call entirely in a
+    // headless session so the strip stays empty instead of erroring.
+    if (headless) return;
     let cancelled = false;
     void (async () => {
       try {
@@ -190,7 +202,7 @@ const ModelsSettingsInner: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [detectKeys]);
+  }, [detectKeys, headless]);
 
   // Wave 3 Fix 12 - consume any pending deep-link payload on mount. A
   // `wayland://add-provider?platform=...&apiKey=...` URL fires from the OS
@@ -251,10 +263,38 @@ const ModelsSettingsInner: React.FC = () => {
     [detectedKeys, ignoredKeys, connectedProviderIds]
   );
 
-  const connectKey = useCallback((providerId: ProviderId, key: string) => connect(providerId, { key }), [connect]);
+  // In a headless/remote (WebUI) session the `modelRegistry.connect` IPC is
+  // denied (it returns a decrypted key to a remote caller), so the pasted key
+  // goes through the write-only `/api/providers/connect` HTTP route instead
+  // (remote-secure-config W1.A). It returns status only; on success we reload
+  // the read-only registry list (which IS remote-allowed) so the new row shows.
+  const connectKey = useCallback(
+    async (providerId: ProviderId, key: string, baseUrl?: string) => {
+      if (headless) {
+        // The write-only HTTP route accepts an optional baseUrl (it forwards it
+        // to the same host-side connect the desktop IPC uses), so a remote WebUI
+        // can add a local OpenAI-compatible endpoint host-side (#71).
+        const res = await connectProviderHttp(providerId, key, baseUrl);
+        if (res.ok) await reload();
+        return res;
+      }
+      return connect(providerId, baseUrl ? { key, baseUrl } : { key });
+    },
+    [headless, connect, reload]
+  );
 
   // Flux Router is the recommended provider - connect it from the hero.
-  const connectFluxKey = useCallback((key: string) => connect('flux-router', { key }), [connect]);
+  const connectFluxKey = useCallback(
+    async (key: string) => {
+      if (headless) {
+        const res = await connectProviderHttp('flux-router', key);
+        if (res.ok) await reload();
+        return res;
+      }
+      return connect('flux-router', { key });
+    },
+    [headless, connect, reload]
+  );
 
   // Whether `flux-router` is already a connected provider - drives the hero's
   // reinforcement-vs-recommendation state. Read straight from the registry list
@@ -332,7 +372,10 @@ const ModelsSettingsInner: React.FC = () => {
     }
   }, [managedProviderId, managedProvider, loading]);
 
-  const showEmptyState = !loading && providers.length === 0 && visibleDetected.length === 0;
+  // The ConnectPanel hero is always shown (in headless it posts to the
+  // write-only `/api/providers/connect` route - W1.A), so the separate
+  // connect-oriented EmptyState would be redundant on a first-run remote page.
+  const showEmptyState = !headless && !loading && providers.length === 0 && visibleDetected.length === 0;
 
   if (managedProvider) {
     // ManageProvider carries its own back-link + header, so wrap in the
@@ -385,6 +428,18 @@ const ModelsSettingsInner: React.FC = () => {
         deepLinkSeedNonce={panelSeedNonce}
       />
 
+      {/* In a headless/remote session keys are planted via the write-only
+          `/api/providers/connect` route above; the local-endpoint env-var
+          path stays as a documented fallback for self-hosted local models. */}
+      {headless && (
+        <div className={styles.headlessNotice}>
+          <p className={styles.headlessNoticeBody}>{t('settings.modelsPage.headless.localEndpoint')}</p>
+          <p className={styles.headlessNoticeBody}>
+            <code>OPENAI_API_KEY=local OPENAI_BASE_URL=http://127.0.0.1:8000/v1</code>
+          </p>
+        </div>
+      )}
+
       {error && (
         <div className={styles.connectError} role='alert'>
           <span>{t('settings.modelsPage.loadError')}</span>
@@ -421,7 +476,12 @@ const ModelsSettingsInner: React.FC = () => {
         />
       </div>
 
-      <BrowseModal visible={browseOpen} onClose={handleBrowseClose} initialProvider={browseInitialProvider} />
+      <BrowseModal
+        visible={browseOpen}
+        onClose={handleBrowseClose}
+        initialProvider={browseInitialProvider}
+        connectKey={connectKey}
+      />
     </SettingsPageShell>
   );
 };

@@ -139,6 +139,11 @@
   border-color: rgb(var(--primary-6));
   background: var(--color-fill-1);
 }
+.personaChipSelected:hover {
+  border-color: rgb(var(--primary-6));
+  background: var(--color-fill-1);
+  box-shadow: 0 0 0 1px rgb(var(--primary-6) / 0.45);
+}
 .personaChipSelected {
   border-color: rgb(var(--primary-6));
   background: var(--color-fill-1);

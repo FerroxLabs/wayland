@@ -18,6 +18,10 @@
     "wired": {
       "body": "Últimas 100: H{{h}} · S{{s}} · O{{o}}",
       "action": "Ver para onde foi cada interação"
+    },
+    "dismiss": {
+      "label": "Ocultar status do Flux",
+      "hint": "Status do Flux ocultado."
     }
   },
   "accordion": {

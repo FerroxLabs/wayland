@@ -37,6 +37,13 @@ export function getConversationTypeForBackend(backend: string): ICreateConversat
     case 'gemini':
       return 'gemini';
     case 'wcore':
+    // Teams emit the WCore engine under the literal `wayland-core` (the rest of
+    // the app uses `wcore`); vendored agent-profile specialists carry no real
+    // backend and leak their preset type `agent-profile`. Both are the WCore
+    // engine, not an ACP CLI, so route them to the wcore manager instead of
+    // letting them fall through to `acp` and die with "No CLI path for backend".
+    case 'wayland-core':
+    case 'agent-profile':
       return 'wcore';
     case 'openclaw-gateway':
     case 'openclaw':
@@ -81,6 +88,16 @@ export function buildAgentConversationParams(input: BuildAgentConversationInput)
   if (isPreset) {
     extra.enabledSkills = presetResources?.enabledSkills;
     extra.excludeBuiltinSkills = presetResources?.excludeBuiltinSkills;
+    // Pre-load the assistant's explicitly-assigned skills on turn 1 (consumed by
+    // consumePendingSessionSkills, every backend) so an assistant's skills are
+    // active from the first turn, not merely searchable - the point of choosing
+    // an assistant. Merge + dedupe with anything already staged in the composer
+    // "+" menu. An assistant with no explicit list (undefined/empty) uses "all
+    // skills", so we never pre-load the entire library.
+    const assignedSkills = presetResources?.enabledSkills ?? [];
+    if (assignedSkills.length > 0) {
+      extra.sessionSkills = Array.from(new Set([...(extra.sessionSkills ?? []), ...assignedSkills]));
+    }
     extra.presetAssistantId = effectivePresetAssistantId;
     if (type === 'gemini') {
       extra.presetRules = presetResources?.rules;

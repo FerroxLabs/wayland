@@ -35,6 +35,9 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+const openExternalUrlMock = vi.hoisted(() => vi.fn());
+vi.mock('@/renderer/utils/platform', () => ({ openExternalUrl: openExternalUrlMock }));
+
 const navigateMock = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
@@ -58,6 +61,7 @@ describe('SiderFooterQuickActions', () => {
     statusChangedOnMock.mockClear();
     ipcState.statusChangedHandler = null;
     navigateMock.mockReset();
+    openExternalUrlMock.mockReset();
   });
 
   it('renders 3 quick action buttons', () => {
@@ -90,6 +94,12 @@ describe('SiderFooterQuickActions', () => {
     renderActions({ onOpenBugReport });
     fireEvent.click(screen.getByTestId('sider-footer-quick-bug'));
     expect(onOpenBugReport).toHaveBeenCalledOnce();
+  });
+
+  it('Bug button opens the GitHub issue chooser when no handler is provided (was a silent no-op)', () => {
+    renderActions();
+    fireEvent.click(screen.getByTestId('sider-footer-quick-bug'));
+    expect(openExternalUrlMock).toHaveBeenCalledWith('https://github.com/FerroxLabs/wayland/issues/new/choose');
   });
 
   it('Repo button fires onOpenLink with GitHub URL when provided', () => {

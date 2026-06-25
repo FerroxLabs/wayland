@@ -106,8 +106,19 @@ async function main(): Promise<void> {
     console.error('[server] Failed to initialize ChannelManager:', error);
   }
 
-  // Register all non-Electron bridge handlers
+  // Register all non-Electron bridge handlers (this also wires the model
+  // registry IPC, capturing the connect handler the env-key import uses below).
   await initBridgeStandalone();
+
+  // Import any provider API keys present in the environment into the model
+  // registry so the Models page is populated on a headless box without manual
+  // UI entry. Wrapped so a failure can never crash boot; never logs key values.
+  try {
+    const { importEnvKeysOnBoot } = await import('./process/utils/importEnvKeys');
+    await importEnvKeysOnBoot();
+  } catch (error) {
+    console.error('[server] Env-key import failed:', error);
+  }
 
   // Start the WebServer
   const instance = await startWebServerWithInstance(PORT, ALLOW_REMOTE);

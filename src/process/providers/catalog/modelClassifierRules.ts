@@ -95,6 +95,8 @@ export const CLASSIFIER_RULES: Partial<Record<ProviderId, ClassifierRule[]>> = {
   ],
 
   xai: [
+    { match: /grok-4|grok-build/i, tier: 'flagship' },
+    { match: /grok-composer/i, tier: 'fast' },
     { match: /grok-3/i, tier: 'flagship' },
     { match: /grok-2/i, tier: 'everyday' },
     { match: /grok-beta/i, tier: 'everyday' },

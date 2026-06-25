@@ -21,6 +21,7 @@ metadata:
   depends: release-management conventional-commits deployment-strategies monitoring-alerting
   disclaimer: none
   difficulty: intermediate
+  interactivity: "auto"
 ---
 
 # Release New Version

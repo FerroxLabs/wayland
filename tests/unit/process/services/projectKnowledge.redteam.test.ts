@@ -62,8 +62,8 @@ const mockCopyFile = vi.mocked(fs.copyFile);
 const mockAccess = vi.mocked(fs.access);
 const mockReaddir = vi.mocked(fs.readdir);
 
-const WORKSPACE = '/Users/seandonahoe/Documents/project';
-const IN_ROOT = '/Users/seandonahoe/Documents/project/spec.md';
+const WORKSPACE = '/Users/you/Documents/project';
+const IN_ROOT = '/Users/you/Documents/project/spec.md';
 const OUT_OF_ROOT = '/etc/passwd';
 
 /** Minimal fs.Stats-like double for a plain regular file of `size` bytes. */
@@ -92,7 +92,12 @@ describe('addProjectReference confinement (SEC-IPC-04)', () => {
 
     await addProjectReference(WORKSPACE, [OUT_OF_ROOT]);
 
-    expect(mockConfinePath).toHaveBeenCalledWith(OUT_OF_ROOT);
+    // A drag-drop is an explicit local gesture, so the gate is invoked with
+    // allowOutsideRoots (mirroring the conversation-workspace #67 path). That
+    // only widens the permitted source *location*: every form/traversal/symlink/
+    // sensitive-location guard still applies, so the mock (and the real gate)
+    // still reject /etc/passwd -> null.
+    expect(mockConfinePath).toHaveBeenCalledWith(OUT_OF_ROOT, { allowOutsideRoots: true });
     // The dangerous sinks were never reached for the rejected source.
     expect(mockLstat).not.toHaveBeenCalled();
     expect(mockCopyFile).not.toHaveBeenCalled();

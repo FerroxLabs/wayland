@@ -21,30 +21,73 @@ import type { AgentBackend } from '@/common/types/acpTypes';
 import { ExtensionRegistry } from '@process/extensions/ExtensionRegistry';
 import type { CronService } from '@process/services/cron/CronService';
 import type { CronSchedule } from '@process/services/cron/CronStore';
+import { getBuiltinCatalogAssistants } from '@process/utils/builtinCatalog';
 import type { TTeam } from './types';
 
 export type RitualsResolver = (
   sourceLauncherId: string
 ) => Promise<Array<{ name: string; cadence: string }> | undefined>;
 
+type RitualBearingRecord = { id?: string; rituals?: Array<{ name: string; cadence: string }> };
+
 /**
- * Live RitualsResolver backed by the ExtensionRegistry. Walks the assistant
- * list and returns the `rituals` array for the requested source launcher.
+ * Candidate stored ids for a launcher id that may arrive bare, `builtin-`
+ * prefixed (native catalog records), or `ext-` prefixed (extension/custom
+ * records). Native standing teams are stored as `builtin-<slug>` while the
+ * legacy resolver only normalized `ext-`, so it never matched them.
+ */
+function launcherIdCandidates(sourceLauncherId: string): string[] {
+  if (sourceLauncherId.startsWith('builtin-') || sourceLauncherId.startsWith('ext-')) {
+    return [sourceLauncherId];
+  }
+  return [sourceLauncherId, `builtin-${sourceLauncherId}`, `ext-${sourceLauncherId}`];
+}
+
+function findRitualsAcross(
+  records: ReadonlyArray<RitualBearingRecord>,
+  candidates: ReadonlyArray<string>
+): Array<{ name: string; cadence: string }> | undefined {
+  for (const record of records) {
+    if (typeof record.id === 'string' && candidates.includes(record.id)) {
+      return record.rituals;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Live RitualsResolver. Walks every source where a launcher's `rituals` array
+ * can live and returns the first match for the requested source launcher.
+ *
+ * Native standing teams (waylandteams) are NOT in the ExtensionRegistry -
+ * `ExtensionLoader` skips the native bundle by design - so they live in
+ * `getBuiltinCatalogAssistants()` (and the merged `config.assistants`) as
+ * `builtin-<slug>` records. The registry-only resolver returned undefined for
+ * them, so their rituals never scheduled. We now consult the registry, the
+ * native catalog, and config.assistants, and match the id across bare /
+ * `builtin-` / `ext-` shapes.
+ *
  * Used by both the team-import/export bridge and the standing-ritual
  * scheduler so both paths agree on a single source of truth.
  */
 export function makeExtensionRegistryRitualsResolver(): RitualsResolver {
   return async (sourceLauncherId: string) => {
-    const registry = ExtensionRegistry.getInstance();
-    const assistants = registry.getAssistants();
-    const norm = sourceLauncherId.startsWith('ext-') ? sourceLauncherId : `ext-${sourceLauncherId}`;
-    for (const a of assistants) {
-      const candidate = a as { id?: string; rituals?: Array<{ name: string; cadence: string }> };
-      if (candidate.id === norm || candidate.id === sourceLauncherId) {
-        return candidate.rituals;
-      }
-    }
-    return undefined;
+    const candidates = launcherIdCandidates(sourceLauncherId);
+
+    const registryAssistants = ExtensionRegistry.getInstance().getAssistants() as RitualBearingRecord[];
+    const fromRegistry = findRitualsAcross(registryAssistants, candidates);
+    if (fromRegistry) return fromRegistry;
+
+    const catalogAssistants = getBuiltinCatalogAssistants() as unknown as RitualBearingRecord[];
+    const fromCatalog = findRitualsAcross(catalogAssistants, candidates);
+    if (fromCatalog) return fromCatalog;
+
+    // Deferred import: pulling ProcessConfig at module load would drag the
+    // whole initStorage/ipcBridge graph into ritualScheduler's import chain
+    // (and into every unit test that imports this module).
+    const { ProcessConfig } = await import('@process/utils/initStorage');
+    const storedAssistants = ((await ProcessConfig.get('assistants')) ?? []) as RitualBearingRecord[];
+    return findRitualsAcross(storedAssistants, candidates);
   };
 }
 

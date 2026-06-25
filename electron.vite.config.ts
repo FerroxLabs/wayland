@@ -88,6 +88,10 @@ export default defineConfig(({ mode }) => {
                   { src: 'src/process/resources/skills/*', dest: 'skills' },
                   { src: 'src/process/resources/assistant/*', dest: 'assistant' },
                   { src: 'src/renderer/assets/logos/*', dest: 'static/images' },
+                  // Bundled business-pack extensions: read in place from the asar
+                  // instead of copied out as loose files (#275 — loose .md skill
+                  // bodies tripped AV content heuristics). Mirrors skills/assistant.
+                  { src: 'resources/bundled-extensions/*', dest: 'bundled-extensions' },
                 ],
               }),
             ]

@@ -19,7 +19,7 @@
  */
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 
 const MAX_HISTORY = 50;
 
@@ -42,6 +42,7 @@ const buildPath = (location: { pathname: string; search: string; hash: string })
 export const NavigationHistoryProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
 
   const [stack, setStack] = useState<HistoryEntry[]>(() => [{ path: buildPath(location) }]);
   const [cursor, setCursor] = useState(0);
@@ -51,17 +52,36 @@ export const NavigationHistoryProvider: React.FC<React.PropsWithChildren> = ({ c
   // skip the next location change.
   const skipNextRef = useRef(false);
 
+  // Mirror the current navigation type into a ref so the location listener can
+  // read it without adding it to the dependency array (which would otherwise
+  // re-run the effect on every render where the type is unchanged).
+  const navigationTypeRef = useRef(navigationType);
+  navigationTypeRef.current = navigationType;
+
   useEffect(() => {
     if (skipNextRef.current) {
       skipNextRef.current = false;
       return;
     }
     const path = buildPath(location);
+    const isReplace = navigationTypeRef.current === 'REPLACE';
     setStack((prevStack) => {
       const prevEntry = prevStack[cursor];
       if (prevEntry && prevEntry.path === path) {
         // Same path as current cursor - no-op (initial render, or a redundant push).
         return prevStack;
+      }
+      // A REPLACE navigation (e.g. an index route redirecting via
+      // <Navigate replace />, like /settings -> /settings/models) must mutate
+      // the current entry rather than append a new one. Otherwise the redirect
+      // chain leaves intermediate routes on the stack, so "back" lands on the
+      // redirect target's parent (Settings) instead of the screen the user came
+      // from. This mirrors browser history.replaceState semantics.
+      if (isReplace && cursor >= 0 && cursor < prevStack.length) {
+        const replaced = prevStack.slice();
+        replaced[cursor] = { path };
+        // cursor is unchanged: we replaced in place.
+        return replaced;
       }
       // Discard any forward entries past the cursor, then append.
       const truncated = prevStack.slice(0, cursor + 1);

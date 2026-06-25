@@ -24,16 +24,16 @@ const ImageGenSettings = React.lazy(() => import('@renderer/pages/settings/Image
 const McpLibraryBrowsePage = React.lazy(() =>
   import('@renderer/pages/settings/McpLibrary').then((m) => ({ default: m.BrowsePage }))
 );
-const McpLibraryInstalledPage = React.lazy(() =>
-  import('@renderer/pages/settings/McpLibrary').then((m) => ({ default: m.InstalledPage }))
-);
 const McpLibraryDetailPage = React.lazy(() =>
   import('@renderer/pages/settings/McpLibrary').then((m) => ({ default: m.DetailPage }))
 );
 const NotificationsSettings = React.lazy(() => import('@renderer/pages/settings/NotificationsSettings'));
 const ModelsSettings = React.lazy(() => import('@renderer/pages/settings/ModelsSettings'));
+const MigrateSettings = React.lazy(() => import('@renderer/pages/settings/MigrateSettings'));
 const SkillsSettings = React.lazy(() => import('@renderer/pages/settings/SkillsSettings'));
+const SlashCommandsSettings = React.lazy(() => import('@renderer/pages/settings/SlashCommandsSettings'));
 const StorageSettings = React.lazy(() => import('@renderer/pages/settings/StorageSettings'));
+const DoctorSettings = React.lazy(() => import('@renderer/pages/settings/DoctorSettings'));
 const WCoreSettings = React.lazy(() => import('@renderer/pages/settings/WCoreSettings'));
 const WCoreConfig = React.lazy(() => import('@renderer/pages/settings/WCoreConfig'));
 const GeminiSettings = React.lazy(() => import('@renderer/pages/settings/GeminiSettings'));
@@ -108,6 +108,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/assistants' element={withRouteFallback(AssistantSettings)} />
             <Route path='/settings/agents' element={withRouteFallback(AgentsSettings)} />
             <Route path='/settings/skills' element={withRouteFallback(SkillsSettings)} />
+            <Route path='/settings/commands' element={withRouteFallback(SlashCommandsSettings)} />
             {/* Constitution is a Desktop concept (the engine has none of its own),
               so it lives as a standalone Desktop settings page, not a Core pane. */}
             <Route path='/settings/constitution' element={withRouteFallback(ConstitutionSettings)} />
@@ -128,16 +129,22 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/channels' element={withRouteFallback(ChannelsIndex)} />
             <Route path='/settings/channels/:id' element={withRouteFallback(ChannelDetailPage)} />
             {/* Legacy `/settings/mcp` route - the old McpSettings page was
-              removed in P8; redirect to the new MCP Library Installed view so
+              removed in P8; redirect to the new MCP Library Browse view so
               bookmarks still land somewhere useful. */}
-            <Route path='/settings/mcp' element={<Navigate to='/settings/mcp-library/installed' replace />} />
-            {/* MCP Library - new catalog-driven Browse / Installed / Detail surface. */}
+            <Route path='/settings/mcp' element={<Navigate to='/settings/mcp-library/browse' replace />} />
+            {/* MCP Library - new catalog-driven Browse / Detail surface.
+              The standalone Installed page was replaced by the rail's
+              Installed filter on Browse; its route now redirects there. */}
             <Route path='/settings/mcp-library' element={<Navigate to='/settings/mcp-library/browse' replace />} />
             <Route path='/settings/mcp-library/browse' element={withRouteFallback(McpLibraryBrowsePage)} />
-            <Route path='/settings/mcp-library/installed' element={withRouteFallback(McpLibraryInstalledPage)} />
+            <Route path='/settings/migrate' element={withRouteFallback(MigrateSettings)} />
+            <Route
+              path='/settings/mcp-library/installed'
+              element={<Navigate to='/settings/mcp-library/browse' replace />}
+            />
             <Route path='/settings/mcp-library/:entryId' element={withRouteFallback(McpLibraryDetailPage)} />
-            {/* Legacy redirect - old `/settings/tools/mcp` route now lands on Installed. */}
-            <Route path='/settings/tools/mcp' element={<Navigate to='/settings/mcp-library/installed' replace />} />
+            {/* Legacy redirect - old `/settings/tools/mcp` route now lands on Browse. */}
+            <Route path='/settings/tools/mcp' element={<Navigate to='/settings/mcp-library/browse' replace />} />
             {/* APPEARANCE */}
             <Route path='/settings/theme' element={withRouteFallback(DisplaySettings)} />
             <Route path='/settings/editor' element={withRouteFallback(EditorSettings)} />
@@ -145,6 +152,8 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             <Route path='/settings/general' element={withRouteFallback(GeneralSettings)} />
             <Route path='/settings/notifications' element={withRouteFallback(NotificationsSettings)} />
             <Route path='/settings/storage' element={withRouteFallback(StorageSettings)} />
+            {/* Doctor - diagnostic health checks across all subsystems (#35). */}
+            <Route path='/settings/doctor' element={withRouteFallback(DoctorSettings)} />
             {/* IJFW MEMORY (Decision 3b: the ONLY Skip toggle in the app) */}
             <Route path='/settings/ijfw' element={withRouteFallback(IjfwSettingsPanel)} />
             {/* ABOUT */}

@@ -5,8 +5,8 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Plus, X } from 'lucide-react';
-import { Button, Input } from '@arco-design/web-react';
+import { AlertTriangle, Plus, X } from 'lucide-react';
+import { Button, Input, Modal } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { useWcoreConfig } from '@renderer/hooks/useWcoreConfig';
 import WcSwitch from '../components/WcSwitch';
@@ -32,6 +32,13 @@ type SecuritySection = {
   approval_mode?: string;
   env_passthrough?: string[];
   block_private_urls?: boolean;
+  /**
+   * The engine's network egress firewall master switch (`[security].enabled`).
+   * Defaults to `true` (enforcing). When `false`, the engine installs an
+   * allow-all egress policy - outbound exfiltration is no longer gated. This is
+   * the operator's deliberate "I accept the risk" off switch.
+   */
+  enabled?: boolean;
   [key: string]: unknown;
 };
 
@@ -109,6 +116,34 @@ const SecurityPane: React.FC = () => {
   );
 
   const blockPrivate = section?.block_private_urls !== false;
+  // Egress firewall defaults ON (engine default `enabled = true`); only an
+  // explicit `false` turns it off.
+  const egressEnabled = section?.enabled !== false;
+
+  // Toggling the egress firewall OFF removes outbound-exfiltration protection,
+  // so make it a deliberate, confirmed choice. Turning it back ON is immediate.
+  const handleEgressToggle = useCallback(
+    (next: boolean): void => {
+      if (next) {
+        persist({ ...section, enabled: true });
+        return;
+      }
+      Modal.confirm({
+        title: t('settings.wcoreConfig.security.egressOffTitle', {
+          defaultValue: 'Turn off the network egress firewall?',
+        }),
+        content: t('settings.wcoreConfig.security.egressOffBody', {
+          defaultValue:
+            'The engine and its tools will be able to send data to any host, including ones you have not allow-listed. Outbound exfiltration will no longer be gated. Only do this if you accept that risk - approvals and the secret sandbox are unaffected.',
+        }),
+        okText: t('settings.wcoreConfig.security.egressOffConfirm', { defaultValue: 'Turn off firewall' }),
+        cancelText: t('settings.wcoreConfig.security.cancel', { defaultValue: 'Cancel' }),
+        okButtonProps: { status: 'danger' },
+        onOk: () => persist({ ...section, enabled: false }),
+      });
+    },
+    [persist, section, t]
+  );
 
   return (
     <div className={styles.pane}>
@@ -229,6 +264,59 @@ const SecurityPane: React.FC = () => {
               'Only variable names are stored, never values, and secret-bearing names (API keys, tokens, passwords) are refused.',
           })}
         </div>
+      </div>
+
+      {/* Network egress firewall master switch ([security].enabled) */}
+      <div className={styles.section}>
+        <div className={styles.sectionHead}>
+          <span className={styles.sectionLabel}>
+            {t('settings.wcoreConfig.security.egress', { defaultValue: 'Network Egress' })}
+          </span>
+          <span className={styles.pill}>
+            {t('settings.wcoreConfig.security.egressPill', { defaultValue: 'on by default' })}
+          </span>
+          <span className={styles.sectionHeadLine} />
+        </div>
+        <div className={styles.group}>
+          <div className={styles.listRow}>
+            <div>
+              <div className={styles.lrLabel}>
+                {t('settings.wcoreConfig.security.egressFirewall', { defaultValue: 'Egress firewall' })}
+              </div>
+              <div className={styles.lrDesc}>
+                {t('settings.wcoreConfig.security.egressFirewallDesc', {
+                  defaultValue:
+                    'Gate outbound traffic so the engine can only send data to allow-listed hosts; others prompt for consent',
+                })}
+              </div>
+            </div>
+            <div className={styles.lrControl}>
+              <WcSwitch
+                checked={egressEnabled}
+                onChange={handleEgressToggle}
+                label={t('settings.wcoreConfig.security.egressFirewall', { defaultValue: 'Egress firewall' })}
+              />
+            </div>
+          </div>
+        </div>
+        {egressEnabled ? (
+          <div className={styles.hintText}>
+            {t('settings.wcoreConfig.security.egressOnHint', {
+              defaultValue:
+                'Recommended. Your choice: you can turn this off to run the engine fully unsandboxed for outbound traffic.',
+            })}
+          </div>
+        ) : (
+          <div className={styles.dangerNote}>
+            <AlertTriangle size={14} aria-hidden='true' />
+            <span>
+              {t('settings.wcoreConfig.security.egressOffWarn', {
+                defaultValue:
+                  'Egress firewall OFF — the engine can send data to any host and outbound exfiltration is not gated.',
+              })}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Private URLs */}

@@ -2184,6 +2184,160 @@ const migration_v49: IMigration = {
 };
 
 /**
+ * Migration v49 -> v50: Add run_mode + interactivity to workflow_sessions.
+ *
+ * Backs the workflow run-state machine (Workflows Redesign Phase 1):
+ *  - `run_mode`      – live driver gate ('running' | 'paused' | 'awaiting_input'
+ *                      | 'done'). The driver loop reads this to decide whether to
+ *                      advance, await human input, or halt on each turn completion.
+ *  - `interactivity` – user-chosen cadence ('step' | 'auto'); the binary toggle.
+ *
+ * Both are TEXT with app-side validation (isWorkflowRunMode / isWorkflowInteractivity);
+ * no DB-level CHECK since ALTER TABLE ADD COLUMN cannot add constraints. Existing
+ * rows backfill to the NOT NULL defaults ('running' / 'step'). Guards mirror v42.
+ */
+const migration_v50: IMigration = {
+  version: 50,
+  name: 'Add run_mode + interactivity columns to workflow_sessions',
+  up: (db) => {
+    const columns = db.pragma('table_info(workflow_sessions)') as Array<{ name: string }>;
+    if (!columns.some((c) => c.name === 'run_mode')) {
+      db.exec(`ALTER TABLE workflow_sessions ADD COLUMN run_mode TEXT NOT NULL DEFAULT 'running'`);
+      console.log('[Migration v50] Added run_mode column to workflow_sessions');
+    }
+    if (!columns.some((c) => c.name === 'interactivity')) {
+      db.exec(`ALTER TABLE workflow_sessions ADD COLUMN interactivity TEXT NOT NULL DEFAULT 'step'`);
+      console.log('[Migration v50] Added interactivity column to workflow_sessions');
+    }
+  },
+  down: (db) => {
+    // SQLite DROP COLUMN is avoided per house style; recreate the v42-shaped table
+    // (v41 columns + begin_sent_at) without run_mode/interactivity, copy, swap, reindex.
+    db.exec(`
+      CREATE TABLE workflow_sessions_v42 (
+        id              TEXT PRIMARY KEY,
+        workflow_name   TEXT NOT NULL,
+        workflow_title  TEXT NOT NULL,
+        conversation_id TEXT NOT NULL,
+        current_step    INTEGER NOT NULL DEFAULT 1,
+        total_steps     INTEGER NOT NULL,
+        steps_json      TEXT NOT NULL,
+        skills_json     TEXT NOT NULL,
+        asks_json       TEXT NOT NULL,
+        status          TEXT NOT NULL DEFAULT 'active',
+        palette         TEXT NOT NULL,
+        category        TEXT NOT NULL,
+        created_at      INTEGER NOT NULL,
+        updated_at      INTEGER NOT NULL,
+        completed_at    INTEGER,
+        begin_sent_at   INTEGER,
+        CHECK (status IN ('active', 'complete', 'errored', 'ended')),
+        CHECK (current_step >= 0),
+        CHECK (total_steps >= 0),
+        CHECK (current_step <= total_steps + 1)
+      )
+    `);
+    db.exec(`
+      INSERT INTO workflow_sessions_v42
+      SELECT id, workflow_name, workflow_title, conversation_id, current_step,
+             total_steps, steps_json, skills_json, asks_json, status, palette,
+             category, created_at, updated_at, completed_at, begin_sent_at
+      FROM workflow_sessions
+    `);
+    db.exec('DROP TABLE workflow_sessions');
+    db.exec('ALTER TABLE workflow_sessions_v42 RENAME TO workflow_sessions');
+    db.exec(
+      'CREATE INDEX IF NOT EXISTS idx_workflow_sessions_workflow_name_active ON workflow_sessions (workflow_name, status, updated_at DESC)'
+    );
+    db.exec('CREATE INDEX IF NOT EXISTS idx_workflow_sessions_conversation ON workflow_sessions (conversation_id)');
+    db.exec(
+      'CREATE INDEX IF NOT EXISTS idx_workflow_sessions_active_recency ON workflow_sessions (status, updated_at DESC)'
+    );
+    console.log('[Migration v50] Rolled back: removed run_mode + interactivity columns');
+  },
+};
+
+/**
+ * Migration v50 -> v51: Append-only audit log for config-write / destructive ops.
+ *
+ * Records WHO did WHAT from WHERE for every remote configuration mutation
+ * (remote-secure-config W5; the helper + table land in W0, consumers wire up
+ * later). One row per action:
+ *  - `user_id`     - the authenticated user that performed the action.
+ *  - `action`      - a stable verb id (e.g. 'provider.connect', 'storage.restore').
+ *  - `target`      - the object acted on (provider id, channel id, ...), nullable.
+ *  - `ip`          - the DIRECT socket peer (never req.ip / XFF), for forensics.
+ *  - `reached_via` - detectNetworkContext provenance at action time.
+ *  - `created_at`  - epoch ms.
+ *
+ * No foreign keys by design (matches cost_events / budgets): user_id is a soft
+ * reference so the log survives a user-row delete and PRAGMA foreign_key_check
+ * stays clean. Append-only - no UPDATE/DELETE path is provided.
+ */
+const migration_v51: IMigration = {
+  version: 51,
+  name: 'Add audit_log table for config-write/destructive actions',
+  up: (db) => {
+    db.exec(`CREATE TABLE IF NOT EXISTS audit_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT,
+      action TEXT NOT NULL,
+      target TEXT,
+      ip TEXT,
+      reached_via TEXT,
+      created_at INTEGER NOT NULL
+    )`);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log(created_at DESC)');
+    db.exec('CREATE INDEX IF NOT EXISTS idx_audit_log_user ON audit_log(user_id, created_at DESC)');
+    console.log('[Migration v51] Created audit_log table');
+  },
+  down: (db) => {
+    db.exec('DROP TABLE IF EXISTS audit_log');
+    console.log('[Migration v51] Dropped audit_log table');
+  },
+};
+
+/**
+ * Migration v51 -> v52: Heal orphaned team-child rows.
+ *
+ * Earlier migrations recreate the `teams` table inside the migration
+ * transaction, where runMigrations() runs with `PRAGMA foreign_keys = OFF`
+ * (required for SQLite table recreation). With FK enforcement off, ON DELETE
+ * CASCADE does NOT fire - so any team row that disappears during a rebuild
+ * silently orphans its mailbox / team_tasks / team_event_log children. The
+ * global `foreign_key_check` at the end of runMigrations then fails for the
+ * ENTIRE upgrade (every migration rolls back), the database falls back to file
+ * storage, and every DB-backed page (Models, Scheduled Tasks, Teams, usage)
+ * spins forever. Observed in the wild: 455 orphaned mailbox rows blocking the
+ * v51 upgrade.
+ *
+ * Delete the orphaned children so the FK check passes. Idempotent and safe -
+ * these rows reference teams that no longer exist and are already unreachable.
+ */
+const migration_v52: IMigration = {
+  version: 52,
+  name: 'Heal orphaned team-child rows (mailbox/team_tasks/team_event_log)',
+  up: (db) => {
+    // Hardcoded allowlist - never interpolate untrusted identifiers into SQL.
+    const childTables = ['mailbox', 'team_tasks', 'team_event_log'];
+    for (const table of childTables) {
+      const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?").get(table);
+      if (!exists) continue;
+      const result = db
+        .prepare(`DELETE FROM ${table} WHERE team_id IS NOT NULL AND team_id NOT IN (SELECT id FROM teams)`)
+        .run();
+      if (result.changes > 0) {
+        console.log(`[Migration v52] Deleted ${result.changes} orphaned row(s) from ${table}`);
+      }
+    }
+  },
+  down: () => {
+    // Irreversible: the deleted rows referenced non-existent teams and cannot
+    // be meaningfully restored. No-op.
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2196,7 +2350,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v31, migration_v32, migration_v33, migration_v34, migration_v35, migration_v36,
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
-  migration_v48, migration_v49,
+  migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
 ];
 
 /**

@@ -9,16 +9,30 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { WorkflowSession } from '@/common/types/workflowTypes';
 
 const findAllActiveMock = vi.fn();
+const findByIdMock = vi.fn();
 const updateSessionStateMock = vi.fn();
 const dispatchAutonomousStepMock = vi.fn();
 const sendMessageMock = vi.fn();
+
+// Capture the `sessionChanged` subscriber so tests can simulate a main-process
+// `sessionChanged` event and assert the hook re-fetches by id. `on` returns an
+// unsubscribe the hook calls on cleanup.
+let sessionChangedHandler: ((event: { session_id: string; action: string }) => void) | null = null;
+const sessionChangedOnMock = vi.fn((cb: (event: { session_id: string; action: string }) => void) => {
+  sessionChangedHandler = cb;
+  return () => {
+    sessionChangedHandler = null;
+  };
+});
 
 vi.mock('@/common', () => ({
   ipcBridge: {
     workflow: {
       findAllActive: { invoke: (...a: unknown[]) => findAllActiveMock(...a) },
+      findById: { invoke: (...a: unknown[]) => findByIdMock(...a) },
       updateSessionState: { invoke: (...a: unknown[]) => updateSessionStateMock(...a) },
       dispatchAutonomousStep: { invoke: (...a: unknown[]) => dispatchAutonomousStepMock(...a) },
+      sessionChanged: { on: (cb: (event: { session_id: string; action: string }) => void) => sessionChangedOnMock(cb) },
     },
     conversation: {
       sendMessage: { invoke: (...a: unknown[]) => sendMessageMock(...a) },
@@ -83,9 +97,12 @@ const makeSession = (overrides: Partial<WorkflowSession> = {}): WorkflowSession 
 
 beforeEach(() => {
   findAllActiveMock.mockReset();
+  findByIdMock.mockReset();
   updateSessionStateMock.mockReset();
   dispatchAutonomousStepMock.mockReset();
   sendMessageMock.mockReset();
+  sessionChangedOnMock.mockClear();
+  sessionChangedHandler = null;
   sendMessageMock.mockResolvedValue({ success: true });
 });
 
@@ -139,15 +156,55 @@ describe('useWorkflowSession', () => {
     expect(result.current.data).toEqual(seed);
   });
 
-  it('fetches initial state via findAllActive when sessionId provided without seed', async () => {
+  it('fetches initial state via findById (not findAllActive) when sessionId provided without seed', async () => {
     const fetched = makeSession();
-    findAllActiveMock.mockResolvedValue({
-      sessions: [{ session: fetched, conversation_preview: '' }],
-    });
+    findByIdMock.mockResolvedValue({ session: fetched });
     const { result } = renderHook(() => useWorkflowSession('wf-1'));
     await waitFor(() => expect(result.current.data).not.toBeNull());
     expect(result.current.data?.id).toBe('wf-1');
-    expect(findAllActiveMock).toHaveBeenCalledTimes(1);
+    // findById (any status) is the mount path, so a completed run hydrates too;
+    // findAllActive (in-flight only) is reserved for the explicit refresh().
+    expect(findByIdMock).toHaveBeenCalledWith({ sessionId: 'wf-1' });
+    expect(findAllActiveMock).not.toHaveBeenCalled();
+  });
+
+  it('live-syncs: a sessionChanged event for this session re-fetches by id and updates data', async () => {
+    const seed = makeSession();
+    const advanced = makeSession({ current_step: 2, status: 'complete', run_mode: 'done', updated_at: 5000 });
+    const { result } = renderHook(() => useWorkflowSession('wf-1', seed));
+    expect(result.current.data?.status).toBe('active');
+    expect(sessionChangedOnMock).toHaveBeenCalledTimes(1);
+
+    findByIdMock.mockResolvedValue({ session: advanced });
+    await act(async () => {
+      sessionChangedHandler?.({ session_id: 'wf-1', action: 'complete' });
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(result.current.data?.status).toBe('complete'));
+    expect(result.current.data?.current_step).toBe(2);
+    expect(findByIdMock).toHaveBeenCalledWith({ sessionId: 'wf-1' });
+  });
+
+  it('ignores a sessionChanged event for a different session', async () => {
+    const seed = makeSession();
+    renderHook(() => useWorkflowSession('wf-1', seed));
+    findByIdMock.mockResolvedValue({ session: makeSession({ id: 'other' }) });
+    await act(async () => {
+      sessionChangedHandler?.({ session_id: 'someone-else', action: 'update' });
+      await Promise.resolve();
+    });
+    expect(findByIdMock).not.toHaveBeenCalled();
+  });
+
+  it('clears data when a sessionChanged delete arrives for this session', async () => {
+    const seed = makeSession();
+    const { result } = renderHook(() => useWorkflowSession('wf-1', seed));
+    await act(async () => {
+      sessionChangedHandler?.({ session_id: 'wf-1', action: 'delete' });
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(result.current.data).toBeNull());
+    expect(findByIdMock).not.toHaveBeenCalled();
   });
 
   it('applyStepMarker() calls updateSessionState and replaces data with the response session', async () => {
@@ -244,6 +301,23 @@ describe('useWorkflowSession', () => {
     };
     expect(typeof call.patch.setBeginSent).toBe('number');
     expect(call.patch.setBeginSent).toBeGreaterThan(0);
+  });
+
+  it('resumeRun() flips run_mode to running via IPC then sends a continue prompt', async () => {
+    const seed = makeSession();
+    const resumed = makeSession({ run_mode: 'running' } as Partial<WorkflowSession>);
+    updateSessionStateMock.mockResolvedValue({ session: resumed });
+    const { result } = renderHook(() => useWorkflowSession('wf-1', seed));
+    await act(async () => {
+      await result.current.resumeRun();
+    });
+    expect(updateSessionStateMock).toHaveBeenCalledWith({
+      sessionId: 'wf-1',
+      patch: { setRunMode: 'running' },
+    });
+    expect(sendMessageMock).toHaveBeenCalledWith(
+      expect.objectContaining({ conversation_id: 'conv-1', input: expect.stringMatching(/continue/i) })
+    );
   });
 
   it('end() sends setSessionStatus=ended via updateSessionState', async () => {

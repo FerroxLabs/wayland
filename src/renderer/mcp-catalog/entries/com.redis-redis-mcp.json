@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.redis/redis-mcp",
+  "title": "Redis",
+  "description": "A natural-language interface over Redis strings, hashes, lists, sets, streams, JSON, and vector search - Redis’ official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/redis/mcp-redis",
+  "repository": {
+    "url": "https://github.com/redis/mcp-redis",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "redis-mcp-server",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "REDIS_PWD",
+          "description": "Redis API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "database",
+      "data"
+    ],
+    "tags": [
+      "redis",
+      "cache",
+      "vector"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 129,
+    "installRate": 0,
+    "iconUrl": "icons/com.redis-redis-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#FF4438"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Redis",
+      "providerSignupUrl": "https://redis.io/try-free/"
+    },
+    "setupGuide": {
+      "path": "guides/com.redis-redis-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

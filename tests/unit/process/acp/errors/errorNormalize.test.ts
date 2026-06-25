@@ -44,4 +44,30 @@ describe('normalizeError', () => {
     expect(result.code).toBe('INTERNAL_ERROR');
     expect(result.retryable).toBe(false);
   });
+
+  it('folds string `data` detail into a bare "Internal error" message (#69)', () => {
+    const err = { code: -32603, message: 'Internal error', data: 'Model metadata not found for gpt-9' };
+    const result = normalizeError(err);
+    expect(result.code).toBe('AGENT_INTERNAL_ERROR');
+    expect(result.message).toContain('Internal error');
+    expect(result.message).toContain('Model metadata not found for gpt-9');
+  });
+
+  it('folds object `data` detail as JSON when present', () => {
+    const err = { code: -32603, message: 'Internal error', data: { reason: 'corrupted_index' } };
+    const result = normalizeError(err);
+    expect(result.message).toContain('corrupted_index');
+  });
+
+  it('leaves the message unchanged when there is no extra detail', () => {
+    const err = { code: -32603, message: 'Internal error' };
+    const result = normalizeError(err);
+    expect(result.message).toBe('Internal error');
+  });
+
+  it('does not duplicate detail already present in the message', () => {
+    const err = { code: -32602, message: 'Invalid params: bad model', data: 'bad model' };
+    const result = normalizeError(err);
+    expect(result.message).toBe('Invalid params: bad model');
+  });
 });

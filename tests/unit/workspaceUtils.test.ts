@@ -22,4 +22,13 @@ describe('workspace utils', () => {
   it('extracts the last directory name from Windows-style paths', () => {
     expect(getLastDirectoryName('D:\\workspace\\feature-demo')).toBe('feature-demo');
   });
+
+  // #274: prefer the user-defined project name over the folder basename.
+  it('prefers the project name over the folder basename when provided', () => {
+    expect(getWorkspaceDisplayName('/Users/demo/projects/myapp/src', undefined, 'My Cool App')).toBe('My Cool App');
+  });
+
+  it('falls back to the folder basename when no project name is given', () => {
+    expect(getWorkspaceDisplayName('/Users/demo/projects/myapp/src')).toBe('src');
+  });
 });

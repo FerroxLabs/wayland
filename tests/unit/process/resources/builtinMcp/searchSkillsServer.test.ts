@@ -44,8 +44,8 @@ function makeRetriever(
 // ---------------------------------------------------------------------------
 
 describe('createSearchSkillsServer', () => {
-  describe('call - happy path', () => {
-    it('returns ranked results with body content', async () => {
+  describe('call - happy path (metadata-only default)', () => {
+    it('returns ranked metadata WITHOUT inline bodies by default (issue #199)', async () => {
       const library = makeLibrary(
         [makeEntry('alpha'), makeEntry('beta')],
         { alpha: '# Alpha skill body', beta: '# Beta skill body' }
@@ -60,38 +60,95 @@ describe('createSearchSkillsServer', () => {
 
       expect(result.message).toBeUndefined();
       expect(result.results).toHaveLength(2);
-      expect(result.results[0]).toEqual({
+      // No full body inline - the bug was returning every body at once.
+      expect(result.results[0].body).toBeUndefined();
+      expect(result.results[0]).toMatchObject({
         name: 'alpha',
         description: 'Description for alpha',
         score: 2.5,
-        body: '# Alpha skill body',
+        excerpt: '# Alpha skill body',
+        bodyChars: '# Alpha skill body'.length,
+        bodyTokenEstimate: Math.ceil('# Alpha skill body'.length / 4),
       });
-      expect(result.results[1]).toEqual({
-        name: 'beta',
-        description: 'Description for beta',
-        score: 1.2,
-        body: '# Beta skill body',
-      });
+      expect(result.results[1].name).toBe('beta');
+      expect(result.results[1].body).toBeUndefined();
     });
 
-    it('passes limit to retriever', async () => {
+    it('strips leading YAML frontmatter from the excerpt', async () => {
+      const body = '---\nname: x\ndescription: y\n---\nReal content starts here.';
+      const library = makeLibrary([makeEntry('x')], { x: body });
+      const retriever = makeRetriever([{ name: 'x', description: 'Description for x', score: 1 }]);
+
+      const server = createSearchSkillsServer({ library, retriever });
+      const result = await server.call({ query: 'x' });
+
+      expect(result.results[0].excerpt).toBe('Real content starts here.');
+    });
+
+    it('passes limit through to the retriever', async () => {
       const library = makeLibrary([makeEntry('foo')], { foo: 'body' });
       const retriever = makeRetriever([{ name: 'foo', description: 'Description for foo', score: 1 }]);
 
       const server = createSearchSkillsServer({ library, retriever });
-      await server.call({ query: 'foo', limit: 5 });
+      await server.call({ query: 'foo', limit: 10 });
 
-      expect(retriever.retrieve).toHaveBeenCalledWith('foo', 5);
+      expect(retriever.retrieve).toHaveBeenCalledWith('foo', 10);
     });
 
-    it('defaults limit to 25 when not specified', async () => {
+    it('defaults limit to 5 when not specified', async () => {
       const library = makeLibrary([makeEntry('foo')], { foo: 'body' });
       const retriever = makeRetriever([{ name: 'foo', description: 'Description for foo', score: 1 }]);
 
       const server = createSearchSkillsServer({ library, retriever });
       await server.call({ query: 'foo' });
 
-      expect(retriever.retrieve).toHaveBeenCalledWith('foo', 25);
+      expect(retriever.retrieve).toHaveBeenCalledWith('foo', 5);
+    });
+
+    it('clamps an oversized limit to the metadata max (50)', async () => {
+      const library = makeLibrary([makeEntry('foo')], { foo: 'body' });
+      const retriever = makeRetriever([{ name: 'foo', description: 'Description for foo', score: 1 }]);
+
+      const server = createSearchSkillsServer({ library, retriever });
+      await server.call({ query: 'foo', limit: 999 });
+
+      expect(retriever.retrieve).toHaveBeenCalledWith('foo', 50);
+    });
+  });
+
+  describe('call - includeBody mode', () => {
+    it('inlines bodies capped at maxBodyChars and flags truncation', async () => {
+      const longBody = 'x'.repeat(5000);
+      const library = makeLibrary([makeEntry('big')], { big: longBody });
+      const retriever = makeRetriever([{ name: 'big', description: 'Description for big', score: 1 }]);
+
+      const server = createSearchSkillsServer({ library, retriever });
+      const result = await server.call({ query: 'big', includeBody: true, maxBodyChars: 100 });
+
+      expect(result.results[0].body).toHaveLength(100);
+      expect(result.results[0].bodyTruncated).toBe(true);
+      expect(result.results[0].bodyChars).toBe(5000);
+    });
+
+    it('returns the full body when shorter than the cap', async () => {
+      const library = makeLibrary([makeEntry('small')], { small: '# Short' });
+      const retriever = makeRetriever([{ name: 'small', description: 'Description for small', score: 1 }]);
+
+      const server = createSearchSkillsServer({ library, retriever });
+      const result = await server.call({ query: 'small', includeBody: true });
+
+      expect(result.results[0].body).toBe('# Short');
+      expect(result.results[0].bodyTruncated).toBe(false);
+    });
+
+    it('caps the result count tighter when bodies are inlined (limit cap 8)', async () => {
+      const library = makeLibrary([makeEntry('foo')], { foo: 'body' });
+      const retriever = makeRetriever([{ name: 'foo', description: 'Description for foo', score: 1 }]);
+
+      const server = createSearchSkillsServer({ library, retriever });
+      await server.call({ query: 'foo', limit: 50, includeBody: true });
+
+      expect(retriever.retrieve).toHaveBeenCalledWith('foo', 8);
     });
   });
 
@@ -178,6 +235,58 @@ describe('createSearchSkillsServer', () => {
       await server.call({ query: 'real' });
 
       expect(library.list).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('readSkill - paginated body reader (issue #199)', () => {
+    it('returns the first page with totalChars and a nextOffset', async () => {
+      const body = 'a'.repeat(10000);
+      const library = makeLibrary([makeEntry('doc')], { doc: body });
+
+      const server = createSearchSkillsServer({ library });
+      const result = await server.readSkill({ name: 'doc', maxChars: 4000 });
+
+      expect(result.found).toBe(true);
+      expect(result.body).toHaveLength(4000);
+      expect(result.offset).toBe(0);
+      expect(result.totalChars).toBe(10000);
+      expect(result.nextOffset).toBe(4000);
+      expect(result.bodyTokenEstimate).toBe(2500);
+    });
+
+    it('reads the next page from nextOffset and reports the end with null', async () => {
+      const body = 'a'.repeat(6000);
+      const library = makeLibrary([makeEntry('doc')], { doc: body });
+
+      const server = createSearchSkillsServer({ library });
+      const page2 = await server.readSkill({ name: 'doc', offset: 4000, maxChars: 4000 });
+
+      expect(page2.body).toHaveLength(2000);
+      expect(page2.offset).toBe(4000);
+      expect(page2.nextOffset).toBeNull();
+    });
+
+    it('returns found:false for an unknown or blocked skill', async () => {
+      const library = makeLibrary([], { gone: null });
+
+      const server = createSearchSkillsServer({ library });
+      const result = await server.readSkill({ name: 'gone' });
+
+      expect(result.found).toBe(false);
+      expect(result.body).toBeUndefined();
+      expect(result.message).toContain('gone');
+    });
+
+    it('clamps an out-of-range offset to the body length', async () => {
+      const library = makeLibrary([makeEntry('doc')], { doc: 'short' });
+
+      const server = createSearchSkillsServer({ library });
+      const result = await server.readSkill({ name: 'doc', offset: 9999 });
+
+      expect(result.found).toBe(true);
+      expect(result.offset).toBe(5);
+      expect(result.body).toBe('');
+      expect(result.nextOffset).toBeNull();
     });
   });
 });

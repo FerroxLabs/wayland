@@ -5,15 +5,34 @@
  */
 
 import type { TProviderWithModel } from '@/common/config/storage';
-import { isOpenAIHost } from '@/common/utils/urlValidation';
+import { isLocalBaseUrl, isOpenAIHost } from '@/common/utils/urlValidation';
+import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
 import { loadBaselineProviderCatalog } from '@process/providers/catalog/providerCatalogStore';
+import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
+import type { ProviderId } from '@process/providers/types';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 
 /**
- * The four wcore providers Wayland configures natively (each carries its own
- * auth + base-url handling in {@link buildSpawnConfig}).
+ * The wcore providers Wayland configures natively (each carries its own auth +
+ * base-url handling in {@link buildSpawnConfig}). `xai` is the engine's native
+ * Grok provider (0.12.2+): it owns api.x.ai as its base URL and refreshes a Grok
+ * OAuth bearer itself, so it must be spawned as `--provider xai` (not the
+ * generic openai+base-url path) to get the token refresh + the grok-4.3
+ * stop-param fix.
  */
-type NativeWCoreProvider = 'anthropic' | 'openai' | 'bedrock' | 'vertex';
+type NativeWCoreProvider = 'anthropic' | 'openai' | 'bedrock' | 'vertex' | 'xai' | 'openai-chatgpt';
+
+/**
+ * The engine `--provider` value for a ChatGPT subscription connected via OAuth
+ * (#243). The engine drives inference against the ChatGPT backend
+ * (`chatgpt.com/backend-api`) and reads the OAuth token from `~/.codex/auth.json`
+ * (written by `writeCodexAuthFile` at sign-in), so the desktop must route this
+ * provider to the engine's native slug instead of collapsing it to
+ * `--provider openai` (which presents the OAuth bearer to api.openai.com -> a
+ * non-working spawn that errors on send). The provider owns the backend host, so
+ * NO `--base-url` and NO key env var are emitted (see {@link buildSpawnConfig}).
+ */
+const CHATGPT_SUBSCRIPTION_ENGINE_PROVIDER = 'openai-chatgpt';
 
 /**
  * A wcore `--provider` value. Either a {@link NativeWCoreProvider} literal or a
@@ -86,16 +105,112 @@ function catalogIdFor(model: TProviderWithModel): string | undefined {
 }
 
 /**
+ * Engine-native providers (#177). The app persists these as generic
+ * `openai-compatible` rows (their real base URL lives only in the model
+ * registry, stripped from the legacy bridge row), so without this they collapse
+ * to `--provider openai` and the engine presents the key to api.openai.com -> a
+ * false 401 (the Perplexity symptom in #177).
+ *
+ * The bundled wcore (0.12.2) resolves each of these slugs natively from its own
+ * baked provider catalog: passing `--provider <id>` lets the engine own the
+ * base URL + scoped key (e.g. Perplexity -> api.perplexity.ai with
+ * PERPLEXITY_API_KEY). Every slug here is accepted by the 0.12.2 binary as a
+ * `--provider` value and has a canonical key env var in {@link PROVIDER_ENV_VARS}
+ * (the single, models.dev-checked source of truth - reused so the two tables
+ * can never diverge, which is the exact failure class behind #177).
+ *
+ * Generalizes the original one-off xai arm: xai stays in the set (same routing),
+ * and the engine additionally refreshes a Grok OAuth bearer when one exists,
+ * ignoring XAI_API_KEY in that case.
+ */
+const NATIVE_ENGINE_PROVIDER_IDS = [
+  'xai',
+  'perplexity',
+  'openrouter',
+  'groq',
+  'mistral',
+  'cohere',
+  'deepseek',
+  'together',
+  'fireworks',
+  'cerebras',
+  'nvidia',
+  // minimax is an Anthropic-wire native provider in the bundled engine (0.12.5):
+  // `--provider minimax` -> api.minimax.io/anthropic with MINIMAX_API_KEY. Without
+  // this it falls through to `--provider openai` and breaks (#135).
+  'minimax',
+] as const;
+const NATIVE_ENGINE_PROVIDER_SET: ReadonlySet<string> = new Set(NATIVE_ENGINE_PROVIDER_IDS);
+
+/**
+ * The engine-native provider id for a model, or `undefined`. Mirrors
+ * {@link catalogIdFor}: the id survives only in the `v2:<id>` registry bridge
+ * tag (the legacy `platform` collapses to `openai-compatible`); the
+ * `platform === '<id>'` arm is forward-compat for a future direct-platform
+ * store. Validated against {@link NATIVE_ENGINE_PROVIDER_SET} so an unrecognized
+ * id never reaches `--provider`.
+ */
+function nativeEngineProviderId(model: TProviderWithModel): string | undefined {
+  const tag = (model as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+  if (typeof tag === 'string' && tag.startsWith('v2:')) {
+    const id = tag.slice('v2:'.length);
+    if (NATIVE_ENGINE_PROVIDER_SET.has(id)) return id;
+  }
+  if (model.platform && NATIVE_ENGINE_PROVIDER_SET.has(model.platform)) return model.platform;
+  return undefined;
+}
+
+/**
+ * The scoped key env var for an engine-native provider value (e.g.
+ * `perplexity` -> `PERPLEXITY_API_KEY`), or `undefined` if `provider` is not a
+ * native engine provider. Sourced from {@link PROVIDER_ENV_VARS}.
+ */
+function nativeEngineEnvVar(provider: WCoreProvider): string | undefined {
+  if (!NATIVE_ENGINE_PROVIDER_SET.has(provider)) return undefined;
+  return PROVIDER_ENV_VARS[provider as ProviderId]?.[0];
+}
+
+/**
+ * True if the model is a ChatGPT subscription connected via OAuth (#243).
+ * Detected by the registry bridge tag `v2:chatgpt-subscription` written by
+ * `legacyModelConfigBridge.mirrorConnectOrRekey` (the legacy `platform`
+ * collapses to `openai-compatible`, so the tag is the only surviving carrier of
+ * the provider id - mirrors {@link catalogIdFor} / {@link nativeEngineProviderId}).
+ */
+function isChatGptSubscription(model: TProviderWithModel): boolean {
+  const tag = (model as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+  return tag === `v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`;
+}
+
+/**
  * Map provider name to wcore provider name.
  *
  * Platform values: 'custom' | 'new-api' | 'gemini' | 'gemini-vertex-ai' | 'anthropic' | 'bedrock'
  */
 function mapProvider(model: TProviderWithModel): WCoreProvider {
+  // ChatGPT subscription (OAuth): route to the engine's native slug so it drives
+  // the ChatGPT backend + reads the token from ~/.codex/auth.json, instead of
+  // collapsing to `--provider openai` against api.openai.com (#243).
+  if (isChatGptSubscription(model)) return CHATGPT_SUBSCRIPTION_ENGINE_PROVIDER;
+
   // Catalog provider (one of the ~100): pass the catalog id through verbatim so
   // the engine resolves base_url/api_path/env_var from its own providers.toml.
   // Takes precedence over the native platform mapping below.
   const catalogId = catalogIdFor(model);
   if (catalogId) return catalogId;
+
+  // Engine-native providers (xai, perplexity, openrouter, groq, ...): route to
+  // the engine's native slug so it owns the base URL + scoped key, instead of
+  // the generic openai+base-url path that 401s against api.openai.com (#177).
+  // xai additionally gets the engine's Grok OAuth refresh + grok-4.3 stop fix.
+  const nativeId = nativeEngineProviderId(model);
+  if (nativeId) return nativeId;
+
+  // ChatGPT subscription: route to the engine's native `openai-chatgpt` provider
+  // (platform set by CHAT_START_PLATFORM). The engine reads the OAuth token from
+  // its own store (~/.codex/auth.json, written by the desktop on sign-in), so we
+  // pass NO key env var and NO --base-url - it owns the ChatGPT backend (#243).
+  if (model.platform === 'openai-chatgpt') return 'openai-chatgpt';
 
   // Special handling for new-api: respect per-model protocol setting
   if (model.platform === 'new-api' && model.useModel && model.modelProtocols) {
@@ -117,6 +232,26 @@ function mapProvider(model: TProviderWithModel): WCoreProvider {
 }
 
 const GEMINI_OPENAI_COMPAT_PATH = '/v1beta/openai';
+
+/**
+ * Dummy bearer token injected for a KEYLESS, LOCAL OpenAI-compatible backend
+ * (the local Ollama daemon being the canonical case, #268).
+ *
+ * Why this is load-bearing: the engine's `resolve_api_key` HARD-REQUIRES a key
+ * for the `openai` provider - with no `--api-key`, no `OPENAI_API_KEY`, and no
+ * OAuth it `bail!`s "No API key found", `bootstrap.build()` returns Err, and the
+ * spawned wcore exits 1 BEFORE emitting `ready`. The desktop then surfaces only
+ * "wcore exited with code 1 during init" (`index.ts`). The working CLI path uses
+ * `--profile ollama`, whose example config carries `api_key = "ollama"`, so the
+ * engine never reaches that bail - which is exactly why the CLI succeeds while
+ * the keyless desktop spawn fails on the same daemon.
+ *
+ * The local daemon ignores the Authorization header, so the value is irrelevant
+ * to the request; it only needs to be non-empty to clear the engine's key gate.
+ * Matches `LOCAL_KEYLESS_PLACEHOLDER` in `modelBridge.ts` (the legacy spawn path
+ * already injects the identical value for the same reason).
+ */
+const LOCAL_KEYLESS_PLACEHOLDER = 'ollama';
 
 /**
  * Default `--max-tokens` budget for reasoning-tier models when the caller
@@ -270,6 +405,29 @@ export function buildSpawnConfig(
     return { args, env, projectConfig, resolvedMaxTokens };
   }
 
+  // Engine-native providers (#177): the app persists these as openai-compatible
+  // but the bundled engine resolves <id> -> base_url + scoped key from its own
+  // baked catalog. Set ONLY the scoped env var (e.g. PERPLEXITY_API_KEY) and pass
+  // NO --base-url, so the engine routes to the provider's real host instead of
+  // api.openai.com. Mirrors the catalog block above.
+  const nativeEnvVar = nativeEngineEnvVar(provider);
+  if (nativeEnvVar !== undefined) {
+    if (model.apiKey) env[nativeEnvVar] = model.apiKey;
+    const projectConfig = buildProjectConfig(model, provider);
+    return { args, env, projectConfig, resolvedMaxTokens };
+  }
+
+  // ChatGPT subscription (#243): the engine owns the ChatGPT backend host and
+  // reads the OAuth token from ~/.codex/auth.json (bridged by writeCodexAuthFile
+  // at sign-in), so pass NEITHER a --base-url NOR a key env var - just the native
+  // `--provider openai-chatgpt`. Setting OPENAI_API_KEY here would present the
+  // OAuth bearer to api.openai.com (the rejected path); the base URL must stay
+  // engine-owned, not the openai-compatible backend URL on the legacy row.
+  if (provider === CHATGPT_SUBSCRIPTION_ENGINE_PROVIDER) {
+    const projectConfig = buildProjectConfig(model, provider);
+    return { args, env, projectConfig, resolvedMaxTokens };
+  }
+
   switch (provider) {
     case 'anthropic':
       if (model.apiKey) env.ANTHROPIC_API_KEY = model.apiKey;
@@ -277,8 +435,17 @@ export function buildSpawnConfig(
       break;
 
     case 'openai': {
-      if (model.apiKey) env.OPENAI_API_KEY = model.apiKey;
       const baseUrl = resolveOpenAIBaseUrl(model);
+      // Keyless LOCAL backend (local Ollama, #268): the engine still demands a
+      // key for `--provider openai` or it bails at init, so inject the dummy
+      // placeholder (the local daemon ignores Authorization). A keyless CLOUD
+      // endpoint is a genuine misconfig and is left to fail as before.
+      const trimmedKey = model.apiKey?.trim();
+      if (trimmedKey) {
+        env.OPENAI_API_KEY = trimmedKey;
+      } else if (isLocalBaseUrl(baseUrl)) {
+        env.OPENAI_API_KEY = LOCAL_KEYLESS_PLACEHOLDER;
+      }
       if (baseUrl) args.push('--base-url', stripTrailingV1(baseUrl));
       break;
     }
@@ -375,6 +542,18 @@ const ENGINE_ENV_ALLOWLIST: readonly string[] = [
   'TMP',
   'TEMP',
   'PWD',
+  // ── Linux dynamic linker ───────────────────────────────────────────────
+  // Shared-library search path. Required on ARM64 Ubuntu 24.04 (Noble) when
+  // the engine needs OpenSSL 1.1 from a non-system prefix. Without it the
+  // dynamic linker can't find the .so and the engine fails on startup (#233).
+  'LD_LIBRARY_PATH',
+  // ── Wayland engine config (non-secret) ─────────────────────────────────
+  // The user's bash-tool shell selection. Set in the environment (never by the
+  // app), so a GUI-launched engine only receives it when it survives this
+  // filter; CLI/headless already inherit the full env. Without it the engine
+  // falls back to its default shell (#197). Reaches `full` via process.env or
+  // the login-shell capture (see SHELL_INHERITED_ENV_VARS in shellEnv.ts).
+  'WAYLAND_BASH_SHELL',
   // ── Windows system (load-bearing for spawning + DLL resolution) ─────────
   'SYSTEMROOT',
   'SYSTEMDRIVE',

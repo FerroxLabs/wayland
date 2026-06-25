@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.dropbox/dropbox-mcp",
+  "title": "Dropbox",
+  "description": "Browse, search, and read your Dropbox files and folders - Dropbox’s official hosted MCP (beta).",
+  "version": "1.0.0",
+  "websiteUrl": "https://help.dropbox.com/integrations/connect-dropbox-mcp-server",
+  "repository": {
+    "url": "https://help.dropbox.com/integrations/connect-dropbox-mcp-server",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.dropbox.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "files-and-docs",
+      "productivity"
+    ],
+    "tags": [
+      "dropbox",
+      "files",
+      "storage"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 149,
+    "installRate": 0,
+    "iconUrl": "icons/com.dropbox-dropbox-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#0061FF"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Dropbox",
+      "providerSignupUrl": "https://www.dropbox.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.dropbox-dropbox-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

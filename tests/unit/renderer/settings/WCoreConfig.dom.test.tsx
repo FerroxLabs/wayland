@@ -62,6 +62,12 @@ vi.mock('../../../../src/common', () => ({
       activate: { invoke: () => Promise.resolve({ ok: true }) },
       delete: { invoke: () => Promise.resolve({ ok: true }) },
     },
+    // In-app engine updater (Overview pane "update available" card).
+    wcoreUpdate: {
+      check: { invoke: () => Promise.resolve(null) },
+      install: { invoke: () => Promise.resolve({ ok: true }) },
+      progress: { on: () => () => {} },
+    },
   },
 }));
 
@@ -169,7 +175,7 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
     expect(
       screen.getByText(
-        'Everything the engine can actually do, with sensible defaults already on. Toggle a tool to grant or revoke it across all profiles. Tools that need a credential link straight to where you set it.'
+        'Every tool is always available to the engine. These switches set whether a tool auto-runs or asks for approval first - they do not turn tools off. Script and RepoMap are the only real on/off gates. Tools that need a credential link straight to where you set it.'
       )
     ).toBeTruthy();
   });
@@ -182,7 +188,7 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
 
   it('shows the engine chip with the pinned version when running', async () => {
     render(<WCoreConfig />);
-    await waitFor(() => expect(screen.getByText('engine running · v0.9.6-rc.1')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('engine running · v0.11.0')).toBeTruthy());
   });
 
   it('shows engine stopped when the wcore backend is absent', async () => {

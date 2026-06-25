@@ -158,11 +158,18 @@ vi.mock('@/renderer/hooks/workflow/useWorkflowSession', () => ({
     markBeginSent: vi.fn(),
   }),
 }));
+// Provider list is mutable so #132 can seed a provider that offers the
+// workflow's persisted model (the #124 validation effect drops a currentModel
+// whose model no provider offers). Existing tests keep the empty default.
+let mockProviders: Array<Record<string, unknown>> = [];
+let mockAvailableModels: (p: Record<string, unknown>) => string[] = () => [];
 vi.mock('@/renderer/hooks/agent/useModelProviderList', () => ({
   useModelProviderList: () => ({
-    providers: [],
+    providers: mockProviders,
+    connectedProviders: mockProviders,
+    isLoading: false,
     geminiModeLookup: new Map(),
-    getAvailableModels: () => [],
+    getAvailableModels: (p: Record<string, unknown>) => mockAvailableModels(p),
     formatModelLabel: () => '',
   }),
 }));
@@ -247,6 +254,8 @@ beforeEach(() => {
   geminiChatCalls.length = 0;
   mockLocationState = null;
   mockWorkflowSessionData = null;
+  mockProviders = [];
+  mockAvailableModels = () => [];
 });
 
 describe('ChatConversation - non-workflow path', () => {
@@ -302,6 +311,40 @@ describe('ChatConversation - workflow path via conversation.extra', () => {
 
     const layout = screen.getByTestId('mock-chat-layout');
     expect(layout.getAttribute('data-hide-header')).toBe('true');
+  });
+});
+
+describe('ChatConversation - workflow composer model selection (#132)', () => {
+  it('seeds WCore workflow chat with a real model selection from conversation.model (not a null-object)', () => {
+    // #132: the workflow path passed a static null-object model selection
+    // (currentModel: undefined), so typing in the composer inside a running
+    // workflow threw "No model selected for current session". The send box
+    // gate requires currentModel?.useModel; it must come from conversation.model.
+    mockProviders = [{ id: 'wcore-prov', platform: 'wayland-core' }];
+    mockAvailableModels = () => ['sonnet-4.6'];
+
+    const conv = buildWCoreConversation({ workflowSessionId: 'sess-model' });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (conv as any).model = { id: 'wcore-prov', useModel: 'sonnet-4.6' };
+
+    render(<ChatConversation conversation={conv} />);
+
+    const selection = wcoreChatCalls.at(-1)?.modelSelection as { currentModel?: { useModel?: string } } | undefined;
+    expect(selection?.currentModel?.useModel).toBe('sonnet-4.6');
+  });
+
+  it('seeds Gemini workflow chat with a real model selection from conversation.model', () => {
+    mockProviders = [{ id: 'gem-prov', platform: 'gemini' }];
+    mockAvailableModels = () => ['gemini-3.5'];
+
+    const conv = buildGeminiConversation({ workflowSessionId: 'sess-gem-model' });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (conv as any).model = { id: 'gem-prov', useModel: 'gemini-3.5' };
+
+    render(<ChatConversation conversation={conv} />);
+
+    const selection = geminiChatCalls.at(-1)?.modelSelection as { currentModel?: { useModel?: string } } | undefined;
+    expect(selection?.currentModel?.useModel).toBe('gemini-3.5');
   });
 });
 

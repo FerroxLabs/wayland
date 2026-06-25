@@ -353,6 +353,20 @@ const SystemModalContent: React.FC = () => {
                 })}
               />
             )}
+            {isElectronDesktop() && (
+              <div className='w-full flex flex-col divide-y divide-border-2'>
+                <PreferenceRow
+                  label={t('settings.checkForUpdates', { defaultValue: 'Software updates' })}
+                  description={t('settings.checkForUpdatesDesc', {
+                    defaultValue: 'Check that you are running the latest version of Wayland.',
+                  })}
+                >
+                  <Button size='small' onClick={() => window.dispatchEvent(new Event('wayland-open-update-modal'))}>
+                    {t('settings.checkForUpdatesButton', { defaultValue: 'Check for updates' })}
+                  </Button>
+                </PreferenceRow>
+              </div>
+            )}
             <div className='w-full flex flex-col divide-y divide-border-2'>
               {preferenceItems.map((item) => (
                 <PreferenceRow key={item.key} label={item.label} description={item.description}>

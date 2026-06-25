@@ -44,6 +44,34 @@ const ACP_CODE_MAP: Record<number, { code: AcpErrorCode; retryable: boolean }> =
 
 const RETRYABLE_ERRNO = new Set(['ECONNREFUSED', 'ECONNRESET', 'EPIPE', 'ETIMEDOUT']);
 
+/**
+ * JSON-RPC errors (notably -32603 "Internal error") carry the human-readable
+ * detail in `data`, not `message`. Render that detail as a string so it can be
+ * folded into the surfaced message instead of being discarded.
+ */
+function describeErrorData(data: unknown): string {
+  if (data == null) return '';
+  if (typeof data === 'string') return data.trim();
+  try {
+    const json = JSON.stringify(data);
+    return json && json !== '{}' && json !== 'null' ? json : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Append the error's `data` detail to its `message` when it adds information.
+ * Without this, an agent that replies `-32603 "Internal error"` with the real
+ * cause in `data` shows the user a bare "Internal error" and the detail is lost
+ * before it reaches the (already expandable) chat error tip. (#69)
+ */
+function withErrorDetail(message: string, data: unknown): string {
+  const detail = describeErrorData(data);
+  if (!detail || message.includes(detail)) return message;
+  return `${message}: ${detail}`;
+}
+
 const AUTH_KEYWORDS_RE =
   /\btoken\s+(is\s+)?expired\b|\bsso\s+login\b|\bunauthorized\b|\bforbidden\b|\bcredential\b|\bapi[_ ]?key\b|\bnot\s+authenticated\b|\baccess\s+denied\b/i;
 
@@ -77,12 +105,12 @@ export function normalizeError(error: unknown): AcpError {
     }
 
     if (mapped) {
-      return new AcpError(mapped.code, error.message, {
+      return new AcpError(mapped.code, withErrorDetail(error.message, error.data), {
         cause: error,
         retryable: mapped.retryable,
       });
     }
-    return new AcpError('AGENT_ERROR', error.message, { cause: error });
+    return new AcpError('AGENT_ERROR', withErrorDetail(error.message, error.data), { cause: error });
   }
 
   // Detect SDK "ACP connection closed" - child process exited before responding.
@@ -100,12 +128,12 @@ export function normalizeError(error: unknown): AcpError {
     // Try code-based mapping first (same ACP codes)
     const mapped = ACP_CODE_MAP[acpPayload.code];
     if (mapped) {
-      return new AcpError(mapped.code, acpPayload.message, {
+      return new AcpError(mapped.code, withErrorDetail(acpPayload.message, acpPayload.data), {
         cause: error,
         retryable: mapped.retryable,
       });
     }
-    return new AcpError('AGENT_ERROR', acpPayload.message, { cause: error });
+    return new AcpError('AGENT_ERROR', withErrorDetail(acpPayload.message, acpPayload.data), { cause: error });
   }
 
   // Fallback

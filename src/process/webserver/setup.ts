@@ -133,6 +133,32 @@ function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
   return baseOrigins;
 }
 
+/**
+ * Configure Express `trust proxy` NARROWLY (cross-audit 2026-06-15 R3).
+ *
+ * `trust proxy: true` is dangerous: it makes `req.ip` / `X-Forwarded-For`
+ * spoofable, so a public attacker could forge `X-Forwarded-For: 100.64.0.1` and
+ * appear to be operator. We instead trust ONLY explicit private hops - loopback
+ * plus any `WAYLAND_OPERATOR_CIDRS` ranges - so that a TLS-terminating reverse
+ * proxy on the same host (or an allowlisted private range) can set `req.secure`,
+ * while a request whose direct peer is public never has its XFF believed.
+ *
+ * NOTE: trust classification for the operator gate does NOT rely on this - it
+ * reads `req.socket.remoteAddress` directly. This setting only affects
+ * `req.ip` / `req.secure` / `req.protocol` derivation for the HTTPS floor.
+ */
+export function setupTrustProxy(app: Express): void {
+  const operatorCidrs = (process.env.WAYLAND_OPERATOR_CIDRS || '')
+    .split(',')
+    .map((c) => c.trim())
+    .filter(Boolean);
+
+  // Express accepts a list of trusted IPs/subnets. Loopback is always a trusted
+  // hop (a local reverse proxy); operator CIDRs are opt-in private ranges.
+  const trusted = ['loopback', ...operatorCidrs];
+  app.set('trust proxy', trusted);
+}
+
 export function setupCors(app: Express, port: number, allowRemote: boolean): void {
   const allowedOrigins = getConfiguredOrigins(port, allowRemote);
 

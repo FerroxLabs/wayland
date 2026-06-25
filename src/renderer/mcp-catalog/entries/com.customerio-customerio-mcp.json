@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.customerio/customerio-mcp",
+  "title": "Customer.io",
+  "description": "Build segments from real customer data, inspect profiles and journeys, and search campaigns - Customer.io’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://docs.customer.io/ai/mcp/get-started/",
+  "repository": {
+    "url": "https://docs.customer.io/ai/mcp/get-started/",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.customer.io/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "communication",
+      "sales"
+    ],
+    "tags": [
+      "customerio",
+      "marketing",
+      "segments"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 147,
+    "installRate": 0,
+    "iconUrl": "icons/com.customerio-customerio-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#7131FF"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Customer.io",
+      "providerSignupUrl": "https://fly.customer.io"
+    },
+    "setupGuide": {
+      "path": "guides/com.customerio-customerio-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -8,6 +8,7 @@ import { getSkillsDir, getBuiltinSkillsCopyDir, loadSkillsContent } from '@proce
 import { AcpSkillManager, buildSkillsIndexText, type SkillIndex } from './AcpSkillManager';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { SkillRetriever } from '@process/services/skills/SkillRetriever';
+import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import { getDatabase } from '@process/services/database';
 import { mainWarn } from '@process/utils/mainLogger';
 import { getTeamGuidePrompt } from '@process/team/prompts/teamGuidePrompt.ts';
@@ -204,6 +205,50 @@ export async function buildTurnSkillContext(
       : '';
 
   return { advert: [advertBlock, autoBody].filter(Boolean).join('\n\n'), autoLoaded };
+}
+
+/**
+ * Rank library skills for a composer draft, reusing the SAME BM25 retriever and
+ * relevance gate as buildTurnSkillContext so the composer's "Suggested for
+ * '<draft>'" list mirrors what the agent would auto-surface on that turn.
+ * Returns full SkillIndexEntry rows (skills only, blocked excluded) so the
+ * Skills flyout can render and add them. Empty for greetings / no clear match.
+ */
+export async function retrieveSkillSuggestions(query: string, limit = 2): Promise<SkillIndexEntry[]> {
+  const terms = discriminativeQueryTerms(query ?? '');
+  if (terms.length < MIN_QUERY_TERMS) return [];
+
+  let entries;
+  try {
+    entries = await SkillLibrary.getInstance().list();
+  } catch {
+    return [];
+  }
+  if (!entries || entries.length === 0) return [];
+
+  if (!turnRetriever || turnRetrieverEntryCount !== entries.length) {
+    turnRetriever = new SkillRetriever({ entries });
+    turnRetriever.buildIndex(entries);
+    turnRetrieverEntryCount = entries.length;
+  }
+
+  const hits = turnRetriever.retrieve(terms.join(' '), limit + 3);
+  if (hits.length === 0 || hits[0].matchedTerms < MATCH_MIN_TERMS) return [];
+
+  // Same coherent-cluster floor the agent advert uses, so weak tail matches
+  // don't surface as suggestions.
+  const floor = ADVERT_RATIO * hits[0].score;
+  const byName = new Map(entries.map((e) => [e.name, e]));
+  const out: SkillIndexEntry[] = [];
+  for (const h of hits) {
+    if (h.score < floor) break;
+    const entry = byName.get(h.name);
+    if (entry && entry.type === 'skill' && entry.security?.verdict !== 'blocked') {
+      out.push(entry);
+    }
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
 /**

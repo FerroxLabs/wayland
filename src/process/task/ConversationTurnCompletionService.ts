@@ -1,5 +1,6 @@
 import { ipcBridge } from '@/common';
 import type { IConversationTurnCompletedEvent } from '@/common/adapter/ipcBridge';
+import { getBridgeEmitter } from '@/common/adapter/registry';
 import type { TChatConversation } from '@/common/config/storage';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { getDatabase } from '@process/services/database';
@@ -94,6 +95,14 @@ export class ConversationTurnCompletionService {
       },
     };
 
-    ipcBridge.conversation?.turnCompleted?.emit?.(event);
+    // The IPC emit above fans OUT to the renderer (and WebSocket clients) only -
+    // `buildEmitter().emit()` routes through the adapter's `emit` (webContents.send),
+    // never the local main-process EventEmitter. Main-process `.on()` subscribers
+    // (the workflow parent driver + autonomous-child completion listeners in
+    // initBridge) live on that local emitter and would never see a main-originated
+    // turn completion. Fan the same event into the local emitter so those in-process
+    // listeners fire. Renderer delivery is unaffected (separate channel); no
+    // double-delivery because the normal emit path does not touch the local emitter.
+    getBridgeEmitter()?.emit('conversation.turn.completed', event);
   }
 }

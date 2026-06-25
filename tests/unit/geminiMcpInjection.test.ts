@@ -14,7 +14,7 @@
 
 import { describe, it, expect } from 'vitest';
 import type { IMcpServer } from '../../src/common/config/storage';
-import { shouldInjectGeminiMcpServer } from '../../src/process/agent/acp/mcpSessionConfig';
+import { shouldInjectSessionMcpServer } from '../../src/process/agent/acp/mcpSessionConfig';
 
 function server(overrides: Partial<IMcpServer>): IMcpServer {
   return {
@@ -29,32 +29,32 @@ function server(overrides: Partial<IMcpServer>): IMcpServer {
   } as IMcpServer;
 }
 
-describe('shouldInjectGeminiMcpServer', () => {
+describe('shouldInjectSessionMcpServer', () => {
   it('injects an enabled builtin server with status undefined (the bug)', () => {
-    expect(shouldInjectGeminiMcpServer(server({ builtin: true, enabled: true, status: undefined }))).toBe(true);
+    expect(shouldInjectSessionMcpServer(server({ builtin: true, enabled: true, status: undefined }))).toBe(true);
   });
 
   it('injects an enabled builtin server with status connected', () => {
-    expect(shouldInjectGeminiMcpServer(server({ builtin: true, enabled: true, status: 'connected' }))).toBe(true);
+    expect(shouldInjectSessionMcpServer(server({ builtin: true, enabled: true, status: 'connected' }))).toBe(true);
   });
 
   it('does not inject a disabled builtin server', () => {
-    expect(shouldInjectGeminiMcpServer(server({ builtin: true, enabled: false, status: undefined }))).toBe(false);
+    expect(shouldInjectSessionMcpServer(server({ builtin: true, enabled: false, status: undefined }))).toBe(false);
   });
 
   it('does not inject a builtin server in an error status', () => {
-    expect(shouldInjectGeminiMcpServer(server({ builtin: true, enabled: true, status: 'error' }))).toBe(false);
+    expect(shouldInjectSessionMcpServer(server({ builtin: true, enabled: true, status: 'error' }))).toBe(false);
   });
 
   it('requires a user server to be connected (undefined is not injected)', () => {
-    expect(shouldInjectGeminiMcpServer(server({ builtin: undefined, enabled: true, status: undefined }))).toBe(false);
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: undefined }))).toBe(false);
   });
 
   it('injects a connected user server', () => {
-    expect(shouldInjectGeminiMcpServer(server({ builtin: undefined, enabled: true, status: 'connected' }))).toBe(true);
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: 'connected' }))).toBe(true);
   });
 
   it('does not inject a disabled user server even when connected', () => {
-    expect(shouldInjectGeminiMcpServer(server({ builtin: undefined, enabled: false, status: 'connected' }))).toBe(false);
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: false, status: 'connected' }))).toBe(false);
   });
 });

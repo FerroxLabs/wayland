@@ -18,6 +18,8 @@ import ChannelTelegramLogo from '@/renderer/assets/channel-logos/telegram.svg';
 import ChannelWecomLogo from '@/renderer/assets/channel-logos/wecom.svg';
 import ChannelWeixinLogo from '@/renderer/assets/channel-logos/weixin.svg';
 import { isElectronDesktop } from '@/renderer/utils/platform';
+import { changeUsernameHttp } from '@/renderer/services/UsernameService';
+import { withCsrfToken } from '@process/webserver/middleware/csrfClient';
 import { Button, Form, Input, Message, Switch, Tooltip } from '@arco-design/web-react';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -274,16 +276,31 @@ const WebuiModalContent: React.FC = () => {
             initialPassword: responsePassword || cachedPassword || prev?.initialPassword,
           }));
         } else {
-          setStatus((prev) => ({
-            ...(prev || { adminUsername: 'admin' }),
-            running: true,
-            port,
-            allowRemote: allowRemotePreference,
-            localUrl,
-            lanIP: currentIP || prev?.lanIP,
-            networkUrl: allowRemotePreference && currentIP ? `http://${currentIP}:${port}` : undefined,
-            initialPassword: cachedPassword || prev?.initialPassword,
-          }));
+          // Start timed out or returned null: do NOT assume success.
+          // Re-check actual server status before claiming the server is up.
+          let statusResult: { success: boolean; data?: IWebUIStatus } | null = null;
+          if (window.electronAPI?.webuiGetStatus) {
+            statusResult = await window.electronAPI.webuiGetStatus();
+          } else {
+            statusResult = await Promise.race([
+              webui.getStatus.invoke(),
+              new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500)),
+            ]);
+          }
+
+          if (!statusResult?.success || !statusResult?.data?.running) {
+            // Server is not actually running: surface an honest error,
+            // roll back UI, and do NOT persist enabled=true.
+            setWebuiEnabled(previousEnabled);
+            setStatus((prev) => (prev ? { ...prev, running: false } : null));
+            Message.error(t('settings.webui.operationFailed'));
+            return;
+          }
+
+          // Server actually started.
+          const responseIP = statusResult.data.lanIP || currentIP;
+          if (responseIP) setCachedIP(responseIP);
+          setStatus(statusResult.data);
         }
 
         // Persist only after successful start
@@ -494,10 +511,32 @@ const WebuiModalContent: React.FC = () => {
       if (window.electronAPI?.webuiChangePassword) {
         result = await window.electronAPI.webuiChangePassword(values.newPassword, values.currentPassword);
       } else {
-        // Fallback: use bridge
-        result = await webui.changePassword.invoke({
-          newPassword: values.newPassword,
+        // Browser (headless / WebUI) fallback: call the safe HTTP route. It
+        // enforces JWT auth (from the cookie via credentials:'include'),
+        // verifies the current password, is rate-limited, and revokes all
+        // sessions on success. The webui.changePassword bridge is in the remote
+        // denylist (and lacks the current-password check), so it cannot be used
+        // here. CSRF token + JWT cookie travel exactly like the login request.
+        const response = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(
+            withCsrfToken({
+              currentPassword: values.currentPassword,
+              newPassword: values.newPassword,
+            })
+          ),
         });
+        const data = (await response.json().catch(() => ({}))) as {
+          success?: boolean;
+          error?: string;
+          details?: string[];
+        };
+        result = {
+          success: Boolean(data.success),
+          msg: data.details?.join('; ') || data.error,
+        };
       }
 
       if (result.success) {
@@ -536,19 +575,23 @@ const WebuiModalContent: React.FC = () => {
       const values = await usernameForm.validate();
       setUsernameLoading(true);
 
-      let result: { success: boolean; msg?: string; data?: { username: string } };
+      let result: { success: boolean; msg?: string; username?: string };
 
       if (window.electronAPI?.webuiChangeUsername) {
         // Direct IPC requires the current password and shows a native
         // main-process confirmation dialog before applying the change.
-        result = await window.electronAPI.webuiChangeUsername(values.newUsername, values.currentPassword);
+        const ipcResult = await window.electronAPI.webuiChangeUsername(values.newUsername, values.currentPassword);
+        result = { success: ipcResult.success, msg: ipcResult.msg, username: ipcResult.data?.username };
       } else {
-        result = await webui.changeUsername.invoke({
-          newUsername: values.newUsername,
-        });
+        // Browser (headless / WebUI) fallback: call the safe HTTP route. It
+        // enforces JWT auth (cookie via credentials:'include'), verifies the
+        // current password, is rate-limited, and is write-only. The
+        // webui.changeUsername bridge is in the remote denylist (and lacks the
+        // current-password check), so it cannot be used here.
+        result = await changeUsernameHttp(values.newUsername, values.currentPassword);
       }
 
-      const nextUsername = result.data?.username ?? values.newUsername.trim();
+      const nextUsername = result.username ?? values.newUsername.trim();
       if (result.success) {
         Message.success(t('settings.webui.usernameChanged'));
         setSetUsernameModalVisible(false);
@@ -657,7 +700,132 @@ const WebuiModalContent: React.FC = () => {
   const displayPassword = getDisplayPassword();
   const displayUsername = status?.adminUsername || 'admin';
 
-  // In browser mode, only show Channels config, not WebUI service config
+  // The change-password modal is rendered in both the headless (browser) and
+  // desktop layouts, so it is defined once here. handleSetNewPassword already
+  // has a browser path that POSTs the authenticated /api/auth/change-password.
+  const passwordModal = (
+    <WaylandModal
+      visible={setPasswordModalVisible}
+      onCancel={() => setSetPasswordModalVisible(false)}
+      onOk={handleSetNewPassword}
+      confirmLoading={passwordLoading}
+      title={t('settings.webui.setNewPassword')}
+      size='small'
+    >
+      <Form form={form} layout='vertical' className='pt-16px'>
+        <Form.Item
+          label={t('settings.webui.currentPassword')}
+          field='currentPassword'
+          rules={[{ required: true, message: t('settings.webui.currentPasswordRequired') }]}
+        >
+          <Input.Password placeholder={t('settings.webui.currentPasswordPlaceholder')} />
+        </Form.Item>
+        <div className='flex justify-end -mt-12px mb-4px'>
+          <Button type='text' size='mini' status='warning' loading={resetLoading} onClick={handleForgotPasswordReset}>
+            {t('settings.webui.forgotPassword', { defaultValue: 'Forgot your password? Reset it' })}
+          </Button>
+        </div>
+        <Form.Item
+          label={t('settings.webui.newPassword')}
+          field='newPassword'
+          rules={[
+            { required: true, message: t('settings.webui.newPasswordRequired') },
+            { minLength: 8, message: t('settings.webui.passwordMinLength') },
+          ]}
+        >
+          <Input.Password placeholder={t('settings.webui.newPasswordPlaceholder')} />
+        </Form.Item>
+        <Form.Item
+          label={t('settings.webui.confirmPassword')}
+          field='confirmPassword'
+          rules={[
+            { required: true, message: t('settings.webui.confirmPasswordRequired') },
+            {
+              validator: (value, callback) => {
+                if (value !== form.getFieldValue('newPassword')) {
+                  callback(t('settings.webui.passwordMismatch'));
+                } else {
+                  callback();
+                }
+              },
+            },
+          ]}
+        >
+          <Input.Password placeholder={t('settings.webui.confirmPasswordPlaceholder')} />
+        </Form.Item>
+      </Form>
+    </WaylandModal>
+  );
+
+  // The change-username modal is rendered in both the headless (browser) and
+  // desktop layouts, so it is defined once here. handleSetNewUsername has a
+  // browser path that POSTs the authenticated /api/auth/change-username (the
+  // bridge channel is remote-denied).
+  const usernameModal = (
+    <WaylandModal
+      visible={setUsernameModalVisible}
+      onCancel={() => setSetUsernameModalVisible(false)}
+      onOk={handleSetNewUsername}
+      confirmLoading={usernameLoading}
+      title={t('settings.webui.setNewUsername')}
+      size='small'
+    >
+      <Form form={usernameForm} layout='vertical' className='pt-16px'>
+        <Form.Item
+          label={t('settings.webui.currentPassword')}
+          field='currentPassword'
+          rules={[{ required: true, message: t('settings.webui.currentPasswordRequired') }]}
+        >
+          <Input.Password placeholder={t('settings.webui.currentPasswordPlaceholder')} />
+        </Form.Item>
+        <Form.Item
+          label={t('settings.webui.newUsername')}
+          field='newUsername'
+          rules={[
+            { required: true, message: t('settings.webui.newUsernameRequired') },
+            {
+              validator: (value, callback) => {
+                if (typeof value !== 'string') {
+                  callback();
+                  return;
+                }
+
+                const trimmed = value.trim();
+                if (trimmed.length < 3) {
+                  callback(t('settings.webui.usernameMinLength'));
+                  return;
+                }
+
+                if (trimmed.length > 32) {
+                  callback(t('settings.webui.usernameMaxLength'));
+                  return;
+                }
+
+                if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+                  callback(t('settings.webui.usernameFormatError'));
+                  return;
+                }
+
+                if (/^[_-]|[_-]$/.test(trimmed)) {
+                  callback(t('settings.webui.usernameEdgeError'));
+                  return;
+                }
+
+                callback();
+              },
+            },
+          ]}
+        >
+          <Input placeholder={t('settings.webui.newUsernamePlaceholder')} />
+        </Form.Item>
+      </Form>
+    </WaylandModal>
+  );
+
+  // In browser mode, only show Channels config, not WebUI service config. The
+  // admin account still needs a way to change its password (#26): the desktop
+  // password panel is gated out here, so surface a compact change-password card
+  // wired to the same handler + modal.
   if (!isDesktop) {
     return (
       <div className='flex flex-col h-full w-full'>
@@ -667,8 +835,50 @@ const WebuiModalContent: React.FC = () => {
             <Suspense fallback={<div className='text-13px text-t-secondary'>{t('common.loading')}</div>}>
               <ChannelModalContentLazy />
             </Suspense>
+
+            <div className='px-14px py-12px bg-[var(--color-bg-2)] border-2 border-solid border-[var(--color-border-2)] rd-12px flex items-center justify-between gap-12px'>
+              <div className='min-w-0'>
+                <div className='text-13px text-t-primary font-500'>
+                  {t('settings.webui.changeUsername', { defaultValue: 'Change username' })}
+                </div>
+                <div className='text-12px text-t-secondary'>
+                  {t('settings.webui.changeUsernameDesc', {
+                    defaultValue: 'Update the admin login name for this server.',
+                  })}
+                </div>
+              </div>
+              <Button type='primary' size='small' className='rd-100px shrink-0' onClick={handleResetUsername}>
+                {t('settings.webui.changeUsername', { defaultValue: 'Change username' })}
+              </Button>
+            </div>
+
+            <div className='px-14px py-12px bg-[var(--color-bg-2)] border-2 border-solid border-[var(--color-border-2)] rd-12px flex items-center justify-between gap-12px'>
+              <div className='min-w-0'>
+                <div className='text-13px text-t-primary font-500'>
+                  {t('settings.webui.changePassword', { defaultValue: 'Change password' })}
+                </div>
+                <div className='text-12px text-t-secondary'>
+                  {t('settings.webui.changePasswordDesc', {
+                    defaultValue: 'Update the admin password for this server.',
+                  })}
+                </div>
+              </div>
+              <Button
+                type='primary'
+                size='small'
+                className='rd-100px shrink-0'
+                onClick={() => {
+                  form.resetFields();
+                  setSetPasswordModalVisible(true);
+                }}
+              >
+                {t('settings.webui.changePassword', { defaultValue: 'Change password' })}
+              </Button>
+            </div>
           </div>
         </WaylandScrollArea>
+        {usernameModal}
+        {passwordModal}
       </div>
     );
   }
@@ -905,117 +1115,11 @@ const WebuiModalContent: React.FC = () => {
     <div className='flex flex-col h-full w-full'>
       {webuiPanel}
 
-      <WaylandModal
-        visible={setUsernameModalVisible}
-        onCancel={() => setSetUsernameModalVisible(false)}
-        onOk={handleSetNewUsername}
-        confirmLoading={usernameLoading}
-        title={t('settings.webui.setNewUsername')}
-        size='small'
-      >
-        <Form form={usernameForm} layout='vertical' className='pt-16px'>
-          <Form.Item
-            label={t('settings.webui.currentPassword')}
-            field='currentPassword'
-            rules={[{ required: true, message: t('settings.webui.currentPasswordRequired') }]}
-          >
-            <Input.Password placeholder={t('settings.webui.currentPasswordPlaceholder')} />
-          </Form.Item>
-          <Form.Item
-            label={t('settings.webui.newUsername')}
-            field='newUsername'
-            rules={[
-              { required: true, message: t('settings.webui.newUsernameRequired') },
-              {
-                validator: (value, callback) => {
-                  if (typeof value !== 'string') {
-                    callback();
-                    return;
-                  }
+      {/* Set New Username Modal (shared with the headless layout above) */}
+      {usernameModal}
 
-                  const trimmed = value.trim();
-                  if (trimmed.length < 3) {
-                    callback(t('settings.webui.usernameMinLength'));
-                    return;
-                  }
-
-                  if (trimmed.length > 32) {
-                    callback(t('settings.webui.usernameMaxLength'));
-                    return;
-                  }
-
-                  if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
-                    callback(t('settings.webui.usernameFormatError'));
-                    return;
-                  }
-
-                  if (/^[_-]|[_-]$/.test(trimmed)) {
-                    callback(t('settings.webui.usernameEdgeError'));
-                    return;
-                  }
-
-                  callback();
-                },
-              },
-            ]}
-          >
-            <Input placeholder={t('settings.webui.newUsernamePlaceholder')} />
-          </Form.Item>
-        </Form>
-      </WaylandModal>
-
-      {/* Set New Password Modal */}
-      <WaylandModal
-        visible={setPasswordModalVisible}
-        onCancel={() => setSetPasswordModalVisible(false)}
-        onOk={handleSetNewPassword}
-        confirmLoading={passwordLoading}
-        title={t('settings.webui.setNewPassword')}
-        size='small'
-      >
-        <Form form={form} layout='vertical' className='pt-16px'>
-          <Form.Item
-            label={t('settings.webui.currentPassword')}
-            field='currentPassword'
-            rules={[{ required: true, message: t('settings.webui.currentPasswordRequired') }]}
-          >
-            <Input.Password placeholder={t('settings.webui.currentPasswordPlaceholder')} />
-          </Form.Item>
-          <div className='flex justify-end -mt-12px mb-4px'>
-            <Button type='text' size='mini' status='warning' loading={resetLoading} onClick={handleForgotPasswordReset}>
-              {t('settings.webui.forgotPassword', { defaultValue: 'Forgot your password? Reset it' })}
-            </Button>
-          </div>
-          <Form.Item
-            label={t('settings.webui.newPassword')}
-            field='newPassword'
-            rules={[
-              { required: true, message: t('settings.webui.newPasswordRequired') },
-              { minLength: 8, message: t('settings.webui.passwordMinLength') },
-            ]}
-          >
-            <Input.Password placeholder={t('settings.webui.newPasswordPlaceholder')} />
-          </Form.Item>
-          <Form.Item
-            label={t('settings.webui.confirmPassword')}
-            field='confirmPassword'
-            rules={[
-              { required: true, message: t('settings.webui.confirmPasswordRequired') },
-              {
-                validator: (value, callback) => {
-                  if (value !== form.getFieldValue('newPassword')) {
-                    callback(t('settings.webui.passwordMismatch'));
-                  } else {
-                    callback();
-                  }
-                },
-              },
-            ]}
-          >
-            <Input.Password placeholder={t('settings.webui.confirmPasswordPlaceholder')} />
-          </Form.Item>
-        </Form>
-      </WaylandModal>
+      {/* Set New Password Modal (shared with the headless layout above) */}
+      {passwordModal}
     </div>
   );
 };

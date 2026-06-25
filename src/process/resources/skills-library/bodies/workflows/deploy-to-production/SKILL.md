@@ -13,6 +13,7 @@ metadata:
   depends: "ci-cd-pipeline-design deployment-strategies database-migration-patterns monitoring-alerting logging-patterns performance-testing"
   disclaimer: "none"
   difficulty: "intermediate"
+  interactivity: "auto"
 ---
 
 # Deploy to Production

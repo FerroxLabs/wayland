@@ -13,8 +13,8 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Input } from '@arco-design/web-react';
-import { memory as memoryBridge } from '@/common/adapter/ipcBridge';
+import { Input, Message } from '@arco-design/web-react';
+import { dialog, memory as memoryBridge } from '@/common/adapter/ipcBridge';
 import { useTranslation } from 'react-i18next';
 import styles from './EmptyStateHero.module.css';
 
@@ -48,7 +48,7 @@ const CARDS: CardDef[] = [
     icon: '📓',
     titleKey: 'archive.import.obsidian',
     titleFallback: 'Import Obsidian vault',
-    defaultSubline: 'Click to detect vaults',
+    defaultSubline: 'Click to choose your vault folder',
   },
   {
     key: 'drop',
@@ -92,30 +92,67 @@ const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSea
 
   const handleCardClick = useCallback(
     async (key: CardDef['key']): Promise<void> => {
+      // Obsidian imports from a user-chosen vault. The old code hardcoded
+      // `~/Documents`, so on any machine without a vault there (common on
+      // Windows) the import found nothing, fired onImportComplete, and the
+      // still-empty archive flashed "No matches" - reading as a dead button
+      // (#133). Open a native folder picker so the user points at their actual
+      // vault; a cancel aborts cleanly without the empty-state flash.
+      let vaultPath: string | undefined;
+      if (key === 'obsidian') {
+        try {
+          const picked = await dialog.showOpen.invoke({ properties: ['openDirectory'] });
+          if (!picked || picked.length === 0) return; // cancelled - no-op
+          vaultPath = picked[0];
+        } catch {
+          return;
+        }
+      }
+
       setLoading((prev) => ({ ...prev, [key]: true }));
       try {
         switch (key) {
-          case 'claude-mem':
-            await memoryBridge.import.claudeMem.invoke();
+          case 'claude-mem': {
+            const r = await memoryBridge.import.claudeMem.invoke();
+            Message.success(
+              t('archive.import.claudeMem.success', `Imported ${r.count} entries · ${r.errors.length} errors`),
+            );
+            if (r.count > 0) onImportComplete?.();
             break;
-          case 'obsidian':
-            await memoryBridge.import.obsidianVault.invoke({ vaultPath: '~/Documents' });
+          }
+          case 'obsidian': {
+            const r = await memoryBridge.import.obsidianVault.invoke({ vaultPath: vaultPath as string });
+            Message.success(
+              t('archive.import.obsidian.success', `Imported ${r.count} entries · ${r.errors.length} errors`),
+            );
+            if (r.count > 0) onImportComplete?.();
             break;
-          case 'drop':
-            await memoryBridge.import.processDropFolder.invoke();
+          }
+          case 'drop': {
+            const r = await memoryBridge.import.processDropFolder.invoke();
+            Message.success(
+              t('archive.import.dropFolder.success', `Imported ${r.count} entries · ${r.errors.length} errors`),
+            );
+            if (r.count > 0) onImportComplete?.();
             break;
-          case 'dev-scan':
-            await memoryBridge.import.scanDevDir.invoke();
+          }
+          case 'dev-scan': {
+            const r = await memoryBridge.import.scanDevDir.invoke();
+            Message.success(
+              t('archive.import.devScan.success', `Imported ${r.count} entries from ${r.projectsFound ?? 0} projects`),
+            );
+            if (r.count > 0) onImportComplete?.();
             break;
+          }
         }
-        onImportComplete?.();
       } catch {
-        // Non-fatal - user sees no entries, they can try again
+        // Surface the failure instead of silently flashing the empty archive.
+        Message.error(t('archive.import.failed', 'Import failed. Please try again.'));
       } finally {
         setLoading((prev) => ({ ...prev, [key]: false }));
       }
     },
-    [onImportComplete],
+    [onImportComplete, t],
   );
 
   return (

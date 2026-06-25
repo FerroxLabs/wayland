@@ -24,9 +24,12 @@ import styles from './SiderFooterQuickActions.module.css';
 type WebuiQuickStatus = 'checking' | 'running' | 'stopped' | 'error';
 
 const GITHUB_REPO_URL = 'https://github.com/FerroxLabs/wayland';
+// The issue-template chooser (bug / feature / question), so feedback lands as a
+// templated GitHub issue. All Wayland support routes through GitHub, never email.
+const GITHUB_ISSUES_URL = 'https://github.com/FerroxLabs/wayland/issues/new/choose';
 
 export interface SiderFooterQuickActionsProps {
-  /** Optional bug-report opener. If omitted, the button is rendered but inert (v0.6.2). */
+  /** Optional bug-report opener. If omitted, the button opens the GitHub issue chooser. */
   onOpenBugReport?: () => void;
   /** Optional external-link opener. Defaults to window.open. */
   onOpenLink?: (url: string) => void;
@@ -85,7 +88,13 @@ export const SiderFooterQuickActions: React.FC<SiderFooterQuickActionsProps> = (
   }, [onOpenLink]);
 
   const handleOpenBug = useCallback(() => {
-    onOpenBugReport?.();
+    if (onOpenBugReport) {
+      onOpenBugReport();
+      return;
+    }
+    // No host handler supplied: open the GitHub issue chooser, mirroring the
+    // repo button's fallback. Without this the button was a silent no-op.
+    void openExternalUrl(GITHUB_ISSUES_URL);
   }, [onOpenBugReport]);
 
   const webuiTitle = t('settings.webui', { defaultValue: 'WebUI' });

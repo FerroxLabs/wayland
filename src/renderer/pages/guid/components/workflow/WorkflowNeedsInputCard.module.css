@@ -1,0 +1,79 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The blue "Needs you" notice. Blue (not the orange working accent) so the
+ * state change is unmistakable. It is a notice, not an input - clicking it
+ * jumps to the composer at the bottom (the one place you type).
+ */
+
+.card {
+  --needs-blue: var(--color-link-6, #3b82f6);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  max-width: 800px;
+  width: 100%;
+  margin: 14px auto 10px;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--needs-blue) 45%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--needs-blue) 12%, transparent);
+  padding: 12px 15px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--needs-blue) 10%, transparent);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.card:hover {
+  background: color-mix(in srgb, var(--needs-blue) 18%, transparent);
+  border-color: color-mix(in srgb, var(--needs-blue) 60%, transparent);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--needs-blue);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-1);
+}
+
+.sub {
+  font-size: 12.5px;
+  color: var(--color-text-3);
+  line-height: 1.45;
+}
+
+.cue {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--needs-blue);
+  animation: needs-bounce 1.4s ease-in-out infinite;
+}
+
+@keyframes needs-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}

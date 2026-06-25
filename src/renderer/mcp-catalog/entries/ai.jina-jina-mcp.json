@@ -1,0 +1,59 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.jina/jina-mcp",
+  "title": "Jina AI",
+  "description": "Read any URL as clean markdown, search the web and arXiv, capture screenshots, and extract PDFs - Jina AI’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/jina-ai/MCP",
+  "repository": {
+    "url": "https://github.com/jina-ai/MCP",
+    "source": "github"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.jina.ai/v1"
+    }
+  ],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "search",
+      "research"
+    ],
+    "tags": [
+      "jina",
+      "reader",
+      "search",
+      "extract"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 108,
+    "installRate": 0,
+    "iconUrl": "icons/ai.jina-jina-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#EB1C24"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Jina AI",
+      "providerSignupUrl": "https://jina.ai/api-dashboard/"
+    },
+    "setupGuide": {
+      "path": "guides/ai.jina-jina-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -15,6 +15,51 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+vi.mock('@arco-design/web-react', () => {
+  const Button = ({
+    children,
+    icon,
+    onClick,
+    ...rest
+  }: React.PropsWithChildren<{
+    icon?: React.ReactNode;
+    onClick?: () => void;
+    [k: string]: unknown;
+  }>) => (
+    <button onClick={onClick} aria-label={rest['aria-label'] as string | undefined}>
+      {icon}
+      {children}
+    </button>
+  );
+
+  const Radio = ({
+    children,
+    value: _v,
+  }: React.PropsWithChildren<{ value?: string }>) => <span>{children}</span>;
+  Radio.Group = ({
+    children,
+    onChange,
+    value,
+  }: React.PropsWithChildren<{ onChange?: (v: string) => void; value?: string }>) => (
+    <div data-testid='radio-group' data-value={value}>
+      {React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child;
+        const props = child.props as { value?: string; children?: React.ReactNode };
+        return (
+          <button
+            data-testid={`radio-${props.value}`}
+            onClick={() => onChange?.(props.value as string)}
+          >
+            {props.children}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return { Button, Radio };
+});
+
 import { WorkflowHeader } from '@/renderer/pages/guid/components/workflow/WorkflowHeader';
 import type { WorkflowSession } from '@/common/types/workflowTypes';
 
@@ -73,6 +118,9 @@ const baseSession = (overrides: Partial<WorkflowSession> = {}): WorkflowSession 
   created_at: NOW - 4 * 60 * 1000, // 4 minutes ago
   updated_at: NOW,
   completed_at: null,
+  begin_sent_at: null,
+  run_mode: 'running',
+  interactivity: 'step',
   ...overrides,
 });
 
@@ -84,42 +132,87 @@ describe('WorkflowHeader', () => {
 
   it('renders the workflow title, step counter, and two control buttons', () => {
     render(
-      <WorkflowHeader session={baseSession()} paused={false} onPauseToggle={vi.fn()} onEnd={vi.fn()} />
+      <WorkflowHeader
+        session={baseSession()}
+        paused={false}
+        onPauseToggle={vi.fn()}
+        onEnd={vi.fn()}
+        onDelete={vi.fn()}
+        onSetInteractivity={vi.fn()}
+      />
     );
 
     expect(screen.getByText('Automate Business Workflows')).toBeTruthy();
     expect(screen.getByText(/Step 3 of 6/)).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Pause auto-advance/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Pause$/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /End workflow/i })).toBeTruthy();
   });
 
   it('fires onPauseToggle when the pause button is clicked', () => {
     const onPauseToggle = vi.fn();
     render(
-      <WorkflowHeader session={baseSession()} paused={false} onPauseToggle={onPauseToggle} onEnd={vi.fn()} />
+      <WorkflowHeader
+        session={baseSession()}
+        paused={false}
+        onPauseToggle={onPauseToggle}
+        onEnd={vi.fn()}
+        onDelete={vi.fn()}
+        onSetInteractivity={vi.fn()}
+      />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Pause auto-advance/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Pause$/i }));
     expect(onPauseToggle).toHaveBeenCalledTimes(1);
   });
 
   it('fires onEnd when the end button is clicked', () => {
     const onEnd = vi.fn();
     render(
-      <WorkflowHeader session={baseSession()} paused={false} onPauseToggle={vi.fn()} onEnd={onEnd} />
+      <WorkflowHeader
+        session={baseSession()}
+        paused={false}
+        onPauseToggle={vi.fn()}
+        onEnd={onEnd}
+        onDelete={vi.fn()}
+        onSetInteractivity={vi.fn()}
+      />
     );
 
     fireEvent.click(screen.getByRole('button', { name: /End workflow/i }));
     expect(onEnd).toHaveBeenCalledTimes(1);
   });
 
-  it('flips the pause button label to "Resume auto-advance" when paused', () => {
+  it('flips the pause button label to "Resume" when paused', () => {
     render(
-      <WorkflowHeader session={baseSession()} paused={true} onPauseToggle={vi.fn()} onEnd={vi.fn()} />
+      <WorkflowHeader
+        session={baseSession()}
+        paused={true}
+        onPauseToggle={vi.fn()}
+        onEnd={vi.fn()}
+        onDelete={vi.fn()}
+        onSetInteractivity={vi.fn()}
+      />
     );
 
-    expect(screen.getByRole('button', { name: /Resume auto-advance/i })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /^Pause auto-advance$/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /^Resume$/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /^Pause$/i })).toBeNull();
+  });
+
+  it('calls onSetInteractivity when the interactivity toggle is changed', () => {
+    const onSetInteractivity = vi.fn();
+    render(
+      <WorkflowHeader
+        session={baseSession()}
+        paused={false}
+        onPauseToggle={vi.fn()}
+        onEnd={vi.fn()}
+        onDelete={vi.fn()}
+        onSetInteractivity={onSetInteractivity}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId('radio-auto'));
+    expect(onSetInteractivity).toHaveBeenCalledWith('auto');
   });
 
   it('applies the errored class when status === "errored"', () => {
@@ -129,6 +222,8 @@ describe('WorkflowHeader', () => {
         paused={false}
         onPauseToggle={vi.fn()}
         onEnd={vi.fn()}
+        onDelete={vi.fn()}
+        onSetInteractivity={vi.fn()}
       />
     );
 
@@ -143,18 +238,34 @@ describe('WorkflowHeader', () => {
       completed_at: NOW,
       created_at: NOW - (14 * 60 + 32) * 1000, // 14:32 duration
     });
-    render(<WorkflowHeader session={session} paused={false} onPauseToggle={vi.fn()} onEnd={vi.fn()} />);
+    render(
+      <WorkflowHeader
+        session={session}
+        paused={false}
+        onPauseToggle={vi.fn()}
+        onEnd={vi.fn()}
+        onDelete={vi.fn()}
+        onSetInteractivity={vi.fn()}
+      />
+    );
 
     // Completion summary visible
     expect(screen.getByText(/Completed in 14:32/)).toBeTruthy();
     // Controls hidden in collapsed state
-    expect(screen.queryByRole('button', { name: /Pause auto-advance/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Pause$/i })).toBeNull();
     expect(screen.queryByRole('button', { name: /End workflow/i })).toBeNull();
   });
 
   it('renders skill chip names without a checkmark and collapsed by default; expands on click', () => {
     render(
-      <WorkflowHeader session={baseSession()} paused={false} onPauseToggle={vi.fn()} onEnd={vi.fn()} />
+      <WorkflowHeader
+        session={baseSession()}
+        paused={false}
+        onPauseToggle={vi.fn()}
+        onEnd={vi.fn()}
+        onDelete={vi.fn()}
+        onSetInteractivity={vi.fn()}
+      />
     );
 
     // Collapsed: chips not in DOM yet

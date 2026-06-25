@@ -59,5 +59,10 @@ describe('registerStaticRoutes', () => {
     registerStaticRoutes(app);
 
     expect(getRegisteredGetRoutePaths(app)).not.toContain('/favicon.ico');
+
+    // A dedicated /sw.js route must exist (ahead of the generic static mount)
+    // so the service worker opts out of HTTP caching and a wedged client can
+    // pick up a corrected sw.js on the next load (#47).
+    expect(getRegisteredGetRoutePaths(app)).toContain('/sw.js');
   });
 });

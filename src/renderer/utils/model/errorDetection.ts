@@ -54,6 +54,22 @@ export const isApiKeyError = (data: unknown): boolean => {
 };
 
 /**
+ * Detect provider errors raised because the selected model has no endpoint
+ * that supports tool calling. The engine always attaches its built-in tools,
+ * so tool-incapable models (e.g. OpenRouter's Aion-1.0) hard-fail the turn.
+ * Matches the OpenRouter 404 signature and the sibling Compound/Groq variant.
+ */
+export const isToolUnsupportedErrorMessage = (data: unknown): boolean => {
+  if (typeof data !== 'string') return false;
+  const text = data.toLowerCase();
+  return (
+    text.includes('no endpoints found that support tool use') ||
+    text.includes('tool calling` is not supported') ||
+    text.includes('tool calling is not supported')
+  );
+};
+
+/**
  * Detect general API errors (400, 401, 403, 404, 5xx, etc.)
  * excluding API key errors which are user configuration issues.
  */

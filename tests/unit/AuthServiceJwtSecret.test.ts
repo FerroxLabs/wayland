@@ -31,13 +31,20 @@ function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
 
 // Fake safeStorage boundary: ciphertext is the plaintext wrapped in the
 // version-pinned prefix so the round-trip is deterministic and assertable.
+// CIPHER_PREFIX is the Electron safeStorage backend; FILE_CIPHER_PREFIX is the
+// headless file-key fallback (no OS keychain) — both must decrypt on read.
 const CIPHER_PREFIX = 'enc:v1:';
+const FILE_CIPHER_PREFIX = 'fkey:v1:';
 
 function mockSecrets() {
   vi.doMock('@process/secrets', () => ({
     CIPHER_PREFIX,
+    FILE_CIPHER_PREFIX,
     encryptString: (plaintext: string) => `${CIPHER_PREFIX}${plaintext}`,
-    decryptString: (encoded: string) => encoded.slice(CIPHER_PREFIX.length),
+    decryptString: (encoded: string) =>
+      encoded.startsWith(FILE_CIPHER_PREFIX)
+        ? encoded.slice(FILE_CIPHER_PREFIX.length)
+        : encoded.slice(CIPHER_PREFIX.length),
   }));
 }
 
@@ -67,6 +74,32 @@ describe('AuthService primary WebUI user JWT handling', () => {
     expect(jwtSecret).toBe('db-secret');
     expect(getPrimaryWebUIUserMock).toHaveBeenCalledOnce();
     // Already encrypted at rest - no re-write on read.
+    expect(updateJwtSecretMock).not.toHaveBeenCalled();
+  });
+
+  it('decrypts a headless file-key-encrypted JWT secret without re-writing it (#155)', async () => {
+    // On headless (bun server / Linux without libsecret) there is no OS keychain,
+    // so the secret is persisted via the file-key backend with FILE_CIPHER_PREFIX.
+    const getPrimaryWebUIUserMock = vi.fn(async () =>
+      makeUser({ username: 'pi', jwt_secret: `${FILE_CIPHER_PREFIX}db-secret` })
+    );
+    const updateJwtSecretMock = vi.fn();
+
+    vi.doMock('@process/webserver/auth/repository/UserRepository', () => ({
+      UserRepository: {
+        getPrimaryWebUIUser: getPrimaryWebUIUserMock,
+        updateJwtSecret: updateJwtSecretMock,
+      },
+    }));
+
+    const { AuthService } = await import('@process/webserver/auth/service/AuthService');
+    const jwtSecret = await AuthService.getJwtSecret();
+
+    // #155: must return the DECRYPTED secret, not the raw `fkey:...` ciphertext.
+    // Returning the ciphertext made it never match the secret that signed the
+    // JWT -> `invalid signature` on every WebSocket verify (headless login loop).
+    expect(jwtSecret).toBe('db-secret');
+    // Already encrypted at rest via the file-key backend - no spurious migration.
     expect(updateJwtSecretMock).not.toHaveBeenCalled();
   });
 

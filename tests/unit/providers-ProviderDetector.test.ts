@@ -97,22 +97,21 @@ describe('ProviderDetector.detect - unique prefix matches', () => {
     if (r.kind === 'unique') expect(r.provider).toBe('anyscale');
   });
 
-  it('detects deepgram from dg_ prefix', () => {
-    const r = detector.detect('dg_abcdef1234567890');
-    expect(r.kind).toBe('unique');
-    if (r.kind === 'unique') expect(r.provider).toBe('deepgram');
+  it('detects github-models from a GitHub PAT (ghp_ / github_pat_)', () => {
+    const classic = detector.detect('ghp_abcdef1234567890');
+    expect(classic.kind).toBe('unique');
+    if (classic.kind === 'unique') expect(classic.provider).toBe('github-models');
+    const fine = detector.detect('github_pat_11ABCDEF0_abcdef');
+    expect(fine.kind).toBe('unique');
+    if (fine.kind === 'unique') expect(fine.provider).toBe('github-models');
   });
 
-  it('detects assemblyai from aai_ prefix', () => {
-    const r = detector.detect('aai_abcdef1234567890');
-    expect(r.kind).toBe('unique');
-    if (r.kind === 'unique') expect(r.provider).toBe('assemblyai');
-  });
-
-  it('detects elevenlabs from xi-api- prefix', () => {
-    const r = detector.detect('xi-api-abcdef1234567890');
-    expect(r.kind).toBe('unique');
-    if (r.kind === 'unique') expect(r.provider).toBe('elevenlabs');
+  it('does NOT prefix-detect deepgram/assemblyai/elevenlabs (those keys are prefix-less; rules removed)', () => {
+    // `dg_`, `aai_`, and `xi-api-` were never real key prefixes; they no longer
+    // false-match. These providers stay connectable via Browse (#224 audit).
+    expect(detector.detect('dg_abcdef1234567890').kind).toBe('unknown');
+    expect(detector.detect('aai_abcdef1234567890').kind).toBe('unknown');
+    expect(detector.detect('xi-api-abcdef1234567890').kind).toBe('unknown');
   });
 });
 

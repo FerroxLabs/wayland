@@ -143,17 +143,15 @@ const BuildWorkflowModal: React.FC<BuildWorkflowModalProps> = ({ visible, onClos
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      // TODO(post-H): extend ipcBridge.skills.save schema + skillsBridge
-      // handler to accept `type: 'workflow'` so the SkillLibrary entry
-      // lands in the workflows partition instead of the skills partition.
-      // For now the modal mirrors BuildSkillModal verbatim and the
-      // resulting entry registers as type:'skill'.
+      // Save as a workflow so it lands in the workflows partition and shows
+      // on the Workflows page (which lists skills.list({ type: 'workflow' })).
       const result = await ipcBridge.skills.save.invoke({
         name: name.trim(),
         description: description.trim(),
         category: category.trim(),
         tags,
         body,
+        type: 'workflow',
       });
       setSavedVerdict(result);
       if (result.verdict !== 'blocked') {

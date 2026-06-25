@@ -145,6 +145,26 @@
   background: transparent;
 }
 
+/* ---- Bulk select-all / deselect-all bar ----
+   Sits directly under the search field. Operates only on the rows currently
+   visible after filtering, so it always matches what the user can see. */
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px 6px 18px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.bulkCount {
+  font-size: 11.5px;
+  color: var(--color-text-3);
+}
+
+.bulkSpacer {
+  flex: 1;
+}
+
 /* ---- States inside the card ---- */
 .cardState {
   display: flex;

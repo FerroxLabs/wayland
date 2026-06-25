@@ -1,0 +1,50 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * StepReviewBeat - amber-accented review card.
+ * Mirrors the mockup-collaborative.html `.review-beat` design using the
+ * app's semantic tokens (no hardcoded hex).
+ */
+
+.root {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 16px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--color-warning-light-3, rgba(251, 191, 36, 0.4));
+  border-radius: 10px;
+  background-color: color-mix(in srgb, var(--color-warning-light-1, rgba(251, 191, 36, 0.08)) 60%, var(--color-bg-2));
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--color-text-1);
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.progress {
+  font-size: 11px;
+  color: var(--color-text-4);
+}

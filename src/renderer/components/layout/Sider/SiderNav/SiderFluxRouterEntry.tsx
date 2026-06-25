@@ -4,14 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
-import { Tooltip } from '@arco-design/web-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Message, Tooltip } from '@arco-design/web-react';
+import { Close } from '@icon-park/react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import type { DetectionResult, FluxMetrics } from '@/common/types/onboarding';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import { openExternalUrl } from '@renderer/utils/platform';
 import { useOnboardingDetection } from '@renderer/hooks/useOnboardingDetection';
+import { useFluxEntryDismissed } from './useFluxEntryDismissed';
 import type { SiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 
 const FLUX_DOWNLOADS_URL = 'https://fluxrouter.ai/download';
@@ -109,7 +111,19 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
 }) => {
   const { t } = useTranslation();
   const { detection } = useOnboardingDetection();
+  const { dismissed, dismiss } = useFluxEntryDismissed();
   const [metrics, setMetrics] = useState<FluxMetrics | null>(null);
+
+  // Permanently hide the Flux Status widget (#94). stopPropagation so the
+  // dismiss control does not also trigger the card's navigate-on-click.
+  const handleDismiss = useCallback(
+    (e: React.MouseEvent): void => {
+      e.stopPropagation();
+      dismiss();
+      Message.info(t('sider.fluxRouter.dismiss.hint'));
+    },
+    [dismiss, t]
+  );
 
   // Fetch Flux Desktop metrics on mount once the daemon is known to be running.
   // Mirrors SiderMemoryEntry's IPC-fetch-on-mount + cancelled-guard pattern.
@@ -136,7 +150,20 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
   }, [detection?.fluxDesktop.running]);
 
   const state = resolveState(detection, metrics);
-  if (!state) return null;
+  if (dismissed || !state) return null;
+
+  // A small dismiss control shared by the expanded (non-collapsed) states.
+  const dismissButton = (
+    <span
+      role='button'
+      tabIndex={0}
+      aria-label={t('sider.fluxRouter.dismiss.label')}
+      onClick={handleDismiss}
+      className='shrink-0 flex items-center justify-center w-16px h-16px rd-4px text-t-3 hover:text-t-primary hover:bg-fill-4 cursor-pointer transition-colors'
+    >
+      <Close size={12} />
+    </span>
+  );
 
   // Pulse dot colour by tone: alert = orange (action), warning = yellow
   // (nudge), ok = green (wired). Uses semantic tokens with safe fallbacks.
@@ -190,13 +217,13 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
       <Tooltip {...siderTooltipProps} content={tooltipContent} position='right'>
         <div
           className={classNames(
-            'w-full h-40px flex items-center justify-center cursor-pointer transition-colors rd-8px text-t-primary relative',
+            'w-full h-26px flex items-center justify-center cursor-pointer transition-colors rd-8px text-t-primary relative',
             'hover:bg-fill-3 active:bg-fill-4'
           )}
           onClick={handleClick}
           data-testid='sider-flux-router-entry'
         >
-          <FluxRouterMark size={20} color='currentColor' className='block leading-none shrink-0' />
+          <FluxRouterMark size={16} color='currentColor' className='block leading-none shrink-0' />
           <span
             style={{
               position: 'absolute',
@@ -223,15 +250,16 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
     return (
       <div
         className={classNames(
-          'box-border w-full flex items-center gap-8px px-10px py-8px rd-0.5rem cursor-pointer shrink-0 transition-all text-t-secondary',
+          'box-border w-full flex items-center gap-8px px-8px py-8px rd-0.5rem cursor-pointer shrink-0 transition-all text-t-secondary',
           isMobile && 'sider-action-btn-mobile',
           'hover:bg-fill-3 active:bg-fill-4'
         )}
         onClick={handleClick}
         data-testid='sider-flux-router-entry'
       >
-        <FluxRouterMark size={18} color='currentColor' className='block leading-none shrink-0' />
-        <span className='collapsed-hidden text-t-secondary text-13px leading-20px'>{action} →</span>
+        <FluxRouterMark size={16} color='currentColor' className='block leading-none shrink-0' />
+        <span className='collapsed-hidden text-t-secondary text-12px leading-20px flex-1 min-w-0'>{action} →</span>
+        {dismissButton}
       </div>
     );
   }
@@ -239,7 +267,7 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
   return (
     <div
       className={classNames(
-        'box-border w-full flex flex-col gap-4px px-10px py-8px rd-0.5rem cursor-pointer shrink-0 transition-all text-t-primary',
+        'box-border w-full flex flex-col gap-4px px-8px py-8px rd-0.5rem cursor-pointer shrink-0 transition-all text-t-primary',
         isMobile && 'sider-action-btn-mobile',
         'hover:bg-fill-3 active:bg-fill-4'
       )}
@@ -252,7 +280,10 @@ const SiderFluxRouterEntry: React.FC<SiderFluxRouterEntryProps> = ({
           className='shrink-0'
           aria-hidden='true'
         />
-        <span className='collapsed-hidden text-t-primary text-13px font-semibold leading-20px'>{label}</span>
+        <span className='collapsed-hidden text-t-primary text-12px font-semibold leading-20px flex-1 min-w-0'>
+          {label}
+        </span>
+        {dismissButton}
       </div>
       <span className='collapsed-hidden text-t-secondary text-12px leading-18px'>{body}</span>
       <span className='collapsed-hidden text-primary text-12px font-medium leading-18px'>{action} →</span>

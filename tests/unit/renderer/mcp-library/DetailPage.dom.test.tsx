@@ -14,7 +14,10 @@ test('renders Google Workspace detail page', () => {
     </MemoryRouter>,
   );
   expect(screen.getByText('Google Workspace')).toBeInTheDocument();
-  // Tab label uses "Setup guide" - case-insensitive regex
-  expect(screen.getByText(/Setup guide/i)).toBeInTheDocument();
-  expect(screen.getByText(/Wayland verified/)).toBeInTheDocument();
+  // Redesigned detail page: the setup tab label is now "Setup".
+  expect(screen.getByText(/^Setup$/i)).toBeInTheDocument();
+  // The old "Wayland verified" badge text is gone; the hero now renders a
+  // maintainer tag (this entry is community-maintained) alongside a
+  // verified-tick icon. Assert the maintainer tag to prove the hero rendered.
+  expect(screen.getByText(/^Community$/)).toBeInTheDocument();
 });

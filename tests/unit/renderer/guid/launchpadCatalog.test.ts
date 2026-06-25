@@ -31,8 +31,10 @@ describe('launchpadCatalog.resolveBarEntry', () => {
     const cowork = resolveBarEntry('builtin-cowork', assistantsFixture, 'en-US');
     expect(cowork?.isCowork).toBe(true);
 
-    const writeCopy = resolveBarEntry('ext-copy', assistantsFixture, 'en-US');
-    // ext-copy isn't in assistantsFixture so it resolves via the anchor path.
+    const writeCopy = resolveBarEntry('builtin-copy', assistantsFixture, 'en-US');
+    // builtin-copy is the write-copy anchor's assistantId (ext-* ids were
+    // remapped to builtin-* when the waylandteams catalog went native); it
+    // resolves via the anchor path with isCowork=false.
     expect(writeCopy?.isCowork).toBe(false);
   });
 

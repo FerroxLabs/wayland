@@ -17,6 +17,7 @@ vi.mock('node:child_process', () => ({
 import * as childProcess from 'node:child_process';
 // eslint-disable-next-line import/first
 import {
+  __buildNpmCliCandidates,
   __setTrustedNpmCliResolver,
   safeSpawn,
 } from '@process/services/ijfw/safeSpawn';
@@ -127,5 +128,42 @@ describe('ijfw/safeSpawn', () => {
     await expect(safeSpawn({ cmd: 'npm', args: ['x'] })).rejects.toThrow(
       /trusted npm/i,
     );
+  });
+
+  describe('__buildNpmCliCandidates (#261)', () => {
+    it('includes Windows fixed install locations', () => {
+      const candidates = __buildNpmCliCandidates(
+        'win32',
+        { APPDATA: 'C:\\Users\\me\\AppData\\Roaming', PATH: '' },
+        'C:\\Users\\me\\AppData\\Local\\Programs\\wayland\\wayland.exe',
+      );
+      // System-wide Node.js installer default.
+      expect(candidates).toContain(
+        'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+      );
+      // User-global npm self-install under APPDATA.
+      expect(candidates).toContain(
+        'C:\\Users\\me\\AppData\\Roaming\\npm\\node_modules\\npm\\bin\\npm-cli.js',
+      );
+    });
+
+    it('derives npm-cli.js from Node dirs found on Windows PATH (where-style)', () => {
+      // A Node install on PATH that the fixed locations would miss (e.g. nvm/fnm).
+      const nodeDir = 'C:\\Users\\me\\scoop\\apps\\nodejs\\current';
+      const candidates = __buildNpmCliCandidates(
+        'win32',
+        { APPDATA: 'C:\\Users\\me\\AppData\\Roaming', PATH: `C:\\Windows;${nodeDir}` },
+        'C:\\app\\wayland.exe',
+      );
+      expect(candidates).toContain(
+        `${nodeDir}\\node_modules\\npm\\bin\\npm-cli.js`,
+      );
+    });
+
+    it('returns POSIX candidates unchanged on non-Windows', () => {
+      const candidates = __buildNpmCliCandidates('darwin', { PATH: '/usr/bin' }, '/Applications/Wayland.app/Contents/MacOS/Wayland');
+      expect(candidates).toContain('/usr/local/lib/node_modules/npm/bin/npm-cli.js');
+      expect(candidates).toContain('/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js');
+    });
   });
 });

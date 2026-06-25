@@ -1,0 +1,72 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.minimax/minimax-mcp",
+  "title": "MiniMax (Hailuo)",
+  "description": "Hailuo video generation, music, text-to-speech, voice cloning, and image generation - MiniMax’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://github.com/MiniMax-AI/MiniMax-MCP",
+  "repository": {
+    "url": "https://github.com/MiniMax-AI/MiniMax-MCP",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "minimax-mcp",
+      "version": "latest",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "MINIMAX_API_KEY",
+          "description": "MiniMax API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "media"
+    ],
+    "tags": [
+      "minimax",
+      "hailuo",
+      "video",
+      "audio",
+      "voice"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 105,
+    "installRate": 0,
+    "iconUrl": "icons/ai.minimax-minimax-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#F23030"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "MiniMax",
+      "providerSignupUrl": "https://www.minimax.io/platform"
+    },
+    "setupGuide": {
+      "path": "guides/ai.minimax-minimax-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

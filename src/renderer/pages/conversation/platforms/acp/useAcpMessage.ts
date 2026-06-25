@@ -9,6 +9,7 @@ import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TokenUsageData } from '@/common/config/storage';
 import { useAddOrUpdateMessage } from '@/renderer/pages/conversation/Messages/hooks';
+import { useTabResumeEffect } from '@/renderer/hooks/system/useTabResumeEffect';
 import type { ThoughtData } from '@/renderer/components/chat/ThoughtDisplay';
 import { Message } from '@arco-design/web-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -388,6 +389,30 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
       cancelled = true;
     };
   }, [conversation_id]);
+
+  // Mobile web: the mount hydration above only runs on conversation change, so a
+  // tab that was backgrounded while a turn finished comes back showing a stale
+  // "running" state. On resume, re-check the backend status and reconcile. (#57)
+  const reconcileRunningOnResume = useCallback(() => {
+    void ipcBridge.conversation.get.invoke({ id: conversation_id }).then((res) => {
+      if (!res) return;
+      const isRunning = res.status === 'running';
+      if (!isRunning && (runningRef.current || aiProcessingRef.current)) {
+        turnFinishedRef.current = true;
+        setRunning(false);
+        runningRef.current = false;
+        setAiProcessing(false);
+        aiProcessingRef.current = false;
+      } else if (isRunning && !runningRef.current) {
+        setRunning(true);
+        runningRef.current = true;
+        setAiProcessing(true);
+        aiProcessingRef.current = true;
+      }
+    });
+  }, [conversation_id, setRunning, setAiProcessing]);
+
+  useTabResumeEffect(reconcileRunningOnResume, [conversation_id]);
 
   const resetState = useCallback(() => {
     turnFinishedRef.current = true;

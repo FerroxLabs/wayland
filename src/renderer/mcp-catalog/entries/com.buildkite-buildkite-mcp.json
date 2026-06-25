@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.buildkite/buildkite-mcp",
+  "title": "Buildkite",
+  "description": "Inspect pipelines, builds, jobs, and test runs - Buildkite’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://buildkite.com/docs/apis/mcp-server",
+  "repository": {
+    "url": "https://buildkite.com/docs/apis/mcp-server",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.buildkite.com/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "builder",
+    "categories": [
+      "devops",
+      "developer"
+    ],
+    "tags": [
+      "buildkite",
+      "ci",
+      "pipelines"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 137,
+    "installRate": 0,
+    "iconUrl": "icons/com.buildkite-buildkite-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#14CC80"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Buildkite",
+      "providerSignupUrl": "https://buildkite.com"
+    },
+    "setupGuide": {
+      "path": "guides/com.buildkite-buildkite-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

@@ -23,10 +23,10 @@ import { encode, decode, DecodeError, MAX_LINE_BYTES } from './mcpWireProtocol';
 import { buildChildEnv } from './envAllowlist';
 import { resolveEntry } from './entryResolver';
 import { jsonRpcResponseSchema } from './ipcSchemas';
+import { killChild } from '@process/agent/acp/utils';
 import type { IjfwErrorReason, IjfwInvokeResult } from '@/common/types/ijfw';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
-const SHUTDOWN_DEFAULT_MS = 5_000;
 // Wave 7 H1: respawn backoff. Prevents thrashing if entry resolution / fork
 // fail repeatedly (missing install, bad permissions, syntax error in entry).
 const RESPAWN_BACKOFF_MS = 5_000;
@@ -228,24 +228,16 @@ class IjfwMcpClient {
     });
   }
 
-  /** Send SIGTERM, wait for exit, then SIGKILL on timeout. No-op when not running. */
-  async shutdown(timeoutMs: number = SHUTDOWN_DEFAULT_MS): Promise<void> {
+  /**
+   * Kill the running child and its descendant tree. No-op when not running.
+   * `_timeoutMs` is retained for public-API compatibility; killChild manages its
+   * own cross-platform SIGTERM→SIGKILL escalation budget (#139).
+   */
+  async shutdown(_timeoutMs?: number): Promise<void> {
     const child = this.child;
     if (!child) return;
-    try {
-      child.kill('SIGTERM');
-    } catch {
-      /* ignore */
-    }
-    const exited = await this.waitForExit(timeoutMs);
-    if (!exited && this.child) {
-      try {
-        this.child.kill('SIGKILL');
-      } catch {
-        /* ignore */
-      }
-      await this.waitForExit(timeoutMs);
-    }
+    this.child = null;
+    await killChild(child, false);
   }
 
   /** Resolve when the current child exits, or after `timeoutMs`. */

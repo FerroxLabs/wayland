@@ -181,14 +181,13 @@ describe('AgentPillBar', () => {
     expect(pill.style.animation).toBe('none');
   });
 
-  it('renders separator dividers between agents on desktop', () => {
+  it('does not render separator dividers between agents (flattened pill bar)', () => {
     const agents: AvailableAgent[] = [
       makeAgent({ backend: 'claude', name: 'Claude' }),
       makeAgent({ backend: 'gemini', name: 'Gemini' }),
     ];
     render(<AgentPillBar {...defaultProps} availableAgents={agents} />);
-    // One separator between the two agents plus one before the + button = 2 total
-    const separators = screen.getAllByText('|');
-    expect(separators.length).toBeGreaterThanOrEqual(2);
+    // The top-bar cleanup removed the per-icon "|" separators; the bar is now flat.
+    expect(screen.queryAllByText('|')).toHaveLength(0);
   });
 });

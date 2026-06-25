@@ -80,6 +80,8 @@ const makeSession = (over: Partial<WorkflowSession> = {}): WorkflowSession => ({
   updated_at: 1_700_000_000_000,
   completed_at: null,
   begin_sent_at: null,
+  run_mode: 'running',
+  interactivity: 'step',
   ...over,
 });
 
@@ -267,5 +269,22 @@ describeNativeSqlite('WorkflowSessionRepository', () => {
     expect(updated.begin_sent_at).toBe(ts);
     const reread = repo.findById('wfs-1');
     expect(reread!.begin_sent_at).toBe(ts);
+  });
+
+  it('insert + findById round-trips run_mode and interactivity', () => {
+    repo.insert(makeSession({ run_mode: 'awaiting_input', interactivity: 'auto' }));
+    const got = repo.findById('wfs-1');
+    expect(got!.run_mode).toBe('awaiting_input');
+    expect(got!.interactivity).toBe('auto');
+  });
+
+  it('update({ run_mode, interactivity }) persists and reads back', () => {
+    repo.insert(makeSession({ run_mode: 'running', interactivity: 'step' }));
+    const updated = repo.update('wfs-1', { run_mode: 'paused', interactivity: 'auto' });
+    expect(updated.run_mode).toBe('paused');
+    expect(updated.interactivity).toBe('auto');
+    const reread = repo.findById('wfs-1');
+    expect(reread!.run_mode).toBe('paused');
+    expect(reread!.interactivity).toBe('auto');
   });
 });

@@ -14,7 +14,8 @@ import {
   isBuiltinImageGenTransport,
 } from '@process/resources/builtinMcp/constants';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { safeExec, safeExecFile } from '@process/utils/safeExec';
+import { safeExec, safeExecFile, execErrorDetail } from '@process/utils/safeExec';
+import { cliSafeMcpServerName } from '../validateMcpServer';
 
 /** Env options for exec calls - ensures CLI is found from Finder/launchd launches */
 const getExecEnv = () => ({
@@ -162,11 +163,14 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
     const installOperation = async () => {
       try {
         for (const server of mcpServers) {
+          // Claude CLI rejects dots in names; use the CLI-safe form everywhere
+          // (add + remove) so the keys match and removal stays clean.
+          const cliName = cliSafeMcpServerName(server.name);
           if (server.transport.type === 'stdio') {
             try {
               await safeExecFile(
                 'claude',
-                ['mcp', 'add-json', '-s', 'user', server.name, buildClaudeStdioJsonConfig(server)],
+                ['mcp', 'add-json', '-s', 'user', cliName, buildClaudeStdioJsonConfig(server)],
                 {
                   timeout: 5000,
                   ...getExecEnv(),
@@ -174,7 +178,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               );
               console.log(`[ClaudeMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Claude Code:`, error);
+              console.warn(`Failed to add MCP ${server.name} to Claude Code: ${execErrorDetail(error)}`);
               // Keep processing other servers; don't stop because one failed
             }
           } else if (
@@ -188,7 +192,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
             const transportFlag = server.transport.type === 'streamable_http' ? 'http' : server.transport.type;
             // Pass name/url/headers as separate argv elements (shell:false) so
             // shell metacharacters in any value cannot inject commands (SEC-MCP-01).
-            const args = ['mcp', 'add', '-s', 'user', '--transport', transportFlag, server.name, server.transport.url];
+            const args = ['mcp', 'add', '-s', 'user', '--transport', transportFlag, cliName, server.transport.url];
 
             // Add headers
             if (server.transport.headers) {
@@ -204,7 +208,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               });
               console.log(`[ClaudeMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Claude Code:`, error);
+              console.warn(`Failed to add MCP ${server.name} to Claude Code: ${execErrorDetail(error)}`);
             }
           }
         }
@@ -239,7 +243,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
         for (const scope of scopes) {
           for (const candidateName of candidateNames) {
             try {
-              const result = await safeExecFile('claude', ['mcp', 'remove', '-s', scope, candidateName], {
+              const result = await safeExecFile('claude', ['mcp', 'remove', '-s', scope, cliSafeMcpServerName(candidateName)], {
                 timeout: 5000,
                 ...getExecEnv(),
               });
@@ -255,7 +259,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
                 continue;
               }
 
-              console.warn(`[ClaudeMcpAgent] Failed to remove from ${scope} scope:`, errorMessage);
+              console.warn(`[ClaudeMcpAgent] Failed to remove from ${scope} scope: ${execErrorDetail(error)}`);
             }
           }
         }

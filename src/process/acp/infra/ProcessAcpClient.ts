@@ -27,6 +27,7 @@ import type {
 } from '@agentclientprotocol/sdk';
 import { ClientSideConnection, PROTOCOL_VERSION } from '@agentclientprotocol/sdk';
 import { AgentDisconnectedError, AgentSpawnError, AgentStartupError } from '@process/acp/errors/AcpError';
+import { mapModeForAcpBridge } from '@/common/types/agentModes';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import type { CreateSessionParams, ForkSessionParams, LoadSessionParams } from '@process/acp/infra/AcpProtocol';
@@ -225,7 +226,12 @@ export class ProcessAcpClient implements AcpClient {
   }
 
   async setMode(sessionId: string, modeId: string): Promise<void> {
-    await this.runConnectionRequest(() => this.conn.setSessionMode({ sessionId, modeId }));
+    // Translate Wayland-internal modes the bridge does not understand before
+    // session/set_mode. Today only 'autoGuarded' -> 'default' (so the bridge
+    // escalates risky tool calls as permission requests that Wayland's guardrail
+    // then auto-approves-or-vetoes). Real bridge modes pass through unchanged.
+    const bridgeModeId = mapModeForAcpBridge(modeId);
+    await this.runConnectionRequest(() => this.conn.setSessionMode({ sessionId, modeId: bridgeModeId }));
   }
 
   async setConfigOption(sessionId: string, configId: string, value: string | boolean): Promise<void> {

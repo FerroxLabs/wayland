@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "com.resend/resend-mcp",
+  "title": "Resend",
+  "description": "Send emails and manage contacts, broadcasts, domains, and webhooks - Resend’s official MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://resend.com/docs/mcp-server",
+  "repository": {
+    "url": "https://github.com/resend/resend-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "resend-mcp",
+      "version": "latest",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "RESEND_API_KEY",
+          "description": "Resend API key",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "remotes": [],
+  "x-wayland": {
+    "tier": "worker",
+    "categories": [
+      "communication",
+      "productivity"
+    ],
+    "tags": [
+      "resend",
+      "email",
+      "transactional"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 146,
+    "installRate": 0,
+    "iconUrl": "icons/com.resend-resend-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "api-key",
+      "providerName": "Resend",
+      "providerSignupUrl": "https://resend.com/api-keys"
+    },
+    "setupGuide": {
+      "path": "guides/com.resend-resend-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

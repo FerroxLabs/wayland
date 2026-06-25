@@ -457,8 +457,8 @@ const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
   const hasSearchResults = items.length > 0;
   const useCompactHeight = !debouncedKeyword || (!loading && !hasSearchResults);
   const triggerClassName = fullWidth
-    ? 'conversation-search-trigger-full h-40px w-full p-0 bg-transparent border-none outline-none flex items-center justify-start gap-8px px-10px rd-0.5rem cursor-pointer shrink-0 transition-all group text-t-primary focus:outline-none focus-visible:outline-none'
-    : 'h-40px w-40px p-0 bg-transparent rd-0.5rem flex items-center justify-center cursor-pointer shrink-0 transition-all border border-solid border-transparent text-t-primary';
+    ? 'conversation-search-trigger-full h-26px w-full p-0 bg-transparent border-none outline-none flex items-center justify-start gap-8px px-8px rd-8px cursor-pointer shrink-0 transition-all group text-t-primary focus:outline-none focus-visible:outline-none'
+    : 'h-26px w-26px p-0 bg-transparent rd-8px flex items-center justify-center cursor-pointer shrink-0 transition-all border border-solid border-transparent text-t-primary';
 
   return (
     <>
@@ -482,20 +482,20 @@ const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
           disabled={disabled}
         >
           {fullWidth ? (
-            <span className='w-28px h-28px flex items-center justify-center shrink-0'>
-              <Search size={20}
+            <span className='w-20px h-20px flex items-center justify-center shrink-0'>
+              <Search size={18}
                 className='block leading-none'
                 style={{ lineHeight: 0 }}
               />
             </span>
           ) : (
-            <Search size={20}
+            <Search size={18}
               className='block leading-none shrink-0'
               style={{ lineHeight: 0 }}
             />
           )}
           {fullWidth && label ? (
-            <span className='collapsed-hidden text-t-primary text-14px font-medium leading-24px'>{label}</span>
+            <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px'>{label}</span>
           ) : null}
         </button>
       )}

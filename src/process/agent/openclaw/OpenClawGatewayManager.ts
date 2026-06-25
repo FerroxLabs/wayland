@@ -6,6 +6,7 @@
 
 import { spawn, type ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
+import { killChild } from '@process/agent/acp/utils';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -303,31 +304,12 @@ export class OpenClawGatewayManager extends EventEmitter {
 
     console.log('[OpenClawGatewayManager] Stopping gateway...');
 
-    // Send SIGTERM first
-    this.process.kill('SIGTERM');
-
-    // Force kill after timeout
-    const forceKillTimeout = setTimeout(() => {
-      if (this.process && !this.process.killed) {
-        console.log('[OpenClawGatewayManager] Force killing gateway...');
-        this.process.kill('SIGKILL');
-      }
-    }, 5000);
-
-    await new Promise<void>((resolve) => {
-      if (!this.process) {
-        clearTimeout(forceKillTimeout);
-        resolve();
-        return;
-      }
-
-      this.process.once('exit', () => {
-        clearTimeout(forceKillTimeout);
-        resolve();
-      });
-    });
-
+    // killChild does a taskkill /T /F on Windows (a bare SIGTERM is a no-op
+    // there and orphans the gateway's child tree, #139) and a SIGTERM->SIGKILL
+    // descendant sweep on POSIX. It resolves once the process has exited.
+    const child = this.process;
     this.process = null;
+    await killChild(child, false);
     console.log('[OpenClawGatewayManager] Gateway stopped');
   }
 

@@ -14,6 +14,7 @@ import { ipcBridge } from '@/common';
 import { getPlatformServices } from '@/common/platform';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { changeLanguage } from '@process/services/i18n';
+import { getClaudeNativeDefaultModelId } from '@process/services/ccSwitchModelSource';
 
 // Keep-awake power blocker state
 let _keepAwakeBlockerId: number | null = null;
@@ -104,6 +105,17 @@ export function initSystemSettingsBridge(): void {
   // Set "route through Flux"
   ipcBridge.systemSettings.setRouteThroughFlux.provider(async ({ enabled }) => {
     await ProcessConfig.set('system.routeThroughFlux', enabled);
+  });
+
+  // Native Claude default model slot for a new Claude Code chat (null if no
+  // native Claude login). Lets a fresh Claude chat default to the subscription
+  // instead of flux-auto when "Route all agents through Flux" is globally on.
+  ipcBridge.systemSettings.getClaudeNativeDefaultModelId.provider(async () => {
+    try {
+      return getClaudeNativeDefaultModelId();
+    } catch {
+      return null;
+    }
   });
 
   // Language change notification, sync main process i18n and notify tray rebuild

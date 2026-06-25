@@ -73,7 +73,7 @@ const ActiveTeamRow: React.FC<{
       data-testid={`sider-active-team-${team.id}`}
       onClick={onClick}
       className={classNames(
-        'flex items-start gap-8px px-10px py-6px rd-6px cursor-pointer transition-colors',
+        'flex items-start gap-8px px-8px py-6px rd-6px cursor-pointer transition-colors',
         isActive ? 'bg-[rgba(var(--primary-6),0.12)]' : 'hover:bg-fill-3'
       )}
     >

@@ -19,6 +19,14 @@
   "readyToInstallDesc": "更新已下載完成，點擊下方按鈕重新啟動應用程式並安裝更新。",
   "installNow": "立即安裝並重新啟動",
   "autoUpdateMode": "自動更新模式",
+  "ijfw": {
+    "availableTitle": "IJFW 更新可用",
+    "pathIssueTitle": "IJFW 命令路徑需要注意",
+    "pathIssueBody": "IJFW 已安裝，但 ijfw 命令不在 PATH 中。Wayland 仍可使用本機安裝。",
+    "updateButton": "更新 IJFW",
+    "updateStarted": "IJFW 更新已開始。在它準備好新版本後，請重新啟動 Wayland。",
+    "versionLine": "IJFW {{current}} → {{latest}}"
+  },
   "showInFolder": "在資料夾中顯示",
   "openFile": "開啟檔案",
   "errorTitle": "更新失敗",
@@ -27,5 +35,11 @@
     "metadataMissing": "找不到此版本的已簽署更新中繼資料 (latest.yml)。拒絕開啟未經驗證的安裝程式。",
     "assetNotInMetadata": "下載的檔案「{{name}}」未列在已簽署的更新中繼資料中。拒絕開啟未經驗證的安裝程式。",
     "checksumMismatch": "下載的更新未通過完整性驗證（校驗和不符），已被捨棄。請勿執行它。請重試或從 Releases 頁面下載。"
+  },
+  "pill": {
+    "available": "Update",
+    "downloading": "Updating...",
+    "ready": "Restart to update",
+    "tooltip": "Update available: {{version}}"
   }
 }

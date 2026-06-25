@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/entry.schema.json",
+  "name": "ai.higgsfield/higgsfield-mcp",
+  "title": "Higgsfield",
+  "description": "Generate cinematic video and images from 30+ models (Soul, Cinema Studio, Seedance, Kling, Veo) - Higgsfield’s official hosted MCP.",
+  "version": "1.0.0",
+  "websiteUrl": "https://higgsfield.ai/mcp",
+  "repository": {
+    "url": "https://higgsfield.ai/mcp",
+    "source": "other"
+  },
+  "packages": [],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.higgsfield.ai/mcp"
+    }
+  ],
+  "x-wayland": {
+    "tier": "core",
+    "categories": [
+      "media"
+    ],
+    "tags": [
+      "higgsfield",
+      "video",
+      "image",
+      "cinematic"
+    ],
+    "maintainerType": "official",
+    "license": "Proprietary",
+    "verifiedAt": "2026-06-13",
+    "verifiedBy": "Wayland",
+    "popularityRank": 102,
+    "installRate": 0,
+    "iconUrl": "icons/ai.higgsfield-higgsfield-mcp.svg",
+    "brand": {
+      "logoBackground": "#ffffff",
+      "logoForeground": "#000000"
+    },
+    "auth": {
+      "method": "oauth2-byo",
+      "providerName": "Higgsfield",
+      "providerSignupUrl": "https://higgsfield.ai"
+    },
+    "setupGuide": {
+      "path": "guides/ai.higgsfield-higgsfield-mcp.md",
+      "estimatedMinutes": 2,
+      "stepCount": 2
+    },
+    "platforms": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "minWaylandVersion": "0.9.0"
+  }
+}

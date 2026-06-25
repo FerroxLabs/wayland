@@ -86,7 +86,10 @@
     "closeAll": "Tümünü Kapat",
     "closeLeft": "Sol tarafı kapat",
     "closeRight": "Sağ tarafı kapat",
-    "closeOthers": "Diğerlerini Kapat"
+    "closeOthers": "Diğerlerini Kapat",
+    "popOut": "Ayrı pencerede aç",
+    "dockBack": "Geri yerleştir",
+    "poppedOut": "Ayrı bir pencerede açık"
   },
   "workspace": {
     "title": "Çalışma Alanı",
@@ -225,6 +228,9 @@
       "permissionDenied": "Mikrofon izni reddedildi",
       "recordingUnsupported": "Bu ortamda doğrudan kayıt desteklenmiyor. Lütfen bir ses dosyası yükleyin",
       "transcriptionFailed": "Ses yazıya dönüştürülemedi",
+      "authError": "Flux anahtarı geçersiz — sesli girişi kullanmak için Flux Router’ı yeniden bağlayın",
+      "premiumLocked": "Flux Voice ücretli bir Flux planı gerektirir — dikte kullanmak için yükseltin",
+      "rateLimited": "Çok fazla istek — lütfen kısa süre sonra tekrar deneyin",
       "genericError": "Sesli giriş başarısız oldu. Lütfen tekrar deneyin"
     }
   },
@@ -332,5 +338,89 @@
       "sublabel": "Mevcut Claude Code oturumunla çalıştır — yönetilecek ek anahtar yok.",
       "action": "Kullan"
     }
+  },
+  "noModelCta": {
+    "title": "No model configured yet",
+    "bodyDesktop": "Set one up to start chatting.",
+    "bodyRemote": "Connect Flux or set up a model on the server to start chatting.",
+    "button": "Set up a model",
+    "sendTooltip": "Connect a model to start sending"
+  },
+  "acpAuthFailure": {
+    "title": "{{backend}} burada oturum açamıyor",
+    "subscriptionExplainer": "Sağlayıcı, bunun gibi üçüncü taraf araçlar içinde abonelikle oturum açmayı engeller. {{backend}}'i burada kullanmaya devam etmek için Flux Router üzerinden yönlendirin, bir sağlayıcı API anahtarı ekleyin veya doğrudan CLI'da oturum açın.",
+    "genericExplainer": "{{backend}} kimlik doğrulaması yapılamadı. Bunu düzeltmek için Flux Router üzerinden yönlendirin, bir sağlayıcı API anahtarı ekleyin veya CLI'da oturum açın.",
+    "wcoreExplainer": "Wayland Core kimlik doğrulaması yapılamadı. Çıkarım sağlayıcısı API anahtarını reddetti (401). Claude Code'un aksine Wayland Core'un geri dönülebilecek bir abonelik oturumu yoktur; bu nedenle çalışan bir sağlayıcı anahtarı ekleyin veya Flux Router üzerinden yönlendirin.",
+    "flux": {
+      "label": "Flux üzerinden yönlendir",
+      "sublabel": "Akıllı yönlendirme her görev için doğru modeli seçer. 1 $ kredi ile ücretsiz başlayın, ardından kullandıkça ödeyin veya bir plan seçin.",
+      "action": "Yönlendir"
+    },
+    "addKey": {
+      "label": "{{provider}} API anahtarı ekle",
+      "sublabel": "Ayarlar'ı açın ve sağlayıcı konsolunuzdan bir API anahtarı yapıştırın.",
+      "action": "Anahtar ekle",
+      "labelAny": "Herhangi bir sağlayıcının API anahtarını ekleyin"
+    },
+    "cliLogin": {
+      "label": "CLI'da oturum aç",
+      "sublabel": "Aboneliğinizle oturum açmak için {{cmd}} komutunu çalıştırın, ardından mesajı tekrar gönderin.",
+      "action": "Komutu kopyala",
+      "copied": "Komut kopyalandı"
+    },
+    "dismiss": "Kapat",
+    "recommended": "(önerilen)"
+  },
+  "composerMenu": {
+    "skills": "Skills",
+    "connectors": "Connectors",
+    "countOn": "{{count}} on",
+    "skillsTitle": "Skills on this chat",
+    "skillsSub": "Only these load by default. Everything else stays one search away.",
+    "onThisChat": "On this chat",
+    "searchPlaceholder": "Search skills…",
+    "suggestedFor": "Suggested for “{{draft}}”",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noResults": "No skills match “{{query}}”.",
+    "manageAllSkills": "Manage all skills",
+    "tagBuiltin": "builtin",
+    "tagAdded": "added",
+    "toggleAria": "Toggle {{name}}",
+    "connectorsTitle": "Connectors",
+    "connectorsSub": "Turn a connected MCP server on or off.",
+    "connectorsConnected": "Connected",
+    "toolCount": "{{count}} tools",
+    "noConnectors": "No connectors installed yet.",
+    "addConnector": "Add a connector",
+    "manageConnectors": "Manage connectors"
+  },
+  "modelSelector": {
+    "title": "Model",
+    "subtitle": "Pick a model for this chat. Only what you have connected shows.",
+    "enabledCount": "{{count}} enabled",
+    "recommended": "Recommended",
+    "searchPlaceholder": "Search models…",
+    "modelCount": "{{count}} models",
+    "moreModels": "More models",
+    "resultsOne": "1 result",
+    "resultsN": "{{count}} results",
+    "noMatch": "No models match “{{query}}”.",
+    "unavailable": "Currently unavailable",
+    "pinAria": "Pin {{name}}",
+    "unpinAria": "Unpin {{name}}",
+    "effort": "Effort",
+    "effortLow": "Low",
+    "effortMedium": "Medium",
+    "effortHigh": "High",
+    "effortLowDesc": "Fast responses with lighter reasoning",
+    "effortMediumDesc": "Balances speed and reasoning depth",
+    "effortHighDesc": "Greater reasoning depth for complex problems",
+    "emptyTitle": "No models yet",
+    "emptySub": "Connect a provider to choose a model.",
+    "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
+    "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
+    "connectProvider": "Connect a provider",
+    "manageModels": "Manage models"
   }
 }

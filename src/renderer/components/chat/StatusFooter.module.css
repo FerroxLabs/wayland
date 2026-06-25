@@ -1,0 +1,76 @@
+/* #252 - live status footer. Ported from Foundry ThinkingFooter.module.css,
+   re-themed to Wayland orange/dark tokens. */
+
+.spacer {
+  min-height: 20px;
+}
+
+.container {
+  min-height: 44px;
+  padding: 10px 8px;
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: opacity 200ms ease-out;
+}
+
+.fading {
+  opacity: 0;
+}
+
+.activeStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-text-2);
+}
+
+.phrase {
+  color: var(--color-text-2);
+}
+
+.elapsed {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--color-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Three-dot pulse - inline (Wayland has no global dot-pulse helper). */
+.dotPulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.dotPulse > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-aou-6-brand, rgb(var(--primary-6)));
+  animation: statusDotPulse 1.2s ease-in-out infinite;
+}
+
+.dotPulse > span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dotPulse > span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes statusDotPulse {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

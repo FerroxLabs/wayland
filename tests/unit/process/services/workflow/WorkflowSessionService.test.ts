@@ -248,7 +248,8 @@ describe('WorkflowSessionService.start()', () => {
     expect(result.session.category).toBe('Business Operations');
     expect(result.session.palette).toBeTruthy();
     expect(result.session.conversation_id).toBe('conv-1');
-    expect(result.systemPromptDirective).toContain('Demo workflow');
+    // workflow_title is the humanized NAME ("demo" -> "Demo"), not the long description.
+    expect(result.systemPromptDirective).toContain('"Demo"');
 
     expect(parts.conversationService.createConversation).toHaveBeenCalledTimes(1);
     expect(parts.repo.insert).toHaveBeenCalledTimes(1);
@@ -302,7 +303,7 @@ describe('WorkflowSessionService.start()', () => {
     });
   });
 
-  it('uses workflow.title metadata when present; otherwise falls back to the name', async () => {
+  it('derives workflow_title as the humanized slug (clean header/sidebar name, not the long description)', async () => {
     parts.skillMap.set('plain-name', {
       entry: skillEntry({
         name: 'plain-name',
@@ -313,7 +314,7 @@ describe('WorkflowSessionService.start()', () => {
       body: TWO_STEP_BODY,
     });
     const result = await parts.service.start({ workflow_name: 'plain-name' });
-    expect(result.session.workflow_title).toBe('Plain Title Override');
+    expect(result.session.workflow_title).toBe('Plain Name');
   });
 
   it('emits ipcBridge.conversation.listChanged after creating the conversation (Audit B MED-2)', async () => {
@@ -889,6 +890,67 @@ describe('WorkflowSessionService.start() - launch target consumption', () => {
     expect(callArg.model).toMatchObject({ id: 'wcore' });
   });
 
+  it('propagates the selected codex model id into extra.currentModelId so the spawn does not fall back to the codex default (GitHub #111)', async () => {
+    const parts = buildService();
+    parts.skillMap.set('demo', {
+      entry: skillEntry({ name: 'demo', type: 'workflow' }),
+      body: TWO_STEP_BODY,
+    });
+
+    const codexModel: TProviderWithModel = {
+      id: 'codex',
+      platform: 'codex',
+      name: 'Codex',
+      baseUrl: '',
+      apiKey: '',
+      useModel: 'gpt-5.1-codex-mini',
+    };
+
+    await parts.service.start({
+      workflow_name: 'demo',
+      backend: 'codex',
+      cliPath: '/usr/local/bin/codex',
+      model: codexModel,
+    });
+
+    const callArg = (parts.conversationService.createConversation as Mock).mock.calls[0][0] as CreateConversationParams;
+    expect(callArg.extra.backend).toBe('codex');
+    // agentTypeForBackend('codex') → 'acp'
+    expect(callArg.type).toBe('acp');
+    // The user-selected model must reach the ACP spawn via extra.currentModelId,
+    // otherwise codex runs on its CLI default (gpt-5.3-codex), unusable on a
+    // ChatGPT account.
+    expect(callArg.extra.currentModelId).toBe('gpt-5.1-codex-mini');
+  });
+
+  it('does not set extra.currentModelId for non-ACP backends (wcore reads model elsewhere)', async () => {
+    const parts = buildService();
+    parts.skillMap.set('demo', {
+      entry: skillEntry({ name: 'demo', type: 'workflow' }),
+      body: TWO_STEP_BODY,
+    });
+
+    const wcoreModel: TProviderWithModel = {
+      id: 'wcore',
+      platform: 'wcore',
+      name: 'Wayland Core',
+      baseUrl: '',
+      apiKey: '',
+      useModel: 'default',
+    };
+
+    await parts.service.start({
+      workflow_name: 'demo',
+      backend: 'wcore',
+      cliPath: '/usr/local/bin/wcore',
+      model: wcoreModel,
+    });
+
+    const callArg = (parts.conversationService.createConversation as Mock).mock.calls[0][0] as CreateConversationParams;
+    expect(callArg.type).toBe('wcore');
+    expect(callArg.extra.currentModelId).toBeUndefined();
+  });
+
   it('missing backend/model falls through to getDefaultLaunchTarget()', async () => {
     const parts = buildService();
     parts.skillMap.set('demo', {
@@ -1078,6 +1140,274 @@ describe('WorkflowSessionService - sessionChanged emitter + countActive', () => 
 
     await parts.service.completeSession(first.sessionId);
     expect(await parts.service.countActive()).toBe(1);
+  });
+});
+
+describe('WorkflowSessionService - run-state machine (Phase 1)', () => {
+  const startDemo = async (over: Partial<SkillIndexEntry> = {}) => {
+    const parts = buildService();
+    parts.skillMap.set('demo', {
+      entry: skillEntry({ name: 'demo', type: 'workflow', description: 'Demo', ...over }),
+      body: TWO_STEP_BODY,
+    });
+    const { sessionId } = await parts.service.start({ workflow_name: 'demo' });
+    return { parts, sessionId };
+  };
+
+  it('start() defaults run_mode=running and interactivity=step', async () => {
+    const { parts, sessionId } = await startDemo();
+    const s = await parts.service.findById(sessionId);
+    expect(s?.run_mode).toBe('running');
+    expect(s?.interactivity).toBe('step');
+  });
+
+  it('start() honours metadata.interactivity=auto', async () => {
+    const { parts, sessionId } = await startDemo({ metadata: { tags: [], interactivity: 'auto' } });
+    const s = await parts.service.findById(sessionId);
+    expect(s?.interactivity).toBe('auto');
+  });
+
+  it('start() ignores an invalid metadata.interactivity and falls back to step', async () => {
+    const { parts, sessionId } = await startDemo({ metadata: { tags: [], interactivity: 'nonsense' } });
+    const s = await parts.service.findById(sessionId);
+    expect(s?.interactivity).toBe('step');
+  });
+
+  it('pause() flips running -> paused; resume() flips back; both idempotent', async () => {
+    const { parts, sessionId } = await startDemo();
+    expect((await parts.service.pause(sessionId)).run_mode).toBe('paused');
+    // idempotent: pausing a paused run is a no-op (no second update)
+    parts.repo.update.mockClear();
+    expect((await parts.service.pause(sessionId)).run_mode).toBe('paused');
+    expect(parts.repo.update).not.toHaveBeenCalled();
+    expect((await parts.service.resume(sessionId)).run_mode).toBe('running');
+  });
+
+  it('resume() lifts awaiting_input back to running', async () => {
+    const { parts, sessionId } = await startDemo();
+    await parts.service.setRunMode(sessionId, 'awaiting_input');
+    expect((await parts.service.resume(sessionId)).run_mode).toBe('running');
+  });
+
+  it('backtrackToStep() re-runs from N, re-arms run_mode, returns a snapshot, emits telemetry', async () => {
+    const { parts, sessionId } = await startDemo();
+    // Drive both steps to done.
+    await parts.service.applyStepTransition(sessionId, { step_n: 1, status: 'done', source: 'user', dispatch_id: null, timestamp: 1 });
+    await parts.service.applyStepTransition(sessionId, { step_n: 2, status: 'done', source: 'user', dispatch_id: null, timestamp: 2 });
+    await parts.service.pause(sessionId);
+
+    const { session, snapshot } = await parts.service.backtrackToStep(sessionId, 1);
+    expect(session.steps[0].status).toBe('now');
+    expect(session.steps[1].status).toBe('todo');
+    expect(session.current_step).toBe(1);
+    expect(session.run_mode).toBe('running'); // re-armed
+    expect(snapshot[0].status).toBe('done'); // pre-backtrack snapshot
+    expect(parts.telemetry.record).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: 'workflow.backtrack' })
+    );
+  });
+
+  it('continueRun() returns complete and finalizes when all steps are terminal', async () => {
+    const { parts, sessionId } = await startDemo();
+    await parts.service.applyStepTransition(sessionId, { step_n: 1, status: 'done', source: 'user', dispatch_id: null, timestamp: 1 });
+    await parts.service.applyStepTransition(sessionId, { step_n: 2, status: 'done', source: 'user', dispatch_id: null, timestamp: 2 });
+    const { decision, directive, session } = await parts.service.continueRun(sessionId);
+    expect(decision).toBe('complete');
+    expect(directive).toBeNull();
+    expect(session.status).toBe('complete');
+    expect(session.run_mode).toBe('done');
+  });
+
+  it('continueRun() in step mode halts to awaiting_input with no directive', async () => {
+    const { parts, sessionId } = await startDemo();
+    const { decision, directive, session } = await parts.service.continueRun(sessionId);
+    expect(decision).toBe('await_input');
+    expect(directive).toBeNull();
+    expect(session.run_mode).toBe('awaiting_input');
+  });
+
+  it('continueRun() in auto mode advances: marks the next step now and returns its directive', async () => {
+    const { parts, sessionId } = await startDemo({ metadata: { tags: [], interactivity: 'auto' } });
+    const { decision, directive, session } = await parts.service.continueRun(sessionId);
+    expect(decision).toBe('advance');
+    expect(session.steps[0].status).toBe('now');
+    expect(directive).toContain('step 1');
+    expect(directive).toContain('Audit');
+  });
+
+  it('rejects a parent leapfrog marker (later step now while an earlier step is non-terminal)', async () => {
+    const { parts, sessionId } = await startDemo();
+    // Step 1 is still `todo`; a parent-narrated `<step 2 now>` must be rejected
+    // by the stepCursor leapfrog guard (F2: now live for parent markers).
+    const after = await parts.service.applyStepTransition(sessionId, {
+      step_n: 2,
+      status: 'now',
+      source: 'parent',
+      dispatch_id: null,
+      timestamp: Date.now(),
+    });
+    expect(after.steps[1].status).toBe('todo');
+    expect(after.current_step).toBe(1);
+    expect(parts.telemetry.record).toHaveBeenCalledWith(
+      expect.objectContaining({ eventType: 'workflow.regress_attempt' })
+    );
+  });
+
+  it('accepts a user rail-jump to the same later step (user source is ungated)', async () => {
+    const { parts, sessionId } = await startDemo();
+    const after = await parts.service.applyStepTransition(sessionId, {
+      step_n: 2,
+      status: 'now',
+      source: 'user',
+      dispatch_id: null,
+      timestamp: Date.now(),
+    });
+    expect(after.steps[1].status).toBe('now');
+  });
+
+  it('continueRun() halts (no state change) when the run is paused', async () => {
+    const { parts, sessionId } = await startDemo({ metadata: { tags: [], interactivity: 'auto' } });
+    await parts.service.pause(sessionId);
+    parts.repo.update.mockClear();
+    const { decision, directive } = await parts.service.continueRun(sessionId);
+    expect(decision).toBe('halt');
+    expect(directive).toBeNull();
+    expect(parts.repo.update).not.toHaveBeenCalled();
+  });
+
+  it('continueRun() in auto mode does NOT re-send while the active step is still now (storm gate)', async () => {
+    const { parts, sessionId } = await startDemo({ metadata: { tags: [], interactivity: 'auto' } });
+    // First drive flips step 1 todo->now and emits its directive.
+    const first = await parts.service.continueRun(sessionId);
+    expect(first.decision).toBe('advance');
+    expect(first.directive).toContain('step 1');
+    // The agent has not yet emitted <step done>, so step 1 is still `now`. A
+    // second driver turn must advance the state machine but emit NO directive -
+    // re-sending the same directive every turn was the infinite send-storm.
+    const second = await parts.service.continueRun(sessionId);
+    expect(second.decision).toBe('advance');
+    expect(second.directive).toBeNull();
+  });
+
+  it('continueRun({ repokeActiveStep }) re-pokes a still-now step once (boot resume / Continue)', async () => {
+    const { parts, sessionId } = await startDemo({ metadata: { tags: [], interactivity: 'auto' } });
+    await parts.service.continueRun(sessionId); // step 1 -> now
+    const repoke = await parts.service.continueRun(sessionId, { repokeActiveStep: true });
+    expect(repoke.decision).toBe('advance');
+    expect(repoke.directive).toContain('step 1');
+  });
+
+  it('continueRun() halts an ended session without driving it (no state change)', async () => {
+    const { parts, sessionId } = await startDemo({ metadata: { tags: [], interactivity: 'auto' } });
+    await parts.service.endSession(sessionId);
+    parts.repo.update.mockClear();
+    const { decision, directive } = await parts.service.continueRun(sessionId);
+    expect(decision).toBe('halt');
+    expect(directive).toBeNull();
+    expect(parts.repo.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('WorkflowSessionService.start() - space-delimited depends', () => {
+  it('resolves N skills when depends is a space-delimited string (not char-iterating it)', async () => {
+    const parts = buildService();
+    parts.skillMap.set('skill-a', {
+      entry: skillEntry({ name: 'skill-a', description: 'Alpha', type: 'skill' }),
+      body: 'body-a',
+    });
+    parts.skillMap.set('skill-b', {
+      entry: skillEntry({ name: 'skill-b', description: 'Beta', type: 'skill' }),
+      body: 'body-b',
+    });
+    parts.skillMap.set('skill-c', {
+      entry: skillEntry({ name: 'skill-c', description: 'Gamma', type: 'skill' }),
+      body: 'body-c',
+    });
+    parts.skillMap.set('string-depends', {
+      entry: skillEntry({
+        name: 'string-depends',
+        type: 'workflow',
+        // Space-delimited string - the shape from vendored index.json
+        metadata: { tags: [], depends: 'skill-a skill-b skill-c' } as never,
+      }),
+      body: TWO_STEP_BODY,
+    });
+
+    const result = await parts.service.start({ workflow_name: 'string-depends' });
+    // Must resolve exactly 3 skills, not 30+ chars
+    expect(result.session.skills).toHaveLength(3);
+    expect(result.session.skills.map((s) => s.slug)).toEqual(['skill-a', 'skill-b', 'skill-c']);
+  });
+
+  it('handles an already-array depends without double-splitting', async () => {
+    const parts = buildService();
+    parts.skillMap.set('skill-x', {
+      entry: skillEntry({ name: 'skill-x', description: 'X', type: 'skill' }),
+      body: 'body-x',
+    });
+    parts.skillMap.set('array-depends', {
+      entry: skillEntry({
+        name: 'array-depends',
+        type: 'workflow',
+        metadata: { tags: [], depends: ['skill-x'] },
+      }),
+      body: TWO_STEP_BODY,
+    });
+
+    const result = await parts.service.start({ workflow_name: 'array-depends' });
+    expect(result.session.skills).toHaveLength(1);
+    expect(result.session.skills[0].slug).toBe('skill-x');
+  });
+});
+
+describe('WorkflowSessionService.setInteractivity()', () => {
+  it('throws when the session id is unknown', async () => {
+    const parts = buildService();
+    await expect(parts.service.setInteractivity('nope', 'auto')).rejects.toThrow(
+      /WorkflowSessionService.setInteractivity: unknown session/
+    );
+  });
+
+  it('flips step -> auto and emits sessionChanged', async () => {
+    const parts = buildService();
+    parts.skillMap.set('demo', {
+      entry: skillEntry({ name: 'demo', type: 'workflow', metadata: { tags: [], interactivity: 'step' } }),
+      body: TWO_STEP_BODY,
+    });
+    sessionChangedEmitMock.mockClear();
+    const { sessionId } = await parts.service.start({ workflow_name: 'demo' });
+    sessionChangedEmitMock.mockClear();
+
+    const updated = await parts.service.setInteractivity(sessionId, 'auto');
+    expect(updated.interactivity).toBe('auto');
+    expect(parts.repo.update).toHaveBeenCalled();
+    expect(sessionChangedEmitMock).toHaveBeenCalledWith({ session_id: sessionId, action: 'update' });
+  });
+
+  it('is idempotent: same mode returns current session without a repo write', async () => {
+    const parts = buildService();
+    parts.skillMap.set('demo', {
+      entry: skillEntry({ name: 'demo', type: 'workflow', metadata: { tags: [], interactivity: 'step' } }),
+      body: TWO_STEP_BODY,
+    });
+    const { sessionId } = await parts.service.start({ workflow_name: 'demo' });
+    const updateCallsBefore = (parts.repo.update as Mock).mock.calls.length;
+
+    const result = await parts.service.setInteractivity(sessionId, 'step');
+    expect(result.interactivity).toBe('step');
+    expect((parts.repo.update as Mock).mock.calls.length).toBe(updateCallsBefore);
+  });
+
+  it('flips auto -> step', async () => {
+    const parts = buildService();
+    parts.skillMap.set('demo', {
+      entry: skillEntry({ name: 'demo', type: 'workflow', metadata: { tags: [], interactivity: 'auto' } }),
+      body: TWO_STEP_BODY,
+    });
+    const { sessionId } = await parts.service.start({ workflow_name: 'demo' });
+
+    const updated = await parts.service.setInteractivity(sessionId, 'step');
+    expect(updated.interactivity).toBe('step');
   });
 });
 

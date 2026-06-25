@@ -167,6 +167,25 @@ export type BudgetAlert = {
   period: BudgetPeriod;
 };
 
+/**
+ * Renderer-facing payload when a 'pause' budget blocks a turn before it starts
+ * (the runaway circuit-breaker Phase 1). Carries the held message so the
+ * renderer can re-send it after the user raises the cap, and the budget figures
+ * so the resumable card can show "spent X of Y this period".
+ */
+export type BudgetGateBlocked = {
+  conversationId: string;
+  /** The user message that was held (not yet dispatched to the agent). */
+  content: string;
+  files?: string[];
+  budgetId: string;
+  scope: BudgetScope;
+  scopeKey?: string;
+  limitUsd: number;
+  spentUsd: number;
+  period: BudgetPeriod;
+};
+
 /** CRUD over the budgets table (migration_v49). Synchronous, like the cost repo. */
 export interface IBudgetRepository {
   /** Insert or replace one budget row. */

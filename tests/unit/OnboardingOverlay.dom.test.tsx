@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { DetectionResult } from '@/common/types/onboarding';
 
 const hooks = vi.hoisted(() => ({
@@ -41,6 +41,17 @@ vi.mock('@renderer/utils/platform', () => ({
   openExternalUrl: vi.fn().mockResolvedValue(undefined),
 }));
 
+// Stand-in flow that exposes a single button which triggers `onFinish` (the
+// overlay's `dismiss`), so dismiss behaviour can be tested without driving the
+// real multi-screen flow.
+vi.mock('../../src/renderer/components/onboarding/OnboardingFlow', () => ({
+  default: ({ onFinish }: { onFinish: () => void }) => (
+    <button type='button' data-testid='finish-onboarding' onClick={onFinish}>
+      onboarding.flow.quickstart.headline
+    </button>
+  ),
+}));
+
 import OnboardingOverlay from '../../src/renderer/components/onboarding/OnboardingOverlay';
 
 const emptyDetection = (): DetectionResult => ({
@@ -58,6 +69,7 @@ describe('OnboardingOverlay', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     hooks.configSet.mockResolvedValue(undefined);
+    localStorage.clear();
   });
 
   it('opens the onboarding flow on a fresh machine', async () => {
@@ -84,5 +96,55 @@ describe('OnboardingOverlay', () => {
     });
     expect(screen.queryByText('onboarding.flow.quickstart.headline')).not.toBeInTheDocument();
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('writes a synchronous localStorage marker on dismiss (issue #8 reopen guard)', async () => {
+    hooks.configGet.mockResolvedValue(undefined);
+    hooks.detection.mockReturnValue({ detection: emptyDetection(), loading: false });
+
+    render(<OnboardingOverlay />);
+
+    const finish = await screen.findByTestId('finish-onboarding');
+    await act(async () => {
+      fireEvent.click(finish);
+    });
+
+    // Always-local, synchronous marker is set even though the bridge write is async.
+    expect(localStorage.getItem('onboardingCompleted')).toBe('1');
+    expect(hooks.configSet).toHaveBeenCalledWith('onboardingCompleted', true);
+  });
+
+  it('retries the bridge write once when the first set rejects', async () => {
+    hooks.configGet.mockResolvedValue(undefined);
+    hooks.detection.mockReturnValue({ detection: emptyDetection(), loading: false });
+    hooks.configSet.mockRejectedValueOnce(new Error('bridge down')).mockResolvedValueOnce(undefined);
+
+    render(<OnboardingOverlay />);
+
+    const finish = await screen.findByTestId('finish-onboarding');
+    await act(async () => {
+      fireEvent.click(finish);
+    });
+
+    await waitFor(() => {
+      expect(hooks.configSet).toHaveBeenCalledTimes(2);
+    });
+    // Local marker still durably records the dismiss regardless of the bridge.
+    expect(localStorage.getItem('onboardingCompleted')).toBe('1');
+  });
+
+  it('stays closed on a fresh boot when the local marker is set but the bridge flag is not', async () => {
+    // Simulates headless: prior dismiss landed in localStorage, bridge write
+    // never durably persisted ⇒ overlay must NOT re-open.
+    localStorage.setItem('onboardingCompleted', '1');
+    hooks.configGet.mockResolvedValue(undefined);
+    hooks.detection.mockReturnValue({ detection: emptyDetection(), loading: false });
+
+    const { container } = render(<OnboardingOverlay />);
+
+    await waitFor(() => {
+      expect(container).toBeEmptyDOMElement();
+    });
+    expect(screen.queryByTestId('finish-onboarding')).not.toBeInTheDocument();
   });
 });

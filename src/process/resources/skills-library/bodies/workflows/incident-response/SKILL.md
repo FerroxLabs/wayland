@@ -13,6 +13,7 @@ metadata:
   depends: "incident-response logging-patterns monitoring-alerting deployment-strategies technical-documentation"
   disclaimer: "none"
   difficulty: "advanced"
+  interactivity: "auto"
 ---
 
 # Incident Response Workflow

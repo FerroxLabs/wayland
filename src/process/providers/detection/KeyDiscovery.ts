@@ -61,6 +61,9 @@ export const PROVIDER_ENV_VARS: Partial<Record<ProviderId, readonly string[]>> =
   perplexity: ['PERPLEXITY_API_KEY'],
   cohere: ['COHERE_API_KEY'],
   cerebras: ['CEREBRAS_API_KEY'],
+  moonshot: ['MOONSHOT_API_KEY'],
+  nvidia: ['NVIDIA_API_KEY'],
+  minimax: ['MINIMAX_API_KEY'],
 };
 
 /**
@@ -82,6 +85,9 @@ const ENV_SCAN_ORDER: readonly ProviderId[] = [
   'perplexity',
   'cohere',
   'cerebras',
+  'moonshot',
+  'nvidia',
+  'minimax',
 ];
 
 /**

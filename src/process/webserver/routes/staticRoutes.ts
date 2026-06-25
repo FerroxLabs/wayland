@@ -148,6 +148,16 @@ function registerProductionStaticRoutes(expressApp: Express, staticRoot: string,
   // SPA sub-routes (React Router)
   expressApp.get(/^\/(?!api|static|assets)(?!.*\.[a-zA-Z0-9]+$).*/, pageRateLimiter, serveApplication);
 
+  // The service worker must never be HTTP-cached: a wedged client has to be
+  // able to pick up a corrected/updated sw.js on the next load instead of
+  // replaying a stale one (#47). Hashed assets stay immutable via the static
+  // mount below; only the SW entry point opts out.
+  expressApp.get('/sw.js', (_req: Request, res: Response) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Service-Worker-Allowed', '/');
+    res.sendFile(path.join(staticRoot, 'sw.js'));
+  });
+
   // Static assets
   expressApp.use(express.static(staticRoot));
 

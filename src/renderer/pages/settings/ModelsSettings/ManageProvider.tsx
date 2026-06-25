@@ -3,10 +3,14 @@ import { Button, Input, Message, Modal, Spin, Switch, Tooltip } from '@arco-desi
 import { AlertTriangle, ChevronLeft, RefreshCw as RefreshIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
-import type { CatalogModel, ConnectError, CuratedModel, UsageTag } from '@process/providers/types';
+import type { ConnectError, CuratedModel, UsageTag } from '@process/providers/types';
+import { FLUX_MODEL_IDS, FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import { providerMeta } from './providerCatalog';
+import { allVisibleEnabled, mergeCatalogRows, rowsToFlip } from './components/bulkToggle';
+import XGrokButton from './components/XGrokButton';
+import ChatGptButton from './components/ChatGptButton';
 import styles from './ManageProvider.module.css';
 
 type Props = {
@@ -83,6 +87,7 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   const [query, setQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [busyModel, setBusyModel] = useState<string | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   // Re-key dialog state.
   const [rekeyOpen, setRekeyOpen] = useState(false);
@@ -95,47 +100,10 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
     setLoadError(null);
     try {
       const view = await getCatalog(provider.providerId);
-      const fullCatalog: CatalogModel[] = Array.isArray(view?.catalog) ? view.catalog : [];
-      const curatedList: CuratedModel[] = Array.isArray(view?.curated) ? view.curated : [];
-      // Index curated flags by model id so non-curated catalog rows (image /
-      // audio / embedding) inherit empty defaults while curated text rows
-      // keep their `recommended` / `enabled` / `role` decisions.
-      const curatedById = new Map(curatedList.map((m) => [m.id, m]));
-      // If the catalog is empty but curated isn't (older backend), fall back
-      // to curated so we don't blank the page.
-      let baseRows: CuratedModel[];
-      if (fullCatalog.length > 0) {
-        baseRows = [];
-        for (const c of fullCatalog) {
-          const flagged = curatedById.get(c.id);
-          if (flagged) {
-            baseRows.push(flagged);
-          } else {
-            // Build a CuratedModel by aliasing into a new object - avoids
-            // the spread-in-map oxc warning while keeping copy-on-write.
-            const row: CuratedModel = {
-              id: c.id,
-              providerId: c.providerId,
-              displayName: c.displayName,
-              family: c.family,
-              kind: c.kind,
-              releaseDate: c.releaseDate,
-              contextWindow: c.contextWindow,
-              costInPerM: c.costInPerM,
-              costOutPerM: c.costOutPerM,
-              status: c.status,
-              enriched: c.enriched,
-              tags: Array.isArray(c.tags) ? c.tags : [],
-              recommended: false,
-              enabled: false,
-            };
-            baseRows.push(row);
-          }
-        }
-      } else {
-        baseRows = curatedList;
-      }
-      setModels(baseRows);
+      // The Manage page renders the FULL catalog joined with each row's curated
+      // `recommended` / `enabled` / `role` flags - the same merge the Models row
+      // uses for its provider on/off toggle (see `mergeCatalogRows`).
+      setModels(mergeCatalogRows(view));
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
       setModels([]);
@@ -155,8 +123,25 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
     return models.filter((m) => m.displayName.toLowerCase().includes(q));
   }, [models, query]);
 
-  const recommended = useMemo(() => filtered.filter((m) => m.recommended), [filtered]);
-  const rest = useMemo(() => filtered.filter((m) => !m.recommended), [filtered]);
+  // Flux is a router: its four routing tiers (Auto / Reasoning / Standard /
+  // Fast) are the headline picks and must sit at the top in picker order, with
+  // the pinned + image models below - not scattered by the generic
+  // `recommended` flag (which only tags Auto + Fast). Other providers keep the
+  // curated `recommended` split.
+  const isFluxRouter = provider.providerId === FLUX_PROVIDER_ID;
+  const fluxTierOrder = useMemo(() => new Map(FLUX_MODEL_IDS.map((id, i) => [id as string, i])), []);
+  const recommended = useMemo(() => {
+    if (isFluxRouter) {
+      return filtered
+        .filter((m) => fluxTierOrder.has(m.id))
+        .toSorted((a, b) => (fluxTierOrder.get(a.id) ?? 0) - (fluxTierOrder.get(b.id) ?? 0));
+    }
+    return filtered.filter((m) => m.recommended);
+  }, [filtered, isFluxRouter, fluxTierOrder]);
+  const rest = useMemo(() => {
+    if (isFluxRouter) return filtered.filter((m) => !fluxTierOrder.has(m.id));
+    return filtered.filter((m) => !m.recommended);
+  }, [filtered, isFluxRouter, fluxTierOrder]);
 
   // ---- Per-row meta (context window + cost) ------------------------------
   const modelMeta = useCallback(
@@ -192,6 +177,45 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
     },
     [toggleModel, provider.providerId, t]
   );
+
+  // ---- Bulk toggle (respects the active search) --------------------------
+  // Flips only the rows currently visible after filtering — never the
+  // filtered-out rows. Each flip routes through the same `toggleModel` path a
+  // single-row Switch uses, so there is no new registry endpoint. Optimistic
+  // UI updates the visible rows up front and reverts any row whose backend
+  // call fails.
+  const handleBulkToggle = useCallback(
+    async (enable: boolean) => {
+      const ids = rowsToFlip(filtered, enable);
+      if (ids.length === 0) return;
+      const idSet = new Set(ids);
+      setBulkBusy(true);
+      setModels((prev) => prev.map((m) => (idSet.has(m.id) ? { ...m, enabled: enable } : m)));
+      // Fire the per-model toggles in parallel — they are independent IPC
+      // calls — and collect the ids whose call rejected or returned not-ok so
+      // only the failed rows are reverted.
+      const results = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await toggleModel(provider.providerId, id, enable);
+            return { id, ok: Boolean(res?.ok) };
+          } catch {
+            return { id, ok: false };
+          }
+        })
+      );
+      const failed = results.filter((r) => !r.ok).map((r) => r.id);
+      if (failed.length > 0) {
+        const failedSet = new Set(failed);
+        setModels((prev) => prev.map((m) => (failedSet.has(m.id) ? { ...m, enabled: !enable } : m)));
+        Message.error(t('settings.modelsPage.manage.toggleFailed'));
+      }
+      setBulkBusy(false);
+    },
+    [filtered, toggleModel, provider.providerId, t]
+  );
+
+  const allEnabled = useMemo(() => allVisibleEnabled(filtered), [filtered]);
 
   // ---- Refresh -----------------------------------------------------------
   const handleRefresh = useCallback(async () => {
@@ -261,6 +285,17 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   // TODO(2C): route cloud re-key to Packet 2C's `CloudCredentialForm` once it
   // exists, instead of disabling the button.
   const isCloudProvider = provider.connectedVia === 'cloud-credentials';
+
+  // xAI (Grok) connects through the native "Sign in with X" OAuth, so its
+  // reconnect path is that flow - not just the API-key Re-key dialog. Surface
+  // the X sign-in here alongside Re-key (especially useful in the error state,
+  // where a revoked / expired token needs re-auth). `XGrokButton` shows its own
+  // connected / reconnect affordance and the OAuth waiting + paste-fallback UI.
+  const isXai = provider.providerId === 'xai';
+  const isChatGpt = provider.providerId === 'chatgpt-subscription';
+  // Flux is a router (tiers across many models), not a vendor catalog, so its
+  // models-section explainer is Flux-specific rather than the shared copy.
+  const isFlux = isFluxRouter;
 
   // ---- Header status -----------------------------------------------------
   const viaSuffix = VIA_KEY[provider.connectedVia];
@@ -389,8 +424,22 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
         })}
       </div>
 
+      {isXai && (
+        <div className='mt-12px'>
+          <XGrokButton />
+        </div>
+      )}
+
+      {isChatGpt && (
+        <div className='mt-12px'>
+          <ChatGptButton />
+        </div>
+      )}
+
       <div className={styles.secLabel}>{t('settings.modelsPage.manage.sectionLabel')}</div>
-      <div className={styles.secExplain}>{t('settings.modelsPage.manage.sectionExplain')}</div>
+      <div className={styles.secExplain}>
+        {t(isFlux ? 'settings.modelsPage.manage.sectionExplainFlux' : 'settings.modelsPage.manage.sectionExplain')}
+      </div>
 
       <div className={styles.card}>
         <Input.Search
@@ -401,6 +450,33 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
           placeholder={t('settings.modelsPage.manage.searchPlaceholder')}
           aria-label={t('settings.modelsPage.manage.searchPlaceholder')}
         />
+
+        {!loading && !loadError && filtered.length > 0 && (
+          <div className={styles.bulkBar}>
+            <span className={styles.bulkCount}>
+              {t('settings.modelsPage.manage.bulkVisibleCount', { count: filtered.length })}
+            </span>
+            <div className={styles.bulkSpacer} />
+            <Button
+              type='text'
+              size='mini'
+              loading={bulkBusy}
+              disabled={allEnabled}
+              onClick={() => void handleBulkToggle(true)}
+            >
+              {t('settings.modelsPage.manage.selectAll')}
+            </Button>
+            <Button
+              type='text'
+              size='mini'
+              loading={bulkBusy}
+              disabled={rowsToFlip(filtered, false).length === 0}
+              onClick={() => void handleBulkToggle(false)}
+            >
+              {t('settings.modelsPage.manage.deselectAll')}
+            </Button>
+          </div>
+        )}
 
         {loading && (
           <div className={styles.cardState}>
@@ -461,7 +537,7 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
         okButtonProps={{ disabled: !rekeyValue.trim() }}
       >
         <div className='flex flex-col gap-8px'>
-          <div className='text-12px text-[var(--color-text-2)] leading-1.5'>
+          <div className='text-12px text-[var(--color-text-2)] leading-relaxed'>
             {t('settings.modelsPage.manage.rekeyBody')}
           </div>
           <Input.Password

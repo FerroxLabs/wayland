@@ -55,7 +55,7 @@ const SiderItem: React.FC<SiderItemProps> = ({
     >
       <div
         className={classNames(
-          'h-40px rd-8px flex items-center gap-8px px-10px cursor-pointer relative overflow-hidden shrink-0 group min-w-0 transition-colors',
+          'h-26px rd-8px flex items-center gap-8px px-8px cursor-pointer relative overflow-hidden shrink-0 group min-w-0 transition-colors',
           {
             'hover:bg-[rgba(var(--primary-6),0.14)]': true,
           }
@@ -69,7 +69,15 @@ const SiderItem: React.FC<SiderItemProps> = ({
             : undefined
         }
         onClick={onClick}
-        onContextMenu={onContextMenu}
+        onContextMenu={(e) => {
+          // Right-click opens the item's own action menu (rename / delete / pin).
+          // Only items that supply menuItems are affected; others just forward.
+          if (hasMenu) {
+            e.preventDefault();
+            setMenuVisible(true);
+          }
+          onContextMenu?.(e);
+        }}
       >
         {/* Active-rail: 2px brand orange with subtle glow, only when selected */}
         {selected && (
@@ -88,8 +96,8 @@ const SiderItem: React.FC<SiderItemProps> = ({
             }}
           />
         )}
-        {/* Leading icon - fixed 28px column to align with other sidebar rows */}
-        <span className='w-28px h-28px flex items-center justify-center shrink-0 line-height-0'>{icon}</span>
+        {/* Leading icon - fixed 20px column to align with other sidebar rows */}
+        <span className='w-20px h-20px flex items-center justify-center shrink-0 line-height-0'>{icon}</span>
 
         {/* Name with truncation - reserve extra room on the right when pinned
             so the pushpin never overlaps the text in the resting state. */}
@@ -98,7 +106,7 @@ const SiderItem: React.FC<SiderItemProps> = ({
         >
           <div
             className={classNames(
-              'overflow-hidden text-ellipsis block w-full text-14px lh-24px whitespace-nowrap min-w-0 group-hover:text-1',
+              'overflow-hidden text-ellipsis block w-full text-12px lh-20px whitespace-nowrap min-w-0 group-hover:text-1',
               selected ? 'text-1 font-medium' : 'text-2'
             )}
           >

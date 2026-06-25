@@ -65,6 +65,23 @@ describe('ConnectionTester', () => {
     expect(Array.isArray(payload.messages)).toBe(true);
   });
 
+  // A Flux key wired as `openai` + OPENAI_BASE_URL=https://api.fluxrouter.ai/v1
+  // is scoped to the gateway's own models, so the canonical `gpt-4o-mini`
+  // inference probe against api.openai.com 401s. With a custom base URL the
+  // probe must instead GET <base>/models on the gateway host (auth-only check).
+  it('probes the custom base /models endpoint, not the canonical host, when a base URL is given', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({ data: [{ id: 'flux-auto' }] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('openai', { key: 'sk-flux-test' }, 'https://api.fluxrouter.ai/v1');
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('https://api.fluxrouter.ai/v1/models');
+    expect(url).not.toContain('api.openai.com');
+    expect(init.method).toBe('GET');
+    expect(result).toEqual({ ok: true });
+  });
+
   it('maps a 401 to unauthorized', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ error: 'bad key' }, 401)));
     const result = await tester.test('openai', { key: 'bad' });
@@ -212,6 +229,34 @@ describe('ConnectionTester', () => {
 
     const [url] = fetchMock.mock.calls[0] as [string];
     expect(url).toContain('/models');
+  });
+
+  it('runs a real inference probe for NVIDIA NIM, not a weak /v1/models check (issue #45)', async () => {
+    // Regression for #45: NVIDIA answers 200 on /v1/models even for a bad token.
+    // With a NIM test model, connect must POST a real completion to
+    // /v1/chat/completions so an invalid key fails instead of false-validating.
+    const fetchMock = vi.fn().mockResolvedValue(response({ choices: [{ message: { content: 'hi' } }] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('nvidia', { key: 'nvapi-good' });
+    expect(result).toEqual({ ok: true });
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain('integrate.api.nvidia.com');
+    expect(url).toContain('chat/completions');
+    expect(url).not.toContain('/v1/models');
+    expect(init.method).toBe('POST');
+    const headers = init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe('Bearer nvapi-good');
+  });
+
+  it('reports unauthorized for a bad NVIDIA key instead of false-validating (issue #45)', async () => {
+    // The core bug: a bad NVIDIA token used to 200 on /v1/models. The inference
+    // probe makes the same bad token surface its real 401 as `unauthorized`.
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ error: 'invalid api key' }, 401)));
+
+    const result = await tester.test('nvidia', { key: 'nvapi-bad' });
+    expect(result).toEqual({ ok: false, error: 'unauthorized' });
   });
 
   it('returns unknown for a provider with neither a test model nor a models endpoint', async () => {
