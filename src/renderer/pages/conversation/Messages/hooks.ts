@@ -406,6 +406,22 @@ export const useRemoveMessageByMsgId = () => {
 };
 
 /**
+ * Returns a callback that drops all messages with createdAt > timestamp from
+ * the live list. Used by the edit-and-rerun flow to truncate the tape after
+ * the edited user message before re-sending.
+ */
+export const useTruncateMessagesAfter = () => {
+  const update = useUpdateMessageList();
+
+  return useCallback(
+    (timestamp: number) => {
+      update((list) => list.filter((message) => !message.createdAt || message.createdAt <= timestamp));
+    },
+    [update]
+  );
+};
+
+/**
  * Drop transient error tips from the live list. Some engine `error` events are
  * non-fatal diagnostics (e.g. wcore's "Cache full miss: TtlExpiry") emitted
  * mid-turn while the turn keeps streaming and ultimately completes. Those would

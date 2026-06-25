@@ -33,6 +33,7 @@ import fs from 'fs';
 import path from 'path';
 import { migrateConversationToDatabase } from './migrationUtils';
 import { ConversationSideQuestionService } from './services/ConversationSideQuestionService';
+import { getDatabase } from '@process/services/database';
 
 const refreshTrayMenuSafely = async (): Promise<void> => {
   try {
@@ -486,6 +487,19 @@ export function initConversationBridge(
     if (!task) return { success: true, msg: 'conversation not found' };
     await task.stop();
     return { success: true };
+  });
+
+  ipcBridge.conversation.deleteMessagesAfter.provider(async ({ conversation_id, afterTimestamp }) => {
+    try {
+      const db = await getDatabase();
+      const result = db.deleteMessagesAfter(conversation_id, afterTimestamp);
+      if (!result.success) {
+        return { success: false, msg: result.error };
+      }
+      return { success: true, data: { deleted: result.data ?? 0 } };
+    } catch (error) {
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
+    }
   });
 
   // Placeholder: runtime config hot-swap is not yet supported.

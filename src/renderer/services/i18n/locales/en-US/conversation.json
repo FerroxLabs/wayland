@@ -354,7 +354,10 @@
     "stopReading": "Stop",
     "retry": "Retry",
     "thumbsUp": "Good response",
-    "thumbsDown": "Bad response"
+    "thumbsDown": "Bad response",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "skills": {
     "loaded": "Loaded Skills"
