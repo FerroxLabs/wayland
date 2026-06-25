@@ -42,7 +42,7 @@ on:
         default: false
   pull_request:
     types: [opened, synchronize, edited, closed, ready_for_review, reopened]
-    branches: [main, dev, 'feat/**', 'release/**']
+    branches: [main, dev, 'feat/**', 'release/**', 'integration/**']
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
