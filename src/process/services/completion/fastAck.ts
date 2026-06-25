@@ -5,12 +5,17 @@
  */
 
 /**
- * Fast first-response acknowledgement (perceived-speed, Rory Sutherland).
+ * Fast first-response "Quick take" (perceived-speed, Rory Sutherland).
  *
  * When the user submits a turn on the Flux path, we fire a parallel one-shot
- * `flux-fast` call that returns a single short "here's the plan" sentence. The
- * renderer shows it as a TRANSIENT bubble above the real streaming response and
- * removes it the moment the main model starts streaming. It is never persisted.
+ * `flux-fast` call shown as a TRANSIENT bubble above the real streaming
+ * response, removed the moment the main model starts streaming. Never persisted.
+ *
+ * The take must ADD something the user's own message did not contain (a
+ * provisional answer, one concrete decision, the key assumption, or a single
+ * orienting fact) — never an echo or paraphrase of the request, and never the
+ * same shape twice. When there is nothing useful to add (a confirmation or
+ * trivial follow-up) it returns '' and the renderer shows nothing.
  *
  * This is best-effort: on a missing Flux key, a slow/failed call, or an empty
  * result it returns '' so the renderer simply shows no ack. It NEVER throws and
@@ -34,13 +39,24 @@ const MAX_PROMPT_CHARS = 1000;
 
 /**
  * Build the meta-prompt for the ack model. Pure (no I/O) so it is unit-testable.
- * Instructs a one-sentence acknowledgement of the approach, NOT an answer.
+ * Instructs a take that ADDS information (answer / decision / assumption / fact),
+ * never an echo, varied in shape, and empty when there is nothing to add.
  */
 export function buildFastAckPrompt(userMessage: string): string {
   const gist = userMessage.trim().slice(0, MAX_PROMPT_CHARS);
-  return `In ONE short sentence, acknowledge the user's request and state the approach you'll take. Be specific and brief. Do NOT answer the request itself.
+  return `You write a single "Quick take" shown for a moment while the real answer is being prepared. Its only job is to add something the user does NOT already know from their own message. Never restate, paraphrase, or summarize their request.
 
-User request: "${gist}"`;
+Pick the ONE move that fits this message:
+- Question or research ask: give your best provisional answer from what you already know, in a few words, framed as a first instinct you are about to verify.
+- Build / make / write ask: commit to ONE concrete decision about how you will do it (a specific structure, choice, or default) — not a recap of what they asked for.
+- Something important is ambiguous: state the single assumption you are making, so they can correct it now.
+- Otherwise: lead with the one fact that best orients the topic.
+
+If the message is only a confirmation, a "yes do that", or a small follow-up with nothing genuinely new to add, reply with an empty message and no other text.
+
+Rules: at most 1-2 short sentences (~40 words). Vary your phrasing and length from one take to the next. Never begin with "I'll", "I will", "Let me", or "Sure". Never use the shape "I'll X, Y, and Z". Do not restate the request.
+
+User message: "${gist}"`;
 }
 
 /**
@@ -54,7 +70,12 @@ export function cleanFastAck(raw: string): string {
       .split('\n')
       .map((line) => line.trim())
       .find((line) => line.length > 0) ?? '';
-  return firstLine.replace(/^["']|["']$/g, '').trim();
+  const cleaned = firstLine.replace(/^["']|["']$/g, '').trim();
+  // The prompt tells the model to return nothing when it has no value to add;
+  // some models emit a placeholder instead of an empty string. Treat those as
+  // "no take" so the renderer shows nothing rather than a bland filler line.
+  if (/^(n\/?a|none|nothing|no comment|no take|—|-)\.?$/i.test(cleaned)) return '';
+  return cleaned;
 }
 
 /** Construct the flux-fast PickedModel from the connected key, or null. */
