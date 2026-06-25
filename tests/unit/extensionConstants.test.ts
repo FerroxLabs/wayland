@@ -196,7 +196,7 @@ describe('extension constants', () => {
       const sources = getExtensionScanSources();
       const bundled = sources.find((s) => s.source === 'bundled');
       expect(bundled).toBeDefined();
-      expect(bundled!.dir).toBe(path.join('/app-root', 'resources', 'bundled-extensions'));
+      expect(bundled!.dir).toBe(path.resolve('/app-root', 'resources', 'bundled-extensions'));
       // Must never be first (getInstallTargetDir would otherwise pick it).
       expect(sources[0].source).not.toBe('bundled');
     });
@@ -254,7 +254,10 @@ describe('extension constants', () => {
       delete process.env.WAYLAND_E2E_TEST;
       const dir = getInstallTargetDir();
       // Writable userData dir, NOT the bundled in-app dir.
-      expect(dir).toBe(getUserExtensionsDir());
+      // path.resolve both sides: on Windows getInstallTargetDir resolves the
+      // POSIX-mocked path against the cwd drive (D:\…) while getUserExtensionsDir
+      // returns it drive-relative; normalizing makes the compare drive-agnostic.
+      expect(path.resolve(dir)).toBe(path.resolve(getUserExtensionsDir()));
       expect(dir).not.toBe(getBundledExtensionsDir());
     });
 

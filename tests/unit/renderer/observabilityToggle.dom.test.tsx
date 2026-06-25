@@ -52,6 +52,11 @@ vi.mock('@arco-design/web-react', async (importOriginal) => {
 });
 
 vi.mock('@/common', () => ({ ipcBridge: {} }));
+// The wcore render tree imports the real @/renderer/services/i18n, whose module
+// body wires ipcBridge.systemSettings.languageChanged at load (services/i18n
+// index.ts) and crashes under the stubbed @/common above. Mock the service the
+// way the passing wcore .dom specs do; only i18n.t is reached in this tree.
+vi.mock('@/renderer/services/i18n', () => ({ default: { t: (key: string) => key } }));
 
 import { ObservabilityToggle } from '@/renderer/pages/conversation/components/ChatConversation';
 import { useObservabilitySettings } from '@/renderer/hooks/settings/useObservabilitySettings';
@@ -78,7 +83,10 @@ afterEach(() => {
   cleanup();
 });
 
-describe('ObservabilityToggle #252', () => {
+// ObservabilityToggle is a deliberate `null` stub on this base (disabled for
+// 0.11.3 in commit 2e0c41fde); these assertions target a button it no longer
+// renders. Skip until the toggle UI is restored.
+describe.skip('ObservabilityToggle #252', () => {
   it('starts closed: aria-pressed false, default Button type', () => {
     render(<ObservabilityToggle />);
     const btn = screen.getByRole('button');

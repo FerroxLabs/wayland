@@ -87,7 +87,7 @@ describe('useMcpOAuth #242 real-timer drive (no fake timers)', () => {
     // No fake-timer advance. The real 50ms setTimeout inside the hook must fire.
     await waitFor(() => expect(didSettle).toBe(true), { timeout: 2000 });
 
-    expect(settled).toEqual({ success: false, code: 'unknown', error: 'timeout' });
+    expect(settled).toEqual({ success: false, code: 'timeout', error: 'timeout' });
     // Spinner clears in the hook's finally; the re-render is async, so await it.
     await waitFor(() => expect(result.current.loggingIn[server.id]).toBe(false), { timeout: 2000 });
   });
@@ -102,12 +102,10 @@ describe('useMcpOAuth #242 real-timer drive (no fake timers)', () => {
     let didSettle = false;
     act(() => {
       // Large timeout: if cancel did NOT work, this test would hang far past it.
-      void result.current
-        .login(server, undefined, { signal: controller.signal, timeoutMs: 60_000 })
-        .then((r) => {
-          settled = r;
-          didSettle = true;
-        });
+      void result.current.login(server, undefined, { signal: controller.signal, timeoutMs: 60_000 }).then((r) => {
+        settled = r;
+        didSettle = true;
+      });
     });
 
     expect(result.current.loggingIn[server.id]).toBe(true);

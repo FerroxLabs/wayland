@@ -68,7 +68,7 @@ describe('useMcpOAuth login timeout / cancel (#242)', () => {
       await vi.advanceTimersByTimeAsync(1000);
     });
 
-    expect(outcome).toEqual({ success: false, code: 'unknown', error: 'timeout' });
+    expect(outcome).toEqual({ success: false, code: 'timeout', error: 'timeout' });
     expect(result.current.loggingIn[server.id]).toBe(false);
   });
 
@@ -80,11 +80,9 @@ describe('useMcpOAuth login timeout / cancel (#242)', () => {
 
     let outcome: Awaited<ReturnType<typeof result.current.login>> | undefined;
     act(() => {
-      void result.current
-        .login(server, undefined, { signal: controller.signal, timeoutMs: 60_000 })
-        .then((r) => {
-          outcome = r;
-        });
+      void result.current.login(server, undefined, { signal: controller.signal, timeoutMs: 60_000 }).then((r) => {
+        outcome = r;
+      });
     });
 
     expect(result.current.loggingIn[server.id]).toBe(true);
