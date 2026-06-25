@@ -336,6 +336,15 @@ const UpdateModal: React.FC = () => {
           setStatus('error');
           setErrorMsg(evt.error || t('update.downloadFailed'));
           break;
+        case 'install-failed':
+          // A downloaded update never applied (silent Squirrel/ShipIt no-op) or
+          // the app can't update in place (macOS outside /Applications). Surface
+          // it through the error view + Releases CTA, and force the modal open so
+          // the user isn't left in a silent re-offer loop (#286).
+          setStatus('error');
+          setErrorMsg(evt.error || t('update.downloadFailed'));
+          setVisible(true);
+          break;
       }
     });
 

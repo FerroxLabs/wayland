@@ -9,6 +9,10 @@ import type { ProgressInfo, UpdateInfo } from 'electron-updater';
 import { app } from 'electron';
 import log from 'electron-log';
 import { EventEmitter } from 'events';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { writeFileSyncAtomic } from '@process/utils/atomicWrite';
+import type { AutoUpdateInstallFailedReason } from '@/common/update/updateTypes';
 
 /**
  * Returns the appropriate update channel name based on the current platform and architecture.
@@ -41,7 +45,15 @@ export function getUpdateChannel(): string | undefined {
 }
 
 export interface AutoUpdateStatus {
-  status: 'checking' | 'available' | 'not-available' | 'downloading' | 'downloaded' | 'error' | 'cancelled';
+  status:
+    | 'checking'
+    | 'available'
+    | 'not-available'
+    | 'downloading'
+    | 'downloaded'
+    | 'error'
+    | 'install-failed'
+    | 'cancelled';
   version?: string;
   releaseDate?: string;
   releaseNotes?: string;
@@ -52,6 +64,8 @@ export interface AutoUpdateStatus {
     total: number;
   };
   error?: string;
+  /** Set when status === 'install-failed'. */
+  reason?: AutoUpdateInstallFailedReason;
 }
 
 /** Callback type for broadcasting update status */
@@ -77,6 +91,14 @@ class AutoUpdaterService extends EventEmitter {
   private _downloadInProgress = false;
   /** Stores registered autoUpdater event handlers for cleanup and test access */
   private readonly _autoUpdaterHandlers = new Map<string, (...args: unknown[]) => void>();
+  /** Version of the most recently downloaded update (captured on 'update-downloaded'). */
+  private _lastDownloadedVersion: string | null = null;
+  /**
+   * Version whose in-place install silently failed on the previous launch
+   * (downloaded + attempted but the app version never advanced). Re-offers of
+   * this version are surfaced as install-failed instead of a plain offer (#286).
+   */
+  private _failedInstallVersion: string | null = null;
 
   constructor() {
     super();
@@ -145,6 +167,8 @@ class AutoUpdaterService extends EventEmitter {
     this._eventHandlersSetup = false;
     this._allowPrerelease = false;
     this._statusBroadcastCallback = null;
+    this._lastDownloadedVersion = null;
+    this._failedInstallVersion = null;
     // Remove listeners from this EventEmitter instance
     this.removeAllListeners();
     // Remove each registered handler from autoUpdater to prevent
@@ -207,6 +231,27 @@ class AutoUpdaterService extends EventEmitter {
 
     register('update-available', (info: UpdateInfo) => {
       log.info(`Update available: ${info.version}`);
+
+      // macOS can't apply an in-place update when the app runs outside
+      // /Applications (App Translocation / quarantined read-only path): ShipIt
+      // silently no-ops. Surface guidance instead of offering a doomed install (#286).
+      const blockReason = this.macUpdateBlockReason();
+      if (blockReason) {
+        log.warn(
+          `[autoUpdater] Update ${info.version} cannot be applied in place (${blockReason}); surfacing guidance.`
+        );
+        this.broadcastInstallFailed(blockReason, info.version);
+        return;
+      }
+
+      // A prior install of this exact version silently failed. Don't re-offer the
+      // same doomed update (the loop in #286) — surface the failure + manual path.
+      if (this._failedInstallVersion && info.version === this._failedInstallVersion) {
+        log.warn(`[autoUpdater] Suppressing re-offer of ${info.version}: prior install silently failed (#286).`);
+        this.broadcastInstallFailed('silent-noop', info.version);
+        return;
+      }
+
       this.broadcastStatus({
         status: 'available',
         version: info.version,
@@ -236,6 +281,9 @@ class AutoUpdaterService extends EventEmitter {
     register('update-downloaded', (info: UpdateInfo) => {
       log.info('Update downloaded');
       this._downloadInProgress = false;
+      // Remember which version we're about to install so quitAndInstall() can
+      // persist a pending-install marker for next-launch verification (#286).
+      this._lastDownloadedVersion = info.version;
       this.broadcastStatus({
         status: 'downloaded',
         version: info.version,
@@ -253,7 +301,10 @@ class AutoUpdaterService extends EventEmitter {
       // (it then flipped to "available"). Suppress those; only surface a real
       // download/install failure.
       if (!this._downloadInProgress) {
-        log.warn('Auto-updater check-phase error suppressed (handled via check result + manual fallback):', error.message);
+        log.warn(
+          'Auto-updater check-phase error suppressed (handled via check result + manual fallback):',
+          error.message
+        );
         return;
       }
       this._downloadInProgress = false;
@@ -331,6 +382,10 @@ class AutoUpdaterService extends EventEmitter {
 
   quitAndInstall(): void {
     log.info('Quitting and installing update...');
+    // Persist a pending-install marker BEFORE handing off to Squirrel/ShipIt, so
+    // the next launch can detect a silent apply failure (downloaded + attempted
+    // but the version never advanced) and surface it instead of looping (#286).
+    this.writePendingInstallMarker();
     // On macOS, autoUpdater.quitAndInstall() closes all windows but the
     // 'window-all-closed' handler does NOT call app.quit() (standard macOS
     // behavior + close-to-tray). This leaves the process alive and Squirrel
@@ -340,6 +395,111 @@ class AutoUpdaterService extends EventEmitter {
     setTimeout(() => {
       app.exit(0);
     }, 1000);
+  }
+
+  /**
+   * Path of the cross-launch pending-install marker under userData.
+   */
+  private pendingInstallMarkerPath(): string {
+    return path.join(app.getPath('userData'), 'pending-update.json');
+  }
+
+  /**
+   * Record the version we're about to install so the next launch can verify the
+   * apply step actually advanced the app version (#286). Best-effort: a failed
+   * write just means we lose loop-detection for this one attempt.
+   */
+  private writePendingInstallMarker(): void {
+    if (!this._lastDownloadedVersion) return;
+    try {
+      writeFileSyncAtomic(
+        this.pendingInstallMarkerPath(),
+        JSON.stringify({ version: this._lastDownloadedVersion, attemptedAt: Date.now() }),
+        { mode: 0o600 }
+      );
+    } catch (error) {
+      log.warn('[autoUpdater] Failed to write pending-update marker:', error);
+    }
+  }
+
+  /**
+   * On the next launch after an install attempt, verify the update actually
+   * applied. If the version did not advance, the post-quit Squirrel/ShipIt step
+   * silently no-op'd (#286): record the failed version (so the imminent re-offer
+   * is surfaced rather than looped), log it for diagnostics, and surface it.
+   * The marker is one-shot — always removed after reading.
+   *
+   * Call once at startup, before the first update check.
+   */
+  reconcilePendingInstall(): void {
+    const markerPath = this.pendingInstallMarkerPath();
+    let expected: string | undefined;
+    try {
+      if (!fs.existsSync(markerPath)) return;
+      const parsed = JSON.parse(fs.readFileSync(markerPath, 'utf8')) as { version?: string };
+      expected = typeof parsed.version === 'string' ? parsed.version : undefined;
+    } catch (error) {
+      log.warn('[autoUpdater] Failed to read pending-update marker:', error);
+    } finally {
+      try {
+        fs.rmSync(markerPath, { force: true });
+      } catch (error) {
+        log.warn('[autoUpdater] Failed to remove pending-update marker:', error);
+      }
+    }
+
+    if (!expected) return;
+    const current = app.getVersion();
+    if (expected === current) {
+      log.info(`[autoUpdater] Update to ${expected} applied successfully.`);
+      return;
+    }
+
+    // Downloaded + install attempted, but the version never advanced.
+    this._failedInstallVersion = expected;
+    log.error(
+      `[autoUpdater] Update to ${expected} was downloaded and install was attempted, but the app is ` +
+        `still on ${current}. The post-quit Squirrel/ShipIt apply step silently failed (#286).`
+    );
+    // Surface immediately if a renderer is already listening; the update-available
+    // interception re-surfaces it once the 3s startup check runs, as a backstop.
+    this.broadcastInstallFailed('silent-noop', expected);
+  }
+
+  /**
+   * Returns a block reason when the current process cannot apply an in-place
+   * update, else null. macOS only: App Translocation / a quarantined read-only
+   * path outside /Applications makes ShipIt silently no-op (#286).
+   */
+  private macUpdateBlockReason(): AutoUpdateInstallFailedReason | null {
+    if (process.platform !== 'darwin') return null;
+    try {
+      const inApps = (app as { isInApplicationsFolder?: () => boolean }).isInApplicationsFolder;
+      if (typeof inApps === 'function' && !inApps.call(app)) {
+        return 'not-in-applications';
+      }
+    } catch (error) {
+      log.warn('[autoUpdater] isInApplicationsFolder check failed:', error);
+    }
+    return null;
+  }
+
+  /**
+   * Broadcast an install-failed status with an actionable, human-readable
+   * message. The message is sent in the `error` field (mirroring how raw
+   * electron-updater error messages are already surfaced) so no new UI strings
+   * are required for this defensive path.
+   */
+  private broadcastInstallFailed(reason: AutoUpdateInstallFailedReason, version?: string): void {
+    const subject = version ? `Wayland ${version}` : 'The update';
+    const message =
+      reason === 'not-in-applications'
+        ? `${subject} can't be installed because Wayland is running from outside your Applications folder ` +
+          `(macOS blocks in-place updates from temporary or read-only locations). Move Wayland to ` +
+          `/Applications, reopen it, and try again.`
+        : `${subject} was downloaded but couldn't be installed automatically (the app is still running the ` +
+          `previous version). Please download and install it manually from the Releases page.`;
+    this.broadcastStatus({ status: 'install-failed', reason, version, error: message });
   }
 
   /**

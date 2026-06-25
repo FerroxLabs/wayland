@@ -629,6 +629,10 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
         const statusBroadcast = createAutoUpdateStatusBroadcast();
         autoUpdaterService.initialize(statusBroadcast);
         globalThis.__waylandUpdateChannelStatus = { available: true };
+        // Detect a silent install failure from the previous launch (downloaded +
+        // attempted but the version never advanced) before the first check, so the
+        // imminent re-offer is surfaced as a failure instead of looped silently (#286).
+        autoUpdaterService.reconcilePendingInstall();
         // Check for updates after 3 seconds delay
         setTimeout(() => {
           void autoUpdaterService.checkForUpdatesAndNotify();
@@ -1144,7 +1148,18 @@ const prefetchCleanupModules = (): Promise<CleanupModules> => {
     import('@process/bridge/fileWatchBridge'),
     import('@process/channels/tunnel'),
   ]).then(
-    ([ambient, channels, webuiBridge, webserverAdapter, officeWatch, pptPreview, database, cron, fileWatch, tunnel]) => ({
+    ([
+      ambient,
+      channels,
+      webuiBridge,
+      webserverAdapter,
+      officeWatch,
+      pptPreview,
+      database,
+      cron,
+      fileWatch,
+      tunnel,
+    ]) => ({
       ambient,
       channels,
       webuiBridge,
