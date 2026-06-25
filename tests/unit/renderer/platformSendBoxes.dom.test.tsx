@@ -262,6 +262,7 @@ vi.mock('@/renderer/hooks/system/useCommandQueueEnabled', () => ({
 vi.mock('@/renderer/pages/conversation/Messages/hooks', () => ({
   useAddOrUpdateMessage: () => mockAddOrUpdateMessage,
   useRemoveMessageByMsgId: () => mockRemoveMessageByMsgId,
+  useTruncateMessagesAfter: () => () => {},
 }));
 
 vi.mock('@/renderer/pages/conversation/platforms/useConversationCommandQueue', () => ({
