@@ -210,10 +210,10 @@ const ChatTimeMarkerRow: React.FC<{ marker: ChatTimeMarker }> = ({ marker }) => 
 // render). This is what keeps the orbit indicator MOUNTED across re-renders, so
 // its CSS animation runs continuously instead of restarting (= flashing) every
 // streamed token. The processing state reaches the footer via Virtuoso `context`.
-type MessageListContext = { isProcessing?: boolean };
+type MessageListContext = { isProcessing?: boolean; currentLabel?: string };
 const ListHeader: React.FC = () => <div className='h-10px' />;
 const ListFooter: React.FC<{ context?: MessageListContext }> = ({ context }) => (
-  <OrbitThinking isProcessing={!!context?.isProcessing} />
+  <OrbitThinking isProcessing={!!context?.isProcessing} currentLabel={context?.currentLabel} />
 );
 const LIST_COMPONENTS = { Header: ListHeader, Footer: ListFooter } as const;
 
@@ -459,6 +459,22 @@ const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.
     scrollToBottom('smooth');
   };
 
+  // The orbit's live label = the real current action (the last running tool
+  // step), so the indicator reads "Searching the web…" / "Running a command…"
+  // instead of a generic phrase. Undefined while there is no active tool (the
+  // orbit then falls back to a calm reasoning phrase), and only while processing.
+  const currentLabel = useMemo<string | undefined>(() => {
+    if (!isProcessing) return undefined;
+    for (let i = processedList.length - 1; i >= 0; i--) {
+      const item = processedList[i];
+      if ('type' in item && item.type === 'tool_summary') {
+        const steps = toolSummaryToSteps(item.messages);
+        return [...steps].reverse().find((s) => s.status === 'running')?.label;
+      }
+    }
+    return undefined;
+  }, [processedList, isProcessing]);
+
   const renderItem = (_index: number, item: (typeof processedList)[0]) => {
     const highlighted = matchesTargetMessage(item, highlightedMessageId);
     const marker = timeMarkers?.[_index] ?? null;
@@ -534,7 +550,7 @@ const ConversationMessageList: React.FC<{ className?: string; emptySlot?: React.
             // resting static when done. Stable components + context avoid remounts
             // (= flashing). See LIST_COMPONENTS above.
             components={LIST_COMPONENTS}
-            context={{ isProcessing }}
+            context={{ isProcessing, currentLabel }}
           />
         </ImagePreviewContext.Provider>
       </Image.PreviewGroup>
