@@ -444,12 +444,24 @@ jobs:
       # is genuinely fresh. Assert path.txt + the binary so a bad install fails HERE.
       - name: Ensure Electron binary is installed
         env:
-          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
           electron_use_remote_checksums: '1'
         run: |
           set -ex
-          rm -rf node_modules/electron/dist node_modules/electron/path.txt ~/.cache/electron
-          force_no_cache=true node node_modules/electron/install.js
+          install_electron() {
+            rm -rf node_modules/electron/dist node_modules/electron/path.txt ~/.cache/electron
+            force_no_cache=true node node_modules/electron/install.js
+          }
+          # Try the npmmirror mirror first (fast in CI's region). It intermittently
+          # produces an incomplete extraction (dist present, path.txt missing) —
+          # when that happens, fall back to the official electron host instead of
+          # hard-failing the whole job. Assert path.txt + the binary at the end so a
+          # genuinely-broken install still fails HERE.
+          ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ install_electron || true
+          if [ ! -s node_modules/electron/path.txt ]; then
+            echo "npmmirror extraction incomplete (no path.txt); retrying from the official electron host"
+            unset ELECTRON_MIRROR
+            install_electron
+          fi
           ls -la node_modules/electron/dist | head -12
           test -s node_modules/electron/path.txt
           node -e "const p=require('electron'); require('node:fs').accessSync(p); console.log('electron binary OK:', p)"
