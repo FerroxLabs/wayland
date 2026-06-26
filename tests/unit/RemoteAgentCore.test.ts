@@ -444,14 +444,14 @@ describe('RemoteAgentCore', () => {
   });
 
   describe('confirmMessage', () => {
-    it('resolves pending permission and returns success', () => {
+    it('resolves pending permission and returns success', async () => {
       const core = new RemoteAgentCore(makeConfig());
       const resolveFn = vi.fn();
       core['pendingPermissions'].set('call-1', { resolve: resolveFn, reject: vi.fn() });
 
       const result = core.confirmMessage({ confirmKey: 'allow_once', callId: 'call-1' });
 
-      expect(result).resolves.toEqual({ success: true, data: null });
+      await expect(result).resolves.toEqual({ success: true, data: null });
       expect(resolveFn).toHaveBeenCalledWith({ optionId: 'allow_once' });
       expect(core['pendingPermissions'].has('call-1')).toBe(false);
     });

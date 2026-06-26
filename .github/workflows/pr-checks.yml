@@ -134,11 +134,13 @@ jobs:
     name: Unit Tests Shard (${{ matrix.os }} ${{ matrix.shard }}/4)
     if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
     runs-on: ${{ matrix.os }}
-    # 20m headroom: windows-hosted runners are ~2.7x slower per shard than ubuntu
-    # (a quarter of the suite runs ~9.5m on windows vs ~3.5m on ubuntu). With the
-    # electron-log/renderer import-hang fixed, no shard should approach this - it
-    # only absorbs windows runner variance so a healthy ~9.5m shard can't tip over.
-    timeout-minutes: 20
+    # Stopgap headroom (#353): shard 1/4 grew to ~19m on ubuntu (vs the ~3.5m
+    # average) from slow real-timer error-path tests + the skillRecall release-gate
+    # BM25 full-corpus test (~16s), tipping over the old 20m cap (cancelled on all
+    # OS, ~2.7x worse on windows). Tests PASS — this is runtime, not a hang. Raised
+    # to 35m to unblock the 0.11.4 cut; the real fix (fake-timers for the error-path
+    # tests + moving the BM25 release-gate out of the PR shards) is tracked separately.
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
