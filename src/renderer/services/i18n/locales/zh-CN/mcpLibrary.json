@@ -12,7 +12,8 @@
     "resultsFor": "Results for “{{q}}”",
     "empty": "No connectors match.",
     "showMore": "Show more",
-    "showMoreCount": "({{shown}} of {{total}})"
+    "showMoreCount": "({{shown}} of {{total}})",
+    "connected": "Connected MCPs"
   },
   "card": {
     "install": "Install",
@@ -164,5 +165,28 @@
     "unreachable": "无法连接到该服务器。请检查 URL 后重试。",
     "tokenRejected": "服务器拒绝了该令牌。请核对后重试。",
     "failed": "连接失败。"
+  },
+  "connected": {
+    "title": "Connected MCPs",
+    "count": "{{n}} servers",
+    "subtitle": "Every MCP server Wayland knows about — live status, tool count, and one place to disconnect, reconnect, or remove any of them.",
+    "sectionConfigured": "Configured",
+    "sectionStale": "Leftover servers",
+    "staleHint": "Installed in your agents but not in your config — likely carried over from a prior session.",
+    "staleAgents": "In: {{agents}}",
+    "empty": "No MCP servers configured yet.",
+    "toolCount": "{{count}} tools",
+    "agentReach": "Available to {{count}} agents",
+    "extension": "Extension",
+    "disconnect": "Disconnect",
+    "reconnect": "Reconnect",
+    "remove": "Remove",
+    "clear": "Clear",
+    "refresh": "Refresh",
+    "backToLibrary": "Library",
+    "removeTitle": "Remove connector?",
+    "removeBody": "This removes {{name}} and its config from your agents. You can re-add it any time.",
+    "removeStaleTitle": "Clear leftover server?",
+    "removeStaleBody": "{{name}} is still installed in your agents but is no longer in your config. Clearing it stops its stale tools from being sent."
   }
 }

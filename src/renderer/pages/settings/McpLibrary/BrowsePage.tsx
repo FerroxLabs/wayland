@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Message, Modal } from '@arco-design/web-react';
-import { Blocks } from 'lucide-react';
+import { Blocks, Activity } from 'lucide-react';
 import PageShell from '@renderer/components/layout/PageShell/PageShell';
 import LibrarySectionHeader from '@renderer/components/layout/library/LibrarySectionHeader';
 import { useMcpLibrary } from './hooks/useMcpLibrary';
@@ -242,9 +242,14 @@ export function BrowsePage() {
   );
 
   const actions = (
-    <Button type="primary" onClick={() => setShowAddModal(true)}>
-      {t('mcpLibrary.browse.addCustom', 'Add custom server')}
-    </Button>
+    <>
+      <Button icon={<Activity size={14} />} onClick={() => navigate('/settings/mcp-library/connected')}>
+        {t('mcpLibrary.browse.connected', 'Connected MCPs')}
+      </Button>
+      <Button type="primary" onClick={() => setShowAddModal(true)}>
+        {t('mcpLibrary.browse.addCustom', 'Add custom server')}
+      </Button>
+    </>
   );
 
   return (

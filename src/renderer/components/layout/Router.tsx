@@ -27,6 +27,9 @@ const McpLibraryBrowsePage = React.lazy(() =>
 const McpLibraryDetailPage = React.lazy(() =>
   import('@renderer/pages/settings/McpLibrary').then((m) => ({ default: m.DetailPage }))
 );
+const McpLibraryConnectedPage = React.lazy(() =>
+  import('@renderer/pages/settings/McpLibrary').then((m) => ({ default: m.ConnectedPage }))
+);
 const NotificationsSettings = React.lazy(() => import('@renderer/pages/settings/NotificationsSettings'));
 const ModelsSettings = React.lazy(() => import('@renderer/pages/settings/ModelsSettings'));
 const MigrateSettings = React.lazy(() => import('@renderer/pages/settings/MigrateSettings'));
@@ -137,6 +140,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
               Installed filter on Browse; its route now redirects there. */}
             <Route path='/settings/mcp-library' element={<Navigate to='/settings/mcp-library/browse' replace />} />
             <Route path='/settings/mcp-library/browse' element={withRouteFallback(McpLibraryBrowsePage)} />
+            <Route path='/settings/mcp-library/connected' element={withRouteFallback(McpLibraryConnectedPage)} />
             <Route path='/settings/migrate' element={withRouteFallback(MigrateSettings)} />
             <Route
               path='/settings/mcp-library/installed'
