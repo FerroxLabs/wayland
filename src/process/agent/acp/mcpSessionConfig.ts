@@ -61,9 +61,24 @@ export function shouldInjectSessionMcpServer(server: IMcpServer): boolean {
   return server.status === 'connected';
 }
 
+/**
+ * Per-conversation MCP scoping (#348): is this server active for the chat?
+ * Builtins (image-gen, skill-search) always inject — they're infrastructure,
+ * not user-scopable. A user server passes when the chat has no selection
+ * (`activeServerIds === undefined` ⇒ all enabled servers) or the selection
+ * includes it. `[]` scopes out every user server. The user's per-server
+ * `allowedTools` still trims tools within whatever servers stay active.
+ */
+export function isServerActiveForSession(server: IMcpServer, activeServerIds?: readonly string[]): boolean {
+  if (server.builtin === true) return true;
+  if (activeServerIds === undefined) return true;
+  return activeServerIds.includes(server.id);
+}
+
 export function buildAcpSessionMcpServers(
   mcpServers: IMcpServer[] | undefined | null,
-  capabilities: AcpMcpCapabilities
+  capabilities: AcpMcpCapabilities,
+  activeServerIds?: readonly string[]
 ): AcpSessionMcpServer[] {
   if (!Array.isArray(mcpServers) || mcpServers.length === 0) {
     return [];
@@ -71,6 +86,7 @@ export function buildAcpSessionMcpServers(
 
   return mcpServers
     .filter(shouldInjectSessionMcpServer)
+    .filter((server) => isServerActiveForSession(server, activeServerIds))
     .map((server): AcpSessionMcpServer | null => {
       switch (server.transport.type) {
         case 'stdio':

@@ -22,6 +22,25 @@ export function countEnabledMcpTools(servers: IMcpServer[]): number {
   return total;
 }
 
+/**
+ * Compute the next per-conversation active-server selection (#348) after the
+ * user toggles one server. `current === undefined` means "all enabled servers".
+ * Returns `undefined` when the result is once again every enabled server (the
+ * clean default, so we don't persist a redundant explicit list), else the
+ * explicit id list. Toggling the only-active server off yields `[]` (none).
+ */
+export function nextActiveSelection(
+  current: string[] | undefined,
+  allEnabledIds: string[],
+  serverId: string,
+  active: boolean
+): string[] | undefined {
+  const base = current ?? allEnabledIds;
+  const next = active ? Array.from(new Set([...base, serverId])) : base.filter((id) => id !== serverId);
+  const isAll = next.length === allEnabledIds.length && allEnabledIds.every((id) => next.includes(id));
+  return isAll ? undefined : next;
+}
+
 export type ToolBudgetStatus = 'ok' | 'near' | 'over';
 
 /**

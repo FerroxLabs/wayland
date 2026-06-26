@@ -423,6 +423,8 @@ export type TChatConversation =
         presetRules?: string; // System rules, injected at initialization
         /** Enabled skills list for filtering SkillManager skills */
         enabledSkills?: string[];
+        /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
+        activeMcpServers?: string[];
         /** Snapshot of actually loaded skills (persisted on first message) */
         loadedSkills?: Array<{ name: string; description: string }>;
         /** Preset assistant ID for displaying name and avatar in the conversation panel */
@@ -454,6 +456,8 @@ export type TChatConversation =
           presetContext?: string; // Preset context/rules from smart assistant
           /** Enabled skills list for filtering SkillManager skills */
           enabledSkills?: string[];
+          /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
+          activeMcpServers?: string[];
           /** Builtin auto-injected skills to exclude */
           excludeBuiltinSkills?: string[];
           /** Snapshot of actually loaded skills */
@@ -512,6 +516,8 @@ export type TChatConversation =
           presetContext?: string; // Preset context/rules from smart assistant
           /** Enabled skills list for filtering SkillManager skills */
           enabledSkills?: string[];
+          /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
+          activeMcpServers?: string[];
           /** Snapshot of actually loaded skills */
           loadedSkills?: Array<{ name: string; description: string }>;
           /** Preset assistant ID for displaying name and avatar in the conversation panel */
@@ -567,6 +573,8 @@ export type TChatConversation =
           };
           /** Enabled skills list */
           enabledSkills?: string[];
+          /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
+          activeMcpServers?: string[];
           /** Snapshot of actually loaded skills */
           loadedSkills?: Array<{ name: string; description: string }>;
           /** Preset assistant ID */
@@ -593,6 +601,8 @@ export type TChatConversation =
           customWorkspace?: boolean;
           /** Enabled skills list */
           enabledSkills?: string[];
+          /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
+          activeMcpServers?: string[];
           /** Snapshot of actually loaded skills */
           loadedSkills?: Array<{ name: string; description: string }>;
           /** Preset assistant ID */
@@ -623,6 +633,8 @@ export type TChatConversation =
           sessionKey?: string;
           /** Enabled skills list */
           enabledSkills?: string[];
+          /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
+          activeMcpServers?: string[];
           /** Snapshot of actually loaded skills */
           loadedSkills?: Array<{ name: string; description: string }>;
           /** Preset assistant ID */
@@ -652,6 +664,8 @@ export type TChatConversation =
         presetRules?: string;
         /** Enabled skills list */
         enabledSkills?: string[];
+        /** Per-conversation active MCP server ids (#348): undefined = all enabled servers, [] = none. */
+        activeMcpServers?: string[];
         /** Snapshot of actually loaded skills */
         loadedSkills?: Array<{ name: string; description: string }>;
         /** Preset assistant ID */
