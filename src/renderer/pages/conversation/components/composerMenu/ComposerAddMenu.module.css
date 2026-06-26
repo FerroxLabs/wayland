@@ -264,3 +264,33 @@
 .menuWrap :global(.arco-input-group-wrapper) {
   background: var(--color-bg-2);
 }
+
+/* Tool count-vs-cap nudge (#348): 'near' = warning tint, 'over' = danger tint. */
+.toolNudge {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 12px 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-text-2);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
+}
+
+.toolNudgeOver {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 32%, transparent);
+}
+
+.toolNudgeIc {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--warning);
+}
+
+.toolNudgeOver .toolNudgeIc {
+  color: var(--danger);
+}

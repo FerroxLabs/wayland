@@ -10,13 +10,10 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 're
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { iconColors } from '@/renderer/styles/colors';
-import {
-  useMcpServers,
-  useMcpAgentStatus,
-  useMcpOperations,
-  useMcpServerCRUD,
-} from '@renderer/hooks/mcp';
+import { useMcpServers, useMcpAgentStatus, useMcpOperations, useMcpServerCRUD } from '@renderer/hooks/mcp';
 import { Message } from '@arco-design/web-react';
+import { ipcBridge } from '@/common';
+import { resolveModelToolCap } from '@/common/mcp';
 import { useComposerSkills, type UseComposerSkills } from './useComposerSkills';
 import SkillsFlyout from './SkillsFlyout';
 import ConnectorsFlyout from './ConnectorsFlyout';
@@ -59,14 +56,38 @@ export type ComposerAddMenuProps = {
 const ComposerAddMenuPanel: React.FC<{
   composer: UseComposerSkills;
   mode: 'staged' | 'live';
+  conversationId?: string;
   draftText?: string;
   uploadItems: ComposerUploadItem[];
   triggerRef: React.RefObject<HTMLElement>;
   onClose: () => void;
-}> = ({ composer, draftText, uploadItems, triggerRef, onClose }) => {
+}> = ({ composer, conversationId, draftText, uploadItems, triggerRef, onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [pane, setPane] = useState<Pane>('skills');
+
+  // The target model drives the connectors count-vs-cap nudge (#348). Live mode
+  // only — a staged (home) composer has no conversation/model yet. Read-only:
+  // no write, mirrors useModelEffort's conversation.get usage.
+  const [targetModel, setTargetModel] = useState<{ cap?: number; label?: string }>({});
+  useEffect(() => {
+    if (!conversationId) return;
+    let alive = true;
+    void ipcBridge.conversation.get
+      .invoke({ id: conversationId })
+      .then((conv) => {
+        if (!alive || !conv) return;
+        // Not every conversation variant carries a top-level `model` (ACP/codex
+        // store it elsewhere); narrow before reading so the cap stays undefined
+        // (nudge hidden) for those rather than guessing.
+        const model = 'model' in conv ? conv.model : undefined;
+        setTargetModel({ cap: resolveModelToolCap(model?.id, model?.useModel), label: model?.useModel });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [conversationId]);
 
   // Anchor the panes to the "+". Arco may open the popup above OR below the
   // trigger (and its position class is unreliable - it reports "tl" even when
@@ -191,6 +212,8 @@ const ComposerAddMenuPanel: React.FC<{
           onToggle={(id, enabled) => void crud.handleToggleMcpServer(id, enabled)}
           onAddConnector={goConnectors}
           onManageConnectors={goConnectors}
+          modelCap={targetModel.cap}
+          modelLabel={targetModel.label}
         />
       )}
     </div>
@@ -238,6 +261,7 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
         <ComposerAddMenuPanel
           composer={composer}
           mode={mode}
+          conversationId={conversationId}
           draftText={draftText}
           uploadItems={uploadItems}
           triggerRef={triggerRef}
@@ -246,7 +270,7 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
       ) : (
         <span />
       ),
-    [open, composer, mode, draftText, uploadItems]
+    [open, composer, mode, conversationId, draftText, uploadItems]
   );
 
   return (

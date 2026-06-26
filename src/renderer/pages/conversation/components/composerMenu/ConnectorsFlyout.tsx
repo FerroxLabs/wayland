@@ -5,12 +5,13 @@
  */
 
 import { Switch } from '@arco-design/web-react';
-import { ChevronRight, LayoutGrid, Plus, Settings } from 'lucide-react';
+import { AlertTriangle, ChevronRight, LayoutGrid, Plus, Settings } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { iconColors } from '@/renderer/styles/colors';
 import type { IMcpServer } from '@/common/config/storage';
 import styles from './ComposerAddMenu.module.css';
+import { countEnabledMcpTools, toolBudgetStatus } from './toolBudget';
 
 type Props = {
   /** Installed MCP servers (user-configured + extension-contributed). */
@@ -25,6 +26,14 @@ type Props = {
   onAddConnector: () => void;
   /** Open the MCP Library to manage connectors. */
   onManageConnectors: () => void;
+  /**
+   * The target model's tool-array cap (#348). When provided and the live tool
+   * count is near/over it, a count-vs-cap nudge is shown so the user can scope
+   * servers or switch models. Absent (no known cap / staged composer) hides it.
+   */
+  modelCap?: number;
+  /** Display name of the target model, used in the nudge text. */
+  modelLabel?: string;
 };
 
 const ConnectorRow: React.FC<{ server: IMcpServer; onToggle: Props['onToggle']; toolsLabel: string }> = ({
@@ -53,8 +62,21 @@ const ConnectorRow: React.FC<{ server: IMcpServer; onToggle: Props['onToggle']; 
   );
 };
 
-const ConnectorsFlyout: React.FC<Props> = ({ servers, onToggle, onAddConnector, onManageConnectors }) => {
+const ConnectorsFlyout: React.FC<Props> = ({
+  servers,
+  onToggle,
+  onAddConnector,
+  onManageConnectors,
+  modelCap,
+  modelLabel,
+}) => {
   const { t } = useTranslation();
+
+  // Count-vs-cap nudge (#348): only when a cap is known and the live tool count
+  // is approaching/over it. `ok` stays silent to avoid noise.
+  const toolCount = countEnabledMcpTools(servers);
+  const budget = modelCap ? toolBudgetStatus(toolCount, modelCap) : 'ok';
+  const showNudge = modelCap !== undefined && budget !== 'ok';
 
   return (
     <div className={styles.flyout}>
@@ -71,6 +93,32 @@ const ConnectorsFlyout: React.FC<Props> = ({ servers, onToggle, onAddConnector, 
       </div>
 
       <div className={styles.flyoutScroll}>
+        {showNudge && (
+          <div className={`${styles.toolNudge} ${budget === 'over' ? styles.toolNudgeOver : ''}`} role='status'>
+            <AlertTriangle size={14} strokeWidth={2} className={styles.toolNudgeIc} />
+            <span>
+              {budget === 'over'
+                ? t('conversation.composerMenu.toolNudgeOver', {
+                    defaultValue:
+                      '{{count}} tools enabled · {{model}} caps at {{cap}}. Scope servers for this chat or switch models.',
+                    count: toolCount,
+                    cap: modelCap,
+                    model:
+                      modelLabel ??
+                      t('conversation.composerMenu.toolNudgeModelFallback', { defaultValue: 'this model' }),
+                  })
+                : t('conversation.composerMenu.toolNudgeNear', {
+                    defaultValue:
+                      '{{count}} of {{cap}} tools · {{model}}. Near the limit — scope servers or switch models before adding more.',
+                    count: toolCount,
+                    cap: modelCap,
+                    model:
+                      modelLabel ??
+                      t('conversation.composerMenu.toolNudgeModelFallback', { defaultValue: 'this model' }),
+                  })}
+            </span>
+          </div>
+        )}
         {servers.length > 0 ? (
           <>
             <div className={styles.sectionLabel}>
