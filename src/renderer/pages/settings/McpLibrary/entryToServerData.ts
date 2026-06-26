@@ -5,7 +5,24 @@
  */
 
 import type { IMcpServer, IMcpServerTransport } from '@/common/config/storage';
-import type { CatalogEntry } from './types';
+import type { CatalogEntry, PackageRef } from './types';
+
+/**
+ * Pin a spawned BYO MCP package to the catalog's exact version so an
+ * auth-critical connector (e.g. workspace-mcp in the Google OAuth path) can't
+ * silently float to a malicious or broken upstream `latest` release (#343).
+ * Only registry packages with a concrete version are pinned — `latest`/empty
+ * is left bare so floating entries keep their current behavior, and non-registry
+ * runtimes (docker image, native bundle) are untouched.
+ */
+function pinnedIdentifier(pkg: PackageRef): string {
+  const id = pkg.identifier;
+  const version = pkg.version?.trim();
+  if (!version || version === 'latest') return id;
+  if (pkg.registryType === 'npm') return `${id}@${version}`;
+  if (pkg.registryType === 'pypi') return `${id}==${version}`;
+  return id;
+}
 
 // Catalog uses hyphenated transport types ('streamable-http'); storage uses
 // underscored ('streamable_http'). Normalize between them to avoid invalid
@@ -102,7 +119,7 @@ export function entryToServerData(
       : {
           type: 'stdio',
           command: pkg!.runtimeHint,
-          args: [...(pkg!.identifier ? [pkg!.identifier] : []), ...runtimeArgs],
+          args: [...(pkg!.identifier ? [pinnedIdentifier(pkg!)] : []), ...runtimeArgs],
           env: cleanEnv,
         };
 
