@@ -134,6 +134,8 @@ export class AcpAgent {
     teamMcpStdioConfig?: { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> };
     /** Pending config option selections from Guid page (applied after session creation) */
     pendingConfigOptions?: Record<string, string>;
+    /** Per-conversation active MCP server ids (#348): undefined = all enabled, [] = none. */
+    activeMcpServers?: string[];
   };
   private connection: AcpConnection;
   private adapter: AcpAdapter;
@@ -1686,7 +1688,9 @@ export class AcpAgent {
       if (Array.isArray(mcpConfig) && mcpConfig.length > 0) {
         const mcpCaps = this.connection.getAgentCapabilities()?.mcpCapabilities;
         if (mcpCaps) {
-          servers.push(...buildAcpSessionMcpServers(mcpConfig as IMcpServer[], mcpCaps));
+          // Per-conversation scoping (#348): only inject the MCP servers active
+          // for this chat (undefined ⇒ all). Builtins always pass.
+          servers.push(...buildAcpSessionMcpServers(mcpConfig as IMcpServer[], mcpCaps, this.extra.activeMcpServers));
         }
       }
 
