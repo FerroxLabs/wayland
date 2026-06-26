@@ -33,3 +33,27 @@ export function canonicalMcpServerName(name: string): string {
 export function mcpNamesEquivalent(a: string, b: string): boolean {
   return canonicalMcpServerName(a) === canonicalMcpServerName(b);
 }
+
+/**
+ * Per-provider/model hard cap on the tool array a single request may carry
+ * (OpenAI's limit is 128). Used ONLY to show the user a count-vs-cap nudge
+ * (#348) — Wayland never truncates client-side; Wayland Core owns the smart
+ * BM25 curation that actually fits the array, and Flux humanizes the 400. An
+ * absent key => no known cap (the nudge then shows the count without a ceiling).
+ */
+export const PROVIDER_TOOL_LIMITS: Record<string, number> = {
+  openai: 128,
+  'gpt-5': 128,
+};
+
+/**
+ * The known tool-array cap for a chat's target model, or `undefined` when the
+ * provider/model has no known ceiling. Checks the model id first (e.g. `gpt-5`)
+ * then the provider id (e.g. `openai`) so a capped model under any provider
+ * still resolves. Informational only — see {@link PROVIDER_TOOL_LIMITS}.
+ */
+export function resolveModelToolCap(providerId?: string, modelId?: string): number | undefined {
+  if (modelId && modelId in PROVIDER_TOOL_LIMITS) return PROVIDER_TOOL_LIMITS[modelId];
+  if (providerId && providerId in PROVIDER_TOOL_LIMITS) return PROVIDER_TOOL_LIMITS[providerId];
+  return undefined;
+}
