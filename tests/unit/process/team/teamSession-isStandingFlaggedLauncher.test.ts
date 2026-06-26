@@ -12,7 +12,7 @@
 // assistants and matches the launcher id across bare / `builtin-` / `ext-`
 // shapes.
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/common', () => ({ ipcBridge: { team: { listChanged: { emit: vi.fn() } } } }));
 vi.mock('electron', () => ({ app: { getPath: vi.fn(() => '/tmp') } }));
@@ -79,10 +79,19 @@ function makeConversationService(): IConversationService {
 
 type StandingProbe = { isStandingFlaggedLauncher: (id: string) => Promise<boolean> };
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
 function makeService(): StandingProbe {
   const svc = new TeamSessionService(makeRepo(), { getOrBuildTask: vi.fn(), kill: vi.fn() }, makeConversationService());
+  services.push(svc);
   return svc as unknown as StandingProbe;
 }
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
 
 describe('TeamSessionService.isStandingFlaggedLauncher - native catalog (S1)', () => {
   beforeEach(() => {

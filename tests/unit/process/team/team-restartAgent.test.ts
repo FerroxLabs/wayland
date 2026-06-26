@@ -10,7 +10,7 @@
 //   - residual process is killed via session.killAgentProcess when a session
 //     is live (no-op when session is absent - repo update is the only mutation)
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockIpcBridge = vi.hoisted(() => ({
   team: {
@@ -113,6 +113,20 @@ function makeWorkerTaskManager() {
   };
 }
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
+function newService(...args: ConstructorParameters<typeof TeamSessionService>): TeamSessionService {
+  const svc = new TeamSessionService(...args);
+  services.push(svc);
+  return svc;
+}
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
+
 describe('TeamSessionService.restartAgent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -120,14 +134,14 @@ describe('TeamSessionService.restartAgent', () => {
 
   it('throws when the team does not exist', async () => {
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(null) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
     await expect(svc.restartAgent('missing', 'slot-1')).rejects.toThrow(/not found/i);
   });
 
   it('throws when the slot does not exist on the team', async () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
     await expect(svc.restartAgent('team-1', 'slot-ghost')).rejects.toThrow(/not found/i);
   });
 
@@ -140,7 +154,7 @@ describe('TeamSessionService.restartAgent', () => {
       update,
       appendEvent,
     });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await svc.restartAgent('team-1', 'slot-1');
 
@@ -171,7 +185,7 @@ describe('TeamSessionService.restartAgent', () => {
   it('refuses to restart while a wake is in flight', async () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     // Force a live session whose wake-active check returns true
     const fakeSession = {
@@ -189,7 +203,7 @@ describe('TeamSessionService.restartAgent', () => {
   it('kills residual process via the live session before resetting status', async () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     const killAgentProcess = vi.fn();
     const fakeSession = {

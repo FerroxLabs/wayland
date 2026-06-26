@@ -325,6 +325,46 @@ describe('AcpModelSelector', () => {
     });
   });
 
+  it('renders the curated provider catalog as a selectable dropdown when the agent has not reported models yet (#345)', async () => {
+    // No live model info and no cached catalog, but the backend maps to a
+    // connected provider whose curated catalog is non-empty (codex->openai).
+    // State 1b must surface that catalog as a selectable dropdown instead of
+    // dead-ending on the first-connection tooltip.
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: { modelInfo: null },
+    });
+    configGetMock.mockResolvedValue(null);
+    ipcMock.curatedForAgent.mockResolvedValue([
+      {
+        id: 'gpt-5.5-codex',
+        providerId: 'openai',
+        displayName: 'GPT-5.5 Codex',
+        family: 'gpt-5',
+        enabled: true,
+        recommended: true,
+        costInPerM: 5,
+        costOutPerM: 15,
+      },
+    ]);
+
+    render(<AcpModelSelector conversationId='conv-curated' backend='codex' />);
+
+    // The picker resolves to the default-model dropdown (not the dead-end
+    // first-connection tooltip): the curated registry is authoritative even
+    // before the agent reports its own models.
+    await waitFor(() => {
+      expect(screen.getAllByText('common.defaultModel').length).toBeGreaterThan(0);
+    });
+    expect(screen.queryByText(FIRST_CONNECTION_LABEL)).toBeNull();
+
+    // The dropdown is selectable and surfaces the curated model.
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => {
+      expect(screen.getByText('GPT-5.5 Codex')).toBeTruthy();
+    });
+  });
+
   it('shows the first-connection guidance only after the cache load completes with no models', async () => {
     // No cached catalog and no live models: a backend that has genuinely never
     // connected. After the cache lookup settles, the first-connection label shows.
