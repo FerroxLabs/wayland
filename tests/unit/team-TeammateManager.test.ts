@@ -1049,16 +1049,19 @@ describe('TeammateManager', () => {
         data: null,
       });
 
-      // Give async finalizeTurn time to run
-      await new Promise((r) => setTimeout(r, 50));
-
-      // Should have written idle notification to leader
-      expect(mbox.write).toHaveBeenCalledWith(
-        expect.objectContaining({
-          toAgentId: 'slot-lead',
-          fromAgentId: 'slot-member',
-          type: 'idle_notification',
-        })
+      // finalizeTurn writes the idle notification on a later microtask/timer, so
+      // a fixed sleep races slower (Windows) CI and intermittently sees 0 calls
+      // (#292). Poll until the write lands instead of asserting after a delay.
+      await vi.waitFor(
+        () =>
+          expect(mbox.write).toHaveBeenCalledWith(
+            expect.objectContaining({
+              toAgentId: 'slot-lead',
+              fromAgentId: 'slot-member',
+              type: 'idle_notification',
+            })
+          ),
+        { timeout: 2000 }
       );
       mgr.dispose();
     });
