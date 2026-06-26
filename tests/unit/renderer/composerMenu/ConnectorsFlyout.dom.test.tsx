@@ -14,7 +14,7 @@
 
 import React from 'react';
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { IMcpServer } from '@/common/config/storage';
 
 vi.mock('react-i18next', () => ({
@@ -91,5 +91,46 @@ describe('ConnectorsFlyout count-vs-cap nudge (#348)', () => {
       modelLabel: 'gpt-5',
     });
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+});
+
+describe('ConnectorsFlyout per-conversation scoping (#348)', () => {
+  const a = srv(1, { id: 'a', name: 'alpha' });
+  const b = srv(1, { id: 'b', name: 'beta' });
+
+  it('in live mode (onScopeChange) all enabled servers show as active by default', () => {
+    renderFlyout({ servers: [a, b], onScopeChange: noop, activeServerIds: undefined });
+    expect(screen.getByText('Active in this chat')).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'alpha' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('switch', { name: 'beta' }).getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('toggling one off from "all" materializes the rest (writes the explicit set)', () => {
+    const onScopeChange = vi.fn();
+    renderFlyout({ servers: [a, b], onScopeChange, activeServerIds: undefined });
+    fireEvent.click(screen.getByRole('switch', { name: 'alpha' }));
+    expect(onScopeChange).toHaveBeenCalledWith(['b']);
+  });
+
+  it('reflects an explicit selection and toggles the missing one back to "all" (undefined)', () => {
+    const onScopeChange = vi.fn();
+    renderFlyout({ servers: [a, b], onScopeChange, activeServerIds: ['b'] });
+    expect(screen.getByRole('switch', { name: 'alpha' }).getAttribute('aria-checked')).toBe('false');
+    fireEvent.click(screen.getByRole('switch', { name: 'alpha' }));
+    expect(onScopeChange).toHaveBeenCalledWith(undefined);
+  });
+
+  it('excludes globally-disabled servers from the per-chat candidate list', () => {
+    renderFlyout({ servers: [a, srv(1, { id: 'c', name: 'gamma', enabled: false })], onScopeChange: noop });
+    expect(screen.getByText('alpha')).toBeInTheDocument();
+    expect(screen.queryByText('gamma')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the global toggle in staged mode (no onScopeChange)', () => {
+    const onToggle = vi.fn();
+    renderFlyout({ servers: [a], onToggle });
+    expect(screen.getByText('Connected')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('switch', { name: 'alpha' }));
+    expect(onToggle).toHaveBeenCalledWith('a', false);
   });
 });

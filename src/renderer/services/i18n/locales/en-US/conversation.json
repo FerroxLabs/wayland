@@ -436,6 +436,7 @@
     "connectorsTitle": "Connectors",
     "connectorsSub": "Turn a connected MCP server on or off.",
     "connectorsConnected": "Connected",
+    "connectorsForChat": "Active in this chat",
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",

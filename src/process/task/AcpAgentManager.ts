@@ -107,6 +107,8 @@ interface AcpAgentManagerData {
   pendingConfigOptions?: Record<string, string>;
   /** Per-conversation reasoning effort (codex/claude). Absent => backend default. */
   effort?: 'low' | 'medium' | 'high';
+  /** Per-conversation active MCP server ids (#348): undefined = all enabled, [] = none. */
+  activeMcpServers?: string[];
 }
 
 type BufferedStreamTextMessage = {
@@ -1346,6 +1348,8 @@ ${collectedResponses.join('\n')}`;
           currentModelId: this.persistedModelId ?? undefined,
           sessionMode: this.currentMode,
           pendingConfigOptions: data.pendingConfigOptions,
+          // Per-conversation MCP scoping (#348): forward to loadBuiltinSessionMcpServers.
+          activeMcpServers: data.activeMcpServers,
           // Forward team MCP stdio config so AcpAgent.loadBuiltinSessionMcpServers() can inject it
           teamMcpStdioConfig: (data as unknown as Record<string, unknown>).teamMcpStdioConfig as
             | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }

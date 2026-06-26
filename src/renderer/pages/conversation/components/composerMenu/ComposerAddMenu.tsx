@@ -66,10 +66,12 @@ const ComposerAddMenuPanel: React.FC<{
   const navigate = useNavigate();
   const [pane, setPane] = useState<Pane>('skills');
 
-  // The target model drives the connectors count-vs-cap nudge (#348). Live mode
-  // only — a staged (home) composer has no conversation/model yet. Read-only:
-  // no write, mirrors useModelEffort's conversation.get usage.
+  // The target model drives the connectors count-vs-cap nudge, and the chat's
+  // per-conversation MCP selection drives the scoping toggles (#348). Live mode
+  // only — a staged (home) composer has no conversation yet. Mirrors
+  // useModelEffort's conversation.get usage.
   const [targetModel, setTargetModel] = useState<{ cap?: number; label?: string }>({});
+  const [activeServerIds, setActiveServerIds] = useState<string[] | undefined>(undefined);
   useEffect(() => {
     if (!conversationId) return;
     let alive = true;
@@ -82,12 +84,28 @@ const ComposerAddMenuPanel: React.FC<{
         // (nudge hidden) for those rather than guessing.
         const model = 'model' in conv ? conv.model : undefined;
         setTargetModel({ cap: resolveModelToolCap(model?.id, model?.useModel), label: model?.useModel });
+        setActiveServerIds((conv.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers);
       })
       .catch(() => {});
     return () => {
       alive = false;
     };
   }, [conversationId]);
+
+  // Persist the per-conversation MCP selection (#348). Read-modify-write the full
+  // extra so we never clobber sibling fields (skills, effort, workspace).
+  const setActiveServers = (ids: string[] | undefined) => {
+    if (!conversationId) return;
+    setActiveServerIds(ids); // optimistic
+    void ipcBridge.conversation.get
+      .invoke({ id: conversationId })
+      .then((conv) => {
+        if (!conv) return;
+        const extra = { ...(conv.extra as Record<string, unknown> | undefined), activeMcpServers: ids };
+        return ipcBridge.conversation.update.invoke({ id: conversationId, updates: { extra } });
+      })
+      .catch(() => {});
+  };
 
   // Anchor the panes to the "+". Arco may open the popup above OR below the
   // trigger (and its position class is unreliable - it reports "tl" even when
@@ -214,6 +232,8 @@ const ComposerAddMenuPanel: React.FC<{
           onManageConnectors={goConnectors}
           modelCap={targetModel.cap}
           modelLabel={targetModel.label}
+          onScopeChange={conversationId ? setActiveServers : undefined}
+          activeServerIds={activeServerIds}
         />
       )}
     </div>

@@ -411,6 +411,7 @@ export type I18nKey =
   | 'conversation.composerMenu.addConnector'
   | 'conversation.composerMenu.connectors'
   | 'conversation.composerMenu.connectorsConnected'
+  | 'conversation.composerMenu.connectorsForChat'
   | 'conversation.composerMenu.connectorsSub'
   | 'conversation.composerMenu.connectorsTitle'
   | 'conversation.composerMenu.countOn'

@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   countEnabledMcpTools,
+  nextActiveSelection,
   toolBudgetStatus,
 } from '@renderer/pages/conversation/components/composerMenu/toolBudget';
 import type { IMcpServer } from '@/common/config/storage';
@@ -49,6 +50,34 @@ describe('countEnabledMcpTools (#348)', () => {
 
   it('treats a connected server with no tools yet as zero', () => {
     expect(countEnabledMcpTools([server({ tools: undefined })])).toBe(0);
+  });
+});
+
+describe('nextActiveSelection (#348)', () => {
+  const all = ['a', 'b', 'c'];
+
+  it('toggling one off from "all" (undefined) materializes the rest', () => {
+    expect(nextActiveSelection(undefined, all, 'b', false)).toEqual(['a', 'c']);
+  });
+
+  it('toggling the last one back on returns undefined (clean "all")', () => {
+    expect(nextActiveSelection(['a', 'c'], all, 'b', true)).toBeUndefined();
+  });
+
+  it('toggling off from a defined set removes that id', () => {
+    expect(nextActiveSelection(['a', 'b'], all, 'a', false)).toEqual(['b']);
+  });
+
+  it('toggling the only-active server off yields [] (none)', () => {
+    expect(nextActiveSelection(['a'], all, 'a', false)).toEqual([]);
+  });
+
+  it('toggling on from [] adds just that id', () => {
+    expect(nextActiveSelection([], all, 'b', true)).toEqual(['b']);
+  });
+
+  it('does not duplicate an id already present', () => {
+    expect(nextActiveSelection(['a'], all, 'a', true)).toEqual(['a']);
   });
 });
 
