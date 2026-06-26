@@ -13,7 +13,7 @@
 //   - getOrStartSession bumps sessionCount + sets firstActiveAt on first call,
 //     keeps firstActiveAt stable on the second call
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockIpcBridge = vi.hoisted(() => ({
   team: {
@@ -116,6 +116,20 @@ function makeWorkerTaskManager() {
   };
 }
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
+function newService(...args: ConstructorParameters<typeof TeamSessionService>): TeamSessionService {
+  const svc = new TeamSessionService(...args);
+  services.push(svc);
+  return svc;
+}
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
+
 describe('TeamSessionService.promoteTeamToStanding', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -123,7 +137,7 @@ describe('TeamSessionService.promoteTeamToStanding', () => {
 
   it('throws when the team does not exist', async () => {
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(null) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
     await expect(svc.promoteTeamToStanding('missing')).rejects.toThrow(/not found/i);
   });
 
@@ -132,7 +146,7 @@ describe('TeamSessionService.promoteTeamToStanding', () => {
     const update = vi.fn().mockResolvedValue(undefined);
     const appendEvent = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team), update, appendEvent });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await svc.promoteTeamToStanding('team-1');
 
@@ -161,7 +175,7 @@ describe('TeamSessionService.promoteTeamToStanding', () => {
     const update = vi.fn().mockResolvedValue(undefined);
     const appendEvent = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team), update, appendEvent });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await svc.promoteTeamToStanding('team-1');
 
@@ -178,7 +192,7 @@ describe('TeamSessionService.demoteTeamFromStanding', () => {
 
   it('throws when the team does not exist', async () => {
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(null) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
     await expect(svc.demoteTeamFromStanding('missing')).rejects.toThrow(/not found/i);
   });
 
@@ -187,7 +201,7 @@ describe('TeamSessionService.demoteTeamFromStanding', () => {
     const update = vi.fn().mockResolvedValue(undefined);
     const appendEvent = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team), update, appendEvent });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await svc.demoteTeamFromStanding('team-1');
 
@@ -214,7 +228,7 @@ describe('TeamSessionService.demoteTeamFromStanding', () => {
     const update = vi.fn().mockResolvedValue(undefined);
     const appendEvent = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team), update, appendEvent });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await svc.demoteTeamFromStanding('team-1');
 
@@ -251,7 +265,7 @@ describe('TeamSessionService.getOrStartSession - sessionCount tracking', () => {
     const team = makeTeam({ sessionCount: 0, firstActiveAt: undefined });
     const update = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team), update });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     // Pre-register a session to short-circuit the heavy start path. The bump
     // logic now runs in a "no-op" path because getOrStartSession returns early.

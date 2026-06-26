@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TChatConversation } from '../../../src/common/config/storage';
 import type { IConversationService } from '../../../src/process/services/IConversationService';
 import type { ITeamRepository } from '../../../src/process/team/repository/ITeamRepository';
@@ -77,6 +77,20 @@ function makeWorkerTaskManager() {
   };
 }
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
+function newService(...args: ConstructorParameters<typeof TeamSessionService>): TeamSessionService {
+  const svc = new TeamSessionService(...args);
+  services.push(svc);
+  return svc;
+}
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
+
 function makeAgent(overrides: Partial<TeamAgent> = {}): TeamAgent {
   return {
     slotId: '',
@@ -102,7 +116,7 @@ describe('TeamSessionService', () => {
     const conversationService = makeConversationService({
       createConversation: vi.fn().mockResolvedValue({ id: 'conv-gemini', extra: {} }),
     });
-    const service = new TeamSessionService(repo, makeWorkerTaskManager() as any, conversationService);
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService);
 
     await service.createTeam({
       userId: 'user-1',
@@ -148,7 +162,7 @@ describe('TeamSessionService', () => {
     const conversationService = makeConversationService({
       createConversation: vi.fn().mockResolvedValue({ id: 'conv-gemini-api', extra: {} }),
     });
-    const service = new TeamSessionService(repo, makeWorkerTaskManager() as any, conversationService);
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService);
 
     await service.createTeam({
       userId: 'user-1',
@@ -206,7 +220,7 @@ describe('TeamSessionService', () => {
     const conversationService = makeConversationService({
       createConversation: vi.fn().mockResolvedValue({ id: 'conv-qwen', extra: {} }),
     });
-    const service = new TeamSessionService(repo, makeWorkerTaskManager() as any, conversationService);
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService);
 
     await service.createTeam({
       userId: 'user-1',
@@ -234,7 +248,7 @@ describe('TeamSessionService', () => {
     const conversationService = makeConversationService({
       createConversation: vi.fn().mockResolvedValue({ id: 'conv-remote', extra: {} }),
     });
-    const service = new TeamSessionService(repo, makeWorkerTaskManager() as any, conversationService);
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService);
 
     await service.createTeam({
       userId: 'user-1',
@@ -299,7 +313,7 @@ describe('TeamSessionService', () => {
     const conversationService = makeConversationService({
       createConversation: vi.fn().mockResolvedValue({ id: 'conv-preset-gemini', extra: {} }),
     });
-    const service = new TeamSessionService(repo, makeWorkerTaskManager() as any, conversationService);
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService);
 
     await service.createTeam({
       userId: 'user-1',
@@ -399,7 +413,7 @@ describe('TeamSessionService', () => {
         },
       }),
     });
-    const service = new TeamSessionService(repo, makeWorkerTaskManager() as any, conversationService);
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService);
 
     await service.addAgent('team-1', {
       conversationId: '',
@@ -459,7 +473,7 @@ describe('TeamSessionService', () => {
     const conversationService = makeConversationService({
       listAllConversations: vi.fn().mockResolvedValue([legacyConversation]),
     });
-    const service = new TeamSessionService(repo, makeWorkerTaskManager() as any, conversationService);
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService);
 
     const repairedTeam = await service.getTeam('team-legacy');
 

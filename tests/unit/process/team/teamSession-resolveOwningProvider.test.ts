@@ -12,7 +12,7 @@
 // Gemini/Google-platform providers and returns null otherwise so the caller
 // falls back to the default-resolved Gemini provider.
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { mockConfigGet } = vi.hoisted(() => ({ mockConfigGet: vi.fn() }));
 
@@ -76,20 +76,26 @@ function makeProvider(overrides: Partial<IProvider> & { platform: string; model:
 }
 
 type OwnerProbe = {
-  resolveOwningProviderModelById: (
-    modelId: string,
-    conversationType?: string
-  ) => Promise<TProviderWithModel | null>;
+  resolveOwningProviderModelById: (modelId: string, conversationType?: string) => Promise<TProviderWithModel | null>;
 };
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
 function makeService(): OwnerProbe {
   const svc = new TeamSessionService(
     makeRepo(),
     { getOrBuildTask: vi.fn(), kill: vi.fn() } as never,
     makeConversationService()
   );
+  services.push(svc);
   return svc as unknown as OwnerProbe;
 }
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
 
 describe('TeamSessionService.resolveOwningProviderModelById - backend scoping (#207)', () => {
   beforeEach(() => {

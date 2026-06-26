@@ -17,7 +17,7 @@
 //   - missing team / missing slot errors
 //   - newModel updates the conversation extra when supplied
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockIpcBridge = vi.hoisted(() => ({
   team: {
@@ -120,6 +120,20 @@ function makeWorkerTaskManager() {
   };
 }
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
+function newService(...args: ConstructorParameters<typeof TeamSessionService>): TeamSessionService {
+  const svc = new TeamSessionService(...args);
+  services.push(svc);
+  return svc;
+}
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
+
 describe('TeamSessionService.changeAgentBackend', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -127,16 +141,16 @@ describe('TeamSessionService.changeAgentBackend', () => {
 
   it('throws when the team does not exist', async () => {
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(null) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
-    await expect(
-      svc.changeAgentBackend({ teamId: 'missing', slotId: 'slot-1', newBackend: 'codex' })
-    ).rejects.toThrow(/not found/i);
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
+    await expect(svc.changeAgentBackend({ teamId: 'missing', slotId: 'slot-1', newBackend: 'codex' })).rejects.toThrow(
+      /not found/i
+    );
   });
 
   it('throws when the slot does not exist on the team', async () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
     await expect(
       svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-ghost', newBackend: 'codex' })
     ).rejects.toThrow(/not found/i);
@@ -147,7 +161,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     const update = vi.fn().mockResolvedValue(undefined);
     const appendEvent = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team), update, appendEvent });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'claude' });
 
@@ -169,7 +183,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
       ],
     });
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await expect(
       svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-gem', newBackend: 'claude' })
@@ -185,7 +199,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     // backend wayland-core". It must be rejected exactly like a swap to 'wcore'.
     const team = makeTeam(); // slot-1 is claude / conversationType 'acp'
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     await expect(
       svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wayland-core' })
@@ -194,16 +208,16 @@ describe('TeamSessionService.changeAgentBackend', () => {
 
     // Parity: the canonical id 'wcore' was already rejected; 'wayland-core' must
     // behave identically now that both resolve to the 'wcore' conversation type.
-    await expect(
-      svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wcore' })
-    ).rejects.toThrow(/not supported in place/i);
+    await expect(svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'wcore' })).rejects.toThrow(
+      /not supported in place/i
+    );
     expect(repo.update).not.toHaveBeenCalled();
   });
 
   it('refuses to swap while a wake is in progress', async () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     const killAgentProcess = vi.fn();
     const fakeSession = {
@@ -212,9 +226,9 @@ describe('TeamSessionService.changeAgentBackend', () => {
     };
     (svc as unknown as { sessions: Map<string, unknown> }).sessions.set('team-1', fakeSession);
 
-    await expect(
-      svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'codex' })
-    ).rejects.toThrow(/wake in progress/i);
+    await expect(svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'codex' })).rejects.toThrow(
+      /wake in progress/i
+    );
     expect(killAgentProcess).not.toHaveBeenCalled();
     expect(repo.update).not.toHaveBeenCalled();
   });
@@ -224,7 +238,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     const update = vi.fn().mockResolvedValue(undefined);
     const appendEvent = vi.fn().mockResolvedValue(undefined);
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team), update, appendEvent });
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), makeConversationService());
+    const svc = newService(repo, makeWorkerTaskManager(), makeConversationService());
 
     const killAgentProcess = vi.fn();
     const fakeSession = {
@@ -275,7 +289,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
     const conversationService = makeConversationService();
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), conversationService);
+    const svc = newService(repo, makeWorkerTaskManager(), conversationService);
 
     await svc.changeAgentBackend({
       teamId: 'team-1',
@@ -285,8 +299,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     });
 
     expect(conversationService.updateConversation).toHaveBeenCalledTimes(1);
-    const [convId, payload] = (conversationService.updateConversation as ReturnType<typeof vi.fn>).mock
-      .calls[0];
+    const [convId, payload] = (conversationService.updateConversation as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(convId).toBe('conv-1');
     expect((payload as { extra?: { backend?: string; currentModelId?: string } }).extra).toMatchObject({
       backend: 'codex',
@@ -298,7 +311,7 @@ describe('TeamSessionService.changeAgentBackend', () => {
     const team = makeTeam();
     const repo = makeRepo({ findById: vi.fn().mockResolvedValue(team) });
     const conversationService = makeConversationService();
-    const svc = new TeamSessionService(repo, makeWorkerTaskManager(), conversationService);
+    const svc = newService(repo, makeWorkerTaskManager(), conversationService);
 
     await svc.changeAgentBackend({ teamId: 'team-1', slotId: 'slot-1', newBackend: 'codex' });
 
