@@ -1,4 +1,24 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+
+// Importing MessageText transitively loads `electron-log/renderer`, which opens
+// a ref'd transport handle at module-eval in the node test env (no Electron main
+// process to talk to). That handle keeps the vitest fork worker's event loop
+// alive, so the worker never exits and the unit shard hangs to the CI job
+// timeout under load (#353). The jsdom setup stubs this globally for dom tests;
+// node-env tests that import renderer modules must stub it per-file.
+vi.mock('electron-log/renderer', () => {
+  const logger = {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    verbose: vi.fn(),
+    silly: vi.fn(),
+    log: vi.fn(),
+  };
+  return { default: logger, ...logger };
+});
+
 import { formatMessageTime } from '@renderer/pages/conversation/Messages/components/MessageText';
 
 describe('formatMessageTime', () => {
