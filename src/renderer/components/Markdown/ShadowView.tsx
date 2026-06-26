@@ -238,7 +238,13 @@ const ShadowView = ({ children }: { children: React.ReactNode }) => {
   // Update CSS variables and custom styles in Shadow DOM
   const updateStyles = React.useCallback(
     (shadowRoot: ShadowRoot) => {
-      const computedStyle = getComputedStyle(document.documentElement);
+      // Read the theme tokens from <body>, not <html>: in dark mode the tokens
+      // are defined on `body[arco-theme='dark']`, and custom properties do not
+      // inherit upward to documentElement. Reading from documentElement returns
+      // empty values in dark mode, which makes `var(--bg-3)` invalid inside the
+      // shadow root and falls back to currentColor (white) — e.g. a bright white
+      // <hr>. document.body carries the resolved values in both themes.
+      const computedStyle = getComputedStyle(document.body ?? document.documentElement);
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
       const cssVars = {
         '--bg-1': computedStyle.getPropertyValue('--bg-1'),

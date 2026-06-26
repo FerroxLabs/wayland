@@ -378,14 +378,13 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  margin: 2px 14px 6px 51px;
+  margin: 2px 14px 6px;
   padding: 7px 11px;
   border-radius: 9px;
   background: var(--color-bg-2);
   border: 1px solid var(--color-border-2);
   cursor: pointer;
   transition: border-color 0.12s;
-  width: calc(100% - 65px);
   text-align: left;
 }
 .effortRow:hover {

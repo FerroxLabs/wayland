@@ -99,6 +99,7 @@ const AcpSendBox: React.FC<{
   workspacePath?: string;
   teamId?: string;
   agentSlotId?: string;
+  onRunningChange?: (running: boolean) => void;
 }> = ({
   conversation_id,
   backend,
@@ -108,6 +109,7 @@ const AcpSendBox: React.FC<{
   workspacePath,
   teamId,
   agentSlotId,
+  onRunningChange,
 }) => {
   const {
     running,
@@ -148,6 +150,13 @@ const AcpSendBox: React.FC<{
     setUploadFile,
   });
   const isBusy = running || aiProcessing;
+
+  // Report busy state up so the shared inline orbit (MessageList footer) animates
+  // on the ACP path too, matching the wcore/Flux path. Without this the orbit
+  // renders but never gets the processing signal, so it sits static.
+  useEffect(() => {
+    onRunningChange?.(isBusy);
+  }, [isBusy, onRunningChange]);
 
   // Register handler for adding text from preview panel to sendbox
   useEffect(() => {

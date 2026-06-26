@@ -467,6 +467,8 @@ export type ActivityNode = {
   /** Accumulated streamed detail (tool_chunk stdout / thinking text / op trail). */
   detail?: string;
   children?: ActivityNode[];
+  /** Parsed search result sources (web_search tool only). */
+  sources?: import('./activity/sources').Source[];
 };
 
 /**

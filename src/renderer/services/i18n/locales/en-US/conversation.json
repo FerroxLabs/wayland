@@ -9,6 +9,7 @@
     "selectModel": "Select Model",
     "useCliModel": "Select Model",
     "modelSwitchNotSupported": "Model list will be available after first connection. Send a message to connect and load available models.",
+    "modelLoading": "Loading models…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "Agent models",
     "specifyWorkspace": "Chat in Folder",
@@ -314,6 +315,7 @@
   },
   "thinking": {
     "complete": "Thought complete",
+    "thoughtFor": "Thought for {{duration}}",
     "label": "Thinking..."
   },
   "subAgent": {
@@ -347,14 +349,19 @@
     "runningCount": "{{count}} running",
     "summaryDid": "Did {{count}} things · {{duration}}",
     "summaryDidShort": "Did {{count}} things",
-    "expandRow": "Toggle step detail"
+    "summaryDidMore": "{{steps}} · +{{count}} more",
+    "expandRow": "Toggle step detail",
+    "sourcesCount": "{{count}} sources"
   },
   "actions": {
     "readAloud": "Read aloud",
     "stopReading": "Stop",
     "retry": "Retry",
     "thumbsUp": "Good response",
-    "thumbsDown": "Bad response"
+    "thumbsDown": "Bad response",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "skills": {
     "loaded": "Loaded Skills"

@@ -805,6 +805,15 @@ export class WCoreAgent {
     this.sendCommand({ type: 'tool_deny', call_id: callId, reason });
   }
 
+  // W7 S4 HITL: resume a turn the engine suspended with `approval_required`.
+  // The engine normally self-resolves this under --auto-approve, but that path
+  // can silently fail on some provider routes (e.g. Anthropic-format `toolu_`
+  // tool ids via Flux), leaving the turn wedged. Sending an explicit resume is
+  // a safe, idempotent unblock (a stale/duplicate token is ignored engine-side).
+  resumeApproval(resumeToken: string, approved: boolean): void {
+    this.sendCommand({ type: 'approval_resume', resume_token: resumeToken, approved });
+  }
+
   setConfig(config: { model?: string; thinking?: string; thinking_budget?: number; effort?: string }): void {
     this.sendCommand({ type: 'set_config', ...config });
   }

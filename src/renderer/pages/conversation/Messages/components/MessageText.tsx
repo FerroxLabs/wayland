@@ -7,10 +7,10 @@
 import type { IMessageText } from '@/common/chat/chatLib';
 import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
-import { Alert, Message } from '@arco-design/web-react';
-import MessageActions, { type ActionsDisplay } from './MessageActions';
+import { Alert, Button, Input, Message } from '@arco-design/web-react';
+import MessageActions, { EDIT_AND_RERUN_EVENT, type ActionsDisplay, type ChatEditRerunDetail } from './MessageActions';
 import classNames from 'classnames';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { copyText } from '@/renderer/utils/ui/clipboard';
 import CollapsibleContent from '@renderer/components/chat/CollapsibleContent';
@@ -159,6 +159,33 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
   );
 
   const workflowSessionId = conversationContext?.workflowSessionId;
+  const conversationId = conversationContext?.conversationId;
+
+  // Inline edit state — user messages only.
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+
+  const handleEditStart = useCallback(() => {
+    setEditValue(text);
+    setEditing(true);
+  }, [text]);
+
+  const handleEditSave = useCallback(() => {
+    const trimmed = editValue.trim();
+    if (!trimmed || !conversationId || !message.createdAt) return;
+    window.dispatchEvent(
+      new CustomEvent<ChatEditRerunDetail>(EDIT_AND_RERUN_EVENT, {
+        // Truncate from the edited message INCLUSIVE (delete is `created_at > ?`),
+        // so the resend REPLACES the original instead of appending a duplicate.
+        detail: { conversationId, afterTimestamp: message.createdAt - 1, text: trimmed },
+      })
+    );
+    setEditing(false);
+  }, [editValue, conversationId, message.createdAt]);
+
+  const handleEditCancel = useCallback(() => {
+    setEditing(false);
+  }, []);
 
   const hasVisibleContent =
     !!message.content.content && (typeof message.content.content !== 'string' || !!message.content.content.trim());
@@ -202,7 +229,8 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
       isUser={isUserMessage}
       display={toolbarMode}
       retryText={!isUserMessage ? retryText : undefined}
-      conversationId={conversationContext?.conversationId}
+      conversationId={conversationId}
+      onEdit={isUserMessage && message.createdAt && conversationId ? handleEditStart : undefined}
     />
   );
 
@@ -260,8 +288,28 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
                 : undefined),
           }}
         >
+          {/* Inline edit mode for user messages */}
+          {editing && (
+            <div className='flex flex-col gap-8px'>
+              <Input.TextArea
+                value={editValue}
+                onChange={setEditValue}
+                autoSize={{ minRows: 2, maxRows: 12 }}
+                autoFocus
+                aria-label={t('conversation.actions.edit', { defaultValue: 'Edit' })}
+              />
+              <div className='flex gap-8px justify-end'>
+                <Button size='small' onClick={handleEditCancel}>
+                  {t('conversation.actions.cancel', { defaultValue: 'Cancel' })}
+                </Button>
+                <Button size='small' type='primary' onClick={handleEditSave}>
+                  {t('conversation.actions.save', { defaultValue: 'Save' })}
+                </Button>
+              </div>
+            </div>
+          )}
           {/* Use CollapsibleContent for JSON content */}
-          {hasVisibleContent &&
+          {!editing && hasVisibleContent &&
             (shouldRenderPlainText ? (
               <div className='whitespace-pre-wrap break-words' data-testid='message-text-content'>
                 {workflowSessionId ? stripWorkflowEnvelopes(text) : text}

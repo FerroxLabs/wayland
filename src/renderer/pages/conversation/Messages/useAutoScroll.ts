@@ -22,6 +22,30 @@ import type { TMessage } from '@/common/chat/chatLib';
 // Ignore scroll events within this window after a programmatic scroll (ms)
 const PROGRAMMATIC_SCROLL_GUARD_MS = 150;
 
+// Minimum upward delta (px) to treat a scroll event as a deliberate user
+// scroll-up. Larger than the resting jitter that Virtuoso reflow / footer
+// (orbit, ThoughtDisplay) appearance can emit mid-stream, but well below the
+// distance a real read-history scroll travels.
+const USER_SCROLL_UP_DELTA = 24;
+
+// Lightweight streaming signature for the in-place auto-scroll effect.
+// followOutput only fires on item-count change; ACP/Gemini grow the last
+// message's text in place, so we additionally key on the last message's text
+// length. Only string content contributes a length; never throws on other
+// content shapes (arrays, objects without a string body).
+function streamingSignature(messages: TMessage[]): string {
+  const last = messages[messages.length - 1];
+  let lastLen = 0;
+  const content: unknown = last?.content;
+  if (typeof content === 'string') {
+    lastLen = content.length;
+  } else if (content !== null && typeof content === 'object') {
+    const body = (content as { content?: unknown }).content;
+    if (typeof body === 'string') lastLen = body.length;
+  }
+  return `${messages.length}:${lastLen}`;
+}
+
 interface UseAutoScrollOptions {
   /** Message list for detecting new messages */
   messages: TMessage[];
@@ -52,6 +76,11 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [scrollerEl, setScrollerEl] = useState<HTMLElement | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+
+  // Streaming signature: cheap derived dep that changes on both item-count
+  // change and in-place text growth (see streamingSignature). Drives the
+  // in-place auto-scroll effect so each streamed chunk follows.
+  const streamingSig = streamingSignature(messages);
 
   // Refs for scroll control
   const userScrolledRef = useRef(false);
@@ -206,7 +235,11 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
     }
 
     const delta = currentScrollTop - lastScrollTopRef.current;
-    if (delta < -10) {
+    // Require a larger upward jump than the resting jitter a mid-stream layout
+    // shift (orbit/ThoughtDisplay appearing, Virtuoso reflow) can emit, so a
+    // spurious small negative delta doesn't permanently kill auto-follow. A
+    // real read-history scroll-up travels well past this and still pauses follow.
+    if (delta < -USER_SCROLL_UP_DELTA) {
       userScrolledRef.current = true;
     }
 
@@ -254,19 +287,39 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
   // Scroll to bottom when streaming content updates existing messages.
   // Virtuoso's followOutput only fires when totalCount changes (new items added),
   // but during ACP/Gemini streaming the existing text message grows in-place
-  // without changing the item count. This effect detects those content updates
-  // and scrolls to bottom when the user hasn't scrolled away.
+  // without changing the item count. Keying on streamingSignature (count + last
+  // message text length) makes this fire on each streamed chunk, not just on
+  // array-identity change.
+  //
+  // The gap-measure-and-scroll runs inside a double requestAnimationFrame so it
+  // reads scrollHeight AFTER Virtuoso finishes its rAF-based re-layout (mirrors
+  // the user-message scroll above). Reading synchronously here would see a stale
+  // scrollHeight and undershoot, leaving the newest line below the fold.
   useEffect(() => {
     if (userScrolledRef.current) return;
-    const el = scrollerElRef.current;
-    if (!el) return;
+    if (!scrollerElRef.current) return;
 
-    const gap = el.scrollHeight - el.clientHeight - el.scrollTop;
-    if (gap > 2) {
-      lastProgrammaticScrollTimeRef.current = Date.now();
-      el.scrollTop = el.scrollHeight - el.clientHeight;
-    }
-  }, [messages]);
+    let outerRaf = 0;
+    let innerRaf = 0;
+    outerRaf = requestAnimationFrame(() => {
+      innerRaf = requestAnimationFrame(() => {
+        if (userScrolledRef.current) return;
+        const el = scrollerElRef.current;
+        if (!el) return;
+        const gap = el.scrollHeight - el.clientHeight - el.scrollTop;
+        if (gap > 2) {
+          lastProgrammaticScrollTimeRef.current = Date.now();
+          el.scrollTop = el.scrollHeight - el.clientHeight;
+        }
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(outerRaf);
+      cancelAnimationFrame(innerRaf);
+    };
+    // streamingSignature changes on in-place text growth as well as count change.
+  }, [streamingSig]);
 
   // Hide scroll button handler
   const hideScrollButton = useCallback(() => {

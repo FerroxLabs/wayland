@@ -9,6 +9,7 @@
     "selectModel": "モデルを選択",
     "useCliModel": "モデルを選択",
     "modelSwitchNotSupported": "初回接続後に利用可能なモデルリストが表示されます。まずメッセージを送信して接続し、利用可能なモデルを読み込んでください。",
+    "modelLoading": "モデルを読み込み中…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "エージェントのモデル",
     "specifyWorkspace": "フォルダーでチャット",

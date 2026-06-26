@@ -20,6 +20,7 @@
 
 import type { ActivityNode } from '../chatLib';
 import { deriveStep, type GlyphKind } from './activityLabels';
+import type { Source } from './sources';
 
 /** Which backend produced the underlying node (drives the subtle mono "src" chip). */
 export type ActivitySource = 'wcore' | 'acp' | 'codex' | 'gemini';
@@ -43,6 +44,8 @@ export type ActivityStep = {
   source?: ActivitySource;
   /** Sub-agent recursion. */
   children?: ActivityStep[];
+  /** Parsed search result sources (web_search tool only). */
+  sources?: Source[];
 };
 
 /** Duration in seconds, one decimal, or undefined when not both timestamps set. */
@@ -73,6 +76,7 @@ export const nodeToStep = (node: ActivityNode, source?: ActivitySource): Activit
     agent: node.kind === 'sub_agent' ? node.name : undefined,
     source,
     children: node.children?.length ? node.children.map((c) => nodeToStep(c, source)) : undefined,
+    ...(node.sources?.length ? { sources: node.sources } : {}),
   };
 };
 

@@ -27,6 +27,7 @@ import { Badge, Tag } from '@arco-design/web-react';
 import { Check, Close, Right } from '@icon-park/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import SourceBlock from './SourceBlock';
 import styles from './ActivityTimeline.module.css';
 
 type Props = { steps: ActivityStep[]; defaultExpanded?: boolean };
@@ -68,7 +69,8 @@ const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
 
   const hasDetail = Boolean(step.detail && step.detail.length);
   const hasChildren = Boolean(step.children && step.children.length);
-  const expandable = hasDetail || hasChildren;
+  const hasSources = Boolean(step.sources && step.sources.length);
+  const expandable = hasDetail || hasChildren || hasSources;
   const toggle = (): void => setOpen((v) => !v);
 
   const showAgentTag = step.kind === 'sub_agent' || Boolean(step.agent);
@@ -114,6 +116,11 @@ const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
           <ActivityTimeline steps={step.children!} defaultExpanded />
         </div>
       )}
+      {open && hasSources && (
+        <div className={styles.detailRail}>
+          <SourceBlock sources={step.sources!} />
+        </div>
+      )}
 
       {/* Visually-hidden detail label keeps i18n key referenced and aids SR. */}
       {expandable && (
@@ -156,6 +163,20 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
     ? t('conversation.observability.summaryDid', { defaultValue: 'Did {{count}} things · {{duration}}', count: doneCount(steps), duration: dur })
     : t('conversation.observability.summaryDidShort', { defaultValue: 'Did {{count}} things', count: doneCount(steps) });
 
+  // "What I did" at-a-glance: name the real actions under the collapsed summary
+  // (only for genuinely multi-step turns; a single action is self-evident).
+  const doneLabels = steps.filter((s) => s.status !== 'running' && s.label).map((s) => s.label.replace(/[.…]+$/, ''));
+  const stepDetail =
+    doneLabels.length >= 2
+      ? doneLabels.length > 3
+        ? t('conversation.observability.summaryDidMore', {
+            defaultValue: '{{steps}} · +{{count}} more',
+            steps: doneLabels.slice(0, 3).join(' · '),
+            count: doneLabels.length - 3,
+          })
+        : doneLabels.join(' · ')
+      : '';
+
   return (
     <div className={styles.container} data-testid='activity-timeline' data-timeline-status={status}>
       <div
@@ -194,6 +215,12 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
         )}
         <Right className={`${styles.chev} ${expanded ? styles.chevOpen : ''}`} size='13' aria-hidden='true' />
       </div>
+
+      {!running && !expanded && stepDetail && (
+        <div className={styles.summaryDetail} data-testid='activity-summary-detail'>
+          {stepDetail}
+        </div>
+      )}
 
       {expanded && (
         <div className={styles.list}>

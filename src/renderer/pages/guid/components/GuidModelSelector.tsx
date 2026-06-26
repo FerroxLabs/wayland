@@ -405,6 +405,19 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     return fluxConnected && (compat === 'env' || compat === 'setup');
   }, [agentKey, fluxConnected]);
 
+  // Unified ACP model list (PRINCIPLE: no hardcoded lists). Prefer the live
+  // cached catalog when a session has populated it; otherwise fall back to the
+  // self-updating curated catalog (`curatedForAgent`, e.g. enumerable Codex →
+  // live GPT models). For an enumerable CLI the curated `id` IS the model name
+  // the CLI expects, so `setSelectedAcpModel(model.id)` reaches the send path
+  // identically to a cached entry. This is what kills the cold-start dead-end.
+  const acpModels = React.useMemo<AcpModelInfo['availableModels']>(() => {
+    if (currentAcpCachedModelInfo?.availableModels?.length) {
+      return currentAcpCachedModelInfo.availableModels;
+    }
+    return (curated ?? []).map((m) => ({ id: m.id, label: m.displayName }));
+  }, [currentAcpCachedModelInfo?.availableModels, curated]);
+
   const acpSelectedLabel = React.useMemo(() => {
     if (isFluxModelId(selectedAcpModel)) return FLUX_MODEL_DISPLAY[selectedAcpModel as FluxModelId];
     return (
@@ -470,107 +483,93 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
     );
   }
 
-  // ── CLI agents - ACP cached model selector ───────────────────────────────
-  if (currentAcpCachedModelInfo && currentAcpCachedModelInfo.availableModels?.length > 0) {
-    if (currentAcpCachedModelInfo.canSwitch) {
-      // Inline scope caption - keeps the Arco Menu legal (no raw <div> kids).
-      const scopeCaptionItem = (
-        <Menu.Item
-          key='scope-caption'
-          disabled
-          className='px-12px pt-8px pb-6px text-11px text-t-tertiary leading-snug'
-        >
-          {scopeCaption}
-        </Menu.Item>
-      );
-      return (
-        <Dropdown
-          trigger='click'
-          droplist={
-            <Menu selectedKeys={selectedAcpModel ? [selectedAcpModel] : []}>
-              {showAcpFlux && (
-                <Menu.ItemGroup title={t('conversation.welcome.fluxGroupLabel')}>
-                  {FLUX_MODEL_IDS.map((fluxId) => (
-                    <Menu.Item
-                      key={fluxId}
-                      onClick={() => {
-                        setSelectedAcpModel(fluxId);
-                        recordTelemetry({
-                          eventType: 'guid.model_selected',
-                          cliBackend: agentKey,
-                          metadata: { modelId: fluxId, source: 'flux' },
-                        });
-                      }}
-                    >
-                      <div className='flex items-center gap-8px w-full'>
-                        <FluxRouterMark size={14} className='shrink-0' />
-                        <span className='flex-1 min-w-0 truncate'>{FLUX_MODEL_DISPLAY[fluxId]}</span>
-                      </div>
-                    </Menu.Item>
-                  ))}
-                </Menu.ItemGroup>
-              )}
-              {scopeCaptionItem}
-              {currentAcpCachedModelInfo.availableModels.map((model) => {
-                const tier = acpTierFor(model.id, model.label);
-                return (
+  // ── CLI agents - ACP model selector ──────────────────────────────────────
+  // Render the picker whenever Flux Auto is offered OR there is any real model
+  // to show (live cache or curated catalog). This kills the cold-start dead-end:
+  // a connected Flux user sees Flux Auto from the first frame, and an enumerable
+  // CLI (Codex) surfaces its live GPT models even before a session caches them.
+  if (showAcpFlux || acpModels.length > 0) {
+    // Inline scope caption - keeps the Arco Menu legal (no raw <div> kids).
+    const scopeCaptionItem = (
+      <Menu.Item
+        key='scope-caption'
+        disabled
+        className='px-12px pt-8px pb-6px text-11px text-t-tertiary leading-snug'
+      >
+        {scopeCaption}
+      </Menu.Item>
+    );
+    return (
+      <Dropdown
+        trigger='click'
+        droplist={
+          <Menu selectedKeys={selectedAcpModel ? [selectedAcpModel] : []}>
+            {showAcpFlux && (
+              <Menu.ItemGroup title={t('conversation.welcome.fluxGroupLabel')}>
+                {FLUX_MODEL_IDS.map((fluxId) => (
                   <Menu.Item
-                    key={model.id}
+                    key={fluxId}
                     onClick={() => {
-                      setSelectedAcpModel(model.id);
+                      setSelectedAcpModel(fluxId);
                       recordTelemetry({
                         eventType: 'guid.model_selected',
                         cliBackend: agentKey,
-                        metadata: { modelId: model.id, source: 'acp' },
+                        metadata: { modelId: fluxId, source: 'flux' },
                       });
                     }}
                   >
                     <div className='flex items-center gap-8px w-full'>
-                      <span className='flex-1 min-w-0 truncate'>{model.label}</span>
-                      {tier && (
-                        <span
-                          className='text-11px font-600 text-t-tertiary tracking-wider shrink-0'
-                          aria-label={t('settings.modelsPage.homePicker.priceTierAria', { tier })}
-                        >
-                          {tier}
-                        </span>
-                      )}
+                      <FluxRouterMark size={14} className='shrink-0' />
+                      <span className='flex-1 min-w-0 truncate'>{FLUX_MODEL_DISPLAY[fluxId]}</span>
                     </div>
                   </Menu.Item>
-                );
-              })}
-            </Menu>
-          }
-        >
-          <Button className={'sendbox-model-btn guid-config-btn'} shape='round' size='small'>
-            <span className='flex items-center gap-6px min-w-0'>
-              <Brain size={14} color={iconColors.secondary} className='shrink-0' />
-              <span>{acpButtonDisplayLabel}</span>
-              <ChevronDown size={12} color={iconColors.secondary} className='shrink-0' />
-            </span>
-          </Button>
-        </Dropdown>
-      );
-    }
-
-    return (
-      <Tooltip content={t('conversation.welcome.modelSwitchNotSupported')} position='top'>
-        <Button
-          className={'sendbox-model-btn guid-config-btn'}
-          shape='round'
-          size='small'
-          style={{ cursor: 'default' }}
-        >
+                ))}
+              </Menu.ItemGroup>
+            )}
+            {scopeCaptionItem}
+            {acpModels.map((model) => {
+              const tier = acpTierFor(model.id, model.label);
+              return (
+                <Menu.Item
+                  key={model.id}
+                  onClick={() => {
+                    setSelectedAcpModel(model.id);
+                    recordTelemetry({
+                      eventType: 'guid.model_selected',
+                      cliBackend: agentKey,
+                      metadata: { modelId: model.id, source: 'acp' },
+                    });
+                  }}
+                >
+                  <div className='flex items-center gap-8px w-full'>
+                    <span className='flex-1 min-w-0 truncate'>{model.label}</span>
+                    {tier && (
+                      <span
+                        className='text-11px font-600 text-t-tertiary tracking-wider shrink-0'
+                        aria-label={t('settings.modelsPage.homePicker.priceTierAria', { tier })}
+                      >
+                        {tier}
+                      </span>
+                    )}
+                  </div>
+                </Menu.Item>
+              );
+            })}
+          </Menu>
+        }
+      >
+        <Button className={'sendbox-model-btn guid-config-btn'} shape='round' size='small'>
           <span className='flex items-center gap-6px min-w-0'>
             <Brain size={14} color={iconColors.secondary} className='shrink-0' />
             <span>{acpButtonDisplayLabel}</span>
+            <ChevronDown size={12} color={iconColors.secondary} className='shrink-0' />
           </span>
         </Button>
-      </Tooltip>
+      </Dropdown>
     );
   }
 
-  // ── Fallback: no model switching ─────────────────────────────────────────
+  // ── Fallback: nothing real to show (no Flux, no native, no curated) ──────
   return (
     <Tooltip content={t('conversation.welcome.modelSwitchNotSupported')} position='top'>
       <Button className={'sendbox-model-btn guid-config-btn'} shape='round' size='small' style={{ cursor: 'default' }}>

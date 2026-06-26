@@ -1,0 +1,90 @@
+/* #252 / #26 - source block: favicon + title + domain cards for web-search results. */
+
+@keyframes sourceBlockFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  margin-top: 10px;
+  animation: sourceBlockFadeIn 0.2s ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+  user-select: none;
+}
+
+.headerIcon {
+  color: var(--text-muted);
+  display: inline-flex;
+  flex: none;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+  min-width: 0;
+}
+
+.row:hover {
+  background: var(--bg-hover, rgba(127, 127, 127, 0.06));
+}
+
+.favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: contain;
+  flex: none;
+}
+
+.faviconFallback {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.domain {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}

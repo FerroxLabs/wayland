@@ -17,6 +17,9 @@ vi.mock('react-i18next', () => ({
       if (key === 'common.unit.minute_short') return options?.defaultValue || 'm';
       if (key === 'conversation.thinking.complete') return options?.defaultValue || 'Thought complete';
       if (key === 'conversation.thinking.label') return options?.defaultValue || 'Thinking...';
+      if (key === 'conversation.thinking.thoughtFor') {
+        return (options?.defaultValue || 'Thought for {{duration}}').replace('{{duration}}', options?.duration ?? '');
+      }
       return key;
     },
   }),

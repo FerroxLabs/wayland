@@ -65,7 +65,16 @@ type LabelRule = {
 // Write, Bash, Grep...), Gemini (google_search, url_context), Codex
 // (exec_command, web_search) and ACP titles all funnel through here.
 const RULES: LabelRule[] = [
-  { test: /web[_-]?search|google[_-]?search|search[_-]?web|brave[_-]?search/, glyph: 'web', build: (h) => `Searching the web for "${hostOrText(h.replace(/.*?(query|q|search)["':\s]+/i, ''))}"`.replace(/ for ""$/, '') },
+  {
+    test: /web[_-]?search|google[_-]?search|search[_-]?web|brave[_-]?search|^web\b/,
+    glyph: 'web',
+    build: (h) => {
+      const q = hostOrText(h.replace(/.*?(query|q|search)["':\s]+/i, '')).trim();
+      // Drop the suffix when the query can't be cleanly extracted (e.g. the bare
+      // Flux `web` tool, where the arg shape leaves junk like "web").
+      return q && q.toLowerCase() !== 'web' ? `Searching the web for "${q}"` : 'Searching the web';
+    },
+  },
   { test: /webfetch|url[_-]?context|fetch[_-]?url|http[_-]?get|browse/, glyph: 'web', build: (h) => `Reading ${hostOrText(h)}` },
   { test: /\b(read|open|cat|view)[_-]?file|\bfs[_-]?read|\bread\b/, glyph: 'file', build: (h) => `Reading ${truncateToFilename(firstPath(h) || 'a file')}` },
   { test: /str[_-]?replace|editor|fs[_-]?write|\b(write|edit|update|modify|patch|apply)/, glyph: 'file', build: (h) => `Editing ${truncateToFilename(firstPath(h) || 'a file')}` },

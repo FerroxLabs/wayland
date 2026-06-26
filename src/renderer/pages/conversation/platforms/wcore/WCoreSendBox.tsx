@@ -12,7 +12,12 @@ import ContextUsageIndicator from '@/renderer/components/agent/ContextUsageIndic
 import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
 import SendBox from '@/renderer/components/chat/sendbox';
 import ThoughtDisplay from '@/renderer/components/chat/ThoughtDisplay';
-import { CHAT_RETRY_EVENT, type ChatRetryDetail } from '@/renderer/pages/conversation/Messages/components/MessageActions';
+import {
+  CHAT_RETRY_EVENT,
+  EDIT_AND_RERUN_EVENT,
+  type ChatRetryDetail,
+  type ChatEditRerunDetail,
+} from '@/renderer/pages/conversation/Messages/components/MessageActions';
 import FileAttachButton from '@/renderer/components/media/FileAttachButton';
 import FilePreview from '@/renderer/components/media/FilePreview';
 import HorizontalFileList from '@/renderer/components/media/HorizontalFileList';
@@ -24,7 +29,7 @@ import { usePendingSendOnWake } from '@/renderer/hooks/chat/usePendingSendOnWake
 import { useOpenFileSelector } from '@/renderer/hooks/file/useOpenFileSelector';
 import { useProviderReadiness } from '@/renderer/hooks/useProviderReadiness';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
-import { useAddOrUpdateMessage, useRemoveMessageByMsgId } from '@/renderer/pages/conversation/Messages/hooks';
+import { useAddOrUpdateMessage, useRemoveMessageByMsgId, useTruncateMessagesAfter } from '@/renderer/pages/conversation/Messages/hooks';
 import { assertBridgeSuccess } from '@/renderer/pages/conversation/platforms/assertBridgeSuccess';
 import {
   shouldEnqueueConversationCommand,
@@ -158,6 +163,7 @@ const WCoreSendBox: React.FC<{
 
   const addOrUpdateMessage = useAddOrUpdateMessage();
   const removeMessageByMsgId = useRemoveMessageByMsgId();
+  const truncateMessagesAfter = useTruncateMessagesAfter();
   const { setSendBoxHandler } = usePreviewContext();
   const isBusy = running;
 
@@ -375,6 +381,28 @@ const WCoreSendBox: React.FC<{
     };
     window.addEventListener(CHAT_RETRY_EVENT, handler);
     return () => window.removeEventListener(CHAT_RETRY_EVENT, handler);
+  }, [conversation_id]);
+
+  // Edit-and-rerun: truncate messages after the edited user message, then re-send.
+  const truncateRef = useRef(truncateMessagesAfter);
+  truncateRef.current = truncateMessagesAfter;
+  useEffect(() => {
+    const handler = async (e: Event) => {
+      const detail = (e as CustomEvent<ChatEditRerunDetail>).detail;
+      if (!detail?.text || !detail.conversationId || detail.afterTimestamp == null) return;
+      if (detail.conversationId !== conversation_id) return;
+      const result = await ipcBridge.conversation.deleteMessagesAfter.invoke({
+        conversation_id: detail.conversationId,
+        afterTimestamp: detail.afterTimestamp,
+      });
+      if (!result?.success) {
+        console.error('[WCoreSendBox] deleteMessagesAfter failed', result);
+      }
+      truncateRef.current(detail.afterTimestamp);
+      void onSendRef.current(detail.text);
+    };
+    window.addEventListener(EDIT_AND_RERUN_EVENT, handler);
+    return () => window.removeEventListener(EDIT_AND_RERUN_EVENT, handler);
   }, [conversation_id]);
 
   // Report the turn-running state up so the inline orbit "thinking" indicator

@@ -5,7 +5,6 @@
  */
 
 import { ipcBridge } from '@/common';
-import { DEFAULT_CODEX_MODELS } from '@/common/types/codex/codexModels';
 import type { IProvider } from '@/common/config/storage';
 import { ConfigStorage } from '@/common/config/storage';
 import type { AcpBackendAll, AcpSessionConfigOption } from '@/common/types/acpTypes';
@@ -487,6 +486,35 @@ export const useGuidAgentSelection = ({
     };
   }, [selectedAgent, isPresetAgent, currentEffectiveAgentInfo.agentType]);
 
+  // Eagerly resolve a missing per-backend model catalog (Claude Code has no
+  // acp.cachedModels entry until a session connects) via getModelInfo, which
+  // falls back to local config (~/.claude / cc-switch) with no live task. Without
+  // this the LAUNCH picker shows "Default Model" until the first message is sent.
+  useEffect(() => {
+    const backend = isPresetAgent
+      ? currentEffectiveAgentInfo.agentType
+      : selectedAgentKey.startsWith('custom:')
+        ? 'custom'
+        : selectedAgentKey;
+    if (!backend || acpCachedModels[backend]?.availableModels?.length) return;
+    let active = true;
+    ipcBridge.acpConversation.getModelInfo
+      .invoke({ conversationId: '', backend })
+      .then((res) => {
+        const info = res?.success ? res.data?.modelInfo : null;
+        if (!active || !info?.availableModels?.length) return;
+        setAcpCachedModels((prev) =>
+          prev[backend]?.availableModels?.length ? prev : { ...prev, [backend]: info }
+        );
+      })
+      .catch(() => {
+        // Offline resolve is best-effort; the picker keeps its default until connect.
+      });
+    return () => {
+      active = false;
+    };
+  }, [isPresetAgent, currentEffectiveAgentInfo.agentType, selectedAgentKey, acpCachedModels]);
+
   const currentAcpCachedModelInfo = useMemo(() => {
     // For preset agents, resolve to the actual backend type for model list lookup
     const backend = isPresetAgent
@@ -497,18 +525,10 @@ export const useGuidAgentSelection = ({
     const cached = acpCachedModels[backend];
     if (cached) return cached;
 
-    // Fallback: when no cached models exist for codex (e.g., first launch or stale cache),
-    // use the hardcoded default list so the Guid page shows a model selector immediately.
-    if (backend === 'codex' && DEFAULT_CODEX_MODELS.length > 0) {
-      return {
-        source: 'models' as const,
-        currentModelId: DEFAULT_CODEX_MODELS[0].id,
-        currentModelLabel: DEFAULT_CODEX_MODELS[0].label,
-        availableModels: DEFAULT_CODEX_MODELS.map((m) => ({ id: m.id, label: m.label })),
-        canSwitch: true,
-      } satisfies AcpModelInfo;
-    }
-
+    // No cached catalog for this backend yet. Return null (no hardcoded list):
+    // GuidModelSelector then sources its unified model list from the live curated
+    // catalog (`curatedForAgent`), so an enumerable CLI like Codex surfaces live
+    // GPT models instead of a stale fallback.
     return null;
   }, [selectedAgentKey, acpCachedModels, isPresetAgent, currentEffectiveAgentInfo.agentType]);
 

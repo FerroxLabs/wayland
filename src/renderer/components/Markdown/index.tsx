@@ -125,6 +125,17 @@ const MarkdownView: React.FC<MarkdownViewProps> = React.memo(
           }
           return <img {...imgProps} />;
         },
+        hr: ({ node: _node, ...rest }: Record<string, unknown>) => (
+          <hr
+            {...(rest as React.HTMLAttributes<HTMLHRElement>)}
+            style={{
+              ...(rest as { style?: React.CSSProperties }).style,
+              border: 'none',
+              borderTop: '1px solid var(--bg-3)',
+              margin: '20px 0',
+            }}
+          />
+        ),
       }),
       [codeStyle, hiddenCodeCopyButton, handleLinkClick]
     );

@@ -9,6 +9,7 @@
     "selectModel": "选择模型",
     "useCliModel": "选择模型",
     "modelSwitchNotSupported": "首次连接后将显示可用模型列表。请先发送消息以连接并加载可用模型。",
+    "modelLoading": "正在加载模型…",
     "fluxGroupLabel": "Flux",
     "nativeModelsGroupLabel": "智能体模型",
     "specifyWorkspace": "关联文件夹",

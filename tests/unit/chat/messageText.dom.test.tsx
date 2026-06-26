@@ -55,6 +55,7 @@ vi.mock('@arco-design/web-react', () => ({
 
 vi.mock('@icon-park/react', () => ({
   Copy: () => <span data-testid='copy-icon' />,
+  Edit: () => <span data-testid='edit-icon' />,
 }));
 
 vi.mock('react-i18next', () => ({

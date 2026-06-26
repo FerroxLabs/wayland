@@ -5,6 +5,8 @@
  */
 
 import type { CodexToolCallUpdate } from '@/common/chat/chatLib';
+import { codexResultsToSources } from '@/common/chat/activity/sources';
+import SourceBlock from '@/renderer/components/chat/observability/SourceBlock';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import BaseToolCallDisplay from './BaseToolCallDisplay';
@@ -46,6 +48,13 @@ const WebSearchDisplay: React.FC<{ content: WebSearchUpdate }> = ({ content }) =
             <span className='text-primary font-medium'>{data.query}</span>
           </div>
         </div>
+      )}
+      {/* Source cards when Codex results are available */}
+      {subtype === 'web_search_end' && 'results' in data && data.results && data.results.length > 0 && (
+        <SourceBlock
+          sources={codexResultsToSources(data.results)}
+          query={'query' in data ? data.query : undefined}
+        />
       )}
     </BaseToolCallDisplay>
   );

@@ -53,7 +53,15 @@ vi.mock('../../src/process/agent/acp/AcpConnection', () => ({
     };
   }),
 }));
-vi.mock('../../src/process/task/AcpAgentManager', () => ({ default: vi.fn() }));
+const { getStaticModelInfoMock } = vi.hoisted(() => ({
+  getStaticModelInfoMock: vi.fn(async () => null),
+}));
+vi.mock('../../src/process/task/AcpAgentManager', () => {
+  const ctor = vi.fn();
+  (ctor as unknown as { getStaticModelInfo: typeof getStaticModelInfoMock }).getStaticModelInfo =
+    getStaticModelInfoMock;
+  return { default: ctor };
+});
 vi.mock('../../src/process/task/GeminiAgentManager', () => ({ GeminiAgentManager: vi.fn() }));
 
 vi.mock('../../src/process/services/mcpServices/McpService', () => ({
@@ -113,6 +121,49 @@ describe('acpConversationBridge', () => {
     await handlers['getMode']({ conversationId: 'c1' });
 
     expect(taskManager.getTask).toHaveBeenCalledWith('c1');
+  });
+
+  // --- getModelInfo (cold-start eager path) ---
+
+  it('getModelInfo derives the catalog from the backend when no task exists yet', async () => {
+    vi.mocked(taskManager.getTask).mockReturnValue(undefined);
+    const claudeInfo = {
+      currentModelId: 'opus',
+      currentModelLabel: 'Claude Opus 4.8',
+      availableModels: [
+        { id: 'opus', label: 'Claude Opus 4.8' },
+        { id: 'default', label: 'Claude Sonnet 4.5' },
+        { id: 'haiku', label: 'Claude Haiku 4.5' },
+      ],
+      canSwitch: true,
+      source: 'models',
+      sourceDetail: 'cc-switch',
+    };
+    getStaticModelInfoMock.mockResolvedValueOnce(claudeInfo as never);
+
+    const result = await handlers['getModelInfo']({ conversationId: 'new-chat', backend: 'claude' });
+
+    expect(getStaticModelInfoMock).toHaveBeenCalledWith('claude');
+    expect(result).toEqual({ success: true, data: { modelInfo: claudeInfo } });
+  });
+
+  it('getModelInfo returns null modelInfo when no task and no backend is provided', async () => {
+    vi.mocked(taskManager.getTask).mockReturnValue(undefined);
+
+    const result = await handlers['getModelInfo']({ conversationId: 'new-chat' });
+
+    expect(getStaticModelInfoMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ success: true, data: { modelInfo: null } });
+  });
+
+  it('getModelInfo returns null modelInfo for a backend with no offline catalog', async () => {
+    vi.mocked(taskManager.getTask).mockReturnValue(undefined);
+    getStaticModelInfoMock.mockResolvedValueOnce(null);
+
+    const result = await handlers['getModelInfo']({ conversationId: 'new-chat', backend: 'goose' });
+
+    expect(getStaticModelInfoMock).toHaveBeenCalledWith('goose');
+    expect(result).toEqual({ success: true, data: { modelInfo: null } });
   });
 
   // --- refreshCustomAgents ---

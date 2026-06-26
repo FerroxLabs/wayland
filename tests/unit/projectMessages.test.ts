@@ -100,3 +100,77 @@ describe('projectMessages.activityToSteps', () => {
     expect(steps[0]).toMatchObject({ label: 'Searching the codebase', glyph: 'search' });
   });
 });
+
+describe('projectMessages.toolGroupToNodes - web_search sources', () => {
+  it('attaches parsed sources when a web_search tool has JSON array output', () => {
+    const msg: IMessageToolGroup = {
+      type: 'tool_group',
+      content: [
+        {
+          callId: 'ws1',
+          name: 'web_search',
+          description: '',
+          renderOutputAsMarkdown: false,
+          status: 'Success',
+          resultDisplay: JSON.stringify([{ title: 'Example', url: 'https://example.com' }]),
+        },
+      ],
+    } as unknown as IMessageToolGroup;
+    const nodes = toolGroupToNodes(msg.content);
+    expect(nodes[0].sources).toHaveLength(1);
+    expect(nodes[0].sources?.[0]).toMatchObject({ title: 'Example', url: 'https://example.com', domain: 'example.com' });
+  });
+
+  it('leaves sources undefined when the web_search output is prose (not JSON)', () => {
+    const msg: IMessageToolGroup = {
+      type: 'tool_group',
+      content: [
+        {
+          callId: 'ws2',
+          name: 'web_search',
+          description: '',
+          renderOutputAsMarkdown: false,
+          status: 'Success',
+          resultDisplay: 'No results found.',
+        },
+      ],
+    } as unknown as IMessageToolGroup;
+    const nodes = toolGroupToNodes(msg.content);
+    expect(nodes[0].sources).toBeUndefined();
+  });
+
+  it('attaches sources for the bare native `web` tool with { data: { web: [...] } }', () => {
+    // The Flux native web tool is named `web` (operation=search in args) and
+    // returns this envelope. Captured + verified live against Flux 0.12.8.
+    const msg: IMessageToolGroup = {
+      type: 'tool_group',
+      content: [
+        {
+          callId: 'web1',
+          name: 'web',
+          description: '',
+          renderOutputAsMarkdown: true,
+          status: 'Success',
+          resultDisplay: JSON.stringify({
+            data: { web: [{ title: 'WinBuzzer', url: 'https://winbuzzer.com/ai/openai/', snippet: '# OpenAI' }] },
+            success: true,
+          }),
+        },
+      ],
+    } as unknown as IMessageToolGroup;
+    const nodes = toolGroupToNodes(msg.content);
+    expect(nodes[0].sources).toHaveLength(1);
+    expect(nodes[0].sources?.[0]).toMatchObject({ title: 'WinBuzzer', domain: 'winbuzzer.com' });
+  });
+
+  it('does not attach sources for non-search tools', () => {
+    const msg: IMessageToolGroup = {
+      type: 'tool_group',
+      content: [
+        { callId: 'r1', name: 'Read', description: '', renderOutputAsMarkdown: false, status: 'Success', resultDisplay: '/some/file.ts' },
+      ],
+    } as unknown as IMessageToolGroup;
+    const nodes = toolGroupToNodes(msg.content);
+    expect(nodes[0].sources).toBeUndefined();
+  });
+});

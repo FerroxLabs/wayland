@@ -91,6 +91,15 @@ describe('useAutoScroll - streaming content scroll', () => {
     vi.useRealTimers();
   });
 
+  // The streaming scroll runs inside a double requestAnimationFrame (it reads
+  // scrollHeight only after Virtuoso finishes its rAF-based relayout). Tests must
+  // advance frames after a rerender before asserting the resulting scrollTop.
+  const flushFrames = () => {
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+  };
+
   it('scrolls to bottom when messages update and user has not scrolled up', () => {
     const msg1 = makeTextMessage('m1', 'Hello');
     const messages1 = [msg1];
@@ -104,6 +113,7 @@ describe('useAutoScroll - streaming content scroll', () => {
     act(() => {
       rerender(<HarnessInner messages={messages2} itemCount={1} scrollerRef={scrollerRef} />);
     });
+    flushFrames();
 
     // The effect should have scrolled to bottom: scrollTop = scrollHeight - clientHeight = 600
     expect(scrollerDiv.scrollTop).toBe(600);
@@ -180,6 +190,7 @@ describe('useAutoScroll - streaming content scroll', () => {
     act(() => {
       rerender(<HarnessInner messages={messages2} itemCount={1} scrollerRef={scrollerRef} />);
     });
+    flushFrames();
 
     // Should scroll to bottom: 1200 - 400 = 800
     expect(scrollerDiv.scrollTop).toBe(800);
@@ -191,6 +202,7 @@ describe('useAutoScroll - streaming content scroll', () => {
     act(() => {
       rerender(<HarnessInner messages={messages3} itemCount={1} scrollerRef={scrollerRef} />);
     });
+    flushFrames();
 
     // Should scroll to new bottom: 1500 - 400 = 1100
     expect(scrollerDiv.scrollTop).toBe(1100);

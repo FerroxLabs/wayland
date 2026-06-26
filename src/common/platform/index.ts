@@ -13,6 +13,18 @@ export function getDevAppName(): string {
   return isMultiInstance ? 'Wayland-Dev-2' : 'Wayland-Dev';
 }
 
+/**
+ * The userData directory name. WAYLAND_DEV_PROFILE lets N isolated dev instances
+ * each get their own userData while keeping the base app NAME (getDevAppName) —
+ * and therefore the base profile's OS-keychain (safeStorage) identity. Without
+ * this split, an isolated instance runs under a new app name and can no longer
+ * decrypt credentials copied from the base profile, silently losing all keys.
+ */
+export function getDevProfileDir(): string {
+  const custom = process.env.WAYLAND_DEV_PROFILE?.trim();
+  return custom || getDevAppName();
+}
+
 export function registerPlatformServices(services: IPlatformServices): void {
   _services = services;
 }
@@ -42,7 +54,7 @@ export function getPlatformServices(): IPlatformServices {
         if (!app.isPackaged) {
           const devAppName = getDevAppName();
           app.setName(devAppName);
-          app.setPath('userData', path.join(path.dirname(app.getPath('userData')), devAppName));
+          app.setPath('userData', path.join(path.dirname(app.getPath('userData')), getDevProfileDir()));
         }
         // Typed as IPlatformPaths so tsc enforces completeness: any new method
         // added to the interface will cause a compile error here if omitted below.

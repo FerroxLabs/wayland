@@ -284,6 +284,9 @@ export type WCoreCommand =
   | { type: 'stop' }
   | { type: 'tool_approve'; call_id: string; scope: 'once' | 'always' }
   | { type: 'tool_deny'; call_id: string; reason?: string }
+  // W7 S4 HITL: resume a suspended turn waiting on an `approval_required`.
+  // Engine-side resolve is idempotent — a stale/duplicate token is ignored.
+  | { type: 'approval_resume'; resume_token: string; approved: boolean }
   | { type: 'init_history'; text: string }
   | { type: 'set_mode'; mode: 'default' | 'auto_edit' | 'yolo' }
   | {

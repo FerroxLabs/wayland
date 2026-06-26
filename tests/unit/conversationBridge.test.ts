@@ -45,6 +45,7 @@ vi.mock('../../src/common', () => ({
       },
       listChanged: { emit: vi.fn() },
       listByCronJob: makeChannel('listByCronJob'),
+      deleteMessagesAfter: makeChannel('deleteMessagesAfter'),
     },
     openclawConversation: {
       getRuntime: makeChannel('openclawConversation.getRuntime'),
