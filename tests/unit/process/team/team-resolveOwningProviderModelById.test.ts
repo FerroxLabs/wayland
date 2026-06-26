@@ -9,7 +9,7 @@
 // reported failure: providers[0] is the Flux entry, so the spawn sent an
 // sk-flux key to an OpenAI surface -> 401 invalid_api_key.
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockIpcBridge = vi.hoisted(() => ({
   team: {
@@ -35,12 +35,22 @@ import { TeamSessionService } from '@process/team/TeamSessionService';
 import type { ITeamRepository } from '@process/team/repository/ITeamRepository';
 import type { IConversationService } from '@process/services/IConversationService';
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
 function makeService(): TeamSessionService {
   const repo = {} as ITeamRepository;
   const conversationService = {} as IConversationService;
   const workerTaskManager = { getOrBuildTask: vi.fn(), kill: vi.fn() };
-  return new TeamSessionService(repo, workerTaskManager as never, conversationService);
+  const svc = new TeamSessionService(repo, workerTaskManager as never, conversationService);
+  services.push(svc);
+  return svc;
 }
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
 
 // Two enabled providers, openai FIRST (reproduces the providers[0] bug):
 // the pinned model 'claude-sonnet-4' lives on the flux provider only.
@@ -52,9 +62,7 @@ const TWO_PROVIDERS = [
 describe('TeamSessionService.resolveOwningProviderModelById (#87)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockProcessConfig.get.mockImplementation(async (key: string) =>
-      key === 'model.config' ? TWO_PROVIDERS : null
-    );
+    mockProcessConfig.get.mockImplementation(async (key: string) => (key === 'model.config' ? TWO_PROVIDERS : null));
   });
 
   it('selects the provider that OWNS the pinned model, not providers[0]', async () => {
@@ -78,7 +86,15 @@ describe('TeamSessionService.resolveOwningProviderModelById (#87)', () => {
   it('skips a provider that has the model disabled', async () => {
     mockProcessConfig.get.mockImplementation(async (key: string) =>
       key === 'model.config'
-        ? [{ id: 'flux', enabled: true, apiKey: 'sk-flux', model: ['claude-sonnet-4'], modelEnabled: { 'claude-sonnet-4': false } }]
+        ? [
+            {
+              id: 'flux',
+              enabled: true,
+              apiKey: 'sk-flux',
+              model: ['claude-sonnet-4'],
+              modelEnabled: { 'claude-sonnet-4': false },
+            },
+          ]
         : null
     );
     const svc = makeService() as unknown as {

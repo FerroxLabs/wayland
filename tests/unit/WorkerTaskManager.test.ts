@@ -45,32 +45,43 @@ function makeConversation(id: string, type: AgentType = 'gemini') {
 
 describe('WorkerTaskManager', () => {
   let repo: IConversationRepository;
+  // Track every manager built in a test so afterEach can dispose it. Each
+  // WorkerTaskManager starts a 60s idle-check setInterval in its constructor;
+  // left un-cleared, those ref'd timers keep the vitest fork worker's event
+  // loop alive and hang the unit shard under CI load (#353).
+  const managers: WorkerTaskManager[] = [];
+  const newManager = (...args: ConstructorParameters<typeof WorkerTaskManager>): WorkerTaskManager => {
+    const mgr = new WorkerTaskManager(...args);
+    managers.push(mgr);
+    return mgr;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
     repo = makeRepo();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.useRealTimers();
+    await Promise.all(managers.splice(0).map((mgr) => mgr.clear()));
   });
 
   // --- getTask / addTask ---
 
   it('getTask returns undefined for unknown id', () => {
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
     expect(mgr.getTask('unknown')).toBeUndefined();
   });
 
   it('addTask stores task and getTask returns it', () => {
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
     const agent = makeAgent();
     mgr.addTask('c1', agent as any);
     expect(mgr.getTask('c1')).toBe(agent);
   });
 
   it('addTask replaces existing task with same id and kills the old one', () => {
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
     const agent1 = makeAgent('c1', 'gemini');
     const agent2 = makeAgent('c1', 'acp');
     mgr.addTask('c1', agent1 as any);
@@ -83,7 +94,7 @@ describe('WorkerTaskManager', () => {
 
   it('kill removes task from list and calls task.kill()', () => {
     const agent = makeAgent();
-    const mgr = new WorkerTaskManager(makeFactory(agent) as any, repo);
+    const mgr = newManager(makeFactory(agent) as any, repo);
     mgr.addTask('c1', agent as any);
     mgr.kill('c1');
     expect(mgr.getTask('c1')).toBeUndefined();
@@ -99,7 +110,7 @@ describe('WorkerTaskManager', () => {
       status: 'finished',
       lastActivityAt: Date.now() - 6 * 60 * 1000,
     };
-    const mgr = new WorkerTaskManager(makeFactory(agent) as any, repo);
+    const mgr = newManager(makeFactory(agent) as any, repo);
     mgr.addTask('c1', agent as any);
 
     vi.advanceTimersByTime(1 * 60 * 1000 + 1);
@@ -111,7 +122,7 @@ describe('WorkerTaskManager', () => {
   });
 
   it('kill is a no-op for unknown id', () => {
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
     expect(() => mgr.kill('nonexistent')).not.toThrow();
   });
 
@@ -121,7 +132,7 @@ describe('WorkerTaskManager', () => {
     vi.useFakeTimers();
     const agent1 = makeAgent('c1', 'gemini');
     const agent2 = makeAgent('c2', 'acp');
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
     mgr.addTask('c1', agent1 as any);
     mgr.addTask('c2', agent2 as any);
     const clearPromise = mgr.clear();
@@ -135,7 +146,7 @@ describe('WorkerTaskManager', () => {
   // --- listTasks ---
 
   it('listTasks returns id and type for each task', () => {
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
     mgr.addTask('c1', makeAgent('c1', 'gemini') as any);
     mgr.addTask('c2', makeAgent('c2', 'acp') as any);
     mgr.addTask('c3', makeAgent('c3', 'nanobot') as any);
@@ -151,7 +162,7 @@ describe('WorkerTaskManager', () => {
   it('returns cached task without hitting repo on second call', async () => {
     const agent = makeAgent();
     const factory = makeFactory(agent);
-    const mgr = new WorkerTaskManager(factory as any, repo);
+    const mgr = newManager(factory as any, repo);
     mgr.addTask('c1', agent as any);
 
     const result = await mgr.getOrBuildTask('c1');
@@ -167,7 +178,7 @@ describe('WorkerTaskManager', () => {
     const factory = makeFactory(agent);
     vi.mocked(repo.getConversation).mockReturnValue(makeConversation('c1', 'gemini') as any);
 
-    const mgr = new WorkerTaskManager(factory as any, repo);
+    const mgr = newManager(factory as any, repo);
     const result = await mgr.getOrBuildTask('c1');
 
     expect(repo.getConversation).toHaveBeenCalledWith('c1');
@@ -180,7 +191,7 @@ describe('WorkerTaskManager', () => {
     const factory = makeFactory(agent);
     vi.mocked(repo.getConversation).mockReturnValue(makeConversation('c1') as any);
 
-    const mgr = new WorkerTaskManager(factory as any, repo);
+    const mgr = newManager(factory as any, repo);
     await mgr.getOrBuildTask('c1');
     await mgr.getOrBuildTask('c1'); // second call should use cache
     expect(factory.create).toHaveBeenCalledTimes(1);
@@ -190,14 +201,14 @@ describe('WorkerTaskManager', () => {
 
   it('rejects with error when repo returns undefined', async () => {
     vi.mocked(repo.getConversation).mockReturnValue(undefined);
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
 
     await expect(mgr.getOrBuildTask('missing')).rejects.toThrow('Conversation not found: missing');
   });
 
   it('rejects when skipCache is set and repo returns undefined', async () => {
     vi.mocked(repo.getConversation).mockReturnValue(undefined);
-    const mgr = new WorkerTaskManager(makeFactory() as any, repo);
+    const mgr = newManager(makeFactory() as any, repo);
 
     await expect(mgr.getOrBuildTask('missing', { skipCache: true })).rejects.toThrow('Conversation not found: missing');
   });
@@ -209,7 +220,7 @@ describe('WorkerTaskManager', () => {
     const factory = makeFactory(agent);
     vi.mocked(repo.getConversation).mockReturnValue(makeConversation('c1') as any);
 
-    const mgr = new WorkerTaskManager(factory as any, repo);
+    const mgr = newManager(factory as any, repo);
     mgr.addTask('c1', agent as any);
     await mgr.getOrBuildTask('c1', { skipCache: true });
 

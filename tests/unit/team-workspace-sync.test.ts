@@ -154,6 +154,10 @@ function makeLeadAgent(overrides: Partial<TeamAgent> = {}): Omit<TeamAgent, 'slo
   };
 }
 
+// Each TeamSessionService starts a 60s Watchdog sweep setInterval in its
+// constructor; left un-stopped, those ref'd timers keep the vitest fork
+// worker's event loop alive and hang the unit shard under CI load (#353).
+const services: TeamSessionService[] = [];
 function makeService(
   options: {
     autoWorkspace?: string;
@@ -164,8 +168,13 @@ function makeService(
   const repo = makeRepo(options.repoOverrides ?? {});
   const workerTaskManager = makeWorkerTaskManager();
   const service = new TeamSessionService(repo, workerTaskManager, conversationService);
+  services.push(service);
   return { service, repo, conversationService, workerTaskManager };
 }
+
+afterEach(async () => {
+  await Promise.all(services.splice(0).map((svc) => svc.stopAllSessions()));
+});
 
 // ---------------------------------------------------------------------------
 // Case 1: createTeam - empty workspace back-fills from leader conversation.extra.workspace
