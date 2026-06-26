@@ -566,10 +566,28 @@ const AcpModelSelector: React.FC<{
     );
   }
 
-  // State 1b: Cache lookup finished and there are genuinely no cached/live
-  // models for this backend (never connected) - show the first-connection
-  // guidance so the user knows a message will surface the catalog.
+  // State 1b: Cache lookup finished and the agent has not produced live/cached
+  // model info yet. When this backend maps to a connected provider whose curated
+  // catalog is non-empty (claude->anthropic, codex->openai), surface that catalog
+  // as a selectable dropdown instead of dead-ending on the "first connection"
+  // tooltip - the curated registry is authoritative even before the agent reports
+  // its own models, so the picker should never be stuck closed here (#345; mirrors
+  // GuidModelSelector's cold-start picker, which renders off `curatedForAgent`).
+  // Selecting a row routes through `handleSelectModel` -> `setModel`, whose IPC
+  // result lands the real `modelInfo`. Fall back to the guidance tooltip only when
+  // there are genuinely no curated models (vendor CLIs, or no provider connected).
   if (!modelInfo) {
+    if (hasCuratedModels) {
+      return (
+        <Dropdown trigger='click' droplist={flyoutDroplist}>
+          <Button className='sendbox-model-btn header-model-btn agent-mode-compact-pill' shape='round' size='small'>
+            <span className='flex items-center gap-6px min-w-0 leading-none'>
+              <MarqueePillLabel>{defaultModelLabel}</MarqueePillLabel>
+            </span>
+          </Button>
+        </Dropdown>
+      );
+    }
     return (
       <Tooltip content={t('conversation.welcome.modelSwitchNotSupported')} position='top'>
         <Button
