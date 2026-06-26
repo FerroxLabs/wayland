@@ -445,40 +445,32 @@ jobs:
       # is rejected, not silently accepted), and clear every cache so the download
       # is genuinely fresh. Assert path.txt + the binary so a bad install fails HERE.
       - name: Ensure Electron binary is installed
+        # Official host only, with retries — matches the proven _build-reusable.yml
+        # path. The npmmirror mirror intermittently served a TRUNCATED zip that
+        # extracted to a single file (v8_context_snapshot.bin, ~678KB) and failed
+        # the job; dropping it removes the poison source. Each attempt uses a fresh
+        # cache and asserts a COMPLETE dist (path.txt + the executable it names)
+        # before continuing, so a partial download retries instead of passing.
         env:
-          electron_use_remote_checksums: '1'
+          ELECTRON_MIRROR: ''
+          npm_config_disturl: 'https://electronjs.org/headers'
         run: |
           set -ex
-          install_electron() {
-            # install.js downloads via @electron/get with
-            # `cacheRoot: process.env.electron_config_cache` — so THAT is the var
-            # that controls the cache dir (NOT ELECTRON_CACHE, and NOT the
-            # ~/.cache/electron the old code rm'd, which missed the runner's real
-            # $XDG_CACHE_HOME/electron). A per-attempt fresh mktemp cacheRoot
-            # guarantees the official-host retry can't reuse the corrupt npmmirror
-            # zip (which previously got re-extracted in <1s into an incomplete
-            # dist with no path.txt). force_no_cache=true also passes force:true.
-            export electron_config_cache="$(mktemp -d)"
-            rm -rf node_modules/electron/dist node_modules/electron/path.txt
-            force_no_cache=true node node_modules/electron/install.js
-          }
-          # A complete install has BOTH path.txt and the executable it points at.
-          # Checking only path.txt let a truncated extraction (v8_context_snapshot
-          # present, binary missing) pass the gate.
           electron_ok() {
             [ -s node_modules/electron/path.txt ] \
               && [ -x "node_modules/electron/dist/$(cat node_modules/electron/path.txt)" ]
           }
-          # Try the npmmirror mirror first (fast in CI's region). It intermittently
-          # produces an incomplete extraction — when that happens, fall back to the
-          # official electron host with a clean cache instead of hard-failing.
-          # Assert completeness at the end so a genuinely-broken install fails HERE.
-          ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ install_electron || true
-          if ! electron_ok; then
-            echo "npmmirror install incomplete; retrying from the official electron host with a clean cache"
-            unset ELECTRON_MIRROR
-            install_electron
-          fi
+          for attempt in 1 2 3 4; do
+            export electron_config_cache="$(mktemp -d)"
+            rm -rf node_modules/electron/dist node_modules/electron/path.txt
+            node node_modules/electron/install.js || true
+            if electron_ok; then
+              echo "electron installed OK (attempt $attempt)"
+              break
+            fi
+            echo "electron install incomplete (attempt $attempt); retrying after backoff"
+            sleep $((attempt * 5))
+          done
           ls -la node_modules/electron/dist | head -12
           electron_ok
           node -e "const p=require('electron'); require('node:fs').accessSync(p); console.log('electron binary OK:', p)"
