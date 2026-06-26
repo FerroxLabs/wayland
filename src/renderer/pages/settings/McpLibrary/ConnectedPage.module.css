@@ -1,0 +1,102 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 32px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-card-inner);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.titleLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.name {
+  font-size: var(--type-14);
+  font-weight: 600;
+  color: var(--color-text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.extBadge {
+  font-size: var(--type-11);
+  color: var(--color-text-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-button);
+  padding: 1px 6px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--type-12);
+  color: var(--color-text-3);
+}
+
+.error {
+  font-size: var(--type-12);
+  color: var(--danger);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 520px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.empty {
+  font-size: var(--type-14);
+  color: var(--color-text-3);
+  padding: 24px 0;
+  text-align: center;
+}
+
+.staleSection {
+  margin-top: 12px;
+}
+
+.staleIcon {
+  color: var(--warning);
+  flex-shrink: 0;
+}
