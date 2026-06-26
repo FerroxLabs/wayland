@@ -138,9 +138,12 @@ describe('BrowseModal', () => {
     expect(screen.getByText('settings.modelsPage.browse.byo.title')).toBeInTheDocument();
     expect(screen.queryByText('settings.modelsPage.browse.group.cloud')).not.toBeInTheDocument();
 
-    // Every provider still has exactly one connect surface (featured Flux + 6
-    // BYO cards + the rest grouped = 33 data-provider tiles).
-    expect(tiles().length).toBe(33);
+    // Every provider still has exactly one connect surface (featured Flux + the
+    // BYO cards led by openai-compatible + the rest grouped = 34 data-provider
+    // tiles), and no provider renders a duplicate connect surface.
+    const tileIds = tiles().map((el) => el.getAttribute('data-provider'));
+    expect(tileIds.length).toBe(34);
+    expect(new Set(tileIds).size).toBe(34);
     // The custom OpenAI-compatible endpoint leads the BYO section.
     expect(document.querySelector('[data-provider="openai-compatible"]')).toBeInTheDocument();
   });
@@ -353,7 +356,7 @@ describe('BrowseModal', () => {
     fireEvent.click(screen.getByText('settings.modelsPage.browse.back'));
 
     // The grid is back.
-    await waitFor(() => expect(tiles().length).toBe(33));
+    await waitFor(() => expect(tiles().length).toBe(34));
   });
 
   // ---- Ship-gate Fix B2 ----------------------------------------------------

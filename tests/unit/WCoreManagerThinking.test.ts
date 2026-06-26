@@ -312,16 +312,20 @@ describe('GAP-1: WCoreManager Thinking Message Display & Persistence', () => {
     });
 
     it('persists accumulated content, not just the latest chunk', () => {
+      // Use genuinely-incremental deltas (no shared head). dedupeThinkingDelta
+      // intentionally drops cumulative restates that share a long prefix, so
+      // synthetic chunks like "part1"/"part2" (80% common head) are correctly
+      // collapsed — they don't model the engine's real incremental thought stream.
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
-      emitEvent(manager, { type: 'thought', data: 'part1', msg_id: 'msg-1' });
-      emitEvent(manager, { type: 'thought', data: 'part2', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'thought', data: 'The user ', msg_id: 'msg-1' });
+      emitEvent(manager, { type: 'thought', data: 'wants this', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'content', data: 'response', msg_id: 'msg-1' });
 
       const thinkingDbCalls = mockAddOrUpdateMessage.mock.calls.filter(
         ([, msg]: [string, { type: string }]) => msg.type === 'thinking'
       );
       const lastCall = thinkingDbCalls[thinkingDbCalls.length - 1];
-      expect(lastCall[1].content.content).toBe('part1part2');
+      expect(lastCall[1].content.content).toBe('The user wants this');
     });
   });
 

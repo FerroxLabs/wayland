@@ -16,6 +16,7 @@
 
 import { describe, it, expect, afterEach } from 'vitest';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { IjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
 import type { WatcherFactory } from '@process/services/memory/ijfwArchiveService';
@@ -23,9 +24,13 @@ import type { WatcherFactory } from '@process/services/memory/ijfwArchiveService
 const noopWatcherFactory: WatcherFactory = () => ({ close: () => undefined });
 
 // The archive service skips any project path containing '/tmp/' or 'Temp/', so
-// fixtures cannot live under os.tmpdir(); use a repo-local scratch dir.
+// fixtures cannot live under os.tmpdir() — NOR under process.cwd() when the
+// checkout itself lives in a temp dir (e.g. a /private/tmp git worktree). Root
+// under the real homedir, which never contains '/tmp/'.
 function makeTmpDir(): string {
-  return fs.mkdtempSync(path.join(process.cwd(), '.test-tmp-import-keys-'));
+  const scratchRoot = path.join(os.homedir(), '.ijfw-test-scratch');
+  fs.mkdirSync(scratchRoot, { recursive: true });
+  return fs.mkdtempSync(path.join(scratchRoot, 'import-keys-'));
 }
 
 function writeFile(dir: string, filename: string, content: string): void {

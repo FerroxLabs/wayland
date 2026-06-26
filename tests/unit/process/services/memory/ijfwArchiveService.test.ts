@@ -6,6 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { IjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
 import type { WatcherFactory } from '@process/services/memory/ijfwArchiveService';
@@ -16,10 +17,14 @@ const noopWatcherFactory: WatcherFactory = () => ({ close: () => undefined });
 
 function makeTmpDir(): string {
   // The archive service deliberately skips any project path containing '/tmp/'
-  // or 'Temp/' (ijfwArchiveService.ts:312) so a stale registry pointing at junk
+  // or 'Temp/' (ijfwArchiveService.ts:389) so a stale registry pointing at junk
   // temp dirs never populates the archive page. Fixtures therefore cannot live
-  // under os.tmpdir(); use a repo-local scratch dir (cleaned up in afterEach).
-  return fs.mkdtempSync(path.join(process.cwd(), '.test-tmp-memory-'));
+  // under os.tmpdir() — NOR under process.cwd() when the checkout itself lives in
+  // a temp dir (e.g. a /private/tmp git worktree), which silently dropped every
+  // fixture. Root under the real homedir, which never contains '/tmp/'.
+  const scratchRoot = path.join(os.homedir(), '.ijfw-test-scratch');
+  fs.mkdirSync(scratchRoot, { recursive: true });
+  return fs.mkdtempSync(path.join(scratchRoot, 'memory-'));
 }
 
 function writeMemoryFile(dir: string, filename: string, entries: string[]): void {
