@@ -1822,6 +1822,10 @@ export type IModelRegistryConnectResult = {
    * Non-fatal advisory on an otherwise successful connect. `'no-credit'` means
    * the key authenticated but has no usable credit yet, so the provider was
    * added connected-but-switched-off (#100); the panel surfaces a soft notice.
+   * `'no-models'` means a custom OpenAI-compatible base authenticated but exposes
+   * no model listing (e.g. Cloudflare Workers AI has no `/models`, #339), so the
+   * provider was added connected with an empty catalog - the user supplies a
+   * model id manually.
    */
   warning?: ConnectError;
 };

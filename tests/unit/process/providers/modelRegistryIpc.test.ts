@@ -277,6 +277,39 @@ describe('modelRegistry IPC - connect', () => {
     expect(repo.getRegistryCatalog('openai').map((m) => m.id)).toEqual(['gpt-4o']);
   });
 
+  it('lands an auth-OK custom base with no /models listing as connected-but-empty, not error (#339)', async () => {
+    // Cloudflare Workers AI authenticates (ConnectionTester proved it via the
+    // chat fallback) but exposes no /models, so the catalog build lists nothing
+    // (the /models GET throws -> sourceErrors > 0). The connect must land the
+    // provider connected with a `no-models` warning instead of flipping it to
+    // error/rejecting - otherwise a working endpoint can never be added.
+    const { deps, repo, apiListModels } = makeFakes();
+    apiListModels.mockRejectedValue(new Error('404 no /models on this gateway'));
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({
+      providerId: 'openai-compatible',
+      creds: { key: 'cf-token', baseUrl: 'https://api.cloudflare.com/client/v4/accounts/abc/ai/v1' },
+    });
+
+    expect(result).toEqual({ ok: true, warning: 'no-models' });
+    expect(repo.getRegistryProvider('openai-compatible')?.state).toBe('connected');
+    expect(repo.getRegistryCatalog('openai-compatible')).toEqual([]);
+  });
+
+  it('still rejects a CANONICAL provider whose catalog build lists nothing (no false green)', async () => {
+    // The custom-base exemption must NOT leak to canonical providers: an openai
+    // connect whose catalog build errors to empty is still a hard failure.
+    const { deps, repo, apiListModels } = makeFakes();
+    apiListModels.mockRejectedValue(new Error('listing failed'));
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({ providerId: 'openai', creds: { key: 'sk-test' } });
+
+    expect(result).toEqual({ ok: false, error: 'unknown' });
+    expect(repo.getRegistryProvider('openai')?.state).toBe('error');
+  });
+
   it('threads the catalog baseUrl when a catalog provider has no hardcoded endpoint (#63)', async () => {
     const { deps, test } = makeFakes();
     const h = createModelRegistryHandlers(deps);

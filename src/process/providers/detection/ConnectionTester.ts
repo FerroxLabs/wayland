@@ -41,6 +41,12 @@ import { ANTHROPIC_VERSION, appendQuery, authStrategyFor } from './providerAuth'
 /** Per-request fetch timeout - a slow provider must not stall a connection test. */
 const FETCH_TIMEOUT_MS = 15_000;
 
+// Placeholder model for the auth-only `/chat/completions` fallback (#339). A
+// gateway without a `/models` listing can't be probed for a real model id, so
+// we send a deliberately unknown one: the gateway authenticates the key first,
+// then rejects the model - a model-level rejection is the auth-success signal.
+const CONNECTIVITY_PROBE_MODEL = 'wayland-connectivity-probe';
+
 /** Credentials for a connection test: a single API key, or multi-field creds. */
 type TestCreds = { key: string } | { fields: Record<string, string> };
 
@@ -102,11 +108,8 @@ export class ConnectionTester {
     // Probe the custom base's `/models` endpoint for an auth-only check instead -
     // a 200 there proves the key authenticates against the host it will actually
     // use, and `ApiProviderSource` already builds the catalog from the same base.
-    if (apiKey) {
-      const customModelsEndpoint = deriveModelsEndpoint(customBaseUrl);
-      if (customModelsEndpoint) {
-        return this.probeModelsEndpoint(providerId, apiKey, customModelsEndpoint);
-      }
+    if (apiKey && customBaseUrl && deriveModelsEndpoint(customBaseUrl)) {
+      return this.probeCustomBase(providerId, apiKey, customBaseUrl);
     }
 
     const testModel = TEST_MODEL[providerId];
@@ -217,6 +220,92 @@ export class ConnectionTester {
     return { ok: true };
   }
 
+  // ─── Custom-base probe (/models happy path → /chat/completions fallback) ──────
+
+  /**
+   * Probe a user-supplied custom OpenAI-compatible base URL.
+   *
+   * Happy path is the `/models` listing - a 200 with a non-empty list proves
+   * auth AND gives `ApiProviderSource` a catalog to build from. But some
+   * OpenAI-compatible gateways (e.g. Cloudflare Workers AI) expose only
+   * `/chat/completions` + `/embeddings` and NO `/models` listing, so a 404 (or
+   * an empty list) there is NOT a dead end: fall back to an auth-only
+   * `/chat/completions` probe before declaring the connection dead (#339). A
+   * 401/403 from `/models` is a genuine auth failure and is surfaced as-is - the
+   * chat fallback must never paper over a bad key.
+   */
+  private async probeCustomBase(providerId: ProviderId, apiKey: string, customBaseUrl: string): Promise<TestResult> {
+    const modelsEndpoint = deriveModelsEndpoint(customBaseUrl) as string;
+    const auth = authStrategyFor(providerId);
+    const url = auth.kind === 'query' ? appendQuery(modelsEndpoint, auth.param, apiKey) : modelsEndpoint;
+
+    let res: Response;
+    try {
+      // No `providerId` here: the OpenAI-family false-404 retry is for transient
+      // 404s on canonical hosts. A custom gateway's 404 on `/models` is the
+      // expected "no listing" signal (#339), so retrying just adds latency before
+      // the chat fallback that is going to run anyway.
+      res = await this.fetchWithTimeout(url, { method: 'GET', headers: authHeaders(auth, apiKey) });
+    } catch {
+      return { ok: false, error: 'offline' };
+    }
+    const body = await readBody(res);
+
+    if (res.ok && !modelsBodyIsEmpty(body)) return { ok: true };
+    // A real auth rejection must NOT be rescued by the chat fallback.
+    if (res.status === 401 || res.status === 403) return { ok: false, error: 'unauthorized' };
+    // `/models` is missing (404) or returned an empty list - the gateway may
+    // simply not implement a model listing. Try the auth-only chat probe.
+    if (res.status === 404 || (res.ok && modelsBodyIsEmpty(body))) {
+      return this.probeCustomChatAuth(apiKey, customBaseUrl, auth);
+    }
+    // Any other non-2xx (billing, 5xx, …) - classify as usual.
+    return { ok: false, error: classifyStatus(res.status, body) };
+  }
+
+  /**
+   * Auth-only fallback for a custom base whose `/models` listing is absent.
+   *
+   * POSTs a minimal `/chat/completions` request with a placeholder model. This
+   * checks AUTH, not real inference: a 401/403 is a bad key; a 2xx, or a 4xx that
+   * proves the request reached the model/validation layer (model-not-found, a
+   * 400/422 bad-request), means the key authenticated against the gateway even
+   * though our placeholder model is unknown - the user supplies a real model id
+   * when adding the provider. A bare 404 with no model signal means the chat
+   * endpoint does not exist either, i.e. the base URL itself is wrong.
+   */
+  private async probeCustomChatAuth(apiKey: string, customBaseUrl: string, auth: AuthStrategy): Promise<TestResult> {
+    const chatEndpoint = deriveChatCompletionsEndpoint(customBaseUrl);
+    const url = auth.kind === 'query' ? appendQuery(chatEndpoint, auth.param, apiKey) : chatEndpoint;
+    const request = { model: CONNECTIVITY_PROBE_MODEL, messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 };
+
+    let res: Response;
+    try {
+      res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: authHeaders(auth, apiKey),
+        body: JSON.stringify(request),
+      });
+    } catch {
+      return { ok: false, error: 'offline' };
+    }
+    const body = await readBody(res);
+
+    if (res.status === 401 || res.status === 403) return { ok: false, error: 'unauthorized' };
+    if (mentionsBilling(body)) return { ok: false, error: 'no-credit' };
+    if (res.ok) {
+      // A 200 authenticates AND runs inference (some gateways accept any model).
+      return bodyIsError(body) ? { ok: false, error: 'unknown' } : { ok: true };
+    }
+    // Non-2xx, non-auth: a model/validation rejection proves the key got past
+    // auth into the gateway's request handling - treat as a (degraded) connect.
+    if (isModelNotFound(res.status, body) || res.status === 400 || res.status === 422) {
+      return { ok: true };
+    }
+    // Otherwise the chat endpoint is unreachable too (wrong base URL).
+    return { ok: false, error: classifyStatus(res.status, body) };
+  }
+
   // ─── fetch with timeout ─────────────────────────────────────────────────────
 
   /**
@@ -311,6 +400,17 @@ function deriveModelsEndpoint(customBaseUrl: string | undefined): string | undef
   const base = customBaseUrl.replace(/\/+$/, '');
   if (/\/v\d+$/i.test(base)) return `${base}/models`;
   return `${base}/v1/models`;
+}
+
+/**
+ * Derive a `/chat/completions` endpoint from a user-supplied custom base URL,
+ * mirroring `deriveModelsEndpoint`'s `/vN`-vs-bare handling. Used by the
+ * auth-only fallback when the gateway has no `/models` listing (#339).
+ */
+function deriveChatCompletionsEndpoint(customBaseUrl: string): string {
+  const base = customBaseUrl.replace(/\/+$/, '');
+  if (/\/v\d+$/i.test(base)) return `${base}/chat/completions`;
+  return `${base}/v1/chat/completions`;
 }
 
 /** Auth + identification headers for a request, per the provider's scheme. */

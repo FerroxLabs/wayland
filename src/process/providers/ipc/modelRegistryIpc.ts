@@ -645,9 +645,27 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     // it honestly (the UI renders that as "Action needed - Fix"). An empty
     // catalog where at least one source errored is also a degraded connect.
     const built = await buildAndPersistCatalog(providerId, resolved);
-    if (!built.ok || (built.models === 0 && built.sourceErrors > 0)) {
+    if (!built.ok) {
       repo.updateRegistryProviderState(providerId, 'error', 'unknown');
       return { ok: false, error: 'unknown' };
+    }
+    if (built.models === 0 && built.sourceErrors > 0) {
+      // The catalog build could list nothing. For a canonical provider that is a
+      // false green (reject). But a user-supplied custom base that ALREADY passed
+      // the auth probe is a legitimately listing-less gateway - e.g. Cloudflare
+      // Workers AI authenticates but exposes /chat/completions with no /models
+      // (#339). `ConnectionTester` proved auth via the chat fallback, so hard-
+      // failing here would block a working endpoint. Land it connected with an
+      // empty catalog + a `no-models` warning so the user can add a model id,
+      // rather than rejecting. A wrong base URL never reaches here: its auth
+      // probe already failed and the connect was rejected above.
+      const isCustomBase = 'key' in resolved && typeof resolved.baseUrl === 'string' && resolved.baseUrl.length > 0;
+      if (!isCustomBase) {
+        repo.updateRegistryProviderState(providerId, 'error', 'unknown');
+        return { ok: false, error: 'unknown' };
+      }
+      repo.updateRegistryProviderConnectedVia(providerId, connectedViaLabel(creds, providerId));
+      return { ok: true, warning: 'no-models' };
     }
 
     if (noCredit) {

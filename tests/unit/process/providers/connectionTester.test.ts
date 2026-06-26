@@ -281,4 +281,100 @@ describe('ConnectionTester', () => {
     expect(result.ok).toBe(false);
     expect(result.error).toBe('offline');
   });
+
+  // ─── #339: custom OpenAI-compatible base with no /models listing (Cloudflare) ──
+  // Cloudflare Workers AI exposes /chat/completions + /embeddings but NO /models,
+  // so the happy-path /models probe 404s even with a valid key. The tester must
+  // fall back to an auth-only /chat/completions probe before declaring failure.
+  const CF_BASE = 'https://api.cloudflare.com/client/v4/accounts/abc123/ai/v1';
+
+  it('connects a custom base whose /models 404s but whose /chat/completions authenticates (#339)', async () => {
+    const fetchMock = vi.fn((url: string) =>
+      Promise.resolve(
+        String(url).includes('/models')
+          ? response('no route for that URI', 404)
+          : response({ choices: [{ message: { content: 'hi' } }] }, 200)
+      )
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('openai-compatible', { key: 'cf-token' }, CF_BASE);
+    expect(result).toEqual({ ok: true });
+
+    // /models tried first (happy path), then the /chat/completions fallback POST.
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const [modelsUrl] = fetchMock.mock.calls[0] as [string];
+    const [chatUrl, chatInit] = fetchMock.mock.calls[1] as [string, RequestInit];
+    expect(modelsUrl).toBe(`${CF_BASE}/models`);
+    expect(chatUrl).toBe(`${CF_BASE}/chat/completions`);
+    expect(chatInit.method).toBe('POST');
+  });
+
+  it('connects when the chat fallback rejects the placeholder model (auth proven past the model layer, #339)', async () => {
+    // The gateway authenticates the key, then 404s our deliberately-unknown probe
+    // model. A model-level rejection proves auth - the connect succeeds (degraded:
+    // the user supplies a real model id when adding the provider).
+    const fetchMock = vi.fn((url: string) =>
+      Promise.resolve(
+        String(url).includes('/models')
+          ? response('not found', 404)
+          : response({ error: { message: 'model wayland-connectivity-probe not found' } }, 404)
+      )
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('openai-compatible', { key: 'cf-token' }, CF_BASE);
+    expect(result).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('falls back to the chat probe when /models returns an empty list (#339)', async () => {
+    const fetchMock = vi.fn((url: string) =>
+      Promise.resolve(
+        String(url).includes('/models')
+          ? response({ data: [] }, 200)
+          : response({ choices: [{ message: { content: 'hi' } }] }, 200)
+      )
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('openai-compatible', { key: 'cf-token' }, CF_BASE);
+    expect(result).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does NOT run the chat fallback when /models is a real auth failure (401) (#339)', async () => {
+    // A 401 from /models is a bad key - it must surface as unauthorized, never be
+    // rescued by the chat fallback.
+    const fetchMock = vi.fn().mockResolvedValue(response({ error: 'invalid token' }, 401));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('openai-compatible', { key: 'bad-token' }, CF_BASE);
+    expect(result).toEqual({ ok: false, error: 'unauthorized' });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports unauthorized when the chat fallback itself rejects the key (#339)', async () => {
+    const fetchMock = vi.fn((url: string) =>
+      Promise.resolve(
+        String(url).includes('/models') ? response('not found', 404) : response({ error: 'invalid token' }, 401)
+      )
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('openai-compatible', { key: 'bad-token' }, CF_BASE);
+    expect(result).toEqual({ ok: false, error: 'unauthorized' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('still fails for a wrong base URL where neither /models nor /chat/completions exists (#339)', async () => {
+    // A bare 404 on both endpoints (no model signal) means the base URL is wrong -
+    // the fallback must NOT false-positive this into a successful connect.
+    const fetchMock = vi.fn().mockResolvedValue(response('not found', 404));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await tester.test('openai-compatible', { key: 'cf-token' }, CF_BASE);
+    expect(result.ok).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });
