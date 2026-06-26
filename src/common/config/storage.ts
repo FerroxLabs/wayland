@@ -856,6 +856,14 @@ export interface IMcpServer {
    * http://localhost:57000/oauth/callback.
    */
   byoOAuth?: IByoOAuthCredentials;
+  /**
+   * Per-server tool allow-list (#348). The names of this server's tools the
+   * user has enabled. `undefined`/absent => ALL of the server's tools are
+   * enabled (the migration-free default); `[]` => none enabled. Shrinks the
+   * candidate pool surfaced by getCandidateTools() before Lane 3 (#344) ranks
+   * and caps it. Co-located with the server so it persists/removes with it.
+   */
+  allowedTools?: string[];
 }
 
 export interface IByoOAuthCredentials {

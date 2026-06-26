@@ -195,7 +195,9 @@
   border-radius: 8px;
   padding: 11px;
   cursor: pointer;
-  transition: background var(--motion-fast), transform var(--motion-fast);
+  transition:
+    background var(--motion-fast),
+    transform var(--motion-fast);
 }
 
 .btnPrimary:hover:not(:disabled) {
@@ -231,7 +233,9 @@
   border-radius: 8px;
   padding: 8px;
   cursor: pointer;
-  transition: border-color var(--motion-fast), color var(--motion-fast);
+  transition:
+    border-color var(--motion-fast),
+    color var(--motion-fast);
 }
 
 .btn2:hover:not(:disabled) {
@@ -373,9 +377,22 @@
 }
 
 /* tools list */
+.toolsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toolsBulk {
+  display: flex;
+  gap: 12px;
+}
+
 .tool {
   display: flex;
   gap: 12px;
+  align-items: center;
+  justify-content: space-between;
   padding: 12px 14px;
   border: 1px solid var(--color-border-1);
   border-radius: var(--radius-card-inner);

@@ -533,6 +533,27 @@ export function DetailPage() {
   const transportType = entry.packages[0]?.transport.type ?? entry.remotes?.[0]?.type ?? 'hosted';
 
   const toolCount = installedServer?.tools?.length ?? 0;
+
+  // #348: per-server tool scoping. `allowedTools === undefined` => all enabled
+  // (the migration-free default); an explicit list => only those names; `[]` =>
+  // none. Toggling writes the explicit list and normalizes back to `undefined`
+  // once every tool is re-enabled, so the default stays clean.
+  const allowedTools = installedServer?.allowedTools;
+  const isToolEnabled = (toolName: string) => allowedTools === undefined || allowedTools.includes(toolName);
+  const persistAllowedTools = (next: string[] | undefined) => {
+    if (!installedServer) return;
+    void saveMcpServers((prev) =>
+      prev.map((s) => (s.id === installedServer.id ? { ...s, allowedTools: next, updatedAt: Date.now() } : s))
+    );
+  };
+  const toggleTool = (toolName: string, on: boolean) => {
+    const allNames = (installedServer?.tools ?? []).map((tl) => tl.name);
+    const current = allowedTools ?? allNames; // undefined => all currently enabled
+    const next = on ? [...new Set([...current, toolName])] : current.filter((n) => n !== toolName);
+    const allEnabled = next.length === allNames.length && allNames.every((n) => next.includes(n));
+    persistAllowedTools(allEnabled ? undefined : next);
+  };
+
   const syncedAt = formatRelativeTime(installedServer?.lastConnected);
   const account = w.auth.providerName ?? '—';
   const syncedAgents = installedServer ? (agentInstallStatus[installedServer.name] ?? []) : [];
@@ -850,7 +871,19 @@ export function DetailPage() {
 
           {activeTab === 'tools' && (
             <>
-              <h2 className={styles.hSec}>{t('mcpLibrary.detail.toolsHeading', 'Tools')}</h2>
+              <div className={styles.toolsHeader}>
+                <h2 className={styles.hSec}>{t('mcpLibrary.detail.toolsHeading', 'Tools')}</h2>
+                {installedServer?.tools && installedServer.tools.length > 0 && (
+                  <div className={styles.toolsBulk}>
+                    <button type='button' className={styles.link} onClick={() => persistAllowedTools(undefined)}>
+                      {t('mcpLibrary.detail.enableAllTools', 'Enable all')}
+                    </button>
+                    <button type='button' className={styles.link} onClick={() => persistAllowedTools([])}>
+                      {t('mcpLibrary.detail.disableAllTools', 'Disable all')}
+                    </button>
+                  </div>
+                )}
+              </div>
               {installedServer?.tools && installedServer.tools.length > 0 ? (
                 installedServer.tools.map((tool) => (
                   <div key={tool.name} className={styles.tool}>
@@ -858,6 +891,11 @@ export function DetailPage() {
                       <div className={styles.toolName}>{tool.name}</div>
                       {tool.description && <div className={styles.toolDesc}>{tool.description}</div>}
                     </div>
+                    <Switch
+                      checked={isToolEnabled(tool.name)}
+                      onChange={(checked) => toggleTool(tool.name, checked)}
+                      aria-label={t('mcpLibrary.detail.toggleTool', 'Enable {{tool}}', { tool: tool.name })}
+                    />
                   </div>
                 ))
               ) : w.toolGroups && w.toolGroups.length > 0 ? (
