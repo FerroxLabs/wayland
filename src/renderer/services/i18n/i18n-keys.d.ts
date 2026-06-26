@@ -497,6 +497,7 @@ export type I18nKey =
   | 'conversation.minimap.noMatch'
   | 'conversation.minimap.searchAria'
   | 'conversation.minimap.searchHint'
+  | 'conversation.modelSelector.claudeSubscriptionNotice'
   | 'conversation.modelSelector.connectProvider'
   | 'conversation.modelSelector.effort'
   | 'conversation.modelSelector.effortHigh'

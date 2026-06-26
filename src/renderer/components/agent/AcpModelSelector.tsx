@@ -460,6 +460,18 @@ const AcpModelSelector: React.FC<{
   // still holds for a Flux selection.
   const onSelect = useCallback((modelId: string) => handleSelectModel(modelId), [handleSelectModel]);
   const onManage = useCallback(() => navigate('/settings/models'), [navigate]);
+  // #335 interim: in the Claude Code picker, clarify that the agent already runs
+  // on the user's Claude subscription, but picking Claude as direct chat models
+  // needs an Anthropic API key (subscription-as-chat-models isn't wired yet).
+  // Kills the "I signed in but can't see Claude under models — am I doing
+  // something wrong?" confusion until the engine OAuth provider lands (#367).
+  const notice =
+    backend === 'claude'
+      ? t('conversation.modelSelector.claudeSubscriptionNotice', {
+          defaultValue:
+            'Claude Code already runs on your Claude subscription — pick it from the agent selector. Choosing Claude models for direct chat here needs an Anthropic API key; using your subscription as chat models isn’t supported yet.',
+        })
+      : undefined;
   const flyoutDroplist = (
     <ModelSelectorFlyout
       vm={resolvedVm}
@@ -469,6 +481,7 @@ const AcpModelSelector: React.FC<{
       effort={effort}
       onSetEffort={setEffort}
       draftSearch
+      notice={notice}
     />
   );
 

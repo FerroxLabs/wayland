@@ -446,6 +446,27 @@
   display: inline-flex;
 }
 
+/* Informational banner (e.g. Claude-Code subscription explainer, #335). */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 12px 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-text-2);
+  background: color-mix(in srgb, rgb(var(--primary-6)) 8%, transparent);
+  border: 1px solid color-mix(in srgb, rgb(var(--primary-6)) 22%, transparent);
+}
+
+.noticeIc {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: rgb(var(--primary-6));
+}
+
 /* Arco overrides scoped to this flyout */
 .flyout :global(.arco-input-inner-wrapper),
 .flyout :global(.arco-input-group-wrapper) {

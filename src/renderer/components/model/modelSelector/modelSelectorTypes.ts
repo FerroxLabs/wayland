@@ -59,4 +59,11 @@ export type ModelSelectorProps = {
   onManage: () => void;
   /** Autofocus the search input on open. */
   draftSearch?: boolean;
+  /**
+   * Optional one-line informational banner shown above the model list (and in
+   * the empty state). Used by the Claude-Code picker to explain that the agent
+   * runs on the user's subscription while subscription-as-chat-models isn't
+   * supported yet (#335 interim). Plain text; no markup.
+   */
+  notice?: string;
 };

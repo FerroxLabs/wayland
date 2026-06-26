@@ -5,7 +5,7 @@
  */
 
 import { Button, Input } from '@arco-design/web-react';
-import { Check, ChevronRight, Pin, Plus, Search, Settings, Sparkles } from 'lucide-react';
+import { Check, ChevronRight, Info, Pin, Plus, Search, Settings, Sparkles } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { iconColors } from '@/renderer/styles/colors';
@@ -33,8 +33,18 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
   onSetEffort,
   onManage,
   draftSearch = false,
+  notice,
 }) => {
   const { t } = useTranslation();
+
+  // Optional informational banner (e.g. the Claude-Code subscription-vs-chat
+  // explainer, #335). Rendered in both the empty and populated states.
+  const noticeBanner = notice ? (
+    <div className={styles.notice} role='note'>
+      <Info size={14} strokeWidth={2} className={styles.noticeIc} />
+      <span>{notice}</span>
+    </div>
+  ) : null;
   const [query, setQuery] = useState('');
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -180,6 +190,7 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
           </div>
         </div>
         <div className={styles.flyoutScroll}>
+          {noticeBanner}
           <div className={styles.emptyCard}>
             <div className={styles.emptyIc}>
               <Sparkles size={22} strokeWidth={1.8} />
@@ -224,6 +235,7 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
       </div>
 
       <div className={styles.flyoutScroll}>
+        {noticeBanner}
         {/* Flux Auto hero - rendered independently of zones (zones may be empty
             while the curated list resolves even though the hero is present). */}
         {vm.fluxHero && (

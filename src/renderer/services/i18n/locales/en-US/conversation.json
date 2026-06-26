@@ -467,6 +467,7 @@
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "claudeSubscriptionNotice": "Claude Code already runs on your Claude subscription — pick it from the agent selector. Choosing Claude models for direct chat here needs an Anthropic API key; using your subscription as chat models isn’t supported yet."
   }
 }

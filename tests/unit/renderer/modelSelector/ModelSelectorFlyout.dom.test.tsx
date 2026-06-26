@@ -54,7 +54,13 @@ const baseVm: ModelSelectorViewModel = {
     { id: 'pinned', label: 'Pinned', rows: [pinnedRow] },
     { id: 'recommended:openai', label: 'Recommended for OpenAI', rows: [recRow] },
   ],
-  moreZones: [{ id: 'more:openai', label: 'OpenAI', rows: [row({ key: 'openai:mini', id: 'mini', providerId: 'openai', label: 'GPT-5.2 mini', price: '$' })] }],
+  moreZones: [
+    {
+      id: 'more:openai',
+      label: 'OpenAI',
+      rows: [row({ key: 'openai:mini', id: 'mini', providerId: 'openai', label: 'GPT-5.2 mini', price: '$' })],
+    },
+  ],
   activeKey: 'flux-router:flux-auto',
   effortSupported: false,
   empty: false,
@@ -64,14 +70,7 @@ const noop = () => {};
 
 describe('ModelSelectorFlyout', () => {
   it('renders the flux hero, pinned + recommended rows', () => {
-    render(
-      <ModelSelectorFlyout
-        vm={baseVm}
-        onSelect={noop}
-        onTogglePin={noop}
-        onManage={noop}
-      />
-    );
+    render(<ModelSelectorFlyout vm={baseVm} onSelect={noop} onTogglePin={noop} onManage={noop} />);
     expect(screen.getByText('Flux Auto')).toBeInTheDocument();
     expect(screen.getByText('Recommended')).toBeInTheDocument();
     expect(screen.getByText('Opus 4.8')).toBeInTheDocument();
@@ -128,7 +127,13 @@ describe('ModelSelectorFlyout', () => {
     const onSelect = vi.fn();
     const vm: ModelSelectorViewModel = {
       ...baseVm,
-      zones: [{ id: 'pinned', label: 'Pinned', rows: [row({ key: 'd:x', id: 'x', providerId: 'deepseek', label: 'DeepSeek', available: false })] }],
+      zones: [
+        {
+          id: 'pinned',
+          label: 'Pinned',
+          rows: [row({ key: 'd:x', id: 'x', providerId: 'deepseek', label: 'DeepSeek', available: false })],
+        },
+      ],
     };
     render(<ModelSelectorFlyout vm={vm} onSelect={onSelect} onTogglePin={noop} onManage={noop} />);
     expect(screen.getByText('Currently unavailable')).toBeInTheDocument();
@@ -178,5 +183,33 @@ describe('ModelSelectorFlyout', () => {
     render(<ModelSelectorFlyout vm={baseVm} onSelect={noop} onTogglePin={noop} onManage={onManage} />);
     fireEvent.click(screen.getByText('Manage models'));
     expect(onManage).toHaveBeenCalled();
+  });
+
+  // #335 interim: the optional notice banner (Claude-Code subscription explainer).
+  const NOTICE = 'Claude Code already runs on your Claude subscription';
+
+  it('renders the notice banner above the model list when notice is provided', () => {
+    render(<ModelSelectorFlyout vm={baseVm} onSelect={noop} onTogglePin={noop} onManage={noop} notice={NOTICE} />);
+    expect(screen.getByRole('note')).toHaveTextContent(NOTICE);
+  });
+
+  it('renders the notice in the empty state too', () => {
+    render(
+      <ModelSelectorFlyout
+        vm={{ fluxHero: undefined, zones: [], moreZones: [], activeKey: null, effortSupported: false, empty: true }}
+        onSelect={noop}
+        onTogglePin={noop}
+        onManage={noop}
+        notice={NOTICE}
+      />
+    );
+    expect(screen.getByRole('note')).toHaveTextContent(NOTICE);
+    // Still shows the empty-state CTA alongside the notice.
+    expect(screen.getByText('Connect a provider')).toBeInTheDocument();
+  });
+
+  it('renders no notice banner when notice is absent', () => {
+    render(<ModelSelectorFlyout vm={baseVm} onSelect={noop} onTogglePin={noop} onManage={noop} />);
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
   });
 });
