@@ -559,7 +559,7 @@ const GuidPage: React.FC = () => {
       } else {
         // Extension-bundle assistants follow the same Rory rule. When no user
         // backend pill is active, presetAgentType is left undefined and
-        // selectPresetAssistant defaults to gemini (Phase 1 fallback).
+        // selectPresetAssistant defaults to wcore (Wayland Core, the native engine).
         agentSelection.selectPresetAssistant({
           id: prompt.targetAssistantId,
           presetAgentType: userBackend,
@@ -754,7 +754,7 @@ const GuidPage: React.FC = () => {
     return () => observer.disconnect();
   }, [agentSelection.isPresetAgent, selectedAssistantDescription]);
 
-  const currentPresetAgentType = selectedAssistantRecord?.presetAgentType || 'gemini';
+  const currentPresetAgentType = selectedAssistantRecord?.presetAgentType || 'wcore';
   const agentSwitcherItems = useMemo(() => {
     if (!agentSelection.availableAgents) return [];
     // Build from detected execution engines, excluding preset assistants and remote agents
