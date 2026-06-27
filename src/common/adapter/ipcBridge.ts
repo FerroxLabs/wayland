@@ -50,7 +50,7 @@ import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
 import type { DownloadResult, VoiceAsset } from '../types/voiceAsset';
 import type { SkillSecurityReport, SkillIndexEntry, SkillSource, SkillVerdict } from '../types/skillTypes';
 import type { ImportResult } from '../../process/services/skills/SkillImport';
-import type { KickoffResult, KickoffTelemetryEvent } from '../../process/services/kickoff/types';
+import type { KickoffGridResult, KickoffResult, KickoffTelemetryEvent } from '../../process/services/kickoff/types';
 import type {
   AskRecord,
   ResolvedSkill,
@@ -2309,6 +2309,11 @@ export const storage = {
 // (e.g. `extensions.list`) instead of the early `:` form.
 export const kickoff = {
   suggest: buildProvider<KickoffResult, { assistantId: string }>('kickoff.suggest'),
+  // #375 - per-assistant suggested-prompts grid (assistant detail view). Returns
+  // up to `max` ranked starters; `locale` selects the promptsI18n fallback.
+  suggestMany: buildProvider<KickoffGridResult, { assistantId: string; max?: number; locale?: string }>(
+    'kickoff.suggestMany'
+  ),
   telemetry: buildProvider<void, KickoffTelemetryEvent>('kickoff.telemetry'),
 };
 

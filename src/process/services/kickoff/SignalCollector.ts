@@ -8,6 +8,7 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { CronService } from '@process/services/cron/CronService';
 import type { ITeamCrudRepository } from '@process/team/repository/ITeamRepository';
 import { ExtensionRegistry } from '@process/extensions/ExtensionRegistry';
+import { getBuiltinCatalogAssistants } from '@process/utils/builtinCatalog';
 import { getInstallUuid } from './installUuid';
 import { timeBucketFor } from './seededShuffle';
 import { RITUAL_RECENT_WINDOW_MS, type KickoffSignals } from './types';
@@ -194,14 +195,32 @@ export function findAssistantInRegistry(assistantId: string): Record<string, unk
         matches.push(a);
       }
     }
-    if (matches.length === 0) return null;
     if (matches.length > 1) {
       console.warn(
         `[Kickoff] findAssistantInRegistry: ambiguous match for "${assistantId}" (${matches.length} hits); returning null`
       );
       return null;
     }
-    return matches[0]!;
+    if (matches.length === 1) return matches[0]!;
+
+    // #375 - the native built-in catalog (copy/research/cowork/... with their
+    // `prompts` + `kickoffs`) is NOT in ExtensionRegistry; it ships via
+    // getBuiltinCatalogAssistants() and merges into config.assistants. Without
+    // this fallback, suggestN returned 'unknown-assistant' for EVERY built-in
+    // assistant and the per-assistant suggested-prompts grid never rendered.
+    const catalog = getBuiltinCatalogAssistants();
+    const catMatches = catalog.filter((a) => {
+      const id = a.id;
+      return typeof id === 'string' && (id === assistantId || id === unprefixed || stripIdPrefix(id) === unprefixed);
+    });
+    if (catMatches.length === 1) return catMatches[0] as unknown as Record<string, unknown>;
+    if (catMatches.length > 1) {
+      console.warn(
+        `[Kickoff] findAssistantInRegistry: ambiguous catalog match for "${assistantId}" (${catMatches.length} hits); returning null`
+      );
+      return null;
+    }
+    return null;
   } catch {
     return null;
   }

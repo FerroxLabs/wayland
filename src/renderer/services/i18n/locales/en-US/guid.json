@@ -27,31 +27,11 @@
     "greeting": {
       "withName": "{{timeLabel}}, {{name}}",
       "labels": {
-        "lateNight": [
-          "Working late",
-          "Burning the midnight oil",
-          "Up late"
-        ],
-        "morning": [
-          "Morning",
-          "Good morning",
-          "Rise and shine"
-        ],
-        "afternoon": [
-          "Afternoon",
-          "Good afternoon",
-          "Welcome back"
-        ],
-        "evening": [
-          "Evening",
-          "Good evening",
-          "Welcome back"
-        ],
-        "night": [
-          "Evening",
-          "Good evening",
-          "Winding down"
-        ]
+        "lateNight": ["Working late", "Burning the midnight oil", "Up late"],
+        "morning": ["Morning", "Good morning", "Rise and shine"],
+        "afternoon": ["Afternoon", "Good afternoon", "Welcome back"],
+        "evening": ["Evening", "Good evening", "Welcome back"],
+        "night": ["Evening", "Good evening", "Winding down"]
       }
     },
     "intent": {
@@ -80,6 +60,11 @@
       "redirect": "Something else",
       "dismissAria": "Dismiss suggestion",
       "regionAria": "Suggested first message"
+    }
+  },
+  "assistantDetail": {
+    "kickoffGrid": {
+      "heading": "Try one of these"
     }
   }
 }

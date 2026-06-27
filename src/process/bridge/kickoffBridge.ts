@@ -8,7 +8,13 @@ import { ipcBridge } from '@/common';
 import { waitForCronReady } from '@process/services/cron/cronReadiness';
 import { ExtensionRegistry } from '@process/extensions/ExtensionRegistry';
 import { getKickoffEngine } from '@process/services/kickoff/kickoffSingleton';
-import type { KickoffResult, KickoffTelemetryEvent, NotRenderedReason } from '@process/services/kickoff/types';
+import type {
+  KickoffGridResult,
+  KickoffResult,
+  KickoffTelemetryEvent,
+  NotRenderedReason,
+} from '@process/services/kickoff/types';
+import { KICKOFF_GRID_MAX } from '@process/services/kickoff/types';
 
 /**
  * IPC surface for the Kickoff system.
@@ -62,9 +68,31 @@ export function initKickoffBridge(): void {
       // legitimate cascade misses. Never include err.message (PII risk).
       const errorName =
         err && typeof err === 'object' && typeof (err as { name?: unknown }).name === 'string'
-          ? ((err as { name: string }).name || 'Error')
+          ? (err as { name: string }).name || 'Error'
           : 'Error';
       console.warn('[kickoff.suggest] failed; returning notRendered/engine-error', err);
+      return { notRendered: 'engine-error', errorName };
+    }
+  });
+
+  // #375 - per-assistant suggested-prompts grid. Same registry/cron readiness
+  // gating as `suggest`; returns up to `max` ranked starters (kickoffs, else a
+  // legacy-prompts fallback). Bad input is coerced to a safe default rather
+  // than thrown, matching the `suggest` "fall through to bare surface" contract.
+  ipcBridge.kickoff.suggestMany.provider(async (raw: unknown): Promise<KickoffGridResult> => {
+    const params = parseSuggestManyParams(raw);
+    if (!params) return { notRendered: 'error' };
+    const [registryReady] = await Promise.all([waitForRegistry(), waitForCron()]);
+    if (!registryReady) return { notRendered: 'registry-not-ready' };
+
+    try {
+      return await getKickoffEngine().suggestN(params.assistantId, params.max, params.locale);
+    } catch (err) {
+      const errorName =
+        err && typeof err === 'object' && typeof (err as { name?: unknown }).name === 'string'
+          ? (err as { name: string }).name || 'Error'
+          : 'Error';
+      console.warn('[kickoff.suggestMany] failed; returning notRendered/engine-error', err);
       return { notRendered: 'engine-error', errorName };
     }
   });
@@ -118,6 +146,24 @@ function isSuggestParams(raw: unknown): raw is { assistantId: string } {
   return ASSISTANT_ID_REGEX.test(id);
 }
 
+// #375 - locale tags are short (`en-US`, `zh-CN`); bound defensively so a
+// pathological payload can't reach the engine's promptsI18n index.
+const LOCALE_MAX_LEN = 35;
+
+function parseSuggestManyParams(raw: unknown): { assistantId: string; max?: number; locale?: string } | null {
+  if (!isSuggestParams(raw)) return null;
+  const r = raw as { assistantId: string; max?: unknown; locale?: unknown };
+  let max: number | undefined;
+  if (typeof r.max === 'number' && Number.isFinite(r.max)) {
+    max = Math.max(1, Math.min(Math.floor(r.max), KICKOFF_GRID_MAX));
+  }
+  let locale: string | undefined;
+  if (typeof r.locale === 'string' && r.locale.length > 0 && r.locale.length <= LOCALE_MAX_LEN) {
+    locale = r.locale;
+  }
+  return { assistantId: r.assistantId, max, locale };
+}
+
 const TELEMETRY_EVENT_NAMES = new Set<KickoffTelemetryEvent['event']>([
   'accepted',
   'redirected',
@@ -139,10 +185,7 @@ const NOT_RENDERED_REASONS = new Set<NotRenderedReason>([
   'error',
 ]);
 const VALID_CASCADE_LEVELS = new Set<number>([1, 2, 3, 4]);
-const DISMISS_REASONS = new Set<NonNullable<KickoffTelemetryEvent['dismissReason']>>([
-  'interaction',
-  'typing',
-]);
+const DISMISS_REASONS = new Set<NonNullable<KickoffTelemetryEvent['dismissReason']>>(['interaction', 'typing']);
 
 function isTelemetryEvent(raw: unknown): raw is KickoffTelemetryEvent {
   if (!raw || typeof raw !== 'object') return false;

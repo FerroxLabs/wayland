@@ -28,6 +28,8 @@ import { isImageAvatar } from '@/renderer/utils/avatar';
 import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useKickoffGrid } from '@/renderer/hooks/kickoff/useKickoffGrid';
+import KickoffGrid from './kickoffGrid/KickoffGrid';
 
 type AssistantSelectionAreaProps = {
   isPresetAgent: boolean;
@@ -40,6 +42,14 @@ type AssistantSelectionAreaProps = {
   onSetInput: (text: string) => void;
   onFocusInput: () => void;
   onRegisterOpenDetails?: (openDetails: (() => void) | null) => void;
+  /** Kickoff id shown in the single hero card; excluded from the grid so it never repeats. */
+  excludeKickoffId?: string;
+  /**
+   * Render the suggested-prompts grid only on the focused assistant view (the
+   * preset hero), NOT the new-chat/home surface where the launchpad + intent
+   * pills already cover "what can I do". GuidPage passes `showPresetHero`.
+   */
+  showKickoffGrid?: boolean;
   /**
    * Phase 2 chat-redesign: when true, the inline pill grid is suppressed so
    * the new layered starter (Greeting + IntentPillBar + SuggestionPanel +
@@ -66,6 +76,8 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
   onSetInput,
   onFocusInput,
   onRegisterOpenDetails,
+  excludeKickoffId,
+  showKickoffGrid = false,
   hideInlineGrid = false,
 }) => {
   const { t } = useTranslation();
@@ -207,6 +219,20 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
     onRegisterOpenDetails(openAssistantDetails);
   }, [onRegisterOpenDetails, openAssistantDetails]);
 
+  // #375 - per-assistant suggested-prompts grid for the selected-assistant
+  // detail view. Same id source as GuidPage's single-card wiring
+  // (selectedAgentInfo.customAgentId). Clicking a card prefills the composer
+  // (editable, not auto-send) via the onSetInput/onFocusInput props.
+  const kickoffGridAssistantId = isPresetAgent ? selectedAgentInfo?.customAgentId : undefined;
+  const kickoffGrid = useKickoffGrid(kickoffGridAssistantId, localeKey);
+  const handleKickoffSelect = useCallback(
+    (prefill: string) => {
+      onSetInput(prefill);
+      onFocusInput();
+    },
+    [onSetInput, onFocusInput]
+  );
+
   // Only render if there are preset agents
   if (!customAgents || !customAgents.some((a) => a.isPreset)) return null;
 
@@ -238,7 +264,19 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
               </span>
             </div>
           )}
-          {/* Per-assistant example prompts removed - intent pills above cover discovery. */}
+          {/* #375 - per-assistant suggested prompts grid. Shown ONLY on the
+              focused assistant view (preset hero); hidden on the new-chat/home
+              surface where the launchpad cards + intent pills already cover
+              "what can I do". GuidPage passes showKickoffGrid={showPresetHero}. */}
+          {showKickoffGrid &&
+            (() => {
+              // Exclude the kickoff already shown in the single hero card so the
+              // grid never repeats it (featured card + distinct grid options).
+              const gridItems = excludeKickoffId
+                ? kickoffGrid.items.filter((i) => i.kickoffId !== excludeKickoffId)
+                : kickoffGrid.items;
+              return gridItems.length > 0 ? <KickoffGrid items={gridItems} onSelect={handleKickoffSelect} /> : null;
+            })()}
         </div>
         {modalTree}
       </div>
@@ -265,8 +303,7 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
           .map((assistant) => {
             const avatarValue = assistant.avatar?.trim();
             const LucideIconComponent = getLucideIcon(avatarValue);
-            const mappedAvatar =
-              !LucideIconComponent && avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
+            const mappedAvatar = !LucideIconComponent && avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
             const resolvedAvatar =
               !LucideIconComponent && avatarValue ? resolveExtensionAssetUrl(avatarValue) : undefined;
             const avatarImage = mappedAvatar || resolvedAvatar;

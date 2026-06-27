@@ -67,6 +67,45 @@ function parseDepends(raw: unknown): string[] {
   return [];
 }
 
+/**
+ * Built-in/custom preset assistants are NOT in `fetchDetectedAgents` (that only
+ * lists detected CLI backends). Without them, a `custom:<id>` Run-as key never
+ * resolves here, so the picker dead-ends on "no models" and the launch errors
+ * with "No backend selected". Mirror the home picker's source - config
+ * `assistants` + user `acp.customAgents` + extension assistants - so preset
+ * assistants resolve in the launcher too. Returns AvailableAgent-shaped rows
+ * whose `getAgentKey` is `custom:<id>`, matching the persisted selection key.
+ */
+async function loadPresetAgents(): Promise<AvailableAgent[]> {
+  try {
+    const [presets, userAgents, ext] = await Promise.all([
+      ConfigStorage.get('assistants'),
+      ConfigStorage.get('acp.customAgents'),
+      ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[]),
+    ]);
+    const out: AvailableAgent[] = [];
+    const seen = new Set<string>();
+    const push = (a: Record<string, unknown> | undefined): void => {
+      if (!a || typeof a.id !== 'string' || a.enabled === false || seen.has(a.id)) return;
+      seen.add(a.id);
+      out.push({
+        backend: (typeof a.presetAgentType === 'string' ? a.presetAgentType : 'wcore') as AcpBackendAll,
+        name: typeof a.name === 'string' ? a.name : a.id,
+        customAgentId: a.id,
+        isPreset: true,
+        context: '',
+        presetAgentType: typeof a.presetAgentType === 'string' ? a.presetAgentType : undefined,
+      } as AvailableAgent);
+    };
+    ((presets as unknown as Record<string, unknown>[] | undefined) ?? []).filter((a) => a?.isPreset).forEach(push);
+    ((userAgents as unknown as Record<string, unknown>[] | undefined) ?? []).forEach(push);
+    (ext as Record<string, unknown>[]).forEach(push);
+    return out;
+  } catch {
+    return [];
+  }
+}
+
 const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClose }) => {
   const { t } = useTranslation(undefined, { keyPrefix: 'workflows' });
   const navigate = useNavigate();
@@ -180,8 +219,11 @@ const WorkflowDetailModal: React.FC<WorkflowDetailModalProps> = ({ entry, onClos
     // Load picker state: fetch detected agents + restore last selection
     void (async () => {
       try {
-        const agents = await fetchDetectedAgents();
+        const [detected, presetAgents] = await Promise.all([fetchDetectedAgents(), loadPresetAgents()]);
         if (cancelled) return;
+        // Detected CLI backends first, then preset/custom assistants so a
+        // `custom:<id>` Run-as selection resolves (model load + launch).
+        const agents = [...detected, ...presetAgents];
         setAvailableAgents(agents);
 
         const savedKey = await ConfigStorage.get('guid.lastSelectedAgent');

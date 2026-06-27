@@ -244,10 +244,7 @@ describe('SuggestionEngine - deterministic shuffle', () => {
     const result = await engine.suggest('helm');
     if ('notRendered' in result) throw new Error('expected suggestion');
     const morningColdStarts = FIXTURE_ASSISTANT.kickoffs.filter(
-      (k) =>
-        k.scenario === 'cold-start' &&
-        k.beginnerSafe !== true &&
-        (!k.timeBucket || k.timeBucket === 'morning')
+      (k) => k.scenario === 'cold-start' && k.beginnerSafe !== true && (!k.timeBucket || k.timeBucket === 'morning')
     );
     const expectedSeed = hashSeed(`${signals.installUuid}:helm:${dateKey(now)}`);
     const expectedPrimary = seededShuffle(morningColdStarts, expectedSeed)[0]!;
@@ -333,9 +330,7 @@ describe('SuggestionEngine - readKickoffArray malformed-entry filter', () => {
     if ('notRendered' in result) throw new Error('expected suggestion');
     // Only the valid one survives → it must be the chosen primary.
     expect(result.kickoffId).toBe('good-1');
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('invalid scenario "oops"')
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid scenario "oops"'));
     warnSpy.mockRestore();
   });
 
@@ -359,9 +354,7 @@ describe('SuggestionEngine - readKickoffArray malformed-entry filter', () => {
     // eligible for any bucket → present at Level 3.
     if ('notRendered' in result) throw new Error('expected suggestion');
     expect(result.kickoffId).toBe('good-1');
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('invalid timeBucket "gibberish"')
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid timeBucket "gibberish"'));
     warnSpy.mockRestore();
   });
 });
@@ -418,5 +411,99 @@ describe('SuggestionEngine - kickoffs-excluded opt-out sentinel', () => {
     const engine = makeEngine(signalsBase(), record);
     const result = await engine.suggest('helm');
     expect(result).toEqual({ notRendered: 'kickoffs-excluded' });
+  });
+});
+
+// ============================================================================
+// #375 - suggestN: per-assistant suggested-prompts grid
+// ============================================================================
+
+describe('SuggestionEngine.suggestN - grid', () => {
+  it('returns notRendered=unknown-assistant when the registry has no match', async () => {
+    const engine = makeEngine(signalsBase(), null);
+    const result = await engine.suggestN('ghost');
+    expect(result).toEqual({ notRendered: 'unknown-assistant' });
+  });
+
+  it('returns notRendered=kickoffs-excluded for an opted-out assistant', async () => {
+    const record = { id: 'helm', _kickoffsExcluded: true, kickoffs: FIXTURE_ASSISTANT.kickoffs };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggestN('helm');
+    expect(result).toEqual({ notRendered: 'kickoffs-excluded' });
+  });
+
+  it('returns up to `max` kickoff-sourced items, never more than the data holds', async () => {
+    const engine = makeEngine(signalsBase());
+    const result = await engine.suggestN('helm', 4);
+    if ('notRendered' in result) throw new Error(`expected items, got ${result.notRendered}`);
+    expect(result.items).toHaveLength(4);
+    expect(result.items.every((i) => i.source === 'kickoff')).toBe(true);
+    expect(result.items.every((i) => i.kickoffId && i.text && i.prefill)).toBe(true);
+  });
+
+  it('clamps an over-large `max` to the data size (6 entries → 6 items)', async () => {
+    const engine = makeEngine(signalsBase());
+    const result = await engine.suggestN('helm', 99);
+    if ('notRendered' in result) throw new Error('expected items');
+    expect(result.items).toHaveLength(6);
+  });
+
+  it('ranks beginner-safe first, then current time-bucket matches', async () => {
+    const engine = makeEngine(signalsBase()); // timeBucket: 'morning'
+    const result = await engine.suggestN('helm', 6);
+    if ('notRendered' in result) throw new Error('expected items');
+    // The single beginnerSafe entry must lead.
+    expect(result.items[0]!.kickoffId).toBe('beginner');
+    // The two morning (non-beginner) entries must outrank the lone afternoon one.
+    const ids = result.items.map((i) => i.kickoffId);
+    expect(ids.indexOf('morning-cold')).toBeLessThan(ids.indexOf('afternoon-cold'));
+    expect(ids.indexOf('morning-cold-2')).toBeLessThan(ids.indexOf('afternoon-cold'));
+  });
+
+  it('is deterministic for the same install + assistant + day', async () => {
+    const engineA = makeEngine(signalsBase());
+    const engineB = makeEngine(signalsBase());
+    const a = await engineA.suggestN('helm', 6);
+    const b = await engineB.suggestN('helm', 6);
+    if ('notRendered' in a || 'notRendered' in b) throw new Error('expected items');
+    expect(a.items.map((i) => i.kickoffId)).toEqual(b.items.map((i) => i.kickoffId));
+  });
+
+  it('falls back to the flat legacy prompts array when no kickoffs are defined', async () => {
+    const record = { id: 'doc', kickoffs: [], prompts: ['Make a deck', 'Draft a memo', 'Make a deck'] };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggestN('doc', 6);
+    if ('notRendered' in result) throw new Error('expected items');
+    // De-duped, prompt-sourced, prefill mirrors text.
+    expect(result.items).toEqual([
+      { text: 'Make a deck', prefill: 'Make a deck', source: 'prompts' },
+      { text: 'Draft a memo', prefill: 'Draft a memo', source: 'prompts' },
+    ]);
+  });
+
+  it('falls back to promptsI18n for the requested locale (cowork-style preset)', async () => {
+    const record = {
+      id: 'cowork',
+      promptsI18n: { 'en-US': ['Organize my files'], 'zh-CN': ['整理我的文件'] },
+    };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggestN('cowork', 6, 'zh-CN');
+    if ('notRendered' in result) throw new Error('expected items');
+    expect(result.items).toEqual([{ text: '整理我的文件', prefill: '整理我的文件', source: 'prompts' }]);
+  });
+
+  it('falls back to en-US promptsI18n when the requested locale is absent', async () => {
+    const record = { id: 'cowork', promptsI18n: { 'en-US': ['Organize my files'] } };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggestN('cowork', 6, 'fr-FR');
+    if ('notRendered' in result) throw new Error('expected items');
+    expect(result.items[0]!.text).toBe('Organize my files');
+  });
+
+  it('returns notRendered=no-kickoffs-defined when neither kickoffs nor prompts exist', async () => {
+    const record = { id: 'empty', kickoffs: [] };
+    const engine = makeEngine(signalsBase(), record);
+    const result = await engine.suggestN('empty', 6);
+    expect(result).toEqual({ notRendered: 'no-kickoffs-defined' });
   });
 });
