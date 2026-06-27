@@ -128,6 +128,23 @@ const CLI_UNDERLYING_PROVIDER: Record<CliAgentKey, ProviderId> = {
   gemini: 'google-gemini',
 };
 
+/**
+ * Vendor-locked ACP backends (#374): single-provider CLIs whose home-picker
+ * catalog is synthesized from the models.dev registry, exactly like a
+ * non-enumerable CLI. Each maps to the one provider it runs, so the picker
+ * surfaces real models BEFORE the first connection instead of dead-ending on
+ * the "available after first connection" tooltip. Multi-provider CLIs
+ * (opencode, goose, droid, auggie, cursor, …) are intentionally absent: they
+ * have no single underlying provider, so they keep returning an empty curated
+ * set (the picker then offers Flux Auto when the backend is Flux-routable).
+ */
+const ACP_BACKEND_UNDERLYING_PROVIDER: Record<string, ProviderId> = {
+  grok: 'xai',
+  kimi: 'moonshot',
+  qwen: 'qwen',
+  vibe: 'mistral',
+};
+
 // ─── Injectable dependencies ──────────────────────────────────────────────────
 
 /** A catalog source built from a connected cloud provider's registry slice. */
@@ -1025,29 +1042,47 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           return all;
         }
 
-        if (CLI_AGENT_KEYS.has(agentKey)) {
-          const cliKey = agentKey as CliAgentKey;
-          if (isEnumerableCliAgent(cliKey)) {
-            // Enumerable CLI (Codex) - build straight from its CLI source.
-            const source = deps.makeCliSource(cliKey);
-            const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
-            const { models } = await assembler.assemble([source], registry);
-            return curator.curate(models);
-          }
-          // Non-enumerable CLI (e.g. Claude Code). When the underlying provider
-          // is connected with its own API key, use the persisted, override-aware
-          // catalog. When it is NOT connected - the common case for a CLI-login
-          // user (a Claude Pro/Max subscription, no Anthropic API key) - the
-          // picker used to come back EMPTY (#125). Synthesize the underlying
-          // provider's model families straight from the models.dev registry (the
-          // same keyless path cloud providers use), so Claude shows real models.
-          const underlying = CLI_UNDERLYING_PROVIDER[cliKey];
+        // Synthesize a provider's curated catalog from the persisted registry
+        // (connected, override-aware) or straight from models.dev (not
+        // connected) - the same keyless path cloud providers use. Lets a vendor
+        // CLI show real models before its first connection instead of an empty
+        // picker (#125 for Claude, #374 for Codex/Grok/…).
+        const synthesizeProvider = async (underlying: ProviderId): Promise<CuratedModel[]> => {
           if (repo.getRegistryProvider(underlying)) {
             return applyOverrides(underlying, curator.curate(repo.getRegistryCatalog(underlying)));
           }
           const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
           const { models } = await assembler.assemble([new CloudRegistrySource(underlying, registry)], registry);
           return curator.curate(models);
+        };
+
+        if (CLI_AGENT_KEYS.has(agentKey)) {
+          const cliKey = agentKey as CliAgentKey;
+          if (isEnumerableCliAgent(cliKey)) {
+            // Enumerable CLI (Codex) - prefer its live CLI source. In a fresh
+            // profile with no CLI installed / no cache this yields nothing; fall
+            // through to models.dev synthesis of the underlying provider (openai)
+            // so the picker still surfaces real GPT models instead of Flux-only
+            // (#374). A non-empty CLI enumeration always wins (it is the source
+            // of truth for the exact model ids that CLI accepts).
+            const source = deps.makeCliSource(cliKey);
+            const registry = await modelsDevClient.getRegistry().catch(() => ({}) as ModelsDevRegistry);
+            const { models } = await assembler.assemble([source], registry);
+            const enumerated = curator.curate(models);
+            if (enumerated.length > 0) return enumerated;
+          }
+          // Non-enumerable CLI (e.g. Claude Code), or an enumerable CLI whose
+          // source came back empty: synthesize from the underlying provider.
+          return synthesizeProvider(CLI_UNDERLYING_PROVIDER[cliKey]);
+        }
+
+        // Vendor-locked ACP backends (grok→xai, kimi→moonshot, …): synthesize
+        // their single provider's catalog so the home picker is never empty
+        // before first connection (#374). Unknown / multi-provider backends fall
+        // through to an empty set (the picker then offers Flux Auto if routable).
+        const acpUnderlying = ACP_BACKEND_UNDERLYING_PROVIDER[agentKey];
+        if (acpUnderlying) {
+          return synthesizeProvider(acpUnderlying);
         }
 
         return [];

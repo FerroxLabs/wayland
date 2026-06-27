@@ -1324,6 +1324,85 @@ describe('modelRegistry IPC - curatedForAgent', () => {
   });
 });
 
+describe('modelRegistry IPC - curatedForAgent ACP backends (#374)', () => {
+  it('synthesizes xAI models for the grok backend before first connection (cut blocker)', async () => {
+    // Grok Build is vendor-locked (grok.com) and not connected as an API
+    // provider, so the home picker used to dead-end on the "available after
+    // first connection" tooltip. It must instead synthesize xAI's catalog.
+    const { deps, getRegistry } = makeFakes();
+    getRegistry.mockResolvedValue({
+      xai: { models: { 'grok-4': { name: 'Grok 4' }, 'grok-3-mini': { name: 'Grok 3 Mini' } } },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'grok' })).map((m) => m.id).toSorted();
+
+    expect(ids).toEqual(['grok-3-mini', 'grok-4']);
+  });
+
+  it('prefers the connected xAI catalog for grok when the provider is connected', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'xai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.replaceRegistryCatalog('xai', [catalogModel({ id: 'grok-4', providerId: 'xai' })]);
+    const h = createModelRegistryHandlers(deps);
+
+    const curated = await h.curatedForAgent({ agentKey: 'grok' });
+
+    expect(curated.map((m) => m.id)).toEqual(['grok-4']);
+  });
+
+  it('falls back to openai synthesis for codex when the CLI enumerates nothing (Flux-only fix)', async () => {
+    // Fresh profile: codex CLI not installed -> enumeration is empty. The picker
+    // must still surface GPT models from models.dev instead of Flux-only.
+    const { deps, cliListModels, getRegistry } = makeFakes();
+    cliListModels.mockResolvedValue([]);
+    getRegistry.mockResolvedValue({ openai: { models: { 'gpt-5.5-codex': { name: 'GPT-5.5 Codex' } } } });
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'codex' })).map((m) => m.id);
+
+    expect(ids).toEqual(['gpt-5.5-codex']);
+  });
+
+  it('keeps the live CLI enumeration for codex when it is non-empty (no synthesis override)', async () => {
+    const { deps, cliListModels, getRegistry } = makeFakes();
+    cliListModels.mockResolvedValue([{ id: 'gpt-5-codex', providerId: 'openai' }]);
+    // If synthesis wrongly ran it would surface this id instead - it must NOT.
+    getRegistry.mockResolvedValue({ openai: { models: { 'should-not-appear': {} } } });
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'codex' })).map((m) => m.id);
+
+    expect(ids).toEqual(['gpt-5-codex']);
+  });
+
+  it('synthesizes moonshot models for the kimi backend', async () => {
+    const { deps, getRegistry } = makeFakes();
+    getRegistry.mockResolvedValue({ moonshotai: { models: { 'kimi-k2': { name: 'Kimi K2' } } } });
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'kimi' })).map((m) => m.id);
+
+    expect(ids).toEqual(['kimi-k2']);
+  });
+
+  it('returns [] for a multi-provider ACP backend with no single underlying provider (goose)', async () => {
+    // goose/opencode/droid/… run any connected provider, so there is no single
+    // catalog to synthesize - the picker offers Flux Auto (when routable) rather
+    // than a misleading vendor catalog.
+    const { deps, getRegistry } = makeFakes();
+    getRegistry.mockResolvedValue({ xai: { models: { 'grok-4': {} } } });
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.curatedForAgent({ agentKey: 'goose' })).toEqual([]);
+  });
+});
+
 describe('modelRegistry IPC - defensive behavior', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
