@@ -1403,6 +1403,97 @@ describe('modelRegistry IPC - curatedForAgent ACP backends (#374)', () => {
   });
 });
 
+describe('modelRegistry IPC - curatedForAgent codex via ChatGPT subscription (#374 reopen)', () => {
+  it('uses the connected chatgpt-subscription catalog for codex (not the empty openai synth)', async () => {
+    // The #377 gap: a ChatGPT-subscription user has no `openai` provider, so
+    // synthesizing `openai` returned empty and the picker fell to Flux-only.
+    const { deps, repo, cliListModels } = makeFakes();
+    cliListModels.mockResolvedValue([]); // no codex CLI installed
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'oauth',
+      state: 'connected',
+      creds: { key: 'tok' },
+    });
+    repo.replaceRegistryCatalog('chatgpt-subscription', [
+      catalogModel({ id: 'gpt-5.5', providerId: 'chatgpt-subscription' }),
+      catalogModel({ id: 'gpt-5.4', providerId: 'chatgpt-subscription' }),
+    ]);
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'codex' })).map((m) => m.id).toSorted();
+
+    expect(ids).toEqual(['gpt-5.4', 'gpt-5.5']);
+  });
+
+  it('prefers the chatgpt-subscription catalog over codex CLI enumeration', async () => {
+    const { deps, repo, cliListModels } = makeFakes();
+    cliListModels.mockResolvedValue([{ id: 'gpt-5-codex', providerId: 'openai' }]); // CLI present
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'oauth',
+      state: 'connected',
+      creds: { key: 'tok' },
+    });
+    repo.replaceRegistryCatalog('chatgpt-subscription', [
+      catalogModel({ id: 'gpt-5.5', providerId: 'chatgpt-subscription' }),
+    ]);
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'codex' })).map((m) => m.id);
+
+    expect(ids).toEqual(['gpt-5.5']);
+  });
+
+  it('falls through to CLI enumeration when chatgpt-subscription is connected but its catalog is empty', async () => {
+    const { deps, repo, cliListModels } = makeFakes();
+    cliListModels.mockResolvedValue([{ id: 'gpt-5-codex', providerId: 'openai' }]);
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'oauth',
+      state: 'connected',
+      creds: { key: 'tok' },
+    });
+    repo.replaceRegistryCatalog('chatgpt-subscription', []); // connected but no models persisted
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'codex' })).map((m) => m.id);
+
+    expect(ids).toEqual(['gpt-5-codex']);
+  });
+
+  it('still serves the openai API-key catalog for codex when no subscription is connected (#377 path intact)', async () => {
+    const { deps, repo, cliListModels } = makeFakes();
+    cliListModels.mockResolvedValue([]); // no CLI
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'sk' },
+    });
+    repo.replaceRegistryCatalog('openai', [catalogModel({ id: 'gpt-4o', providerId: 'openai' })]);
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'codex' })).map((m) => m.id);
+
+    expect(ids).toEqual(['gpt-4o']);
+  });
+
+  it('leaves claude unaffected by the codex OAuth-provider preference (empty OAuth list)', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'anthropic',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.replaceRegistryCatalog('anthropic', [catalogModel({ id: 'claude-3-5', providerId: 'anthropic' })]);
+    const h = createModelRegistryHandlers(deps);
+
+    expect((await h.curatedForAgent({ agentKey: 'claude' })).map((m) => m.id)).toEqual(['claude-3-5']);
+  });
+});
+
 describe('modelRegistry IPC - defensive behavior', () => {
   beforeEach(() => {
     vi.restoreAllMocks();

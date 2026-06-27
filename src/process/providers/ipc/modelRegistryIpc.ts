@@ -121,11 +121,28 @@ const CLOUD_REQUIRED_FIELDS: Record<string, readonly string[]> = {
 /** The CLI agent keys, mirrored from `CliAgentSource`. */
 const CLI_AGENT_KEYS: ReadonlySet<string> = new Set<CliAgentKey>(['claude', 'codex', 'gemini']);
 
-/** The provider each CLI agent runs (used for the non-enumerable fallback). */
+/** The provider each CLI agent runs (used for the not-connected models.dev
+ * fallback - must be a models.dev-keyed provider). */
 const CLI_UNDERLYING_PROVIDER: Record<CliAgentKey, ProviderId> = {
   claude: 'anthropic',
   codex: 'openai',
   gemini: 'google-gemini',
+};
+
+/**
+ * OAuth/subscription providers a CLI may be authenticated through, BEYOND its
+ * primary `CLI_UNDERLYING_PROVIDER` API-key provider (#374). Codex authenticates
+ * via a ChatGPT subscription (`chatgpt-subscription`, OAuth) far more often than
+ * an `openai` API key, and that connection persists its OWN live Codex-backend
+ * catalog (`buildChatGptSubscriptionCatalogLive`). When one of these is
+ * connected the home picker must use its real catalog instead of synthesizing
+ * the (unconnected, therefore empty) API-key provider - the gap #377 missed,
+ * which made the Codex picker fall back to Flux-only for subscription users.
+ */
+const CLI_OAUTH_PROVIDERS: Record<CliAgentKey, ProviderId[]> = {
+  claude: [],
+  codex: [CHATGPT_SUBSCRIPTION_PROVIDER_ID],
+  gemini: [],
 };
 
 /**
@@ -1058,6 +1075,21 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
         if (CLI_AGENT_KEYS.has(agentKey)) {
           const cliKey = agentKey as CliAgentKey;
+
+          // A CLI may be authenticated via an OAuth subscription rather than an
+          // API key (Codex via a ChatGPT subscription -> `chatgpt-subscription`).
+          // That connection persists its own real, live-fetched catalog, so when
+          // it is connected prefer it over CLI enumeration / models.dev synthesis
+          // -> the subscription user sees their actual GPT models. This is the
+          // path #377 missed: a ChatGPT-subscription user has no `openai`
+          // provider connected, so synthesizing `openai` came back empty and the
+          // picker fell to Flux-only (#374 reopen).
+          for (const providerId of CLI_OAUTH_PROVIDERS[cliKey]) {
+            if (!repo.getRegistryProvider(providerId)) continue;
+            const connected = applyOverrides(providerId, curator.curate(repo.getRegistryCatalog(providerId)));
+            if (connected.length > 0) return connected;
+          }
+
           if (isEnumerableCliAgent(cliKey)) {
             // Enumerable CLI (Codex) - prefer its live CLI source. In a fresh
             // profile with no CLI installed / no cache this yields nothing; fall
