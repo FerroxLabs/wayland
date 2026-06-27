@@ -179,7 +179,7 @@ export const useGuidAgentSelection = ({
       const assistant = customAgents.find((a) => a.id === customAgentId);
       if (assistant) {
         return {
-          backend: assistant.presetAgentType || 'gemini',
+          backend: assistant.presetAgentType || 'wcore',
           name: assistant.name,
           customAgentId: assistant.id,
           isPreset: true,
@@ -550,7 +550,7 @@ export const useGuidAgentSelection = ({
    */
   const selectPresetAssistant = useCallback(
     (preset: { id: string; presetAgentType?: string }) => {
-      const backend = (preset.presetAgentType ?? 'gemini') as AcpBackend;
+      const backend = (preset.presetAgentType ?? 'wcore') as AcpBackend;
       const key = getAgentKey({ backend, customAgentId: preset.id });
       setSelectedAgentKey(key);
     },
