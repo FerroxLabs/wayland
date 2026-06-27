@@ -23,12 +23,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // ----------------------------------------------------------------------------
 
 vi.mock('@/common', () => {
-  const suggestProvider = (globalThis as any).__suggestProviderMock ?? ((globalThis as any).__suggestProviderMock = vi.fn());
-  const telemetryProvider = (globalThis as any).__telemetryProviderMock ?? ((globalThis as any).__telemetryProviderMock = vi.fn());
+  const suggestProvider =
+    (globalThis as any).__suggestProviderMock ?? ((globalThis as any).__suggestProviderMock = vi.fn());
+  const suggestManyProvider =
+    (globalThis as any).__suggestManyProviderMock ?? ((globalThis as any).__suggestManyProviderMock = vi.fn());
+  const telemetryProvider =
+    (globalThis as any).__telemetryProviderMock ?? ((globalThis as any).__telemetryProviderMock = vi.fn());
   return {
     ipcBridge: {
       kickoff: {
         suggest: { provider: suggestProvider },
+        suggestMany: { provider: suggestManyProvider },
         telemetry: { provider: telemetryProvider },
       },
     },
@@ -37,13 +42,16 @@ vi.mock('@/common', () => {
 
 vi.mock('@process/services/kickoff/kickoffSingleton', () => {
   const engineSuggest = (globalThis as any).__engineSuggestMock ?? ((globalThis as any).__engineSuggestMock = vi.fn());
+  const engineSuggestN =
+    (globalThis as any).__engineSuggestNMock ?? ((globalThis as any).__engineSuggestNMock = vi.fn());
   return {
-    getKickoffEngine: () => ({ suggest: engineSuggest }),
+    getKickoffEngine: () => ({ suggest: engineSuggest, suggestN: engineSuggestN }),
   };
 });
 
 vi.mock('@process/extensions/ExtensionRegistry', () => {
-  const whenInitialized = (globalThis as any).__whenInitializedMock ?? ((globalThis as any).__whenInitializedMock = vi.fn());
+  const whenInitialized =
+    (globalThis as any).__whenInitializedMock ?? ((globalThis as any).__whenInitializedMock = vi.fn());
   return {
     ExtensionRegistry: {
       getInstance: () => ({ whenInitialized }),
@@ -52,20 +60,23 @@ vi.mock('@process/extensions/ExtensionRegistry', () => {
 });
 
 vi.mock('@process/services/cron/cronReadiness', () => {
-  const waitForCronReady = (globalThis as any).__waitForCronReadyMock ?? ((globalThis as any).__waitForCronReadyMock = vi.fn());
+  const waitForCronReady =
+    (globalThis as any).__waitForCronReadyMock ?? ((globalThis as any).__waitForCronReadyMock = vi.fn());
   return {
     waitForCronReady: (...args: unknown[]) => waitForCronReady(...args),
   };
 });
 
 const suggestProviderMock: ReturnType<typeof vi.fn> = (globalThis as any).__suggestProviderMock;
+const suggestManyProviderMock: ReturnType<typeof vi.fn> = (globalThis as any).__suggestManyProviderMock;
 const telemetryProviderMock: ReturnType<typeof vi.fn> = (globalThis as any).__telemetryProviderMock;
 const engineSuggestMock: ReturnType<typeof vi.fn> = (globalThis as any).__engineSuggestMock;
+const engineSuggestNMock: ReturnType<typeof vi.fn> = (globalThis as any).__engineSuggestNMock;
 const whenInitializedMock: ReturnType<typeof vi.fn> = (globalThis as any).__whenInitializedMock;
 const waitForCronReadyMock: ReturnType<typeof vi.fn> = (globalThis as any).__waitForCronReadyMock;
 
 import { initKickoffBridge } from '@process/bridge/kickoffBridge';
-import type { KickoffResult, KickoffTelemetryEvent } from '@process/services/kickoff/types';
+import type { KickoffGridResult, KickoffResult, KickoffTelemetryEvent } from '@process/services/kickoff/types';
 
 // Pulls the most-recently-registered handler from a `.provider` mock. The
 // bridge calls `.provider(fn)` once at init; we re-init in `beforeEach`
@@ -82,10 +93,18 @@ function getTelemetryHandler(): (raw: unknown) => Promise<void> {
   return last[0] as (raw: unknown) => Promise<void>;
 }
 
+function getSuggestManyHandler(): (raw: unknown) => Promise<KickoffGridResult> {
+  const last = suggestManyProviderMock.mock.calls.at(-1);
+  if (!last) throw new Error('suggestMany provider was never registered');
+  return last[0] as (raw: unknown) => Promise<KickoffGridResult>;
+}
+
 beforeEach(() => {
   suggestProviderMock.mockReset();
+  suggestManyProviderMock.mockReset();
   telemetryProviderMock.mockReset();
   engineSuggestMock.mockReset();
+  engineSuggestNMock.mockReset();
   whenInitializedMock.mockReset();
   waitForCronReadyMock.mockReset();
   // Sensible defaults - most tests want registry ready + cron ready.
@@ -209,12 +228,13 @@ describe('kickoffBridge.suggest - registry readiness', () => {
       ipcBridge: {
         kickoff: {
           suggest: { provider: suggestProviderMock },
+          suggestMany: { provider: suggestManyProviderMock },
           telemetry: { provider: telemetryProviderMock },
         },
       },
     }));
     vi.doMock('@process/services/kickoff/kickoffSingleton', () => ({
-      getKickoffEngine: () => ({ suggest: engineSuggestMock }),
+      getKickoffEngine: () => ({ suggest: engineSuggestMock, suggestN: engineSuggestNMock }),
     }));
     vi.doMock('@process/services/cron/cronReadiness', () => ({
       waitForCronReady: () => Promise.resolve('ready' as const),
@@ -301,9 +321,7 @@ describe('kickoffBridge.telemetry - validation', () => {
   it("silently drops payload with notRenderedReason: 'unknown'", async () => {
     const handler = getTelemetryHandler();
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-    await expect(
-      handler({ event: 'not_rendered', notRenderedReason: 'unknown' })
-    ).resolves.toBeUndefined();
+    await expect(handler({ event: 'not_rendered', notRenderedReason: 'unknown' })).resolves.toBeUndefined();
     expect(debugSpy).not.toHaveBeenCalled();
     debugSpy.mockRestore();
   });
@@ -311,9 +329,7 @@ describe('kickoffBridge.telemetry - validation', () => {
   it('silently drops payload with notRenderedReason longer than 128 chars', async () => {
     const handler = getTelemetryHandler();
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-    await expect(
-      handler({ event: 'not_rendered', notRenderedReason: 'a'.repeat(129) })
-    ).resolves.toBeUndefined();
+    await expect(handler({ event: 'not_rendered', notRenderedReason: 'a'.repeat(129) })).resolves.toBeUndefined();
     expect(debugSpy).not.toHaveBeenCalled();
     debugSpy.mockRestore();
   });
@@ -329,9 +345,7 @@ describe('kickoffBridge.telemetry - validation', () => {
   it('silently drops payload with invalid dismissReason', async () => {
     const handler = getTelemetryHandler();
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
-    await expect(
-      handler({ event: 'dismissed', dismissReason: 'rage-quit' })
-    ).resolves.toBeUndefined();
+    await expect(handler({ event: 'dismissed', dismissReason: 'rage-quit' })).resolves.toBeUndefined();
     expect(debugSpy).not.toHaveBeenCalled();
     debugSpy.mockRestore();
   });
@@ -396,5 +410,54 @@ describe('kickoffBridge.telemetry - validation', () => {
     await expect(handler('hi')).resolves.toBeUndefined();
     expect(debugSpy).not.toHaveBeenCalled();
     debugSpy.mockRestore();
+  });
+});
+
+// ============================================================================
+// #375 - suggestMany (per-assistant suggested-prompts grid)
+// ============================================================================
+
+describe('kickoffBridge.suggestMany', () => {
+  it('rejects a malformed assistantId with notRendered=error and never reaches the engine', async () => {
+    const handler = getSuggestManyHandler();
+    const result = await handler({ assistantId: 'Bad Id!' });
+    expect(result).toEqual({ notRendered: 'error' });
+    expect(engineSuggestNMock).not.toHaveBeenCalled();
+  });
+
+  it('returns notRendered=registry-not-ready when the registry never initializes', async () => {
+    whenInitializedMock.mockReturnValue(new Promise(() => {})); // never resolves → race loses to timeout
+    vi.useFakeTimers();
+    const handler = getSuggestManyHandler();
+    const pending = handler({ assistantId: 'helm' });
+    await vi.advanceTimersByTimeAsync(3000);
+    const result = await pending;
+    vi.useRealTimers();
+    expect(result).toEqual({ notRendered: 'registry-not-ready' });
+    expect(engineSuggestNMock).not.toHaveBeenCalled();
+  });
+
+  it('forwards clamped max + locale to the engine and returns its items', async () => {
+    engineSuggestNMock.mockResolvedValue({ items: [{ text: 'Go', prefill: 'Go', source: 'prompts' }] });
+    const handler = getSuggestManyHandler();
+    const result = await handler({ assistantId: 'cowork', max: 99, locale: 'zh-CN' });
+    expect(engineSuggestNMock).toHaveBeenCalledWith('cowork', 6, 'zh-CN');
+    expect(result).toEqual({ items: [{ text: 'Go', prefill: 'Go', source: 'prompts' }] });
+  });
+
+  it('drops a non-positive max so the engine applies its own default', async () => {
+    engineSuggestNMock.mockResolvedValue({ items: [] });
+    const handler = getSuggestManyHandler();
+    await handler({ assistantId: 'helm', max: 0 });
+    expect(engineSuggestNMock).toHaveBeenCalledWith('helm', 1, undefined);
+  });
+
+  it('maps an engine throw to notRendered=engine-error with a sanitized errorName', async () => {
+    engineSuggestNMock.mockRejectedValue(Object.assign(new Error('boom /Users/x'), { name: 'RangeError' }));
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const handler = getSuggestManyHandler();
+    const result = await handler({ assistantId: 'helm' });
+    expect(result).toEqual({ notRendered: 'engine-error', errorName: 'RangeError' });
+    warnSpy.mockRestore();
   });
 });

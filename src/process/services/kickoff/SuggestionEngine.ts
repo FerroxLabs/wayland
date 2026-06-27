@@ -8,6 +8,7 @@ import type { SignalCollector } from './SignalCollector';
 import { findAssistantInRegistry } from './SignalCollector';
 import { dateKey, hashSeed, seededShuffle } from './seededShuffle';
 import {
+  KICKOFF_GRID_MAX,
   THREAD_MIN_DURATION_MS,
   THREAD_MIN_MESSAGES,
   THREAD_RECENT_WINDOW_MS,
@@ -15,6 +16,8 @@ import {
   type KickoffCascadeLevel,
   type KickoffCascadeReason,
   type KickoffEntry,
+  type KickoffGridItem,
+  type KickoffGridResult,
   type KickoffResult,
   type KickoffSignals,
   type KickoffSuggestion,
@@ -104,6 +107,104 @@ export class SuggestionEngine {
 
     return { notRendered: 'all-levels-missed' };
   }
+
+  /**
+   * #375 - per-assistant suggested-prompts GRID. Returns up to `max` browseable
+   * starters for the assistant detail view (below the composer), each prefilling
+   * the composer on click.
+   *
+   * Ranking (Sean-approved): beginner-safe first, then entries matching the
+   * current time bucket, then a daily-stable seeded shuffle for the remainder
+   * (same install + assistant + day → same order). Unlike `suggest`, this does
+   * NOT walk the 5-level cascade: the grid is a flat browse surface, not a
+   * single confident offer.
+   *
+   * Fallback: assistants that ship no `kickoffs` (the ASSISTANT_PRESETS like
+   * `cowork`, which carry localized `promptsI18n`, and a few catalog rows with
+   * only the legacy flat `prompts`) fall back to those prompt strings. This is
+   * why the grid (and the previously-empty Cowork detail view) renders at all
+   * for kickoff-less assistants. `locale` selects the `promptsI18n` variant;
+   * flat `prompts` are locale-agnostic.
+   */
+  async suggestN(
+    assistantId: string,
+    max: number = KICKOFF_GRID_MAX,
+    locale: string = 'en-US'
+  ): Promise<KickoffGridResult> {
+    const cap = Math.max(1, Math.min(max, KICKOFF_GRID_MAX));
+    const assistant = this.registryFinder(assistantId);
+    if (!assistant) return { notRendered: 'unknown-assistant' };
+    if ((assistant as { _kickoffsExcluded?: unknown })._kickoffsExcluded === true) {
+      return { notRendered: 'kickoffs-excluded' };
+    }
+
+    const kickoffs = readKickoffArray(assistant);
+    if (kickoffs.length > 0) {
+      const signals = await this.signalCollector.collect(assistantId);
+      const items = rankGridKickoffs(kickoffs, signals, assistantId)
+        .slice(0, cap)
+        .map<KickoffGridItem>((k) => ({ kickoffId: k.id, text: k.text, prefill: k.prefill, source: 'kickoff' }));
+      return { items };
+    }
+
+    // Fallback: legacy prompt strings (presets carry localized promptsI18n;
+    // some catalog rows carry only a flat prompts array).
+    const prompts = readPromptsFallback(assistant, locale).slice(0, cap);
+    if (prompts.length > 0) {
+      return { items: prompts.map<KickoffGridItem>((p) => ({ text: p, prefill: p, source: 'prompts' })) };
+    }
+
+    return { notRendered: 'no-kickoffs-defined' };
+  }
+}
+
+/**
+ * #375 - grid ordering. Stable across a day for one install: seed the base
+ * shuffle with `installUuid:assistantId:dateKey`, then stable-sort so
+ * beginner-safe entries lead and current-time-bucket entries follow, with the
+ * shuffled order breaking ties. De-dupes by id defensively (readKickoffArray
+ * already drops malformed rows, but a bundle could repeat an id).
+ */
+function rankGridKickoffs(kickoffs: KickoffEntry[], signals: KickoffSignals, assistantId: string): KickoffEntry[] {
+  const seed = hashSeed(`${signals.installUuid}:${assistantId}:${dateKey(signals.now)}`);
+  const shuffled = seededShuffle(kickoffs, seed);
+  const seen = new Set<string>();
+  const deduped = shuffled.filter((k) => (seen.has(k.id) ? false : (seen.add(k.id), true)));
+  const score = (k: KickoffEntry): number =>
+    (k.beginnerSafe === true ? 2 : 0) + (k.timeBucket === signals.timeBucket ? 1 : 0);
+  // Stable sort: Array.prototype.sort is stable in V8, so equal scores keep the
+  // seeded-shuffle order.
+  return deduped.toSorted((a, b) => score(b) - score(a));
+}
+
+/**
+ * #375 - read legacy prompt strings for the grid fallback. Prefers the flat
+ * `prompts` array (catalog rows), then `promptsI18n[locale]` with an `en-US`
+ * backstop (ASSISTANT_PRESETS like cowork). Returns trimmed, non-empty,
+ * de-duplicated strings; never throws on a malformed shape.
+ */
+function readPromptsFallback(raw: Record<string, unknown>, locale: string): string[] {
+  const out: string[] = [];
+  const push = (v: unknown): void => {
+    if (typeof v === 'string') {
+      const t = v.trim();
+      if (t.length > 0) out.push(t);
+    }
+  };
+
+  const flat = (raw as { prompts?: unknown }).prompts;
+  if (Array.isArray(flat)) flat.forEach(push);
+
+  if (out.length === 0) {
+    const i18n = (raw as { promptsI18n?: unknown }).promptsI18n;
+    if (i18n && typeof i18n === 'object') {
+      const byLocale = i18n as Record<string, unknown>;
+      const chosen = byLocale[locale] ?? byLocale['en-US'] ?? Object.values(byLocale)[0];
+      if (Array.isArray(chosen)) chosen.forEach(push);
+    }
+  }
+
+  return Array.from(new Set(out));
 }
 
 function pickQualityThread(signals: KickoffSignals): KickoffSignals['assistantRecentConversations'][number] | null {

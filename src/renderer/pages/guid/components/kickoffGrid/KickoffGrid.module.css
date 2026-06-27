@@ -1,0 +1,56 @@
+/* #375 - per-assistant suggested-prompts grid (assistant detail view). */
+
+.wrap {
+  margin: 12px auto 0;
+  width: 100%;
+}
+
+.heading {
+  margin: 0 0 8px 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+/* Single column on narrow layouts so card text never truncates awkwardly. */
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  /* Mirrors KickoffCard's elevated surface so the grid reads as the same family. */
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  background-color: var(--bg-hover);
+  border-color: var(--color-border-3);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.02),
+    0 8px 24px rgba(0, 0, 0, 0.04);
+  outline: none;
+}

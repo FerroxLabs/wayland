@@ -872,6 +872,7 @@ export type I18nKey =
   | 'guid.agentFallbackNotice'
   | 'guid.agentSwitcherLabel'
   | 'guid.agentTabAutoSwitch'
+  | 'guid.assistantDetail.kickoffGrid.heading'
   | 'guid.autoSwitchToAgent'
   | 'guid.autoSwitchedAgent'
   | 'guid.hint.backend'

@@ -75,6 +75,28 @@ export type KickoffNotRendered = {
 export type KickoffResult = KickoffSuggestion | KickoffNotRendered;
 
 /**
+ * #375 - a single card in the per-assistant suggested-prompts GRID rendered
+ * below the composer in the assistant detail view. Distinct from the single
+ * yes-bias KickoffSuggestion: the grid shows several browseable starters, each
+ * of which prefills (not auto-sends) the composer on click.
+ *
+ * `source` records where the entry came from so the renderer + tests can tell
+ * a ranked kickoff from a legacy-prompt fallback. `kickoffId` is only set for
+ * `source: 'kickoff'` (legacy prompts have no stable id).
+ */
+export type KickoffGridItem = {
+  kickoffId?: string;
+  text: string;
+  prefill: string;
+  source: 'kickoff' | 'prompts';
+};
+
+export type KickoffGridResult = { items: KickoffGridItem[] } | KickoffNotRendered;
+
+/** #375 - default + hard cap on grid card count (Sean-approved 4-6 range). */
+export const KICKOFF_GRID_MAX = 6;
+
+/**
  * v0.4.7.1 (D-M-3) - `reason` discriminator on dismiss lets v2 analytics
  * separate "user clicked ×" from "user just started typing past the card."
  * Both are dismissals but they mean very different things for cold-start

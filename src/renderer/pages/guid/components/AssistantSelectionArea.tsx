@@ -28,6 +28,8 @@ import { isImageAvatar } from '@/renderer/utils/avatar';
 import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useKickoffGrid } from '@/renderer/hooks/kickoff/useKickoffGrid';
+import KickoffGrid from './kickoffGrid/KickoffGrid';
 
 type AssistantSelectionAreaProps = {
   isPresetAgent: boolean;
@@ -207,6 +209,20 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
     onRegisterOpenDetails(openAssistantDetails);
   }, [onRegisterOpenDetails, openAssistantDetails]);
 
+  // #375 - per-assistant suggested-prompts grid for the selected-assistant
+  // detail view. Same id source as GuidPage's single-card wiring
+  // (selectedAgentInfo.customAgentId). Clicking a card prefills the composer
+  // (editable, not auto-send) via the onSetInput/onFocusInput props.
+  const kickoffGridAssistantId = isPresetAgent ? selectedAgentInfo?.customAgentId : undefined;
+  const kickoffGrid = useKickoffGrid(kickoffGridAssistantId, localeKey);
+  const handleKickoffSelect = useCallback(
+    (prefill: string) => {
+      onSetInput(prefill);
+      onFocusInput();
+    },
+    [onSetInput, onFocusInput]
+  );
+
   // Only render if there are preset agents
   if (!customAgents || !customAgents.some((a) => a.isPreset)) return null;
 
@@ -238,7 +254,10 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
               </span>
             </div>
           )}
-          {/* Per-assistant example prompts removed - intent pills above cover discovery. */}
+          {/* #375 - per-assistant suggested prompts, restored as a prompt-cards
+              grid (replaces the v0.9.6 removal). Reuses the assistant's kickoffs
+              (ranked) or legacy prompts; clicking a card prefills the composer. */}
+          {kickoffGrid.visible ? <KickoffGrid items={kickoffGrid.items} onSelect={handleKickoffSelect} /> : null}
         </div>
         {modalTree}
       </div>
@@ -265,8 +284,7 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
           .map((assistant) => {
             const avatarValue = assistant.avatar?.trim();
             const LucideIconComponent = getLucideIcon(avatarValue);
-            const mappedAvatar =
-              !LucideIconComponent && avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
+            const mappedAvatar = !LucideIconComponent && avatarValue ? CUSTOM_AVATAR_IMAGE_MAP[avatarValue] : undefined;
             const resolvedAvatar =
               !LucideIconComponent && avatarValue ? resolveExtensionAssetUrl(avatarValue) : undefined;
             const avatarImage = mappedAvatar || resolvedAvatar;
