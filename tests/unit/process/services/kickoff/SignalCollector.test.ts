@@ -554,7 +554,10 @@ describe('findAssistantInRegistry', () => {
     getInstanceMock.mockReturnValue({
       getAssistants: () => [{ id: 'other' }],
     });
-    expect(findAssistantInRegistry('helm')).toBeNull();
+    // Must be absent from BOTH the (mocked) ExtensionRegistry AND the real
+    // built-in catalog the function falls back to (#375). `helm` now ships in
+    // the catalog, so use a sentinel id guaranteed not to exist anywhere.
+    expect(findAssistantInRegistry('__no-such-assistant__')).toBeNull();
   });
 
   it('returns null + warns on ambiguous match (>1 hit)', () => {
