@@ -115,6 +115,12 @@ vi.mock('@arco-design/web-react', () => {
 const mockCuratedForAgent = vi.fn();
 vi.mock('@/renderer/hooks/useModelRegistry', () => ({
   useModelRegistry: () => ({ curatedForAgent: mockCuratedForAgent, registryVersion: 0 }),
+  // #384 paints a synchronous cache snapshot on agent (re)select. Returning
+  // `undefined` keeps the loading state so these tests stay driven purely by
+  // the `curatedForAgent` fetch they assert. `warmCuratedForAgent` is a
+  // best-effort pre-warm no-op here.
+  peekCuratedForAgent: () => undefined,
+  warmCuratedForAgent: () => {},
 }));
 
 // The home picker now delegates rendering to the shared `ModelSelectorFlyout`

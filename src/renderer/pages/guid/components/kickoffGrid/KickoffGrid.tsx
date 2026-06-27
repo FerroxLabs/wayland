@@ -51,7 +51,7 @@ const KickoffGrid: React.FC<KickoffGridProps> = ({ items, onSelect }) => {
   return (
     <div className={styles.wrap} data-testid='assistant-kickoff-grid'>
       <div className={styles.heading}>
-        {t('guid.assistantDetail.kickoffGrid.heading', { defaultValue: 'Start with one of these' })}
+        {t('guid.assistantDetail.kickoffGrid.heading', { defaultValue: 'Try one of these' })}
       </div>
       <div className={styles.grid}>
         {items.map((item, index) => {
