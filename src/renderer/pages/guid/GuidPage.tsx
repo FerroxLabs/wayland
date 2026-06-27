@@ -1179,6 +1179,7 @@ const GuidPage: React.FC = () => {
               openAssistantDetailsRef.current = openDetails;
             }}
             excludeKickoffId={kickoff.currentKickoffId}
+            showKickoffGrid={showPresetHero}
             hideInlineGrid
           />
         </div>

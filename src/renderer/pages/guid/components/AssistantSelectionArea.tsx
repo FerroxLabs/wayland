@@ -45,6 +45,12 @@ type AssistantSelectionAreaProps = {
   /** Kickoff id shown in the single hero card; excluded from the grid so it never repeats. */
   excludeKickoffId?: string;
   /**
+   * Render the suggested-prompts grid only on the focused assistant view (the
+   * preset hero), NOT the new-chat/home surface where the launchpad + intent
+   * pills already cover "what can I do". GuidPage passes `showPresetHero`.
+   */
+  showKickoffGrid?: boolean;
+  /**
    * Phase 2 chat-redesign: when true, the inline pill grid is suppressed so
    * the new layered starter (Greeting + IntentPillBar + SuggestionPanel +
    * Recents) owns the new-chat surface. The modal/drawer tree (edit drawer,
@@ -71,6 +77,7 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
   onFocusInput,
   onRegisterOpenDetails,
   excludeKickoffId,
+  showKickoffGrid = false,
   hideInlineGrid = false,
 }) => {
   const { t } = useTranslation();
@@ -257,17 +264,19 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
               </span>
             </div>
           )}
-          {/* #375 - per-assistant suggested prompts, restored as a prompt-cards
-              grid (replaces the v0.9.6 removal). Reuses the assistant's kickoffs
-              (ranked) or legacy prompts; clicking a card prefills the composer. */}
-          {(() => {
-            // Exclude the kickoff already shown in the single hero card so the
-            // grid never repeats it (featured card + distinct grid options).
-            const gridItems = excludeKickoffId
-              ? kickoffGrid.items.filter((i) => i.kickoffId !== excludeKickoffId)
-              : kickoffGrid.items;
-            return gridItems.length > 0 ? <KickoffGrid items={gridItems} onSelect={handleKickoffSelect} /> : null;
-          })()}
+          {/* #375 - per-assistant suggested prompts grid. Shown ONLY on the
+              focused assistant view (preset hero); hidden on the new-chat/home
+              surface where the launchpad cards + intent pills already cover
+              "what can I do". GuidPage passes showKickoffGrid={showPresetHero}. */}
+          {showKickoffGrid &&
+            (() => {
+              // Exclude the kickoff already shown in the single hero card so the
+              // grid never repeats it (featured card + distinct grid options).
+              const gridItems = excludeKickoffId
+                ? kickoffGrid.items.filter((i) => i.kickoffId !== excludeKickoffId)
+                : kickoffGrid.items;
+              return gridItems.length > 0 ? <KickoffGrid items={gridItems} onSelect={handleKickoffSelect} /> : null;
+            })()}
         </div>
         {modalTree}
       </div>
