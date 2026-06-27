@@ -1178,6 +1178,7 @@ const GuidPage: React.FC = () => {
             onRegisterOpenDetails={(openDetails) => {
               openAssistantDetailsRef.current = openDetails;
             }}
+            excludeKickoffId={kickoff.currentKickoffId}
             hideInlineGrid
           />
         </div>

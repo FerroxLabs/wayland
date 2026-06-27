@@ -42,6 +42,8 @@ type AssistantSelectionAreaProps = {
   onSetInput: (text: string) => void;
   onFocusInput: () => void;
   onRegisterOpenDetails?: (openDetails: (() => void) | null) => void;
+  /** Kickoff id shown in the single hero card; excluded from the grid so it never repeats. */
+  excludeKickoffId?: string;
   /**
    * Phase 2 chat-redesign: when true, the inline pill grid is suppressed so
    * the new layered starter (Greeting + IntentPillBar + SuggestionPanel +
@@ -68,6 +70,7 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
   onSetInput,
   onFocusInput,
   onRegisterOpenDetails,
+  excludeKickoffId,
   hideInlineGrid = false,
 }) => {
   const { t } = useTranslation();
@@ -257,7 +260,14 @@ const AssistantSelectionArea: React.FC<AssistantSelectionAreaProps> = ({
           {/* #375 - per-assistant suggested prompts, restored as a prompt-cards
               grid (replaces the v0.9.6 removal). Reuses the assistant's kickoffs
               (ranked) or legacy prompts; clicking a card prefills the composer. */}
-          {kickoffGrid.visible ? <KickoffGrid items={kickoffGrid.items} onSelect={handleKickoffSelect} /> : null}
+          {(() => {
+            // Exclude the kickoff already shown in the single hero card so the
+            // grid never repeats it (featured card + distinct grid options).
+            const gridItems = excludeKickoffId
+              ? kickoffGrid.items.filter((i) => i.kickoffId !== excludeKickoffId)
+              : kickoffGrid.items;
+            return gridItems.length > 0 ? <KickoffGrid items={gridItems} onSelect={handleKickoffSelect} /> : null;
+          })()}
         </div>
         {modalTree}
       </div>

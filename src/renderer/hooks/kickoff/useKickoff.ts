@@ -47,6 +47,8 @@ function isSuggestion(result: KickoffResult): result is KickoffSuggestion {
 export type UseKickoffReturn = {
   visible: boolean;
   currentText: string | undefined;
+  /** Id of the kickoff currently shown in the single card, so the grid can exclude it (no repeat). */
+  currentKickoffId: string | undefined;
   /** Returns the prefill string the input should drop in (or undefined if no suggestion). */
   accept: () => string | undefined;
   redirect: () => void;
@@ -224,8 +226,10 @@ export function useKickoff(assistantId: string | undefined): UseKickoffReturn {
   const visible = !dismissed && suggestion !== null;
   const currentText =
     alternateIndex === 0 ? suggestion?.text : suggestion?.alternates[alternateIndex - 1]?.text;
+  const currentKickoffId =
+    alternateIndex === 0 ? suggestion?.kickoffId : suggestion?.alternates[alternateIndex - 1]?.kickoffId;
 
-  return { visible, currentText, accept, redirect, dismissByInteraction, dismissByTyping };
+  return { visible, currentText, currentKickoffId, accept, redirect, dismissByInteraction, dismissByTyping };
 }
 
 function fireTelemetry(event: KickoffTelemetryEvent): Promise<void> {
