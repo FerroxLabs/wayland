@@ -12,7 +12,7 @@ import type { CuratedModel, ProviderId } from '@process/providers/types';
 import { FLUX_MODEL_DISPLAY, FLUX_MODEL_IDS, isFluxModelId, type FluxModelId } from '@/common/config/flux';
 import { getFluxCompat } from '@/common/types/acpTypes';
 import { useFluxConnected } from '@/renderer/hooks/useFluxConnected';
-import { useModelRegistry } from '@/renderer/hooks/useModelRegistry';
+import { peekCuratedForAgent, useModelRegistry } from '@/renderer/hooks/useModelRegistry';
 import { useUsageTelemetry } from '@/renderer/hooks/usage/useUsageTelemetry';
 import { usePinnedModels } from '@/renderer/hooks/usage/usePinnedModels';
 import { useModelSelectorViewModel } from '@/renderer/components/model/modelSelector/useModelSelectorViewModel';
@@ -131,7 +131,11 @@ const GuidModelSelector: React.FC<GuidModelSelectorProps> = ({
   // `listChanged`-triggered re-fetch keeps the current list on screen until the
   // new one resolves so the open dropdown doesn't flash empty mid-refresh.
   React.useEffect(() => {
-    setCurated(undefined);
+    // Paint the cached catalog synchronously on agent (re)select so the picker
+    // shows real models instantly instead of flashing the Flux-only placeholder
+    // while the IPC/CLI enumeration resolves. `undefined` (never fetched) still
+    // shows the loading state; the fetch effect below refreshes either way.
+    setCurated(peekCuratedForAgent(agentKey));
   }, [agentKey]);
   React.useEffect(() => {
     let cancelled = false;

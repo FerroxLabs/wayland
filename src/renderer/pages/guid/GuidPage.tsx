@@ -54,6 +54,7 @@ import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import type { AcpBackendConfig } from './types';
 import { Button, ConfigProvider, Dropdown, Menu, Message } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { warmCuratedForAgent } from '@/renderer/hooks/useModelRegistry';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
@@ -156,6 +157,18 @@ const GuidPage: React.FC = () => {
     () => filterVisibleAgents(agentSelection.availableAgents, hiddenSet, agentSelection.selectedAgentKey),
     [agentSelection.availableAgents, agentSelection.selectedAgentKey, hiddenSet]
   );
+
+  // Pre-warm each toolbar agent's curated model catalog as soon as the agents
+  // are known, so the FIRST open of any agent's model picker shows the real
+  // list instantly instead of flashing the Flux-only placeholder while its
+  // (sometimes CLI-spawning, e.g. `codex debug models`) enumeration resolves.
+  // Best-effort + deduped/cached in useModelRegistry; safe to call repeatedly.
+  useEffect(() => {
+    if (!Array.isArray(visibleAgents)) return;
+    for (const agent of visibleAgents) {
+      if (agent?.backend) warmCuratedForAgent(agent.backend);
+    }
+  }, [visibleAgents]);
 
   // Cold-boot launchpad gate (cross-audit smoke HIGH).
   //
@@ -803,15 +816,31 @@ const GuidPage: React.FC = () => {
   );
 
   // Resolve the effective agent type once - covers both direct selection and preset assistants
-  const effectiveAgentType = agentSelection.isPresetAgent
+  const effectiveAgentTypeRaw = agentSelection.isPresetAgent
     ? agentSelection.currentEffectiveAgentInfo.agentType
     : agentSelection.selectedAgent;
+
+  // `agent-profile` (vendored specialist assistants) and the literal
+  // `wayland-core` both run on the WCore engine, NOT an ACP CLI - the send path
+  // already collapses them to `wcore` (getConversationTypeForBackend in
+  // buildAgentConversationParams). The model picker must use the SAME mapping or
+  // it queries `curatedForAgent('agent-profile')`, gets an empty catalog, and
+  // shows a dead Flux-only / "no models" picker that can never hold a pick
+  // (#380, assistant model picker + persistence). Map at the picker boundary so
+  // assistants surface the Wayland Core catalog and default to a WCore model.
+  const WCORE_ALIAS_TYPES = new Set(['agent-profile', 'wayland-core']);
+  const effectiveAgentType = WCORE_ALIAS_TYPES.has(effectiveAgentTypeRaw) ? 'wcore' : effectiveAgentTypeRaw;
 
   // Agents that use configured model providers instead of ACP probe-based models
   const PROVIDER_BASED_AGENTS = new Set(['gemini', 'wcore']);
   const isGeminiMode =
     PROVIDER_BASED_AGENTS.has(effectiveAgentType) &&
-    (!agentSelection.isPresetAgent || agentSelection.currentEffectiveAgentInfo.isAvailable);
+    // WCore-alias presets always resolve to the always-present bundled engine, so
+    // the per-agent `isAvailable` probe (keyed on the raw preset type, which is
+    // never a detected backend) must not gate them out of the provider picker.
+    (!agentSelection.isPresetAgent ||
+      agentSelection.currentEffectiveAgentInfo.isAvailable ||
+      WCORE_ALIAS_TYPES.has(effectiveAgentTypeRaw));
 
   // Build the mention dropdown node
   const mentionDropdownNode = (

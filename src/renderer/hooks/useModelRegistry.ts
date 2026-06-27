@@ -95,6 +95,49 @@ const ModelRegistryContext = createContext<UseModelRegistry | null>(null);
  * only need pass-throughs (e.g. `curatedForAgent`) shouldn't hammer the list
  * endpoint just to satisfy the hook contract.
  */
+// ── Curated-catalog cache (kills the picker "flash") ─────────────────────────
+// Resolving a per-agent curated catalog can take seconds for an enumerable CLI
+// (Codex spawns `codex debug models` on every call). Without a cache the home
+// picker shows the Flux-only placeholder until that resolves, so opening the
+// dropdown a beat too early reads as "no models" (the recurring Codex/Grok
+// complaint). Cache results per agentKey, module-scoped so it survives agent
+// switches and component remounts within a session. Stale-while-revalidate:
+// `peekCuratedForAgent` returns the last value synchronously for an instant
+// first paint; `fetchCuratedForAgent` refreshes + dedupes concurrent calls;
+// `warmCuratedForAgent` pre-populates on app load so the FIRST open is instant.
+const curatedAgentCache = new Map<string, CuratedModel[]>();
+const curatedInFlight = new Map<string, Promise<CuratedModel[]>>();
+
+/** Last cached curated catalog for an agent, or undefined if never fetched. */
+export function peekCuratedForAgent(agentKey: string): CuratedModel[] | undefined {
+  return curatedAgentCache.get(agentKey);
+}
+
+/** Fetch (deduped) + cache the curated catalog for an agent. */
+export function fetchCuratedForAgent(agentKey: string): Promise<CuratedModel[]> {
+  const existing = curatedInFlight.get(agentKey);
+  if (existing) return existing;
+  const p = modelRegistry.curatedForAgent
+    .invoke({ agentKey })
+    .then((models) => {
+      curatedAgentCache.set(agentKey, models);
+      return models;
+    })
+    .finally(() => {
+      curatedInFlight.delete(agentKey);
+    });
+  curatedInFlight.set(agentKey, p);
+  return p;
+}
+
+/** Pre-populate the cache (fire-and-forget) so the first picker open is instant. */
+export function warmCuratedForAgent(agentKey: string): void {
+  if (!agentKey || curatedAgentCache.has(agentKey) || curatedInFlight.has(agentKey)) return;
+  void fetchCuratedForAgent(agentKey).catch(() => {
+    /* warm is best-effort; the on-open fetch still runs */
+  });
+}
+
 function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
   const [providers, setProviders] = useState<IModelRegistryProviderView[]>([]);
   const [loading, setLoading] = useState(!skipInitialReload);
@@ -209,7 +252,7 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
     [reload]
   );
 
-  const curatedForAgent = useCallback((agentKey: string) => modelRegistry.curatedForAgent.invoke({ agentKey }), []);
+  const curatedForAgent = useCallback((agentKey: string) => fetchCuratedForAgent(agentKey), []);
 
   const getProviderCatalog = useCallback(() => modelRegistry.getProviderCatalog.invoke(), []);
 
