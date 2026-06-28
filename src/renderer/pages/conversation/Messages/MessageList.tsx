@@ -226,10 +226,14 @@ const ChatTimeMarkerRow: React.FC<{ marker: ChatTimeMarker }> = ({ marker }) => 
 // render). This is what keeps the orbit indicator MOUNTED across re-renders, so
 // its CSS animation runs continuously instead of restarting (= flashing) every
 // streamed token. The processing state reaches the footer via Virtuoso `context`.
-type MessageListContext = { isProcessing?: boolean; currentLabel?: string };
+type MessageListContext = { isProcessing?: boolean; currentLabel?: string; turnStartTime?: number };
 const ListHeader: React.FC = () => <div className='h-10px' />;
 const ListFooter: React.FC<{ context?: MessageListContext }> = ({ context }) => (
-  <OrbitThinking isProcessing={!!context?.isProcessing} currentLabel={context?.currentLabel} />
+  <OrbitThinking
+    isProcessing={!!context?.isProcessing}
+    currentLabel={context?.currentLabel}
+    startTime={context?.turnStartTime}
+  />
 );
 const LIST_COMPONENTS = { Header: ListHeader, Footer: ListFooter } as const;
 
@@ -499,6 +503,20 @@ const ConversationMessageList: React.FC<{
     return undefined;
   }, [processedList, isProcessing]);
 
+  // #288: the orbit's elapsed timer is anchored to the turn's actual start - the
+  // last user submission (createdAt is epoch-ms). This makes elapsed = TOTAL
+  // running time that survives chat switches (the timer no longer resets to 0 on
+  // remount), and it is undefined while idle so the timer never ticks with no
+  // task running.
+  const turnStartTime = useMemo<number | undefined>(() => {
+    if (!isProcessing) return undefined;
+    for (let i = list.length - 1; i >= 0; i--) {
+      const m = list[i];
+      if (m.position === 'right' && typeof m.createdAt === 'number') return m.createdAt;
+    }
+    return undefined;
+  }, [list, isProcessing]);
+
   const renderItem = (_index: number, item: (typeof processedList)[0]) => {
     const highlighted = matchesTargetMessage(item, highlightedMessageId);
     const marker = timeMarkers?.[_index] ?? null;
@@ -574,7 +592,7 @@ const ConversationMessageList: React.FC<{
             // resting static when done. Stable components + context avoid remounts
             // (= flashing). See LIST_COMPONENTS above.
             components={LIST_COMPONENTS}
-            context={{ isProcessing, currentLabel }}
+            context={{ isProcessing, currentLabel, turnStartTime }}
           />
         </ImagePreviewContext.Provider>
       </Image.PreviewGroup>

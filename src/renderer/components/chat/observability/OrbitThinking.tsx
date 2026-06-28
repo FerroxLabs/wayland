@@ -42,9 +42,16 @@ const PHRASES = [
 type Props = {
   isProcessing: boolean;
   currentLabel?: string;
+  /**
+   * Epoch-ms timestamp of when the running turn actually started (the user's
+   * submission). When provided, the elapsed timer counts from here so it shows
+   * TOTAL running time and survives chat switches / remounts (#288). Falls back
+   * to the mount time when absent.
+   */
+  startTime?: number;
 };
 
-const OrbitThinking: React.FC<Props> = ({ isProcessing, currentLabel }) => {
+const OrbitThinking: React.FC<Props> = ({ isProcessing, currentLabel, startTime }) => {
   const { t } = useTranslation();
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -60,19 +67,20 @@ const OrbitThinking: React.FC<Props> = ({ isProcessing, currentLabel }) => {
     return () => clearInterval(interval);
   }, [isProcessing]);
 
-  // Elapsed time: tracked only while processing, reset when idle.
+  // Elapsed time: tracked only while processing, reset when idle. Anchored to
+  // the turn's real start (#288) so returning to a still-running chat shows the
+  // TOTAL elapsed time, not time-since-reentry, and idle chats never tick.
   useEffect(() => {
     if (!isProcessing) {
       setElapsed(0);
       return;
     }
-    startTimeRef.current = Date.now();
-    setElapsed(0);
-    const interval = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
-    }, 1000);
+    startTimeRef.current = typeof startTime === 'number' ? startTime : Date.now();
+    const tick = () => setElapsed(Math.max(0, Math.floor((Date.now() - startTimeRef.current) / 1000)));
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [isProcessing]);
+  }, [isProcessing, startTime]);
 
   const sUnit = t('common.unit.second_short', { defaultValue: 's' });
   const hasRealLabel = typeof currentLabel === 'string' && currentLabel.length > 0;

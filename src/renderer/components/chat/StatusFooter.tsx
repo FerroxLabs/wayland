@@ -41,9 +41,15 @@ const PHRASES = [
 
 type StatusFooterProps = {
   isProcessing: boolean;
+  /**
+   * Epoch-ms timestamp of when the running turn actually started. When provided,
+   * the elapsed timer counts from here so it shows TOTAL running time and
+   * survives chat switches / remounts (#288). Falls back to mount time if absent.
+   */
+  startTime?: number;
 };
 
-const StatusFooter: React.FC<StatusFooterProps> = ({ isProcessing }) => {
+const StatusFooter: React.FC<StatusFooterProps> = ({ isProcessing, startTime }) => {
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
@@ -76,19 +82,20 @@ const StatusFooter: React.FC<StatusFooterProps> = ({ isProcessing }) => {
     return () => clearInterval(interval);
   }, [visible]);
 
-  // Elapsed time: start tracking when visible, update every 1s.
+  // Elapsed time: start tracking when visible, update every 1s. Anchored to the
+  // turn's real start (#288) so it shows TOTAL elapsed and survives remounts
+  // instead of resetting to 0 when switching chats and returning.
   useEffect(() => {
     if (!visible) {
       setElapsed(0);
       return;
     }
-    startTimeRef.current = Date.now();
-    setElapsed(0);
-    const interval = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
-    }, 1000);
+    startTimeRef.current = typeof startTime === 'number' ? startTime : Date.now();
+    const tick = () => setElapsed(Math.max(0, Math.floor((Date.now() - startTimeRef.current) / 1000)));
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [visible]);
+  }, [visible, startTime]);
 
   // Idle: render a spacer to preserve Virtuoso layout (no jump).
   if (!visible) return <div className={styles.spacer} />;
