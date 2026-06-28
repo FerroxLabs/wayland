@@ -9,7 +9,6 @@ import { blurActiveElement } from '@renderer/utils/ui/focus';
 import { useThemeContext } from '@renderer/hooks/context/ThemeContext';
 import {
   SiderAssistantsEntry,
-  SiderFluxRouterEntry,
   SiderMemoryEntry,
   SiderProjectsEntry,
   SiderScheduledEntry,
@@ -242,12 +241,6 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
           collapsed={collapsed}
           siderTooltipProps={siderTooltipProps}
           onClick={handleAssistantsClick}
-        />
-        <SiderFluxRouterEntry
-          isMobile={isMobile}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onClick={() => handleTopZoneNav('/settings/models')}
         />
         <SiderWorkflowsEntry
           isMobile={isMobile}

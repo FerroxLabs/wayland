@@ -19,6 +19,10 @@ All notable changes to the Wayland Electron app are documented in this file. For
 - **Ollama (Local) connects keyless.** The Browse provider tile for Ollama (Local) no longer demands an API key — the key field is hidden and Connect works with nothing entered, matching how local models actually run.
 - **Cloud credential form padding.** The AWS Bedrock / Vertex / Azure credential form in the Browse modal now has proper inset and spacing instead of sitting flush against the window edges.
 
+### Changed
+
+- **Quieter sidebar.** Removed the Flux Router status widget from the left sidebar so the nav stays focused on your own work. Flux Router is still one click away in Settings → Models.
+
 ## [0.11.4] - 2026-06-28
 
 ### Highlights
