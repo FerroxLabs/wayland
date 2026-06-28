@@ -6,15 +6,28 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [0.11.4] - 2026-06-28
 
+### Highlights
+
+- **Greatly improved chat streaming.** A ground-up rework of how responses stream and render: a real-time JSON progress stream drives a smooth, live activity view — an inline "orbit" indicator that animates while the assistant works and settles when it's done, a unified step-by-step timeline with plain-English labels for every backend, live reasoning summaries in the thinking block, and a per-message action toolbar that appears the moment a turn completes. Chat finally feels alive, legible, and fast (#337, #318, #288, and the observability rework series).
+- **Real tool-use on Windows — safely sandboxed.** Wayland now runs real shell commands and tools on Windows inside a locked-down AppContainer sandbox — so the assistant doesn't just talk, it does the work, even on a clean non-developer machine. Live-verified on Windows. (wayland-core v0.12.14)
+- **Your local models just work with tools.** Wayland detects tool support up front and transparently retries without tools for any backend that rejects them — so Ollama and llama.cpp models answer instead of erroring.
+
 ### Wayland Core engine
 
-- Bundled engine updated to v0.12.13. Local models that don't support function calling now just work: Wayland detects tool support up front (an Ollama capability probe) and, for any backend that still rejects a tools request, automatically retries without tools and remembers the result — so Ollama and llama.cpp models answer instead of erroring (#389).
+- Bundled engine updated to **v0.12.14**. Windows AppContainer shell tools now work end to end: absent developer-cache paths are skipped when applying the sandbox filesystem grant (no more hard-fail before the command runs), and the sandbox reaps its full job tree before draining output so commands return promptly instead of timing out (wayland-core #99, #100).
+- Local models that don't support function calling now just work: Wayland detects tool support up front (an Ollama capability probe) and, for any backend that still rejects a tools request, automatically retries without tools and remembers the result — so Ollama and llama.cpp models answer instead of erroring (#389).
 - Billing errors are classified more accurately, so a transient or unrelated provider error is no longer reported as "out of credit" (#329).
 - Tighter control over which environment variables and secrets reach sandboxed subprocesses, with a fail-closed sandbox toggle (#325–#327).
+- xAI / Grok sign-in uses a single, engine-preferred OAuth refresher so Grok sessions stay authenticated without token races (#390, #391).
 
-### Thinking & reasoning
+### Chat streaming & live activity (headline)
 
-- Reasoning models now show a short, live summary of what they're working through as the heading of the thinking block, updated turn by turn (#318).
+- Responses now stream over a real-time JSON progress channel and render through a reworked live activity view, so chat updates feel immediate and smooth (#337).
+- An inline "orbit" indicator animates while the assistant is working and settles to a static state when the turn is done — a single, calm signal of what's happening (replaces the old flashing/duplicated indicators).
+- A unified, step-by-step activity timeline projects every backend's events into clean, human-readable labels, so you can follow exactly what the assistant is doing regardless of which model or tool is in play.
+- Reasoning models show a short, live summary of what they're working through as the heading of the thinking block, updated turn by turn (#318).
+- A per-message action toolbar (copy, retry, and more) appears the moment a turn completes — consolidated into one clean row.
+- The turn timer is anchored to the turn's real start, so elapsed time stays accurate even when you switch chats mid-response (#288).
 
 ### Models & providers
 
