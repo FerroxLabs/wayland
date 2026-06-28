@@ -3335,6 +3335,7 @@ export type I18nKey =
   | 'settings.modelsPage.browse.keyLabel'
   | 'settings.modelsPage.browse.keyPlaceholder'
   | 'settings.modelsPage.browse.keySubtitle'
+  | 'settings.modelsPage.browse.keylessSubtitle'
   | 'settings.modelsPage.browse.noMatch'
   | 'settings.modelsPage.browse.searchPlaceholder'
   | 'settings.modelsPage.browse.subtitle'

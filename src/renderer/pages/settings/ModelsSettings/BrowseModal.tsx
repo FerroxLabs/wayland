@@ -80,6 +80,16 @@ type CatalogState =
  * A successful connect closes the modal; `useModelRegistry.connect` reloads the
  * connected list on its own.
  */
+/**
+ * Providers that connect WITHOUT an API key. A local Ollama daemon needs no
+ * credential (the backend explicitly accepts an empty key for `ollama-local`),
+ * so the connect view hides the key field and connects against the canonical
+ * `localhost:11434` default. Without this the tile rendered a key-only form that
+ * rejected every input ("OpenAI API key is required" / "Couldn't connect").
+ */
+const KEYLESS_PROVIDER_IDS = new Set<ProviderId>(['ollama-local']);
+const isKeylessProvider = (id: ProviderId): boolean => KEYLESS_PROVIDER_IDS.has(id);
+
 const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider, connectKey }) => {
   const { t } = useTranslation();
   const { providers, connect, getProviderCatalog } = useModelRegistry();
@@ -209,7 +219,9 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider, conne
   const handleKeyConnect = useCallback(async () => {
     if (view.kind !== 'key') return;
     const key = keyValue.trim();
-    if (!key) return;
+    // Keyless providers (local Ollama) connect with an empty key; everyone else
+    // needs one before the request is worth sending.
+    if (!key && !isKeylessProvider(view.provider.id)) return;
     // Ship-gate Fix B2: `openai-compatible` accepts an optional `baseUrl`. A
     // non-empty value is submitted as `creds.baseUrl`; an empty value falls
     // back to the canonical default at chat-start time (no harm in sending
@@ -260,7 +272,9 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider, conne
       : view.kind === 'catalog'
         ? t('settings.modelsPage.browse.catalog.subtitle')
         : view.kind === 'key'
-          ? t('settings.modelsPage.browse.keySubtitle', { provider: view.provider.displayName })
+          ? isKeylessProvider(view.provider.id)
+            ? t('settings.modelsPage.browse.keylessSubtitle', { provider: view.provider.displayName })
+            : t('settings.modelsPage.browse.keySubtitle', { provider: view.provider.displayName })
           : undefined;
 
   // ---- Tile renderer -----------------------------------------------------
@@ -527,18 +541,22 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider, conne
 
       {view.kind === 'key' && (
         <div className={styles.keyForm}>
-          <div className={styles.keyLabel}>{t('settings.modelsPage.browse.keyLabel')}</div>
-          <Input.Password
-            value={keyValue}
-            onChange={(v) => {
-              setKeyValue(v);
-              setErrorKey(null);
-            }}
-            onPressEnter={() => void handleKeyConnect()}
-            placeholder={t('settings.modelsPage.browse.keyPlaceholder')}
-            aria-label={t('settings.modelsPage.browse.keyLabel')}
-            disabled={connecting}
-          />
+          {!isKeylessProvider(view.provider.id) && (
+            <>
+              <div className={styles.keyLabel}>{t('settings.modelsPage.browse.keyLabel')}</div>
+              <Input.Password
+                value={keyValue}
+                onChange={(v) => {
+                  setKeyValue(v);
+                  setErrorKey(null);
+                }}
+                onPressEnter={() => void handleKeyConnect()}
+                placeholder={t('settings.modelsPage.browse.keyPlaceholder')}
+                aria-label={t('settings.modelsPage.browse.keyLabel')}
+                disabled={connecting}
+              />
+            </>
+          )}
           {/* Ship-gate Fix B2: `openai-compatible` connect collects an optional
               `baseUrl` alongside the api key so the user can point at a custom
               endpoint (the backend already routes `creds.baseUrl` through to
@@ -572,7 +590,7 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider, conne
             type='primary'
             long
             loading={connecting}
-            disabled={!keyValue.trim()}
+            disabled={!isKeylessProvider(view.provider.id) && !keyValue.trim()}
             onClick={() => void handleKeyConnect()}
             className={styles.keySubmit}
           >

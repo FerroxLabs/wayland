@@ -1901,6 +1901,7 @@
         "voice": "Voz e transcrição"
       },
       "keySubtitle": "Cole uma chave de API do {{provider}} para conectar.",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "Chave de API",
       "keyPlaceholder": "Cole sua chave de API…",
       "baseUrlLabel": "URL Base (opcional)",

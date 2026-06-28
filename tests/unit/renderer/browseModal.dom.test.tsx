@@ -220,6 +220,26 @@ describe('BrowseModal', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
+  it('connects Ollama (Local) keyless, with no API-key field', async () => {
+    const onClose = vi.fn();
+    renderModal(onClose);
+    await screen.findByText('settings.modelsPage.browse.group.frontier');
+
+    // Pick the keyless local-Ollama tile from the BYO section.
+    fireEvent.click(document.querySelector('[data-provider="ollama-local"]') as HTMLElement);
+
+    // A keyless provider shows NO API-key field...
+    expect(
+      screen.queryByPlaceholderText('settings.modelsPage.browse.keyPlaceholder'),
+    ).not.toBeInTheDocument();
+
+    // ...and Connect works with no key, sending an empty credential and no baseUrl
+    // (the engine resolves the canonical localhost:11434 default).
+    fireEvent.click(screen.getByText('settings.modelsPage.browse.connect'));
+    await waitFor(() => expect(mockConnectKey).toHaveBeenCalledWith('ollama-local', '', undefined));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+  });
+
   it('shows the inline error when a single-key connect fails', async () => {
     mockConnectKey.mockResolvedValue({ ok: false, error: 'unauthorized' });
     renderModal();

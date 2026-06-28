@@ -1868,6 +1868,7 @@
         "voice": "음성 및 전사"
       },
       "keySubtitle": "{{provider}}의 API 키를 붙여넣어 연결하세요.",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API 키",
       "keyPlaceholder": "API 키 붙여넣기…",
       "connect": "연결 및 테스트",

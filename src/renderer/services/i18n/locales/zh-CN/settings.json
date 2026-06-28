@@ -1867,6 +1867,7 @@
         "voice": "语音与转写"
       },
       "keySubtitle": "粘贴 {{provider}} 的 API 密钥以进行连接。",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API 密钥",
       "keyPlaceholder": "粘贴你的 API 密钥…",
       "connect": "连接并测试",

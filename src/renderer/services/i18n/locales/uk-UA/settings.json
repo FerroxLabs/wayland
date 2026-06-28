@@ -1833,6 +1833,7 @@
         "voice": "Голос і транскрипція"
       },
       "keySubtitle": "Вставте API-ключ для {{provider}}, щоб підключитися.",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API-ключ",
       "keyPlaceholder": "Вставте ваш API-ключ…",
       "connect": "Підключити та перевірити",

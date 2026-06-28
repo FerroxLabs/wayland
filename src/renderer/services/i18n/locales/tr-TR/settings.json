@@ -1866,6 +1866,7 @@
         "voice": "Ses ve transkripsiyon"
       },
       "keySubtitle": "Bağlanmak için {{provider}} API anahtarını yapıştırın.",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API anahtarı",
       "keyPlaceholder": "API anahtarınızı yapıştırın…",
       "connect": "Bağlan ve test et",

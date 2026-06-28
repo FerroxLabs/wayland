@@ -1868,6 +1868,7 @@
         "voice": "音声と文字起こし"
       },
       "keySubtitle": "{{provider}} の API キーを貼り付けて接続します。",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API キー",
       "keyPlaceholder": "API キーを貼り付け…",
       "connect": "接続してテスト",

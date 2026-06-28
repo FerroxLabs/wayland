@@ -1868,6 +1868,7 @@
         "voice": "Голос и транскрипция"
       },
       "keySubtitle": "Вставьте API-ключ для {{provider}}, чтобы подключиться.",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API-ключ",
       "keyPlaceholder": "Вставьте ваш API-ключ…",
       "connect": "Подключить и проверить",

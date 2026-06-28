@@ -1942,6 +1942,7 @@
         "voice": "Voice & transcription"
       },
       "keySubtitle": "Paste an API key for {{provider}} to connect.",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API key",
       "keyPlaceholder": "Paste your API key…",
       "baseUrlLabel": "Base URL (optional)",

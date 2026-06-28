@@ -1868,6 +1868,7 @@
         "voice": "語音與轉錄"
       },
       "keySubtitle": "貼上 {{provider}} 的 API 金鑰以進行連接。",
+      "keylessSubtitle": "{{provider}} runs locally, so no API key is needed.",
       "keyLabel": "API 金鑰",
       "keyPlaceholder": "貼上你的 API 金鑰…",
       "connect": "連接並測試",
