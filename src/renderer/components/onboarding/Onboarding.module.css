@@ -572,6 +572,13 @@
   border-color: rgba(var(--accent), 0.65);
   background: rgba(var(--accent), 0.1);
 }
+/* #249: hovering the SELECTED option must brighten the selected style, not fall
+   back to the unselected `.persona:hover`. Same specificity as `.persona:hover`
+   but declared later, so it wins for the `.persona.personaSel:hover` element. */
+.personaSel:hover {
+  border-color: rgba(var(--accent), 0.85);
+  background: rgba(var(--accent), 0.16);
+}
 .pIc {
   width: 36px;
   height: 36px;

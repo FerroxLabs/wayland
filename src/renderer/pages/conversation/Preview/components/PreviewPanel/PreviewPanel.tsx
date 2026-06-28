@@ -824,7 +824,7 @@ const PreviewPanel: React.FC = () => {
                 })}
               </div>
               <div
-                className='flex items-center gap-4px px-12px py-6px rd-4px cursor-pointer bg-bg-3 hover:bg-bg-4 transition-colors'
+                className='flex items-center gap-4px px-12px py-6px rd-4px cursor-pointer bg-primary text-white hover:opacity-85 transition-opacity'
                 onClick={reset}
               >
                 {t('preview.viewerError.retry', { defaultValue: 'Try again' })}
