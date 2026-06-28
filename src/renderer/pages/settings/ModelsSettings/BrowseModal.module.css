@@ -423,6 +423,15 @@
   padding: 14px 20px 20px;
 }
 
+/* ---- Cloud credential form view ----
+   Bedrock/Vertex/Azure render CloudCredentialForm raw inside the modal, whose
+   Arco content padding is zeroed. Without this wrapper the multi-field form sat
+   flush against the modal edges with no breathing room. Mirrors .keyForm so it
+   gets the same inset and vertical rhythm as the single-key view. */
+.cloudForm {
+  padding: 14px 20px 20px;
+}
+
 .keyLabel {
   font-size: 11px;
   font-weight: 600;

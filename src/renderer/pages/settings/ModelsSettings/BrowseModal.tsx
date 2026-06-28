@@ -600,7 +600,9 @@ const BrowseModal: React.FC<Props> = ({ visible, onClose, initialProvider, conne
       )}
 
       {view.kind === 'cloud' && (
-        <CloudCredentialForm providerId={view.provider} onSubmit={handleCloudConnect} mode='connect' />
+        <div className={styles.cloudForm}>
+          <CloudCredentialForm providerId={view.provider} onSubmit={handleCloudConnect} mode='connect' />
+        </div>
       )}
     </Modal>
   );
