@@ -4,6 +4,21 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.11.5] - 2026-06-28
+
+### Highlights
+
+- **Local models connect with zero setup.** Ollama (Local) and other self-hosted models now run with no API key at all — the engine recognizes loopback and private-network endpoints and connects cleanly, and the desktop connect form drops the key field for local providers entirely. No more "OpenAI API key is required" when you're running a model that lives entirely on your own machine (#398, wayland-core keyless self-hosted support).
+
+### Wayland Core engine
+
+- Bundled engine updated to **v0.12.15**. Keyless self-hosted endpoints are now first-class: when no API key is set and the endpoint is local (loopback, 0.0.0.0, `*.local`, private RFC1918, or Tailscale-CGNAT), the engine connects with a benign placeholder instead of failing — so local Ollama and other OpenAI-compatible local servers work out of the box. Public endpoints still require a key, as they should.
+
+### Fixed
+
+- **Ollama (Local) connects keyless.** The Browse provider tile for Ollama (Local) no longer demands an API key — the key field is hidden and Connect works with nothing entered, matching how local models actually run.
+- **Cloud credential form padding.** The AWS Bedrock / Vertex / Azure credential form in the Browse modal now has proper inset and spacing instead of sitting flush against the window edges.
+
 ## [0.11.4] - 2026-06-28
 
 ### Highlights
