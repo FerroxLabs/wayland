@@ -464,8 +464,16 @@ try {
   // This only affects packaging assets; runtime integration will be added in a future PR.
   prepareBundledBun();
 
-  // 5b. Prepare hub resources (index.json + extension zips for offline fallback)
-  execSync('node scripts/prepareHubResources.js', { stdio: 'inherit', env: process.env });
+  // 5b. Prepare hub resources (index.json + extension zips for offline fallback).
+  // Degradable: this downloads from the waylandHub repo and can 404/timeout if
+  // that source is unavailable. A hub-cache outage must NOT block a release -
+  // the app still fetches the hub online at runtime. Warn loudly; the post-pack
+  // gate reports hub as an (optional) warning so its absence is never silent.
+  try {
+    execSync('node scripts/prepareHubResources.js', { stdio: 'inherit', env: process.env });
+  } catch (e) {
+    console.warn(`⚠️  hub resource prep failed (offline hub fallback will be absent): ${e.message}`);
+  }
   // 5b. Prepare wayland-core binary (Rust CLI for agent integration)
   prepareWaylandCore();
   // 5c. Prepare the bundled voice STT model (Whisper-tiny ONNX, ~43 MB) so
@@ -475,6 +483,40 @@ try {
     stdio: 'inherit',
     env: process.env,
   });
+
+  // 5d. Stage build-time bundled resources that are NOT committed to the repo:
+  //  - resources/modelsdev-snapshot.json : models.dev catalog snapshot.
+  //  - .skill-pack/{skills-library,bundled-workflows} : the AV-safe packed blob
+  //    of every built-in skill + workflow (#316).
+  // These previously ran ONLY via npm `predist*` lifecycle hooks, which never
+  // fire when CI invokes this script directly (`node scripts/build-with-builder.js`).
+  // That gap shipped 0.11.4/0.11.5 with the entire skills-library +
+  // bundled-workflows missing -> every skill and workflow gone for all users.
+  // Run them here unconditionally so they ALWAYS run, however the build starts.
+  console.log('📦 Staging models.dev snapshot...');
+  execSync('bunx tsx scripts/bundle-modelsdev.ts', { stdio: 'inherit', env: process.env });
+  console.log('📦 Building skill/workflow pack (.skill-pack)...');
+  execSync('bunx tsx scripts/build-skill-pack.ts --out .skill-pack', { stdio: 'inherit', env: process.env });
+
+  // Optional Signal CLI runtime (degradable channel) - never fail the build on it.
+  try {
+    execSync('node scripts/install-signal-cli.mjs', { stdio: 'inherit', env: process.env });
+  } catch (e) {
+    console.warn(`⚠️  signal-cli install failed (Signal channel will be unavailable): ${e.message}`);
+  }
+
+  // Pre-pack assertion: the packed skill/workflow blobs MUST exist now, or the
+  // app would ship with 0 skills and 0 workflows (the 0.11.5 regression). Fail
+  // loud here, before electron-builder silently omits the missing extraResource.
+  for (const rel of ['skills-library/index.json', 'bundled-workflows/index.json']) {
+    const staged = path.resolve(__dirname, '..', '.skill-pack', rel);
+    if (!fs.existsSync(staged) || fs.statSync(staged).size === 0) {
+      throw new Error(
+        `Skill pack not staged: .skill-pack/${rel} is missing/empty - build:skill-pack did not produce it. ` +
+          `Aborting before electron-builder so we never ship an app with no skills/workflows.`
+      );
+    }
+  }
 
   // 6. Run electron-builder to create distributables (DMG/ZIP/EXE, etc.)
   // Always disable auto-publish to avoid electron-builder's implicit tag-based publishing
@@ -594,6 +636,14 @@ try {
       );
     }
   }
+
+  // 7. Fail-hard gate: assert the packaged app actually contains every critical
+  // bundled resource. electron-builder silently DROPS any extraResources whose
+  // source is absent (exit 0, no warning) - the exact failure that shipped
+  // 0.11.4/0.11.5 with no skills-library/bundled-workflows. This is the last
+  // line of defense: a structurally-incomplete app fails the build, never ships.
+  console.log('🔎 Verifying packaged resources are present in the built app...');
+  execSync('node scripts/verify-packaged-resources.js --out out', { stdio: 'inherit', env: process.env });
 
   console.log('✅ Build completed!');
 } catch (error) {

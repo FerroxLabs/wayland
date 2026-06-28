@@ -4,6 +4,16 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.11.6] - 2026-06-29
+
+### Fixed
+
+- **Restored the entire built-in skills and workflows library.** 0.11.4 and 0.11.5 shipped without the bundled `skills-library` and `bundled-workflows` resources, so every built-in skill (2200+) and workflow showed up empty. The packed resources are now generated as a guaranteed part of every release build, and a fail-hard verification gate refuses to publish a build that is missing any critical bundled resource. Your skills and workflows are back, in full.
+
+### Build
+
+- The release build now stages the models.dev snapshot, the skill/workflow pack, and the Signal CLI runtime inside the build entrypoint itself, instead of relying on npm lifecycle hooks that CI bypassed. A new post-package check asserts every bundled resource is physically present in the shipped app before release.
+
 ## [0.11.5] - 2026-06-28
 
 ### Highlights
