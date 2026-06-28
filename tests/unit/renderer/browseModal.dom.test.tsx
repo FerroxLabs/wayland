@@ -229,9 +229,7 @@ describe('BrowseModal', () => {
     fireEvent.click(document.querySelector('[data-provider="ollama-local"]') as HTMLElement);
 
     // A keyless provider shows NO API-key field...
-    expect(
-      screen.queryByPlaceholderText('settings.modelsPage.browse.keyPlaceholder'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('settings.modelsPage.browse.keyPlaceholder')).not.toBeInTheDocument();
 
     // ...and Connect works with no key, sending an empty credential and no baseUrl
     // (the engine resolves the canonical localhost:11434 default).
