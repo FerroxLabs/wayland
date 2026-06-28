@@ -1003,15 +1003,33 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         if (appr.resumeToken && (autoMode || appr.reason === 'info')) {
           this.agent?.resumeApproval(appr.resumeToken, true);
         } else if (appr.reason && appr.reason !== 'info') {
-          // Did not (could not) auto-resume a non-info approval: the engine is
-          // genuinely gated on a resume the app can't send (no resume token, or
-          // a real approval in a non-auto mode with no HITL UI yet). Log loudly
-          // so a wedged turn is diagnosable rather than silently hung. (#264)
-          mainError(
-            '[WCoreManager]',
-            `approval_required reason='${appr.reason}' but no approval UI; cannot resume`,
-            data.data
-          );
+          // A non-info approval we did not auto-resume. Whether that is a problem
+          // depends on the mode:
+          //
+          // - Interactive (non-auto) mode: EXPECTED. The renderer tool-confirmation
+          //   gate (the `Confirming` tool_group path above) prompts the user and
+          //   drives the resume; this `approval_required` is the engine's parallel
+          //   signal, not a dropped approval. A normal exec/mcp approval legitimately
+          //   carries no resume token here, so the old error (and a resume-token
+          //   check) fired on every exec approval and falsely read as a failure
+          //   (#390). Keep only a quiet trace for diagnosability.
+          //
+          // - Auto mode (Autopilot/Auto Edit): the engine was supposed to
+          //   self-resolve but we could not (no resume token, or a non-info reason
+          //   the auto path can't satisfy) and there is no HITL UI to fall back on,
+          //   so the turn can genuinely wedge (#264). That is the real error.
+          if (autoMode) {
+            mainError(
+              '[WCoreManager]',
+              `approval_required reason='${appr.reason}' in auto mode could not self-resume and has no HITL UI; turn may wedge`,
+              data.data
+            );
+          } else {
+            mainLog(
+              '[WCoreManager]',
+              `approval_required reason='${appr.reason}': renderer confirmation gate owns this approval`
+            );
+          }
         }
         return;
       }
