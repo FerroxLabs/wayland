@@ -61,7 +61,7 @@ import {
   type XaiTokens,
 } from './xaiOAuthCore';
 import { loadXaiTokens, saveXaiTokens } from './xaiTokenStore';
-import { writeXaiEngineAuthFile } from './xaiEngineAuthFile';
+import { readXaiEngineAuthFile, writeXaiEngineAuthFile } from './xaiEngineAuthFile';
 
 /** Registry provider id the obtained token is connected as. */
 const XAI_PROVIDER_ID: ProviderId = 'xai';
@@ -148,16 +148,36 @@ export async function xaiOAuthLogin(): Promise<XaiOAuthResult> {
  */
 export async function xaiRefreshToken(): Promise<XaiOAuthResult> {
   try {
+    // #391: Wayland Core (the engine) is the single owner + sole refresher of the
+    // single-use rotating xAI refresh token once its OAuth store exists. xAI burns
+    // the refresh token on every use, so a second, independent desktop refresh
+    // would POST a token the engine had already rotated → 401 → a needless
+    // re-login. Prefer the engine-rotated bundle: if the engine store holds a
+    // still-valid bearer, re-register THAT rather than refreshing here.
+    const engine = await readXaiEngineAuthFile();
+    if (engine) {
+      const engineTokens: XaiTokens = {
+        accessToken: engine.accessToken,
+        refreshToken: engine.refreshToken,
+        expiresAt: engine.expiresAt,
+      };
+      if (!isTokenExpired(engineTokens)) return await registerTokens(engineTokens, false);
+    }
+
+    // The engine bearer is missing/expired. Use the engine's (possibly rotated)
+    // refresh token in preference to the desktop's private copy, which the engine
+    // may already have burned.
     const stored = await loadXaiTokens();
-    if (!stored?.refreshToken) return { ok: false, error: 'unauthorized' };
+    const refreshToken = engine?.refreshToken ?? stored?.refreshToken;
+    if (!refreshToken) return { ok: false, error: 'unauthorized' };
 
     const endpoints = await fetchXaiEndpoints();
     const clientId = resolveClientId();
-    const tokens = await refreshAccessToken(endpoints.tokenUrl, stored.refreshToken, clientId);
+    const tokens = await refreshAccessToken(endpoints.tokenUrl, refreshToken, clientId);
     if ('error' in tokens) return { ok: false, error: tokens.error };
 
     // A refresh response may omit a new refresh_token; carry the old one forward.
-    if (!tokens.refreshToken) tokens.refreshToken = stored.refreshToken;
+    if (!tokens.refreshToken) tokens.refreshToken = refreshToken;
     return await registerTokens(tokens, false);
   } catch {
     return { ok: false, error: 'unknown' };
@@ -437,11 +457,20 @@ async function registerTokens(tokens: XaiTokens, reused: boolean): Promise<XaiOA
   // (→ 403 bad-credentials). Mirrors writeCodexAuthFile for ChatGPT (#243).
   // Best-effort: a write failure is logged but must not fail an otherwise-good
   // sign-in (the registry connect below is the user-facing success signal).
-  const wroteEngineStore = await writeXaiEngineAuthFile(tokens);
-  if (!wroteEngineStore) {
-    log.warn(
-      '[xai] failed to write engine OAuth store (~/.wayland/oauth/xai.json); Grok chat may 403 until next sign-in'
-    );
+  //
+  // #391: only write when we actually hold a refresh token. On the Grok-CLI
+  // reuse path a credential may carry an access token but no refresh token;
+  // writing an access-only doc here would SHADOW a refresh-token-bearing
+  // ~/.grok/auth.json the engine would otherwise read, leaving the engine unable
+  // to refresh (→ 403 once the short-lived access token expires). With no refresh
+  // token, let the engine read the CLI store directly.
+  if (tokens.refreshToken) {
+    const wroteEngineStore = await writeXaiEngineAuthFile(tokens);
+    if (!wroteEngineStore) {
+      log.warn(
+        '[xai] failed to write engine OAuth store (~/.wayland/oauth/xai.json); Grok chat may 403 until next sign-in'
+      );
+    }
   }
   const connected = await connectModelRegistryProvider(XAI_PROVIDER_ID, { key: tokens.accessToken });
   if (!connected.ok) return { ok: false, error: narrowConnectError(connected.error) };

@@ -50,8 +50,15 @@ const XAI_ENGINE_PROVIDER = 'xai';
  */
 export function xaiEngineAuthPath(env: NodeJS.ProcessEnv = process.env): string {
   const override = env.WAYLAND_HOME;
+  // The engine (`OAuthStorage`) reads `$WAYLAND_HOME` verbatim — it does NOT trim.
+  // The desktop previously trimmed the VALUE, so a var carrying surrounding
+  // whitespace (e.g. ` /Users/x/.wayland ` from a shell export) resolved a
+  // different dir than the engine and each wrote/read a different file (#391).
+  // Fix: use the RAW value (no trim) so we match the engine on surrounding
+  // whitespace — but still treat a blank/whitespace-only value as unset and fall
+  // back to the default (a whitespace-only home is a misconfig, not a real dir).
   const waylandHome =
-    typeof override === 'string' && override.trim().length > 0 ? override.trim() : path.join(os.homedir(), '.wayland');
+    typeof override === 'string' && override.trim().length > 0 ? override : path.join(os.homedir(), '.wayland');
   return path.join(waylandHome, 'oauth', `${XAI_ENGINE_PROVIDER}.json`);
 }
 
@@ -85,11 +92,11 @@ export async function writeXaiEngineAuthFile(
   tokens: XaiTokens,
   env: NodeJS.ProcessEnv = process.env
 ): Promise<boolean> {
+  const file = xaiEngineAuthPath(env);
+  const tmp = `${file}.tmp-${process.pid}`;
   try {
-    const file = xaiEngineAuthPath(env);
     await fs.promises.mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
     const json = JSON.stringify(buildXaiEngineAuthDoc(tokens), null, 2);
-    const tmp = `${file}.tmp-${process.pid}`;
     await fs.promises.writeFile(tmp, json, { mode: 0o600 });
     await fs.promises.rename(tmp, file);
     // rename preserves the temp file's mode, but chmod again defensively in case
@@ -97,6 +104,45 @@ export async function writeXaiEngineAuthFile(
     await fs.promises.chmod(file, 0o600);
     return true;
   } catch {
+    // Best-effort cleanup: a failed write (e.g. rename after a successful
+    // writeFile) must not litter the oauth dir with a stale `.tmp-<pid>` (#391).
+    await fs.promises.rm(tmp, { force: true }).catch(() => {});
     return false;
+  }
+}
+
+/** The engine-stored token bundle, normalized back onto our desktop shape. */
+export type XaiEngineStoredTokens = {
+  accessToken: string;
+  refreshToken?: string;
+  /** Epoch ms (converted from the engine's `expires_at_unix_secs`). */
+  expiresAt?: number;
+};
+
+/**
+ * Read `~/.wayland/oauth/xai.json` (the engine-owned store) back into our token
+ * shape. The engine refreshes the single-use rotating xAI token and persists the
+ * rotated bundle here, so this is how the desktop sees the *current* credential
+ * instead of refreshing independently and burning the engine's token (#391).
+ * Returns `null` when the file is missing, malformed, or holds no access token.
+ * Never throws.
+ */
+export async function readXaiEngineAuthFile(
+  env: NodeJS.ProcessEnv = process.env
+): Promise<XaiEngineStoredTokens | null> {
+  try {
+    const raw = await fs.promises.readFile(xaiEngineAuthPath(env), 'utf-8');
+    const doc = JSON.parse(raw) as Partial<XaiEngineAuthDoc>;
+    if (!doc || typeof doc.access_token !== 'string' || doc.access_token.length === 0) return null;
+    const tokens: XaiEngineStoredTokens = { accessToken: doc.access_token };
+    if (typeof doc.refresh_token === 'string' && doc.refresh_token.length > 0) {
+      tokens.refreshToken = doc.refresh_token;
+    }
+    if (typeof doc.expires_at_unix_secs === 'number' && Number.isFinite(doc.expires_at_unix_secs)) {
+      tokens.expiresAt = doc.expires_at_unix_secs * 1000;
+    }
+    return tokens;
+  } catch {
+    return null;
   }
 }
