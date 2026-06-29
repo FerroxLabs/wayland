@@ -105,11 +105,21 @@ function flush(): Promise<void> {
   return new Promise((resolve) => setImmediate(resolve));
 }
 
-// Flush the event loop until `pred()` is true or `max` flushes elapse. Replaces
-// fixed-count flush loops that race the async install-exit handler - those are
-// flaky on fast hosts and worse on the ~2.7x-slower windows runners.
-async function flushUntil(pred: () => boolean, max = 200): Promise<void> {
-  for (let i = 0; i < max && !pred(); i++) await flush();
+// Wait until `pred()` holds, on a REAL-TIME budget rather than a fixed flush
+// count. The async install-exit handler chain (move-pending → emit →
+// release-lock) can exceed any fixed tick count on the ~2.7x-slower windows
+// runners, so the old 200-flush loop returned with the condition still false and
+// the following assertion saw 0 calls — the #292 windows flake. vi.waitFor
+// re-evaluates pred against a 5s deadline (polling every 5ms, which yields to
+// the event loop so the setImmediate callbacks fire), deterministic on every
+// platform with no arbitrary sleeps.
+async function flushUntil(pred: () => boolean): Promise<void> {
+  await vi.waitFor(
+    () => {
+      if (!pred()) throw new Error('flushUntil: condition not met yet');
+    },
+    { timeout: 5000, interval: 5 }
+  );
 }
 
 // eslint-disable-next-line import/first
