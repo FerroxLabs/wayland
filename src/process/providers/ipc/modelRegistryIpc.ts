@@ -150,16 +150,24 @@ const CLI_OAUTH_PROVIDERS: Record<CliAgentKey, ProviderId[]> = {
  * catalog is synthesized from the models.dev registry, exactly like a
  * non-enumerable CLI. Each maps to the one provider it runs, so the picker
  * surfaces real models BEFORE the first connection instead of dead-ending on
- * the "available after first connection" tooltip. Multi-provider CLIs
- * (opencode, goose, droid, auggie, cursor, …) are intentionally absent: they
- * have no single underlying provider, so they keep returning an empty curated
- * set (the picker then offers Flux Auto when the backend is Flux-routable).
+ * the "available after first connection" tooltip. Truly multi-provider CLIs
+ * (goose, droid, auggie, cursor, …) are intentionally absent: they have no
+ * single underlying provider, so they keep returning an empty curated set (the
+ * picker then offers Flux Auto when the backend is Flux-routable).
+ *
+ * `opencode` is mapped to the `opencode-go` gateway it is vendored alongside
+ * (#407): the OpenCode agent's picker dead-ended on the tooltip even with
+ * opencode-go "Connected · N models", because nothing surfaced that connected
+ * catalog. When opencode-go is connected, `synthesizeProvider` returns its real
+ * catalog; when it is not, opencode-go has no models.dev slice so the result is
+ * empty (cold-start parity with the old behavior, no misleading vendor list).
  */
 const ACP_BACKEND_UNDERLYING_PROVIDER: Record<string, ProviderId> = {
   grok: 'xai',
   kimi: 'moonshot',
   qwen: 'qwen',
   vibe: 'mistral',
+  opencode: 'opencode-go',
 };
 
 // ─── Injectable dependencies ──────────────────────────────────────────────────
