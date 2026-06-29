@@ -119,14 +119,19 @@ function stripFrontmatter(raw: string): string {
   return raw.replace(/^﻿?\s*---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
 }
 
-/** One-line description for frontmatter + the FTS5 store summary (<=200 chars here, capped again downstream). */
+/**
+ * One-line description for frontmatter + the FTS5 store summary (<=200 chars
+ * here, capped again downstream). Prefers the first real body line over a
+ * leading markdown heading, so the description is distinct from the title.
+ */
 function deriveSummary(raw: string, basename: string): string {
-  const body = stripFrontmatter(raw).trimStart();
-  const firstLine = body.split('\n').find((l) => l.trim().length > 0) ?? '';
-  const cleaned = firstLine
-    .replace(/^#+\s*/, '')
-    .replace(/[\r\n]+/g, ' ')
-    .trim();
+  const lines = stripFrontmatter(raw)
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  const firstBodyLine = lines.find((l) => !l.startsWith('#'));
+  const firstHeading = lines[0]?.replace(/^#+\s*/, '');
+  const cleaned = (firstBodyLine || firstHeading || basename).replace(/[\r\n]+/g, ' ').trim();
   return (cleaned || basename).slice(0, 200);
 }
 

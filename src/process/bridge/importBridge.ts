@@ -184,13 +184,17 @@ export function initImportBridge(): void {
       const destPath = path.join(memDir, destName);
 
       const scope = file.scope ?? 'global';
-      const firstLine = file.content
+      // Prefer the first real body line over a leading heading so the
+      // description is distinct from the title (#256).
+      const contentLines = file.content
         .split('\n')
-        .find((l) => l.trim().length > 0)
-        ?.replace(/^#+\s*/, '')
-        .replace(/[\r\n]+/g, ' ')
-        .trim();
-      const summary = (firstLine || file.name).slice(0, 200);
+        .map((l) => l.trim())
+        .filter((l) => l.length > 0);
+      const firstBodyLine = contentLines.find((l) => !l.startsWith('#'));
+      const firstHeadingLine = contentLines[0]?.replace(/^#+\s*/, '');
+      const summary = (
+        (firstBodyLine || firstHeadingLine || file.name).replace(/[\r\n]+/g, ' ').trim() || file.name
+      ).slice(0, 200);
       const headingMatch = file.content.match(/^#\s+(.+)$/m);
       const title = (headingMatch ? headingMatch[1].trim() : file.name.replace(/\.(?:md|txt|json)$/i, ''))
         .replace(/[\r\n]+/g, ' ')
