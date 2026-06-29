@@ -6,6 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import type { TChatConversation } from '@/common/config/storage';
+import { clearPersistedDraftsForConversation } from '@/renderer/hooks/chat/useSendBoxDraft';
 import { refreshConversationCache } from '@/renderer/pages/conversation/utils/conversationCache';
 import { emitter } from '@/renderer/utils/emitter';
 import { blockMobileInputFocus, blurActiveElement } from '@/renderer/utils/ui/focus';
@@ -97,6 +98,10 @@ export const useConversationActions = ({
       if (!success) {
         return false;
       }
+
+      // The conversation is gone; drop its unsent send-box draft so deleted text
+      // doesn't linger in localStorage.
+      clearPersistedDraftsForConversation(conversationId);
 
       emitter.emit('conversation.deleted', conversationId);
       if (id === conversationId) {

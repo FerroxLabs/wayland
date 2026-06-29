@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { TChatConversation } from '@/common/config/storage';
 import type { IProject } from '@/common/types/project';
+import { clearPersistedDraftsForConversation } from '@/renderer/hooks/chat/useSendBoxDraft';
 import AssignToProjectModal from '@/renderer/pages/projects/components/AssignToProjectModal';
 import { useProjects } from '@/renderer/pages/projects/hooks/useProjects';
 import {
@@ -183,6 +184,7 @@ const ConversationsListPage: React.FC = () => {
           try {
             const ok = await ipcBridge.conversation.remove.invoke({ id: conv.id });
             if (ok) {
+              clearPersistedDraftsForConversation(conv.id);
               Message.success(t('conversation.history.deleteSuccess', { defaultValue: 'Deleted' }));
               void fetchAll();
             } else {
