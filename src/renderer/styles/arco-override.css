@@ -26,7 +26,6 @@ body,
   --arco-font-family: var(--forge-font);
 }
 
-
 /* Override Arco Design component backgrounds to white in light mode */
 /* .arco-input,
 .arco-textarea,
@@ -155,6 +154,32 @@ body[arco-theme='dark'] .arco-modal-footer {
 
 body[arco-theme='dark'] .arco-modal-title {
   color: var(--text-primary) !important;
+}
+
+/*
+ * macOS frameless-window drag-region fix (#415).
+ *
+ * The custom title bar (.app-titlebar--desktop) claims the top 45px of the
+ * window as a drag region (-webkit-app-region: drag) so the frameless window
+ * can be moved. Arco overlay surfaces - Drawer, Modal, and their popups -
+ * render in body-level portals that paint OVER that band. Because those
+ * portals are app-region:none (neutral, not no-drag) they do not punch a
+ * no-drag hole, so on macOS the OS treats the overlapped pixels as
+ * window-drag and silently swallows real mouse clicks there. The most visible
+ * casualty is a Drawer/Modal close (X) icon pinned to the top-right corner:
+ * the click "does nothing" because the OS ate it as a drag (Skills detail
+ * flyout, #415). Synthetic/CDP clicks bypass the OS layer, which is why this
+ * only bites real users.
+ *
+ * Mark the overlay surfaces no-drag so every control they host - including the
+ * close icon in the top band - stays clickable. Overlays are never legitimate
+ * window-drag handles, so this is safe; it is a no-op off Electron/macOS.
+ */
+.arco-drawer,
+.arco-modal,
+.arco-drawer-close-icon,
+.arco-modal-close-icon {
+  -webkit-app-region: no-drag;
 }
 
 body[arco-theme='dark'] .arco-modal-body,
