@@ -226,6 +226,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
             <Dropdown
               droplist={
                 <Menu
+                  style={{ maxHeight: 'min(60vh, 360px)', overflowY: 'auto' }}
                   onClickMenuItem={(key) => {
                     if (key === 'pin') {
                       onTogglePin(conversation);

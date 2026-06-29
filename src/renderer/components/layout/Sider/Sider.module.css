@@ -28,16 +28,45 @@
   }
 }
 
-/* Overlay-style scroll area: scrollbar takes zero layout width so icons in the
-   fixed top nav and the scrollable list stay on the same vertical center line.
-   Mimics macOS native overlay scrollbars. */
+/* Overlay-style scroll area. Previously the scrollbar was fully hidden
+   (width:0), so when the recents/accordions overflowed there was no affordance
+   that more chats existed and no drag target to reach them - they "scrolled off
+   the page". Use a thin overlay scrollbar that only shows on hover: it stays out
+   of the way (overlay, no layout width reserved) but gives a clear, draggable
+   indicator when there is more to see. */
 .scrollArea {
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: transparent transparent;
+}
+
+.scrollArea:hover {
+  scrollbar-color: var(--color-fill-3) transparent; /* Firefox: show on hover */
 }
 
 .scrollArea::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  width: 8px;
+  height: 8px;
+}
+
+.scrollArea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollArea::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.scrollArea:hover::-webkit-scrollbar-thumb {
+  background: var(--color-fill-3);
+  background-clip: padding-box;
+}
+
+.scrollArea::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fill-4);
+  background-clip: padding-box;
 }
 
 /* Pinned sidebar row - reserve a dedicated 28px slot on the right for the
