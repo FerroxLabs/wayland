@@ -168,9 +168,18 @@ function flush() {
  * race the spawn; poll until the child process has actually been spawned.
  */
 async function waitForSpawn(target: number) {
-  for (let i = 0; i < 50 && spawnMock.mock.calls.length < target; i++) {
-    await flush();
-  }
+  // confinePath does several real async hops (realpath walk + optional DB
+  // discovery) before spawn. A fixed-tick poll (the old 50x flush()) races and
+  // gives up early on slow/loaded CI runners — the start promise then never
+  // settles and the spec hits its 10s timeout (intermittent windows flake,
+  // #292). vi.waitFor polls against a real 5s budget so it tolerates a slow
+  // spawn deterministically without waiting when spawn is already done.
+  await vi.waitFor(
+    () => {
+      if (spawnMock.mock.calls.length < target) throw new Error(`spawn ${spawnMock.mock.calls.length}/${target}`);
+    },
+    { timeout: 5000, interval: 5 }
+  );
 }
 
 /**
