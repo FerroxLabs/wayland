@@ -107,6 +107,20 @@ beforeEach(() => {
   plugin = new ImessagePlugin();
 });
 
+// F11 post-send delivery verification polls chat.db for a real
+// DELIVERY_POLL_CYCLES (5) x DELIVERY_POLL_INTERVAL_MS (600) = 3 s ceiling via
+// setTimeout. Under fake timers we advance past that budget instead of waiting
+// the real ~3 s (#358 - this was a top contributor to the shard-1/4 imbalance).
+// advanceTimersByTimeAsync (not runAllTimersAsync) is used deliberately: start()
+// installs a self-rescheduling inbound-poll setInterval that would make
+// runAllTimersAsync spin forever.
+const DELIVERY_BUDGET_MS = 3000;
+async function sendDrained(...args: Parameters<ImessagePlugin['sendMessage']>): Promise<string> {
+  const p = plugin.sendMessage(...args);
+  await vi.advanceTimersByTimeAsync(DELIVERY_BUDGET_MS);
+  return p;
+}
+
 // ---------------------------------------------------------------------------
 // F6 - attributedBody fallback
 // ---------------------------------------------------------------------------
@@ -180,16 +194,17 @@ describe('F6 - decodeAttributedBody fallback', () => {
 // ---------------------------------------------------------------------------
 
 describe('F8 - sendMessage picks iMessage vs SMS service from chat.service_name', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
   it('uses `service type = iMessage` when chat.service_name = "iMessage"', async () => {
     mockServiceLookupStmt.get.mockReturnValue({ service_name: 'iMessage' });
 
     await plugin.initialize(cfg());
     await plugin.start();
-    await plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' });
+    await sendDrained('+15551234567', { type: 'text', text: 'hi' });
 
-    const sendCall = mockExecFileNoThrow.mock.calls.find((c) =>
-      String(c[1]?.[1] ?? '').includes('targetBuddy'),
-    );
+    const sendCall = mockExecFileNoThrow.mock.calls.find((c) => String(c[1]?.[1] ?? '').includes('targetBuddy'));
     expect(sendCall).toBeDefined();
     const script = String(sendCall![1]![1]);
     expect(script).toContain('service type = iMessage');
@@ -202,11 +217,9 @@ describe('F8 - sendMessage picks iMessage vs SMS service from chat.service_name'
 
     await plugin.initialize(cfg());
     await plugin.start();
-    await plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' });
+    await sendDrained('+15551234567', { type: 'text', text: 'hi' });
 
-    const sendCall = mockExecFileNoThrow.mock.calls.find((c) =>
-      String(c[1]?.[1] ?? '').includes('targetBuddy'),
-    );
+    const sendCall = mockExecFileNoThrow.mock.calls.find((c) => String(c[1]?.[1] ?? '').includes('targetBuddy'));
     expect(sendCall).toBeDefined();
     expect(String(sendCall![1]![1])).toContain('service type = SMS');
     await plugin.stop();
@@ -217,11 +230,9 @@ describe('F8 - sendMessage picks iMessage vs SMS service from chat.service_name'
 
     await plugin.initialize(cfg());
     await plugin.start();
-    await plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' });
+    await sendDrained('+15551234567', { type: 'text', text: 'hi' });
 
-    const sendCall = mockExecFileNoThrow.mock.calls.find((c) =>
-      String(c[1]?.[1] ?? '').includes('targetBuddy'),
-    );
+    const sendCall = mockExecFileNoThrow.mock.calls.find((c) => String(c[1]?.[1] ?? '').includes('targetBuddy'));
     expect(String(sendCall![1]![1])).toContain('service type = iMessage');
     await plugin.stop();
   });
@@ -232,12 +243,15 @@ describe('F8 - sendMessage picks iMessage vs SMS service from chat.service_name'
 // ---------------------------------------------------------------------------
 
 describe('F11 - sendMessage verifies delivery via chat.db', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
   it('returns a delivery-confirmed id when is_delivered=1 lands in chat.db', async () => {
     mockDeliveryStmt.get.mockReturnValue({ rowid: 99, is_delivered: 1, error: 0, date_delivered: 1 });
 
     await plugin.initialize(cfg());
     await plugin.start();
-    const id = await plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' });
+    const id = await sendDrained('+15551234567', { type: 'text', text: 'hi' });
 
     // suffix-encoded confirmation: `d` for delivered
     expect(id).toMatch(/^imessage-sent-d-/);
@@ -249,9 +263,13 @@ describe('F11 - sendMessage verifies delivery via chat.db', () => {
 
     await plugin.initialize(cfg());
     await plugin.start();
-    await expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' })).rejects.toThrow(
-      /not delivered.*error=22/i,
+    // Attach the rejection expectation BEFORE advancing timers so the promise is
+    // never momentarily unhandled while the fake delivery-poll budget elapses.
+    const rejection = expect(plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' })).rejects.toThrow(
+      /not delivered.*error=22/i
     );
+    await vi.advanceTimersByTimeAsync(DELIVERY_BUDGET_MS);
+    await rejection;
     await plugin.stop();
   });
 
@@ -260,8 +278,8 @@ describe('F11 - sendMessage verifies delivery via chat.db', () => {
 
     await plugin.initialize(cfg());
     await plugin.start();
-    const id = await plugin.sendMessage('+15551234567', { type: 'text', text: 'hi' });
+    const id = await sendDrained('+15551234567', { type: 'text', text: 'hi' });
     expect(id).toMatch(/^imessage-sent-p-/);
     await plugin.stop();
-  }, 10_000);
+  });
 });
