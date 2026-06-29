@@ -74,6 +74,37 @@ describe('drop-folder ingest makes a dropped memory recall-able (#256)', () => {
     );
   });
 
+  it('strips a leading UTF-8 BOM so the title, body, and stored content stay clean (#256 B1)', async () => {
+    // A Windows-saved drop file carries a UTF-8 BOM before the `#` heading. Left
+    // in place it defeated the heading match (title fell back to the filename),
+    // landed in the written body, and corrupted the store's own derivation.
+    fs.writeFileSync(
+      path.join(dropFolder, 'verify431-codename.md'),
+      '﻿# Verify431 Codename\n\nThe codename for the drop-recall test is NEBULA-2287.'
+    );
+
+    const result = await runDropFolderProcess({ dropFolder, ijfwMemoryDir: memDir });
+    await flush();
+    expect(result.count).toBe(1);
+
+    const written = fs.readdirSync(memDir).find((n) => n.startsWith('dropped-') && n.endsWith('.md'));
+    const fileContent = fs.readFileSync(path.join(memDir, written as string), 'utf8');
+
+    // Title comes from the heading, NOT the filename fallback "verify431-codename".
+    expect(fileContent).toMatch(/^title: Verify431 Codename$/m);
+    expect(fileContent).toMatch(/^description: The codename for the drop-recall test is NEBULA-2287\.$/m);
+    // No BOM anywhere in the persisted file (not at the start, not mid-body).
+    expect(fileContent.charCodeAt(0)).not.toBe(0xfeff);
+    expect(fileContent).not.toContain('﻿');
+
+    // The content handed to the FTS5 store is BOM-free and starts at the heading.
+    const storeCall = invokeMock.mock.calls.find((c) => c[0] === 'memory_store');
+    if (!storeCall) throw new Error('expected a memory_store call');
+    const storedContent = (storeCall[1] as { content: string }).content;
+    expect(storedContent).not.toContain('﻿');
+    expect(storedContent.startsWith('# Verify431 Codename')).toBe(true);
+  });
+
   it('still ingests the file even if the FTS5 store fails (best-effort, no regression)', async () => {
     invokeMock.mockRejectedValue(new Error('mcp-server unavailable'));
     fs.writeFileSync(path.join(dropFolder, 'resilient.md'), '# Resilient\n\nIngest must not depend on the index call.');

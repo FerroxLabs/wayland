@@ -114,6 +114,18 @@ function destFilename(timestamp: number, basename: string): string {
   return `dropped-${timestamp}-${safe}`;
 }
 
+/**
+ * Strip a leading UTF-8 BOM (U+FEFF). Windows editors (Notepad, PowerShell
+ * redirects, etc.) prefix one; left in place it sits before the first `#`, which
+ * (a) defeats deriveTitle's `^#` heading match so the title silently falls back
+ * to the filename, (b) is written verbatim into the stored .md body, and (c) is
+ * handed to the FTS5 store as content, corrupting its own title/description
+ * derivation. Stripping once at read time fixes all three (#256 B1).
+ */
+function stripBom(raw: string): string {
+  return raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
+}
+
 /** Strip a YAML frontmatter block (if any) so derived title/summary read the real body. */
 function stripFrontmatter(raw: string): string {
   return raw.replace(/^﻿?\s*---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
@@ -145,7 +157,9 @@ function deriveTitle(raw: string, basename: string): string {
 async function ingestFile(filePath: string, ijfwMemoryDir: string): Promise<void> {
   const ext = path.extname(filePath).toLowerCase();
   const basename = path.basename(filePath);
-  const rawContent = await fs.promises.readFile(filePath, 'utf8');
+  // Strip a leading BOM at the source so the title heading-match, the written
+  // body, and the FTS5 store content all see clean text (#256 B1).
+  const rawContent = stripBom(await fs.promises.readFile(filePath, 'utf8'));
   const timestamp = Date.now();
 
   let fileContent: string;
