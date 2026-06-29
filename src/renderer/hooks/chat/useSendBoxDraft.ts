@@ -69,6 +69,15 @@ const store: SendBoxDraftStore = {
   wcore: new Map(),
 };
 
+/**
+ * Test-only: drop every in-memory draft (localStorage is left intact). Lets a
+ * test simulate a renderer reload - the in-memory store is gone but the durable
+ * copy survives, which is exactly the scenario #412 fixes.
+ */
+export function __clearInMemoryDraftsForTests(): void {
+  for (const map of Object.values(store)) map.clear();
+}
+
 // ── Durable persistence (#412) ───────────────────────────────────────────────
 // The in-memory `store` above survives navigation and component remounts within
 // a single renderer session, but is wiped whenever the renderer reloads or the

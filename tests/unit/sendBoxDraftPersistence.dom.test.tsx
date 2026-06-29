@@ -15,7 +15,7 @@
  */
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { getSendBoxDraftHook } from '@/renderer/hooks/chat/useSendBoxDraft';
+import { __clearInMemoryDraftsForTests, getSendBoxDraftHook } from '@/renderer/hooks/chat/useSendBoxDraft';
 
 const STORAGE_PREFIX = 'wayland:sendbox-draft:';
 const emptyWcoreDraft = { _type: 'wcore' as const, content: '', atPath: [], uploadFile: [] };
@@ -23,6 +23,7 @@ const useWcoreDraft = getSendBoxDraftHook('wcore', emptyWcoreDraft);
 
 beforeEach(() => {
   localStorage.clear();
+  __clearInMemoryDraftsForTests();
 });
 
 describe('send-box draft persistence (#412)', () => {
@@ -66,6 +67,25 @@ describe('send-box draft persistence (#412)', () => {
       result.current.mutate((prev) => ({ ...prev, content: '' }));
     });
     expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`)).toBeNull();
+  });
+
+  it('survives a full reload: typed via the hook, unmounted, in-memory wiped, then restored on remount', () => {
+    const id = 'conv-reload-roundtrip';
+
+    // Session 1: type through the real hook (write-through to localStorage + in-memory).
+    const session1 = renderHook(() => useWcoreDraft(id));
+    act(() => {
+      session1.result.current.mutate((prev) => ({ ...prev, content: 'a half-finished thought' }));
+    });
+    session1.unmount();
+
+    // Simulate a renderer reload: the in-memory store is gone, localStorage remains.
+    __clearInMemoryDraftsForTests();
+    expect(localStorage.getItem(`${STORAGE_PREFIX}wcore:${id}`)).toBeTruthy();
+
+    // Session 2 (cold in-memory): remounting the same conversation restores the text.
+    const session2 = renderHook(() => useWcoreDraft(id));
+    expect(session2.result.current.data?.content).toBe('a half-finished thought');
   });
 
   it('exposes the persisted draft synchronously so a mount-time partial update cannot clobber it', () => {
