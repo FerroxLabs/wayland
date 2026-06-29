@@ -134,13 +134,14 @@ jobs:
     name: Unit Tests Shard (${{ matrix.os }} ${{ matrix.shard }}/4)
     if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
     runs-on: ${{ matrix.os }}
-    # Stopgap headroom (#353): shard 1/4 grew to ~19m on ubuntu (vs the ~3.5m
-    # average) from slow real-timer error-path tests + the skillRecall release-gate
-    # BM25 full-corpus test (~16s), tipping over the old 20m cap (cancelled on all
-    # OS, ~2.7x worse on windows). Tests PASS — this is runtime, not a hang. Raised
-    # to 35m to unblock the 0.11.4 cut; the real fix (fake-timers for the error-path
-    # tests + moving the BM25 release-gate out of the PR shards) is tracked separately.
-    timeout-minutes: 35
+    # #358: shard 1/4 was ~19m on ubuntu (vs the ~3.5m average) from real-timer
+    # error-path tests + the skillRecall BM25 full-corpus gate. Those are now
+    # fixed — the BM25 gate is gated out of PR shards behind RUN_RELEASE_GATES
+    # (runs in release-gates.yml), and the iMessage delivery-poll / ConnectionTester
+    # retry / killChild escalation tests no longer wait real seconds. The 35m
+    # stopgap is dropped to 20m; tighten toward ~15m once this PR's CI run confirms
+    # the actual post-fix shard time.
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
