@@ -1606,6 +1606,7 @@ export type I18nKey =
   | 'messages.timeMarker.gapHours'
   | 'messages.timeMarker.gapHoursMinutes'
   | 'messages.timeMarker.gapMinutes'
+  | 'messages.truncation.budgetExhausted.action'
   | 'messages.truncation.budgetExhausted.body'
   | 'messages.unknownMessageType'
   | 'messages.working'

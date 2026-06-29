@@ -1,5 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "La respuesta se truncó: el modelo agotó su presupuesto de tokens antes de terminar. Prueba con un modelo con más margen de razonamiento o simplifica tu prompt.",
+  "truncation.budgetExhausted.body": "Esta respuesta se detuvo antes de tiempo - el modelo agotó su margen mientras pensaba y no llegó a responder. Vuelve a intentarlo con más margen o cambia a un modelo con más margen de razonamiento.",
+  "truncation.budgetExhausted.action": "Continuar con más margen",
   "fileChanges": "Cambios en archivos",
   "fileChangesCount": "{{count}} cambios en archivos",
   "conversationInProgress": "Hay una conversación en curso...",

@@ -274,6 +274,10 @@ const LOCAL_KEYLESS_PLACEHOLDER = 'ollama';
  *     lack a reasoning-indicating suffix, so the suffix regex misses them.
  *     Listed in `src/renderer/utils/model/modelContextLimits.ts`, so they
  *     are reachable through any OpenAI-protocol provider in Wayland.
+ *   - Anchored match (`^flux-(auto|reasoning)$`) catches Flux Router's
+ *     reasoning-capable tier aliases. Their literal id reveals nothing about
+ *     the model Flux routes to server-side, so they need an explicit floor
+ *     (#422). `flux-fast`/`flux-standard` are non-reasoning tiers, left alone.
  *
  * `-flash` variants short-circuit first - they are non-reasoning and work
  * cleanly at low budgets; bumping them would just waste tokens. Callers that
@@ -284,6 +288,13 @@ const REASONING_MODEL_DEFAULT_MAX_TOKENS = 32768;
 export function defaultMaxTokensForModel(modelName: string): number | undefined {
   if (!modelName) return undefined;
   if (/-flash/i.test(modelName)) return undefined;
+  // Flux tier aliases are opaque to the desktop: `flux-auto` (and `flux-reasoning`)
+  // route server-side and can land on a reasoning model whose hidden thinking
+  // burns a low budget and emits zero visible answer (#422). The desktop can't
+  // see the routed model, so give the reasoning-capable Flux tiers the same
+  // generous output floor. `flux-fast`/`flux-standard` are non-reasoning tiers
+  // and fall through to `undefined`.
+  if (/^flux-(auto|reasoning)$/i.test(modelName)) return REASONING_MODEL_DEFAULT_MAX_TOKENS;
   // TODO(reasoning-detector): only catches o-prefixed reasoning models (o1/o3/o4-mini etc.).
   // When OpenAI ships a non-o-prefixed reasoning model (e.g. gpt-5-reasoning), revisit
   // this matcher - see .blackboard/audits/hard-coded-values.md HC-5.

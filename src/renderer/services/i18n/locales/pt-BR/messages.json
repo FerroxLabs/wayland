@@ -1,5 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "A resposta foi truncada - o modelo esgotou o orçamento de tokens antes de concluir. Tente um modelo com mais margem de raciocínio ou simplifique seu prompt.",
+  "truncation.budgetExhausted.body": "Esta resposta parou cedo demais - o modelo esgotou seu espaço enquanto pensava e não chegou a responder. Tente novamente com mais espaço ou troque para um modelo com mais margem de raciocínio.",
+  "truncation.budgetExhausted.action": "Continuar com mais espaço",
   "fileChanges": "Alterações de Arquivos",
   "fileChangesCount": "{{count}} Alterações de Arquivos",
   "conversationInProgress": "Uma conversa está em andamento...",
