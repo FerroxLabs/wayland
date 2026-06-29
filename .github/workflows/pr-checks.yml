@@ -465,8 +465,17 @@ jobs:
           key: electron-bin-${{ runner.os }}-${{ hashFiles('node_modules/electron/package.json') }}
 
       - name: Ensure Electron binary is installed
+        # ROOT CAUSE (#361): the default electron binary host
+        # (release-assets.githubusercontent.com) is egress-capped to ~678KB from
+        # the GitHub-hosted Azure runners since ~2026-06-26, truncating the
+        # ~117MB zip mid-stream so install.js only ever extracts
+        # v8_context_snapshot.bin and never writes path.txt. The cache could
+        # never warm (Save is gated on a complete install that never happened),
+        # so the job stayed red under continue-on-error. Fix: pull from
+        # npmmirror's CDN (a different host, not behind that cap, serving the
+        # complete zip + SHASUMS256.txt so install.js still verifies integrity),
+        # falling back to the default github host only if the mirror is down.
         env:
-          ELECTRON_MIRROR: ''
           npm_config_disturl: 'https://electronjs.org/headers'
         run: |
           set -ex
@@ -480,16 +489,21 @@ jobs:
           if electron_ok; then
             echo "electron already present (cache-warm); skipping download"
           else
-            for attempt in 1 2 3 4; do
-              export electron_config_cache="$(mktemp -d)"
-              rm -rf node_modules/electron/dist node_modules/electron/path.txt
-              node node_modules/electron/install.js || true
-              if electron_ok; then
-                echo "electron installed OK (attempt $attempt)"
-                break
-              fi
-              echo "electron install incomplete (attempt $attempt); retrying after backoff"
-              sleep $((attempt * 5))
+            # Mirrors tried in order. '' is electron's default github host, kept
+            # as a last resort so we never regress below the prior behaviour.
+            for mirror in 'https://npmmirror.com/mirrors/electron/' ''; do
+              for attempt in 1 2 3; do
+                export electron_config_cache="$(mktemp -d)"
+                export ELECTRON_MIRROR="$mirror"
+                rm -rf node_modules/electron/dist node_modules/electron/path.txt
+                node node_modules/electron/install.js || true
+                if electron_ok; then
+                  echo "electron installed OK (mirror='${mirror:-default-github}', attempt $attempt)"
+                  break 2
+                fi
+                echo "electron install incomplete (mirror='${mirror:-default-github}', attempt $attempt); retrying after backoff"
+                sleep $((attempt * 5))
+              done
             done
           fi
           ls -la node_modules/electron/dist | head -12
