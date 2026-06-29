@@ -1,5 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "Yanıt kısaltıldı - model tamamlanmadan önce token bütçesi tükendi. Daha fazla akıl yürütme bütçesi olan bir model deneyin veya isteminizi sadeleştirin.",
+  "truncation.budgetExhausted.body": "Bu yanıt erken sona erdi - model düşünürken alanını tüketti ve yanıta ulaşamadı. Daha fazla alanla tekrar deneyin veya daha fazla akıl yürütme alanı olan bir modele geçin.",
+  "truncation.budgetExhausted.action": "Daha fazla alanla devam et",
   "fileChanges": "Dosya Değişiklikleri",
   "fileChangesCount": "{{count}} Dosya Değişikliği",
   "conversationInProgress": "Bir görüşme şu anda devam ediyor...",

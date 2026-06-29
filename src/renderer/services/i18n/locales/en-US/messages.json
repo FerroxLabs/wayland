@@ -1,5 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "Response was truncated - the model ran out of token budget before finishing. Try a model with more reasoning headroom or simplify your prompt.",
+  "truncation.budgetExhausted.body": "This reply stopped early - the model used up its room while thinking and didn't get to the answer. Try again with more headroom, or switch to a model with more reasoning room.",
+  "truncation.budgetExhausted.action": "Continue with more headroom",
   "fileChanges": "File Changes",
   "fileChangesCount": "{{count}} File Changes",
   "conversationInProgress": "A conversation is currently in progress...",

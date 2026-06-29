@@ -8,7 +8,13 @@ import type { IMessageText } from '@/common/chat/chatLib';
 import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { Alert, Button, Input, Message } from '@arco-design/web-react';
-import MessageActions, { EDIT_AND_RERUN_EVENT, type ActionsDisplay, type ChatEditRerunDetail } from './MessageActions';
+import MessageActions, {
+  CHAT_RETRY_EVENT,
+  EDIT_AND_RERUN_EVENT,
+  type ActionsDisplay,
+  type ChatEditRerunDetail,
+  type ChatRetryDetail,
+} from './MessageActions';
 import classNames from 'classnames';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -160,6 +166,17 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
 
   const workflowSessionId = conversationContext?.workflowSessionId;
   const conversationId = conversationContext?.conversationId;
+
+  // #422: one-click recovery on the truncation banner. Re-sends the turn's
+  // prompt through the existing retry plumbing (CHAT_RETRY_EVENT). Combined
+  // with the reasoning-tier budget floor in defaultMaxTokensForModel, the
+  // resend runs with the higher output budget instead of the low default.
+  const handleContinueWithHeadroom = useCallback(() => {
+    if (!retryText) return;
+    window.dispatchEvent(
+      new CustomEvent<ChatRetryDetail>(CHAT_RETRY_EVENT, { detail: { conversationId, text: retryText } })
+    );
+  }, [retryText, conversationId]);
 
   // Inline edit state — user messages only.
   const [editing, setEditing] = useState(false);
@@ -338,8 +355,15 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
               data-testid='message-truncation-warning'
               content={t('messages.truncation.budgetExhausted.body', {
                 defaultValue:
-                  'Response was truncated - the model ran out of token budget before finishing. Try a model with more reasoning headroom or simplify your prompt.',
+                  "This reply stopped early - the model used up its room while thinking and didn't get to the answer. Try again with more headroom, or switch to a model with more reasoning room.",
               })}
+              action={
+                retryText != null ? (
+                  <Button size='mini' type='text' onClick={handleContinueWithHeadroom}>
+                    {t('messages.truncation.budgetExhausted.action', { defaultValue: 'Continue with more headroom' })}
+                  </Button>
+                ) : undefined
+              }
             />
           )}
         </div>

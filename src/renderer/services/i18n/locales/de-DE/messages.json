@@ -1,5 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "Die Antwort wurde abgeschnitten - dem Modell ging das Token-Budget aus, bevor es fertig war. Versuche es mit einem Modell mit mehr Reasoning-Spielraum oder vereinfache deinen Prompt.",
+  "truncation.budgetExhausted.body": "Diese Antwort wurde vorzeitig beendet - das Modell hat seinen Spielraum beim Nachdenken aufgebraucht und kam nicht zur Antwort. Versuche es mit mehr Spielraum erneut oder wechsle zu einem Modell mit mehr Reasoning-Spielraum.",
+  "truncation.budgetExhausted.action": "Mit mehr Spielraum fortfahren",
   "fileChanges": "Dateiänderungen",
   "fileChangesCount": "{{count}} Dateiänderungen",
   "conversationInProgress": "Eine Unterhaltung läuft gerade...",

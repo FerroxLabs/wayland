@@ -1,5 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "La réponse a été tronquée - le modèle a épuisé son budget de jetons avant de terminer. Essayez un modèle disposant de plus de marge de raisonnement ou simplifiez votre requête.",
+  "truncation.budgetExhausted.body": "Cette réponse s'est arrêtée trop tôt - le modèle a épuisé sa marge pendant sa réflexion et n'a pas pu rédiger la réponse. Réessayez avec plus de marge, ou choisissez un modèle disposant de plus de marge de raisonnement.",
+  "truncation.budgetExhausted.action": "Continuer avec plus de marge",
   "fileChanges": "Modifications de fichiers",
   "fileChangesCount": "{{count}} modifications de fichiers",
   "conversationInProgress": "Une conversation est en cours...",

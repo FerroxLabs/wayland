@@ -66,6 +66,20 @@ describe('defaultMaxTokensForModel', () => {
   it('still routes o1-preview through the suffix pattern (already-covered case)', () => {
     expect(defaultMaxTokensForModel('o1-preview')).toBe(32768);
   });
+
+  it('returns 32768 for the reasoning-capable Flux tiers (flux-auto, flux-reasoning) - #422', () => {
+    expect(defaultMaxTokensForModel('flux-auto')).toBe(32768);
+    expect(defaultMaxTokensForModel('flux-reasoning')).toBe(32768);
+  });
+
+  it('matches Flux tiers case-insensitively (Flux-Auto)', () => {
+    expect(defaultMaxTokensForModel('Flux-Auto')).toBe(32768);
+  });
+
+  it('returns undefined for the non-reasoning Flux tiers (flux-fast, flux-standard)', () => {
+    expect(defaultMaxTokensForModel('flux-fast')).toBeUndefined();
+    expect(defaultMaxTokensForModel('flux-standard')).toBeUndefined();
+  });
 });
 
 describe('buildSpawnConfig - reasoning model max_tokens fallback', () => {
@@ -110,6 +124,16 @@ describe('buildSpawnConfig - reasoning model max_tokens fallback', () => {
   it('matches reasoning-model pattern case-insensitively (Gemini-3.1-Pro-Preview)', () => {
     const { args } = buildSpawnConfig(makeModel('gemini', 'Gemini-3.1-Pro-Preview'), { workspace });
     expect(maxTokensArg(args)).toBe('32768');
+  });
+
+  it('injects default --max-tokens 32768 for flux-auto (#422)', () => {
+    const { args } = buildSpawnConfig(makeModel('flux-router', 'flux-auto'), { workspace });
+    expect(maxTokensArg(args)).toBe('32768');
+  });
+
+  it('does NOT inject --max-tokens for flux-fast', () => {
+    const { args } = buildSpawnConfig(makeModel('flux-router', 'flux-fast'), { workspace });
+    expect(maxTokensArg(args)).toBeUndefined();
   });
 });
 

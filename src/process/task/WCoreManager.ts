@@ -710,6 +710,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     return nearBudget && contentEmpty;
   }
 
+  // TODO(#422 follow-up): auto-retry an empty-content truncation once with a
+  // genuinely raised budget. Deferred: there is no clean per-turn budget
+  // override today. The wcore budget is a spawn-time CLI arg (`--max-tokens`)
+  // and the live protocol's `set_config` has no `max_tokens` field, so raising
+  // it requires kill + re-spawn, and a re-spawn uses `--resume` so the failed
+  // empty `finish_reason: length` turn is already in engine session history
+  // (re-sending appends a NEW turn rather than re-running the same one). The
+  // budget floor in `defaultMaxTokensForModel` already gives flux-auto/
+  // flux-reasoning the 32768 output budget at spawn, so an auto-retry at the
+  // same budget would just re-truncate — a real fix needs an engine-side
+  // per-turn budget control. Manual recovery ships now via the truncation
+  // banner's "Continue with more headroom" action (CHAT_RETRY_EVENT).
+
   /**
    * Attach `truncatedDueToBudget: true` to the in-flight assistant message.
    * Emits an empty-delta `content` event so the renderer's composeMessage merge
