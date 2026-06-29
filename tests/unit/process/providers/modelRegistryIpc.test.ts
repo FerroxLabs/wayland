@@ -1392,7 +1392,7 @@ describe('modelRegistry IPC - curatedForAgent ACP backends (#374)', () => {
   });
 
   it('returns [] for a multi-provider ACP backend with no single underlying provider (goose)', async () => {
-    // goose/opencode/droid/… run any connected provider, so there is no single
+    // goose/droid/… run any connected provider, so there is no single
     // catalog to synthesize - the picker offers Flux Auto (when routable) rather
     // than a misleading vendor catalog.
     const { deps, getRegistry } = makeFakes();
@@ -1400,6 +1400,30 @@ describe('modelRegistry IPC - curatedForAgent ACP backends (#374)', () => {
     const h = createModelRegistryHandlers(deps);
 
     expect(await h.curatedForAgent({ agentKey: 'goose' })).toEqual([]);
+  });
+
+  it('surfaces the connected opencode-go catalog for the opencode backend (#407)', async () => {
+    // #407: the OpenCode agent picker dead-ended on "available after first
+    // connection" even with opencode-go "Connected · 20 models", because
+    // curatedForAgent('opencode') returned []. opencode pairs with the
+    // opencode-go gateway (vendored together), so surface its connected catalog
+    // exactly like a vendor-locked backend (grok→xai).
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'opencode-go',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.replaceRegistryCatalog('opencode-go', [
+      catalogModel({ id: 'deepseek-v4-pro', providerId: 'opencode-go' }),
+      catalogModel({ id: 'qwen3-coder', providerId: 'opencode-go' }),
+    ]);
+    const h = createModelRegistryHandlers(deps);
+
+    const ids = (await h.curatedForAgent({ agentKey: 'opencode' })).map((m) => m.id).toSorted();
+
+    expect(ids).toEqual(['deepseek-v4-pro', 'qwen3-coder']);
   });
 });
 

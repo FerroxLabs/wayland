@@ -365,6 +365,46 @@ describe('AcpModelSelector', () => {
     });
   });
 
+  it('renders the connected opencode-go catalog for the OpenCode agent instead of the first-connection tooltip (#407)', async () => {
+    // #407: the OpenCode agent picker permanently showed "available after first
+    // connection" even with opencode-go "Connected · N models". The process now
+    // maps opencode->opencode-go so curatedForAgent('opencode') returns that
+    // connected catalog; the picker must surface it as a selectable dropdown
+    // (State 1b) rather than dead-ending on the tooltip.
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: { modelInfo: null },
+    });
+    configGetMock.mockResolvedValue(null);
+    ipcMock.curatedForAgent.mockResolvedValue([
+      {
+        id: 'deepseek-v4-pro',
+        providerId: 'opencode-go',
+        displayName: 'DeepSeek V4 Pro',
+        family: 'deepseek',
+        enabled: true,
+        recommended: true,
+        costInPerM: 1,
+        costOutPerM: 2,
+      },
+    ]);
+
+    render(<AcpModelSelector conversationId='conv-opencode' backend='opencode' />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('common.defaultModel').length).toBeGreaterThan(0);
+    });
+    expect(screen.queryByText(FIRST_CONNECTION_LABEL)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => {
+      expect(screen.getByText('DeepSeek V4 Pro')).toBeTruthy();
+    });
+
+    // The backend is forwarded so the process derives the opencode catalog.
+    expect(ipcMock.curatedForAgent).toHaveBeenCalledWith(expect.objectContaining({ agentKey: 'opencode' }));
+  });
+
   it('shows the first-connection guidance only after the cache load completes with no models', async () => {
     // No cached catalog and no live models: a backend that has genuinely never
     // connected. After the cache lookup settles, the first-connection label shows.
