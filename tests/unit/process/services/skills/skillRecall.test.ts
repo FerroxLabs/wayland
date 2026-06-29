@@ -52,7 +52,15 @@ const QUERIES_PATH = path.join(LIBRARY_DIR, 'discovery-queries.json');
 // Gate
 // ---------------------------------------------------------------------------
 
-describe('BM25 recall gate (release gate)', () => {
+// This is a CPU-bound full-corpus gate (2105 docs x 2003 queries, ~16s on a
+// loaded CI runner) and it was the single biggest contributor to the unit
+// shard-1/4 imbalance (#358). It does not need to run on every PR shard — it
+// guards a release decision (whether BM25 recall is still good enough), not the
+// correctness of a changeset. It runs only when RUN_RELEASE_GATES=1, which the
+// nightly `release-gates.yml` workflow sets; PR shards skip it.
+const RUN_RELEASE_GATES = process.env.RUN_RELEASE_GATES === '1';
+
+describe.skipIf(!RUN_RELEASE_GATES)('BM25 recall gate (release gate)', () => {
   it('recall@20 >= 0.80 over the full discovery-queries corpus', async () => {
     const [indexRaw, queriesRaw] = await Promise.all([readFile(INDEX_PATH, 'utf-8'), readFile(QUERIES_PATH, 'utf-8')]);
 

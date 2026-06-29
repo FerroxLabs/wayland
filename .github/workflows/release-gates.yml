@@ -1,0 +1,64 @@
+name: Release Gates
+
+# Runs the heavyweight "release gate" tests that guard a release decision
+# rather than the correctness of any single PR. These are gated behind
+# RUN_RELEASE_GATES=1 and skipped on every PR shard (they were the main driver
+# of the unit shard-1/4 time imbalance, #358). This nightly lane is where they
+# actually execute.
+#
+# Currently covers:
+#   - tests/unit/process/services/skills/skillRecall.test.ts
+#     (BM25 recall@20 over the full 2105-doc x 2003-query corpus)
+# Add new release-gate files to the `run:` step below as they are introduced.
+#
+# Security: no untrusted PR/issue text is interpolated into any run: step.
+
+on:
+  schedule:
+    # Nightly at 08:00 UTC.
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: release-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
+  WCORE_SKIP: '1'
+  CI: 'true'
+  NODE_OPTIONS: '--max-old-space-size=8192'
+
+jobs:
+  release-gates:
+    name: Release Gate Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+          cache: true
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run postinstall
+        run: npm run postinstall || true
+
+      - name: Run release-gate tests
+        env:
+          RUN_RELEASE_GATES: '1'
+        run: bunx vitest run tests/unit/process/services/skills/skillRecall.test.ts
