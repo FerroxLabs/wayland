@@ -40,13 +40,34 @@ Code is written, unit-green, AND now adversarially cross-audited end-to-end. But
 
 ## 3. NEXT SESSION — verify, don't re-build
 
-1. **Read the 2b cross-audit result** (`wf_6664cfc0-f24` output) and fix every confirmed e2e-breaking / blocking finding. Especially the 4 wiring unknowns above.
-2. **Live-verify** (route agent-turns to Overwatch/Windows; DOM-verify locally where possible):
-   - Phase 1: "what can you do?" in a native + an ACP chat → real counts; "how do I connect a provider?" → correct steps + one offer. Cold-start panel renders translated (not raw keys); Settings toggle persists; panel dismiss persists.
-   - Phase 2a: packaged build → diag subprocess spawns; `wayland_concierge_diag` returns redacted output with `available:true` for providers + scheduled tasks.
-   - Phase 2b: ask Concierge "connect OpenAI" → card renders → paste key → Apply → provider actually connected; "set my default model to X" → applied; Cancel works; the card updates to accepted/cancelled.
-3. **Land the fast-follows** (#9 diag persona-gating + SEC-1/SEC-2/NR-1; #10 residual coverage).
-4. Re-run full green gate before declaring done.
+The 2b cross-audit is DONE and its critical is FIXED+pushed (see §1). Remaining work, in order:
+
+1. **LIVE-VERIFY (Overwatch is driving this).** This is the only thing between ~80% and done; the local
+   harness can't run wcore agent turns, so it MUST be a real app:
+   - P1: "what can you do?" in a native + an ACP chat → real counts; "how do I connect a provider?" →
+     correct steps + one offer. Cold-start panel renders translated text (not raw `concierge.*` keys);
+     Settings default-persona toggle + panel dismiss persist.
+   - P2a: packaged build → diag subprocess spawns; `wayland_concierge_diag` returns redacted output with
+     `available:true` for providers + scheduled tasks (this is the better-sqlite3 native-binding fix).
+   - P2b: ask Concierge "connect OpenAI" → card renders → paste key → Apply → provider actually connected
+     (key never in chat/DB/model); "set my default model to X" → applied; Cancel works; card flips to
+     accepted/cancelled; a wrong key shows an error + stays retryable.
+   - If live-verify finds a break, fix → re-green → re-push; do NOT declare done on green tests alone.
+2. **Land the fast-follows** (#9 diag persona-gating + SEC-1/SEC-2/NR-1 redaction; #10 residual coverage:
+   initStorage seed-path test + Gemini/ACP-native wiring tests).
+3. **2b polish** (#18, non-blocking): Edit affordance (bridge supports `action:'edit'` but card doesn't
+   offer it — implement or remove the dead branch); parseError card for valid-kind-bad-value blocks.
+4. Re-run full green gate (`bun run typecheck && bun run test && bunx oxlint <files> && node scripts/check-i18n.js`)
+   before declaring done.
+
+### Resume / verify commands
+```
+cd /private/tmp/wt-concierge
+gh auth switch --user FerroxLabs        # drifts to TradeCanyon
+git log --oneline -3                    # HEAD = 446a4408f (handoff) ← 57f4e9dfd (2b fix) ← e52f16a70 (base)
+bun install && bun run typecheck && bun run test   # confirm still green
+gh pr view 439 -R FerroxLabs/wayland    # the open PR
+```
 
 ## 4. Build discipline notes
 - Swarm agents 529'd during this session (backend overload); 2b was built solo against the locked contract module (`conciergeConfig.ts`) — that contract is the source of truth if re-swarming.
