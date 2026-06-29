@@ -1,5 +1,5 @@
 import type { TChatConversation } from '@/common/config/storage';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import useSWR from 'swr';
 import type { FileOrFolderItem } from '@/renderer/utils/file/fileTypes';
 export type { FileOrFolderItem } from '@/renderer/utils/file/fileTypes';
@@ -69,6 +69,65 @@ const store: SendBoxDraftStore = {
   wcore: new Map(),
 };
 
+// ── Durable persistence (#412) ───────────────────────────────────────────────
+// The in-memory `store` above survives navigation and component remounts within
+// a single renderer session, but is wiped whenever the renderer reloads or the
+// app restarts/crashes - which is exactly when users reported losing typed-but-
+// unsent text ("the system jumps and all my words are lost"). Mirror each draft
+// into localStorage (synchronous, renderer-local, survives reload/restart) so a
+// half-written message is never dropped. Failures here are non-fatal: the
+// in-memory store keeps working if storage is unavailable or over quota.
+const DRAFT_STORAGE_PREFIX = 'wayland:sendbox-draft:';
+
+function draftStorageKey(type: string, conversation_id: string): string {
+  return `${DRAFT_STORAGE_PREFIX}${type}:${conversation_id}`;
+}
+
+/** A draft worth persisting has typed content or attached files; anything else is noise. */
+function isDraftPersistable(draft: Draft | undefined): boolean {
+  if (!draft) return false;
+  const content = (draft as { content?: unknown }).content;
+  if (typeof content === 'string' && content.length > 0) return true;
+  const atPath = (draft as { atPath?: unknown[] }).atPath;
+  if (Array.isArray(atPath) && atPath.length > 0) return true;
+  const uploadFile = (draft as { uploadFile?: unknown[] }).uploadFile;
+  if (Array.isArray(uploadFile) && uploadFile.length > 0) return true;
+  return false;
+}
+
+/** Read a persisted draft from localStorage. Returns undefined on miss, parse error, or type drift. */
+function readPersistedDraft<K extends TChatConversation['type']>(
+  type: K,
+  conversation_id: string
+): Extract<Draft, { _type: K }> | undefined {
+  if (typeof localStorage === 'undefined') return undefined;
+  try {
+    const raw = localStorage.getItem(draftStorageKey(type, conversation_id));
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw) as Draft;
+    // Guard against schema drift across releases: only accept a matching _type.
+    if (!parsed || parsed._type !== type) return undefined;
+    return parsed as Extract<Draft, { _type: K }>;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Write-through a draft to localStorage, or clear it once the draft is empty (e.g. after send). */
+function writePersistedDraft(type: string, conversation_id: string, draft: Draft | undefined): void {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    const key = draftStorageKey(type, conversation_id);
+    if (isDraftPersistable(draft)) {
+      localStorage.setItem(key, JSON.stringify(draft));
+    } else {
+      localStorage.removeItem(key);
+    }
+  } catch {
+    // Quota exceeded / serialization failure: in-memory draft still works.
+  }
+}
+
 const setDraft = <K extends TChatConversation['type']>(
   type: K,
   conversation_id: string,
@@ -128,9 +187,11 @@ const setDraft = <K extends TChatConversation['type']>(
     default:
       break;
   }
+  // Mirror the change to durable storage so the draft survives reload/restart (#412).
+  writePersistedDraft(type, conversation_id, draft);
 };
 
-const getDraft = <K extends TChatConversation['type']>(
+const getInMemoryDraft = <K extends TChatConversation['type']>(
   type: K,
   conversation_id: string
 ): Extract<Draft, { _type: K }> | undefined => {
@@ -155,6 +216,22 @@ const getDraft = <K extends TChatConversation['type']>(
   }
 };
 
+const getDraft = <K extends TChatConversation['type']>(
+  type: K,
+  conversation_id: string
+): Extract<Draft, { _type: K }> | undefined => {
+  const inMemory = getInMemoryDraft(type, conversation_id);
+  if (inMemory !== undefined) return inMemory;
+  // Cold session (post reload/restart): rehydrate from durable storage and warm
+  // the in-memory store so subsequent reads are cheap (#412).
+  const persisted = readPersistedDraft(type, conversation_id);
+  if (persisted !== undefined) {
+    setDraft(type, conversation_id, persisted);
+    return persisted;
+  }
+  return undefined;
+};
+
 /**
  * React Hook for conversation draft operations of a given type.
  */
@@ -163,16 +240,36 @@ export const getSendBoxDraftHook = <K extends TChatConversation['type']>(
   initialValue: Extract<Draft, { _type: K }>
 ) => {
   function useDraft(conversation_id: string) {
-    const swrRet = useSWR([`/send-box/${type}/draft/${conversation_id}`, conversation_id], ([_, id]) => {
-      return getDraft(type, id);
-    });
+    // Synchronously seed SWR with the persisted draft so `data` is the saved
+    // value on the VERY FIRST render after a reload/restart - never undefined.
+    // Without this, a mount-time partial update (e.g. setAtPath) would run while
+    // `data` is still undefined, rebuild the draft from the empty `initialValue`,
+    // and clobber the persisted text before async hydration lands (#412). This
+    // is a pure read (no side effects during render); the fetcher below performs
+    // the actual in-memory hydration.
+    const fallbackData = useMemo(
+      () => getInMemoryDraft(type, conversation_id) ?? readPersistedDraft(type, conversation_id),
+      [conversation_id]
+    );
+    const swrRet = useSWR(
+      [`/send-box/${type}/draft/${conversation_id}`, conversation_id],
+      ([_, id]) => {
+        return getDraft(type, id);
+      },
+      { fallbackData }
+    );
 
     const mutateDraft = useCallback(
       (draft: (k: Extract<Draft, { _type: K }>) => typeof k | undefined): void => {
         swrRet
           .mutate(
             (prev) => {
-              const newDraft = draft(prev ?? initialValue);
+              // SWR's cached `prev` is undefined until the fetcher commits, so on
+              // the first mutate after a reload we must fall back to the persisted
+              // draft (not the empty initialValue) - otherwise a partial update
+              // would rebuild from empty and wipe the saved text (#412).
+              const base = prev ?? getDraft(type, conversation_id) ?? initialValue;
+              const newDraft = draft(base);
               setDraft(type, conversation_id, newDraft);
               return newDraft;
             },
