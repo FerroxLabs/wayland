@@ -31,11 +31,7 @@ const CONCIERGE = 'builtin-concierge';
 
 describe('ensurePinned', () => {
   it('injects Concierge at slot 1 (#2 card) when absent', () => {
-    expect(ensurePinned(['builtin-cowork', 'ext-copy'])).toEqual([
-      'builtin-cowork',
-      CONCIERGE,
-      'ext-copy',
-    ]);
+    expect(ensurePinned(['builtin-cowork', 'ext-copy'])).toEqual(['builtin-cowork', CONCIERGE, 'ext-copy']);
   });
 
   it('injects Concierge even into a deliberately empty bar', () => {
