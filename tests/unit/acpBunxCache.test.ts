@@ -5,22 +5,33 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { isBunxCacheCorruption, clearBunxCache, isBunCacheMoveFailed } from '../../src/process/agent/acp/acpConnectors';
+import {
+  isBunxCacheCorruption,
+  clearBunxCache,
+  clearBunxWorkingDirsForPackage,
+  isBunCacheMoveFailed,
+} from '../../src/process/agent/acp/acpConnectors';
 
 vi.mock('fs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('fs')>();
   return {
     ...actual,
     rmSync: vi.fn(),
+    readdirSync: vi.fn(),
+    statSync: vi.fn(),
   };
 });
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-const { rmSync } = await import('fs');
+const { rmSync, readdirSync, statSync } = await import('fs');
 const rmSyncMock = vi.mocked(rmSync);
+const readdirSyncMock = vi.mocked(readdirSync);
+const statSyncMock = vi.mocked(statSync);
 
 afterEach(() => {
-  vi.clearAllMocks();
+  // resetAllMocks (not clearAllMocks) so a per-test mockImplementation - e.g.
+  // the `rmSync throws` case below - does not leak into later tests.
+  vi.resetAllMocks();
 });
 
 describe('isBunxCacheCorruption', () => {
@@ -106,6 +117,54 @@ describe('clearBunxCache', () => {
 
     expect(result).toBeNull();
     expect(rmSyncMock).toHaveBeenCalledOnce();
+  });
+});
+
+describe('clearBunxWorkingDirsForPackage (#373)', () => {
+  it('clears the agent bunx working dir BY NAME when stderr has no extractable path', () => {
+    // #373: `Cannot find module 'zod/v4'` prints no bunx path, so clearBunxCache
+    // returns null; the by-name fallback must still remove the corrupt dir.
+    readdirSyncMock.mockImplementation((dir: unknown) =>
+      String(dir) === '/fake/tmp'
+        ? (['bunx-501-@agentclientprotocol', 'bunx-501-@zed-industries', 'unrelated'] as never)
+        : ([] as never)
+    );
+    statSyncMock.mockReturnValue({ isDirectory: () => true } as never);
+
+    const removed = clearBunxWorkingDirsForPackage('@agentclientprotocol/claude-agent-acp@0.52.0', {
+      BUN_TMPDIR: '/fake/tmp',
+    });
+
+    expect(removed).toEqual(['/fake/tmp/bunx-501-@agentclientprotocol']);
+    expect(rmSyncMock).toHaveBeenCalledWith('/fake/tmp/bunx-501-@agentclientprotocol', {
+      recursive: true,
+      force: true,
+    });
+    // Must NOT touch a different package's bunx dir or unrelated entries.
+    expect(rmSyncMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns [] and removes nothing when no bunx dir matches the package', () => {
+    readdirSyncMock.mockReturnValue(['bunx-501-@some-other-scope', 'random'] as never);
+    statSyncMock.mockReturnValue({ isDirectory: () => true } as never);
+
+    const removed = clearBunxWorkingDirsForPackage('@agentclientprotocol/claude-agent-acp@0.52.0', {
+      BUN_TMPDIR: '/fake/tmp',
+    });
+
+    expect(removed).toEqual([]);
+    expect(rmSyncMock).not.toHaveBeenCalled();
+  });
+
+  it('derives the bunx suffix for an unscoped package name', () => {
+    readdirSyncMock.mockImplementation((dir: unknown) =>
+      String(dir) === '/fake/tmp' ? (['bunx-777-claude-agent-acp'] as never) : ([] as never)
+    );
+    statSyncMock.mockReturnValue({ isDirectory: () => true } as never);
+
+    const removed = clearBunxWorkingDirsForPackage('claude-agent-acp@1.0.0', { BUN_TMPDIR: '/fake/tmp' });
+
+    expect(removed).toEqual(['/fake/tmp/bunx-777-claude-agent-acp']);
   });
 });
 

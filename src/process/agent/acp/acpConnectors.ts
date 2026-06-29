@@ -13,7 +13,7 @@
 import type { ChildProcess, SpawnOptions } from 'child_process';
 import { execFile as execFileCb, execFileSync, spawn } from 'child_process';
 import { promisify } from 'util';
-import { promises as fs, rmSync } from 'fs';
+import { promises as fs, readdirSync, rmSync, statSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import {
@@ -402,6 +402,70 @@ export function clearBunxCache(stderr: string): string | null {
   }
 }
 
+/** Escape a string for literal use inside a RegExp. */
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * #373 fallback: clear the agent's bunx WORKING dirs BY NAME when stderr has no
+ * extractable cache path. A partial extraction crashes with
+ * `error: Cannot find module 'zod/v4'` which prints NO bunx path (and the
+ * `@scope` layout lacks the `name@version/node_modules` segment `clearBunxCache`
+ * keys off), so the path-extraction self-heal returns null and the app retries
+ * forever against the same corrupt cache.
+ *
+ * Bun names its per-run working dir `bunx-<uid>-<scope-or-name>` under the OS
+ * temp dir (it does NOT honor `BUN_TMPDIR` for this on macOS/Linux - only
+ * Windows redirects TMP/TEMP). We remove ONLY directories matching that exact
+ * `bunx-<digits>-<pkg>` shape for THIS package, under the known temp roots, so
+ * nothing outside bun's own ephemeral working dirs is ever touched. The next
+ * `bun x` re-installs from scratch.
+ *
+ * @returns the absolute dirs removed (empty if none matched).
+ */
+export function clearBunxWorkingDirsForPackage(
+  npxPackage: string,
+  env: Record<string, string | undefined> = process.env
+): string[] {
+  // `@scope/name@1.2.3` -> bunx dir suffix `@scope`; `name@1.2.3` -> `name`.
+  const spec = npxPackage.replace(/@[^@/]+$/, '');
+  const suffix = spec.split('/')[0];
+  if (!suffix) return [];
+  const dirRe = new RegExp(`^bunx-\\d+-${escapeRegExp(suffix)}`);
+
+  const roots = [env.BUN_TMPDIR, env.TMPDIR, env.TMP, env.TEMP, os.tmpdir()].filter(
+    (r): r is string => typeof r === 'string' && r.length > 0
+  );
+  const removed: string[] = [];
+  const seenRoots = new Set<string>();
+  const seenDirs = new Set<string>();
+  for (const root of roots) {
+    if (seenRoots.has(root)) continue;
+    seenRoots.add(root);
+    let entries: string[];
+    try {
+      entries = readdirSync(root);
+    } catch {
+      continue;
+    }
+    for (const name of entries) {
+      if (!dirRe.test(name)) continue;
+      const full = path.join(root, name);
+      if (seenDirs.has(full)) continue;
+      seenDirs.add(full);
+      try {
+        if (!statSync(full).isDirectory()) continue;
+        rmSync(full, { recursive: true, force: true });
+        removed.push(full);
+      } catch {
+        // best-effort: skip dirs we can't stat / remove
+      }
+    }
+  }
+  return removed;
+}
+
 /**
  * Detect bun "moving to cache dir" EPERM failures.
  * On Windows, antivirus (Windows Defender) locks files during scanning,
@@ -639,9 +703,16 @@ async function connectNpxBackend(config: {
     // forces a fresh install with complete dependencies.
     const errMsg = error instanceof Error ? error.message : '';
 
-    // Retry 1: bunx cache corruption (missing transitive dependencies)
+    // Retry 1: bunx cache corruption (missing transitive deps / partial extract)
     if (isBunxCacheCorruption(errMsg)) {
-      const cleared = clearBunxCache(errMsg);
+      let cleared = clearBunxCache(errMsg);
+      if (!cleared) {
+        // #373: the crash (`Cannot find module 'zod/v4'` from a partial zod
+        // extraction) prints no extractable bunx path, so clear the agent's
+        // bunx working dirs by name instead of retrying the same corrupt cache.
+        const dirs = clearBunxWorkingDirsForPackage(npxPackage, cleanEnv);
+        if (dirs.length > 0) cleared = dirs.join(', ');
+      }
       if (cleared) {
         console.log(`[ACP ${backend}] Cleared corrupted bunx cache: ${cleared}, retrying...`);
         await setup(spawnNpxBackend(backend, npxPackage, npxCommand, cleanEnv, workingDir, isWindows, false, opts));
