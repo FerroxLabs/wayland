@@ -14,10 +14,10 @@ import {
 import * as path from 'path';
 import i18n from '@process/services/i18n';
 import { workerTaskManager } from '../task/workerTaskManagerSingleton';
+import { getIsQuitting, setIsQuitting } from './quitState';
 
 let tray: TrayInstance | null = null;
 let closeToTrayEnabled = false;
-let isQuitting = false;
 let mainWindowRef: BrowserWindow | null = null;
 
 export const setTrayMainWindow = (win: BrowserWindow): void => {
@@ -30,11 +30,10 @@ export const setCloseToTrayEnabled = (enabled: boolean): void => {
   closeToTrayEnabled = enabled;
 };
 
-export const getIsQuitting = (): boolean => isQuitting;
-
-export const setIsQuitting = (quitting: boolean): void => {
-  isQuitting = quitting;
-};
+// Re-exported from the standalone quit-state module so existing import sites
+// (e.g. src/index.ts) keep working; the flag itself lives in quitState.ts so
+// non-UI quit-path code can use it without tray's heavy deps (#286).
+export { getIsQuitting, setIsQuitting };
 
 /**
  * Get tray icon.
@@ -171,7 +170,7 @@ const buildTrayContextMenu = async (): Promise<Electron.Menu> => {
   template.push({
     label: i18n.t('common.tray.restart'),
     click: () => {
-      isQuitting = true;
+      setIsQuitting(true);
       app.relaunch();
       app.exit(0);
     },
@@ -180,7 +179,7 @@ const buildTrayContextMenu = async (): Promise<Electron.Menu> => {
   template.push({
     label: i18n.t('common.tray.quit'),
     click: () => {
-      isQuitting = true;
+      setIsQuitting(true);
       app.quit();
     },
   });
