@@ -21,7 +21,6 @@ import NoModelCtaCard from './components/newChatStarter/NoModelCtaCard';
 import KickoffCard from './components/newChatStarter/KickoffCard';
 import IntentPillBar from './components/newChatStarter/IntentPillBar';
 import IntentSuggestionPanel from './components/newChatStarter/IntentSuggestionPanel';
-import WaylandCapabilitiesPanel from './components/newChatStarter/WaylandCapabilitiesPanel';
 import LaunchpadBar from './components/newChatStarter/LaunchpadBar';
 import { HomeHintBar } from './components/HomeHintBar';
 import type { IntentKey, IntentPrompt } from './intents';
@@ -1182,7 +1181,6 @@ const GuidPage: React.FC = () => {
                 onViewAll={handleQuickLaunchViewAll}
                 mode='compact'
               />
-              <WaylandCapabilitiesPanel onSelect={handleSelectIntentPrompt} />
               <IntentPillBar activeIntent={activeIntent} onSelect={handleSelectIntent} />
               {activeIntent ? (
                 <IntentSuggestionPanel
