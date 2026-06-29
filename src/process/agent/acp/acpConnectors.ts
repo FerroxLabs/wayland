@@ -432,11 +432,24 @@ export function clearBunxWorkingDirsForPackage(
   const spec = npxPackage.replace(/@[^@/]+$/, '');
   const suffix = spec.split('/')[0];
   if (!suffix) return [];
-  const dirRe = new RegExp(`^bunx-\\d+-${escapeRegExp(suffix)}`);
+  // Case-insensitive: Windows/macOS filesystems are case-insensitive, so the
+  // on-disk bunx dir may not match the package's exact casing.
+  const dirRe = new RegExp(`^bunx-\\d+-${escapeRegExp(suffix)}`, 'i');
 
-  const roots = [env.BUN_TMPDIR, env.TMPDIR, env.TMP, env.TEMP, os.tmpdir()].filter(
-    (r): r is string => typeof r === 'string' && r.length > 0
-  );
+  // bunx writes its working dir under the OS temp dir (macOS/Linux) or the
+  // Windows-redirected TMP/TEMP (= BUN_TMPDIR). Also scan bun's install cache
+  // and home (`~/.bun`, `%LOCALAPPDATA%\\.bun` on Windows) so a corrupt extract
+  // is cleared wherever bun placed it.
+  const roots = [
+    env.BUN_TMPDIR,
+    env.TMPDIR,
+    env.TMP,
+    env.TEMP,
+    env.BUN_INSTALL_CACHE_DIR,
+    env.LOCALAPPDATA ? path.join(env.LOCALAPPDATA, '.bun') : undefined,
+    path.join(os.homedir(), '.bun'),
+    os.tmpdir(),
+  ].filter((r): r is string => typeof r === 'string' && r.length > 0);
   const removed: string[] = [];
   const seenRoots = new Set<string>();
   const seenDirs = new Set<string>();

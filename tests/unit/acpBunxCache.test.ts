@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { join } from 'node:path';
+
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   isBunxCacheCorruption,
@@ -135,8 +137,9 @@ describe('clearBunxWorkingDirsForPackage (#373)', () => {
       BUN_TMPDIR: '/fake/tmp',
     });
 
-    expect(removed).toEqual(['/fake/tmp/bunx-501-@agentclientprotocol']);
-    expect(rmSyncMock).toHaveBeenCalledWith('/fake/tmp/bunx-501-@agentclientprotocol', {
+    const expectedDir = join('/fake/tmp', 'bunx-501-@agentclientprotocol');
+    expect(removed).toEqual([expectedDir]);
+    expect(rmSyncMock).toHaveBeenCalledWith(expectedDir, {
       recursive: true,
       force: true,
     });
@@ -164,7 +167,7 @@ describe('clearBunxWorkingDirsForPackage (#373)', () => {
 
     const removed = clearBunxWorkingDirsForPackage('claude-agent-acp@1.0.0', { BUN_TMPDIR: '/fake/tmp' });
 
-    expect(removed).toEqual(['/fake/tmp/bunx-777-claude-agent-acp']);
+    expect(removed).toEqual([join('/fake/tmp', 'bunx-777-claude-agent-acp')]);
   });
 });
 
