@@ -8,6 +8,7 @@ import { MessageSquare, Pencil, Trash2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { TChatConversation } from '@/common/config/storage';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
+import { clearPersistedDraftsForConversation } from '@/renderer/hooks/chat/useSendBoxDraft';
 import { CronJobIndicator, useCronJobsMap } from '@/renderer/pages/cron';
 import { refreshConversationCache } from '@/renderer/pages/conversation/utils/conversationCache';
 import { addEventListener, emitter } from '@/renderer/utils/emitter';
@@ -129,6 +130,8 @@ const ChatHistory: React.FC<{ onSessionClick?: () => void; collapsed?: boolean }
       .invoke({ id })
       .then((success) => {
         if (success) {
+          // Drop the deleted conversation's unsent send-box draft from localStorage.
+          clearPersistedDraftsForConversation(id);
           // Trigger refresh to reload from database
           emitter.emit('chat.history.refresh');
           void Promise.resolve(navigate('/')).catch((error) => {

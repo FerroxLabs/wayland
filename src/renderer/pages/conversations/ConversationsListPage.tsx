@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { TChatConversation } from '@/common/config/storage';
 import type { IProject } from '@/common/types/project';
+import { clearPersistedDraftsForConversation } from '@/renderer/hooks/chat/useSendBoxDraft';
 import AssignToProjectModal from '@/renderer/pages/projects/components/AssignToProjectModal';
 import { useProjects } from '@/renderer/pages/projects/hooks/useProjects';
 import {
@@ -59,10 +60,7 @@ const ConversationsListPage: React.FC = () => {
 
   const [assignProjectCtrl, assignProjectNode] = AssignToProjectModal.useModal({ conversationId: undefined });
 
-  const projectById = useMemo<Map<string, IProject>>(
-    () => new Map(projects.map((p) => [p.id, p])),
-    [projects]
-  );
+  const projectById = useMemo<Map<string, IProject>>(() => new Map(projects.map((p) => [p.id, p])), [projects]);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -144,9 +142,17 @@ const ConversationsListPage: React.FC = () => {
     return (
       [
         { key: 'today', label: t('conversations.group.today', { defaultValue: 'Today' }), items: buckets.today },
-        { key: 'yesterday', label: t('conversations.group.yesterday', { defaultValue: 'Yesterday' }), items: buckets.yesterday },
+        {
+          key: 'yesterday',
+          label: t('conversations.group.yesterday', { defaultValue: 'Yesterday' }),
+          items: buckets.yesterday,
+        },
         { key: 'week', label: t('conversations.group.week', { defaultValue: 'Previous 7 days' }), items: buckets.week },
-        { key: 'month', label: t('conversations.group.month', { defaultValue: 'Previous 30 days' }), items: buckets.month },
+        {
+          key: 'month',
+          label: t('conversations.group.month', { defaultValue: 'Previous 30 days' }),
+          items: buckets.month,
+        },
         { key: 'older', label: t('conversations.group.older', { defaultValue: 'Older' }), items: buckets.older },
       ] as const
     ).filter((s) => s.items.length > 0);
@@ -183,6 +189,7 @@ const ConversationsListPage: React.FC = () => {
           try {
             const ok = await ipcBridge.conversation.remove.invoke({ id: conv.id });
             if (ok) {
+              clearPersistedDraftsForConversation(conv.id);
               Message.success(t('conversation.history.deleteSuccess', { defaultValue: 'Deleted' }));
               void fetchAll();
             } else {

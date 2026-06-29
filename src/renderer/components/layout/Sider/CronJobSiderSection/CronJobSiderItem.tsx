@@ -15,6 +15,7 @@ import { Input, Message, Modal } from '@arco-design/web-react';
 import type { ICronJob } from '@/common/adapter/ipcBridge';
 import type { TChatConversation } from '@/common/config/storage';
 import { ipcBridge } from '@/common';
+import { clearPersistedDraftsForConversation } from '@/renderer/hooks/chat/useSendBoxDraft';
 import { emitter } from '@/renderer/utils/emitter';
 import { isConversationPinned } from '@renderer/pages/conversation/GroupedHistory/utils/groupingHelpers';
 import { refreshConversationCache } from '@/renderer/pages/conversation/utils/conversationCache';
@@ -105,6 +106,7 @@ const CronJobSiderItem: React.FC<CronJobSiderItemProps> = ({
           try {
             const success = await ipcBridge.conversation.remove.invoke({ id: convId });
             if (success) {
+              clearPersistedDraftsForConversation(convId);
               emitter.emit('conversation.deleted', convId);
               emitter.emit('chat.history.refresh');
               Message.success(t('conversation.history.deleteSuccess'));
