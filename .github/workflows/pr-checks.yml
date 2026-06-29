@@ -390,14 +390,6 @@ jobs:
     if: github.event.action != 'closed' && github.event.pull_request.draft == false && inputs.skip_build_test != true
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # TEMPORARY (0.11.4 cut): a temporal CI-infra issue is capping the ~100MB
-    # electron binary download to ~1MB on this runner (deterministic 678KB
-    # truncation since ~2026-06-26 11:00 UTC; the same job passed at 10:33), so
-    # the Playwright _electron e2e can't launch. This is environmental, not a
-    # regression in the 0.11.4 changeset, and is not fixable from the install
-    # script. Made non-blocking to unblock the cut; the job still runs and
-    # reports. REVERT once the download is fixed. Tracked in #361.
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -465,33 +457,72 @@ jobs:
           key: electron-bin-${{ runner.os }}-${{ hashFiles('node_modules/electron/package.json') }}
 
       - name: Ensure Electron binary is installed
+        # ROOT CAUSE (#361): "Ensure Electron binary is installed" has failed
+        # deterministically since ~2026-06-26 — dist/ ends up with only
+        # v8_context_snapshot.bin and no path.txt, identically whether
+        # ELECTRON_MIRROR points at npmmirror or the default github host. So it
+        # is NOT a host-specific egress cap (that hypothesis was tested and
+        # disproven on this PR). @electron/get's own failure is swallowed by a
+        # console.error()+process.exit() flush race, hiding whether the cause is
+        # a network truncation or extraction (disk).
+        #
+        # This step bypasses @electron/get: download the zip with curl (a client
+        # not subject to whatever truncates @electron/get) with retries, then
+        # HARD-ASSERT size + sha256 against electron's bundled checksums.json so a
+        # truncated download fails loudly with the real byte count instead of
+        # silently. Unzip into dist/ ourselves, with df before/after to surface
+        # any ENOSPC. npmmirror first, default github as fallback. A complete
+        # install here also finally lets the actions/cache Save warm for reuse.
         env:
-          ELECTRON_MIRROR: ''
           npm_config_disturl: 'https://electronjs.org/headers'
         run: |
-          set -ex
+          set -x
+          df -h /
           electron_ok() {
             [ -s node_modules/electron/path.txt ] \
               && [ -x "node_modules/electron/dist/$(cat node_modules/electron/path.txt)" ]
           }
-          # Idempotent (#361 fix): a cache-warm or already-good binary is reused
-          # as-is. Only (re)download when missing, so the per-attempt `rm -rf dist`
-          # never destroys a usable binary.
           if electron_ok; then
             echo "electron already present (cache-warm); skipping download"
-          else
-            for attempt in 1 2 3 4; do
-              export electron_config_cache="$(mktemp -d)"
-              rm -rf node_modules/electron/dist node_modules/electron/path.txt
-              node node_modules/electron/install.js || true
-              if electron_ok; then
-                echo "electron installed OK (attempt $attempt)"
-                break
-              fi
-              echo "electron install incomplete (attempt $attempt); retrying after backoff"
-              sleep $((attempt * 5))
-            done
+            exit 0
           fi
+          VER="$(node -p "require('./node_modules/electron/package.json').version")"
+          ZIP="electron-v${VER}-linux-x64.zip"
+          EXPECT="$(node -e "process.stdout.write((require('./node_modules/electron/checksums.json')['${ZIP}']||'').toLowerCase())")"
+          echo "electron ${VER}; expected sha256=${EXPECT:-<none>}"
+          for base in \
+            "https://npmmirror.com/mirrors/electron/v${VER}" \
+            "https://github.com/electron/electron/releases/download/v${VER}"; do
+            url="${base}/${ZIP}"
+            echo "::group::download ${url}"
+            rm -f "/tmp/${ZIP}"
+            if ! curl -fsSL --retry 5 --retry-all-errors --connect-timeout 30 -o "/tmp/${ZIP}" "${url}"; then
+              echo "curl failed: ${url}"; echo "::endgroup::"; continue
+            fi
+            sz="$(stat -c%s "/tmp/${ZIP}")"
+            echo "downloaded bytes=${sz} from ${url}"
+            if [ "${sz}" -lt 50000000 ]; then
+              echo "TRUNCATED (${sz} bytes < 50MB) from ${url}"; echo "::endgroup::"; continue
+            fi
+            actual="$(sha256sum "/tmp/${ZIP}" | cut -d' ' -f1)"
+            if [ -n "${EXPECT}" ] && [ "${EXPECT}" != "${actual}" ]; then
+              echo "SHA256 MISMATCH expect=${EXPECT} actual=${actual} from ${url}"; echo "::endgroup::"; continue
+            fi
+            echo "download verified (size+sha256); extracting"
+            df -h /
+            rm -rf node_modules/electron/dist
+            mkdir -p node_modules/electron/dist
+            if ! unzip -q "/tmp/${ZIP}" -d node_modules/electron/dist; then
+              echo "UNZIP FAILED from ${url}"; df -h /; echo "::endgroup::"; continue
+            fi
+            chmod +x node_modules/electron/dist/electron || true
+            printf 'electron' > node_modules/electron/path.txt
+            if electron_ok; then
+              echo "INSTALLED OK from ${url}"; echo "::endgroup::"; break
+            fi
+            echo "post-extract check failed from ${url}"; echo "::endgroup::"
+          done
+          df -h /
           ls -la node_modules/electron/dist | head -12
           electron_ok
           node -e "const p=require('electron'); require('node:fs').accessSync(p); console.log('electron binary OK:', p)"
@@ -525,10 +556,15 @@ jobs:
       # properties under test (sandbox, contextIsolation, nodeIntegration:false,
       # IPC handler registration, electron version) are identical in dev and
       # packaged mode.
+      # Electron is a GUI app: on the headless runner it aborts at startup with
+      # "Missing X server or $DISPLAY -> The platform failed to initialize.
+      # Exiting", so Playwright's _electron.launch never gets a window and times
+      # out after 60s (#361, surfaced once the binary install was fixed). Run
+      # under xvfb (preinstalled on ubuntu runners) to give it a virtual display.
       - name: Run security-audit e2e spec
         env:
           E2E_DEV: '1'
-        run: bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
+        run: xvfb-run -a bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
 
       - name: Upload Playwright report on failure
         if: failure()
