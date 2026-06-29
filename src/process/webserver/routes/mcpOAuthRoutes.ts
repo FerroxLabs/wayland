@@ -55,9 +55,12 @@ import { apiRateLimiter } from '../middleware/security';
 import { redactSecrets, requireSecureConfigWrite } from './configWriteGuards';
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
-import { ConfigStorage } from '@/common/config/storage';
 import type { IMcpServer } from '@/common/config/storage';
-import { mcpOAuthService, WAYLAND_OAUTH_CALLBACK_PORT, WAYLAND_OAUTH_REDIRECT_URI } from '@process/services/mcpServices/McpOAuthService';
+import {
+  mcpOAuthService,
+  WAYLAND_OAUTH_CALLBACK_PORT,
+  WAYLAND_OAUTH_REDIRECT_URI,
+} from '@process/services/mcpServices/McpOAuthService';
 
 /** The path the vendor redirects the remote browser back to (our public origin). */
 const REMOTE_CALLBACK_PATH = '/api/mcp/oauth/callback';
@@ -70,9 +73,16 @@ function bodyString(value: unknown): string {
  * Load the persisted MCP servers (same backing key the desktop bridge reads).
  * A storage failure is allowed to propagate to the route's catch so the error is
  * redacted before it reaches the client (R6).
+ *
+ * #283/#397: the read MUST go through `ProcessConfig` (direct main-process file
+ * accessor), NOT the renderer-facing `ConfigStorage`, which round-trips over IPC
+ * and HANGS when called from the main process (the webserver runs in main). The
+ * desktop bridge was fixed in #283; this is the same hang on the remote-WebUI
+ * GitHub MCP OAuth surface, which wedged "Save & Sign In" with no resolution.
  */
 async function loadServers(): Promise<IMcpServer[]> {
-  return (await ConfigStorage.get('mcp.config')) ?? [];
+  const { ProcessConfig } = await import('@process/utils/initStorage');
+  return (await ProcessConfig.get('mcp.config')) ?? [];
 }
 
 /**

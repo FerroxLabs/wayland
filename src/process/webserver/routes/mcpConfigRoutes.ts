@@ -26,7 +26,7 @@
  *    plain HTTP from the public internet.
  *
  * Server records and the target agent list are resolved SERVER-SIDE
- * (`ConfigStorage.get('mcp.config')` + `agentRegistry.getDetectedAgents()`): the
+ * (`ProcessConfig.get('mcp.config')` + `agentRegistry.getDetectedAgents()`): the
  * remote body carries only ids, so a remote caller can never inject an arbitrary
  * `command` / `cliPath` for the agent CLIs to execute. It does NOT route through
  * the WS bridge (R2: the `mcpService.*` IPC channels remain denied to remote
@@ -38,7 +38,6 @@ import { apiRateLimiter } from '../middleware/security';
 import { redactSecrets, requireSecureConfigWrite } from './configWriteGuards';
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
-import { ConfigStorage } from '@/common/config/storage';
 import type { IMcpServer } from '@/common/config/storage';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { agentRegistry } from '@process/agent/AgentRegistry';
@@ -57,9 +56,16 @@ function detectedAgents(): Array<{ backend: string; name: string; cliPath?: stri
   }));
 }
 
-/** Look up a stored MCP server record by id - never trusts a client-supplied spec. */
+/**
+ * Look up a stored MCP server record by id - never trusts a client-supplied spec.
+ *
+ * #283/#397: read via `ProcessConfig` (direct main-process accessor), NOT the
+ * renderer-facing `ConfigStorage`, which round-trips over IPC and HANGS when
+ * called from the main process (this webserver). Mirrors the desktop-bridge fix.
+ */
 async function findServerById(serverId: string): Promise<IMcpServer | undefined> {
-  const servers: IMcpServer[] = (await ConfigStorage.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
+  const { ProcessConfig } = await import('@process/utils/initStorage');
+  const servers: IMcpServer[] = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
   return servers.find((s) => s.id === serverId);
 }
 

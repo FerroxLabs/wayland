@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Express, Request, RequestHandler, Response } from 'express';
 
-// The connect route loads servers via ConfigStorage, starts the flow via the
-// mcpOAuthService singleton, and captures the auth URL off the core feedback
-// event. All three are hoisted mocks so the route runs in isolation.
+// The connect route loads servers via ProcessConfig (#283/#397: NOT the
+// renderer-facing ConfigStorage, which hangs when called from the main-process
+// webserver), starts the flow via the mcpOAuthService singleton, and captures
+// the auth URL off the core feedback event. All hoisted mocks so the route runs
+// in isolation.
 const { mockLogin, mockGet, mockAppendAudit, emitter, servers } = vi.hoisted(() => {
   const { EventEmitter } = require('node:events');
   const feedbackEmitter = new EventEmitter();
@@ -36,8 +38,10 @@ vi.mock('@process/services/mcpServices/McpOAuthService', () => ({
   WAYLAND_OAUTH_CALLBACK_PORT: '57000',
   WAYLAND_OAUTH_REDIRECT_URI: 'http://localhost:57000/oauth/callback',
 }));
-vi.mock('@/common/config/storage', () => ({
-  ConfigStorage: { get: mockGet },
+// #283/#397 regression guard: the route must read servers through ProcessConfig
+// (direct main-process accessor), never the renderer-facing ConfigStorage.
+vi.mock('@process/utils/initStorage', () => ({
+  ProcessConfig: { get: mockGet },
 }));
 vi.mock('../../../src/process/webserver/audit/auditLog', () => ({
   appendAudit: mockAppendAudit,
@@ -164,7 +168,10 @@ describe('MCP OAuth connect route (W4a write-only DCR connect)', () => {
   });
 
   it('connect keeps the desktop loopback redirect unchanged for a loopback peer', async () => {
-    await captureHandlers()['POST /api/mcp/oauth/connect'](makeReq({ body: { serverId: 'srv-1' }, peer: '127.0.0.1' }), makeRes());
+    await captureHandlers()['POST /api/mcp/oauth/connect'](
+      makeReq({ body: { serverId: 'srv-1' }, peer: '127.0.0.1' }),
+      makeRes()
+    );
 
     expect(mockLogin).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'srv-1' }),

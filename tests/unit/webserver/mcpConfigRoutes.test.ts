@@ -30,8 +30,11 @@ vi.mock('@process/agent/AgentRegistry', () => ({
 vi.mock('@process/bridge/mcpBridge', () => ({
   persistMcpByoOAuthCredentials: mockPersistByo,
 }));
-vi.mock('@/common/config/storage', () => ({
-  ConfigStorage: { get: mockGet },
+// #283/#397 regression guard: findServerById must read through ProcessConfig
+// (direct main-process accessor), never the renderer-facing ConfigStorage, which
+// hangs when called from the main-process webserver.
+vi.mock('@process/utils/initStorage', () => ({
+  ProcessConfig: { get: mockGet },
 }));
 vi.mock('../../../src/process/webserver/audit/auditLog', () => ({
   appendAudit: mockAppendAudit,
@@ -190,7 +193,10 @@ describe('mcp config routes (W3.D write-only MCP config)', () => {
   });
 
   it('remove audits with action mcp.remove', async () => {
-    await captureHandlers()['/api/mcp/remove-from-agents'](makeReq({ body: { name: 'raindrop' }, userId: 'u1' }), makeRes());
+    await captureHandlers()['/api/mcp/remove-from-agents'](
+      makeReq({ body: { name: 'raindrop' }, userId: 'u1' }),
+      makeRes()
+    );
     expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({ action: 'mcp.remove', target: 'raindrop' });
   });
 
