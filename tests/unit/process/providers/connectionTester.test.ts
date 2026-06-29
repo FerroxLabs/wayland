@@ -30,6 +30,23 @@ afterEach(() => {
 describe('ConnectionTester', () => {
   const tester = new ConnectionTester();
 
+  // fetchWithRetry does 3 bounded attempts with a 400ms + ~800ms setTimeout
+  // backoff between them, so retryable-error cases (network / abort / 429 / 5xx)
+  // otherwise wait the real ~1.2s+ — a top contributor to the shard-1/4
+  // imbalance (#358). Drive fake timers past the backoff instead. 3000ms covers
+  // the jittered backoffs and stays under the 15s per-attempt abort timeout, so
+  // those abort timers never fire.
+  async function testWithRetries(...args: Parameters<ConnectionTester['test']>): ReturnType<ConnectionTester['test']> {
+    vi.useFakeTimers();
+    try {
+      const p = tester.test(...args);
+      await vi.advanceTimersByTimeAsync(3_000);
+      return await p;
+    } finally {
+      vi.useRealTimers();
+    }
+  }
+
   it('returns ok for a successful minimal completion (OpenAI)', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({ choices: [{ message: { content: 'hi' } }] }));
     vi.stubGlobal('fetch', fetchMock);
@@ -105,7 +122,7 @@ describe('ConnectionTester', () => {
       'fetch',
       vi.fn().mockResolvedValue(response({ error: { message: 'You exceeded your current quota' } }, 429))
     );
-    const result = await tester.test('openai', { key: 'sk-test' });
+    const result = await testWithRetries('openai', { key: 'sk-test' });
     expect(result).toEqual({ ok: false, error: 'no-credit' });
   });
 
@@ -120,19 +137,19 @@ describe('ConnectionTester', () => {
 
   it('maps a network throw to offline', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')));
-    const result = await tester.test('openai', { key: 'sk-test' });
+    const result = await testWithRetries('openai', { key: 'sk-test' });
     expect(result).toEqual({ ok: false, error: 'offline' });
   });
 
   it('maps an abort/timeout to offline', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' })));
-    const result = await tester.test('openai', { key: 'sk-test' });
+    const result = await testWithRetries('openai', { key: 'sk-test' });
     expect(result).toEqual({ ok: false, error: 'offline' });
   });
 
   it('maps an unclassifiable 500 to unknown', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ error: 'server error' }, 500)));
-    const result = await tester.test('openai', { key: 'sk-test' });
+    const result = await testWithRetries('openai', { key: 'sk-test' });
     expect(result).toEqual({ ok: false, error: 'unknown' });
   });
 
@@ -277,7 +294,7 @@ describe('ConnectionTester', () => {
         throw new Error('sync explosion');
       })
     );
-    const result = await tester.test('openai', { key: 'sk-test' });
+    const result = await testWithRetries('openai', { key: 'sk-test' });
     expect(result.ok).toBe(false);
     expect(result.error).toBe('offline');
   });
