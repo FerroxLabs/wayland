@@ -15,6 +15,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import chokidar from 'chokidar';
 import log from 'electron-log';
+import { indexDroppedMemory } from './memoryIndexer';
 
 const DEFAULT_DROP_FOLDER = path.join(os.homedir(), 'Documents', 'Wayland-Memory');
 
@@ -98,7 +99,9 @@ function buildFrontmatter(fields: Record<string, string | string[] | number>): s
     if (Array.isArray(val)) {
       lines.push(`${key}: [${val.map((v) => String(v)).join(', ')}]`);
     } else {
-      const escaped = String(val).replace(/[\r\n]+/g, ' ').slice(0, 500);
+      const escaped = String(val)
+        .replace(/[\r\n]+/g, ' ')
+        .slice(0, 500);
       lines.push(`${key}: ${escaped}`);
     }
   }
@@ -111,10 +114,30 @@ function destFilename(timestamp: number, basename: string): string {
   return `dropped-${timestamp}-${safe}`;
 }
 
-async function ingestFile(
-  filePath: string,
-  ijfwMemoryDir: string,
-): Promise<void> {
+/** Strip a YAML frontmatter block (if any) so derived title/summary read the real body. */
+function stripFrontmatter(raw: string): string {
+  return raw.replace(/^﻿?\s*---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
+}
+
+/** One-line description for frontmatter + the FTS5 store summary (<=200 chars here, capped again downstream). */
+function deriveSummary(raw: string, basename: string): string {
+  const body = stripFrontmatter(raw).trimStart();
+  const firstLine = body.split('\n').find((l) => l.trim().length > 0) ?? '';
+  const cleaned = firstLine
+    .replace(/^#+\s*/, '')
+    .replace(/[\r\n]+/g, ' ')
+    .trim();
+  return (cleaned || basename).slice(0, 200);
+}
+
+/** Human title: a leading markdown heading if present, else the source filename (sans extension). */
+function deriveTitle(raw: string, basename: string): string {
+  const heading = stripFrontmatter(raw).match(/^#\s+(.+)$/m);
+  const title = heading ? heading[1].trim() : basename.replace(/\.(?:md|txt|json)$/i, '');
+  return title.replace(/[\r\n]+/g, ' ').slice(0, 200);
+}
+
+async function ingestFile(filePath: string, ijfwMemoryDir: string): Promise<void> {
   const ext = path.extname(filePath).toLowerCase();
   const basename = path.basename(filePath);
   const rawContent = await fs.promises.readFile(filePath, 'utf8');
@@ -122,14 +145,21 @@ async function ingestFile(
 
   let fileContent: string;
 
+  // Title + summary feed both the on-disk frontmatter (so the IJFW reader tier
+  // surfaces a real title/description, not just the filename) and the FTS5
+  // index call below. Prefer a leading markdown heading, else the source name.
+  const summary = deriveSummary(rawContent, basename);
+  const title = deriveTitle(rawContent, basename);
+
   if (ext === '.md') {
     // Already markdown - prepend source frontmatter if not already present.
     const hasFrontmatter = rawContent.trimStart().startsWith('---');
     if (hasFrontmatter) {
       fileContent = rawContent;
     } else {
-      const summary = rawContent.split('\n')[0].slice(0, 200).replace(/[\r\n]+/g, ' ');
       const frontmatter = buildFrontmatter({
+        title,
+        description: summary,
         type: 'observation',
         summary,
         stored: new Date(timestamp).toISOString(),
@@ -142,8 +172,9 @@ async function ingestFile(
     }
   } else {
     // .txt or .json - wrap body.
-    const summary = rawContent.split('\n')[0].slice(0, 200).replace(/[\r\n]+/g, ' ');
     const frontmatter = buildFrontmatter({
+      title,
+      description: summary,
       type: 'observation',
       summary,
       stored: new Date(timestamp).toISOString(),
@@ -158,6 +189,10 @@ async function ingestFile(
   const destName = destFilename(timestamp, basename.replace(/\.(?:md|txt|json)$/i, '.md'));
   const destPath = path.join(ijfwMemoryDir, destName);
   await fs.promises.writeFile(destPath, fileContent, 'utf8');
+
+  // Populate the IJFW FTS5 index so the agent can recall this memory, not just
+  // see it in the Memory UI (#256). Fire-and-forget - never blocks the ingest.
+  void indexDroppedMemory({ content: rawContent, summary, sourceFile: basename });
 
   // Only unlink after a successful write. If unlink fails, log and continue -
   // the file will be seen again on next event but the dedup window will skip it.
@@ -248,8 +283,7 @@ export async function runDropFolderProcess(opts?: {
   ijfwMemoryDir?: string;
 }): Promise<DropFolderProcessResult> {
   const dropFolder = opts?.dropFolder ?? DEFAULT_DROP_FOLDER;
-  const ijfwMemoryDir =
-    opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
+  const ijfwMemoryDir = opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
   const result: DropFolderProcessResult = { count: 0, errors: [] };
 
   try {

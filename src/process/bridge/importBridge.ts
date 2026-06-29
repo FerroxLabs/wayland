@@ -24,6 +24,7 @@ import {
   getDropFolderStatus,
 } from '@process/services/import/dropFolderWatcher';
 import type { DropFolderWatcherHandle } from '@process/services/import/dropFolderWatcher';
+import { indexDroppedMemory } from '@process/services/import/memoryIndexer';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -183,19 +184,30 @@ export function initImportBridge(): void {
       const destPath = path.join(memDir, destName);
 
       const scope = file.scope ?? 'global';
-      const summary = file.content
-        .split('\n')[0]
-        .slice(0, 200)
-        .replace(/[\r\n]+/g, ' ');
+      const firstLine = file.content
+        .split('\n')
+        .find((l) => l.trim().length > 0)
+        ?.replace(/^#+\s*/, '')
+        .replace(/[\r\n]+/g, ' ')
+        .trim();
+      const summary = (firstLine || file.name).slice(0, 200);
+      const headingMatch = file.content.match(/^#\s+(.+)$/m);
+      const title = (headingMatch ? headingMatch[1].trim() : file.name.replace(/\.(?:md|txt|json)$/i, ''))
+        .replace(/[\r\n]+/g, ' ')
+        .slice(0, 200);
       const hasFrontmatter = file.content.trimStart().startsWith('---');
 
       let fileContent: string;
       if (hasFrontmatter) {
         fileContent = file.content;
       } else {
+        // title + description let the IJFW reader tier surface a real label/desc
+        // instead of falling back to the generated filename (#256).
         const frontmatter = [
           '---',
           `id: ${hash}`,
+          `title: ${title}`,
+          `description: ${summary}`,
           `type: observation`,
           `created: ${timestamp}`,
           `source: drag-drop`,
@@ -211,6 +223,9 @@ export function initImportBridge(): void {
         await fs.promises.writeFile(destPath, fileContent, 'utf8');
         ingested++;
         log.info('[import] ingestFiles wrote', { destName });
+        // Index into the IJFW FTS5 store so the agent can recall it, not just
+        // see it in the Memory UI (#256). Fire-and-forget.
+        void indexDroppedMemory({ content: file.content, summary, sourceFile: file.name });
       } catch (err) {
         log.warn('[import] ingestFiles write failed', { destName, err });
         errors.push(`${file.name}: ${String(err)}`);
