@@ -9,10 +9,93 @@ import type { ProgressInfo, UpdateInfo } from 'electron-updater';
 import { app } from 'electron';
 import log from 'electron-log';
 import { EventEmitter } from 'events';
+import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { writeFileSyncAtomic } from '@process/utils/atomicWrite';
 import type { AutoUpdateInstallFailedReason } from '@/common/update/updateTypes';
+
+/**
+ * Redact the user's home-directory prefix from a path/string so diagnostic logs
+ * carry no PII (`/Users/<name>/...` → `~/...`). Pure + total. (#286)
+ */
+export function redactHome(value: string, home: string): string {
+  if (!value || !home) return value;
+  return value.split(home).join('~');
+}
+
+/** Decisive ShipItState.plist fields that disambiguate a silent apply failure (#286). */
+export type ShipItStateFields = {
+  launchAfterInstallation: unknown;
+  targetBundleURL: string;
+  updateBundleURL: string;
+};
+
+/**
+ * Injected IO surface for {@link buildShipItDiagnostics}. Every reader is total
+ * (returns `[]`/`null` instead of throwing) so the builder stays pure and the
+ * never-throws + redaction contract is unit-testable on any platform. (#286)
+ */
+export type ShipItDiagIO = {
+  homedir: string;
+  execPath: string;
+  isInApplicationsFolder: boolean | null;
+  /** List a directory's entries; returns `[]` when absent/unreadable. */
+  listDir: (dir: string) => string[];
+  /** Read a UTF-8 file; returns `null` when absent/unreadable. */
+  readText: (file: string) => string | null;
+  /** Parse decisive ShipItState fields; returns `null` when absent/unparseable. */
+  readPlistFields: (file: string) => ShipItStateFields | null;
+};
+
+/**
+ * Build PII-redacted ShipIt diagnostic log lines from injected IO. Pure and total:
+ * never throws, performs no real IO (all injected), so the redaction and
+ * graceful-absent guarantees are directly verifiable in unit tests on any OS. (#286)
+ *
+ * Emits, for each `*.ShipIt` dir under `~/Library/Caches`: the tail of
+ * `ShipIt_stderr.log` and the decisive `ShipItState.plist` fields — the artifacts
+ * that pick codesign/notarization rejection vs App Translocation vs a move error.
+ */
+export function buildShipItDiagnostics(io: ShipItDiagIO): string[] {
+  const lines: string[] = [];
+  const redact = (s: string): string => redactHome(s, io.homedir);
+  lines.push(`execPath=${redact(io.execPath)} isInApplicationsFolder=${io.isInApplicationsFolder}`);
+
+  const cachesDir = path.join(io.homedir, 'Library', 'Caches');
+  const entries = io.listDir(cachesDir).filter((n) => n.endsWith('.ShipIt'));
+  if (entries.length === 0) {
+    lines.push('no *.ShipIt directory under ~/Library/Caches (no apply artifacts)');
+    return lines;
+  }
+
+  for (const entry of entries) {
+    const dir = path.join(cachesDir, entry);
+    const logText = io.readText(path.join(dir, 'ShipIt_stderr.log'));
+    if (logText !== null) {
+      const tail = logText
+        .split(/\r?\n/)
+        .filter((l) => l.length > 0)
+        .slice(-40)
+        .join('\n');
+      lines.push(`${entry}/ShipIt_stderr.log (tail):\n${redact(tail)}`);
+    } else {
+      lines.push(`${entry}/ShipIt_stderr.log absent or unreadable`);
+    }
+
+    const fields = io.readPlistFields(path.join(dir, 'ShipItState.plist'));
+    if (fields) {
+      lines.push(
+        `${entry}/ShipItState: launchAfterInstallation=${String(fields.launchAfterInstallation)} ` +
+          `targetBundleURL=${redact(fields.targetBundleURL)} updateBundleURL=${redact(fields.updateBundleURL)}`
+      );
+    } else {
+      lines.push(`${entry}/ShipItState.plist absent or unparseable`);
+    }
+  }
+  return lines;
+}
 
 /**
  * Returns the appropriate update channel name based on the current platform and architecture.
@@ -461,9 +544,87 @@ class AutoUpdaterService extends EventEmitter {
       `[autoUpdater] Update to ${expected} was downloaded and install was attempted, but the app is ` +
         `still on ${current}. The post-quit Squirrel/ShipIt apply step silently failed (#286).`
     );
+    // Self-diagnose the silent apply failure: log the decisive ShipIt artifacts so
+    // every affected machine captures them locally — no manual per-user log fetch
+    // round-trip needed to tell signature-mismatch from translocation (#286).
+    this.logShipItDiagnostics();
     // Surface immediately if a renderer is already listening; the update-available
     // interception re-surfaces it once the 3s startup check runs, as a backstop.
     this.broadcastInstallFailed('silent-noop', expected);
+  }
+
+  /**
+   * Read whether the running app is inside /Applications, or null if the API is
+   * unavailable (non-darwin / test) or throws. Never throws. (#286)
+   */
+  private readIsInApplicationsFolder(): boolean | null {
+    try {
+      const fn = (app as { isInApplicationsFolder?: () => boolean }).isInApplicationsFolder;
+      return typeof fn === 'function' ? fn.call(app) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Parse the decisive ShipItState.plist fields via `plutil` (handles binary
+   * plists). Best-effort: returns null on any absence/parse/spawn failure. (#286)
+   */
+  private readShipItStateFields(plistPath: string): ShipItStateFields | null {
+    try {
+      if (!fs.existsSync(plistPath)) return null;
+      const json = execFileSync('plutil', ['-convert', 'json', '-o', '-', plistPath], {
+        encoding: 'utf8',
+        timeout: 2000,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      const parsed = JSON.parse(json) as Record<string, unknown>;
+      return {
+        launchAfterInstallation: parsed.launchAfterInstallation,
+        targetBundleURL: typeof parsed.targetBundleURL === 'string' ? parsed.targetBundleURL : '',
+        updateBundleURL: typeof parsed.updateBundleURL === 'string' ? parsed.updateBundleURL : '',
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * macOS-only, read-only, PII-safe diagnostics for a silent ShipIt apply
+   * failure. Wires real fs/plutil into the pure {@link buildShipItDiagnostics}
+   * and logs each redacted line. Best-effort — never breaks startup
+   * reconciliation, logs no secrets, redacts the home dir to `~`. (#286)
+   */
+  private logShipItDiagnostics(): void {
+    if (process.platform !== 'darwin') return;
+    try {
+      const io: ShipItDiagIO = {
+        homedir: os.homedir(),
+        execPath: process.execPath,
+        isInApplicationsFolder: this.readIsInApplicationsFolder(),
+        listDir: (dir) => {
+          try {
+            return fs.readdirSync(dir);
+          } catch {
+            return [];
+          }
+        },
+        readText: (file) => {
+          try {
+            return fs.readFileSync(file, 'utf8');
+          } catch {
+            return null;
+          }
+        },
+        readPlistFields: (file) => this.readShipItStateFields(file),
+      };
+      for (const line of buildShipItDiagnostics(io)) {
+        log.info(`[autoUpdater] ShipIt diag — ${line}`);
+      }
+    } catch (error) {
+      // Diagnostics are strictly best-effort; never let them break reconciliation.
+      log.warn('[autoUpdater] ShipIt diagnostics failed (ignored):', error);
+    }
   }
 
   /**
