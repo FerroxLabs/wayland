@@ -125,7 +125,7 @@ beforeEach(() => {
         return new Response('', { status: 200 });
       }
       return jsonRpcOk(1, []);
-    }),
+    })
   );
 });
 
@@ -145,17 +145,17 @@ describe('SignalDaemon restart behaviour', () => {
     expect(args).toContain('--http');
     expect(args).toContain('+14155551234');
     expect(args).toContain('--no-receive-stdout');
+    // #387: manual receive-mode so the daemon does not auto-receive (which would
+    // reject our manual `receive` polls with -1 "already being received").
+    expect(args).toContain('--receive-mode');
+    expect(args).toContain('manual');
     await daemon.stop();
   });
 
   it('spawns child with stdin ignored (RPC travels via HTTP)', async () => {
     const daemon = new SignalDaemon({ phoneNumber: '+14155551234' });
     await daemon.start();
-    const [, , spawnOpts] = mockSpawn.mock.calls[0] as [
-      string,
-      string[],
-      { stdio: [string, string, string] },
-    ];
+    const [, , spawnOpts] = mockSpawn.mock.calls[0] as [string, string[], { stdio: [string, string, string] }];
     expect(spawnOpts.stdio).toEqual(['ignore', 'pipe', 'pipe']);
     await daemon.stop();
   });
@@ -276,7 +276,7 @@ describe('SignalDaemon HTTP transport', () => {
           return jsonRpcOk(body.id, { timestamp: 1_700_000_000_000 });
         }
         return new Response('', { status: 404 });
-      }),
+      })
     );
 
     const daemon = new SignalDaemon({ phoneNumber: '+14155551234' });
@@ -291,10 +291,7 @@ describe('SignalDaemon HTTP transport', () => {
     expect(result).toEqual({ timestamp: 1_700_000_000_000 });
 
     const sendCall = captured.find(
-      (c) =>
-        c.url.endsWith('/api/v1/rpc') &&
-        typeof c.init?.body === 'string' &&
-        c.init.body.includes('"send"'),
+      (c) => c.url.endsWith('/api/v1/rpc') && typeof c.init?.body === 'string' && c.init.body.includes('"send"')
     );
     expect(sendCall).toBeDefined();
     expect(sendCall!.url).toBe('http://127.0.0.1:8080/api/v1/rpc');
@@ -321,9 +318,9 @@ describe('SignalDaemon HTTP transport', () => {
             id: body.id,
             error: { code: -32601, message: 'method not found' },
           }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
-      }),
+      })
     );
 
     const daemon = new SignalDaemon({ phoneNumber: '+14155551234' });
@@ -353,7 +350,7 @@ describe('SignalDaemon HTTP transport', () => {
           return jsonRpcOk(body.id, receiveCalls === 1 ? [envelope] : []);
         }
         return jsonRpcOk(body.id, null);
-      }),
+      })
     );
 
     const daemon = new SignalDaemon({ phoneNumber: '+14155551234' });
@@ -371,6 +368,37 @@ describe('SignalDaemon HTTP transport', () => {
     await daemon.stop();
   });
 
+  it('polls `receive` with single-account params (timeout only; no account / ignoreAttachments) (#387)', async () => {
+    const captured: FetchCall[] = [];
+    vi.stubGlobal(
+      'fetch',
+      makeFetchMock((call) => {
+        captured.push(call);
+        if (call.url.endsWith('/api/v1/check')) return new Response('', { status: 200 });
+        const body = JSON.parse(String(call.init?.body ?? '{}')) as { id: number };
+        return jsonRpcOk(body.id, []);
+      })
+    );
+
+    const daemon = new SignalDaemon({ phoneNumber: '+14155551234' });
+    await daemon.start();
+
+    const isReceive = (c: FetchCall): boolean => typeof c.init?.body === 'string' && c.init.body.includes('"receive"');
+    await vi.waitFor(() => expect(captured.some(isReceive)).toBe(true), { timeout: 2_000 });
+
+    const body = JSON.parse(String(captured.find(isReceive)!.init!.body)) as {
+      params: Record<string, unknown>;
+    };
+    // A single-account daemon (`-a <number>`) rejects `account` /
+    // `ignoreAttachments` for `receive` with -32600; only maxMessages?/timeout?
+    // are accepted.
+    expect(body.params).not.toHaveProperty('account');
+    expect(body.params).not.toHaveProperty('ignoreAttachments');
+    expect(body.params).toHaveProperty('timeout');
+
+    await daemon.stop();
+  });
+
   it('offMessage removes a handler so it no longer fires', async () => {
     const envelope = {
       envelope: { source: '+12125550100', timestamp: 1, dataMessage: { message: 'x' } },
@@ -383,7 +411,7 @@ describe('SignalDaemon HTTP transport', () => {
         const body = JSON.parse(String(init?.body ?? '{}')) as { id: number; method: string };
         if (body.method === 'receive') return jsonRpcOk(body.id, [envelope]);
         return jsonRpcOk(body.id, null);
-      }),
+      })
     );
 
     const daemon = new SignalDaemon({ phoneNumber: '+14155551234' });

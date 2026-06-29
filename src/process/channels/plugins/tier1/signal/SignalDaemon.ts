@@ -287,6 +287,13 @@ export class SignalDaemon {
       '--http',
       `${this.opts.httpHost}:${this.opts.httpPort}`,
       '--no-receive-stdout',
+      // #387: the daemon defaults to `--receive-mode on-connection` (auto-receive
+      // in the background), which makes a manual `receive` RPC fail with
+      // `-1 Receive command cannot be used if messages are already being received`.
+      // Wayland's design is manual polling (pollReceive), so run the daemon in
+      // manual receive mode so those polls are accepted (signal-cli 0.13.x/0.14.x).
+      '--receive-mode',
+      'manual',
     ];
 
     // stdin is `ignore` - RPC travels over HTTP, not stdio.  stdout/stderr
@@ -469,7 +476,13 @@ export class SignalDaemon {
     try {
       const result = await this.postRpc(
         'receive',
-        { account: this.opts.phoneNumber, ignoreAttachments: false },
+        // #387: a single-account daemon (`-a <number>`) accepts ONLY
+        // { maxMessages?, timeout? } for `receive`. `account` is implicit under
+        // `-a`, and `ignoreAttachments` is a daemon SPAWN flag
+        // (`--ignore-attachments`), not a per-call param - sending either is
+        // rejected with `-32600 Unrecognized field`. `timeout` is the per-poll
+        // receive window in seconds (we re-poll every RECEIVE_POLL_INTERVAL_MS).
+        { timeout: 1 },
         RECEIVE_RPC_TIMEOUT_MS
       );
       const envelopes = Array.isArray(result) ? result : [];
