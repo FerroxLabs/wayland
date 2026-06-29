@@ -564,10 +564,15 @@ jobs:
       # properties under test (sandbox, contextIsolation, nodeIntegration:false,
       # IPC handler registration, electron version) are identical in dev and
       # packaged mode.
+      # Electron is a GUI app: on the headless runner it aborts at startup with
+      # "Missing X server or $DISPLAY -> The platform failed to initialize.
+      # Exiting", so Playwright's _electron.launch never gets a window and times
+      # out after 60s (#361, surfaced once the binary install was fixed). Run
+      # under xvfb (preinstalled on ubuntu runners) to give it a virtual display.
       - name: Run security-audit e2e spec
         env:
           E2E_DEV: '1'
-        run: bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
+        run: xvfb-run -a bunx playwright test tests/e2e/specs/security-audit-verification.e2e.ts
 
       - name: Upload Playwright report on failure
         if: failure()
