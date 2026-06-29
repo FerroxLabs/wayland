@@ -16,6 +16,7 @@ import * as path from 'node:path';
 import chokidar from 'chokidar';
 import log from 'electron-log';
 import { indexDroppedMemory } from './memoryIndexer';
+import { deriveSummary, deriveTitle, stripBom } from './memoryFrontmatter';
 
 const DEFAULT_DROP_FOLDER = path.join(os.homedir(), 'Documents', 'Wayland-Memory');
 
@@ -112,46 +113,6 @@ function buildFrontmatter(fields: Record<string, string | string[] | number>): s
 function destFilename(timestamp: number, basename: string): string {
   const safe = basename.replace(/[^a-zA-Z0-9._-]/g, '_');
   return `dropped-${timestamp}-${safe}`;
-}
-
-/**
- * Strip a leading UTF-8 BOM (U+FEFF). Windows editors (Notepad, PowerShell
- * redirects, etc.) prefix one; left in place it sits before the first `#`, which
- * (a) defeats deriveTitle's `^#` heading match so the title silently falls back
- * to the filename, (b) is written verbatim into the stored .md body, and (c) is
- * handed to the FTS5 store as content, corrupting its own title/description
- * derivation. Stripping once at read time fixes all three (#256 B1).
- */
-function stripBom(raw: string): string {
-  return raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
-}
-
-/** Strip a YAML frontmatter block (if any) so derived title/summary read the real body. */
-function stripFrontmatter(raw: string): string {
-  return raw.replace(/^﻿?\s*---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
-}
-
-/**
- * One-line description for frontmatter + the FTS5 store summary (<=200 chars
- * here, capped again downstream). Prefers the first real body line over a
- * leading markdown heading, so the description is distinct from the title.
- */
-function deriveSummary(raw: string, basename: string): string {
-  const lines = stripFrontmatter(raw)
-    .split('\n')
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-  const firstBodyLine = lines.find((l) => !l.startsWith('#'));
-  const firstHeading = lines[0]?.replace(/^#+\s*/, '');
-  const cleaned = (firstBodyLine || firstHeading || basename).replace(/[\r\n]+/g, ' ').trim();
-  return (cleaned || basename).slice(0, 200);
-}
-
-/** Human title: a leading markdown heading if present, else the source filename (sans extension). */
-function deriveTitle(raw: string, basename: string): string {
-  const heading = stripFrontmatter(raw).match(/^#\s+(.+)$/m);
-  const title = heading ? heading[1].trim() : basename.replace(/\.(?:md|txt|json)$/i, '');
-  return title.replace(/[\r\n]+/g, ' ').slice(0, 200);
 }
 
 async function ingestFile(filePath: string, ijfwMemoryDir: string): Promise<void> {
