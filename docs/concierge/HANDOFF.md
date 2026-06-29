@@ -7,28 +7,22 @@ Read order: this file → `CONTRACT.md` (§2b) → `CONCIERGE-SPEC.md` → `AUDI
 
 ---
 
-## 1. HONEST STATUS — ~68%, NOT done
+## 1. HONEST STATUS — ~80%, NOT done (code wired + audited; live-verify pending)
 
-Code is written and **unit-green**, but "green tests" ≠ "it works." What is and isn't actually verified:
+Code is written, unit-green, AND now adversarially cross-audited end-to-end. But "audited code" still ≠ "live-verified." State:
 
 | Layer | Built | Unit-tested | Cross-audited | LIVE-verified in app |
 |---|---|---|---|---|
-| Phase 1 — knows | ✅ | ✅ | ✅ (re-audit: go) | ❌ (panel/settings DOM not yet) |
+| Phase 1 — knows | ✅ | ✅ | ✅ (re-audit: go) | ❌ |
 | Phase 2a — diagnoses | ✅ | ✅ | ✅ (re-audit: go) | ❌ (packaged subprocess spawn unproven) |
-| Phase 2b — acts | ✅ | ✅ (detector/bridge/card) | ⏳ **in flight** (`wf_6664cfc0-f24`) | ❌ (NO agent-turn test) |
+| Phase 2b — acts | ✅ | ✅ | ✅ (`wf_6664cfc0-f24` — found CRITICAL, FIXED) | ❌ (NO agent-turn test) |
 
-**The gaps that make it 68%, not 100%:**
-- **2b was built AFTER the last re-audit → never adversarially audited until now** (cross-audit `wf_6664cfc0-f24` is running; act on its verdict).
-- **Nothing has been live-verified in a running app.** No "what can you do?" turn, no real `[CONCIERGE_PROPOSE]` → card → apply, no packaged diag-subprocess spawn. Local harness cannot run wcore agent turns (see memory `local-harness-cannot-run-wcore-tasks`) → route live agent-turn verification to **Overwatch/Windows**.
+**2b cross-audit verdict (commit `57f4e9dfd` fixes it):** the audit found 2b was **100% non-functional** — the manager finish-gates routed turns into the middleware only on `hasCronCommands()` (false for `[CONCIERGE_PROPOSE]`), so the detector never fired (no card, raw tag leaked). FIXED: trigger wired in all 3 managers; HIGH path-traversal in `edit_assistant` hardened (detector + `writeAssistantResource`); strip-leak fixed; apply-failure now retryable; acceptance test added (concierge-only turn → persist+broadcast+strip; static guard on the 3 gates). The 4 prior wiring unknowns (#1 persist, #2 renderer render, #3 processAgentResponse called, #4 card updates) are now resolved — downstream pieces verified correct; only the gate was broken.
+
+**What still makes it ~80%, not done:**
+- **Nothing live-verified in a running app.** No real "what can you do?" turn, no real `[CONCIERGE_PROPOSE]` → card → apply, no packaged diag-subprocess spawn. Local harness can't run wcore agent turns (memory `local-harness-cannot-run-wcore-tasks`) → route to **Overwatch/Windows**.
 - **Open fast-follows** (flagged in PR #439): diag persona-gating + 3 low redaction refinements (SEC-1/SEC-2/NR-1); residual coverage (initStorage seed path, Gemini/ACP-native wiring tests).
-
-**Highest-risk unknowns the cross-audit + live-verify must resolve (could be e2e-breaking):**
-1. Is the `concierge_propose` message **persisted** (addMessage) and not just broadcast? If not, `getMessageByMsgId` at accept → `message_not_found` and **accept always fails**.
-2. Does the renderer's inbound `responseStream` path actually **render** a `concierge_propose` message, or is there a message-type allowlist that only knows `cron_propose`?
-3. Is `processAgentResponse` actually **called** on completed wcore/ACP turns (so the detector ever fires)?
-4. Does the card **update** on the bridge's status-change broadcast?
-
-These are exactly what the running cross-audit is checking; do not assume they pass.
+- **2b medium polish** still open: Edit affordance is dropped (bridge supports `action:'edit'`, card doesn't offer it — dead branch or implement); parseError card path is still unreachable (detector drops bad-value blocks rather than carding them).
 
 ---
 
