@@ -41,7 +41,9 @@ describeIfPosix('killChild', () => {
     await new Promise((r) => setTimeout(r, 200));
     expect(isProcessAlive(child.pid!)).toBe(true);
 
-    await killChild(child, false);
+    // Short SIGTERM grace (250ms) so this real-process escalation test does not
+    // pay the full 3s production default (#358); the SIGKILL path is identical.
+    await killChild(child, false, 250);
 
     // Should be dead via SIGKILL escalation
     expect(isProcessAlive(child.pid!)).toBe(false);

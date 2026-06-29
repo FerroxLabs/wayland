@@ -41,8 +41,13 @@ export async function waitForProcessExit(pid: number, timeoutMs: number): Promis
 /**
  * Kill a child process with platform-specific handling.
  * Windows: taskkill tree kill. POSIX: collect descendants → SIGTERM → SIGKILL escalation.
+ *
+ * `sigtermGraceMs` is how long to wait for a graceful SIGTERM exit before
+ * escalating to SIGKILL (default 3s). It is parameterised so tests that spawn a
+ * real SIGTERM-ignoring process can use a short grace instead of paying the full
+ * 3s real-time wait (#358).
  */
-export async function killChild(child: ChildProcess, isDetached: boolean): Promise<void> {
+export async function killChild(child: ChildProcess, isDetached: boolean, sigtermGraceMs = 3000): Promise<void> {
   const pid = child.pid;
   if (process.platform === 'win32' && pid) {
     try {
@@ -69,7 +74,7 @@ export async function killChild(child: ChildProcess, isDetached: boolean): Promi
   }
 
   if (pid) {
-    await waitForProcessExit(pid, 3000);
+    await waitForProcessExit(pid, sigtermGraceMs);
 
     // Escalate to SIGKILL if the process ignored SIGTERM
     if (isProcessAlive(pid)) {
