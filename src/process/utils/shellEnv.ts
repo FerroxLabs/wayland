@@ -136,15 +136,24 @@ export function getBundledBunDir(): string | null {
   const platform = process.platform === 'win32' ? 'win32' : process.platform;
   const arch = process.arch;
   const needsBaseline = arch === 'x64' && !detectAvx2();
+  const binName = platform === 'win32' ? 'bun.exe' : 'bun';
+
+  // The directory existing is not enough: prepareBundledBun's failure path
+  // creates an EMPTY `<platform>-<arch>/` dir (and a partial copy can leave it
+  // without the binary). Returning such a dir hands resolveNpxPath a path to a
+  // `bun` that doesn't exist → the child spawns as ENOENT and surfaces only as
+  // -32000 "Connection closed". Validate the actual binary so we fall back to a
+  // clean error instead.
+  const hasBun = (dir: string): boolean => existsSync(path.join(dir, binName));
 
   if (needsBaseline) {
     const baselineDir = path.join(resourcesPath, 'bundled-bun', `${platform}-${arch}-baseline`);
     // No baseline → return null. Falling through to the standard build would SIGILL.
-    return existsSync(baselineDir) ? baselineDir : null;
+    return hasBun(baselineDir) ? baselineDir : null;
   }
 
   const bunDir = path.join(resourcesPath, 'bundled-bun', `${platform}-${arch}`);
-  return existsSync(bunDir) ? bunDir : null;
+  return hasBun(bunDir) ? bunDir : null;
 }
 
 /**

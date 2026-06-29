@@ -307,6 +307,17 @@ export function DetailPage() {
       await saveAndConnect();
       return;
     }
+    // Apple Ecosystem "Done - verify access" step. Full Disk Access is not
+    // queryable via API (macOS TCC) — the canonical verification is to spawn
+    // the server and actually use it. Install + connect (same as the stdio
+    // path); the connect result reports whether access works, instead of the
+    // previous silent no-op. (After granting FDA for the first time the app
+    // must be relaunched — macOS only re-reads FDA at launch — so a clear
+    // failure here is the expected nudge to quit & reopen.)
+    if (action === 'verify-fda') {
+      await saveAndConnect();
+      return;
+    }
     // Install first (or reuse the existing server if already installed), then
     // trigger OAuth for entries whose setup guide emits an 'oauth-flow' action.
     if (action !== 'oauth-flow') return;

@@ -80,16 +80,15 @@ function loadExpectedShaForAsset(version, assetName) {
 
   const raw = versionEntry[assetName];
   if (!raw || typeof raw !== 'string') {
-    throw new Error(
-      `No SHA-256 entry for asset "${assetName}" under version "${versionKey}" in ${SHASUMS_FILE}.`
-    );
+    throw new Error(`No SHA-256 entry for asset "${assetName}" under version "${versionKey}" in ${SHASUMS_FILE}.`);
   }
 
-  const hex = raw.replace(/^sha256:/i, '').trim().toLowerCase();
+  const hex = raw
+    .replace(/^sha256:/i, '')
+    .trim()
+    .toLowerCase();
   if (!/^[0-9a-f]{64}$/.test(hex)) {
-    throw new Error(
-      `Malformed SHA-256 entry for "${assetName}" (version "${versionKey}") in ${SHASUMS_FILE}: ${raw}`
-    );
+    throw new Error(`Malformed SHA-256 entry for "${assetName}" (version "${versionKey}") in ${SHASUMS_FILE}: ${raw}`);
   }
   return hex;
 }
@@ -151,7 +150,12 @@ function getPlatformAsset(platform, arch, variant = 'default') {
 }
 
 function needsBaselineVariant(platform, arch) {
-  return platform === 'linux' && arch === 'x64';
+  // x64 builds need an AVX2-free "baseline" bun for older CPUs (the standard
+  // build SIGILLs without AVX2). This applies to macOS Intel too: the runtime
+  // (shellEnv.getBundledBunDir) requests `darwin-x64-baseline` on a non-AVX2
+  // Intel chip, but only linux-x64 was ever staged — so those Macs got no
+  // usable bun and every npx-based local MCP server died with -32000 (#438).
+  return arch === 'x64' && (platform === 'linux' || platform === 'darwin');
 }
 
 function getDownloadUrl(assetName, version) {
@@ -451,3 +455,6 @@ function prepareBundledBun() {
 }
 
 module.exports = prepareBundledBun;
+// Named helpers exposed for unit tests (the default export stays the function).
+module.exports.needsBaselineVariant = needsBaselineVariant;
+module.exports.getPlatformAsset = getPlatformAsset;

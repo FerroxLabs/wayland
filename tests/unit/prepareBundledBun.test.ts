@@ -161,3 +161,31 @@ describe('prepareBundledBun', () => {
     expect(manifest.files).toContain(runtimeFileName);
   });
 });
+
+// #438: the AVX2-free baseline bun must be staged for macOS Intel, not only
+// linux-x64 — otherwise non-AVX2 Intel Macs get no usable bun and every
+// npx-based local MCP server dies with -32000. Pure-logic, no download.
+describe('needsBaselineVariant (#438 — darwin-x64 baseline staging)', () => {
+  const needsBaselineVariant = (
+    prepareBundledBun as unknown as {
+      needsBaselineVariant: (platform: string, arch: string) => boolean;
+    }
+  ).needsBaselineVariant;
+  const getPlatformAsset = (
+    prepareBundledBun as unknown as {
+      getPlatformAsset: (platform: string, arch: string, variant?: string) => string | null;
+    }
+  ).getPlatformAsset;
+
+  it('stages a baseline variant for x64 on both linux and macOS (darwin), but never for arm64', () => {
+    expect(needsBaselineVariant('linux', 'x64')).toBe(true);
+    expect(needsBaselineVariant('darwin', 'x64')).toBe(true);
+    expect(needsBaselineVariant('darwin', 'arm64')).toBe(false);
+    expect(needsBaselineVariant('linux', 'arm64')).toBe(false);
+  });
+
+  it('resolves the darwin-x64 baseline to a real published asset name', () => {
+    expect(getPlatformAsset('darwin', 'x64', 'baseline')).toBe('bun-darwin-x64-baseline.zip');
+    expect(getPlatformAsset('darwin', 'x64')).toBe('bun-darwin-x64.zip');
+  });
+});

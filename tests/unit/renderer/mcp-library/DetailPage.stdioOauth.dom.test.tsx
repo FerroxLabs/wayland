@@ -260,3 +260,38 @@ test('HTTP-family oauth2-byo: "Sign in" still runs the loopback OAuth via login(
   await waitFor(() => expect(login).toHaveBeenCalledTimes(1));
   expect(testMcpConnection).not.toHaveBeenCalled();
 });
+
+// #438 - the Apple Ecosystem FDA step's "Done - verify access" button dispatched
+// onPrimary('verify-fda'), which fell through onPrimary unhandled (silent no-op).
+// It must now install + connection-test the server (the canonical macOS Full Disk
+// Access check, since TCC is not queryable), never the loopback OAuth path.
+const APPLE_ID = 'com.wayland/apple-mcp';
+
+test('#438 apple FDA: "Done - verify access" installs + connection-tests (no longer a no-op)', async () => {
+  const fakeServer: IMcpServer = {
+    id: 'mcp_apple',
+    name: APPLE_ID.replace(/[^A-Za-z0-9_.-]/g, '-'),
+    enabled: false,
+    transport: { type: 'stdio', command: 'node', args: ['builtin-mcp-apple.mjs'], env: {} },
+    originalJson: '{}',
+    createdAt: 1,
+    updatedAt: 1,
+    source: 'library',
+    libraryEntryId: APPLE_ID,
+  };
+  handleAddMcpServer.mockResolvedValue(fakeServer);
+
+  renderDetail(APPLE_ID);
+  await screen.findByText('Apple Ecosystem');
+  fireEvent.click(screen.getByRole('button', { name: /^Setup$/i }));
+
+  await act(async () => {
+    fireEvent.click(await screen.findByRole('button', { name: /Done.*verify access/i }));
+  });
+
+  await waitFor(() => expect(handleAddMcpServer).toHaveBeenCalledTimes(1));
+  expect(login).not.toHaveBeenCalled();
+  expect(testMcpConnection).toHaveBeenCalledTimes(1);
+  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_apple', true);
+  expect(messageSuccess).toHaveBeenCalled();
+});
