@@ -138,10 +138,12 @@ jobs:
     # error-path tests + the skillRecall BM25 full-corpus gate. Those are now
     # fixed — the BM25 gate is gated out of PR shards behind RUN_RELEASE_GATES
     # (runs in release-gates.yml), and the iMessage delivery-poll / ConnectionTester
-    # retry / killChild escalation tests no longer wait real seconds. The 35m
-    # stopgap is dropped to 20m; tighten toward ~15m once this PR's CI run confirms
-    # the actual post-fix shard time.
-    timeout-minutes: 20
+    # retry / killChild escalation tests no longer wait real seconds. Post-fix CI
+    # on this PR: ubuntu/macos shards ~2min, windows shards 7.6-9.3min (windows
+    # runners are just slow; tracked separately). The 35m stopgap drops to 15m —
+    # ~1.6x over the slowest (windows, 9.3min). If windows variance trips the cap,
+    # raise toward 18-20m.
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
