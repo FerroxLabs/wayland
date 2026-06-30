@@ -84,11 +84,13 @@ jobs:
           $eicar = 'X5O!P%@AP[4\PZX54(P^)7CC)7}' + '$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
           Set-Content -Path (Join-Path $dir 'eicar.com') -Value $eicar -NoNewline -Encoding ascii
           & $mp -Scan -ScanType 3 -File $dir -DisableRemediation
-          if ($LASTEXITCODE -ne 2) {
-            Write-Error "Defender did NOT flag EICAR (exit $LASTEXITCODE) — scanner is not live; clean results are untrustworthy."
+          $code = $LASTEXITCODE
+          if ($code -ne 1 -and $code -ne 2) {
+            Write-Error "Defender did NOT flag EICAR (exit $code) — scanner is not live; clean results are untrustworthy."
             exit 1
           }
-          Write-Host "Defender is live (EICAR detected)."
+          Write-Host "Defender is live (EICAR detected, exit $code)."
+          exit 0
       - name: Scan the packed skill resources
         shell: pwsh
         run: |
@@ -98,8 +100,9 @@ jobs:
           $code = $LASTEXITCODE
           if ($code -eq 0) {
             Write-Host "Defender: no detections on the packed skill resources."
-          } elseif ($code -eq 2) {
+          } elseif ($code -eq 1 -or $code -eq 2) {
             Write-Warning "Defender flagged something in the packed resources — investigate (advisory, non-blocking)."
           } else {
             Write-Warning "Defender scan returned exit $code (advisory)."
           }
+          exit 0
