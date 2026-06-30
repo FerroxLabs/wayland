@@ -11,7 +11,8 @@ import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
-import type { TProviderWithModel } from '@/common/config/storage';
+import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
+import { buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import { type OutputBudget, resolveFixedBudget } from '@/common/config/outputBudget';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
@@ -118,6 +119,12 @@ type WCoreManagerData = {
   resume?: string;
   /** Per-conversation reasoning effort (sent to the engine via set_config). Absent => engine default. */
   effort?: 'low' | 'medium' | 'high';
+  /**
+   * Per-conversation MCP scoping (#348): the user-server ids active for this
+   * chat. `undefined` => all enabled servers; `[]` => no user servers. Forwarded
+   * to the same `isServerActiveForSession` predicate the ACP/Gemini paths use.
+   */
+  activeMcpServers?: string[];
   teamMcpStdioConfig?: {
     name: string;
     command: string;
@@ -260,6 +267,27 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     } else {
       const teamGuide = await this.buildTeamGuideMcpStdioConfig();
       if (teamGuide) stdioMcpServers.push(teamGuide);
+    }
+
+    // Inject the user's enabled stdio MCP connectors (mcp.config) so an
+    // app-enabled connector reaches the engine WITHOUT a separate settings
+    // toggle - mirroring the ACP session-injection path. wcore otherwise depends
+    // entirely on the [mcp.servers] table written by WCoreMcpAgent (settings-time
+    // only), which left every connector invisible in a fresh wcore chat. Uses the
+    // shared predicate + per-conversation scoping (#348); builtins and hosted
+    // (http/sse) connectors are handled elsewhere (see buildWCoreUserStdioMcpServers).
+    // Best-effort: a config read failure must never block the spawn.
+    try {
+      const mcpConfig = await ProcessConfig.get('mcp.config');
+      const userServers = buildWCoreUserStdioMcpServers(
+        mcpConfig as IMcpServer[] | undefined,
+        mergedData.activeMcpServers
+      );
+      for (const server of userServers) {
+        stdioMcpServers.push({ name: server.name, command: server.command, args: server.args, env: server.env });
+      }
+    } catch (err) {
+      mainWarn('[WCoreManager]', 'failed to load user MCP connectors for injection', err);
     }
 
     // Raw-engine (power-user) mode: when `wcore.rawEngineMode` is

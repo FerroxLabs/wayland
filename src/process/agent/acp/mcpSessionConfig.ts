@@ -45,10 +45,18 @@ function toNameValueEntries(source?: Record<string, string>): AcpSessionMcpNameV
  *
  * Builtin servers (image generation, skill search) are seeded into mcp.config
  * with `status: undefined` and are never connection-tested, so they must be
- * accepted on `undefined`; otherwise a backend silently drops them. User-added
- * (non-builtin) servers still require an active `connected` status.
+ * accepted on `undefined`; otherwise a backend silently drops them.
  *
- * Both backends must agree: previously the ACP path injected builtin servers
+ * User-added (non-builtin) servers are accepted on `undefined` OR `connected`,
+ * and only excluded on an explicit failure status (`disconnected`/`error`). An
+ * enabled connector the user has not yet connection-probed (`status: undefined`)
+ * must still reach the session - the live ACP path (McpConfig.fromStorageConfig,
+ * used by AcpAgentV2/AcpRuntime for Claude/Codex) already accepts `undefined`,
+ * so requiring `connected` here meant Gemini (and the wcore injector that shares
+ * this predicate) silently dropped connectors that Claude/Codex kept - the exact
+ * cross-backend divergence this predicate exists to prevent.
+ *
+ * Every backend must agree: previously the ACP path injected builtin servers
  * only, so a user's custom MCP server reached Gemini chats but never Codex or
  * Claude chats (GitHub #56). Using one predicate keeps them in lockstep.
  */
@@ -56,10 +64,9 @@ export function shouldInjectSessionMcpServer(server: IMcpServer): boolean {
   if (!server.enabled) {
     return false;
   }
-  if (server.builtin === true) {
-    return server.status === undefined || server.status === 'connected';
-  }
-  return server.status === 'connected';
+  // Both builtin and user servers: accept not-yet-probed (undefined) or
+  // connected; a known-broken (disconnected/error) server is not surfaced.
+  return server.status === undefined || server.status === 'connected';
 }
 
 /**
@@ -131,6 +138,43 @@ export function buildAcpSessionMcpServers(
       })
       .filter((server): server is AcpSessionMcpServer => server !== null)
   );
+}
+
+/**
+ * Build the stdio MCP servers for a Wayland Core spawn from the user's
+ * `mcp.config` connector list. wcore receives MCP servers at spawn via the
+ * engine's `add_mcp_server` runtime command (stdio only), so this mirrors the
+ * ACP session-injection path: same `shouldInjectSessionMcpServer` predicate and
+ * `isServerActiveForSession` per-conversation scoping (#348). Builtins
+ * (image-gen, skill-search, concierge-diag) are excluded - wcore surfaces those
+ * through its own mechanisms (system-prompt skills index / team guide), and
+ * injecting them here would double them up or leak the Concierge-only diag
+ * server. Non-stdio (hosted http/sse) connectors are skipped because the engine
+ * runtime command only adds stdio servers; those still reach wcore via the
+ * [mcp.servers] table written by WCoreMcpAgent.
+ */
+export function buildWCoreUserStdioMcpServers(
+  mcpServers: IMcpServer[] | undefined | null,
+  activeServerIds?: readonly string[]
+): AcpSessionMcpServerStdio[] {
+  if (!Array.isArray(mcpServers) || mcpServers.length === 0) {
+    return [];
+  }
+  return mcpServers
+    .filter(shouldInjectSessionMcpServer)
+    .filter((server) => server.builtin !== true)
+    .filter((server) => isServerActiveForSession(server, activeServerIds))
+    .filter((server) => server.transport.type === 'stdio')
+    .map((server): AcpSessionMcpServerStdio => {
+      const transport = server.transport as Extract<IMcpServer['transport'], { type: 'stdio' }>;
+      return {
+        type: 'stdio',
+        name: server.name,
+        command: transport.command,
+        args: transport.args || [],
+        env: toNameValueEntries(transport.env) ?? [],
+      };
+    });
 }
 
 /** Config shape passed from TeamSessionService to AgentManagers */

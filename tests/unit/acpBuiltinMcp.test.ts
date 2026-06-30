@@ -123,9 +123,14 @@ describe('ACP built-in MCP session config', () => {
         originalJson: '{}',
       },
       {
+        // A known-broken (disconnected) non-builtin: excluded under the uniform
+        // predicate. (An enabled non-builtin with `status: undefined` is now
+        // INJECTED - covered by wcoreUserMcpInjection.test.ts - so this fixture
+        // uses a failure status to stay a negative case here.)
         id: 'external-server',
         name: 'chrome-devtools',
         enabled: true,
+        status: 'disconnected',
         transport: {
           type: 'stdio',
           command: 'npx',
@@ -230,9 +235,12 @@ describe('ACP custom MCP session config (#56)', () => {
     ]);
   });
 
-  it('excludes a custom server that is not connected (matches the Gemini path)', () => {
+  it('injects an enabled un-probed custom server but excludes known-broken/disabled (uniform with the live ACP path)', () => {
     const servers: IMcpServer[] = [
       {
+        // Enabled but not yet connection-tested: NOW injected (matches
+        // McpConfig.fromStorageConfig, the live Claude/Codex path) so an enabled
+        // connector reaches every backend without a connection probe first.
         id: 'custom-untested',
         name: 'unconnected-tool',
         enabled: true,
@@ -264,7 +272,9 @@ describe('ACP custom MCP session config (#56)', () => {
       },
     ];
 
-    expect(buildAcpSessionMcpServers(servers, { stdio: true, http: true, sse: true })).toEqual([]);
+    expect(buildAcpSessionMcpServers(servers, { stdio: true, http: true, sse: true })).toEqual([
+      { type: 'stdio', name: 'unconnected-tool', command: 'node', args: [], env: [] },
+    ]);
   });
 });
 

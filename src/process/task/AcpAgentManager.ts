@@ -1326,11 +1326,66 @@ ${collectedResponses.join('\n')}`;
 
   // ── initAgent ────────────────────────────────────────────────────────
 
+  /**
+   * Per-process de-dupe so we don't re-run `codex mcp add` on every codex chat.
+   * Keyed by a signature of the enabled connectors (name + status + updatedAt),
+   * so a newly enabled/connected/edited connector forces a re-sync.
+   */
+  private static lastCodexMcpSignature: string | null = null;
+
+  /**
+   * Ensure the user's enabled MCP connectors are present in codex's native
+   * config (~/.codex/config.toml) before a codex agent spawns. Reuses the same
+   * tested machinery the UI toggle uses (mcpService.syncMcpToAgents → name
+   * sanitisation, OAuth bearer attach, `codex mcp add`), scoped to the codex
+   * backend. Best-effort: any failure is logged and never blocks the spawn.
+   *
+   * Dynamic import of McpService (not a top-level import): its OAuth chain's
+   * static initializer references HybridTokenStorage and a top-level import
+   * triggers a module-init TDZ in any module that imports it.
+   */
+  private async ensureCodexNativeMcpServers(data: AcpAgentManagerData): Promise<void> {
+    try {
+      const mcpConfig = await ProcessConfig.get('mcp.config');
+      if (!Array.isArray(mcpConfig) || mcpConfig.length === 0) return;
+      const enabled = (mcpConfig as IMcpServer[]).filter((server) => server.enabled);
+      if (enabled.length === 0) return;
+
+      const signature = enabled
+        .map((server) => `${server.name}:${server.status ?? ''}:${server.updatedAt ?? ''}`)
+        .toSorted()
+        .join('|');
+      if (signature === AcpAgentManager.lastCodexMcpSignature) return;
+
+      const { mcpService } = await import('@process/services/mcpServices/McpService');
+      await mcpService.syncMcpToAgents(mcpConfig as IMcpServer[], [
+        { backend: 'codex', name: data.agentName ?? 'Codex CLI' },
+      ]);
+      AcpAgentManager.lastCodexMcpSignature = signature;
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'ensureCodexNativeMcpServers failed', err);
+    }
+  }
+
   initAgent(data: AcpAgentManagerData = this.options) {
     if (this.bootstrap) return this.bootstrap;
 
     this.bootstrapping = true;
     const bootstrapPromise = (async () => {
+      // Codex reads MCP servers only from its native ~/.codex/config.toml at
+      // startup; unlike the wcore engine (add_mcp_server) it does not pick up
+      // session-injected stdio servers, and the settings-time sync
+      // (syncMcpToAgents) fires ONLY on a UI toggle - so a connector enabled
+      // while no codex chat was open never landed in codex's config and stayed
+      // invisible there while Claude (which keeps it in ~/.claude.json) worked.
+      // Re-sync the enabled connectors to codex's native config at bootstrap so
+      // an app-enabled connector is reliably available. Runs BEFORE
+      // resolveAgentCliConfig so a flux-routed spawn's materializeFluxCodexHome
+      // (which copies ~/.codex/config.toml's [mcp_servers]) sees them too.
+      if (data.backend === 'codex') {
+        await this.ensureCodexNativeMcpServers(data);
+      }
+
       const { cliPath, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
 
       const agentConfig = {

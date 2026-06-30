@@ -46,12 +46,21 @@ describe('shouldInjectSessionMcpServer', () => {
     expect(shouldInjectSessionMcpServer(server({ builtin: true, enabled: true, status: 'error' }))).toBe(false);
   });
 
-  it('requires a user server to be connected (undefined is not injected)', () => {
-    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: undefined }))).toBe(false);
+  it('injects an enabled user server that has not been probed (status undefined)', () => {
+    // Uniform with the live ACP path (McpConfig.fromStorageConfig): an enabled
+    // connector the user turned on but never connection-tested must still reach
+    // the session. Requiring `connected` here made Gemini drop connectors that
+    // Claude/Codex kept (cross-backend divergence).
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: undefined }))).toBe(true);
   });
 
   it('injects a connected user server', () => {
     expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: 'connected' }))).toBe(true);
+  });
+
+  it('does not inject a known-broken user server (disconnected/error)', () => {
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: 'disconnected' }))).toBe(false);
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: 'error' }))).toBe(false);
   });
 
   it('does not inject a disabled user server even when connected', () => {
