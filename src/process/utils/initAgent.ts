@@ -52,7 +52,10 @@ export type WorkspaceSkillEntry = {
  * symlinked regardless of any other setting (B8 quarantines them physically;
  * this is the second filter).
  *
- * Only runs for temp workspaces (not user-specified) to avoid polluting user project dirs.
+ * Invoked (via setupWorkspaceSkills) for temp workspaces and for project
+ * workspaces (#455); a non-project user-picked custom workspace is left alone.
+ * For project workspaces a managed `.gitignore` keeps these dot-dirs out of the
+ * user's git, so skills resolve without polluting the folder.
  *
  * Note: Rules/personality are injected via system prompt, NOT written to context files
  */

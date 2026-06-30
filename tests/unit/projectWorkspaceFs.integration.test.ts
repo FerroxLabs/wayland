@@ -49,6 +49,18 @@ describe('#455 allocateProjectWorkspace (real fs)', () => {
     expect(b.endsWith('Same Name (2)')).toBe(true);
   });
 
+  it('CONCURRENT allocations that sanitize to the same name get distinct dirs (cross-project collision guard)', async () => {
+    // Different project names that all sanitize to "Clash" (`?`/`:` are stripped).
+    // The per-projectId lock can't help here - this is the path-level guard.
+    const [a, b, c] = await Promise.all([
+      allocateProjectWorkspace('Clash'),
+      allocateProjectWorkspace('Clash?'),
+      allocateProjectWorkspace('Clash:'),
+    ]);
+    expect(new Set([a, b, c]).size, `must be 3 distinct dirs, got ${[a, b, c].join(', ')}`).toBe(3);
+    for (const p of [a, b, c]) expect(existsSync(p)).toBe(true);
+  });
+
   it('the workspace is writable and survives a re-read (relaunch-stable)', async () => {
     const ws = await allocateProjectWorkspace('Persist Me');
     const file = path.join(ws, 'note.md');

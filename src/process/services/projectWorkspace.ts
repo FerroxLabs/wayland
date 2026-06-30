@@ -53,9 +53,14 @@ export async function enforceProjectWorkspace(extra: Record<string, unknown> | u
  * dir. Electron is imported lazily so this module stays loadable in unit tests
  * that don't exercise allocation.
  */
+let _baseDirPromise: Promise<string> | null = null;
 async function defaultWorkspaceBaseDir(): Promise<string> {
-  const { app } = await import('electron');
-  return path.join(app.getPath('documents'), 'Wayland');
+  // Memoized: the documents dir doesn't change at runtime, and sharing a single
+  // import keeps concurrent allocations from each re-importing electron.
+  if (!_baseDirPromise) {
+    _baseDirPromise = import('electron').then(({ app }) => path.join(app.getPath('documents'), 'Wayland'));
+  }
+  return _baseDirPromise;
 }
 
 /**
@@ -63,12 +68,26 @@ async function defaultWorkspaceBaseDir(): Promise<string> {
  * create it on disk. Default location is `~/Documents/Wayland/<project-name>`;
  * the path logic (sanitize + de-dupe) lives in workspaceLocation.ts.
  */
+/** Paths chosen by an in-flight allocateProjectWorkspace but not yet created on disk. */
+const allocatingPaths = new Set<string>();
+
 export async function allocateProjectWorkspace(projectName: string): Promise<string> {
   const base = await defaultWorkspaceBaseDir();
   await fs.mkdir(base, { recursive: true });
-  const dir = resolveProjectWorkspacePath(base, projectName, existsSync);
-  await fs.mkdir(dir, { recursive: true });
-  return dir;
+  // Resolve + reserve in ONE synchronous step so two concurrent allocations whose
+  // names sanitize to the SAME folder (different projects -> the per-projectId
+  // lock doesn't help) can't both pick the same dir before either is created on
+  // disk. A path counts as taken if it exists OR another in-flight allocation
+  // already claimed it, so the second caller falls through to the (2)/(3) suffix.
+  const dir = resolveProjectWorkspacePath(base, projectName, (p) => existsSync(p) || allocatingPaths.has(p));
+  allocatingPaths.add(dir);
+  try {
+    await fs.mkdir(dir, { recursive: true });
+    return dir;
+  } finally {
+    // Once created, existsSync(dir) keeps it "taken"; safe to drop the reservation.
+    allocatingPaths.delete(dir);
+  }
 }
 
 /**
