@@ -150,6 +150,10 @@ const WCoreSendBox: React.FC<{
         if (modes && modes.length > 0) {
           setDynamicModes(mergeWithCapabilities('wcore', modes));
         }
+        // #466: surface Computer-Use availability so WCoreChat can prime the
+        // macOS permission card only when the agent actually has CUA.
+        const hasCua = Boolean((capabilities as { computer_use?: boolean })?.computer_use);
+        emitter.emit('wcore.cua.capability', { conversation_id, hasCua });
       },
       onError: handleAuthError,
     });

@@ -67,6 +67,13 @@ interface EventTypes {
   ];
   /** Fired by WCoreChat after a successful Flux failover; WCoreSendBox replays the failed turn. */
   'wcore.flux.replay': [{ conversation_id: string; input: string; files: string[] }];
+  /**
+   * #466 Fired by WCoreSendBox when the engine advertises (or drops) the
+   * Computer-Use capability for this conversation. WCoreChat listens and shows
+   * the macOS permission onboarding card while CUA is available + grants are
+   * missing. `hasCua` reflects the latest `computer_use` capability flag.
+   */
+  'wcore.cua.capability': [{ conversation_id: string; hasCua: boolean }];
   'codex.selected.file': [Array<string | FileOrFolderItem>];
   'codex.selected.file.append': [Array<string | FileOrFolderItem>];
   'codex.selected.file.clear': void;

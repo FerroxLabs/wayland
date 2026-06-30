@@ -10,6 +10,7 @@ import { ConversationProvider } from '@/renderer/hooks/context/ConversationConte
 import type { StepStatus, StepTransitionSource } from '@/common/types/workflowTypes';
 import ActivationCard from '@renderer/components/activation/ActivationCard';
 import AcpAuthFailureCard from '@renderer/components/activation/AcpAuthFailureCard';
+import CuaPermissionCard from '@renderer/components/activation/CuaPermissionCard';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import { useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
@@ -90,10 +91,25 @@ const WCoreChat: React.FC<{
     },
     [conversation_id]
   );
-  // Reset the card when switching conversations.
+  // #466: Computer-Use permission onboarding. WCoreSendBox emits the engine's
+  // `computer_use` capability; we prime the macOS permission card only while CUA
+  // is available (the card itself stays null unless a grant is actually missing).
+  const [hasCuaCapability, setHasCuaCapability] = useState(false);
+  const [cuaCardDismissed, setCuaCardDismissed] = useState(false);
+  useAddEventListener(
+    'wcore.cua.capability',
+    (p) => {
+      if (p.conversation_id !== conversation_id) return;
+      setHasCuaCapability(p.hasCua);
+    },
+    [conversation_id]
+  );
+  // Reset the cards when switching conversations.
   useEffect(() => {
     setAuthRemedy(null);
     pendingTurnRef.current = null;
+    setHasCuaCapability(false);
+    setCuaCardDismissed(false);
   }, [conversation_id]);
   // Wake-the-engine call to action: shown inline above the send box whenever no
   // working inference provider is configured (WS-4). A held first message
@@ -186,6 +202,11 @@ const WCoreChat: React.FC<{
                 onRouteThroughFlux={onAuthRouteThroughFlux}
                 onDismiss={() => setAuthRemedy(null)}
               />
+            </div>
+          )}
+          {hasCuaCapability && !cuaCardDismissed && (
+            <div className='max-w-800px w-full mx-auto mb-12px'>
+              <CuaPermissionCard active={hasCuaCapability} onDismiss={() => setCuaCardDismissed(true)} />
             </div>
           )}
           <ConversationChatConfirm conversation_id={conversation_id}>

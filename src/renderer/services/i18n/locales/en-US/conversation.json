@@ -392,6 +392,16 @@
       "action": "Use"
     }
   },
+  "cuaPermission": {
+    "title": "Computer-Use needs macOS permissions",
+    "subtitle": "To see your screen and act for you, grant these in System Settings, then re-check.",
+    "screenRecording": "Screen Recording",
+    "accessibility": "Accessibility",
+    "openSettings": "Open Settings",
+    "granted": "Granted",
+    "recheck": "Re-check",
+    "dismiss": "Dismiss"
+  },
   "acpAuthFailure": {
     "title": "{{backend}} can't sign in here",
     "subscriptionExplainer": "The vendor blocks subscription logins inside third-party tools like this one. To keep using {{backend}} here, route it through Flux Router, add a provider API key, or sign in to the CLI directly.",

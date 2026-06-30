@@ -11,6 +11,7 @@ import type { OpenDialogOptions } from 'electron';
 // buildEmitter - only the side-effect of allowlist registration differs.
 import { buildProvider, buildEmitter } from './bridgeAllowlist';
 import type { McpSource } from '../../process/services/mcpServices/McpProtocol';
+import type { CuaPermissionStatus, PrivacyPane } from '../../process/services/macPermissions/cuaPermissions';
 import type { DoctorReport } from '../../process/doctor/types';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
@@ -90,6 +91,14 @@ export const shell = {
   /** Open a filesystem path (file or directory) via the OS default handler.
    *  Only `~`-expansion is applied - no `..` traversal is allowed. */
   openPath: buildProvider<{ ok: boolean; error?: string }, { path: string }>('shell.open-path'),
+};
+
+// #466 Computer-Use macOS permission onboarding. getStatus uses non-prompting
+// query APIs (never triggers an OS dialog); openSettings deep-links the exact
+// System Settings privacy pane. Quiet on non-macOS (status reports unsupported).
+export const cua = {
+  getStatus: buildProvider<CuaPermissionStatus, void>('cua.get-permission-status'),
+  openSettings: buildProvider<void, { pane: PrivacyPane }>('cua.open-privacy-pane'),
 };
 
 // Generic conversation capabilities

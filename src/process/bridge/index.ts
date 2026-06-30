@@ -30,6 +30,7 @@ import { initMcpBridge } from './mcpBridge';
 import { initModelBridge } from './modelBridge';
 import { initPreviewHistoryBridge } from './previewHistoryBridge';
 import { initShellBridge } from './shellBridge';
+import { initCuaPermissionBridge } from './cuaPermissionBridge';
 import { initStarOfficeBridge } from './starOfficeBridge';
 import { initSpeechToTextBridge } from './speechToTextBridge';
 import { initVoiceAssetBridge } from './voiceAssetBridge';
@@ -86,6 +87,7 @@ export interface BridgeDependencies {
 export function initAllBridges(deps: BridgeDependencies): void {
   initDialogBridge();
   initShellBridge();
+  initCuaPermissionBridge();
   initFsBridge();
   initFileWatchBridge();
   initConversationBridge(deps.conversationService, deps.workerTaskManager, deps.teamSessionService);

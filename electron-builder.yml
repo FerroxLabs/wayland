@@ -212,6 +212,18 @@ mac:
   gatekeeperAssess: false
   entitlements: entitlements.plist
   entitlementsInherit: entitlements.plist
+  # #466: Computer-Use needs Screen Recording (screenshots) + control of other
+  # apps. macOS requires a purpose string in Info.plist for the TCC prompt or it
+  # terminates the app on first screen-capture; absent until now. Accessibility
+  # has no Info.plist key (it is prompted via the AX API by the engine, #114).
+  extendInfo:
+    NSScreenCaptureUsageDescription: >-
+      Wayland captures your screen so the Computer-Use agent can see what is on
+      it and act on your behalf. Nothing is captured unless you start a
+      Computer-Use task.
+    NSAppleEventsUsageDescription: >-
+      Wayland controls other apps on your behalf when you ask the Computer-Use
+      agent to complete a task.
 
 dmg:
   # Use UDZO format which is more reliable on CI
