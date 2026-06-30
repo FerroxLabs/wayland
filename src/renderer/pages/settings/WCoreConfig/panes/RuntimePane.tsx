@@ -12,6 +12,7 @@ import { useWcoreConfig } from '@renderer/hooks/useWcoreConfig';
 import WcSwitch from '../components/WcSwitch';
 import WcSegmented from '../components/WcSegmented';
 import ScopeLabel from '../components/ScopeLabel';
+import OutputBudgetField, { type OutputBudget } from '../components/OutputBudgetField';
 import styles from './Panes.module.css';
 
 const MODE_VALUES = ['local', 'remote', 'headless'] as const;
@@ -28,6 +29,7 @@ const RuntimePane: React.FC = () => {
   const { getSection, setSection } = useWcoreConfig();
   const [section, setLocal] = useState<RuntimeSection | null>(null);
   const [rawEngine, setRawEngine] = useState(false);
+  const [outputBudget, setOutputBudget] = useState<OutputBudget>({ mode: 'auto' });
 
   useEffect(() => {
     let cancelled = false;
@@ -36,6 +38,9 @@ const RuntimePane: React.FC = () => {
     });
     void ConfigStorage.get('wcore.rawEngineMode').then((v) => {
       if (!cancelled) setRawEngine(v === true);
+    });
+    void ConfigStorage.get('wcore.outputBudget').then((v) => {
+      if (!cancelled && v?.mode === 'fixed') setOutputBudget({ mode: 'fixed', value: v.value });
     });
     return () => {
       cancelled = true;
@@ -67,6 +72,13 @@ const RuntimePane: React.FC = () => {
     ],
     [t]
   );
+
+  const onOutputBudgetChange = useCallback((next: OutputBudget): void => {
+    setOutputBudget(next);
+    // Persist the preference only; the spawn seam (WCoreManager) reads it to set
+    // or omit `--max-tokens` per turn (#468). Mirrors rawEngineMode.
+    void ConfigStorage.set('wcore.outputBudget', next);
+  }, []);
 
   const toggleRawEngine = useCallback((next: boolean): void => {
     setRawEngine(next);
@@ -158,6 +170,9 @@ const RuntimePane: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* #468: Output budget (Auto = engine sizes per-model; Fixed = explicit --max-tokens) */}
+          <OutputBudgetField value={outputBudget} onChange={onOutputBudgetChange} />
         </div>
       </div>
 

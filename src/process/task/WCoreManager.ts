@@ -273,6 +273,21 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // loop), wedging every channel-triggered turn. `.catch` cannot save a hang.
     const rawEngineMode = (await ProcessConfig.get('wcore.rawEngineMode').catch(() => false)) === true;
 
+    // #468: Output-budget override. When the user picked a Fixed budget, pass it
+    // as the per-call `--max-tokens` (via buildSpawnConfig); Auto (default/unset)
+    // leaves it unset so the engine sizes per-model (#456). A `fixed` entry with
+    // no positive value falls back to Auto. An explicit per-conversation
+    // `maxTokens` still wins. Same main-process store rationale as rawEngineMode
+    // (ProcessConfig, not the renderer-bridged ConfigStorage which hangs here).
+    type OutputBudgetPref = { mode: 'auto' | 'fixed'; value?: number };
+    const outputBudget = await ProcessConfig.get('wcore.outputBudget').catch(
+      (): OutputBudgetPref | undefined => undefined
+    );
+    const fixedMaxTokens =
+      outputBudget?.mode === 'fixed' && typeof outputBudget.value === 'number' && outputBudget.value > 0
+        ? outputBudget.value
+        : undefined;
+
     // Prepend Wayland Constitution + specialist overlay AND inject the
     // builtin-skills index + `wayland_search_skills` MCP advert into the
     // system prompt. wcore delivers these via `init_history` as
@@ -304,7 +319,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       yoloMode: mergedData.yoloMode,
       presetRules: effectivePresetRules,
       rawEngineMode,
-      maxTokens: mergedData.maxTokens,
+      maxTokens: mergedData.maxTokens ?? fixedMaxTokens,
       maxTurns: mergedData.maxTurns,
       sessionId: mergedData.sessionId,
       resume: mergedData.resume,

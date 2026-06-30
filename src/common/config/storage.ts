@@ -386,6 +386,16 @@ export interface IConfigStorageRefer {
    * `TODO(orchestrator)` marker there).
    */
   'wcore.rawEngineMode'?: boolean;
+  /**
+   * #468 — desktop "Output budget" preference. `auto` (default / key absent)
+   * omits `--max-tokens` so the engine sizes the budget per-model (#456);
+   * `fixed` passes `value` as the per-call `--max-tokens` (via buildSpawnConfig).
+   * A `fixed` entry with no positive `value` is treated as `auto`. The renderer
+   * (RuntimePane) and the edge/WebUI console persist it; `WCoreManager` reads it
+   * at spawn to enact it. Engine `[models] output_budget` config-key parity is a
+   * separate Core seam (wayland-core #112).
+   */
+  'wcore.outputBudget'?: { mode: 'auto' | 'fixed'; value?: number };
 }
 
 export interface IEnvStorageRefer {
