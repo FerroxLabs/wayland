@@ -254,53 +254,32 @@ const GEMINI_OPENAI_COMPAT_PATH = '/v1beta/openai';
 const LOCAL_KEYLESS_PLACEHOLDER = 'ollama';
 
 /**
- * Default `--max-tokens` budget for reasoning-tier models when the caller
- * does not specify one.
+ * `--max-tokens` policy (#456): the desktop does NOT name-guess a budget.
  *
- * Why this exists: wcore has no model-aware default for
- * `max_tokens`. Reasoning models (Gemini Pro/Preview, future
- * `*-thinking`/`*-reasoning` variants) burn ~50-60 hidden "thinking" tokens
- * before emitting any visible output. With wcore's low built-in default,
- * thinking consumes the entire budget, the API returns
- * `finish_reason: length`, and the user sees an empty response. Flash
- * variants are non-reasoning and work cleanly at low budgets, so we leave
- * them alone - bumping their budget would just waste tokens.
+ * The bundled engine (pin `v0.12.16`) sizes `max_tokens` per-model up front
+ * itself (`size_output_cap` in wcore-agent): when the desktop omits
+ * `--max-tokens` the engine substitutes a generous default (64000) and clamps
+ * it to the model's REAL output ceiling - a known model to its documented limit
+ * (`wcore-config::limits::model_output_ceiling`: e.g. sonnet-4 -> 64000,
+ * opus-4 -> 32000, gpt-4o -> 16384), and an unknown / router-aliased model
+ * (`flux-auto`, `flux-pinned-*`, OpenRouter ids, bare `o`-series) to a
+ * conservative 8192 floor that grows to 32768 on a reasoning turn
+ * (`UNKNOWN_REASONING_CAP`, engine #426 - this replaces the desktop's old
+ * `REASONING_MODEL_DEFAULT_MAX_TOKENS` floor, applied server-side only when the
+ * turn actually carries a thinking budget / `reasoning_effort`).
  *
- * Detection is intentionally name-pattern based:
- *   - Suffix match (`-pro` / `-preview` / `-thinking` / `-reasoning`) catches
- *     Gemini Pro, Preview, and any future explicit reasoning variant.
- *   - Anchored match (`^o\d+(-mini)?$`) catches OpenAI's bare o-series
- *     reasoning models (`o1`, `o3`, `o3-mini`, `o4`, `o4-mini`). Their names
- *     lack a reasoning-indicating suffix, so the suffix regex misses them.
- *     Listed in `src/renderer/utils/model/modelContextLimits.ts`, so they
- *     are reachable through any OpenAI-protocol provider in Wayland.
- *   - Anchored match (`^flux-(auto|reasoning)$`) catches Flux Router's
- *     reasoning-capable tier aliases. Their literal id reveals nothing about
- *     the model Flux routes to server-side, so they need an explicit floor
- *     (#422). `flux-fast`/`flux-standard` are non-reasoning tiers, left alone.
+ * So the desktop OMITS `--max-tokens` unless the caller passes an explicit
+ * value, and lets the engine apply the model-aware budget. A fixed desktop
+ * number could only LOWER a known model's real ceiling; omitting is always
+ * >= pushing. Truncation detection is unaffected: the engine emits
+ * `finish_reason:'length'` definitively (see `WCoreManager.detectTruncation`).
  *
- * `-flash` variants short-circuit first - they are non-reasoning and work
- * cleanly at low budgets; bumping them would just waste tokens. Callers that
- * pass an explicit `maxTokens` always win - this is only a fallback.
+ * NOTE: raising the budget for engine-UNKNOWN models above 8192/32768 (e.g.
+ * resolving `flux-pinned-*` / OpenRouter ids from models.dev) is engine-gated -
+ * `size_output_cap` hard-clamps unknown models, so a desktop-pushed value is
+ * clamped right back. That path needs an engine change (Core), not a desktop
+ * one.
  */
-const REASONING_MODEL_DEFAULT_MAX_TOKENS = 32768;
-
-export function defaultMaxTokensForModel(modelName: string): number | undefined {
-  if (!modelName) return undefined;
-  if (/-flash/i.test(modelName)) return undefined;
-  // Flux tier aliases are opaque to the desktop: `flux-auto` (and `flux-reasoning`)
-  // route server-side and can land on a reasoning model whose hidden thinking
-  // burns a low budget and emits zero visible answer (#422). The desktop can't
-  // see the routed model, so give the reasoning-capable Flux tiers the same
-  // generous output floor. `flux-fast`/`flux-standard` are non-reasoning tiers
-  // and fall through to `undefined`.
-  if (/^flux-(auto|reasoning)$/i.test(modelName)) return REASONING_MODEL_DEFAULT_MAX_TOKENS;
-  // TODO(reasoning-detector): only catches o-prefixed reasoning models (o1/o3/o4-mini etc.).
-  // When OpenAI ships a non-o-prefixed reasoning model (e.g. gpt-5-reasoning), revisit
-  // this matcher - see .blackboard/audits/hard-coded-values.md HC-5.
-  if (/^o\d+(-mini)?$/i.test(modelName)) return REASONING_MODEL_DEFAULT_MAX_TOKENS;
-  return /(-pro|-preview|-thinking|-reasoning)\b/i.test(modelName) ? REASONING_MODEL_DEFAULT_MAX_TOKENS : undefined;
-}
 
 /**
  * Resolve base URL for OpenAI-compatible providers.
@@ -351,11 +330,13 @@ export function buildSpawnConfig(
   env: Record<string, string>;
   projectConfig: string;
   /**
-   * The max_tokens value actually passed to wcore (or undefined if no `--max-tokens`
-   * arg was added). Callers persist this so WCoreManager's truncation heuristic
-   * can compare `output_tokens` against the real budget - including the silent
-   * reasoning-model default from `defaultMaxTokensForModel`, which would otherwise
-   * be invisible to anything above the wrapper.
+   * The max_tokens value actually passed to wcore via `--max-tokens`, or
+   * `undefined` when none was added (#456: that is now the common case - the
+   * desktop only passes a value when the caller set one explicitly, otherwise
+   * the engine sizes the budget per-model itself). Callers persist this so
+   * WCoreManager's legacy truncation heuristic can compare `output_tokens`
+   * against the budget on old engines; on the shipping engine the definitive
+   * signal is the emitted `finish_reason:'length'`, which is budget-independent.
    */
   resolvedMaxTokens: number | undefined;
 } {
@@ -377,7 +358,9 @@ export function buildSpawnConfig(
   const env: Record<string, string> = {};
   const args: string[] = ['--json-stream', '--provider', provider, '--model', model.useModel];
 
-  const resolvedMaxTokens = options.maxTokens ?? defaultMaxTokensForModel(model.useModel);
+  // #456: omit `--max-tokens` unless the caller explicitly set one; the engine
+  // sizes per-model itself (see the policy note above `buildSpawnConfig`).
+  const resolvedMaxTokens = options.maxTokens;
   if (resolvedMaxTokens) {
     args.push('--max-tokens', String(resolvedMaxTokens));
   }

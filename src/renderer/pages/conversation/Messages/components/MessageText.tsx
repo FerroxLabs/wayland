@@ -181,9 +181,9 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
   const conversationId = conversationContext?.conversationId;
 
   // #422: one-click recovery on the truncation banner. Re-sends the turn's
-  // prompt through the existing retry plumbing (CHAT_RETRY_EVENT). Combined
-  // with the reasoning-tier budget floor in defaultMaxTokensForModel, the
-  // resend runs with the higher output budget instead of the low default.
+  // prompt through the existing retry plumbing (CHAT_RETRY_EVENT). The engine
+  // sizes the reasoning budget per-model itself (#456), so the resend runs with
+  // the model-aware output budget rather than a desktop-guessed floor.
   const handleContinueWithHeadroom = useCallback(() => {
     if (!retryText) return;
     window.dispatchEvent(

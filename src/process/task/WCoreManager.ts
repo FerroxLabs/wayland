@@ -726,11 +726,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   // it requires kill + re-spawn, and a re-spawn uses `--resume` so the failed
   // empty `finish_reason: length` turn is already in engine session history
   // (re-sending appends a NEW turn rather than re-running the same one). The
-  // budget floor in `defaultMaxTokensForModel` already gives flux-auto/
-  // flux-reasoning the 32768 output budget at spawn, so an auto-retry at the
-  // same budget would just re-truncate — a real fix needs an engine-side
-  // per-turn budget control. Manual recovery ships now via the truncation
-  // banner's "Continue with more headroom" action (CHAT_RETRY_EVENT).
+  // engine already sizes the budget per-model at spawn (#456: it grants
+  // flux-auto/flux-reasoning the 32768 reasoning ceiling itself via
+  // `size_output_cap`/`UNKNOWN_REASONING_CAP`), so an auto-retry at the same
+  // budget would just re-truncate — a real fix needs an engine-side per-turn
+  // budget control. Manual recovery ships now via the truncation banner's
+  // "Continue with more headroom" action (CHAT_RETRY_EVENT).
 
   /**
    * Attach `truncatedDueToBudget: true` to the in-flight assistant message.

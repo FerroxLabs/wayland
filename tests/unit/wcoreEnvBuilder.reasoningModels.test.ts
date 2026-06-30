@@ -5,8 +5,17 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { buildSpawnConfig, defaultMaxTokensForModel } from '../../src/process/agent/wcore/envBuilder';
+import { buildSpawnConfig } from '../../src/process/agent/wcore/envBuilder';
 import type { TProviderWithModel } from '../../src/common/config/storage';
+
+// #456 — The desktop no longer name-guesses a max_tokens floor. The bundled
+// engine (pin v0.12.16) sizes `max_tokens` per-model up front itself
+// (`size_output_cap`): a known model is clamped to its real output ceiling, and
+// an unknown / router-aliased model gets a conservative floor (8192) that grows
+// to 32768 on a reasoning turn (`UNKNOWN_REASONING_CAP`, engine #426). So the
+// desktop OMITS `--max-tokens` unless the caller passes an explicit value, and
+// lets the engine apply the model-aware budget. Pushing a fixed number could
+// only LOWER a known model's real ceiling; omitting is always >= pushing.
 
 function makeModel(platform: string, useModel: string): TProviderWithModel {
   return {
@@ -24,138 +33,61 @@ function maxTokensArg(args: string[]): string | undefined {
   return i === -1 ? undefined : args[i + 1];
 }
 
-describe('defaultMaxTokensForModel', () => {
-  it('returns 32768 for Gemini Pro Preview reasoning models', () => {
-    expect(defaultMaxTokensForModel('gemini-3.1-pro-preview')).toBe(32768);
-  });
-
-  it('returns 32768 for Gemini 2.5 Pro', () => {
-    expect(defaultMaxTokensForModel('gemini-2.5-pro')).toBe(32768);
-  });
-
-  it('returns undefined for Gemini Flash (non-reasoning)', () => {
-    expect(defaultMaxTokensForModel('gemini-2.5-flash')).toBeUndefined();
-  });
-
-  it('returns undefined for Anthropic Claude models (no thinking-token issue)', () => {
-    expect(defaultMaxTokensForModel('claude-sonnet-4-6')).toBeUndefined();
-  });
-
-  it('matches case-insensitively', () => {
-    expect(defaultMaxTokensForModel('Gemini-3.1-Pro-Preview')).toBe(32768);
-  });
-
-  it('returns 32768 for OpenAI o-series reasoning models (o1, o3, o3-mini, o4, o4-mini)', () => {
-    expect(defaultMaxTokensForModel('o1')).toBe(32768);
-    expect(defaultMaxTokensForModel('o3')).toBe(32768);
-    expect(defaultMaxTokensForModel('o3-mini')).toBe(32768);
-    expect(defaultMaxTokensForModel('o4')).toBe(32768);
-    expect(defaultMaxTokensForModel('o4-mini')).toBe(32768);
-  });
-
-  it('matches o-series case-insensitively (O1, O3-Mini)', () => {
-    expect(defaultMaxTokensForModel('O1')).toBe(32768);
-    expect(defaultMaxTokensForModel('O3-Mini')).toBe(32768);
-  });
-
-  it('returns undefined for non-reasoning models with similar prefixes (gpt-4o, gpt-4o-mini)', () => {
-    expect(defaultMaxTokensForModel('gpt-4o')).toBeUndefined();
-    expect(defaultMaxTokensForModel('gpt-4o-mini')).toBeUndefined();
-  });
-
-  it('still routes o1-preview through the suffix pattern (already-covered case)', () => {
-    expect(defaultMaxTokensForModel('o1-preview')).toBe(32768);
-  });
-
-  it('returns 32768 for the reasoning-capable Flux tiers (flux-auto, flux-reasoning) - #422', () => {
-    expect(defaultMaxTokensForModel('flux-auto')).toBe(32768);
-    expect(defaultMaxTokensForModel('flux-reasoning')).toBe(32768);
-  });
-
-  it('matches Flux tiers case-insensitively (Flux-Auto)', () => {
-    expect(defaultMaxTokensForModel('Flux-Auto')).toBe(32768);
-  });
-
-  it('returns undefined for the non-reasoning Flux tiers (flux-fast, flux-standard)', () => {
-    expect(defaultMaxTokensForModel('flux-fast')).toBeUndefined();
-    expect(defaultMaxTokensForModel('flux-standard')).toBeUndefined();
-  });
-});
-
-describe('buildSpawnConfig - reasoning model max_tokens fallback', () => {
+describe('buildSpawnConfig - max_tokens is omitted unless explicitly set (#456)', () => {
   const workspace = '/tmp/test-workspace';
 
-  it('injects default --max-tokens 32768 for gemini-3.1-pro-preview', () => {
-    const { args } = buildSpawnConfig(makeModel('gemini', 'gemini-3.1-pro-preview'), { workspace });
-    expect(maxTokensArg(args)).toBe('32768');
-  });
+  // Models that the OLD name-regex would have force-capped at 32768. The engine
+  // now sizes all of these itself, so the desktop must emit NO `--max-tokens`.
+  const omitCases: Array<[string, string]> = [
+    ['gemini', 'gemini-3.1-pro-preview'],
+    ['gemini', 'gemini-2.5-pro'],
+    ['gemini', 'gemini-2.5-flash'],
+    ['gemini', 'Gemini-3.1-Pro-Preview'],
+    ['anthropic', 'claude-sonnet-4-6'],
+    ['anthropic', 'claude-opus-4-8'],
+    ['openai', 'o1'],
+    ['openai', 'o3-mini'],
+    ['openai', 'gpt-4o'],
+    ['openai', 'gpt-5.1'],
+    ['flux-router', 'flux-auto'],
+    ['flux-router', 'flux-reasoning'],
+    ['flux-router', 'flux-fast'],
+    ['openai', 'some-openrouter/model-id'],
+  ];
 
-  it('injects default --max-tokens 32768 for gemini-2.5-pro', () => {
-    const { args } = buildSpawnConfig(makeModel('gemini', 'gemini-2.5-pro'), { workspace });
-    expect(maxTokensArg(args)).toBe('32768');
-  });
+  for (const [platform, model] of omitCases) {
+    it(`does NOT inject --max-tokens for ${model} (engine sizes it)`, () => {
+      const { args, resolvedMaxTokens } = buildSpawnConfig(makeModel(platform, model), { workspace });
+      expect(maxTokensArg(args)).toBeUndefined();
+      expect(resolvedMaxTokens).toBeUndefined();
+    });
+  }
 
-  it('does NOT inject --max-tokens for gemini-2.5-flash', () => {
-    const { args } = buildSpawnConfig(makeModel('gemini', 'gemini-2.5-flash'), { workspace });
-    expect(maxTokensArg(args)).toBeUndefined();
-  });
-
-  it('does NOT inject --max-tokens for Anthropic claude-sonnet-4-6', () => {
-    const { args } = buildSpawnConfig(makeModel('anthropic', 'claude-sonnet-4-6'), { workspace });
-    expect(maxTokensArg(args)).toBeUndefined();
-  });
-
-  it('explicit options.maxTokens=8000 overrides the default for reasoning models', () => {
-    const { args } = buildSpawnConfig(makeModel('gemini', 'gemini-3.1-pro-preview'), {
+  it('passes an explicit caller maxTokens through for a reasoning model', () => {
+    const { args, resolvedMaxTokens } = buildSpawnConfig(makeModel('gemini', 'gemini-3.1-pro-preview'), {
       workspace,
       maxTokens: 8000,
     });
     expect(maxTokensArg(args)).toBe('8000');
+    expect(resolvedMaxTokens).toBe(8000);
   });
 
-  it('explicit options.maxTokens=8000 is preserved for non-reasoning models', () => {
-    const { args } = buildSpawnConfig(makeModel('gemini', 'gemini-2.5-flash'), {
-      workspace,
-      maxTokens: 8000,
-    });
-    expect(maxTokensArg(args)).toBe('8000');
-  });
-
-  it('matches reasoning-model pattern case-insensitively (Gemini-3.1-Pro-Preview)', () => {
-    const { args } = buildSpawnConfig(makeModel('gemini', 'Gemini-3.1-Pro-Preview'), { workspace });
-    expect(maxTokensArg(args)).toBe('32768');
-  });
-
-  it('injects default --max-tokens 32768 for flux-auto (#422)', () => {
-    const { args } = buildSpawnConfig(makeModel('flux-router', 'flux-auto'), { workspace });
-    expect(maxTokensArg(args)).toBe('32768');
-  });
-
-  it('does NOT inject --max-tokens for flux-fast', () => {
-    const { args } = buildSpawnConfig(makeModel('flux-router', 'flux-fast'), { workspace });
-    expect(maxTokensArg(args)).toBeUndefined();
-  });
-});
-
-describe('buildSpawnConfig - resolvedMaxTokens return value', () => {
-  const workspace = '/tmp/test-workspace';
-
-  it('returns resolvedMaxTokens=32768 for a reasoning model when caller omits maxTokens', () => {
-    const { resolvedMaxTokens } = buildSpawnConfig(makeModel('gemini', 'gemini-2.5-pro'), { workspace });
-    expect(resolvedMaxTokens).toBe(32768);
-  });
-
-  it('returns resolvedMaxTokens matching the caller value when explicitly set', () => {
-    const { resolvedMaxTokens } = buildSpawnConfig(makeModel('gemini', 'gemini-2.5-pro'), {
+  it('passes an explicit caller maxTokens through for a non-reasoning model', () => {
+    const { args, resolvedMaxTokens } = buildSpawnConfig(makeModel('gemini', 'gemini-2.5-flash'), {
       workspace,
       maxTokens: 12345,
     });
+    expect(maxTokensArg(args)).toBe('12345');
     expect(resolvedMaxTokens).toBe(12345);
   });
 
-  it('returns resolvedMaxTokens=undefined for a non-reasoning model with no explicit maxTokens', () => {
-    const { resolvedMaxTokens } = buildSpawnConfig(makeModel('gemini', 'gemini-2.5-flash'), { workspace });
-    expect(resolvedMaxTokens).toBeUndefined();
+  it('passes an explicit caller maxTokens through for flux-auto', () => {
+    const { args, resolvedMaxTokens } = buildSpawnConfig(makeModel('flux-router', 'flux-auto'), {
+      workspace,
+      maxTokens: 16384,
+    });
+    expect(maxTokensArg(args)).toBe('16384');
+    expect(resolvedMaxTokens).toBe(16384);
   });
 });
 
