@@ -636,6 +636,9 @@ function makeWorkspaceDb(dbPath: string): void {
   const proj = db.prepare('INSERT INTO projects (id, name, workspace) VALUES (?, ?, ?)');
   proj.run('p1', 'no-workspace-project', ''); // empty -> temp fallback
   proj.run('p2', 'real-project', '/Users/someone/Documents/real-project'); // persistent
+  // A real user folder whose name happens to contain "-temp-" + a short year/
+  // counter suffix must NOT be mistaken for an engine temp dir (needs >=10 digits).
+  proj.run('p3', 'year-suffixed-project', '/Users/someone/Documents/client-temp-2024');
   const conv = db.prepare('INSERT INTO conversations (id, name, extra, updated_at) VALUES (?, ?, ?, ?)');
   conv.run(
     'c1',
@@ -669,6 +672,12 @@ describeNativeSqlite('createConciergeDiagServer — workspace health', () => {
     const realProj = result.items.find((i) => i.name === 'real-project');
     expect(realProj?.isTemporary).toBe(false);
     expect(realProj?.whyProblem).toBeNull();
+
+    // Regression: a "-temp-<year>" folder name is a real user dir, not an engine
+    // temp dir (which uses a >=10-digit Date.now() timestamp).
+    const yearProj = result.items.find((i) => i.name === 'year-suffixed-project');
+    expect(yearProj?.isTemporary).toBe(false);
+    expect(yearProj?.whyProblem).toBeNull();
 
     const tempChat = result.items.find((i) => i.name === 'temp-chat');
     expect(tempChat?.isTemporary).toBe(true);

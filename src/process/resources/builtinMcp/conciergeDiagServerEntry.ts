@@ -11,9 +11,10 @@
  * factory in a `@modelcontextprotocol/sdk` `McpServer` over stdio. Intended to
  * be bundled by `scripts/build-mcp-servers.js` into
  * `out/main/builtin-mcp-concierge-diag.js`, packaged as `app.asar.unpacked`,
- * and spawned via `mcp.config` with the four on-disk source paths injected as
- * env vars (WAYLAND_CONFIG_PATH / WAYLAND_CRON_DB / WAYLAND_PROVIDER_DB /
- * WAYLAND_LOG_DIR) by `ensureBuiltinMcpServers()`.
+ * and spawned via `mcp.config` with the on-disk source paths injected as env
+ * vars (WAYLAND_CONFIG_PATH / WAYLAND_CRON_DB / WAYLAND_PROVIDER_DB /
+ * WAYLAND_WORKSPACE_DB / WAYLAND_LOG_DIR / WAYLAND_APP_CONFIG_DIR /
+ * WAYLAND_ENGINE_CONFIG_DIR) by `ensureBuiltinMcpServers()`.
  *
  * Strictly READ-ONLY: every tool only reads on-disk state, masks secrets to
  * last-4, and never mutates anything.

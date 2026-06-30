@@ -593,12 +593,14 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
         items: [],
       };
     }
-    // Default/temp workspaces are named `<kind>-temp-<timestamp>` (see initAgent),
+    // Default/temp workspaces are named `<kind>-temp-<Date.now()>` (see initAgent),
     // or sit under the OS temp dir. A null path means no workspace at all, which
-    // also falls back to a temp dir.
+    // also falls back to a temp dir. The timestamp run must be >=10 digits (a
+    // Unix-ms timestamp is 13) so user folders like `client-temp-2024` (a year
+    // or small counter suffix) are NOT mistaken for engine temp dirs.
     const isTempPath = (p: string | null): boolean => {
       if (!p) return true;
-      return /(^|[/\\])[a-z]+-temp-\d+([/\\]|$)/i.test(p) || p.includes(os.tmpdir());
+      return /(^|[/\\])[a-z]+-temp-\d{10,}([/\\]|$)/i.test(p) || p.includes(os.tmpdir());
     };
     try {
       const items: WorkspaceHealth[] = [];

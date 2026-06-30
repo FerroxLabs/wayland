@@ -881,16 +881,18 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
     // ── Built-in concierge-diag MCP server (Phase 2a) ────────────────────────
     // Read-only diagnostics tool (`wayland_concierge_diag`) that inspects
     // on-disk state to answer "why isn't X working?". The standalone stdio
-    // subprocess has no Electron APIs, so the four on-disk sources it reads are
+    // subprocess has no Electron APIs, so the on-disk sources it reads are
     // injected as env vars — using the EXACT same path expressions the app uses
     // to write them:
     //   - WAYLAND_CONFIG_PATH → the config file `configFile` writes (mcp.config).
-    //   - WAYLAND_CRON_DB / WAYLAND_PROVIDER_DB → the main `wayland.db`
-    //     (resolveDbPath() = path.join(getDataPath(), 'wayland.db')); CronStore
-    //     and ProviderRepository both run against this single shared DB.
+    //   - WAYLAND_CRON_DB / WAYLAND_PROVIDER_DB / WAYLAND_WORKSPACE_DB → the main
+    //     `wayland.db` (resolveDbPath() = path.join(getDataPath(), 'wayland.db'));
+    //     CronStore, ProviderRepository, and projects/conversations all share it.
     //   - WAYLAND_LOG_DIR → the electron-log directory (same one getSystemDir()
-    //     reports). Enabled by default — the tool is silent unless invoked and
-    //     never mutates anything.
+    //     reports).
+    //   - WAYLAND_APP_CONFIG_DIR / WAYLAND_ENGINE_CONFIG_DIR → the two distinct
+    //     config locations, for the configPaths report.
+    // Enabled by default — the tool is silent unless invoked and never mutates.
     const conciergeDiagScriptPath = getBuiltinMcpScriptPath('builtin-mcp-concierge-diag');
     const conciergeDiagDbPath = path.join(getDataPath(), 'wayland.db');
     const conciergeDiagEnv: Record<string, string> = {
