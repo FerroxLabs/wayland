@@ -285,7 +285,16 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
     }
     // The exact read-only surface.
     expect(Object.keys(server).sort()).toEqual(
-      ['mcpHealth', 'name', 'overview', 'providers', 'recentErrors', 'scheduledTasks'].sort()
+      [
+        'configPaths',
+        'mcpHealth',
+        'name',
+        'overview',
+        'providers',
+        'recentErrors',
+        'scheduledTasks',
+        'workspace',
+      ].sort()
     );
   });
 
@@ -611,5 +620,102 @@ describeNativeSqlite('createConciergeDiagServer — overview (all sources wired)
     expect(result.mcp.available).toBe(true);
     expect(result.mcp.items[0].flag).toContain('0 tools');
     expect(JSON.stringify(result)).not.toContain(FAKE_SECRET);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Workspace health — flags projects/conversations on throwaway temp dirs
+// ---------------------------------------------------------------------------
+
+function makeWorkspaceDb(dbPath: string): void {
+  const db = new BetterSqlite3(dbPath);
+  db.exec(
+    `CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT NOT NULL, workspace TEXT);
+     CREATE TABLE conversations (id TEXT PRIMARY KEY, name TEXT NOT NULL, extra TEXT, updated_at INTEGER);`
+  );
+  const proj = db.prepare('INSERT INTO projects (id, name, workspace) VALUES (?, ?, ?)');
+  proj.run('p1', 'no-workspace-project', ''); // empty -> temp fallback
+  proj.run('p2', 'real-project', '/Users/someone/Documents/real-project'); // persistent
+  // A real user folder whose name happens to contain "-temp-" + a short year/
+  // counter suffix must NOT be mistaken for an engine temp dir (needs >=10 digits).
+  proj.run('p3', 'year-suffixed-project', '/Users/someone/Documents/client-temp-2024');
+  const conv = db.prepare('INSERT INTO conversations (id, name, extra, updated_at) VALUES (?, ?, ?, ?)');
+  conv.run(
+    'c1',
+    'temp-chat',
+    JSON.stringify({ workspace: '/Users/someone/.wayland/wcore-temp-1782747314076', customWorkspace: false }),
+    2000
+  );
+  conv.run(
+    'c2',
+    'real-chat',
+    JSON.stringify({ workspace: '/Users/someone/Documents/real-project', customWorkspace: true }),
+    1000
+  );
+  db.close();
+}
+
+describeNativeSqlite('createConciergeDiagServer — workspace health', () => {
+  it('flags empty-workspace projects and temp-workspace conversations, not real ones', () => {
+    const workspaceDbPath = tmp('wayland.db');
+    makeWorkspaceDb(workspaceDbPath);
+
+    const server = createConciergeDiagServer({ workspaceDbPath });
+    const result = server.workspace();
+
+    expect(result.available).toBe(true);
+
+    const noWs = result.items.find((i) => i.name === 'no-workspace-project');
+    expect(noWs?.isTemporary).toBe(true);
+    expect(noWs?.whyProblem).toContain('no persistent workspace');
+
+    const realProj = result.items.find((i) => i.name === 'real-project');
+    expect(realProj?.isTemporary).toBe(false);
+    expect(realProj?.whyProblem).toBeNull();
+
+    // Regression: a "-temp-<year>" folder name is a real user dir, not an engine
+    // temp dir (which uses a >=10-digit Date.now() timestamp).
+    const yearProj = result.items.find((i) => i.name === 'year-suffixed-project');
+    expect(yearProj?.isTemporary).toBe(false);
+    expect(yearProj?.whyProblem).toBeNull();
+
+    const tempChat = result.items.find((i) => i.name === 'temp-chat');
+    expect(tempChat?.isTemporary).toBe(true);
+    expect(tempChat?.whyProblem).toContain('temporary workspace');
+
+    // A conversation with customWorkspace:true and a real path is NOT reported.
+    expect(result.items.find((i) => i.name === 'real-chat')).toBeUndefined();
+  });
+
+  it('degrades gracefully when the workspace db is missing', () => {
+    const server = createConciergeDiagServer({ workspaceDbPath: tmp('missing.db') });
+    const result = server.workspace();
+    expect(result.available).toBe(false);
+    expect(result.items).toEqual([]);
+  });
+});
+
+describe('createConciergeDiagServer — config paths', () => {
+  it('reports app + engine config dirs (home-scrubbed) with the two-paths note', () => {
+    const server = createConciergeDiagServer({
+      appConfigDir: '/Users/someone/Library/Application Support/Wayland/config',
+      engineConfigDir: '/Users/someone/.config/wayland-core',
+    });
+    const result = server.configPaths();
+
+    expect(result.available).toBe(true);
+    expect(result.info.appConfigDir).toContain('Wayland/config');
+    expect(result.info.engineConfigDir).toContain('wayland-core');
+    expect(result.info.note).toContain('two separate config locations');
+    // Username must be scrubbed from both paths.
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain('/Users/someone');
+  });
+
+  it('falls back to the config-file directory when appConfigDir is unset', () => {
+    const server = createConciergeDiagServer({ configPath: '/Users/someone/cfg/wayland-config.txt' });
+    const result = server.configPaths();
+    expect(result.available).toBe(true);
+    expect(result.info.appConfigDir).toContain('/cfg');
   });
 });
