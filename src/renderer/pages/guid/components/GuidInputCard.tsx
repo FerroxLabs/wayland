@@ -137,9 +137,7 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
               {acronymPreview.acronym}
             </span>
           </div>
-          <div className='text-12px text-t-secondary line-clamp-2 whitespace-pre-wrap'>
-            {acronymPreview.expansion}
-          </div>
+          <div className='text-12px text-t-secondary line-clamp-2 whitespace-pre-wrap'>{acronymPreview.expansion}</div>
         </button>
       ) : null}
       <Input.TextArea
@@ -177,7 +175,9 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
         >
           <div className='flex items-start min-w-0 flex-1 gap-8px'>
             <FolderOpen
-              className='mt-1px flex-shrink-0' size={16} color={iconColors.secondary}
+              className='mt-1px flex-shrink-0'
+              size={16}
+              color={iconColors.secondary}
               style={{ lineHeight: 0 }}
             />
             <Tooltip content={dir} position='top' disabled={isMobile}>

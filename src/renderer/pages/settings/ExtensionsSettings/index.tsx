@@ -740,15 +740,21 @@ const ExtensionsSettings: React.FC = () => {
               <div className='grid grid-cols-1 lg:grid-cols-3 gap-12px text-13px text-[var(--color-text-2)]'>
                 <div className='rounded-8px bg-[var(--color-fill-1)] px-12px py-10px'>
                   <div className='font-medium text-[var(--color-text-1)]'>One home</div>
-                  <div className='mt-4px'>Extension UI stays under Settings &gt; Extensions unless WL adds a native hook.</div>
+                  <div className='mt-4px'>
+                    Extension UI stays under Settings &gt; Extensions unless WL adds a native hook.
+                  </div>
                 </div>
                 <div className='rounded-8px bg-[var(--color-fill-1)] px-12px py-10px'>
                   <div className='font-medium text-[var(--color-text-1)]'>No junk drawer</div>
-                  <div className='mt-4px'>Project Tools stays focused; research, comms, and infrastructure get their own packages.</div>
+                  <div className='mt-4px'>
+                    Project Tools stays focused; research, comms, and infrastructure get their own packages.
+                  </div>
                 </div>
                 <div className='rounded-8px bg-[var(--color-fill-1)] px-12px py-10px'>
                   <div className='font-medium text-[var(--color-text-1)]'>Hooks before hacks</div>
-                  <div className='mt-4px'>If a feature needs renderer patching, propose the hook upstream before migrating it.</div>
+                  <div className='mt-4px'>
+                    If a feature needs renderer patching, propose the hook upstream before migrating it.
+                  </div>
                 </div>
               </div>
             </Card>
@@ -759,7 +765,11 @@ const ExtensionsSettings: React.FC = () => {
                   key={candidate.id}
                   title={candidate.name}
                   titleIcon={Puzzle}
-                  statusBadge={<Tag color={getMigrationStatusColor(candidate.status)}>{getMigrationStatusLabel(candidate.status)}</Tag>}
+                  statusBadge={
+                    <Tag color={getMigrationStatusColor(candidate.status)}>
+                      {getMigrationStatusLabel(candidate.status)}
+                    </Tag>
+                  }
                 >
                   <div className='flex flex-col gap-10px'>
                     <div className='text-13px text-[var(--color-text-2)]'>{candidate.summary}</div>
@@ -1051,7 +1061,8 @@ const ExtensionsSettings: React.FC = () => {
               />
               <div className='flex items-center justify-between gap-10px'>
                 <div className='text-12px text-[var(--color-text-3)]'>
-                  The plan is review-only until you approve it. If no model is available, WL uses the fallback planner and labels it.
+                  The plan is review-only until you approve it. If no model is available, WL uses the fallback planner
+                  and labels it.
                 </div>
                 <Button
                   type='primary'
@@ -1108,10 +1119,7 @@ const ExtensionsSettings: React.FC = () => {
                   </div>
                   <div className='flex flex-col gap-6px'>
                     <span className='text-12px text-[var(--color-text-3)]'>Package slug</span>
-                    <Input
-                      value={builderPlan.slug}
-                      onChange={updateBuilderSlug}
-                    />
+                    <Input value={builderPlan.slug} onChange={updateBuilderSlug} />
                   </div>
                   <div className='flex flex-col gap-6px lg:col-span-2'>
                     <span className='text-12px text-[var(--color-text-3)]'>Summary</span>

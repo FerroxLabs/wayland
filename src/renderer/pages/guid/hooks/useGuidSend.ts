@@ -557,42 +557,45 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     projectId,
   ]);
 
-  const sendMessageHandler = useCallback((opts?: { onSent?: () => void }) => {
-    if (loading || sendingRef.current) return;
-    sendingRef.current = true;
-    setLoading(true);
-    handleSend()
-      .then((ok) => {
-        setInput('');
-        setMentionOpen(false);
-        setMentionQuery(null);
-        setMentionSelectorOpen(false);
-        setMentionActiveIndex(0);
-        setFiles([]);
-        setDir('');
-        // Cross-audit MED-3: only fire onSent (telemetry) when the send
-        // actually succeeded - validation early-returns resolve to false.
-        if (ok) opts?.onSent?.();
-      })
-      .catch((error) => {
-        console.error('Failed to send message:', error);
-      })
-      .finally(() => {
-        sendingRef.current = false;
-        setLoading(false);
-      });
-  }, [
-    loading,
-    handleSend,
-    setLoading,
-    setInput,
-    setMentionOpen,
-    setMentionQuery,
-    setMentionSelectorOpen,
-    setMentionActiveIndex,
-    setFiles,
-    setDir,
-  ]);
+  const sendMessageHandler = useCallback(
+    (opts?: { onSent?: () => void }) => {
+      if (loading || sendingRef.current) return;
+      sendingRef.current = true;
+      setLoading(true);
+      handleSend()
+        .then((ok) => {
+          setInput('');
+          setMentionOpen(false);
+          setMentionQuery(null);
+          setMentionSelectorOpen(false);
+          setMentionActiveIndex(0);
+          setFiles([]);
+          setDir('');
+          // Cross-audit MED-3: only fire onSent (telemetry) when the send
+          // actually succeeded - validation early-returns resolve to false.
+          if (ok) opts?.onSent?.();
+        })
+        .catch((error) => {
+          console.error('Failed to send message:', error);
+        })
+        .finally(() => {
+          sendingRef.current = false;
+          setLoading(false);
+        });
+    },
+    [
+      loading,
+      handleSend,
+      setLoading,
+      setInput,
+      setMentionOpen,
+      setMentionQuery,
+      setMentionSelectorOpen,
+      setMentionActiveIndex,
+      setFiles,
+      setDir,
+    ]
+  );
 
   // No usable model configured. Mirrors the send-time validation: only the
   // model-backed backends actually reject on a missing model - the Gemini path

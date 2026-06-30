@@ -271,7 +271,17 @@ Please check your local CLI tool authentication status`,
         emitter.emit('acp.workspace.refresh');
       }
     },
-    [agentSlotId, backend, checkAndUpdateTitle, conversation_id, extensionAcronyms, setAiProcessing, t, teamId, workspacePath]
+    [
+      agentSlotId,
+      backend,
+      checkAndUpdateTitle,
+      conversation_id,
+      extensionAcronyms,
+      setAiProcessing,
+      t,
+      teamId,
+      workspacePath,
+    ]
   );
 
   const {

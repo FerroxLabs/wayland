@@ -434,9 +434,8 @@ const SendBox: React.FC<{
     const token = input.trim();
     if (!token || token.includes(' ') || token.includes('\n')) return null;
     return (
-      extensionAcronyms.find(
-        (item) => item.enabled !== false && item.acronym.toLowerCase() === token.toLowerCase()
-      ) ?? null
+      extensionAcronyms.find((item) => item.enabled !== false && item.acronym.toLowerCase() === token.toLowerCase()) ??
+      null
     );
   }, [extensionAcronyms, input]);
   const extensionAcronymExpansion = useMemo(

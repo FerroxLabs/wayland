@@ -105,9 +105,7 @@ let _saveTimer: ReturnType<typeof setTimeout> | undefined;
 let _flushInFlight: Promise<void> | undefined;
 
 export function savePersistedStates(states: Map<string, ExtensionState>): void {
-  for (const [name, state] of states) {
-    _pendingSaveStates.set(name, { ...state });
-  }
+  _pendingSaveStates = new Map([...states].map(([name, state]) => [name, { ...state }]));
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(() => {
     void flushPersistedStates();
@@ -146,21 +144,6 @@ async function _writePersistedStates(states: Map<string, ExtensionState>): Promi
       version: 1,
       extensions: {},
     };
-
-    try {
-      const raw = await fsAsync.readFile(statesFile, 'utf-8');
-      const existing = JSON.parse(raw) as PersistedStates;
-      if (existing.version === 1 && existing.extensions && typeof existing.extensions === 'object') {
-        data.extensions = { ...existing.extensions };
-      }
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        console.warn(
-          '[Extensions] Failed to merge existing persisted states:',
-          error instanceof Error ? error.message : error
-        );
-      }
-    }
 
     for (const [name, state] of states) {
       data.extensions[name] = {

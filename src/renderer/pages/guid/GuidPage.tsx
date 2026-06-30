@@ -213,9 +213,8 @@ const GuidPage: React.FC = () => {
     const token = guidInput.input.trim();
     if (!token || token.includes(' ') || token.includes('\n')) return null;
     return (
-      extensionAcronyms.find(
-        (item) => item.enabled !== false && item.acronym.toLowerCase() === token.toLowerCase()
-      ) ?? null
+      extensionAcronyms.find((item) => item.enabled !== false && item.acronym.toLowerCase() === token.toLowerCase()) ??
+      null
     );
   }, [extensionAcronyms, guidInput.input]);
   const extensionAcronymExpansion = useMemo(

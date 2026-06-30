@@ -82,10 +82,7 @@ export function useExtensionAcronyms() {
   const { userAcronyms } = useUserAcronyms();
 
   const extensionAcronyms = data ?? [];
-  const acronyms = useMemo(
-    () => mergeUserAcronyms(extensionAcronyms, userAcronyms),
-    [extensionAcronyms, userAcronyms]
-  );
+  const acronyms = useMemo(() => mergeUserAcronyms(extensionAcronyms, userAcronyms), [extensionAcronyms, userAcronyms]);
 
   useEffect(() => {
     installExtensionAcronymPrompt(acronyms);
