@@ -7,6 +7,7 @@
  * turns a project name into a filesystem-safe, collision-free workspace dir.
  * Kept free of electron/fs so the rules are exercised directly.
  */
+import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { resolveProjectWorkspacePath, sanitizeProjectFolderName } from '@process/utils/workspaceLocation';
 
@@ -52,19 +53,21 @@ describe('sanitizeProjectFolderName (#455)', () => {
 });
 
 describe('resolveProjectWorkspacePath (#455)', () => {
-  const base = '/Users/me/Documents/Wayland';
+  // resolveProjectWorkspacePath builds paths with path.join, so expectations use
+  // path.join too (native separators) — otherwise these assertions fail on Windows.
+  const base = path.join('/Users/me', 'Documents', 'Wayland');
 
   it('uses base/<name> when the path is free', () => {
-    expect(resolveProjectWorkspacePath(base, 'Alpha', () => false)).toBe(`${base}/Alpha`);
+    expect(resolveProjectWorkspacePath(base, 'Alpha', () => false)).toBe(path.join(base, 'Alpha'));
   });
 
   it('sanitizes the name into the path', () => {
-    expect(resolveProjectWorkspacePath(base, 'a/b', () => false)).toBe(`${base}/a b`);
+    expect(resolveProjectWorkspacePath(base, 'a/b', () => false)).toBe(path.join(base, 'a b'));
   });
 
   it('appends a numeric suffix on collision', () => {
-    const taken = new Set([`${base}/Alpha`, `${base}/Alpha (2)`]);
-    expect(resolveProjectWorkspacePath(base, 'Alpha', (p) => taken.has(p))).toBe(`${base}/Alpha (3)`);
+    const taken = new Set([path.join(base, 'Alpha'), path.join(base, 'Alpha (2)')]);
+    expect(resolveProjectWorkspacePath(base, 'Alpha', (p) => taken.has(p))).toBe(path.join(base, 'Alpha (3)'));
   });
 
   it('two projects with the same name resolve to distinct dirs', () => {
@@ -72,8 +75,8 @@ describe('resolveProjectWorkspacePath (#455)', () => {
     const first = resolveProjectWorkspacePath(base, 'Notes', (p) => taken.has(p));
     taken.add(first);
     const second = resolveProjectWorkspacePath(base, 'Notes', (p) => taken.has(p));
-    expect(first).toBe(`${base}/Notes`);
-    expect(second).toBe(`${base}/Notes (2)`);
+    expect(first).toBe(path.join(base, 'Notes'));
+    expect(second).toBe(path.join(base, 'Notes (2)'));
     expect(first).not.toBe(second);
   });
 });
