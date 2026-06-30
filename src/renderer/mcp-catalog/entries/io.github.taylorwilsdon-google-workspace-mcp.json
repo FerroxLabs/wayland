@@ -14,9 +14,24 @@
       "runtimeHint": "uvx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "GOOGLE_OAUTH_CLIENT_ID", "description": "OAuth client ID from your Google Cloud Console.", "isRequired": true, "isSecret": false },
-        { "name": "GOOGLE_OAUTH_CLIENT_SECRET", "description": "OAuth client secret.", "isRequired": true, "isSecret": true },
-        { "name": "GOOGLE_OAUTH_REDIRECT_URI", "description": "Local redirect URI Wayland listens on.", "isRequired": false, "default": "http://localhost:8765" }
+        {
+          "name": "GOOGLE_OAUTH_CLIENT_ID",
+          "description": "OAuth client ID from your Google Cloud Console.",
+          "isRequired": true,
+          "isSecret": false
+        },
+        {
+          "name": "GOOGLE_OAUTH_CLIENT_SECRET",
+          "description": "OAuth client secret.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "GOOGLE_OAUTH_REDIRECT_URI",
+          "description": "Local redirect URI Wayland listens on.",
+          "isRequired": false,
+          "default": "http://localhost:8765"
+        }
       ]
     }
   ],
@@ -53,7 +68,11 @@
       { "label": "Slides", "count": 5 },
       { "label": "Tasks & Forms", "count": 5 }
     ],
-    "setupGuide": { "path": "guides/io.github.taylorwilsdon-google-workspace-mcp.md", "estimatedMinutes": 7, "stepCount": 4 },
+    "setupGuide": {
+      "path": "guides/io.github.taylorwilsdon-google-workspace-mcp.md",
+      "estimatedMinutes": 7,
+      "stepCount": 4
+    },
     "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
