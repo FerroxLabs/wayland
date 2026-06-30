@@ -3,14 +3,14 @@
   "name": "io.github.taylorwilsdon/google-workspace-mcp",
   "title": "Google Workspace",
   "description": "Gmail, Calendar, Drive, Docs, Sheets, Slides, Chat, Forms, Tasks - every Google service in one MCP.",
-  "version": "1.4.2",
+  "version": "1.22.0",
   "websiteUrl": "https://github.com/taylorwilsdon/google_workspace_mcp",
   "repository": { "url": "https://github.com/taylorwilsdon/google_workspace_mcp", "source": "github" },
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "workspace-mcp",
-      "version": "1.4.2",
+      "version": "1.22.0",
       "runtimeHint": "uvx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
