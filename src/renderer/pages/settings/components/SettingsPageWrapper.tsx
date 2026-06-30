@@ -149,6 +149,12 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       icon: <Server size={16} />,
       path: 'mcp-library/browse',
     },
+    extensions: {
+      id: 'extensions',
+      label: t('settings.sider.extensions', { defaultValue: 'Extensions' }),
+      icon: <Puzzle size={16} />,
+      path: 'extensions',
+    },
     migrate: {
       id: 'migrate',
       label: t('settings.sider.migrate', { defaultValue: 'Migrate' }),

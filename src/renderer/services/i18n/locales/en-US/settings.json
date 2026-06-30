@@ -1652,6 +1652,7 @@
     "voice": "Voice",
     "channels": "Channels",
     "mcp": "MCP Servers",
+    "extensions": "Extensions",
     "migrate": "Migrate",
     "theme": "Theme & Display",
     "editor": "Editor",
