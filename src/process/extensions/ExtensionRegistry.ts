@@ -39,6 +39,33 @@ import type { PermissionSummary, PermissionLevel } from './sandbox/permissions';
 import { applyVendoredOverlay } from './data/bundle-vendored/vendoredAssistantOverlay';
 import { mergeVendoredAgentProfiles } from './data/bundle-vendored/agentProfileMerge';
 
+function getGrantedPermissionNamesForExtension(ext: LoadedExtension): string[] {
+  return analyzePermissions((ext.manifest as any).permissions)
+    .filter((permission) => permission.granted)
+    .map((permission) => permission.name)
+    .sort();
+}
+
+export function migrateLegacyEnabledExtensionPermissionReview(
+  ext: LoadedExtension,
+  state: ExtensionState,
+  approvedAt: Date = new Date()
+): ExtensionState {
+  const riskLevel = getOverallRiskLevel((ext.manifest as any).permissions);
+  if (riskLevel === 'safe' || state.permissionReview || !state.enabled || !state.installed) {
+    return state;
+  }
+
+  return {
+    ...state,
+    permissionReview: {
+      approvedAt,
+      approvedRiskLevel: riskLevel,
+      approvedPermissions: getGrantedPermissionNamesForExtension(ext),
+    },
+  };
+}
+
 export class ExtensionRegistry {
   private static instance: ExtensionRegistry | undefined;
   /** Guard against concurrent initialization during hot-reload */
@@ -83,10 +110,7 @@ export class ExtensionRegistry {
   }
 
   private getGrantedPermissionNames(ext: LoadedExtension): string[] {
-    return analyzePermissions((ext.manifest as any).permissions)
-      .filter((permission) => permission.granted)
-      .map((permission) => permission.name)
-      .sort();
+    return getGrantedPermissionNamesForExtension(ext);
   }
 
   private getActivationBlockReason(ext: LoadedExtension, state: ExtensionState): string | undefined {
@@ -228,7 +252,7 @@ export class ExtensionRegistry {
         const persisted = persistedStates.get(ext.manifest.name);
         if (persisted) {
           // Restore enabled/disabled from disk
-          const restoredState: ExtensionState = {
+          const restoredState = migrateLegacyEnabledExtensionPermissionReview(ext, {
             enabled: persisted.enabled,
             disabledAt: persisted.disabledAt,
             disabledReason: persisted.disabledReason,
@@ -236,7 +260,7 @@ export class ExtensionRegistry {
             installed: persisted.installed,
             lastVersion: persisted.lastVersion,
             installError: persisted.installError,
-          };
+          });
           const blockReason = this.getActivationBlockReason(ext, restoredState);
           this.extensionStates.set(ext.manifest.name, {
             ...restoredState,
