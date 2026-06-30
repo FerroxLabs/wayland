@@ -14,10 +14,13 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs/promises';
 
-// A fake child process whose behavior each test sets via `mode`.
+// A fake child process whose behavior each test sets via `mode`. `spawnCount`
+// lets the concurrency test assert the in-flight guard collapses callers.
 let mode: 'exit-nonzero' | 'spawn-error' = 'exit-nonzero';
+let spawnCount = 0;
 vi.mock('child_process', () => ({
   spawn: () => {
+    spawnCount++;
     const child = new EventEmitter() as EventEmitter & { stderr: EventEmitter; stdout: EventEmitter };
     child.stderr = new EventEmitter();
     child.stdout = new EventEmitter();
@@ -55,5 +58,19 @@ describe('ensurePlaywrightChromium offline/failure resilience (#465)', () => {
   it('resolves false (never throws) when the install process errors (no bun)', async () => {
     mode = 'spawn-error';
     await expect(ensurePlaywrightChromium(path.join(emptyDir, 'b'))).resolves.toBe(false);
+  });
+
+  it('collapses concurrent callers to a single install (in-flight guard)', async () => {
+    mode = 'exit-nonzero';
+    spawnCount = 0;
+    const dir = path.join(emptyDir, 'c');
+    const [a, b, c] = await Promise.all([
+      ensurePlaywrightChromium(dir),
+      ensurePlaywrightChromium(dir),
+      ensurePlaywrightChromium(dir),
+    ]);
+    // Three concurrent calls, one spawned install; all share the result.
+    expect(spawnCount).toBe(1);
+    expect([a, b, c]).toEqual([false, false, false]);
   });
 });
