@@ -99,6 +99,20 @@ export const BUILTIN_CONCIERGE_DIAG_ID = 'concierge-diag';
 export const BUILTIN_CONCIERGE_DIAG_NAME = 'wayland-concierge-diag';
 export const BUILTIN_CONCIERGE_DIAG_TOOL_NAME = 'wayland_concierge_diag';
 
+// ── Bundled Playwright MCP (browser capability, #465) ────────────────────────
+// Unlike the @wayland builtins above (local node scripts), this is the upstream
+// npm package `@playwright/mcp` run through the bundled bun (npx->bun). It is
+// seeded default-ON so the agent has browser tools out of the box; chromium is
+// fetched on first use into a managed dir via PLAYWRIGHT_BROWSERS_PATH.
+// `name` mirrors the catalog entry's sanitized name so a manual install dedupes.
+export const BUILTIN_PLAYWRIGHT_ID = 'builtin-playwright-mcp';
+export const BUILTIN_PLAYWRIGHT_NAME = 'com.microsoft-playwright-mcp';
+/** Catalog entry id (src/renderer/mcp-catalog/entries/com.microsoft-playwright-mcp.json). */
+export const BUILTIN_PLAYWRIGHT_LIBRARY_ENTRY_ID = 'com.microsoft/playwright-mcp';
+/** Pinned to the catalog entry's version so the server and the install use the same package. */
+export const BUILTIN_PLAYWRIGHT_VERSION = '0.0.75';
+export const BUILTIN_PLAYWRIGHT_PACKAGE = `@playwright/mcp@${BUILTIN_PLAYWRIGHT_VERSION}`;
+
 export function isBuiltinConciergeDiagName(name?: string | null): boolean {
   if (!name) return false;
   return name === BUILTIN_CONCIERGE_DIAG_NAME;

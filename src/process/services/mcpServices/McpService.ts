@@ -16,6 +16,8 @@ import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
 import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
+import { ensurePlaywrightChromium } from './playwrightBrowsers';
+import { BUILTIN_PLAYWRIGHT_ID } from '@process/resources/builtinMcp/constants';
 
 /**
  * MCP service - coordinates the MCP operation protocol across agents
@@ -331,6 +333,14 @@ export class McpService {
 
       const results = await Promise.all(promises);
 
+      // #465 first-run browser provisioning: if the bundled Playwright MCP is
+      // enabled, make sure chromium is installed into its managed dir. Fire-and-
+      // forget + guarded (one download ever) so it never blocks sync; the agent's
+      // first browse then finds the browser instead of erroring.
+      if (enabledServers.some((s) => s.id === BUILTIN_PLAYWRIGHT_ID)) {
+        void ensurePlaywrightChromium();
+      }
+
       const allSuccess = results.every((r) => r.success);
 
       return { success: allSuccess, results };
@@ -362,11 +372,7 @@ export class McpService {
    */
   private async attachOAuthToken(server: IMcpServer): Promise<IMcpServer> {
     const transport = server.transport;
-    if (
-      transport.type !== 'http' &&
-      transport.type !== 'sse' &&
-      transport.type !== 'streamable_http'
-    ) {
+    if (transport.type !== 'http' && transport.type !== 'sse' && transport.type !== 'streamable_http') {
       return server;
     }
     const headers = transport.headers ?? {};
