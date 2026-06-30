@@ -50,6 +50,7 @@ export const BUILTIN_TAB_IDS = [
   'webui',
   'channels',
   'mcp-library',
+  'extensions',
   'migrate',
   // APPEARANCE
   'theme',
@@ -248,6 +249,12 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
         label: t('settings.sider.mcpLibrary', { defaultValue: 'MCP Library' }),
         icon: <Server />,
         path: 'mcp-library/browse',
+      },
+      extensions: {
+        id: 'extensions',
+        label: t('settings.sider.extensions', { defaultValue: 'Extensions' }),
+        icon: <Puzzle />,
+        path: 'extensions',
       },
       migrate: {
         id: 'migrate',
