@@ -1,0 +1,73 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * #455 - persistent project workspaces. These cover the pure path logic that
+ * turns a project name into a filesystem-safe, collision-free workspace dir.
+ * Kept free of electron/fs so the rules are exercised directly.
+ */
+import { describe, expect, it } from 'vitest';
+import { resolveProjectWorkspacePath, sanitizeProjectFolderName } from '@process/utils/workspaceLocation';
+
+describe('sanitizeProjectFolderName (#455)', () => {
+  it('keeps an ordinary name intact', () => {
+    expect(sanitizeProjectFolderName('My Notes')).toBe('My Notes');
+  });
+
+  it('strips path separators so a name can never escape the base dir', () => {
+    expect(sanitizeProjectFolderName('a/b\\c')).toBe('a b c');
+    expect(sanitizeProjectFolderName('../../etc/passwd')).toBe('etc passwd');
+  });
+
+  it('removes control and reserved filesystem characters', () => {
+    expect(sanitizeProjectFolderName('re<po>:"|?*name')).toBe('reponame');
+  });
+
+  it('collapses whitespace and trims', () => {
+    expect(sanitizeProjectFolderName('  spaced   out  ')).toBe('spaced out');
+  });
+
+  it('strips leading/trailing dots and spaces (Windows-unsafe)', () => {
+    expect(sanitizeProjectFolderName('...hidden...')).toBe('hidden');
+    expect(sanitizeProjectFolderName('.')).toBe('Project');
+  });
+
+  it('falls back to "Project" when nothing usable remains', () => {
+    expect(sanitizeProjectFolderName('')).toBe('Project');
+    expect(sanitizeProjectFolderName('///')).toBe('Project');
+    expect(sanitizeProjectFolderName('   ')).toBe('Project');
+  });
+
+  it('caps very long names', () => {
+    const out = sanitizeProjectFolderName('x'.repeat(500));
+    expect(out.length).toBeLessThanOrEqual(80);
+  });
+});
+
+describe('resolveProjectWorkspacePath (#455)', () => {
+  const base = '/Users/me/Documents/Wayland';
+
+  it('uses base/<name> when the path is free', () => {
+    expect(resolveProjectWorkspacePath(base, 'Alpha', () => false)).toBe(`${base}/Alpha`);
+  });
+
+  it('sanitizes the name into the path', () => {
+    expect(resolveProjectWorkspacePath(base, 'a/b', () => false)).toBe(`${base}/a b`);
+  });
+
+  it('appends a numeric suffix on collision', () => {
+    const taken = new Set([`${base}/Alpha`, `${base}/Alpha (2)`]);
+    expect(resolveProjectWorkspacePath(base, 'Alpha', (p) => taken.has(p))).toBe(`${base}/Alpha (3)`);
+  });
+
+  it('two projects with the same name resolve to distinct dirs', () => {
+    const taken = new Set<string>();
+    const first = resolveProjectWorkspacePath(base, 'Notes', (p) => taken.has(p));
+    taken.add(first);
+    const second = resolveProjectWorkspacePath(base, 'Notes', (p) => taken.has(p));
+    expect(first).toBe(`${base}/Notes`);
+    expect(second).toBe(`${base}/Notes (2)`);
+    expect(first).not.toBe(second);
+  });
+});

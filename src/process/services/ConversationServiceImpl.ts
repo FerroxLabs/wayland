@@ -11,7 +11,7 @@ import { uuid } from '@/common/utils';
 import { cronService } from './cron/cronServiceSingleton';
 import { SqliteProjectRepository } from '@process/services/database/SqliteProjectRepository';
 import { loadProjectKnowledgeBlock, loadGlobalMemoryBlock } from '@process/services/projectKnowledge/knowledge';
-import { enforceProjectWorkspace } from '@process/services/projectWorkspace';
+import { enforceProjectWorkspace, ensureProjectWorkspace } from '@process/services/projectWorkspace';
 import {
   createGeminiAgent,
   createAcpAgent,
@@ -180,7 +180,16 @@ export class ConversationServiceImpl implements IConversationService {
    * overwritten; if the project has no workspace the temp fallback still applies.
    */
   private async reconcileProjectWorkspace(params: CreateConversationParams): Promise<void> {
-    await enforceProjectWorkspace(params.extra as Record<string, unknown> | undefined);
+    const extra = params.extra as Record<string, unknown> | undefined;
+    // #455: lazy-migrate a project that has no persistent workspace yet (created
+    // before #455, or allocation deferred) BEFORE enforcement pins the chat to
+    // it. A user-chosen custom workspace is left alone. Then enforce copies the
+    // (now guaranteed) project workspace onto this conversation's extra, so the
+    // chat lands in the persistent dir instead of a throwaway temp dir.
+    if (extra?.projectId && !extra.customWorkspace) {
+      await ensureProjectWorkspace(extra.projectId as string);
+    }
+    await enforceProjectWorkspace(extra);
   }
 
   async createConversation(params: CreateConversationParams): Promise<TChatConversation> {
@@ -213,7 +222,8 @@ export class ConversationServiceImpl implements IConversationService {
           params.extra.sessionMode,
           params.extra.isHealthCheck,
           params.extra.extraSkillPaths as string[] | undefined,
-          params.extra.excludeBuiltinSkills as string[] | undefined
+          params.extra.excludeBuiltinSkills as string[] | undefined,
+          params.extra.projectId as string | undefined
         );
         break;
       }

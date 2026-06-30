@@ -452,7 +452,9 @@ describe('ConversationServiceImpl.createConversation', () => {
 
   it('fills an empty workspace from the project for a project chat (#30)', async () => {
     const { createGeminiAgent } = await import('../../src/process/utils/initAgent');
-    mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
+    // #455 lazy migration reads the project (ensure) before #30 pinning re-reads
+    // it (enforce); a real repository answers both reads, so use a persistent mock.
+    mockGetProject.mockResolvedValue({ workspace: '/projects/alpha' });
     const repo = makeRepo();
     const svc = new ConversationServiceImpl(repo);
 
@@ -484,7 +486,8 @@ describe('ConversationServiceImpl.createConversation', () => {
 
   it('corrects a project chat that arrives pointed at a non-project workspace (#30)', async () => {
     const { createGeminiAgent } = await import('../../src/process/utils/initAgent');
-    mockGetProject.mockResolvedValueOnce({ workspace: '/projects/alpha' });
+    // #455: ensure + enforce both read the project; persistent mock models a real repo.
+    mockGetProject.mockResolvedValue({ workspace: '/projects/alpha' });
     const repo = makeRepo();
     const svc = new ConversationServiceImpl(repo);
 

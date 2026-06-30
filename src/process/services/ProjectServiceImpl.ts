@@ -11,6 +11,7 @@ import type { IProject, ICreateProjectParams, IUpdateProjectParams } from '@/com
 import type { TChatConversation } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
 import { bootstrapProjectKnowledge } from '@process/services/projectKnowledge/bootstrap';
+import { allocateProjectWorkspace } from '@process/services/projectWorkspace';
 
 /**
  * Concrete IProjectService. Owns id/timestamp generation and the `.wayland/`
@@ -26,11 +27,25 @@ export class ProjectServiceImpl implements IProjectService {
 
   async createProject(params: ICreateProjectParams): Promise<IProject> {
     const now = Date.now();
+    const name = params.name.trim() || 'Untitled project';
+    // #455: every project gets a PERSISTENT, user-visible workspace. When the
+    // user didn't pick a folder, allocate the default (~/Documents/Wayland/<name>)
+    // so chats never silently fall back to a throwaway temp dir. Best-effort: if
+    // allocation fails we still create the project (lazy migration will retry on
+    // first chat), so a filesystem hiccup never blocks project creation.
+    let workspace = params.workspace;
+    if (!workspace) {
+      try {
+        workspace = await allocateProjectWorkspace(name);
+      } catch (err) {
+        console.error('[ProjectService] Failed to allocate persistent workspace:', err);
+      }
+    }
     const project: IProject = {
       id: uuid(),
-      name: params.name.trim() || 'Untitled project',
+      name,
       description: params.description,
-      workspace: params.workspace,
+      workspace,
       icon: params.icon,
       iconColor: params.iconColor,
       pinned: false,

@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { existsSync } from 'fs';
+import fs from 'fs/promises';
+import path from 'path';
 import { SqliteProjectRepository } from '@process/services/database/SqliteProjectRepository';
+import { bootstrapProjectKnowledge } from '@process/services/projectKnowledge/bootstrap';
+import { resolveProjectWorkspacePath } from '@process/utils/workspaceLocation';
 
 /**
  * #30 NO-DRIFT: a chat created inside a project (extra.projectId) must always
@@ -38,5 +43,69 @@ export async function enforceProjectWorkspace(extra: Record<string, unknown> | u
   } catch (err) {
     console.error('[projectWorkspace] #30 workspace enforcement failed:', err);
     return false;
+  }
+}
+
+/**
+ * Resolve the default base dir for managed project workspaces:
+ * `~/Documents/Wayland`. Discoverable (visible in Finder/Explorer) per #455, so
+ * files an agent writes "to the local workspace" are not lost in a hidden temp
+ * dir. Electron is imported lazily so this module stays loadable in unit tests
+ * that don't exercise allocation.
+ */
+async function defaultWorkspaceBaseDir(): Promise<string> {
+  const { app } = await import('electron');
+  return path.join(app.getPath('documents'), 'Wayland');
+}
+
+/**
+ * Allocate a fresh, collision-free persistent workspace dir for a project and
+ * create it on disk. Default location is `~/Documents/Wayland/<project-name>`;
+ * the path logic (sanitize + de-dupe) lives in workspaceLocation.ts.
+ */
+export async function allocateProjectWorkspace(projectName: string): Promise<string> {
+  const base = await defaultWorkspaceBaseDir();
+  await fs.mkdir(base, { recursive: true });
+  const dir = resolveProjectWorkspacePath(base, projectName, existsSync);
+  await fs.mkdir(dir, { recursive: true });
+  return dir;
+}
+
+/**
+ * #455 lazy migration: make sure a project has a persistent workspace. If it
+ * already has one, return it untouched. Otherwise allocate one, persist it to
+ * `projects.workspace`, and bootstrap the `.wayland/` knowledge folder. Existing
+ * projects created before #455 (empty `workspace` column) self-heal the next
+ * time this runs - typically when a chat is created inside them - with no data
+ * loss. `allocate` is injectable for testing.
+ *
+ * Returns the workspace path, or null when there is nothing to do / on failure
+ * (allocation must never block chat creation - the temp fallback still applies).
+ */
+export async function ensureProjectWorkspace(
+  projectId: string | undefined,
+  allocate: (projectName: string) => Promise<string> = allocateProjectWorkspace
+): Promise<string | null> {
+  if (!projectId) return null;
+  try {
+    const repo = new SqliteProjectRepository();
+    const project = await repo.getProject(projectId);
+    if (!project) return null;
+    const existing = typeof project.workspace === 'string' ? project.workspace.trim() : '';
+    if (existing) return existing;
+
+    const workspace = await allocate(project.name);
+    await repo.updateProject(projectId, { workspace });
+    // Best-effort: a filesystem hiccup bootstrapping knowledge must not undo the
+    // allocation (the workspace is already persisted and usable).
+    try {
+      await bootstrapProjectKnowledge(workspace, project.name, project.description);
+    } catch (err) {
+      console.error('[projectWorkspace] knowledge bootstrap failed:', err);
+    }
+    return workspace;
+  } catch (err) {
+    console.error('[projectWorkspace] ensureProjectWorkspace failed:', err);
+    return null;
   }
 }
