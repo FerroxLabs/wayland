@@ -59,11 +59,15 @@ describe('shouldInjectSessionMcpServer', () => {
   });
 
   it('does not inject a known-broken user server (disconnected/error)', () => {
-    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: 'disconnected' }))).toBe(false);
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: 'disconnected' }))).toBe(
+      false
+    );
     expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: true, status: 'error' }))).toBe(false);
   });
 
   it('does not inject a disabled user server even when connected', () => {
-    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: false, status: 'connected' }))).toBe(false);
+    expect(shouldInjectSessionMcpServer(server({ builtin: undefined, enabled: false, status: 'connected' }))).toBe(
+      false
+    );
   });
 });
