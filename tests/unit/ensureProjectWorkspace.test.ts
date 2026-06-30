@@ -78,4 +78,20 @@ describe('ensureProjectWorkspace (#455 lazy migration)', () => {
     mockGetProject.mockRejectedValueOnce(new Error('db down'));
     expect(await ensureProjectWorkspace('p1', async () => '/x')).toBe(null);
   });
+
+  it('serializes concurrent first-chats for the same project (allocates once)', async () => {
+    mockGetProject.mockResolvedValue({ id: 'p1', name: 'Alpha', workspace: '' });
+    let calls = 0;
+    const allocate = vi.fn(async () => {
+      calls++;
+      await new Promise((r) => setTimeout(r, 5));
+      return '/Docs/Wayland/Alpha';
+    });
+    const [a, b] = await Promise.all([ensureProjectWorkspace('p1', allocate), ensureProjectWorkspace('p1', allocate)]);
+    expect(a).toBe('/Docs/Wayland/Alpha');
+    expect(b).toBe('/Docs/Wayland/Alpha');
+    // The lock collapses the two concurrent calls to a single allocation + write.
+    expect(calls).toBe(1);
+    expect(mockUpdateProject).toHaveBeenCalledTimes(1);
+  });
 });

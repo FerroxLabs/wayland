@@ -43,6 +43,12 @@ describe('sanitizeProjectFolderName (#455)', () => {
     const out = sanitizeProjectFolderName('x'.repeat(500));
     expect(out.length).toBeLessThanOrEqual(80);
   });
+
+  it('never ends in a dot when the length cap slices mid-dot (Windows-invalid)', () => {
+    const out = sanitizeProjectFolderName('a'.repeat(79) + '.tail extra');
+    expect(out.length).toBeLessThanOrEqual(80);
+    expect(out.endsWith('.')).toBe(false);
+  });
 });
 
 describe('resolveProjectWorkspacePath (#455)', () => {

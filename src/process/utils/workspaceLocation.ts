@@ -33,7 +33,7 @@ export function sanitizeProjectFolderName(name: string): string {
     .trim()
     .replace(/^[.\s]+|[.\s]+$/g, '') // no leading/trailing dot or space
     .slice(0, MAX_NAME_LEN)
-    .trim();
+    .replace(/[.\s]+$/, ''); // re-strip a trailing dot/space the cap may expose (Windows-invalid)
   return cleaned || 'Project';
 }
 

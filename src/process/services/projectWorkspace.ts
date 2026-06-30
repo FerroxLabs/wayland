@@ -87,6 +87,29 @@ export async function ensureProjectWorkspace(
   allocate: (projectName: string) => Promise<string> = allocateProjectWorkspace
 ): Promise<string | null> {
   if (!projectId) return null;
+  // Serialize concurrent first-chat allocations for the SAME project. Without
+  // this, two conversations created back-to-back in a project that has no
+  // workspace yet each read an empty workspace, allocate distinct dirs, and race
+  // the DB write - leaking one directory. All conversation creation happens in
+  // the main process, so an in-process lock fully closes the window.
+  const inflight = ensureLocks.get(projectId);
+  if (inflight) return inflight;
+  const run = ensureProjectWorkspaceUnlocked(projectId, allocate);
+  ensureLocks.set(projectId, run);
+  try {
+    return await run;
+  } finally {
+    ensureLocks.delete(projectId);
+  }
+}
+
+/** In-flight allocation per projectId (see ensureProjectWorkspace). */
+const ensureLocks = new Map<string, Promise<string | null>>();
+
+async function ensureProjectWorkspaceUnlocked(
+  projectId: string,
+  allocate: (projectName: string) => Promise<string>
+): Promise<string | null> {
   try {
     const repo = new SqliteProjectRepository();
     const project = await repo.getProject(projectId);

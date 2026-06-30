@@ -64,5 +64,11 @@ export async function writeWorkspaceGitignore(workspace: string): Promise<void> 
     // No .gitignore yet - treat as empty.
   }
   const next = buildManagedGitignore(existing);
-  if (next !== null) await fs.writeFile(file, next, 'utf8');
+  if (next === null) return;
+  try {
+    await fs.writeFile(file, next, 'utf8');
+  } catch (err) {
+    // Best-effort: a read-only / full workspace must not block chat creation.
+    console.error('[workspaceGitignore] Failed to write .gitignore:', err);
+  }
 }
