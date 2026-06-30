@@ -472,6 +472,8 @@ export type I18nKey =
   | 'conversation.cuaPermission.granted'
   | 'conversation.cuaPermission.openSettings'
   | 'conversation.cuaPermission.recheck'
+  | 'conversation.cuaPermission.relaunch'
+  | 'conversation.cuaPermission.relaunchNote'
   | 'conversation.cuaPermission.screenRecording'
   | 'conversation.cuaPermission.subtitle'
   | 'conversation.cuaPermission.title'

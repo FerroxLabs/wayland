@@ -23,6 +23,7 @@ export function useCuaPermissions(enabled: boolean): {
   checking: boolean;
   recheck: () => Promise<void>;
   openSettings: (pane: CuaPrivacyPane) => void;
+  relaunch: () => void;
 } {
   const [status, setStatus] = useState<CuaPermissionStatus | null>(null);
   const [checking, setChecking] = useState(false);
@@ -44,5 +45,12 @@ export function useCuaPermissions(enabled: boolean): {
     void ipcBridge.cua.openSettings.invoke({ pane });
   }, []);
 
-  return { status, checking, recheck, openSettings };
+  // macOS does not apply a newly-granted Screen Recording permission to an
+  // already-running process: it only reads back as granted after a relaunch.
+  // So the card offers a relaunch to actually complete the round-trip.
+  const relaunch = useCallback(() => {
+    void ipcBridge.application.restart.invoke();
+  }, []);
+
+  return { status, checking, recheck, openSettings, relaunch };
 }

@@ -41,6 +41,7 @@ const baseHook = (over: Record<string, unknown> = {}) => ({
   checking: false,
   recheck: vi.fn(() => Promise.resolve()),
   openSettings: vi.fn(),
+  relaunch: vi.fn(),
   ...over,
 });
 
@@ -101,6 +102,22 @@ describe('CuaPermissionCard (#466)', () => {
     expect(screen.queryByTestId('cua-open-screen')).toBeNull();
     // Accessibility still missing → its button shows.
     expect(screen.getByTestId('cua-open-accessibility')).toBeTruthy();
+  });
+
+  it('offers Relaunch + a relaunch note while Screen Recording is not granted (macOS applies it only after relaunch)', () => {
+    const relaunch = vi.fn();
+    mockUseCuaPermissions.mockReturnValue(baseHook({ status: status({ screenRecording: 'denied' }), relaunch }));
+    render(<CuaPermissionCard active />);
+    expect(screen.getByTestId('cua-relaunch-note')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('cua-relaunch'));
+    expect(relaunch).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides Relaunch once Screen Recording is granted (only Accessibility left)', () => {
+    mockUseCuaPermissions.mockReturnValue(baseHook({ status: status({ screenRecording: 'granted' }) }));
+    render(<CuaPermissionCard active />);
+    expect(screen.queryByTestId('cua-relaunch')).toBeNull();
+    expect(screen.queryByTestId('cua-relaunch-note')).toBeNull();
   });
 
   it('re-check triggers a fresh status read', () => {

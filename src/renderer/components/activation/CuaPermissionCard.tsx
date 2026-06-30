@@ -39,7 +39,7 @@ type Row = {
 
 const CuaPermissionCard: React.FC<CuaPermissionCardProps> = ({ active, onDismiss }) => {
   const { t } = useTranslation();
-  const { status, checking, recheck, openSettings } = useCuaPermissions(active);
+  const { status, checking, recheck, openSettings, relaunch } = useCuaPermissions(active);
 
   // Quiet unless the agent has CUA and a grant is actually missing on macOS.
   if (!active || !status || !status.supported || status.allGranted) {
@@ -62,6 +62,9 @@ const CuaPermissionCard: React.FC<CuaPermissionCardProps> = ({ active, onDismiss
   ];
 
   const titleId = 'cua-permission-card-title';
+  // macOS only applies a new Screen Recording grant after a relaunch, so guide
+  // the user to relaunch (Re-check alone won't flip Screen Recording green).
+  const needsRelaunch = status.screenRecording !== 'granted';
 
   return (
     <section
@@ -128,7 +131,20 @@ const CuaPermissionCard: React.FC<CuaPermissionCardProps> = ({ active, onDismiss
         ))}
       </ul>
 
-      <div className='flex items-center justify-end'>
+      {needsRelaunch && (
+        <div className='text-12px text-t-secondary' data-testid='cua-relaunch-note'>
+          {t('conversation.cuaPermission.relaunchNote', {
+            defaultValue: 'Screen Recording only takes effect after you relaunch Wayland.',
+          })}
+        </div>
+      )}
+
+      <div className='flex items-center justify-end gap-8px'>
+        {needsRelaunch && (
+          <Button type='secondary' size='small' onClick={relaunch} data-testid='cua-relaunch'>
+            {t('conversation.cuaPermission.relaunch', { defaultValue: 'Relaunch' })}
+          </Button>
+        )}
         <Button
           type='secondary'
           size='small'

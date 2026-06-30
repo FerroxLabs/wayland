@@ -400,6 +400,8 @@
     "openSettings": "Open Settings",
     "granted": "Granted",
     "recheck": "Re-check",
+    "relaunch": "Relaunch",
+    "relaunchNote": "Screen Recording only takes effect after you relaunch Wayland.",
     "dismiss": "Dismiss"
   },
   "acpAuthFailure": {
