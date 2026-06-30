@@ -13,6 +13,8 @@ import { resolveWCoreBinary } from '@process/agent/wcore/binaryResolver';
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer, IMcpServerTransport } from '@/common/config/storage';
+import { ensurePlaywrightChromium } from '../playwrightBrowsers';
+import { BUILTIN_PLAYWRIGHT_ID } from '@process/resources/builtinMcp/constants';
 
 /**
  * wayland-core config.toml transport type (kebab-case)
@@ -244,6 +246,15 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
         }
 
         await this.writeConfig(config);
+
+        // #465 first-run browser provisioning: once the bundled Playwright MCP
+        // is written to the engine config, make sure chromium is installed into
+        // its managed dir so the agent's first browse finds it. Fire-and-forget
+        // + guarded (one download ever), so it never blocks the sync.
+        if (mcpServers.some((s) => s.id === BUILTIN_PLAYWRIGHT_ID)) {
+          void ensurePlaywrightChromium();
+        }
+
         return { success: true };
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) };

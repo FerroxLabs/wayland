@@ -112,6 +112,26 @@ export const BUILTIN_PLAYWRIGHT_LIBRARY_ENTRY_ID = 'com.microsoft/playwright-mcp
 /** Pinned to the catalog entry's version so the server and the install use the same package. */
 export const BUILTIN_PLAYWRIGHT_VERSION = '0.0.75';
 export const BUILTIN_PLAYWRIGHT_PACKAGE = `@playwright/mcp@${BUILTIN_PLAYWRIGHT_VERSION}`;
+/**
+ * SSRF guardrail (#465, Sean ack): origins the bundled browser must never request
+ * — IPv4 link-local (169.254.0.0/16, via wildcard) plus the cloud instance-
+ * metadata endpoints that ride it (AWS/Azure/GCP/Oracle/DO `169.254.169.254`,
+ * GCP `metadata.google.internal`, Alibaba `100.100.100.200`). Passed to
+ * @playwright/mcp via `--blocked-origins` (semicolon-separated). Verified live:
+ * a nav to 169.254.169.254 returns net::ERR_BLOCKED_BY_CLIENT. NOTE: Playwright
+ * documents this as a guardrail, not a hard boundary (it does not affect
+ * redirects) — defense-in-depth, the network layer stays the real boundary.
+ */
+export const BUILTIN_PLAYWRIGHT_BLOCKED_ORIGINS = [
+  'http://169.254.169.254',
+  'https://169.254.169.254',
+  'http://169.254.*',
+  'https://169.254.*',
+  'http://metadata.google.internal',
+  'https://metadata.google.internal',
+  'http://100.100.100.200',
+  'https://100.100.100.200',
+].join(';');
 
 export function isBuiltinConciergeDiagName(name?: string | null): boolean {
   if (!name) return false;
