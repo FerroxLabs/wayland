@@ -72,7 +72,16 @@ export function buildResumeSeedTranscript(
   const recent = messages.slice(-maxMessages);
   const lines: string[] = [];
   for (const message of recent) {
-    const line = formatSeedLine(message);
+    // Per-message guard: the DB stores types beyond text/tool_call/tool_group
+    // (thinking, sub_agent_event, cron, ...). A single unknown/malformed row
+    // must be skipped, never throw - otherwise WCoreManager.start()'s try/catch
+    // would swallow it and resume with ZERO history (worse than the old seed).
+    let line: string | null = null;
+    try {
+      line = formatSeedLine(message);
+    } catch {
+      line = null;
+    }
     if (line) lines.push(line);
   }
   return lines.join('\n').slice(-maxChars);

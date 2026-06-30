@@ -77,6 +77,56 @@ describe('buildResumeSeedTranscript (#457)', () => {
     expect(buildResumeSeedTranscript([])).toBe('');
   });
 
+  it('skips unknown message types without dropping the rest of the transcript', () => {
+    // The DB stores types beyond text/tool_call/tool_group (thinking,
+    // sub_agent_event, cron, ...). An unknown type must be skipped, never throw
+    // - else WCoreManager's try/catch swallows it and resumes with ZERO history.
+    const messages = [
+      textMsg('right', 'first', 'u1'),
+      {
+        id: 'k1',
+        type: 'thinking',
+        position: 'left',
+        conversation_id: 'c1',
+        content: { content: 'hmm' },
+        createdAt: 1,
+      } as unknown as TMessage,
+      textMsg('left', 'second', 'a1'),
+    ];
+    const seed = buildResumeSeedTranscript(messages);
+    expect(seed).toContain('User: first');
+    expect(seed).toContain('Assistant: second');
+  });
+
+  it('does not let one malformed message nuke the whole transcript', () => {
+    // A row whose shape violates expectations (e.g. tool_group content not an
+    // array, text content not a string) must be skipped, not throw.
+    const messages = [
+      textMsg('right', 'keep me', 'u1'),
+      {
+        id: 'bad1',
+        type: 'tool_group',
+        position: 'left',
+        conversation_id: 'c1',
+        content: null,
+        createdAt: 1,
+      } as unknown as TMessage,
+      {
+        id: 'bad2',
+        type: 'text',
+        position: 'left',
+        conversation_id: 'c1',
+        content: { content: { not: 'a string' } },
+        createdAt: 1,
+      } as unknown as TMessage,
+      textMsg('left', 'and me', 'a1'),
+    ];
+    expect(() => buildResumeSeedTranscript(messages)).not.toThrow();
+    const seed = buildResumeSeedTranscript(messages);
+    expect(seed).toContain('User: keep me');
+    expect(seed).toContain('Assistant: and me');
+  });
+
   it('caps the transcript to the char budget (keeps the most recent tail)', () => {
     const many: TMessage[] = Array.from({ length: 50 }, (_v, i) =>
       textMsg(i % 2 === 0 ? 'right' : 'left', `message number ${i}`, `m${i}`)
