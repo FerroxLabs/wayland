@@ -388,12 +388,14 @@ export interface IConfigStorageRefer {
   'wcore.rawEngineMode'?: boolean;
   /**
    * #468 — desktop "Output budget" preference. `auto` (default / key absent)
-   * omits `--max-tokens` so the engine sizes the budget per-model (#456);
-   * `fixed` passes `value` as the per-call `--max-tokens` (via buildSpawnConfig).
-   * A `fixed` entry with no positive `value` is treated as `auto`. The renderer
-   * (RuntimePane) and the edge/WebUI console persist it; `WCoreManager` reads it
-   * at spawn to enact it. Engine `[models] output_budget` config-key parity is a
-   * separate Core seam (wayland-core #112).
+   * omits `--max-tokens` and lets the engine size the budget per-model (#456) —
+   * EXCEPT reasoning models, which the engine still gives a reasoning-aware cap
+   * (and Anthropic still gets its required value); omit ≠ "no budget" there.
+   * `fixed` passes `value` (clamped to `MIN_FIXED_BUDGET`) as the per-call
+   * `--max-tokens` (via buildSpawnConfig); a `fixed` entry with no positive
+   * `value` is treated as `auto`. RuntimePane persists it; `WCoreManager` reads
+   * it at spawn to enact it. Engine `[models] output_budget` config-key parity
+   * is a separate Core seam (wayland-core #112).
    */
   'wcore.outputBudget'?: { mode: 'auto' | 'fixed'; value?: number };
 }

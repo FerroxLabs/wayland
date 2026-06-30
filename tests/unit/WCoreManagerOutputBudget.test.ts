@@ -156,6 +156,11 @@ describe('WCoreManager output-budget spawn wiring (#468)', () => {
     expect(await spawnAndGetMaxTokens()).toBeUndefined();
   });
 
+  it('Fixed below the floor is clamped up to MIN_FIXED_BUDGET (256)', async () => {
+    outputBudgetRef.current = { mode: 'fixed', value: 100 };
+    expect(await spawnAndGetMaxTokens()).toBe(256);
+  });
+
   it('explicit per-conversation maxTokens wins over the Fixed global setting', async () => {
     outputBudgetRef.current = { mode: 'fixed', value: 16000 };
     expect(await spawnAndGetMaxTokens({ maxTokens: 4096 })).toBe(4096);
