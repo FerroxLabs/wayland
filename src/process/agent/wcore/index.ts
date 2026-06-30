@@ -137,11 +137,15 @@ export class WCoreAgent {
   public sessionId?: string;
   public capabilities?: WCoreCapabilities;
   /**
-   * The `--max-tokens` value actually passed to wcore, after applying the
-   * reasoning-model default fallback in `buildSpawnConfig`. `undefined` when
-   * no `--max-tokens` arg was added. Set during `start()`; `WCoreManager`
-   * mirrors this into `data.data.maxTokens` so the truncation heuristic
-   * compares `output_tokens` against the real budget rather than `undefined`.
+   * The `--max-tokens` value actually passed to wcore. As of #456 this is
+   * explicit-only: it is set when the caller passed an explicit `maxTokens`,
+   * and otherwise `undefined` (no `--max-tokens` arg added) so the engine
+   * sizes the budget per-model itself (`size_output_cap`). Set during
+   * `start()`. `WCoreManager` still mirrors a defined value into
+   * `data.data.maxTokens`, but the legacy `output_tokens`-vs-budget truncation
+   * heuristic is retired in favour of the engine's definitive
+   * `finish_reason:'length'`, so an `undefined` value here no longer weakens
+   * truncation detection.
    */
   public resolvedMaxTokens?: number;
 
