@@ -8,10 +8,13 @@
 /**
  * Stage a bundled wayland-core engine version bump.
  *
- * Bumping the bundled engine is two coupled edits that MUST move in lockstep:
- *   1. DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js
+ * Bumping the bundled engine is three coupled edits that MUST move in lockstep:
+ *   1. DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js (Electron bundle)
  *   2. a per-tag SHA-256 block in scripts/bundled-wcore-shasums.json (the
  *      manifest every download is verified against before it is trusted).
+ *   3. WCORE_VERSION in installer/scripts/postinstall.mjs (the getwayland
+ *      headless self-host installer's OWN engine pin). Missing this is why it
+ *      silently drifted to a 2-minor-stale v0.10.0 engine (#451).
  *
  * Hand-transcribing six checksums is the error surface. This helper pulls the
  * authoritative `wayland-core-checksums.txt` asset published alongside the
@@ -36,6 +39,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SHASUMS_FILE = path.join(__dirname, 'bundled-wcore-shasums.json');
 const PREPARE_FILE = path.join(__dirname, 'prepareWaylandCore.js');
+const POSTINSTALL_FILE = path.join(__dirname, '..', 'installer', 'scripts', 'postinstall.mjs');
 const REPO = 'FerroxLabs/wayland-core';
 
 // The six platform archives a release must publish. The bump fails loudly if
@@ -103,7 +107,15 @@ const versionMatch = prepareSrc.match(/const DEFAULT_WCORE_VERSION = '([^']+)';/
 if (!versionMatch) fail('could not find DEFAULT_WCORE_VERSION in prepareWaylandCore.js');
 const currentVersion = versionMatch[1];
 
+const postinstallSrc = fs.readFileSync(POSTINSTALL_FILE, 'utf-8');
+const postinstallMatch = postinstallSrc.match(/const WCORE_VERSION = '([^']+)';/);
+if (!postinstallMatch) fail('could not find WCORE_VERSION in installer/scripts/postinstall.mjs');
+const postinstallVersion = postinstallMatch[1];
+
 console.log(`\nStage bundled wayland-core bump: ${currentVersion} -> ${tag}\n`);
+if (postinstallVersion !== currentVersion) {
+  console.log(`  (headless installer pin was out of lockstep at ${postinstallVersion} - it will be realigned to ${tag})\n`);
+}
 console.log('Resolved checksums (from the published wayland-core-checksums.txt):');
 for (const [file, sha] of Object.entries(orderedBlock)) console.log(`  ${file}\n    ${sha}`);
 if (alreadyPinned) console.log(`\nNote: ${tag} already has a block in bundled-wcore-shasums.json - it will be overwritten.`);
@@ -129,9 +141,18 @@ fs.writeFileSync(
   ),
   'utf-8'
 );
+fs.writeFileSync(
+  POSTINSTALL_FILE,
+  postinstallSrc.replace(
+    /const WCORE_VERSION = '[^']+';/,
+    `const WCORE_VERSION = '${tag}';`
+  ),
+  'utf-8'
+);
 
 console.log('\nApplied:');
 console.log(`  scripts/prepareWaylandCore.js   DEFAULT_WCORE_VERSION -> '${tag}'`);
 console.log(`  scripts/bundled-wcore-shasums.json   added ${tag} block (6 archives)`);
+console.log(`  installer/scripts/postinstall.mjs   WCORE_VERSION -> '${tag}'`);
 console.log('\nNow verify end-to-end (downloads + checks all six archives):');
 console.log('  WCORE_REQUIRE_VERIFIED=1 WCORE_FORCE_DOWNLOAD=1 node scripts/prepareWaylandCore.js\n');

@@ -15,7 +15,9 @@ import { get } from 'node:https';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const WCORE_VERSION = 'v0.10.0';
+// Kept in lockstep with scripts/prepareWaylandCore.js DEFAULT_WCORE_VERSION by
+// scripts/stage-wcore-bump.mjs. Do not hand-edit; run that tool so both move.
+const WCORE_VERSION = 'v0.12.16';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PAYLOAD = resolve(HERE, '..', 'payload');
 
