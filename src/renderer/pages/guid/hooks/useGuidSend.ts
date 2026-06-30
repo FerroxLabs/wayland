@@ -9,6 +9,8 @@ import type { TProviderWithModel } from '@/common/config/storage';
 import type { TChatConversation } from '@/common/config/storage';
 import { buildAgentConversationParams } from '@/common/utils/buildAgentConversationParams';
 import { emitter } from '@/renderer/utils/emitter';
+import { useExtensionAcronyms } from '@/renderer/hooks/chat/useExtensionAcronyms';
+import { expandExtensionAcronymPrompt } from '@/renderer/utils/chat/acronymPrompt';
 import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
 import { updateWorkspaceTime } from '@/renderer/utils/workspace/workspaceHistory';
 import { Message } from '@arco-design/web-react';
@@ -153,8 +155,10 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     projectId,
   } = deps;
   const sendingRef = useRef(false);
+  const { acronyms: extensionAcronyms } = useExtensionAcronyms();
 
   const handleSend = useCallback(async (): Promise<boolean> => {
+    const submittedInput = expandExtensionAcronymPrompt(input, extensionAcronyms);
     const isCustomWorkspace = !!dir;
     const finalWorkspace = dir || '';
     // Stamped into every create path's extra when the composer runs inside a
@@ -199,7 +203,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       try {
         const geminiConversationParams = buildAgentConversationParams({
           backend: 'gemini',
-          name: input,
+          name: submittedInput,
           agentName: agentInfo?.name,
           presetAssistantId,
           workspace: finalWorkspace,
@@ -244,7 +248,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         emitter.emit('chat.history.refresh');
 
         const workspacePath = conversation.extra?.workspace || '';
-        const displayMessage = buildDisplayMessage(input, files, workspacePath);
+        const displayMessage = buildDisplayMessage(submittedInput, files, workspacePath);
         const initialMessage = {
           input: displayMessage,
           files: files.length > 0 ? files : undefined,
@@ -264,7 +268,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const openclawAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
       const openclawConversationParams = buildAgentConversationParams({
         backend: openclawAgentInfo?.backend || 'openclaw-gateway',
-        name: input,
+        name: submittedInput,
         agentName: openclawAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -306,7 +310,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         emitter.emit('chat.history.refresh');
 
         const initialMessage = {
-          input,
+          input: submittedInput,
           files: files.length > 0 ? files : undefined,
         };
         sessionStorage.setItem(`openclaw_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
@@ -325,7 +329,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const nanobotAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
       const nanobotConversationParams = buildAgentConversationParams({
         backend: nanobotAgentInfo?.backend || 'nanobot',
-        name: input,
+        name: submittedInput,
         agentName: nanobotAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -358,7 +362,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         emitter.emit('chat.history.refresh');
 
         const initialMessage = {
-          input,
+          input: submittedInput,
           files: files.length > 0 ? files : undefined,
         };
         sessionStorage.setItem(`nanobot_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
@@ -381,7 +385,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       try {
         const conversation = await ipcBridge.conversation.create.invoke({
           type: 'wcore',
-          name: input,
+          name: submittedInput,
           model: currentModel,
           extra: {
             defaultFiles: files,
@@ -411,7 +415,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         emitter.emit('chat.history.refresh');
 
         const initialMessage = {
-          input,
+          input: submittedInput,
           files: files.length > 0 ? files : undefined,
         };
         sessionStorage.setItem(`wcore_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
@@ -448,7 +452,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const agentBackend = acpBackend || selectedAgent;
       const agentConversationParams = buildAgentConversationParams({
         backend: agentBackend,
-        name: input,
+        name: submittedInput,
         agentName: acpAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -513,7 +517,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
         emitter.emit('chat.history.refresh');
 
         const initialMessage = {
-          input,
+          input: submittedInput,
           files: files.length > 0 ? files : undefined,
         };
         sessionStorage.setItem(`acp_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
@@ -527,6 +531,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     }
   }, [
     input,
+    extensionAcronyms,
     files,
     dir,
     selectedAgent,

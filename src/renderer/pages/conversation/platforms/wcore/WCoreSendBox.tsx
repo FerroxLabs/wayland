@@ -24,6 +24,7 @@ import HorizontalFileList from '@/renderer/components/media/HorizontalFileList';
 import { useAutoTitle } from '@/renderer/hooks/chat/useAutoTitle';
 import { getSendBoxDraftHook, type FileOrFolderItem } from '@/renderer/hooks/chat/useSendBoxDraft';
 import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/chat/useSendBoxFiles';
+import { useExtensionAcronyms } from '@/renderer/hooks/chat/useExtensionAcronyms';
 import { useSlashCommands } from '@/renderer/hooks/chat/useSlashCommands';
 import { usePendingSendOnWake } from '@/renderer/hooks/chat/usePendingSendOnWake';
 import { useOpenFileSelector } from '@/renderer/hooks/file/useOpenFileSelector';
@@ -43,6 +44,7 @@ import {
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { allSupportedExts } from '@/renderer/services/FileService';
 import { iconColors } from '@/renderer/styles/colors';
+import { expandExtensionAcronymPrompt } from '@/renderer/utils/chat/acronymPrompt';
 import { emitter, useAddEventListener } from '@/renderer/utils/emitter';
 import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage, collectSelectedFiles } from '@/renderer/utils/file/messageFiles';
@@ -109,6 +111,7 @@ const WCoreSendBox: React.FC<{
   /** Report the turn-running state up so the inline orbit indicator can render in the message list. */
   onRunningChange?: (running: boolean) => void;
 }> = ({ conversation_id, modelSelection, teamId, agentSlotId, sessionMode, onRunningChange }) => {
+  const { acronyms: extensionAcronyms } = useExtensionAcronyms();
   const [workspacePath, setWorkspacePath] = useState('');
   const [dynamicModes, setDynamicModes] = useState<AgentModeOption[]>([]);
   // The most recent turn dispatched, kept so the Flux failover can replay it.
@@ -211,12 +214,13 @@ const WCoreSendBox: React.FC<{
         throw new Error('No model selected');
       }
 
+      const expandedInput = expandExtensionAcronymPrompt(input, extensionAcronyms);
       const msg_id = uuid();
-      lastSentRef.current = { input, files, msg_id };
+      lastSentRef.current = { input: expandedInput, files, msg_id };
       setActiveMsgId(msg_id);
       setWaitingResponse(true);
 
-      const displayMessage = buildDisplayMessage(input, files, workspacePath);
+      const displayMessage = buildDisplayMessage(expandedInput, files, workspacePath);
       if (!teamId) {
         addOrUpdateMessage(
           {
@@ -234,7 +238,7 @@ const WCoreSendBox: React.FC<{
       }
 
       try {
-        void checkAndUpdateTitle(conversation_id, input);
+        void checkAndUpdateTitle(conversation_id, expandedInput);
         if (teamId) {
           if (agentSlotId) {
             const result = await ipcBridge.team.sendMessageToAgent.invoke({
@@ -278,6 +282,7 @@ const WCoreSendBox: React.FC<{
       checkAndUpdateTitle,
       conversation_id,
       currentModel?.useModel,
+      extensionAcronyms,
       setActiveMsgId,
       removeMessageByMsgId,
       setWaitingResponse,

@@ -55,6 +55,11 @@ type GuidInputCardProps = {
 
   // Action row
   actionRow: React.ReactNode;
+  acronymPreview?: {
+    acronym: string;
+    expansion: string;
+    onApply: () => void;
+  } | null;
 };
 
 const GuidInputCard: React.FC<GuidInputCardProps> = ({
@@ -80,6 +85,7 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
   dir,
   onClearDir,
   actionRow,
+  acronymPreview,
 }) => {
   const layout = useLayoutContext();
   const isMobile = layout?.isMobile ?? false;
@@ -116,6 +122,26 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
       {...dragHandlers}
     >
       {mentionSelectorBadge}
+      {acronymPreview ? (
+        <button
+          type='button'
+          className='mb-10px w-full text-left rounded-8px px-12px py-10px bg-fill-1 hover:bg-fill-2 transition-colors'
+          style={{ border: '1px solid var(--border-base)' }}
+          onClick={acronymPreview.onApply}
+        >
+          <div className='flex items-center justify-between gap-10px mb-4px'>
+            <span className='text-13px font-semibold text-t-primary'>
+              {t('messages.acronym.previewTitle', { defaultValue: 'Acronym expansion' })}
+            </span>
+            <span className='text-11px rounded-999px px-6px py-1px text-t-secondary bg-fill-2'>
+              {acronymPreview.acronym}
+            </span>
+          </div>
+          <div className='text-12px text-t-secondary line-clamp-2 whitespace-pre-wrap'>
+            {acronymPreview.expansion}
+          </div>
+        </button>
+      ) : null}
       <Input.TextArea
         ref={textareaRef}
         autoSize={textareaAutoSize}
