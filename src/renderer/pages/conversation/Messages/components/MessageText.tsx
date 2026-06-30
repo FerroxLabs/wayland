@@ -9,11 +9,11 @@ import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { Alert, Button, Input, Message } from '@arco-design/web-react';
 import MessageActions, {
-  CHAT_RETRY_EVENT,
+  CHAT_CONTINUE_EVENT,
   EDIT_AND_RERUN_EVENT,
   type ActionsDisplay,
+  type ChatContinueDetail,
   type ChatEditRerunDetail,
-  type ChatRetryDetail,
 } from './MessageActions';
 import classNames from 'classnames';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -180,16 +180,15 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
   const workflowSessionId = conversationContext?.workflowSessionId;
   const conversationId = conversationContext?.conversationId;
 
-  // #422: one-click recovery on the truncation banner. Re-sends the turn's
-  // prompt through the existing retry plumbing (CHAT_RETRY_EVENT). The engine
-  // sizes the reasoning budget per-model itself (#456), so the resend runs with
-  // the model-aware output budget rather than a desktop-guessed floor.
-  const handleContinueWithHeadroom = useCallback(() => {
-    if (!retryText) return;
-    window.dispatchEvent(
-      new CustomEvent<ChatRetryDetail>(CHAT_RETRY_EVENT, { detail: { conversationId, text: retryText } })
-    );
-  }, [retryText, conversationId]);
+  // #457 True Continue: the truncation/max-turns banner resumes the live turn
+  // instead of restarting it. It dispatches CHAT_CONTINUE_EVENT (the sendbox
+  // sends a continuation directive into the SAME conversation) rather than
+  // CHAT_RETRY_EVENT, which would re-send the original prompt and lose the
+  // in-progress work. No original prompt is needed - only the conversation id.
+  const handleContinue = useCallback(() => {
+    if (!conversationId) return;
+    window.dispatchEvent(new CustomEvent<ChatContinueDetail>(CHAT_CONTINUE_EVENT, { detail: { conversationId } }));
+  }, [conversationId]);
 
   // Inline edit state — user messages only.
   const [editing, setEditing] = useState(false);
@@ -371,8 +370,8 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
                   "This reply stopped early - the model used up its room while thinking and didn't get to the answer. Try again with more headroom, or switch to a model with more reasoning room.",
               })}
               action={
-                retryText != null ? (
-                  <Button size='mini' type='text' onClick={handleContinueWithHeadroom}>
+                conversationId != null ? (
+                  <Button size='mini' type='text' onClick={handleContinue}>
                     {t('messages.truncation.budgetExhausted.action', { defaultValue: 'Continue with more headroom' })}
                   </Button>
                 ) : undefined

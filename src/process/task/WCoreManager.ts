@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
+import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
@@ -346,11 +347,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       try {
         const historyDb = await getDatabase();
         const history = historyDb.getConversationMessages(this.conversation_id, 0, 10000);
-        const lines = (history.data ?? [])
-          .filter((m): m is Extract<TMessage, { type: 'text' }> => m.type === 'text')
-          .slice(-20)
-          .map((m) => `${m.position === 'right' ? 'User' : 'Assistant'}: ${m.content.content || ''}`);
-        const text = lines.join('\n').slice(-4000);
+        // #457: retain tool/file-edit history (not just text) so a rebuilt
+        // session keeps the in-progress work instead of restarting from scratch.
+        const text = buildResumeSeedTranscript((history.data ?? []) as TMessage[]);
         if (text) await agent.injectConversationHistory(text);
       } catch {
         // Best-effort: resume still proceeds without seeded history.

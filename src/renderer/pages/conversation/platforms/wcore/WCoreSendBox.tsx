@@ -13,8 +13,11 @@ import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
 import SendBox from '@/renderer/components/chat/sendbox';
 import ThoughtDisplay from '@/renderer/components/chat/ThoughtDisplay';
 import {
+  CHAT_CONTINUE_EVENT,
   CHAT_RETRY_EVENT,
+  CONTINUE_DIRECTIVE,
   EDIT_AND_RERUN_EVENT,
+  type ChatContinueDetail,
   type ChatRetryDetail,
   type ChatEditRerunDetail,
 } from '@/renderer/pages/conversation/Messages/components/MessageActions';
@@ -389,6 +392,20 @@ const WCoreSendBox: React.FC<{
     };
     window.addEventListener(CHAT_RETRY_EVENT, handler);
     return () => window.removeEventListener(CHAT_RETRY_EVENT, handler);
+  }, [conversation_id]);
+
+  // #457 True Continue: resume the live turn instead of restarting it. Unlike
+  // Retry (which re-sends the original prompt), Continue sends a fixed
+  // continuation DIRECTIVE into the SAME conversation - the engine still holds
+  // the transcript, so it picks up from the partial work rather than redoing it.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<ChatContinueDetail>).detail;
+      if (detail?.conversationId && detail.conversationId !== conversation_id) return;
+      void onSendRef.current(CONTINUE_DIRECTIVE);
+    };
+    window.addEventListener(CHAT_CONTINUE_EVENT, handler);
+    return () => window.removeEventListener(CHAT_CONTINUE_EVENT, handler);
   }, [conversation_id]);
 
   // Edit-and-rerun: truncate messages after the edited user message, then re-send.
