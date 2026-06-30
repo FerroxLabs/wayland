@@ -42,10 +42,7 @@ import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher'
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { getBudgetController } from '@process/services/cost/BudgetController';
 import { RunawayMonitor } from '@process/services/runaway/RunawayMonitor';
-import {
-  ProjectOperatorMcpServer,
-  PROJECT_OPERATOR_TOOLS,
-} from '@process/services/projectOperator/ProjectOperatorMcpServer';
+import { ProjectOperatorMcpServer } from '@process/services/projectOperator/ProjectOperatorMcpServer';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -270,7 +267,14 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     const projectOperatorContext = await this.buildProjectOperatorMcpStdioConfig(mergedData);
     if (projectOperatorContext) {
-      stdioMcpServers.push({ ...projectOperatorContext.config, awaitReady: true, required: true });
+      // WCore currently starts dynamically-added stdio MCPs and forwards their
+      // stderr, but it does not reliably emit the host-side `mcp_ready` event
+      // for every server. The project operator bridge is still fail-closed at
+      // the main-process boundary via `ProjectOperatorMcpServer.start()`:
+      // active project, workspace, read, write, and command probes must pass
+      // before the MCP is advertised. Do not block the whole chat on a missing
+      // engine readiness event after that host-side proof.
+      stdioMcpServers.push({ ...projectOperatorContext.config });
     }
 
     // Raw-engine (power-user) mode: when `wcore.rawEngineMode` is
@@ -350,13 +354,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     });
 
     await agent.start();
-    if (projectOperatorContext) {
-      const tools = agent.getMcpReadyTools(projectOperatorContext.config.name);
-      const missingTools = PROJECT_OPERATOR_TOOLS.filter((tool) => !tools.includes(tool));
-      if (missingTools.length > 0) {
-        throw new Error(`Project operator MCP ready without required tools: missing ${missingTools.join(', ')}`);
-      }
-    }
     this.agent = agent;
     this._capabilities = agent.capabilities ?? null;
 
