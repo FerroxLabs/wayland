@@ -29,6 +29,10 @@ import { MemoryRouter } from 'react-router-dom';
 // Mocks
 // ---------------------------------------------------------------------------
 
+const { extensionTabsMock } = vi.hoisted(() => ({
+  extensionTabsMock: vi.fn(() => []),
+}));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     // The sidebar passes defaults via `{ defaultValue: 'Models' }`; return the
@@ -51,7 +55,7 @@ vi.mock('react-i18next', () => ({
 // subscription so the sidebar settles on its builtin order.
 vi.mock('@/common/adapter/ipcBridge', () => ({
   extensions: {
-    getSettingsTabs: { invoke: vi.fn().mockResolvedValue([]) },
+    getSettingsTabs: { invoke: vi.fn(() => Promise.resolve(extensionTabsMock())) },
     stateChanged: { on: vi.fn(() => () => {}) },
   },
 }));
@@ -76,6 +80,10 @@ import SettingsSider, {
 // ---------------------------------------------------------------------------
 
 describe('SettingsSider - Packet 3A nav restructure', () => {
+  beforeEach(() => {
+    extensionTabsMock.mockReturnValue([]);
+  });
+
   it('renames the legacy Providers sidebar entry to "Models" pointing at /settings/models', () => {
     render(
       <MemoryRouter>
@@ -142,5 +150,25 @@ describe('SettingsSider - Packet 3A nav restructure', () => {
     const modelsItem = document.querySelector('[data-settings-id="models"]');
     expect(modelsItem).not.toBeNull();
     expect(header.compareDocumentPosition(modelsItem as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('keeps extension settings tabs out of the main Settings sidebar', async () => {
+    extensionTabsMock.mockReturnValue([
+      {
+        id: 'ext-noisy-tools',
+        name: 'Noisy Tools',
+        entryUrl: 'wayland-asset://extension/noisy/settings.html',
+        position: { anchor: 'extensions', placement: 'after' },
+      },
+    ]);
+
+    render(
+      <MemoryRouter>
+        <SettingsSider />
+      </MemoryRouter>
+    );
+
+    expect(document.querySelector('[data-settings-id="extensions"]')).not.toBeNull();
+    expect(document.querySelector('[data-settings-id="ext-noisy-tools"]')).toBeNull();
   });
 });
