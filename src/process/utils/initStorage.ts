@@ -11,6 +11,7 @@ import { getPlatformServices } from '@/common/platform';
 import { application } from '@/common/adapter/ipcBridge';
 import type { TMessage } from '@/common/chat/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
 import type {
   IChannelAssistantConfigRefer,
   IChatConversationRefer,
@@ -896,7 +897,13 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
       WAYLAND_CONFIG_PATH: path.join(cacheDir, STORAGE_PATH.config),
       WAYLAND_CRON_DB: conciergeDiagDbPath,
       WAYLAND_PROVIDER_DB: conciergeDiagDbPath,
+      // projects + conversations live in the same shared wayland.db (workspace health).
+      WAYLAND_WORKSPACE_DB: conciergeDiagDbPath,
       WAYLAND_LOG_DIR: getPlatformServices().paths.getLogsDir(),
+      // The two distinct config locations, for the configPaths report: the app
+      // settings dir, and the wayland-core engine config dir.
+      WAYLAND_APP_CONFIG_DIR: cacheDir,
+      WAYLAND_ENGINE_CONFIG_DIR: nativeConfigDir(),
     };
     const conciergeDiagExistingIdx = mcpServers.findIndex(
       (s) => s.builtin === true && s.id === BUILTIN_CONCIERGE_DIAG_ID

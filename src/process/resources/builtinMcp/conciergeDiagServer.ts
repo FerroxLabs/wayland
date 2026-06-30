@@ -56,8 +56,18 @@ export type ConciergeDiagDeps = {
   cronDbPath?: string;
   /** Path to the SQLite DB holding `model_registry_providers`. */
   providerDbPath?: string;
+  /**
+   * Path to the SQLite DB holding `projects` + `conversations` (workspace
+   * health). The app uses one shared `wayland.db`, so this defaults to the
+   * provider DB path when unset.
+   */
+  workspaceDbPath?: string;
   /** Directory containing app log files (tailed for recent errors). */
   logDir?: string;
+  /** Resolved app config directory (`.../Wayland/config`), for the paths report. */
+  appConfigDir?: string;
+  /** Resolved engine config directory (`nativeConfigDir()`), for the paths report. */
+  engineConfigDir?: string;
 };
 
 export type ScheduledTaskHealth = {
@@ -101,10 +111,39 @@ export type RecentErrorsSection = {
   lines: string[];
 };
 
+export type WorkspaceHealth = {
+  /** "project" or "conversation". */
+  kind: string;
+  name: string;
+  /** Resolved workspace path (home-scrubbed to `~/…`), or null when unset. */
+  workspace: string | null;
+  /** True when this is a throwaway temp/default workspace, not a real folder. */
+  isTemporary: boolean;
+  /** Plain-English problem when files would land somewhere the user can't find, else null. */
+  whyProblem: string | null;
+};
+
+export type ConfigPathsInfo = {
+  /** App settings/config directory (channels, providers, OAuth tokens live here). */
+  appConfigDir: string | null;
+  /** Engine (wayland-core) config directory — a SEPARATE location from the app config. */
+  engineConfigDir: string | null;
+  /** Plain-English note explaining the two distinct locations. */
+  note: string;
+};
+
+export type ConfigPathsSection = {
+  available: boolean;
+  source: string;
+  info: ConfigPathsInfo;
+};
+
 export type ConciergeDiagOverview = {
   scheduledTasks: DiagSection<ScheduledTaskHealth>;
   mcp: DiagSection<McpServerHealth>;
   providers: DiagSection<ProviderHealth>;
+  workspace: DiagSection<WorkspaceHealth>;
+  configPaths: ConfigPathsSection;
   recentErrors: RecentErrorsSection;
 };
 
@@ -359,7 +398,11 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
   const configPath = deps.configPath ?? process.env.WAYLAND_CONFIG_PATH;
   const cronDbPath = deps.cronDbPath ?? process.env.WAYLAND_CRON_DB;
   const providerDbPath = deps.providerDbPath ?? process.env.WAYLAND_PROVIDER_DB;
+  // projects + conversations live in the same shared wayland.db as providers.
+  const workspaceDbPath = deps.workspaceDbPath ?? process.env.WAYLAND_WORKSPACE_DB ?? providerDbPath;
   const logDir = deps.logDir ?? process.env.WAYLAND_LOG_DIR;
+  const appConfigDir = deps.appConfigDir ?? process.env.WAYLAND_APP_CONFIG_DIR;
+  const engineConfigDir = deps.engineConfigDir ?? process.env.WAYLAND_ENGINE_CONFIG_DIR;
 
   /** Scheduled-task health from the cron store (`cron_jobs`). */
   const readScheduledTasks = (): DiagSection<ScheduledTaskHealth> => {
@@ -534,15 +577,120 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     return { available: true, source: scrubHome(logDir), lines };
   };
 
+  /**
+   * Workspace health: flag projects/conversations writing to throwaway temp
+   * dirs instead of a real, findable folder. This is the root cause behind
+   * "Concierge looked in a temporary workspace" / "my file went nowhere".
+   */
+  const readWorkspaceHealth = (): DiagSection<WorkspaceHealth> => {
+    const db = openReadonlyDb(workspaceDbPath);
+    if (!db) {
+      return {
+        available: false,
+        source: workspaceDbPath
+          ? `workspace db unavailable: ${scrubHome(workspaceDbPath)}`
+          : 'workspace db path not set',
+        items: [],
+      };
+    }
+    // Default/temp workspaces are named `<kind>-temp-<timestamp>` (see initAgent),
+    // or sit under the OS temp dir. A null path means no workspace at all, which
+    // also falls back to a temp dir.
+    const isTempPath = (p: string | null): boolean => {
+      if (!p) return true;
+      return /(^|[/\\])[a-z]+-temp-\d+([/\\]|$)/i.test(p) || p.includes(os.tmpdir());
+    };
+    try {
+      const items: WorkspaceHealth[] = [];
+      try {
+        const projects = db.prepare('SELECT name, workspace FROM projects ORDER BY name ASC').all() as Array<
+          Record<string, unknown>
+        >;
+        for (const r of projects) {
+          const workspace = asNullableString(r.workspace);
+          const temp = isTempPath(workspace);
+          items.push({
+            kind: 'project',
+            name: typeof r.name === 'string' ? r.name : '(unnamed)',
+            workspace,
+            isTemporary: temp,
+            whyProblem: temp
+              ? 'This project has no persistent workspace folder, so files it creates go to a temporary directory and are easily lost. Set a workspace folder for the project.'
+              : null,
+          });
+        }
+      } catch {
+        /* projects table may be absent on older DBs - skip */
+      }
+      try {
+        const convs = db
+          .prepare('SELECT name, extra FROM conversations ORDER BY updated_at DESC LIMIT 50')
+          .all() as Array<Record<string, unknown>>;
+        for (const r of convs) {
+          let workspace: string | null = null;
+          let customWorkspace: boolean | null = null;
+          const extraRaw = asNullableString(r.extra);
+          if (extraRaw) {
+            try {
+              const extra = JSON.parse(extraRaw) as Record<string, unknown>;
+              workspace = asNullableString(extra.workspace);
+              customWorkspace = typeof extra.customWorkspace === 'boolean' ? extra.customWorkspace : null;
+            } catch {
+              /* unparseable extra - leave nulls */
+            }
+          }
+          if (workspace == null && customWorkspace == null) continue;
+          // `customWorkspace === false` is the app's own authoritative "this is a
+          // temp/default workspace" flag.
+          const temp = customWorkspace === false || isTempPath(workspace);
+          if (!temp) continue;
+          items.push({
+            kind: 'conversation',
+            name: typeof r.name === 'string' ? r.name : '(unnamed)',
+            workspace,
+            isTemporary: true,
+            whyProblem:
+              'This chat is using a temporary workspace, so files it writes (e.g. "save to the local workspace") land in a throwaway directory you may not be able to find. Open it inside a project that has a workspace folder, or set one.',
+          });
+        }
+      } catch {
+        /* conversations table may be absent - skip */
+      }
+      return { available: true, source: 'projects + conversations', items };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { available: false, source: `workspace read failed: ${scrubHome(message)}`, items: [] };
+    } finally {
+      try {
+        db.close();
+      } catch {
+        /* ignore close errors */
+      }
+    }
+  };
+
+  /** Config-path report: the app config dir vs the engine config dir (the "two paths"). */
+  const readConfigPaths = (): ConfigPathsSection => {
+    const appDir = appConfigDir ?? (configPath ? path.dirname(configPath) : null);
+    const info: ConfigPathsInfo = {
+      appConfigDir: appDir ? scrubHome(appDir) : null,
+      engineConfigDir: engineConfigDir ? scrubHome(engineConfigDir) : null,
+      note: 'Wayland keeps two separate config locations: the desktop app settings (providers, channels, OAuth) live in the app config directory; the wayland-core engine reads its own config from the engine config directory. Uninstalling the app does NOT delete these, so a stale config can survive a reinstall.',
+    };
+    return { available: appDir != null || engineConfigDir != null, source: 'resolved paths', info };
+  };
+
   return {
     name: 'wayland_concierge_diag',
 
-    /** One-shot health snapshot across all four sources. */
+    /** One-shot health snapshot across all sources. */
     overview(): ConciergeDiagOverview {
       return sanitize({
         scheduledTasks: readScheduledTasks(),
         mcp: readMcpHealth(),
         providers: readProviders(),
+        workspace: readWorkspaceHealth(),
+        configPaths: readConfigPaths(),
         recentErrors: readRecentErrors(),
       });
     },
@@ -560,6 +708,16 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     /** Provider/model connection health only (state, never creds). */
     providers(): DiagSection<ProviderHealth> {
       return sanitize(readProviders());
+    },
+
+    /** Workspace health only ("my file went nowhere" / temp-workspace fallback). */
+    workspace(): DiagSection<WorkspaceHealth> {
+      return sanitize(readWorkspaceHealth());
+    },
+
+    /** Config-path report only (app config dir vs engine config dir). */
+    configPaths(): ConfigPathsSection {
+      return sanitize(readConfigPaths());
     },
 
     /** Recent redacted error lines from the log directory. */
