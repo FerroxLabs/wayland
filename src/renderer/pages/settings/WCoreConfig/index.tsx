@@ -21,10 +21,16 @@ import ProfilesPane from './panes/ProfilesPane';
 import RuntimePane from './panes/RuntimePane';
 import styles from './WCoreConfig.module.css';
 
-/** The pinned engine build, shown only as a fallback until the live detected
- *  version is reported by getAvailableAgents. Keep in lockstep with
- *  DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js. */
-const PINNED_VERSION = 'v0.12.8';
+/** The pinned engine build, shown only as the last fallback until runtime
+ *  detection or the updater reports the live installed engine version. Keep in
+ *  lockstep with DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js. */
+const PINNED_VERSION = 'v0.12.17';
+
+function normalizeVersion(version: string | null | undefined): string | undefined {
+  if (!version) return undefined;
+  const match = version.match(/(\d+\.\d+\.\d+(?:-[\w.]+)?)/);
+  return match ? `v${match[1]}` : version;
+}
 
 type RailEntry = {
   key: WCoreRailKey;
@@ -42,7 +48,8 @@ const WCoreConfig: React.FC = () => {
   const navigate = useNavigate();
   const [active, setActive] = useState<WCoreRailKey>('overview');
   const [engineAvailable, setEngineAvailable] = useState<boolean | null>(null);
-  const [engineVersion, setEngineVersion] = useState<string | undefined>(undefined);
+  const [detectedEngineVersion, setDetectedEngineVersion] = useState<string | undefined>(undefined);
+  const [checkedEngineVersion, setCheckedEngineVersion] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     void ipcBridge.acpConversation.getAvailableAgents.invoke().then((result) => {
@@ -50,10 +57,19 @@ const WCoreConfig: React.FC = () => {
         const agent = result.data.find((a) => a.backend === 'wcore');
         setEngineAvailable(Boolean(agent));
         if (agent && 'version' in agent && typeof (agent as { version?: string }).version === 'string') {
-          setEngineVersion((agent as { version?: string }).version);
+          setDetectedEngineVersion(normalizeVersion((agent as { version?: string }).version));
         }
       }
     });
+  }, []);
+
+  useEffect(() => {
+    void ipcBridge.wcoreUpdate.check
+      .invoke()
+      .then((check) => {
+        setCheckedEngineVersion(normalizeVersion(check?.current));
+      })
+      .catch(() => {});
   }, []);
 
   const railEntries: RailEntry[] = useMemo(
@@ -108,7 +124,7 @@ const WCoreConfig: React.FC = () => {
   const renderPane = (): React.ReactNode => {
     switch (active) {
       case 'overview':
-        return <OverviewPane version={engineVersion ?? PINNED_VERSION} />;
+        return <OverviewPane version={versionLabel} />;
       case 'services':
         return <ServicesKeysPane />;
       case 'tools':
@@ -130,7 +146,7 @@ const WCoreConfig: React.FC = () => {
     void navigate('/settings', { replace: true });
   };
 
-  const versionLabel = engineVersion ?? PINNED_VERSION;
+  const versionLabel = checkedEngineVersion ?? detectedEngineVersion ?? PINNED_VERSION;
 
   return (
     <div className={styles.surface}>

@@ -802,6 +802,7 @@ export const acpConversation = {
         extensionName?: string;
         isPreset?: boolean;
         customAgentId?: string;
+        version?: string;
       }>
     >,
     void
