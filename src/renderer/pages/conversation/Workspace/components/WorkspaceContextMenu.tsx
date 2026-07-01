@@ -102,18 +102,18 @@ const WorkspaceContextMenu: React.FC<WorkspaceContextMenuProps> = ({
         >
           {t('conversation.workspace.contextMenu.open')}
         </button>
-        {isFile && (
-          <button
-            type='button'
-            className={MENU_BUTTON_BASE}
-            onClick={() => {
-              void handleRevealNode(node);
-              closeContextMenu();
-            }}
-          >
-            {t('conversation.workspace.contextMenu.openLocation')}
-          </button>
-        )}
+        {/* Reveal in the OS file explorer. Works for folders too: showItemInFolder
+            on a folder path selects it in its parent, exactly like the file case. */}
+        <button
+          type='button'
+          className={MENU_BUTTON_BASE}
+          onClick={() => {
+            void handleRevealNode(node);
+            closeContextMenu();
+          }}
+        >
+          {t('conversation.workspace.contextMenu.openLocation')}
+        </button>
         {isFile && isPreviewSupported && (
           <button
             type='button'
