@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
 import { transcribeAudioBlob } from '@/renderer/services/SpeechToTextService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
+import { ipcBridge } from '@/common';
 
 export type SpeechInputAvailability = 'record' | 'file' | 'unsupported';
 export type SpeechInputStatus = 'idle' | 'recording' | 'transcribing' | 'error';
@@ -352,6 +353,23 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
       setErrorCode('recording-unsupported');
       setStatus('error');
       return;
+    }
+
+    // Trigger the macOS mic TCC prompt on demand (Electron desktop only) so a
+    // signed/hardened build can actually capture the mic, and a denial surfaces
+    // instead of a silent recording. Best-effort: any IPC failure falls through
+    // to getUserMedia, which maps its own permission error.
+    if (isElectronDesktop()) {
+      try {
+        const micStatus = await ipcBridge.mic.requestAccess.invoke();
+        if (micStatus === 'denied' || micStatus === 'restricted') {
+          setErrorCode('permission-denied');
+          setStatus('error');
+          return;
+        }
+      } catch {
+        // Best-effort: fall through to getUserMedia.
+      }
     }
 
     try {

@@ -228,6 +228,13 @@ mac:
     NSAppleEventsUsageDescription: >-
       Wayland controls other apps on your behalf when you ask the Computer-Use
       agent to complete a task.
+    # NSMicrophoneUsageDescription IS an Apple-honored TCC purpose string: macOS
+    # surfaces it on the microphone consent prompt. Required (with the
+    # com.apple.security.device.audio-input entitlement) for voice input
+    # (speech-to-text) to capture the mic on a hardened, signed build.
+    NSMicrophoneUsageDescription: >-
+      Wayland uses your microphone for voice input (speech-to-text) in the chat
+      box. Audio is only captured while you are dictating.
 
 dmg:
   # Use UDZO format which is more reliable on CI

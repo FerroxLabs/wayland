@@ -12,6 +12,7 @@ import type { OpenDialogOptions } from 'electron';
 import { buildProvider, buildEmitter } from './bridgeAllowlist';
 import type { McpSource } from '../../process/services/mcpServices/McpProtocol';
 import type { CuaPermissionStatus, PrivacyPane } from '../../process/services/macPermissions/cuaPermissions';
+import type { MicPermissionStatus } from '../../process/services/macPermissions/micPermission';
 import type { DoctorReport } from '../../process/doctor/types';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
@@ -99,6 +100,14 @@ export const shell = {
 export const cua = {
   getStatus: buildProvider<CuaPermissionStatus, void>('cua.get-permission-status'),
   openSettings: buildProvider<void, { pane: PrivacyPane }>('cua.open-privacy-pane'),
+};
+
+// Microphone permission for voice input (speech-to-text). requestAccess triggers
+// the macOS mic TCC prompt on demand; getStatus reads the grant without
+// prompting. Both report 'unsupported' off macOS.
+export const mic = {
+  getStatus: buildProvider<MicPermissionStatus, void>('mic.get-permission-status'),
+  requestAccess: buildProvider<MicPermissionStatus, void>('mic.request-permission'),
 };
 
 // Generic conversation capabilities

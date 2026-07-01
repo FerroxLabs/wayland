@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@arco-design/web-react';
 import { Mic, Square } from 'lucide-react';
 import WaylandSelect from '@/renderer/components/base/WaylandSelect';
+import { ipcBridge } from '@/common';
 
 type CheckState = 'idle' | 'requesting' | 'listening' | 'graded' | 'error';
 type Grade = 'no-signal' | 'too-quiet' | 'good' | 'too-hot';
@@ -124,6 +125,27 @@ const MicrophoneCheck: React.FC = () => {
     setErrorMsg('');
     peakOverWindowRef.current = 0;
     if (barRef.current) barRef.current.style.width = '0%';
+
+    // Proactively request the macOS mic TCC grant so a signed/hardened build
+    // shows the OS prompt (and a prior denial is surfaced) instead of a silent
+    // flat meter. No-op off macOS (reports 'unsupported'); best-effort so any
+    // IPC failure falls through to getUserMedia's own error handling.
+    try {
+      const micStatus = await ipcBridge.mic.requestAccess.invoke();
+      if (micStatus === 'denied' || micStatus === 'restricted') {
+        cleanup();
+        setState('error');
+        setErrorMsg(
+          t(
+            'settings.voiceMicPermissionBlocked',
+            'Microphone access blocked. Open System Settings → Privacy → Microphone and enable Wayland.'
+          )
+        );
+        return;
+      }
+    } catch {
+      // Best-effort: fall through to getUserMedia.
+    }
 
     const constraints: MediaStreamConstraints = {
       audio: selectedDeviceId ? { deviceId: { exact: selectedDeviceId } } : true,
