@@ -16,6 +16,7 @@ import { getSystemDir } from '@process/utils/initStorage';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { TokenMiddleware } from '@process/webserver/auth/middleware/TokenMiddleware';
 import { ExtensionRegistry } from '@process/extensions';
+import { resolveAllowedAssetPath } from '@process/extensions/protocol/assetAllowlist';
 import { SpeechToTextService } from '@process/bridge/services/SpeechToTextService';
 import { isActivePreviewPort } from '@process/bridge/pptPreviewBridge';
 import { isActiveOfficeWatchPort } from '@process/bridge/officeWatchBridge';
@@ -542,38 +543,27 @@ export function registerApiRoutes(app: Express): void {
       return res.status(400).json({ message: 'Missing path query parameter' });
     }
 
-    const normalizedPath = path.resolve(rawPath);
-    const registry = ExtensionRegistry.getInstance();
-    const allowedRoots = registry.getLoadedExtensions().map((ext) => path.resolve(ext.directory));
-
-    // Find which trusted root contains this path
-    const matchingRoot = allowedRoots.find(
-      (root) => normalizedPath === root || normalizedPath.startsWith(`${root}${path.sep}`)
-    );
-
-    if (!matchingRoot) {
+    const safePath = resolveAllowedAssetPath(rawPath);
+    if (!safePath) {
       return res.status(403).json({
         message: 'Access denied: path is outside extension directories',
       });
     }
-
-    // Reconstruct path from the trusted root so CodeQL can verify no path traversal occurs.
-    // path.relative() computes the relative portion; verifying it doesn't start with '..'
-    // confirms containment; path.join() re-anchors to the trusted base.
-    const relativePath = path.relative(matchingRoot, normalizedPath);
-    if (relativePath.startsWith('..')) {
-      return res.status(403).json({
-        message: 'Access denied: path is outside extension directories',
-      });
-    }
-
-    const safePath = path.join(matchingRoot, relativePath);
 
     if (!fs.existsSync(safePath) || !fs.statSync(safePath).isFile()) {
       return res.status(404).json({ message: 'Asset not found' });
     }
 
-    return res.sendFile(safePath);
+    // Extension settings pages render in same-origin sandboxed iframes.
+    // The app-wide X-Frame-Options header would block those HTML assets.
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Cache-Control', 'no-store');
+
+    return res.sendFile(safePath, (error) => {
+      if (!error || res.headersSent) return;
+      console.error('[API] Extension asset send failed:', error);
+      res.status(500).json({ message: 'Failed to serve extension asset' });
+    });
   });
 
   /**
