@@ -40,16 +40,29 @@ const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   o3: 200_000,
   'o3-mini': 200_000,
 
-  // Claude family
-  'claude-opus-4.5': 200_000,
-  'claude-haiku-4.5': 200_000,
-  'claude-sonnet-4.5': 1_000_000,
-  'claude-opus-4.1': 200_000,
+  // Claude family. Keys use the real (hyphenated) catalog model ids the app
+  // passes here, and values follow the models.dev provider snapshot
+  // (resources/modelsdev-snapshot.json): only Opus 4.6+ and Sonnet 4.6 ship a
+  // 1M window; Opus 4.0/4.1/4.5, Sonnet 4.0/4.5, and Haiku 4.x are 200K. The
+  // bare `claude-opus-4` / `claude-sonnet-4` / `claude-haiku-4` entries are the
+  // fuzzy fallback for dated or variant ids (e.g. `claude-opus-4-20250514`);
+  // longest-match means the versioned keys above win for known 1M models.
+  'claude-opus-4-8': 1_000_000,
+  'claude-opus-4-7': 1_000_000,
+  'claude-opus-4-6': 1_000_000,
+  'claude-opus-4-5': 200_000,
+  'claude-opus-4-1': 200_000,
   'claude-opus-4': 200_000,
-  'claude-sonnet-4': 1_000_000,
-  'claude-3.7-sonnet': 200_000,
-  'claude-3.5-haiku': 200_000,
+  'claude-sonnet-4-6': 1_000_000,
+  'claude-sonnet-4-5': 200_000,
+  'claude-sonnet-4': 200_000,
+  'claude-haiku-4-5': 200_000,
+  'claude-haiku-4': 200_000,
+  'claude-3-7-sonnet': 200_000,
+  'claude-3-5-haiku': 200_000,
+  'claude-3-5-sonnet': 200_000,
   'claude-3-opus': 200_000,
+  'claude-3-sonnet': 200_000,
   'claude-3-haiku': 200_000,
 };
 
