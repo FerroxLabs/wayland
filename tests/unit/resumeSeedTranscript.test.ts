@@ -48,6 +48,24 @@ const fileEditGroupMsg = (fileName: string, id: string): TMessage =>
     createdAt: 1,
   }) as TMessage;
 
+const codexPatchMsg = (filePath: string, id: string): TMessage =>
+  ({
+    id,
+    type: 'codex_tool_call',
+    position: 'left',
+    conversation_id: 'c1',
+    content: {
+      toolCallId: `call-${id}`,
+      status: 'success',
+      kind: 'patch',
+      title: 'Apply patch',
+      subtype: 'patch_apply_end',
+      content: [{ type: 'diff', filePath, oldText: 'a', newText: 'b' }],
+      data: {},
+    },
+    createdAt: 1,
+  }) as unknown as TMessage;
+
 describe('buildResumeSeedTranscript (#457)', () => {
   it('retains tool_call and file-edit history, not just text', () => {
     const messages: TMessage[] = [
@@ -66,6 +84,71 @@ describe('buildResumeSeedTranscript (#457)', () => {
     expect(seed).toContain('Grep');
     expect(seed).toContain('WriteFile');
     expect(seed).toContain('src/auth/login.ts');
+  });
+
+  it('preserves codex_tool_call file-patch paths (#467 fold)', () => {
+    // A resumed session must know which files a codex patch already touched -
+    // the path lives in content[].filePath, not in a top-level field.
+    const seed = buildResumeSeedTranscript([
+      textMsg('right', 'Patch the config', 'u1'),
+      codexPatchMsg('src/config/settings.ts', 'x1'),
+    ]);
+    expect(seed).toContain('codex');
+    expect(seed).toContain('src/config/settings.ts');
+  });
+
+  it('surfaces file paths carried in tool_call args', () => {
+    const editCall = {
+      id: 'e1',
+      type: 'tool_call',
+      position: 'left',
+      conversation_id: 'c1',
+      content: { callId: 'call-e1', name: 'Edit', args: { filePath: 'src/index.ts' }, status: 'success' },
+      createdAt: 1,
+    } as unknown as TMessage;
+    const seed = buildResumeSeedTranscript([editCall]);
+    expect(seed).toContain('Edit');
+    expect(seed).toContain('src/index.ts');
+  });
+
+  it('caps a single oversized entry (per-entry budget) so it cannot eat the tail', () => {
+    const huge = 'x'.repeat(5000);
+    const messages: TMessage[] = [textMsg('right', huge, 'u1'), textMsg('left', 'the important latest reply', 'a1')];
+    // Total budget is generous; the per-entry cap is what keeps the huge first
+    // message from crowding out the latest reply.
+    const seed = buildResumeSeedTranscript(messages, { perEntryChars: 200 });
+    expect(seed).toContain('the important latest reply');
+    // The oversized entry was clipped, not replayed whole.
+    expect(seed).not.toContain(huge);
+    expect(seed).toContain('…');
+  });
+
+  it('does not drop a whole tool_group when one item is null', () => {
+    const messages = [
+      {
+        id: 'g1',
+        type: 'tool_group',
+        position: 'left',
+        conversation_id: 'c1',
+        content: [
+          null,
+          {
+            callId: 'call-g1',
+            description: 'edit',
+            name: 'WriteFile',
+            renderOutputAsMarkdown: false,
+            resultDisplay: { fileDiff: '@@', fileName: 'src/kept.ts' },
+            status: 'Success',
+          },
+        ],
+        createdAt: 1,
+      } as unknown as TMessage,
+    ];
+    expect(() => buildResumeSeedTranscript(messages)).not.toThrow();
+    const seed = buildResumeSeedTranscript(messages);
+    // The surviving item's file edit is retained despite the null sibling.
+    expect(seed).toContain('WriteFile');
+    expect(seed).toContain('src/kept.ts');
   });
 
   it('skips empty/whitespace text messages', () => {

@@ -1,6 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "这条回复提前结束了 - 模型在思考时用尽了余量，还没来得及给出答案。请用更多余量重试，或切换到推理余量更大的模型。",
-  "truncation.budgetExhausted.action": "用更多余量继续",
+  "truncation.budgetExhausted.body": "这条回复在完成前就提前结束了。点击\"继续\"从中断处接着进行——模型会保留它已经完成的工作。",
+  "truncation.budgetExhausted.action": "继续",
   "fileChanges": "文件变更",
   "fileChangesCount": "{{count}} 个文件变更",
   "conversationInProgress": "当前正在进行对话中...",

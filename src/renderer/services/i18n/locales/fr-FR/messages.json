@@ -1,6 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "Cette réponse s'est arrêtée trop tôt - le modèle a épuisé sa marge pendant sa réflexion et n'a pas pu rédiger la réponse. Réessayez avec plus de marge, ou choisissez un modèle disposant de plus de marge de raisonnement.",
-  "truncation.budgetExhausted.action": "Continuer avec plus de marge",
+  "truncation.budgetExhausted.body": "Cette réponse s'est arrêtée avant d'être terminée. Continuez pour reprendre exactement là où elle s'est arrêtée — le modèle conserve le travail déjà effectué.",
+  "truncation.budgetExhausted.action": "Continuer",
   "fileChanges": "Modifications de fichiers",
   "fileChangesCount": "{{count}} modifications de fichiers",
   "conversationInProgress": "Une conversation est en cours...",

@@ -401,7 +401,10 @@ const WCoreSendBox: React.FC<{
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<ChatContinueDetail>).detail;
-      if (detail?.conversationId && detail.conversationId !== conversation_id) return;
+      // Scope strictly to THIS conversation. An id-less event must not fan out
+      // into every mounted sendbox (multi-tab), so a missing id is dropped too -
+      // the banner always dispatches with the conversation id.
+      if (!detail?.conversationId || detail.conversationId !== conversation_id) return;
       void onSendRef.current(CONTINUE_DIRECTIVE);
     };
     window.addEventListener(CHAT_CONTINUE_EVENT, handler);

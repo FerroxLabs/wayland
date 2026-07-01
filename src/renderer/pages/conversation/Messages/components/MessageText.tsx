@@ -367,12 +367,12 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
               data-testid='message-truncation-warning'
               content={t('messages.truncation.budgetExhausted.body', {
                 defaultValue:
-                  "This reply stopped early - the model used up its room while thinking and didn't get to the answer. Try again with more headroom, or switch to a model with more reasoning room.",
+                  'This reply stopped early before finishing. Continue to pick up exactly where it left off — the model keeps the work it already did.',
               })}
               action={
                 conversationId != null ? (
                   <Button size='mini' type='text' onClick={handleContinue}>
-                    {t('messages.truncation.budgetExhausted.action', { defaultValue: 'Continue with more headroom' })}
+                    {t('messages.truncation.budgetExhausted.action', { defaultValue: 'Continue' })}
                   </Button>
                 ) : undefined
               }

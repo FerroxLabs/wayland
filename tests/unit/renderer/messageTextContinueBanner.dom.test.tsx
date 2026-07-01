@@ -97,7 +97,7 @@ describe('MessageText truncation banner (#457)', () => {
 
     render(<MessageText message={truncatedMessage as never} retryText='the original user prompt' />);
 
-    fireEvent.click(screen.getByText('Continue with more headroom'));
+    fireEvent.click(screen.getByText('Continue'));
 
     expect(continueSpy).toHaveBeenCalledWith({ conversationId: 'conv-1' });
     expect(retrySpy).not.toHaveBeenCalled();
