@@ -10,8 +10,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockAllocate = vi.hoisted(() => vi.fn(async (name: string) => `/Docs/Wayland/${name}`));
+const mockEnsure = vi.hoisted(() => vi.fn(async () => '/Docs/Wayland/Proj'));
+const mockEnforce = vi.hoisted(() =>
+  // Mirror the real enforcer: repoint a non-custom project chat's workspace onto
+  // the project folder (returns true), but never touch a user-picked custom one.
+  vi.fn(async (extra: Record<string, unknown>) => {
+    if (extra.customWorkspace) return false;
+    extra.workspace = '/Docs/Wayland/Proj';
+    return true;
+  })
+);
 vi.mock('@process/services/projectWorkspace', () => ({
   allocateProjectWorkspace: mockAllocate,
+  ensureProjectWorkspace: mockEnsure,
+  enforceProjectWorkspace: mockEnforce,
 }));
 
 const mockBootstrap = vi.hoisted(() => vi.fn(async () => {}));
@@ -74,5 +86,60 @@ describe('ProjectServiceImpl.createProject persistent workspace (#455)', () => {
     expect(repo.createProject).toHaveBeenCalled();
     // No workspace -> no bootstrap.
     expect(mockBootstrap).not.toHaveBeenCalled();
+  });
+});
+
+describe('ProjectServiceImpl.assignConversation re-homes workspace (#30)', () => {
+  beforeEach(() => {
+    mockEnsure.mockClear();
+    mockEnforce.mockClear();
+  });
+
+  it('ensures + enforces the project workspace, persists it, and evicts the cached task', async () => {
+    const repo = makeRepo();
+    const convs = {
+      getConversation: vi.fn(async () => ({ id: 'c1', extra: { workspace: '/tmp/wcore-temp-1' } })),
+      updateConversation: vi.fn(async () => {}),
+    };
+    const evict = vi.fn();
+    const svc = new ProjectServiceImpl(repo as never, convs as never, evict);
+
+    await svc.assignConversation('c1', 'p1');
+
+    // Lazy-migrate the project workspace, then pin this chat onto it.
+    expect(mockEnsure).toHaveBeenCalledWith('p1');
+    expect(mockEnforce).toHaveBeenCalled();
+    // The exact re-homed extra is what gets persisted (not a stale copy).
+    const [id, updates, mergeExtra] = convs.updateConversation.mock.calls[0];
+    expect(id).toBe('c1');
+    expect(mergeExtra).toBe(true);
+    expect(updates).toEqual({
+      extra: expect.objectContaining({ projectId: 'p1', workspace: '/Docs/Wayland/Proj' }),
+    });
+    // Re-homed -> cached task evicted so the next turn rebuilds in the project dir.
+    expect(evict).toHaveBeenCalledWith('c1');
+  });
+
+  it('preserves a user-picked custom workspace and does not evict', async () => {
+    const repo = makeRepo();
+    const convs = {
+      getConversation: vi.fn(async () => ({
+        id: 'c2',
+        extra: { workspace: '/picked/dir', customWorkspace: true },
+      })),
+      updateConversation: vi.fn(async () => {}),
+    };
+    const evict = vi.fn();
+    const svc = new ProjectServiceImpl(repo as never, convs as never, evict);
+
+    await svc.assignConversation('c2', 'p1');
+
+    // projectId is still stamped + persisted, but the custom folder is untouched.
+    const persisted = convs.updateConversation.mock.calls[0][1] as {
+      extra: { projectId: string; workspace: string };
+    };
+    expect(persisted.extra.projectId).toBe('p1');
+    expect(persisted.extra.workspace).toBe('/picked/dir');
+    expect(evict).not.toHaveBeenCalled();
   });
 });

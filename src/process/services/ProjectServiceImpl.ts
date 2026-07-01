@@ -11,7 +11,11 @@ import type { IProject, ICreateProjectParams, IUpdateProjectParams } from '@/com
 import type { TChatConversation } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
 import { bootstrapProjectKnowledge } from '@process/services/projectKnowledge/bootstrap';
-import { allocateProjectWorkspace } from '@process/services/projectWorkspace';
+import {
+  allocateProjectWorkspace,
+  ensureProjectWorkspace,
+  enforceProjectWorkspace,
+} from '@process/services/projectWorkspace';
 
 /**
  * Concrete IProjectService. Owns id/timestamp generation and the `.wayland/`
@@ -22,7 +26,14 @@ import { allocateProjectWorkspace } from '@process/services/projectWorkspace';
 export class ProjectServiceImpl implements IProjectService {
   constructor(
     private readonly repo: IProjectRepository,
-    private readonly conversations: IConversationService
+    private readonly conversations: IConversationService,
+    /**
+     * Evicts a conversation's cached worker task so its next turn rebuilds with a
+     * corrected workspace (used after assign re-homes a chat). Injected, not
+     * imported, so the service carries no hard dependency on the task layer.
+     * Optional: omitted in unit tests and callers with no live task cache.
+     */
+    private readonly evictTask?: (conversationId: string) => void
   ) {}
 
   async createProject(params: ICreateProjectParams): Promise<IProject> {
@@ -96,11 +107,27 @@ export class ProjectServiceImpl implements IProjectService {
   }
 
   async assignConversation(conversationId: string, projectId: string): Promise<void> {
+    // Stamp the project, then re-home the chat's workspace onto the project's
+    // managed folder exactly like the create path (ConversationServiceImpl
+    // .reconcileProjectWorkspace): ensure the project has a persistent workspace,
+    // then copy it onto this chat's extra so agent files land in the project
+    // folder instead of the throwaway temp dir the chat was created with. A
+    // user-chosen custom workspace (extra.customWorkspace) is left untouched by
+    // enforceProjectWorkspace.
+    const conversation = await this.conversations.getConversation(conversationId);
+    const extra = { ...conversation?.extra, projectId } as Record<string, unknown>;
+    await ensureProjectWorkspace(projectId);
+    const rehomed = await enforceProjectWorkspace(extra);
     await this.conversations.updateConversation(
       conversationId,
-      { extra: { projectId } } as Partial<TChatConversation>,
+      { extra } as unknown as Partial<TChatConversation>,
       true
     );
+    // A chat that's already open keeps writing to its old temp cwd until its
+    // cached worker task is rebuilt. Drop the cached task so the next turn
+    // re-spawns in the re-homed workspace - no app restart needed. Only when the
+    // workspace actually moved.
+    if (rehomed) this.evictTask?.(conversationId);
   }
 
   async removeConversationFromProject(conversationId: string): Promise<void> {
