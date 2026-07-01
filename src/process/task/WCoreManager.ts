@@ -42,6 +42,7 @@ import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher'
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { getBudgetController } from '@process/services/cost/BudgetController';
 import { RunawayMonitor } from '@process/services/runaway/RunawayMonitor';
+import { buildWCoreResumeReplayContext } from './wcoreResumeReplay';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -346,12 +347,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       try {
         const historyDb = await getDatabase();
         const history = historyDb.getConversationMessages(this.conversation_id, 0, 10000);
-        const lines = (history.data ?? [])
-          .filter((m): m is Extract<TMessage, { type: 'text' }> => m.type === 'text')
-          .slice(-20)
-          .map((m) => `${m.position === 'right' ? 'User' : 'Assistant'}: ${m.content.content || ''}`);
-        const text = lines.join('\n').slice(-4000);
-        if (text) await agent.injectConversationHistory(text);
+        const replay = buildWCoreResumeReplayContext(history.data ?? []);
+        if (replay?.text) await agent.injectConversationHistory(replay.text);
       } catch {
         // Best-effort: resume still proceeds without seeded history.
       }
