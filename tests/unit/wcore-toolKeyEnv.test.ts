@@ -156,6 +156,15 @@ describe('buildEngineSpawnEnv - SEC-1 allowlist', () => {
     expect(env.BRAVE_SEARCH_API_KEY).toBeUndefined();
     expect(env.TAVILY_API_KEY).toBeUndefined();
   });
+
+  it('opts the bundled engine into honoring a wire set_mode (WAYLAND_ALLOW_WIRE_FORCE, #495/GHSA-8r7g)', () => {
+    // Engine >=0.12.19 ignores a permission-loosening wire `set_mode` unless
+    // launched with this env. The desktop is the engine's trusted local
+    // operator, so the bundled spawn always opts in - otherwise the composer's
+    // Autopilot/Force selector would silently no-op after the bundle bump.
+    const env = buildEngineSpawnEnv({ providerEnv: {} });
+    expect(env.WAYLAND_ALLOW_WIRE_FORCE).toBe('1');
+  });
 });
 
 describeNativeSqlite('ToolKeyStore - encrypted at rest (real DB round-trip)', () => {

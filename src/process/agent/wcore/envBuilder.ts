@@ -658,5 +658,31 @@ export function buildEngineSpawnEnv(opts: {
     out.WAYLAND_HOME = opts.waylandHome;
   }
 
+  // Opt the bundled engine into honoring a wire `set_mode` that loosens
+  // permission (AutoEdit / Force). Engine >=0.12.19 (GHSA-8r7g-7556-hj3j)
+  // IGNORES a permission-loosening `set_mode` sent over the json-stream wire
+  // unless it was launched with `--force` or this env is set. The desktop's
+  // composer "Permission/Autopilot" selector drives `set_mode` over that wire
+  // (AgentModeSelector -> acp.set-mode -> WCoreManager.setMode -> WCoreAgent),
+  // so without opting in, selecting Autopilot/Force would silently no-op after
+  // the 0.12.19 bundle bump (#495).
+  //
+  // Blanket-enabling is safe here (not scoped per-mode / no respawn) because:
+  //  1. The gate is BOOT-ONLY (set once at launch, immutable mid-session), so a
+  //     per-mode approach would force a kill+respawn on every switch into a
+  //     looser mode.
+  //  2. This engine is the desktop's OWN trusted child, spawned over a private
+  //     stdin the desktop exclusively writes. `set_mode` is only ever emitted
+  //     from an explicit local user action (the composer selector) or a
+  //     user-configured cron job - NEVER from model output (inbound engine
+  //     events never call setMode). The model cannot induce a `set_mode`.
+  //  3. Remote/WebUI callers reach `acp.set-mode` only through the paired-device
+  //     WebSocket, which is already gated by the WebUI's own token/pairing auth
+  //     (see bridgeAllowlist). Opening the gate restores exactly the pre-0.12.19
+  //     behavior for that already-authenticated surface; it grants no new
+  //     capability. The engine's default (gate closed) still protects any OTHER
+  //     spawner (standalone CLI, third-party) from an untrusted wire peer.
+  out.WAYLAND_ALLOW_WIRE_FORCE = '1';
+
   return out;
 }
