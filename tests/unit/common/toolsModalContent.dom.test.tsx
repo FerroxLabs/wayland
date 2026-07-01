@@ -233,6 +233,14 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
       invoke: vi.fn(() => Promise.resolve({ success: true, data: [] })),
     },
   },
+  // ToolsModalContent's STT panel reads the shared provider registry on mount to
+  // decide whether OpenAI Whisper can reuse a connected key (#496). Stub it so
+  // the mount effect resolves instead of throwing "No modelRegistry export".
+  modelRegistry: {
+    list: {
+      invoke: vi.fn(() => Promise.resolve([])),
+    },
+  },
 }));
 
 vi.mock('@/renderer/hooks/mcp', () => ({
