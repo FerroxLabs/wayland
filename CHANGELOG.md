@@ -4,6 +4,21 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ## [Unreleased]
 
+## [0.11.9] - 2026-07-01
+
+### Highlights
+
+- **Bundled engine → wayland-core v0.12.19.** Carries the GHSA-8r7g-7556-hj3j security batch: approval-token binding, project-config posture clamp, a boot-only opt-in gate for wire-driven Force/AutoEdit (`--force` / `WAYLAND_ALLOW_WIRE_FORCE=1`), default-deny project-config hooks, and shared MCP tool-name sanitization across all providers.
+
+### Security
+
+- **Adopt the engine's boot-only wire-Force gate (#495).** The desktop now opts the bundled engine into wire-driven mode changes (`WAYLAND_ALLOW_WIRE_FORCE=1`) so Autopilot/Force keeps working against v0.12.19, and closes the remote cron privilege-escalation surface it would otherwise expose: the full remote cron write/exec/skill command set (`add-job`, `update-job`, `run-now`, `save-skill`, `confirm-proposal`) is denied to paired-device WebSocket callers. Read-only cron views and local cron creation are unaffected.
+
+### Fixes
+
+- **Project chats write to the project workspace (#494).** Conversations created inside a project now share the project's workspace folder instead of a per-chat Temporary Space, and the folder opens correctly.
+- **Voice dictation on the signed macOS build (#496).** The microphone permission is requested on demand with the correct entitlement and usage string, and OpenAI Whisper reuses the key from your connected provider.
+
 ## [0.11.8] - 2026-06-30
 
 ### Highlights
@@ -25,7 +40,7 @@ All notable changes to the Wayland Electron app are documented in this file. For
 
 ### Highlights
 
-- **Meet Concierge — the first built-in helper inside Wayland.** Concierge knows your actual setup (the models you've connected, your skills, your scheduled tasks) and answers from it in plain English. Ask it what Wayland can do, how to do anything, or why something didn't run. Better yet, it sets things up *for* you: it proposes a change, you see a confirmation card, you click Apply — connect an AI provider, set your default model, add a connected tool, or edit an assistant. You stay in control; it does the legwork.
+- **Meet Concierge — the first built-in helper inside Wayland.** Concierge knows your actual setup (the models you've connected, your skills, your scheduled tasks) and answers from it in plain English. Ask it what Wayland can do, how to do anything, or why something didn't run. Better yet, it sets things up _for_ you: it proposes a change, you see a confirmation card, you click Apply — connect an AI provider, set your default model, add a connected tool, or edit an assistant. You stay in control; it does the legwork.
 - **Every assistant now opens with suggested starting cards** (Concierge and Cowork included), so you're never staring at a blank box. The home screen is cleaner.
 
 ### Wayland Core engine
