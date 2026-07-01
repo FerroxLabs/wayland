@@ -6,7 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import type { IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
-import { transformMessage } from '@/common/chat/chatLib';
+import { transformMessage, decodeAskUserAnswer, encodeAskUserAnswer } from '@/common/chat/chatLib';
 import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
@@ -503,6 +503,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private tryAutoApprove(content: IMessageToolGroup['content'][number]): boolean {
     const type = content.confirmationDetails?.type;
 
+    // #504: AskUserQuestion always needs a human answer — auto-approving it
+    // (even in yolo) would send `tool_approve` with no `answer`, which the
+    // engine can't synthesize a result from and its execute() fallback fails
+    // loud. Always surface the choices. This mirrors the engine's own carve-out
+    // (orchestration requires approval for AskUserQuestion in every mode).
+    if (type === 'question') return false;
+
     if (this.currentMode === 'yolo') {
       this.agent?.approveTool(content.callId, 'once');
       return true;
@@ -533,18 +540,38 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         continue;
       }
 
-      // Show confirmation dialog to user
-      const options = [
-        { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
-        { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
-        { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
-      ];
+      // Show confirmation dialog to user.
+      const details = content.confirmationDetails;
+      let options: Array<{ label: string; value: string; params?: Record<string, string> }>;
+      let description = content.description || '';
+
+      if (details?.type === 'question') {
+        // #504: AskUserQuestion — one selectable option per choice. The option
+        // value carries the chosen label (via the ask_user answer sentinel) so
+        // `confirm` can thread it back through `tool_approve.answer`. Choice
+        // labels are user-facing literals, not i18n keys, so the renderer's
+        // `$t()` falls back to them verbatim.
+        options = details.options.map((o) => ({
+          label: o.description ? `${o.label} — ${o.description}` : o.label,
+          value: encodeAskUserAnswer(o.label),
+        }));
+        options.push({ label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel });
+        // `title` already carries the header (buildAskUserConfirmation), so the
+        // body shows just the question to avoid duplicating the header.
+        description = details.question;
+      } else {
+        options = [
+          { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
+          { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
+          { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+        ];
+      }
 
       this.addConfirmation({
         title: content.confirmationDetails?.title || content.name || '',
         id: content.callId,
         action,
-        description: content.description || '',
+        description,
         callId: content.callId,
         options,
         commandType,
@@ -1366,8 +1393,14 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   confirm(id: string, callId: string, data: string) {
+    // #504: AskUserQuestion answer — `data` carries the chosen label. Approve
+    // the tool with the answer attached so the engine synthesizes the result
+    // from it. Never stored in the "always allow" memory (each question is
+    // one-shot).
+    const askUserAnswer = decodeAskUserAnswer(data);
+
     // Store "always allow" in approval store
-    if (data === ToolConfirmationOutcome.ProceedAlways) {
+    if (askUserAnswer === null && data === ToolConfirmationOutcome.ProceedAlways) {
       const confirmation = this.confirmations.find((c) => c.callId === callId);
       if (confirmation?.action) {
         const keys = WCoreApprovalStore.createKeysFromConfirmation(confirmation.action, confirmation.commandType);
@@ -1378,7 +1411,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     super.confirm(id, callId, data);
 
     if (this.agent) {
-      if (data === ToolConfirmationOutcome.Cancel) {
+      if (askUserAnswer !== null) {
+        this.agent.approveTool(callId, 'once', askUserAnswer);
+      } else if (data === ToolConfirmationOutcome.Cancel) {
         this.agent.denyTool(callId, 'User cancelled');
       } else {
         const scope = data === ToolConfirmationOutcome.ProceedAlways ? 'always' : 'once';

@@ -16,9 +16,51 @@ import { resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { killChild } from '@process/agent/acp/utils';
-import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
+import type { WCoreEvent, WCoreCommand, WCoreCapabilities, ToolInfo } from './protocol';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
+
+/**
+ * #504: Build a `question`-type confirmation from an AskUserQuestion tool
+ * request. Defensive against payload drift — the engine schema
+ * (ask_user_question.rs) requires `question` + `options[].{label,description}`,
+ * but we tolerate missing/malformed fields so a bad payload degrades to a
+ * readable prompt instead of the blank dialog reported in #504:
+ *  - non-string `question`/`header` fall back to the tool description / undefined
+ *  - `options` that aren't an array, or entries without a string `label`, are dropped
+ *  - an empty `options` list still renders the question (with only a Cancel path)
+ *
+ * Single-answer only: the engine's answer channel is a single
+ * `ToolApprove.answer: Option<String>` (commands.rs), so the host renders
+ * single-select and returns exactly one chosen label. The engine's optional
+ * `multiSelect` hint is intentionally not carried into the UI — honoring it
+ * would require a multi-value answer channel on the engine side (tracked
+ * separately); a multi-select question degrades to picking one option.
+ *
+ * Exported for unit testing (the method that calls it is private).
+ */
+export function buildAskUserConfirmation(tool: Pick<ToolInfo, 'description' | 'args'>) {
+  const args = (tool.args ?? {}) as Record<string, unknown>;
+  const question = typeof args.question === 'string' && args.question.length > 0 ? args.question : tool.description;
+  const header = typeof args.header === 'string' && args.header.length > 0 ? args.header : undefined;
+  const rawOptions = Array.isArray(args.options) ? args.options : [];
+  const options = rawOptions
+    .filter((o): o is Record<string, unknown> => !!o && typeof o === 'object')
+    .map((o) => ({
+      label: typeof o.label === 'string' ? o.label : '',
+      description: typeof o.description === 'string' ? o.description : '',
+      ...(typeof o.preview === 'string' ? { preview: o.preview } : {}),
+    }))
+    .filter((o) => o.label.length > 0);
+
+  return {
+    type: 'question' as const,
+    title: header ?? tool.description,
+    question,
+    ...(header !== undefined ? { header } : {}),
+    options,
+  };
+}
 
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
 
@@ -742,6 +784,16 @@ export class WCoreAgent {
   private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' }) {
     const { tool } = event;
 
+    // #504: AskUserQuestion renders a structured multiple-choice prompt. The
+    // shipped engine still tags it as `info` (ask_user_question.rs
+    // category() -> Info), so we detect by name as well as the forward-additive
+    // `question` category. Without this, the args fall through to the `info`
+    // arm below and get JSON.stringify'd into an unreadable blob (the empty
+    // prompt reported in #504).
+    if (tool.category === 'question' || tool.name === 'AskUserQuestion' || tool.name === 'ask_user') {
+      return buildAskUserConfirmation(tool);
+    }
+
     switch (tool.category) {
       case 'edit':
         return {
@@ -799,8 +851,16 @@ export class WCoreAgent {
     this.sendCommand({ type: 'stop' });
   }
 
-  approveTool(callId: string, scope: 'once' | 'always' = 'once'): void {
-    this.sendCommand({ type: 'tool_approve', call_id: callId, scope });
+  // `answer` (#504) carries the user's AskUserQuestion choice; the engine
+  // synthesizes the tool result from it (wcore-agent orchestration). Omitted
+  // for normal tool approvals so pre-v0.9.3 engines see the legacy wire shape.
+  approveTool(callId: string, scope: 'once' | 'always' = 'once', answer?: string): void {
+    this.sendCommand({
+      type: 'tool_approve',
+      call_id: callId,
+      scope,
+      ...(answer !== undefined ? { answer } : {}),
+    });
   }
 
   denyTool(callId: string, reason = ''): void {

@@ -226,6 +226,19 @@ export type IMessageToolGroup = IMessage<
             toolDisplayName: string;
             serverName: string;
           }
+        >
+      // #504: AskUserQuestion — a structured multiple-choice prompt. Carries the
+      // question + choices so the UI can render selectable options instead of a
+      // blank allow/deny dialog. Single-answer only: the engine's answer channel
+      // is a single string, so the engine's `multiSelect` hint is not carried
+      // here (a multi-select question degrades to one chosen option).
+      | IMessageToolGroupConfirmationDetailsBase<
+          'question',
+          {
+            question: string;
+            header?: string;
+            options: Array<{ label: string; description: string; preview?: string }>;
+          }
         >;
   }>
 >;
@@ -552,6 +565,32 @@ export interface IConfirmation<Option extends any = any> {
    * Used for "always allow" permission memory
    */
   commandType?: string;
+}
+
+/**
+ * #504 AskUserQuestion answer channel.
+ *
+ * A confirmation option's `value` is a plain string sent verbatim back to the
+ * agent manager as the confirm outcome. For AskUserQuestion prompts we need to
+ * carry WHICH choice the user picked (its label) rather than a generic
+ * allow/deny outcome. We encode the chosen label into the option value with a
+ * sentinel prefix so `WCoreManager.confirm` can distinguish an ask_user answer
+ * from a normal ToolConfirmationOutcome and thread it back through
+ * `tool_approve.answer`.
+ *
+ * These helpers live in `common/` (not `WCoreManager`) because the renderer
+ * (MessageToolGroup) must encode option values and cannot import the
+ * node-dependent manager module.
+ */
+export const ASK_USER_ANSWER_PREFIX = 'ask_user_answer::';
+
+export function encodeAskUserAnswer(label: string): string {
+  return ASK_USER_ANSWER_PREFIX + label;
+}
+
+/** Returns the decoded label if `value` is an ask_user answer, else `null`. */
+export function decodeAskUserAnswer(value: string): string | null {
+  return value.startsWith(ASK_USER_ANSWER_PREFIX) ? value.slice(ASK_USER_ANSWER_PREFIX.length) : null;
 }
 
 /**

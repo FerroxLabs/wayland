@@ -18,7 +18,12 @@
 // Agent -> Client Events (stdout)
 // ============================================
 
-export type ToolCategory = 'info' | 'edit' | 'exec' | 'mcp';
+// `question` (#504): AskUserQuestion-class tools that present a structured
+// multiple-choice prompt. The shipped engine (≤0.12.x) still tags
+// AskUserQuestion as `info` (ask_user_question.rs category() -> Info), so the
+// host detects it by tool name too (see mapConfirmationDetails). This variant
+// is forward-additive for when the engine starts emitting `question` directly.
+export type ToolCategory = 'info' | 'edit' | 'exec' | 'mcp' | 'question';
 
 export type ToolInfo = {
   name: string;
@@ -290,7 +295,12 @@ export type WCoreEvent =
 export type WCoreCommand =
   | { type: 'message'; msg_id: string; content: string; files?: string[] }
   | { type: 'stop' }
-  | { type: 'tool_approve'; call_id: string; scope: 'once' | 'always' }
+  // `answer` (#504) carries the user's AskUserQuestion choice back through the
+  // approval channel. Engine v0.9.3+ (`ToolApprove.answer: Option<String>`,
+  // wcore-protocol/commands.rs) synthesizes the tool result from it; pre-v0.9.3
+  // engines ignore the extra field (serde default), so this is safe to always
+  // omit when absent.
+  | { type: 'tool_approve'; call_id: string; scope: 'once' | 'always'; answer?: string }
   | { type: 'tool_deny'; call_id: string; reason?: string }
   // W7 S4 HITL: resume a suspended turn waiting on an `approval_required`.
   // Engine-side resolve is idempotent — a stale/duplicate token is ignored.

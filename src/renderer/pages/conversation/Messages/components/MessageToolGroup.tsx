@@ -7,6 +7,7 @@
 import { Copy, Download, Loader2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IMessageToolGroup } from '@/common/chat/chatLib';
+import { encodeAskUserAnswer } from '@/common/chat/chatLib';
 import { iconColors } from '@/renderer/styles/colors';
 import { Alert, Button, Image, Message, Radio, Tag, Tooltip } from '@arco-design/web-react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
@@ -44,7 +45,9 @@ const useConfirmationButtons = (
   return useMemo(() => {
     if (!confirmationDetails) return {};
     let question: string;
-    const options: Array<{ label: string; value: ToolConfirmationOutcome }> = [];
+    // Value is usually a ToolConfirmationOutcome, but AskUserQuestion (#504)
+    // options carry the encoded choice label instead.
+    const options: Array<{ label: string; value: ToolConfirmationOutcome | string }> = [];
     switch (confirmationDetails.type) {
       case 'edit':
         {
@@ -92,6 +95,21 @@ const useConfirmationButtons = (
             },
             { label: t('messages.confirmation.no'), value: ToolConfirmationOutcome.Cancel }
           );
+        }
+        break;
+      case 'question':
+        {
+          // #504: AskUserQuestion — render each choice as a selectable option.
+          question = confirmationDetails.header
+            ? `${confirmationDetails.header} — ${confirmationDetails.question}`
+            : confirmationDetails.question;
+          for (const opt of confirmationDetails.options) {
+            options.push({
+              label: opt.description ? `${opt.label} — ${opt.description}` : opt.label,
+              value: encodeAskUserAnswer(opt.label),
+            });
+          }
+          options.push({ label: t('messages.confirmation.no'), value: ToolConfirmationOutcome.Cancel });
         }
         break;
       default: {
@@ -154,9 +172,13 @@ const EditConfirmationDiff: React.FC<{ diff: string; fileName: string; title: st
   );
 };
 
-const ConfirmationDetails: React.FC<{
+// Exported for #504 render tests (asserts AskUserQuestion choices render and
+// are selectable). Not part of the module's public UI surface otherwise.
+export const ConfirmationDetails: React.FC<{
   content: IMessageToolGroupProps['message']['content'][number];
-  onConfirm: (outcome: ToolConfirmationOutcome) => void;
+  // AskUserQuestion (#504) sends an encoded choice label rather than a
+  // ToolConfirmationOutcome; both go over the same confirm channel as strings.
+  onConfirm: (outcome: ToolConfirmationOutcome | string) => void;
 }> = ({ content, onConfirm }) => {
   const { t } = useTranslation();
   const { confirmationDetails } = content;
@@ -178,12 +200,16 @@ const ConfirmationDetails: React.FC<{
         return <span className='text-t-primary'>{confirmationDetails.prompt}</span>;
       case 'mcp':
         return <span className='text-t-primary'>{confirmationDetails.toolDisplayName}</span>;
+      case 'question':
+        // The question text is rendered once as the prompt line below (built by
+        // useConfirmationButtons); no separate body node to avoid duplication.
+        return null;
     }
   }, [confirmationDetails]);
 
   const { question = '', options = [] } = useConfirmationButtons(confirmationDetails, t);
 
-  const [selected, setSelected] = useState<ToolConfirmationOutcome | null>(null);
+  const [selected, setSelected] = useState<ToolConfirmationOutcome | string | null>(null);
 
   const isConfirm = content.status === 'Confirming';
 
@@ -543,11 +569,7 @@ const MessageToolGroup: React.FC<IMessageToolGroupProps> = ({ message }) => {
                       ? 'warning'
                       : 'info'
               }
-              icon={
-                isLoading && (
-                  <Loader2 size={12} color={iconColors.primary} className='loading lh-[1] flex' />
-                )
-              }
+              icon={isLoading && <Loader2 size={12} color={iconColors.primary} className='loading lh-[1] flex' />}
               content={
                 <div>
                   <Tag className={'mr-4px'}>

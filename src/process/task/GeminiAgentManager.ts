@@ -7,7 +7,7 @@
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { ipcBridge } from '@/common';
 import type { CronMessageMeta, IMessageText, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
-import { transformMessage } from '@/common/chat/chatLib';
+import { transformMessage, encodeAskUserAnswer, decodeAskUserAnswer } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
 import { ProcessConfig, getSkillsDir } from '@process/utils/initStorage';
@@ -621,8 +621,10 @@ export class GeminiAgentManager extends BaseAgentManager<
     let question: string;
     let description: string;
     const options: Array<{
+      // #504: AskUserQuestion options carry an encoded choice label; all other
+      // confirmations use a ToolConfirmationOutcome.
       label: string;
-      value: ToolConfirmationOutcome;
+      value: ToolConfirmationOutcome | string;
       params?: Record<string, string>;
     }> = [];
     switch (confirmationDetails.type) {
@@ -684,6 +686,24 @@ export class GeminiAgentManager extends BaseAgentManager<
               value: ToolConfirmationOutcome.Cancel,
             }
           );
+        }
+        break;
+      case 'question':
+        {
+          // #504: AskUserQuestion — one selectable option per choice plus a
+          // Cancel. Each option value carries the encoded choice label so the
+          // manager threads it back through the approval channel.
+          question = confirmationDetails.question;
+          description = confirmationDetails.header
+            ? `${confirmationDetails.header}\n\n${confirmationDetails.question}`
+            : confirmationDetails.question;
+          for (const opt of confirmationDetails.options) {
+            options.push({
+              label: opt.description ? `${opt.label} — ${opt.description}` : opt.label,
+              value: encodeAskUserAnswer(opt.label),
+            });
+          }
+          options.push({ label: t('messages.confirmation.no'), value: ToolConfirmationOutcome.Cancel });
         }
         break;
       default: {
@@ -1188,8 +1208,12 @@ export class GeminiAgentManager extends BaseAgentManager<
     }
 
     super.confirm(id, callId, data);
-    // Send confirmation to worker, using callId as message type
-    return this.postMessagePromise(callId, data);
+    // #504: AskUserQuestion is a wcore-only tool, so a `question` confirmation
+    // never reaches this manager in practice. Decode defensively anyway so an
+    // encoded answer value is never forwarded raw (kept symmetric with
+    // WCoreManager.confirm); a normal outcome decodes to null and passes through.
+    const answer = decodeAskUserAnswer(data);
+    return this.postMessagePromise(callId, answer ?? data);
   }
 
   // Manually trigger context reload
