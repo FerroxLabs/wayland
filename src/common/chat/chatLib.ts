@@ -226,6 +226,19 @@ export type IMessageToolGroup = IMessage<
             toolDisplayName: string;
             serverName: string;
           }
+        >
+      // #504: AskUserQuestion-class prompt. The engine sends these as an `info`
+      // category tool named `AskUserQuestion` (there is no `question` engine
+      // ToolCategory), with the prompt buried in args - so wcore/index.ts
+      // detects them by name and lifts `question`/`header`/`choices` out of the
+      // args here, and the renderer shows the choices as selectable answers.
+      | IMessageToolGroupConfirmationDetailsBase<
+          'question',
+          {
+            question: string;
+            header?: string;
+            choices: Array<{ label: string; description?: string }>;
+          }
         >;
   }>
 >;
@@ -546,6 +559,14 @@ export interface IConfirmation<Option extends any = any> {
     label: string;
     value: Option;
     params?: Record<string, string>; // Translation interpolation parameters
+    /**
+     * #504: for an AskUserQuestion prompt, the chosen option's answer text sent
+     * back to the engine via the approval channel (tool_approve.answer). Absent
+     * for ordinary approve/deny options.
+     */
+    answer?: string;
+    /** #504: optional secondary line shown under a choice (its description). */
+    description?: string;
   }>;
   /**
    * Command type for exec confirmations (e.g., 'curl', 'npm', 'git')

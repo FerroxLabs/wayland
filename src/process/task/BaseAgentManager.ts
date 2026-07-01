@@ -66,8 +66,10 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
       const autoOption = data.options[0];
 
       // Delay slightly to allow the agent to reach a stable state if needed
+      // (#504: pass the option's answer so a yolo-auto-confirmed question sends
+      // the first choice instead of an empty answer the engine would error on).
       setTimeout(() => {
-        void this.confirm(data.id, data.callId, autoOption.value);
+        void this.confirm(data.id, data.callId, autoOption.value, autoOption.answer);
       }, 50);
       return;
     }
@@ -81,7 +83,9 @@ class BaseAgentManager<Data, ConfirmationOption extends any = any>
     this.confirmations = [...this.confirmations, data];
     this.emitter.emitConfirmationAdd(this.conversation_id, data);
   }
-  confirm(_msg_id: string, callId: string, _data: ConfirmationOption) {
+  // #504: `_answer` threads an AskUserQuestion choice back through subclasses
+  // that support it (WCoreManager); ignored by the rest.
+  confirm(_msg_id: string, callId: string, _data: ConfirmationOption, _answer?: string) {
     // Find the confirmation to remove (match by callId)
     const confirmationToRemove = this.confirmations.find((p) => p.callId === callId);
 

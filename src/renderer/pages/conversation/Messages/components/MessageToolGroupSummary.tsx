@@ -40,6 +40,7 @@ const ToolGroupMapper = (m: IMessageToolGroup): ToolItem[] => {
     if (type === 'exec') desc = confirmationDetails.command;
     if (type === 'info') desc = confirmationDetails.urls?.join(';') || confirmationDetails.title;
     if (type === 'mcp') desc = confirmationDetails.serverName + ':' + confirmationDetails.toolName;
+    if (type === 'question') desc = confirmationDetails.question; // #504
 
     // Input: use full description (for error it's JSON.stringify(args), for success it's invocation description)
     // When confirmationDetails exists (Confirming state), use structured details instead

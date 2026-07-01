@@ -504,10 +504,22 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     const type = content.confirmationDetails?.type;
 
     if (this.currentMode === 'yolo') {
-      this.agent?.approveTool(content.callId, 'once');
+      // #504: a question needs an answer, not a bare approval - approving an
+      // AskUserQuestion with no answer makes the engine run its loud-defensive
+      // execute() fallback and error. In full-auto, pick the first choice so
+      // the turn proceeds instead of wedging.
+      if (type === 'question') {
+        const first =
+          content.confirmationDetails?.type === 'question' ? content.confirmationDetails.choices[0] : undefined;
+        this.agent?.approveTool(content.callId, 'once', first?.label);
+      } else {
+        this.agent?.approveTool(content.callId, 'once');
+      }
       return true;
     }
     if (this.currentMode === 'auto_edit') {
+      // Never auto-answer a question - it requires a real user choice, so it
+      // falls through to the confirmation dialog.
       if (type === 'edit' || type === 'info') {
         this.agent?.approveTool(content.callId, 'once');
         return true;
@@ -533,18 +545,32 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         continue;
       }
 
-      // Show confirmation dialog to user
-      const options = [
-        { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
-        { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
-        { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
-      ];
+      // Show confirmation dialog to user. #504: an AskUserQuestion renders its
+      // choices as the options (each carries its `answer` label back to the
+      // engine), instead of the generic allow/deny buttons.
+      const details = content.confirmationDetails;
+      const options =
+        details?.type === 'question'
+          ? [
+              ...details.choices.map((choice) => ({
+                label: choice.label,
+                value: ToolConfirmationOutcome.ProceedOnce,
+                answer: choice.label,
+                ...(choice.description ? { description: choice.description } : {}),
+              })),
+              { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+            ]
+          : [
+              { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
+              { label: 'messages.confirmation.yesAllowAlways', value: ToolConfirmationOutcome.ProceedAlways },
+              { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+            ];
 
       this.addConfirmation({
-        title: content.confirmationDetails?.title || content.name || '',
+        title: (details?.type === 'question' ? details.question : details?.title) || content.name || '',
         id: content.callId,
         action,
-        description: content.description || '',
+        description: (details?.type === 'question' ? details.header : content.description) || '',
         callId: content.callId,
         options,
         commandType,
@@ -1365,7 +1391,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  confirm(id: string, callId: string, data: string) {
+  confirm(id: string, callId: string, data: string, answer?: string) {
     // Store "always allow" in approval store
     if (data === ToolConfirmationOutcome.ProceedAlways) {
       const confirmation = this.confirmations.find((c) => c.callId === callId);
@@ -1382,7 +1408,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.agent.denyTool(callId, 'User cancelled');
       } else {
         const scope = data === ToolConfirmationOutcome.ProceedAlways ? 'always' : 'once';
-        this.agent.approveTool(callId, scope);
+        // #504: `answer` carries the picked AskUserQuestion choice back to the
+        // engine (undefined for a plain approval).
+        this.agent.approveTool(callId, scope, answer);
       }
     }
   }

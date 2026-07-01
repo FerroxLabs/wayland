@@ -17,6 +17,7 @@ import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { killChild } from '@process/agent/acp/utils';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
+import { parseQuestionTool } from './questionTool';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
 
@@ -742,6 +743,15 @@ export class WCoreAgent {
   private mapConfirmationDetails(event: WCoreEvent & { type: 'tool_request' }) {
     const { tool } = event;
 
+    // #504: AskUserQuestion arrives as an `info`-category tool (the engine has
+    // no `question` ToolCategory), with the question + choices inside args. It
+    // used to fall through to the `info` branch and render an empty approval
+    // box. Detect it by name and lift the choices out so the renderer can show
+    // them as selectable answers. The name guard mirrors the engine's own
+    // answer-synth guard (tool_name == "AskUserQuestion").
+    const question = parseQuestionTool(tool);
+    if (question) return question;
+
     switch (tool.category) {
       case 'edit':
         return {
@@ -799,8 +809,11 @@ export class WCoreAgent {
     this.sendCommand({ type: 'stop' });
   }
 
-  approveTool(callId: string, scope: 'once' | 'always' = 'once'): void {
-    this.sendCommand({ type: 'tool_approve', call_id: callId, scope });
+  approveTool(callId: string, scope: 'once' | 'always' = 'once', answer?: string): void {
+    // `answer` carries an AskUserQuestion choice back through the approval
+    // channel (see WCoreCommand.tool_approve). Only attach when present so a
+    // plain approval keeps its exact prior wire shape.
+    this.sendCommand({ type: 'tool_approve', call_id: callId, scope, ...(answer ? { answer } : {}) });
   }
 
   denyTool(callId: string, reason = ''): void {

@@ -143,6 +143,7 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
         callId: confirmation.callId,
         msg_id: confirmation.id,
         data: option.value,
+        answer: option.answer, // #504: the picked AskUserQuestion choice
       });
     };
 
@@ -272,9 +273,13 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
           <div className='shrink-0'>
             {confirmation.options.map((option, index) => {
               const label = $t(option.label, option.params);
-              // Determine shortcut hint for this option
-              const shortcut =
-                index === 0
+              // #504: an AskUserQuestion choice carries an `answer`; number those
+              // so the 1-9 keyboard shortcuts line up. Ordinary approve/deny keep
+              // their Enter/Y/A/Esc hints.
+              const isChoice = option.answer != null;
+              const shortcut = isChoice
+                ? String(index + 1)
+                : index === 0
                   ? 'Enter'
                   : option.value === 'cancel'
                     ? 'Esc'
@@ -293,15 +298,21 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
                       callId: confirmation.callId,
                       msg_id: confirmation.id,
                       data: option.value,
+                      answer: option.answer, // #504: the picked AskUserQuestion choice
                     });
                   }}
                   key={label + option.value + index}
-                  className='b-1px b-solid min-h-30px b-[var(--border-base)] rd-8px px-12px py-6px leading-snug hover:bg-[var(--bg-hover)] cursor-pointer mt-10px flex items-center gap-8px color-[var(--text-primary)]'
+                  className='b-1px b-solid min-h-30px b-[var(--border-base)] rd-8px px-12px py-6px leading-snug hover:bg-[var(--bg-hover)] cursor-pointer mt-10px flex items-start gap-8px color-[var(--text-primary)]'
                 >
-                  <span className='inline-flex items-center justify-center px-4px h-18px rd-4px bg-[var(--bg-2)] text-11px text-[var(--text-secondary)] font-mono shrink-0'>
+                  <span className='inline-flex items-center justify-center px-4px h-18px rd-4px bg-[var(--bg-2)] text-11px text-[var(--text-secondary)] font-mono shrink-0 mt-1px'>
                     {shortcut}
                   </span>
-                  <span className='min-w-0'>{label}</span>
+                  <span className='min-w-0'>
+                    <span>{label}</span>
+                    {option.description && (
+                      <span className='block text-12px color-[var(--text-secondary)] mt-2px'>{option.description}</span>
+                    )}
+                  </span>
                 </div>
               );
             })}

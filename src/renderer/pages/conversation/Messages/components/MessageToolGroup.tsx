@@ -94,6 +94,13 @@ const useConfirmationButtons = (
           );
         }
         break;
+      case 'question':
+        // #504: an AskUserQuestion is answered in the confirmation dialog
+        // (ConversationChatConfirm), whose options carry the choice's `answer`
+        // back to the engine. The inline card only displays the question +
+        // choices (see the `node` switch), so no inline buttons here.
+        question = '';
+        break;
       default: {
         const mcpProps = confirmationDetails;
         question = t('messages.confirmation.allowMCPTool', {
@@ -178,6 +185,22 @@ const ConfirmationDetails: React.FC<{
         return <span className='text-t-primary'>{confirmationDetails.prompt}</span>;
       case 'mcp':
         return <span className='text-t-primary'>{confirmationDetails.toolDisplayName}</span>;
+      case 'question':
+        // #504: show the question and its choices (read-only). The actual pick
+        // is made in the confirmation dialog, which returns the chosen answer.
+        return (
+          <div className='text-t-primary'>
+            <div className='font-medium'>{confirmationDetails.question}</div>
+            <ul className='mt-6px pl-18px list-disc'>
+              {confirmationDetails.choices.map((choice, i) => (
+                <li key={choice.label + i}>
+                  <span>{choice.label}</span>
+                  {choice.description && <span className='text-t-secondary'> — {choice.description}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
     }
   }, [confirmationDetails]);
 
@@ -198,7 +221,7 @@ const ConfirmationDetails: React.FC<{
       ) : (
         node
       )}
-      {content.status === 'Confirming' && (
+      {content.status === 'Confirming' && confirmationDetails.type !== 'question' && (
         <>
           <div className='mt-10px text-t-primary'>{question}</div>
           <Radio.Group direction='vertical' size='mini' value={selected} onChange={setSelected}>
@@ -543,11 +566,7 @@ const MessageToolGroup: React.FC<IMessageToolGroupProps> = ({ message }) => {
                       ? 'warning'
                       : 'info'
               }
-              icon={
-                isLoading && (
-                  <Loader2 size={12} color={iconColors.primary} className='loading lh-[1] flex' />
-                )
-              }
+              icon={isLoading && <Loader2 size={12} color={iconColors.primary} className='loading lh-[1] flex' />}
               content={
                 <div>
                   <Tag className={'mr-4px'}>
