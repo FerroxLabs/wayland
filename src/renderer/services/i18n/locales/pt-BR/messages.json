@@ -1,6 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "Esta resposta parou cedo demais - o modelo esgotou seu espaço enquanto pensava e não chegou a responder. Tente novamente com mais espaço ou troque para um modelo com mais margem de raciocínio.",
-  "truncation.budgetExhausted.action": "Continuar com mais espaço",
+  "truncation.budgetExhausted.body": "Esta resposta parou antes de terminar. Continue para retomar exatamente de onde parou — o modelo mantém o trabalho que já fez.",
+  "truncation.budgetExhausted.action": "Continuar",
   "fileChanges": "Alterações de Arquivos",
   "fileChangesCount": "{{count}} Alterações de Arquivos",
   "conversationInProgress": "Uma conversa está em andamento...",

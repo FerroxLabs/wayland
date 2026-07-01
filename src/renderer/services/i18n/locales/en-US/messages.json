@@ -1,6 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "This reply stopped early - the model used up its room while thinking and didn't get to the answer. Try again with more headroom, or switch to a model with more reasoning room.",
-  "truncation.budgetExhausted.action": "Continue with more headroom",
+  "truncation.budgetExhausted.body": "This reply stopped early before finishing. Continue to pick up exactly where it left off — the model keeps the work it already did.",
+  "truncation.budgetExhausted.action": "Continue",
   "fileChanges": "File Changes",
   "fileChangesCount": "{{count}} File Changes",
   "conversationInProgress": "A conversation is currently in progress...",

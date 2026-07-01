@@ -178,12 +178,7 @@ function emitEvent(manager: WCoreManager, event: Record<string, unknown>) {
 function truncationEmits(): Array<{ data: { content?: string; truncatedDueToBudget?: boolean } }> {
   return emitResponseStream.mock.calls
     .map(([msg]) => msg)
-    .filter(
-      (m: any) =>
-        m?.type === 'content' &&
-        typeof m.data === 'object' &&
-        m.data?.truncatedDueToBudget === true
-    );
+    .filter((m: any) => m?.type === 'content' && typeof m.data === 'object' && m.data?.truncatedDueToBudget === true);
 }
 
 // ── Tests ──────────────────────────────────────────────────────────
@@ -226,6 +221,30 @@ describe('finish_reason: length - truncation flag plumbing', () => {
       .map(([, msg]) => msg)
       .filter((m: any) => m?.type === 'text' && m.content?.truncatedDueToBudget === true);
     expect(persistedTrunc.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('flags truncation when finish_reason=max_turns even with substantial content (#457)', async () => {
+    // A MaxTurns stop is continuable but NOT empty/near-budget, so only the
+    // explicit finish_reason path can catch it. Once Core emits a distinct
+    // 'max_turns' value, the Continue banner must still show.
+    manager = createManager(32768);
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-mt' });
+    emitEvent(manager, {
+      type: 'content',
+      data: 'Did step 1 and 2, ran out of turns before step 3.',
+      msg_id: 'msg-mt',
+    });
+    emitEvent(manager, {
+      type: 'finish',
+      data: { input_tokens: 100, output_tokens: 40, finish_reason: 'max_turns' },
+      msg_id: 'msg-mt',
+    });
+
+    await vi.advanceTimersByTimeAsync(200);
+
+    const flagged = truncationEmits();
+    expect(flagged).toHaveLength(1);
+    expect(flagged[0].data.truncatedDueToBudget).toBe(true);
   });
 
   it('does NOT flag truncation when finish_reason=stop (normal completion)', async () => {

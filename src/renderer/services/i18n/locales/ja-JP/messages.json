@@ -1,6 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "この応答は途中で止まりました - モデルが考えている間に余裕を使い切り、回答までたどり着けませんでした。より多くの余裕でもう一度試すか、推論の余裕がより大きいモデルに切り替えてください。",
-  "truncation.budgetExhausted.action": "より多くの余裕で続ける",
+  "truncation.budgetExhausted.body": "この応答は完了する前に途中で止まりました。「続ける」を押すと中断したところから再開し、モデルはすでに行った作業を保持します。",
+  "truncation.budgetExhausted.action": "続ける",
   "fileChanges": "ファイル変更",
   "fileChangesCount": "{{count}} 件のファイル変更",
   "conversationInProgress": "現在、会話中です...",

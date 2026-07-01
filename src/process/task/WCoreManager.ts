@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import type { IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
+import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
@@ -346,11 +347,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       try {
         const historyDb = await getDatabase();
         const history = historyDb.getConversationMessages(this.conversation_id, 0, 10000);
-        const lines = (history.data ?? [])
-          .filter((m): m is Extract<TMessage, { type: 'text' }> => m.type === 'text')
-          .slice(-20)
-          .map((m) => `${m.position === 'right' ? 'User' : 'Assistant'}: ${m.content.content || ''}`);
-        const text = lines.join('\n').slice(-4000);
+        // #457: retain tool/file-edit history (not just text) so a rebuilt
+        // session keeps the in-progress work instead of restarting from scratch.
+        const text = buildResumeSeedTranscript((history.data ?? []) as TMessage[]);
         if (text) await agent.injectConversationHistory(text);
       } catch {
         // Best-effort: resume still proceeds without seeded history.
@@ -710,7 +709,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * budget. Two detection paths:
    *
    *   1. Explicit: wayland-core ≥0.2 (Task F engine-side fix) emits
-   *      `finish_reason: 'length'` in stream_end. Definitive.
+   *      `finish_reason: 'length'` in stream_end. Definitive. #457: also treat
+   *      a distinct `'max_turns'` value (once Core emits it; engine currently
+   *      maps MaxTurns->length) as truncated/continuable - a turn-cap stop is
+   *      NOT empty/near-budget, so only this explicit path can catch it; without
+   *      it the Continue banner would never show on a max-turns stop.
    *   2. Heuristic: wayland-core ≤0.1.21 doesn't emit finish_reason, so we infer
    *      truncation when `output_tokens` is at or above 95% of the configured
    *      `maxTokens` AND the visible content is empty/very short. This catches
@@ -721,7 +724,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (!data || typeof data !== 'object') return false;
     const d = data as { finish_reason?: string; output_tokens?: number };
 
-    if (d.finish_reason === 'length') return true;
+    if (d.finish_reason === 'length' || d.finish_reason === 'max_turns') return true;
 
     const maxTokens = this.data.data.maxTokens;
     if (!maxTokens || typeof d.output_tokens !== 'number') return false;

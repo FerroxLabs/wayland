@@ -1,6 +1,6 @@
 {
-  "truncation.budgetExhausted.body": "Esta respuesta se detuvo antes de tiempo - el modelo agotó su margen mientras pensaba y no llegó a responder. Vuelve a intentarlo con más margen o cambia a un modelo con más margen de razonamiento.",
-  "truncation.budgetExhausted.action": "Continuar con más margen",
+  "truncation.budgetExhausted.body": "Esta respuesta se detuvo antes de terminar. Continúa para retomar justo donde se quedó; el modelo conserva el trabajo que ya hizo.",
+  "truncation.budgetExhausted.action": "Continuar",
   "fileChanges": "Cambios en archivos",
   "fileChangesCount": "{{count}} cambios en archivos",
   "conversationInProgress": "Hay una conversación en curso...",

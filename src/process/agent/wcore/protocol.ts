@@ -74,8 +74,16 @@ export type WCoreCapabilities = {
   gepa_enabled?: boolean;
 };
 
-/** `stream_end.finish_reason` - required field in v0.2.x engine; absent on ≤0.1.21. */
-export type FinishReason = 'stop' | 'length' | 'error';
+/**
+ * `stream_end.finish_reason` - required field in v0.2.x engine; absent on ≤0.1.21.
+ *
+ * #457: `'max_turns'` is forward-additive. Today the engine maps a MaxTurns stop
+ * to `'length'` (engine.rs MaxTurns->length), making "needs more turns"
+ * indistinguishable from token truncation and surfacing the wrong remedy. The
+ * engine (Rust) leg to emit a distinct `'max_turns'` is owned by Core; the
+ * desktop tolerates and surfaces it here the moment Core ships it.
+ */
+export type FinishReason = 'stop' | 'length' | 'error' | 'max_turns';
 
 /** Circuit breaker states emitted by `provider_circuit_event`. */
 export type CircuitState = 'closed' | 'open' | 'half_open';

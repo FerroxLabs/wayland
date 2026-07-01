@@ -28,6 +28,23 @@ import { iconColors } from '@/renderer/styles/colors';
 export const CHAT_RETRY_EVENT = 'wl:chat-retry';
 export type ChatRetryDetail = { conversationId?: string; text: string };
 
+/**
+ * #457 True Continue: dispatched by the truncation/max-turns Continue action.
+ * The active sendbox listens and sends {@link CONTINUE_DIRECTIVE} into the SAME
+ * conversation (the engine holds the live transcript) - it is NOT a re-send of
+ * the original prompt, which would restart the task and lose in-progress work.
+ */
+export const CHAT_CONTINUE_EVENT = 'wl:chat-continue';
+export type ChatContinueDetail = { conversationId?: string };
+
+/**
+ * Canonical continuation directive sent verbatim into the live engine session
+ * so it resumes the in-progress turn instead of restarting. Mirrors the
+ * hermes-agent continuation prompt. Intentionally a fixed instruction to the
+ * model (not user-facing UI copy), so it is a code constant, not an i18n key.
+ */
+export const CONTINUE_DIRECTIVE = 'Continue exactly where you left off. Do not restart or repeat completed work.';
+
 /** Dispatched by the user-message Edit+Save flow; the active sendbox listens and re-runs the turn. */
 export const EDIT_AND_RERUN_EVENT = 'wl:chat-edit-rerun';
 export type ChatEditRerunDetail = { conversationId: string; afterTimestamp: number; text: string };

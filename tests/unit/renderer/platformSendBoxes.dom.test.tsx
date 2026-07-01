@@ -389,6 +389,11 @@ vi.mock('react-i18next', () => ({
 
 import AcpSendBox from '@/renderer/pages/conversation/platforms/acp/AcpSendBox';
 import WCoreSendBox from '@/renderer/pages/conversation/platforms/wcore/WCoreSendBox';
+import {
+  CHAT_CONTINUE_EVENT,
+  CHAT_RETRY_EVENT,
+  CONTINUE_DIRECTIVE,
+} from '@/renderer/pages/conversation/Messages/components/MessageActions';
 import GeminiSendBox from '@/renderer/pages/conversation/platforms/gemini/GeminiSendBox';
 import NanobotSendBox from '@/renderer/pages/conversation/platforms/nanobot/NanobotSendBox';
 import OpenClawSendBox from '@/renderer/pages/conversation/platforms/openclaw/OpenClawSendBox';
@@ -740,6 +745,74 @@ describe('platform send box queue integration', () => {
       conversation_id: 'conv-acp',
       files: ['C:/workspace/uploads/photo.png'],
     });
+  });
+
+  // #457 True Continue: the Continue action resumes the live turn by sending a
+  // continuation DIRECTIVE into the SAME conversation - it must NOT re-send the
+  // original prompt (that restarts the task and loses in-progress work).
+  it('wcore Continue sends the continuation directive, not the original prompt', async () => {
+    const ORIGINAL_PROMPT = 'Refactor the entire auth module and write tests';
+    render(
+      <WCoreSendBox
+        conversation_id='conv-wcore'
+        modelSelection={{
+          currentModel: { useModel: 'wcore-1' },
+          getDisplayModelName: (modelId: string) => modelId,
+        }}
+      />
+    );
+
+    window.dispatchEvent(new CustomEvent(CHAT_CONTINUE_EVENT, { detail: { conversationId: 'conv-wcore' } }));
+
+    await waitFor(() => {
+      expect(mockConversationSendInvoke).toHaveBeenCalledTimes(1);
+    });
+
+    const payload = mockConversationSendInvoke.mock.calls[0]?.[0] as { input: string; conversation_id: string };
+    expect(payload.input).toBe(CONTINUE_DIRECTIVE);
+    expect(payload.input).not.toBe(ORIGINAL_PROMPT);
+    expect(payload.conversation_id).toBe('conv-wcore');
+  });
+
+  it('wcore Continue is scoped by conversation id (ignores events for other tabs)', async () => {
+    render(
+      <WCoreSendBox
+        conversation_id='conv-wcore'
+        modelSelection={{
+          currentModel: { useModel: 'wcore-1' },
+          getDisplayModelName: (modelId: string) => modelId,
+        }}
+      />
+    );
+
+    window.dispatchEvent(new CustomEvent(CHAT_CONTINUE_EVENT, { detail: { conversationId: 'some-other-conv' } }));
+
+    // Give any (incorrect) async dispatch a chance to fire.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockConversationSendInvoke).not.toHaveBeenCalled();
+  });
+
+  it('wcore Retry still re-sends the original prompt (unchanged behavior)', async () => {
+    const ORIGINAL_PROMPT = 'do the thing again';
+    render(
+      <WCoreSendBox
+        conversation_id='conv-wcore'
+        modelSelection={{
+          currentModel: { useModel: 'wcore-1' },
+          getDisplayModelName: (modelId: string) => modelId,
+        }}
+      />
+    );
+
+    window.dispatchEvent(
+      new CustomEvent(CHAT_RETRY_EVENT, { detail: { conversationId: 'conv-wcore', text: ORIGINAL_PROMPT } })
+    );
+
+    await waitFor(() => {
+      expect(mockConversationSendInvoke).toHaveBeenCalledTimes(1);
+    });
+    const payload = mockConversationSendInvoke.mock.calls[0]?.[0] as { input: string };
+    expect(payload.input).toBe(ORIGINAL_PROMPT);
   });
 
   it('blocks OpenClaw dispatch when runtime validation fails', async () => {
