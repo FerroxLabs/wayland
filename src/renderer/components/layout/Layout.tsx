@@ -35,7 +35,11 @@ import { getAgentKey } from '@renderer/pages/guid/hooks/agentSelectionUtils';
 import type { AcpBackend } from '@/common/types/acpTypes';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { useIsPopoutMode } from '@renderer/hooks/system/useIsPopoutMode';
-import { computeCssSyncDecision, resolveCssByActiveTheme } from '@renderer/utils/theme/themeCssSync';
+import {
+  computeCssSyncDecision,
+  resolveCssByActiveTheme,
+  setExtensionThemesCache,
+} from '@renderer/utils/theme/themeCssSync';
 import '@renderer/styles/layout.css';
 
 // DevTools escape hatch: the only way to open Chrome DevTools in a packaged
@@ -225,11 +229,17 @@ const Layout: React.FC<{
 
   const loadAndHealCustomCss = useCallback(async () => {
     try {
-      const [savedCssRaw, activeThemeId, savedThemes] = await Promise.all([
+      const [savedCssRaw, activeThemeId, savedThemes, extensionThemes] = await Promise.all([
         ConfigStorage.get('customCss'),
         ConfigStorage.get('css.activeThemeId'),
         ConfigStorage.get('css.themes'),
+        ipcBridge.extensions.getThemes.invoke().catch((error) => {
+          console.warn('Failed to load extension themes:', error);
+          return [] as ICssTheme[];
+        }),
       ]);
+
+      setExtensionThemesCache(Array.isArray(extensionThemes) ? extensionThemes : []);
 
       const decision = computeCssSyncDecision({
         savedCss: savedCssRaw || '',
@@ -293,10 +303,14 @@ const Layout: React.FC<{
 
     window.addEventListener('custom-css-updated', handleCssUpdate as EventListener);
     window.addEventListener('storage', handleStorageChange);
+    const unsubscribeExtensions = ipcBridge.extensions.stateChanged.on(() => {
+      void loadAndHealCustomCss();
+    });
 
     return () => {
       window.removeEventListener('custom-css-updated', handleCssUpdate as EventListener);
       window.removeEventListener('storage', handleStorageChange);
+      unsubscribeExtensions();
     };
   }, [loadAndHealCustomCss]);
 
@@ -658,13 +672,16 @@ const Layout: React.FC<{
               </ArcoLayout.Header>
               <ArcoLayout.Content className='pt-8px px-8px pb-0 layout-sider-content'>
                 {React.isValidElement(sider)
-                  ? React.cloneElement(sider as React.ReactElement<{ onSessionClick?: () => void; collapsed?: boolean }>, {
-                      onSessionClick: () => {
-                        cleanupSiderTooltips();
-                        if (isMobile) setCollapsed(true);
-                      },
-                      collapsed,
-                    })
+                  ? React.cloneElement(
+                      sider as React.ReactElement<{ onSessionClick?: () => void; collapsed?: boolean }>,
+                      {
+                        onSessionClick: () => {
+                          cleanupSiderTooltips();
+                          if (isMobile) setCollapsed(true);
+                        },
+                        collapsed,
+                      }
+                    )
                   : sider}
               </ArcoLayout.Content>
               {!isMobile && (

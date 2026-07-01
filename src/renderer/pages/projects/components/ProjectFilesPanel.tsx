@@ -19,15 +19,16 @@ import { PreviewPanel, PreviewProvider, usePreviewContext } from '@/renderer/pag
 const FilesInner: React.FC<{ workspace: string; projectId: string }> = ({ workspace, projectId }) => {
   const { isOpen } = usePreviewContext();
   return (
-    <div className='flex h-full w-full overflow-hidden'>
+    <div className='flex h-full w-full overflow-hidden' data-appearance-role='project-files-panel'>
       <div
         className={isOpen ? 'w-340px flex-shrink-0 h-full overflow-hidden' : 'flex-1 h-full overflow-hidden'}
         style={isOpen ? { borderRight: '1px solid var(--color-border-2)' } : undefined}
+        data-appearance-role='project-files-tree'
       >
         <ChatWorkspace workspace={workspace} conversation_id={`project:${projectId}`} messageApi={Message} />
       </div>
       {isOpen && (
-        <div className='flex-1 min-w-0 h-full overflow-hidden'>
+        <div className='flex-1 min-w-0 h-full overflow-hidden' data-appearance-role='project-file-preview'>
           <PreviewPanel />
         </div>
       )}
