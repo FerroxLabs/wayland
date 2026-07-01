@@ -376,6 +376,7 @@ export interface IConfigStorageRefer {
    * src/common/config stays free of chat-feature deps.
    */
   'slash.customCommands'?: import('@/common/chat/slash/userCommands').UserSlashCommand[];
+  'slash.customAcronyms'?: import('@/common/chat/acronyms/userAcronyms').UserAcronym[];
   /**
    * Wayland Core "raw engine mode" power-user toggle. When true, the embedded
    * engine should run on its OWN `config.toml` and NOT be overridden with

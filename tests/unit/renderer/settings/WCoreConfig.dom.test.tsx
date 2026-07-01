@@ -8,12 +8,15 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // --- Hoist mocks ---
-const { mockNavigate, mockGetAvailableAgents, mockProviders, mockMcpServers } = vi.hoisted(() => ({
-  mockNavigate: vi.fn(),
-  mockGetAvailableAgents: vi.fn(),
-  mockProviders: { value: [] as Array<{ providerId: string }> },
-  mockMcpServers: { value: [] as Array<{ name: string; enabled?: boolean }> },
-}));
+const { mockNavigate, mockGetAvailableAgents, mockWcoreUpdateCheck, mockProviders, mockMcpServers } = vi.hoisted(
+  () => ({
+    mockNavigate: vi.fn(),
+    mockGetAvailableAgents: vi.fn(),
+    mockWcoreUpdateCheck: vi.fn(),
+    mockProviders: { value: [] as Array<{ providerId: string }> },
+    mockMcpServers: { value: [] as Array<{ name: string; enabled?: boolean }> },
+  })
+);
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
@@ -64,7 +67,7 @@ vi.mock('../../../../src/common', () => ({
     },
     // In-app engine updater (Overview pane "update available" card).
     wcoreUpdate: {
-      check: { invoke: () => Promise.resolve(null) },
+      check: { invoke: () => mockWcoreUpdateCheck() },
       install: { invoke: () => Promise.resolve({ ok: true }) },
       progress: { on: () => () => {} },
     },
@@ -95,6 +98,7 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
       success: true,
       data: [{ backend: 'wcore', name: 'Wayland Core', cliPath: '/usr/local/bin/wcore' }],
     });
+    mockWcoreUpdateCheck.mockResolvedValue(null);
   });
 
   it('renders the seven engine rail sections (no Constitution — engine has none)', () => {
@@ -189,6 +193,19 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
   it('shows the engine chip with the pinned version when running', async () => {
     render(<WCoreConfig />);
     await waitFor(() => expect(screen.getByText(/^engine running · v\d/)).toBeTruthy());
+  });
+
+  it('uses the updater current version ahead of the stale fallback', async () => {
+    mockWcoreUpdateCheck.mockResolvedValue({
+      current: '0.12.17',
+      latest: '0.12.17',
+      tag: 'v0.12.17',
+      updateAvailable: false,
+      htmlUrl: null,
+    });
+    render(<WCoreConfig />);
+    await waitFor(() => expect(screen.getByText('engine running · v0.12.17')).toBeTruthy());
+    expect(screen.getByText('v0.12.17')).toBeTruthy();
   });
 
   it('shows engine stopped when the wcore backend is absent', async () => {

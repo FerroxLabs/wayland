@@ -45,7 +45,9 @@ import { useGuidInput } from './hooks/useGuidInput';
 import { useGuidMention } from './hooks/useGuidMention';
 import { useGuidModelSelection } from './hooks/useGuidModelSelection';
 import { useGuidSend } from './hooks/useGuidSend';
+import { useExtensionAcronyms } from '@/renderer/hooks/chat/useExtensionAcronyms';
 import { useTypewriterPlaceholder } from './hooks/useTypewriterPlaceholder';
+import { expandExtensionAcronymPrompt } from '@/renderer/utils/chat/acronymPrompt';
 import { useWorkflowSession } from '@/renderer/hooks/workflow/useWorkflowSession';
 import type { WorkflowSession } from '@/common/types/workflowTypes';
 import { ConfigStorage } from '@/common/config/storage';
@@ -68,6 +70,7 @@ const GuidPage: React.FC = () => {
   const descriptionTextRef = useRef<HTMLDivElement>(null);
   const { closeAllTabs, openTab } = useConversationTabs();
   const { activeBorderColor, inactiveBorderColor, activeShadow } = useInputFocusRing();
+  const { acronyms: extensionAcronyms } = useExtensionAcronyms();
 
   const localeKey = resolveLocaleKey(i18n.language);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -206,6 +209,23 @@ const GuidPage: React.FC = () => {
   const guidInput = useGuidInput({
     locationState: location.state as { workspace?: string; paletteInitialPrompt?: string } | null,
   });
+  const extensionAcronymMatch = useMemo(() => {
+    const token = guidInput.input.trim();
+    if (!token || token.includes(' ') || token.includes('\n')) return null;
+    return (
+      extensionAcronyms.find((item) => item.enabled !== false && item.acronym.toLowerCase() === token.toLowerCase()) ??
+      null
+    );
+  }, [extensionAcronyms, guidInput.input]);
+  const extensionAcronymExpansion = useMemo(
+    () => (extensionAcronymMatch ? expandExtensionAcronymPrompt(guidInput.input, extensionAcronyms) : ''),
+    [extensionAcronymMatch, extensionAcronyms, guidInput.input]
+  );
+  const applyExtensionAcronymExpansion = useCallback(() => {
+    if (!extensionAcronymExpansion) return;
+    guidInput.setInput(extensionAcronymExpansion);
+    guidInput.handleTextareaFocus();
+  }, [extensionAcronymExpansion, guidInput]);
 
   const mention = useGuidMention({
     availableAgents: agentSelection.availableAgents,
@@ -1159,6 +1179,15 @@ const GuidPage: React.FC = () => {
             dir={guidInput.dir}
             onClearDir={() => guidInput.setDir('')}
             actionRow={actionRowNode}
+            acronymPreview={
+              extensionAcronymMatch && extensionAcronymExpansion
+                ? {
+                    acronym: extensionAcronymMatch.acronym,
+                    expansion: extensionAcronymExpansion,
+                    onApply: applyExtensionAcronymExpansion,
+                  }
+                : null
+            }
           />
 
           {/* v0.4.7 - KickoffCard mounts BELOW the input (render-then-hydrate)

@@ -11,12 +11,14 @@ import { useInputFocusRing } from '@/renderer/hooks/chat/useInputFocusRing';
 import SlashCommandMenu, { type SlashCommandMenuItem } from '@/renderer/components/chat/SlashCommandMenu';
 import { useBtwCommand } from '@/renderer/components/chat/BtwOverlay/useBtwCommand';
 import { useSlashCommandController } from '@/renderer/hooks/chat/useSlashCommandController';
+import { useExtensionAcronyms } from '@/renderer/hooks/chat/useExtensionAcronyms';
 import { useUserSlashCommands } from '@/renderer/hooks/chat/useUserSlashCommands';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { buildAtFileInsertion, getActiveAtFileQuery, getAllAtFileQueries } from '@/renderer/utils/chat/atFileQuery';
 import { getLastAssistantText } from '@/renderer/utils/chat/getLastAssistantText';
+import { expandExtensionAcronymPrompt } from '@/renderer/utils/chat/acronymPrompt';
 import { emitter, type ReplyQuote, useAddEventListener } from '@/renderer/utils/emitter';
 import { mergeFileSelectionItems, type FileSelectionItem } from '@/renderer/utils/file/fileSelection';
 import type { FileOrFolderItem } from '@/renderer/utils/file/fileTypes';
@@ -427,6 +429,23 @@ const SendBox: React.FC<{
   }, [conversationContext?.conversationId, enableBtw, onSlashBuiltinCommand, t]);
 
   const { commands: userSlashCommands } = useUserSlashCommands();
+  const { acronyms: extensionAcronyms } = useExtensionAcronyms();
+  const extensionAcronymMatch = useMemo(() => {
+    const token = input.trim();
+    if (!token || token.includes(' ') || token.includes('\n')) return null;
+    return (
+      extensionAcronyms.find((item) => item.enabled !== false && item.acronym.toLowerCase() === token.toLowerCase()) ??
+      null
+    );
+  }, [extensionAcronyms, input]);
+  const extensionAcronymExpansion = useMemo(
+    () => (extensionAcronymMatch ? expandExtensionAcronymPrompt(input, extensionAcronyms) : ''),
+    [extensionAcronymMatch, extensionAcronyms, input]
+  );
+  const applyExtensionAcronymExpansion = useCallback(() => {
+    if (!extensionAcronymExpansion) return;
+    setInput(extensionAcronymExpansion);
+  }, [extensionAcronymExpansion]);
 
   // User-defined commands mapped into the shared SlashCommandItem shape with a
   // "Custom" badge so they're distinguishable from agent/builtin commands.
@@ -1227,7 +1246,7 @@ const SendBox: React.FC<{
     setHistoryNavigationIndex(null);
 
     // Build message content
-    let finalMessage = input;
+    let finalMessage = expandExtensionAcronymPrompt(input, extensionAcronyms);
 
     // Prepend reply quote as blockquote
     if (replyQuote) {
@@ -1243,7 +1262,7 @@ const SendBox: React.FC<{
       const snippetsHtml = domSnippets
         .map((s) => `\n\n---\nDOM Snippet (${s.tag}):\n\`\`\`html\n${s.html}\n\`\`\``)
         .join('');
-      finalMessage = input + snippetsHtml;
+      finalMessage = finalMessage + snippetsHtml;
     }
 
     // Clear input immediately to prevent async onSend completion from overwriting new user input
@@ -1466,6 +1485,38 @@ const SendBox: React.FC<{
                 emptyText={t('messages.slash.empty', { defaultValue: 'No commands found' })}
               />
             )}
+          </div>
+        )}
+        {!isAtFileMenuOpen && !isCommandMenuOpen && extensionAcronymMatch && extensionAcronymExpansion && (
+          <div className='absolute left-12px right-12px bottom-[calc(100%+8px)] z-70'>
+            <button
+              type='button'
+              className='w-full rounded-14px border border-solid px-12px py-10px text-left shadow-[0_8px_24px_rgba(0,0,0,0.12)] cursor-pointer'
+              style={{
+                borderColor: 'var(--color-border-2)',
+                background: 'color-mix(in srgb, var(--color-bg-1) 86%, transparent)',
+                backdropFilter: 'blur(14px) saturate(1.1)',
+                WebkitBackdropFilter: 'blur(14px) saturate(1.1)',
+              }}
+              onClick={applyExtensionAcronymExpansion}
+            >
+              <div className='flex items-center justify-between gap-10px'>
+                <div className='text-13px font-semibold text-t-primary'>
+                  {t('messages.acronym.previewTitle', { defaultValue: 'Acronym expansion' })}
+                </div>
+                <div className='text-11px rounded-999px px-6px py-1px text-t-secondary bg-fill-2'>
+                  {extensionAcronymMatch.acronym}
+                </div>
+              </div>
+              <div className='mt-5px max-h-72px overflow-hidden text-12px leading-18px text-t-secondary'>
+                {extensionAcronymExpansion}
+              </div>
+              <div className='mt-6px text-11px text-t-tertiary'>
+                {t('messages.acronym.previewHint', {
+                  defaultValue: 'Click to place the expansion in the composer, or send to expand automatically.',
+                })}
+              </div>
+            </button>
           </div>
         )}
         <div style={{ width: '100%' }}>

@@ -6,6 +6,7 @@
 
 import { getMergedModelProviders } from '@process/bridge/modelBridge';
 import type { IProvider } from '@/common/config/storage';
+import { isImageModelName } from '@/common/config/imageModels';
 import { googleAuthGeminiComplete, isGoogleAuthGeminiAvailable } from './geminiOAuth';
 
 /**
@@ -41,6 +42,27 @@ export type PickedModel = { provider: IProvider; modelId: string };
 
 type Endpoint = { flavor: 'anthropic' | 'gemini' | 'openai'; base: string };
 
+const BRIDGE_TAG_KEY = '__waylandModelRegistryBridge';
+
+const registryProviderId = (p: IProvider): string | null => {
+  const tag = (p as unknown as Record<string, unknown>)[BRIDGE_TAG_KEY];
+  return typeof tag === 'string' && tag.startsWith('v2:') ? tag.slice('v2:'.length) : null;
+};
+
+const DEFAULT_OPENAI_COMPAT_BASES: Record<string, string> = {
+  nvidia: 'https://integrate.api.nvidia.com/v1',
+};
+
+const isOneShotProviderSupported = (p: IProvider): boolean => {
+  const providerId = registryProviderId(p);
+  if (providerId === 'chatgpt-subscription') return false;
+  if (providerId?.startsWith('tool:')) return false;
+  // Flux Router is image-first in Wayland. Its chat-shaped legacy mirror rows
+  // point at image arms like flux-auto/flux-fast, which 403 through chat APIs.
+  if (providerId === 'flux-router') return false;
+  return true;
+};
+
 /**
  * Resolve how to call a provider, by platform (the authoritative signal) with
  * canonical endpoint defaults - many providers store an empty baseUrl and rely
@@ -51,6 +73,7 @@ type Endpoint = { flavor: 'anthropic' | 'gemini' | 'openai'; base: string };
 const resolveEndpoint = (p: IProvider): Endpoint | null => {
   const platform = (p.platform || '').toLowerCase();
   const baseUrl = (p.baseUrl || '').trim();
+  const providerId = registryProviderId(p);
   if (platform.includes('anthropic') || platform.includes('claude') || p.apiKey?.startsWith('sk-ant-')) {
     return { flavor: 'anthropic', base: baseUrl || 'https://api.anthropic.com' };
   }
@@ -59,6 +82,9 @@ const resolveEndpoint = (p: IProvider): Endpoint | null => {
   }
   if (platform === 'openai') {
     return { flavor: 'openai', base: baseUrl || 'https://api.openai.com/v1' };
+  }
+  if (providerId && DEFAULT_OPENAI_COMPAT_BASES[providerId]) {
+    return { flavor: 'openai', base: baseUrl || DEFAULT_OPENAI_COMPAT_BASES[providerId] };
   }
   // openai-compatible (groq, byok proxies, etc.): only reachable with an explicit baseUrl.
   if (baseUrl) return { flavor: 'openai', base: baseUrl };
@@ -69,11 +95,13 @@ const usableModels = (providers: IProvider[]): PickedModel[] => {
   const out: PickedModel[] = [];
   for (const p of providers) {
     if (p.enabled === false) continue;
+    if (!isOneShotProviderSupported(p)) continue;
     if (!p.apiKey || !p.apiKey.trim()) continue; // needs a key to call
     if (!resolveEndpoint(p)) continue; // no reachable endpoint - skip
     const models = Array.isArray(p.model) ? p.model : [];
     for (const modelId of models) {
       if (p.modelEnabled && p.modelEnabled[modelId] === false) continue;
+      if (isImageModelName(modelId)) continue;
       out.push({ provider: p, modelId });
     }
   }
@@ -155,6 +183,8 @@ const fetchWithTimeout = async (url: string, init: RequestInit, timeoutMs = FETC
     clearTimeout(timer);
   }
 };
+
+const perAttemptTimeout = (timeoutMs: number | undefined): number => Math.min(timeoutMs ?? FETCH_TIMEOUT_MS, 15_000);
 
 const joinUrl = (base: string, suffix: string): string => `${base.replace(/\/+$/, '')}${suffix}`;
 
@@ -272,31 +302,32 @@ export async function oneShotComplete(
  *
  * `pickBestModel()` ranks by model NAME with no health check, so a broken proxy
  * whose model is named "…-opus"/"…-pro" can outrank a working key and make the
- * whole draft hard-fail (#244/#248). This tries each usable provider in ranked
- * order — one attempt per provider, since the failure mode is provider-level (a
- * bad key, a wrong/down endpoint, an HTML error body) — returns the first
- * success, falls back to Google-auth Gemini, and only throws the real provider
- * error when every route fails. Used for the rare, high-stakes knowledge draft.
+ * whole draft hard-fail (#244/#248). This tries usable models in ranked order,
+ * capped per provider so one provider cannot dominate the whole pass, returns
+ * the first success, falls back to Google-auth Gemini, and only throws the real
+ * provider error when every route fails. Used for rare, high-stakes drafts.
  */
 export async function oneShotCompleteBest(
   prompt: string,
   opts?: { maxTokens?: number; timeoutMs?: number }
 ): Promise<string> {
   const ranked = await rankedBestModels();
-  // One attempt per distinct provider (the best-ranked model of each).
   const attempts: PickedModel[] = [];
-  const seen = new Set<string>();
+  const attemptsByProvider = new Map<string, number>();
   for (const candidate of ranked) {
-    if (seen.has(candidate.provider.id)) continue;
-    seen.add(candidate.provider.id);
+    const count = attemptsByProvider.get(candidate.provider.id) ?? 0;
+    if (count >= 3) continue;
+    attemptsByProvider.set(candidate.provider.id, count + 1);
     attempts.push(candidate);
   }
   let lastErr: Error | null = null;
   for (const model of attempts) {
     try {
-      // Sequential by design: only try the next provider if this one fails.
+      // Sequential by design: only try the next model if this one fails.
+      // Clamp each attempt so a dead-but-authenticated endpoint cannot burn the
+      // entire draft timeout before fallback routing gets a chance to recover.
       // eslint-disable-next-line no-await-in-loop
-      return await oneShotComplete(prompt, { ...opts, model });
+      return await oneShotComplete(prompt, { ...opts, timeoutMs: perAttemptTimeout(opts?.timeoutMs), model });
     } catch (err) {
       lastErr = err instanceof Error ? err : new Error(String(err));
       // Fall through to the next provider rather than hard-failing on the top pick.

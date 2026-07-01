@@ -126,7 +126,9 @@ const ProjectWorkspacePage: React.FC = () => {
         await ipcBridge.conversation.update.invoke({
           id: c.id,
           updates: {
-            extra: { pinned: !pinned, pinnedAt: pinned ? undefined : Date.now() } as Partial<TChatConversation['extra']>,
+            extra: { pinned: !pinned, pinnedAt: pinned ? undefined : Date.now() } as Partial<
+              TChatConversation['extra']
+            >,
           } as Partial<TChatConversation>,
           mergeExtra: true,
         });
@@ -167,18 +169,24 @@ const ProjectWorkspacePage: React.FC = () => {
   const color = project?.iconColor || '#FF6A00';
 
   const TABS: Array<{ key: ProjectTab; label: string; icon: React.ReactNode; count?: number }> = [
-    { key: 'chats', label: t('projects.workspace.tabChats'), icon: <MessageSquare size={15} />, count: conversations.length },
+    {
+      key: 'chats',
+      label: t('projects.workspace.tabChats'),
+      icon: <MessageSquare size={15} />,
+      count: conversations.length,
+    },
     { key: 'files', label: t('projects.workspace.tabFiles'), icon: <FolderOpen size={15} /> },
     { key: 'reference', label: t('projects.workspace.tabReference'), icon: <Paperclip size={15} /> },
     { key: 'memory', label: t('projects.workspace.tabMemory'), icon: <NotebookPen size={15} /> },
   ];
 
   return (
-    <div className='flex flex-col h-full w-full overflow-hidden'>
+    <div className='flex flex-col h-full w-full overflow-hidden' data-appearance-surface='project-workspace'>
       {/* Header */}
       <div
         className='flex items-center gap-12px px-24px py-16px flex-shrink-0'
         style={{ borderBottom: '1px solid var(--color-border-2)' }}
+        data-appearance-role='project-workspace-header'
       >
         <Button type='text' shape='circle' icon={<ChevronLeft size={18} />} onClick={() => navigate('/projects')} />
         <div
@@ -230,6 +238,7 @@ const ProjectWorkspacePage: React.FC = () => {
       <div
         className='flex items-center gap-2px px-20px flex-shrink-0'
         style={{ borderBottom: '1px solid var(--color-border-2)' }}
+        data-appearance-role='project-workspace-tabs'
       >
         {TABS.map((tab) => {
           const active = activeTab === tab.key;
@@ -257,9 +266,9 @@ const ProjectWorkspacePage: React.FC = () => {
       </div>
 
       {/* Tab content */}
-      <div className='flex-1 overflow-hidden'>
+      <div className='flex-1 overflow-hidden' data-appearance-role='project-workspace-content'>
         {activeTab === 'chats' && (
-          <div className='h-full overflow-auto px-24px py-16px'>
+          <div className='h-full overflow-auto px-24px py-16px' data-appearance-role='project-chat-list'>
             {!loading && conversations.length === 0 ? (
               <div className='flex flex-col items-center justify-center gap-16px h-full text-center'>
                 <div className='flex items-center justify-center w-56px h-56px rd-14px bg-fill-1 text-t-tertiary'>
@@ -285,77 +294,78 @@ const ProjectWorkspacePage: React.FC = () => {
                     return pb - pa;
                   })
                   .map((c) => {
-                  const backend = (c.extra as { backend?: string } | undefined)?.backend || c.type;
-                  return (
-                    <div
-                      key={c.id}
-                      role='button'
-                      tabIndex={0}
-                      onClick={() => navigate(`/conversation/${c.id}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') navigate(`/conversation/${c.id}`);
-                      }}
-                      className={`group flex items-center gap-12px px-14px py-12px cursor-pointer ${styles.card}`}
-                    >
-                      <div className='flex flex-col gap-2px min-w-0 flex-1'>
-                        <div className='flex items-center gap-6px min-w-0'>
-                          {isConversationPinned(c) && <Pin size={12} className='text-t-tertiary shrink-0' />}
-                          <div className='text-14px font-500 text-t-primary truncate'>
-                            {c.name || t('projects.workspace.untitledChat')}
+                    const backend = (c.extra as { backend?: string } | undefined)?.backend || c.type;
+                    return (
+                      <div
+                        key={c.id}
+                        role='button'
+                        tabIndex={0}
+                        onClick={() => navigate(`/conversation/${c.id}`)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') navigate(`/conversation/${c.id}`);
+                        }}
+                        className={`group flex items-center gap-12px px-14px py-12px cursor-pointer ${styles.card}`}
+                        data-appearance-role='project-chat-card'
+                      >
+                        <div className='flex flex-col gap-2px min-w-0 flex-1'>
+                          <div className='flex items-center gap-6px min-w-0'>
+                            {isConversationPinned(c) && <Pin size={12} className='text-t-tertiary shrink-0' />}
+                            <div className='text-14px font-500 text-t-primary truncate'>
+                              {c.name || t('projects.workspace.untitledChat')}
+                            </div>
                           </div>
+                          <div className='text-11px text-t-tertiary uppercase tracking-wide'>{backend}</div>
                         </div>
-                        <div className='text-11px text-t-tertiary uppercase tracking-wide'>{backend}</div>
-                      </div>
-                      {/* stopPropagation on the wrapper (not the trigger button) so the
+                        {/* stopPropagation on the wrapper (not the trigger button) so the
                           row click doesn't navigate, while Arco's click-to-open still fires. */}
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <Dropdown
-                          trigger='click'
-                          position='br'
-                          droplist={
-                            <Menu
-                              onClickMenuItem={(key) => {
-                                if (key === 'pin') void togglePin(c);
-                                else if (key === 'rename') openRename(c);
-                                else if (key === 'remove') removeFromProject(c.id);
-                              }}
-                            >
-                              <Menu.Item key='pin'>
-                                <div className='flex items-center gap-8px'>
-                                  {isConversationPinned(c) ? <PinOff size={15} /> : <Pin size={15} />}
-                                  <span>
-                                    {isConversationPinned(c)
-                                      ? t('conversation.history.unpin')
-                                      : t('conversation.history.pin')}
-                                  </span>
-                                </div>
-                              </Menu.Item>
-                              <Menu.Item key='rename'>
-                                <div className='flex items-center gap-8px'>
-                                  <Pencil size={15} />
-                                  <span>{t('conversation.history.rename')}</span>
-                                </div>
-                              </Menu.Item>
-                              <Menu.Item key='remove'>
-                                <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
-                                  <FolderMinus size={15} />
-                                  <span>{t('projects.workspace.removeChat')}</span>
-                                </div>
-                              </Menu.Item>
-                            </Menu>
-                          }
-                        >
-                          <Button
-                            type='text'
-                            size='mini'
-                            className='opacity-0 group-hover:opacity-100 transition-opacity'
-                            icon={<MoreHorizontal size={16} />}
-                          />
-                        </Dropdown>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Dropdown
+                            trigger='click'
+                            position='br'
+                            droplist={
+                              <Menu
+                                onClickMenuItem={(key) => {
+                                  if (key === 'pin') void togglePin(c);
+                                  else if (key === 'rename') openRename(c);
+                                  else if (key === 'remove') removeFromProject(c.id);
+                                }}
+                              >
+                                <Menu.Item key='pin'>
+                                  <div className='flex items-center gap-8px'>
+                                    {isConversationPinned(c) ? <PinOff size={15} /> : <Pin size={15} />}
+                                    <span>
+                                      {isConversationPinned(c)
+                                        ? t('conversation.history.unpin')
+                                        : t('conversation.history.pin')}
+                                    </span>
+                                  </div>
+                                </Menu.Item>
+                                <Menu.Item key='rename'>
+                                  <div className='flex items-center gap-8px'>
+                                    <Pencil size={15} />
+                                    <span>{t('conversation.history.rename')}</span>
+                                  </div>
+                                </Menu.Item>
+                                <Menu.Item key='remove'>
+                                  <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
+                                    <FolderMinus size={15} />
+                                    <span>{t('projects.workspace.removeChat')}</span>
+                                  </div>
+                                </Menu.Item>
+                              </Menu>
+                            }
+                          >
+                            <Button
+                              type='text'
+                              size='mini'
+                              className='opacity-0 group-hover:opacity-100 transition-opacity'
+                              icon={<MoreHorizontal size={16} />}
+                            />
+                          </Dropdown>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             )}
           </div>

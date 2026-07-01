@@ -146,6 +146,15 @@ vi.mock('@/renderer/hooks/chat/useSlashCommandController', () => ({
   },
 }));
 
+vi.mock('@/renderer/hooks/chat/useExtensionAcronyms', () => ({
+  useExtensionAcronyms: () => ({
+    acronyms: [],
+    extensionAcronyms: [],
+    userAcronyms: [],
+    isLoading: false,
+  }),
+}));
+
 vi.mock('@/renderer/components/chat/SlashCommandMenu', () => ({
   __esModule: true,
   default: ({

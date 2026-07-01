@@ -307,6 +307,7 @@ asarUnpack:
   - 'out/main/builtin-mcp-concierge-diag.js'
   - 'out/main/team-mcp-stdio.js'
   - 'out/main/team-guide-mcp-stdio.js'
+  - 'out/main/project-operator-mcp-stdio.js'
   # Bundled @wayland MCP servers (ship with installer, no npm publish)
   - 'out/main/builtin-mcp-apple.mjs'
   - 'out/main/builtin-mcp-imap.mjs'

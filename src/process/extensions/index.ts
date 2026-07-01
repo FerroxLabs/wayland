@@ -11,6 +11,20 @@ export { ExtensionWatcher } from './lifecycle/hotReload';
 export { AION_ASSET_PROTOCOL, AION_ASSET_HOST, toAssetUrl } from './protocol/assetProtocol';
 
 export { resolveThemes } from './resolvers/ThemeResolver';
+export {
+  resolveExtensionAcronyms,
+  resolveFilePreviewActions,
+  resolveScheduledTaskTemplates,
+  resolveWorkflowTemplates,
+  resolveWorkspacePanels,
+} from './resolvers/NativeHookResolver';
+export type {
+  ResolvedExtensionAcronym,
+  ResolvedFilePreviewAction,
+  ResolvedScheduledTaskTemplate,
+  ResolvedWorkflowTemplate,
+  ResolvedWorkspacePanel,
+} from './resolvers/NativeHookResolver';
 
 export { resolveExtensionI18n, getExtI18nForLocale } from './resolvers/I18nResolver';
 export type { ExtensionLocaleData, AggregatedExtI18n } from './resolvers/I18nResolver';
@@ -80,6 +94,11 @@ export type {
   ExtChannelPlugin,
   ExtTheme,
   ExtModelProvider,
+  ExtAcronym,
+  ExtWorkspacePanel,
+  ExtFilePreviewAction,
+  ExtScheduledTaskTemplate,
+  ExtWorkflowTemplate,
   ExtWebui,
   ExtensionSource,
   LoadedExtension,

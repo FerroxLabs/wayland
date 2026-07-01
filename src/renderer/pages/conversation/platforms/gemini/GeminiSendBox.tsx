@@ -14,6 +14,7 @@ import { useAgentReadinessCheck } from '@/renderer/hooks/agent/useAgentReadiness
 import { useAutoTitle } from '@/renderer/hooks/chat/useAutoTitle';
 import { getSendBoxDraftHook, type FileOrFolderItem } from '@/renderer/hooks/chat/useSendBoxDraft';
 import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/chat/useSendBoxFiles';
+import { useExtensionAcronyms } from '@/renderer/hooks/chat/useExtensionAcronyms';
 import { useSlashCommands } from '@/renderer/hooks/chat/useSlashCommands';
 import { useOpenFileSelector } from '@/renderer/hooks/file/useOpenFileSelector';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
@@ -28,6 +29,7 @@ import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { useTeamPermission } from '@/renderer/pages/team/hooks/TeamPermissionContext';
 import { allSupportedExts } from '@/renderer/services/FileService';
 import { iconColors } from '@/renderer/styles/colors';
+import { expandExtensionAcronymPrompt } from '@/renderer/utils/chat/acronymPrompt';
 import { emitter, useAddEventListener } from '@/renderer/utils/emitter';
 import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage, collectSelectedFiles } from '@/renderer/utils/file/messageFiles';
@@ -90,6 +92,7 @@ const GeminiSendBox: React.FC<{
   agentSlotId?: string;
   sessionMode?: string;
 }> = ({ conversation_id, modelSelection, teamId, agentSlotId, sessionMode }) => {
+  const { acronyms: extensionAcronyms } = useExtensionAcronyms();
   const [workspacePath, setWorkspacePath] = useState('');
   const { t } = useTranslation();
   const teamPermission = useTeamPermission();
@@ -233,11 +236,12 @@ const GeminiSendBox: React.FC<{
         throw new Error('No model selected');
       }
 
+      const expandedInput = expandExtensionAcronymPrompt(input, extensionAcronyms);
       const msg_id = uuid();
       setActiveMsgId(msg_id);
       setWaitingResponse(true);
 
-      const displayMessage = buildDisplayMessage(input, files, workspacePath);
+      const displayMessage = buildDisplayMessage(expandedInput, files, workspacePath);
 
       // In team mode, the backend writes the user message via IPC stream.
       // Adding it here too would produce a duplicate bubble.
@@ -258,7 +262,7 @@ const GeminiSendBox: React.FC<{
       }
 
       try {
-        void checkAndUpdateTitle(conversation_id, input);
+        void checkAndUpdateTitle(conversation_id, expandedInput);
         if (teamId) {
           if (agentSlotId) {
             const result = await ipcBridge.team.sendMessageToAgent.invoke({
@@ -302,6 +306,7 @@ const GeminiSendBox: React.FC<{
       checkAndUpdateTitle,
       conversation_id,
       currentModel?.useModel,
+      extensionAcronyms,
       setActiveMsgId,
       removeMessageByMsgId,
       setWaitingResponse,

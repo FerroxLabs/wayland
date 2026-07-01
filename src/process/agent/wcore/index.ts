@@ -89,6 +89,7 @@ export type StdioMcpOption = {
   args: string[];
   env: Array<{ name: string; value: string }>;
   awaitReady?: boolean;
+  required?: boolean;
 };
 
 export type WCoreAgentOptions = {
@@ -134,6 +135,13 @@ export class WCoreAgent {
   private configBackup: { path: string; content: string | null; written: string | null } | null = null;
   private mcpReadyPromise: Promise<void>;
   private mcpReadyResolve!: () => void;
+  private readonly mcpReadyTools = new Map<string, string[]>();
+  private readonly mcpReadyWaiters: Array<{
+    names: string[];
+    resolve: () => void;
+    reject: (err: Error) => void;
+    timer: ReturnType<typeof setTimeout>;
+  }> = [];
   public sessionId?: string;
   public capabilities?: WCoreCapabilities;
   /**
@@ -165,6 +173,10 @@ export class WCoreAgent {
 
   get bootstrap(): Promise<void> {
     return this.readyPromise;
+  }
+
+  getMcpReadyTools(name: string): readonly string[] {
+    return this.mcpReadyTools.get(name) ?? [];
   }
 
   /**
@@ -289,7 +301,8 @@ export class WCoreAgent {
     // is forwarded as `add_mcp_server`; if any entry has `awaitReady: true`,
     // wait on the handshake before continuing.
     const stdioMcpServers = this.options.stdioMcpServers ?? [];
-    let awaitAnyReady = false;
+    const requiredMcpNames: string[] = [];
+    const awaitedMcpNames: string[] = [];
     for (const server of stdioMcpServers) {
       const envRecord: Record<string, string> = {};
       for (const { name: k, value: v } of server.env) {
@@ -303,14 +316,16 @@ export class WCoreAgent {
         args: server.args,
         env: envRecord,
       });
-      if (server.awaitReady) awaitAnyReady = true;
+      if (server.required) requiredMcpNames.push(server.name);
+      else if (server.awaitReady) awaitedMcpNames.push(server.name);
     }
 
-    if (awaitAnyReady) {
-      await Promise.race([
-        this.mcpReadyPromise,
-        new Promise<void>((_resolve, reject) => setTimeout(() => reject(new Error('MCP ready timeout (30s)')), 30000)),
-      ]).catch((err) => {
+    if (requiredMcpNames.length > 0) {
+      await this.waitForMcpReady(requiredMcpNames, 30000);
+    }
+
+    if (awaitedMcpNames.length > 0) {
+      await this.waitForMcpReady(awaitedMcpNames, 30000).catch((err) => {
         console.warn('[WCoreAgent] MCP setup warning:', err);
       });
     }
@@ -451,6 +466,7 @@ export class WCoreAgent {
         break;
 
       case 'mcp_ready':
+        this.markMcpReady(event.name, event.tools);
         this.mcpReadyResolve();
         break;
 
@@ -734,6 +750,40 @@ export class WCoreAgent {
         break;
       }
     }
+  }
+
+  private waitForMcpReady(names: string[], timeoutMs: number): Promise<void> {
+    const missing = names.filter((name) => !this.mcpReadyTools.has(name));
+    if (missing.length === 0) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      let waiter: (typeof this.mcpReadyWaiters)[number];
+      const timer = setTimeout(() => {
+        const currentMissing = names.filter((name) => !this.mcpReadyTools.has(name));
+        this.removeMcpReadyWaiter(waiter);
+        reject(new Error(`MCP ready timeout (${timeoutMs}ms): ${currentMissing.join(', ')}`));
+      }, timeoutMs);
+      waiter = { names, resolve, reject, timer };
+      this.mcpReadyWaiters.push(waiter);
+    });
+  }
+
+  private markMcpReady(name: string, tools: string[]): void {
+    this.mcpReadyTools.set(name, tools);
+    const waiters = this.mcpReadyWaiters.slice();
+    for (const waiter of waiters) {
+      const missing = waiter.names.filter((requiredName) => !this.mcpReadyTools.has(requiredName));
+      if (missing.length === 0) {
+        clearTimeout(waiter.timer);
+        this.removeMcpReadyWaiter(waiter);
+        waiter.resolve();
+      }
+    }
+  }
+
+  private removeMcpReadyWaiter(waiter: (typeof this.mcpReadyWaiters)[number]): void {
+    const index = this.mcpReadyWaiters.indexOf(waiter);
+    if (index >= 0) this.mcpReadyWaiters.splice(index, 1);
   }
 
   /**

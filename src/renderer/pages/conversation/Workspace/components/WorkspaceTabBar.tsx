@@ -180,17 +180,19 @@ const WorkspaceTabBar: React.FC<WorkspaceTabBarProps> = ({
     ) : null;
 
   return (
-    <Tabs
-      activeTab={activeTab}
-      onChange={(key) => onTabChange(key as WorkspaceTab)}
-      type='line'
-      size='small'
-      className='px-12px [&_.arco-tabs-nav]:border-b-0'
-      extra={branchDropdown}
-    >
-      <Tabs.TabPane key='files' title={t('conversation.workspace.changes.filesTab')} />
-      <Tabs.TabPane key='changes' title={changesTitle} />
-    </Tabs>
+    <div data-appearance-role='workspace-tabs'>
+      <Tabs
+        activeTab={activeTab}
+        onChange={(key) => onTabChange(key as WorkspaceTab)}
+        type='line'
+        size='small'
+        className='px-12px [&_.arco-tabs-nav]:border-b-0'
+        extra={branchDropdown}
+      >
+        <Tabs.TabPane key='files' title={t('conversation.workspace.changes.filesTab')} />
+        <Tabs.TabPane key='changes' title={changesTitle} />
+      </Tabs>
+    </div>
   );
 };
 

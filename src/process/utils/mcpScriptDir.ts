@@ -10,6 +10,7 @@
  * Four stdio scripts are spawned as external `node` child processes:
  *   - team-mcp-stdio.js          (team coordination tools)
  *   - team-guide-mcp-stdio.js    (solo aion_* tools)
+ *   - project-operator-mcp-stdio.js (project chat operator tools)
  *   - builtin-mcp-image-gen.js   (image generation)
  *   - builtin-mcp-search-skills.js (skills library)
  *
@@ -56,6 +57,7 @@ import * as fs from 'node:fs';
 export const MCP_STDIO_SCRIPT_NAMES = [
   'team-mcp-stdio.js',
   'team-guide-mcp-stdio.js',
+  'project-operator-mcp-stdio.js',
   'builtin-mcp-image-gen.js',
   'builtin-mcp-search-skills.js',
   'builtin-mcp-concierge-diag.js',
@@ -145,7 +147,7 @@ export function inspectMcpScripts(): McpScriptCanaryResult {
   }
   let dirContents: string[] = [];
   try {
-    dirContents = fs.readdirSync(dir).sort();
+    dirContents = fs.readdirSync(dir).toSorted();
   } catch {
     dirContents = ['<unreadable>'];
   }

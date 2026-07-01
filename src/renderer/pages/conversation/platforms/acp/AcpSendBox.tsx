@@ -15,6 +15,7 @@ import HorizontalFileList from '@/renderer/components/media/HorizontalFileList';
 import { useAutoTitle } from '@/renderer/hooks/chat/useAutoTitle';
 import { getSendBoxDraftHook, type FileOrFolderItem } from '@/renderer/hooks/chat/useSendBoxDraft';
 import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/chat/useSendBoxFiles';
+import { useExtensionAcronyms } from '@/renderer/hooks/chat/useExtensionAcronyms';
 import { useSlashCommands } from '@/renderer/hooks/chat/useSlashCommands';
 import { useOpenFileSelector } from '@/renderer/hooks/file/useOpenFileSelector';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
@@ -29,6 +30,7 @@ import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { useTeamPermission } from '@/renderer/pages/team/hooks/TeamPermissionContext';
 import { allSupportedExts } from '@/renderer/services/FileService';
 import { iconColors } from '@/renderer/styles/colors';
+import { expandExtensionAcronymPrompt } from '@/renderer/utils/chat/acronymPrompt';
 import { emitter, useAddEventListener } from '@/renderer/utils/emitter';
 import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
@@ -124,6 +126,7 @@ const AcpSendBox: React.FC<{
     routing,
     fluxTurnError,
   } = useAcpMessage(conversation_id);
+  const { acronyms: extensionAcronyms } = useExtensionAcronyms();
   const { t } = useTranslation();
   const teamPermission = useTeamPermission();
   // In team mode, all agents show the permission mode selector (members don't propagate)
@@ -189,13 +192,14 @@ const AcpSendBox: React.FC<{
 
   const executeCommand = useCallback(
     async ({ input, files }: Pick<ConversationCommandQueueItem, 'input' | 'files'>) => {
+      const expandedInput = expandExtensionAcronymPrompt(input, extensionAcronyms);
       const msg_id = uuid();
-      const displayMessage = buildDisplayMessage(input, files, workspacePath || '');
+      const displayMessage = buildDisplayMessage(expandedInput, files, workspacePath || '');
 
       setAiProcessing(true);
 
       try {
-        void checkAndUpdateTitle(conversation_id, input);
+        void checkAndUpdateTitle(conversation_id, expandedInput);
         if (teamId) {
           if (agentSlotId) {
             const result = await ipcBridge.team.sendMessageToAgent.invoke({
@@ -228,7 +232,7 @@ const AcpSendBox: React.FC<{
           emitter.emit('acp.auth.failed.card', {
             conversation_id,
             backend,
-            pendingInput: input,
+            pendingInput: expandedInput,
             pendingFiles: files,
             fluxAlreadyRouted: routingRef.current === 'flux',
           });
@@ -267,7 +271,17 @@ Please check your local CLI tool authentication status`,
         emitter.emit('acp.workspace.refresh');
       }
     },
-    [agentSlotId, backend, checkAndUpdateTitle, conversation_id, setAiProcessing, t, teamId, workspacePath]
+    [
+      agentSlotId,
+      backend,
+      checkAndUpdateTitle,
+      conversation_id,
+      extensionAcronyms,
+      setAiProcessing,
+      t,
+      teamId,
+      workspacePath,
+    ]
   );
 
   const {

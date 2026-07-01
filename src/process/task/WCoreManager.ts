@@ -42,6 +42,7 @@ import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher'
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { getBudgetController } from '@process/services/cost/BudgetController';
 import { RunawayMonitor } from '@process/services/runaway/RunawayMonitor';
+import { ProjectOperatorMcpServer } from '@process/services/projectOperator/ProjectOperatorMcpServer';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -117,6 +118,8 @@ type WCoreManagerData = {
   resume?: string;
   /** Per-conversation reasoning effort (sent to the engine via set_config). Absent => engine default. */
   effort?: 'low' | 'medium' | 'high';
+  /** Project id for project-scoped chats. When present WCore must attach project operator tools. */
+  projectId?: string;
   teamMcpStdioConfig?: {
     name: string;
     command: string;
@@ -164,6 +167,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   model: TProviderWithModel;
   readonly approvalStore = new WCoreApprovalStore();
   private agent: WCoreAgent | null = null;
+  private projectOperatorMcpServer: ProjectOperatorMcpServer | null = null;
   private agentReady: Promise<void>;
   /** Captured failure from `start()`, so a failed bootstrap surfaces an honest
    * error+finish on the next `sendMessage` instead of silently hanging the turn. */
@@ -261,6 +265,18 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       if (teamGuide) stdioMcpServers.push(teamGuide);
     }
 
+    const projectOperatorContext = await this.buildProjectOperatorMcpStdioConfig(mergedData);
+    if (projectOperatorContext) {
+      // WCore currently starts dynamically-added stdio MCPs and forwards their
+      // stderr, but it does not reliably emit the host-side `mcp_ready` event
+      // for every server. The project operator bridge is still fail-closed at
+      // the main-process boundary via `ProjectOperatorMcpServer.start()`:
+      // active project, workspace, read, write, and command probes must pass
+      // before the MCP is advertised. Do not block the whole chat on a missing
+      // engine readiness event after that host-side proof.
+      stdioMcpServers.push({ ...projectOperatorContext.config });
+    }
+
     // Raw-engine (power-user) mode: when `wcore.rawEngineMode` is
     // true, the embedded engine runs on its OWN config.toml exactly like the
     // standalone CLI - so we SKIP both (a) the Desktop model override (applied
@@ -292,10 +308,22 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // no skills, no library) - in that case we keep the prior "no
     // presetRules" behaviour for fresh installs. (H1: WCoreManager advertise
     // the second channel.) Skipped entirely in raw-engine mode.
+    const projectOperatorRules = projectOperatorContext
+      ? [
+          '## Project operator tools (verified)',
+          `Active project: ${projectOperatorContext.projectName} (${projectOperatorContext.projectId})`,
+          `Workspace cwd: ${projectOperatorContext.workspace}`,
+          'The host verified this project-chat operator bridge at startup: manifest-known, bridge-attached, and callable.',
+          'Use these MCP tools for attached project work: project_operator_health, read_project_file, write_project_file, run_project_command, append_project_log.',
+        ].join('\n')
+      : undefined;
+    const presetWithProjectOperator =
+      [projectOperatorRules, mergedData.presetRules].filter(Boolean).join('\n\n') || undefined;
+
     const systemInstructions = rawEngineMode
       ? undefined
       : await buildSystemInstructionsWithSkillsIndex({
-          presetContext: mergedData.presetRules,
+          presetContext: presetWithProjectOperator,
           enabledSkills: mergedData.enabledSkills,
           excludeBuiltinSkills: mergedData.excludeBuiltinSkills,
           enableTeamGuide: mergedData.enableTeamGuide,
@@ -403,6 +431,40 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     };
   }
 
+  private async buildProjectOperatorMcpStdioConfig(
+    data: WCoreManagerData & { sessionId?: string; resume?: string }
+  ): Promise<
+    | {
+        config: { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> };
+        projectId: string;
+        projectName: string;
+        workspace: string;
+      }
+    | undefined
+  > {
+    const projectId = data.projectId?.trim();
+    if (!projectId) return undefined;
+
+    let projectName = projectId;
+    try {
+      const db = await getDatabase();
+      const projectResult = db.getProject(projectId);
+      const project = projectResult.data;
+      if (project?.name) projectName = project.name;
+    } catch {
+      // Project id + workspace are still enough for operator readiness; use id as the label.
+    }
+
+    await this.projectOperatorMcpServer?.stop().catch((): undefined => undefined);
+    this.projectOperatorMcpServer = new ProjectOperatorMcpServer({
+      projectId,
+      projectName,
+      workspace: data.workspace,
+    });
+    const config = await this.projectOperatorMcpServer.start();
+    return { config, projectId, projectName, workspace: data.workspace };
+  }
+
   async stop() {
     this.stopHeartbeat();
     this.flushAllBufferedStreamTexts();
@@ -411,6 +473,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (this.agent) {
       this.agent.stop();
     }
+    await this.projectOperatorMcpServer?.stop().catch((): undefined => undefined);
+    this.projectOperatorMcpServer = null;
   }
 
   async sendMessage(data: { content: string; msg_id: string; files?: string[] }) {
@@ -1395,6 +1459,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // best-effort
       }
     }
+    await this.projectOperatorMcpServer?.stop().catch((): undefined => undefined);
+    this.projectOperatorMcpServer = null;
     // super.kill() is async (ForkTask M18); await child exit.
     await super.kill();
   }

@@ -546,6 +546,7 @@ describe('GuidModelSelector home picker', () => {
     // The cold-start auto-pick fires resolveForChatStart→setCurrentModel once on
     // mount (no prior selection). Clear it so this assertion counts only the
     // explicit click being tested here.
+    await waitFor(() => expect(setCurrentModel).toHaveBeenCalledTimes(1));
     setCurrentModel.mockClear();
     fireEventClick(row);
 
