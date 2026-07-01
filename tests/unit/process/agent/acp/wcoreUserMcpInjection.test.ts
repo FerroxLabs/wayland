@@ -118,4 +118,38 @@ describe('buildWCoreUserStdioMcpServers', () => {
     expect(buildWCoreUserStdioMcpServers([a, b], ['a']).map((s) => s.name)).toEqual(['alpha']);
     expect(buildWCoreUserStdioMcpServers([a, b], [])).toEqual([]);
   });
+
+  it('#478 dedup: skips names already in config.toml [mcp.servers] (no double registration)', () => {
+    const a = server({ id: 'a', name: 'alpha' });
+    const b = server({ id: 'b', name: 'beta' });
+    // alpha is already in the engine config.toml -> engine loads it at startup;
+    // only beta should be injected at runtime.
+    const out = buildWCoreUserStdioMcpServers([a, b], undefined, new Set(['alpha']));
+    expect(out.map((s) => s.name)).toEqual(['beta']);
+  });
+
+  it('#478 dedup: an empty exclude set injects everything (fallback keeps connectors visible)', () => {
+    const a = server({ id: 'a', name: 'alpha' });
+    const b = server({ id: 'b', name: 'beta' });
+    expect(
+      buildWCoreUserStdioMcpServers([a, b], undefined, new Set())
+        .map((s) => s.name)
+        .toSorted()
+    ).toEqual(['alpha', 'beta']);
+  });
+
+  it('#478 dedup: sanitizes the name so a raw-slash connector matches its config.toml key', () => {
+    // syncMcpToAgents sanitizes com.slack/slack-mcp -> com.slack-slack-mcp before
+    // WCoreMcpAgent writes the config.toml key. The injected name + exclude must
+    // use that same sanitized form, or the dedup misses and the engine doubles.
+    const slack = server({
+      id: 'slack',
+      name: 'com.slack/slack-mcp',
+      transport: { type: 'stdio', command: 'uvx', args: ['slack'], env: {} },
+    });
+    // Not in config.toml yet -> injected under the SANITIZED name.
+    expect(buildWCoreUserStdioMcpServers([slack]).map((s) => s.name)).toEqual(['com.slack-slack-mcp']);
+    // Already in config.toml (sanitized key) -> excluded, no double registration.
+    expect(buildWCoreUserStdioMcpServers([slack], undefined, new Set(['com.slack-slack-mcp']))).toEqual([]);
+  });
 });

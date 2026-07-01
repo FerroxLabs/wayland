@@ -13,6 +13,7 @@ import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
 import { buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { readWCoreConfigMcpServerNames } from '@process/agent/wcore/configMcpServers';
 import { type OutputBudget, resolveFixedBudget } from '@/common/config/outputBudget';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
@@ -276,12 +277,17 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // only), which left every connector invisible in a fresh wcore chat. Uses the
     // shared predicate + per-conversation scoping (#348); builtins and hosted
     // (http/sse) connectors are handled elsewhere (see buildWCoreUserStdioMcpServers).
+    // #478 dedup: skip any connector already in the active config.toml
+    // [mcp.servers] table (WCoreMcpAgent settings-time write) - the engine loads
+    // those at startup, so re-adding at runtime would register the server twice.
     // Best-effort: a config read failure must never block the spawn.
     try {
       const mcpConfig = await ProcessConfig.get('mcp.config');
+      const alreadyInConfig = await readWCoreConfigMcpServerNames();
       const userServers = buildWCoreUserStdioMcpServers(
         mcpConfig as IMcpServer[] | undefined,
-        mergedData.activeMcpServers
+        mergedData.activeMcpServers,
+        alreadyInConfig
       );
       for (const server of userServers) {
         stdioMcpServers.push({ name: server.name, command: server.command, args: server.args, env: server.env });

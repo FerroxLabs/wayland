@@ -7,6 +7,7 @@
 import type { IMcpServer } from '@/common/config/storage';
 import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import { BUILTIN_CONCIERGE_DIAG_ID } from '@process/resources/builtinMcp/constants';
+import { sanitizeMcpServerName } from '@process/services/mcpServices/validateMcpServer';
 
 export interface AcpSessionMcpNameValue {
   name: string;
@@ -152,10 +153,25 @@ export function buildAcpSessionMcpServers(
  * server. Non-stdio (hosted http/sse) connectors are skipped because the engine
  * runtime command only adds stdio servers; those still reach wcore via the
  * [mcp.servers] table written by WCoreMcpAgent.
+ *
+ * `excludeNames` (#478): names already present in the active config.toml
+ * [mcp.servers] table. The engine loads those at startup, so re-injecting the
+ * same name via the runtime `add_mcp_server` command would register it twice.
+ * Callers pass the config.toml server names so those are skipped here - the
+ * engine keeps the config.toml copy, this path only adds what config.toml lacks.
+ *
+ * Names are sanitized with `sanitizeMcpServerName` (the SAME transform
+ * `McpService.syncMcpToAgents` applies before `WCoreMcpAgent` writes the
+ * config.toml key), so both the emitted `add_mcp_server` name AND the exclude
+ * comparison key the server identically to its config.toml copy. Without this a
+ * connector whose raw name needs sanitizing (e.g. `com.slack/slack-mcp`) would
+ * be injected under the raw name while config.toml holds `com.slack-slack-mcp` -
+ * the dedup would miss and the engine would register it twice (#478).
  */
 export function buildWCoreUserStdioMcpServers(
   mcpServers: IMcpServer[] | undefined | null,
-  activeServerIds?: readonly string[]
+  activeServerIds?: readonly string[],
+  excludeNames?: ReadonlySet<string>
 ): AcpSessionMcpServerStdio[] {
   if (!Array.isArray(mcpServers) || mcpServers.length === 0) {
     return [];
@@ -169,12 +185,13 @@ export function buildWCoreUserStdioMcpServers(
       const transport = server.transport as Extract<IMcpServer['transport'], { type: 'stdio' }>;
       return {
         type: 'stdio',
-        name: server.name,
+        name: sanitizeMcpServerName(server.name),
         command: transport.command,
         args: transport.args || [],
         env: toNameValueEntries(transport.env) ?? [],
       };
-    });
+    })
+    .filter((server) => !excludeNames?.has(server.name));
 }
 
 /** Config shape passed from TeamSessionService to AgentManagers */
