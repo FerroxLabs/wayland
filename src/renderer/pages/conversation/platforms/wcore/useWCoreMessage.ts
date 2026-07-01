@@ -59,6 +59,18 @@ export const useWCoreMessage = (
   // to decide whether the error tip is fatal (keep) or transient (clear). (#101)
   const turnEndedInErrorRef = useRef(false);
 
+  // #486: tool cards (callId -> last active status) the backend has reported as
+  // active (Executing/Confirming/Pending) but not yet terminalized with a
+  // matching-callId completion frame. The engine can end a turn without
+  // delivering that frame (root cause wayland-core#133, the ChatGPT-subscription
+  // parallel/builtin path), which strands the step-panel spinner after the
+  // assistant has already responded. On stream_end we terminalize whatever is
+  // left here as defense-in-depth, mirroring the resume-time running reconcile.
+  // The prior status decides the terminal status (an Executing tool most likely
+  // finished; a Pending/Confirming one never ran), so we never assert a false
+  // success on a tool that never executed.
+  const activeToolCallsRef = useRef<Map<string, string>>(new Map());
+
   useEffect(() => {
     onConfigChangedRef.current = onConfigChanged;
   }, [onConfigChanged]);
@@ -153,6 +165,13 @@ export const useWCoreMessage = (
           setStreamRunning(true);
           streamRunningRef.current = true;
           turnEndedInErrorRef.current = false;
+          // #486: a new turn starts fresh. Drop any tool cards left tracked as
+          // active by a prior turn that ended without a `finish` (e.g. an error
+          // frame with no trailing stream_end), so they can't be mistakenly
+          // terminalized against THIS turn's finish. Note we deliberately do NOT
+          // clear on `error`: a mid-turn error can be transient and followed by
+          // more tool activity in the same turn, which must stay tracked.
+          activeToolCallsRef.current.clear();
           // Don't reset waitingResponse here - let tool completion flow handle it
           break;
         case 'finish':
@@ -190,6 +209,37 @@ export const useWCoreMessage = (
             if (hasContentInTurnRef.current && !turnEndedInError) {
               clearErrorTips();
             }
+
+            // #486 defense-in-depth: the turn has ended, so no tool can still be
+            // running. Terminalize any card the engine left active (missing
+            // completion frame) so the step-panel spinner stops. We emit a
+            // status-only update per callId: composeMessage merges by callId and
+            // spreads over the existing card, so the name / resultDisplay /
+            // description are preserved and a real completion frame that arrives
+            // later still wins. If the turn errored, everything is Error;
+            // otherwise an Executing tool most likely finished (Success), while
+            // a Pending/Confirming one never actually ran (Canceled) — so we
+            // never paint a false success on a tool that never executed.
+            if (activeToolCallsRef.current.size > 0) {
+              const data = Array.from(activeToolCallsRef.current.entries()).map(([callId, priorStatus]) => ({
+                callId,
+                status: turnEndedInError ? 'Error' : priorStatus === 'Executing' ? 'Success' : 'Canceled',
+              }));
+              activeToolCallsRef.current.clear();
+              addOrUpdateMessage(
+                transformMessage({
+                  type: 'tool_group',
+                  data,
+                  msg_id: message.msg_id,
+                  conversation_id,
+                })
+              );
+            }
+            // The turn is over: clear the global active-tools flag too, so the
+            // combined `running` state can settle even if the last frame we saw
+            // for a tool was non-terminal.
+            setHasActiveTools(false);
+            hasActiveToolsRef.current = false;
           }
           break;
         case 'tool_group':
@@ -206,10 +256,23 @@ export const useWCoreMessage = (
             }
 
             // Check if any tools are executing or awaiting confirmation
-            const tools = message.data as Array<{ status: string; name?: string }>;
+            const tools = message.data as Array<{ status: string; name?: string; callId?: string }>;
             const activeStatuses = new Set(['Executing', 'Confirming', 'Pending']);
             const hasActive = tools.some((tool) => activeStatuses.has(tool.status));
             const wasActive = hasActiveToolsRef.current;
+
+            // #486: maintain the per-callId active set (callId -> its current
+            // active status) so stream_end can terminalize any card the engine
+            // never completed. Terminal frames (Success/Error/Canceled) drop the
+            // card from the set.
+            for (const tool of tools) {
+              if (!tool.callId) continue;
+              if (activeStatuses.has(tool.status)) {
+                activeToolCallsRef.current.set(tool.callId, tool.status);
+              } else {
+                activeToolCallsRef.current.delete(tool.callId);
+              }
+            }
 
             setHasActiveTools(hasActive);
             hasActiveToolsRef.current = hasActive; // Sync update ref immediately
@@ -309,6 +372,7 @@ export const useWCoreMessage = (
     setTokenUsage(null);
     hasContentInTurnRef.current = false;
     turnEndedInErrorRef.current = false;
+    activeToolCallsRef.current.clear();
     setHasHydratedRunningState(false);
 
     // Check actual conversation status from backend before resetting all running states
@@ -386,6 +450,7 @@ export const useWCoreMessage = (
     setThought({ subject: '', description: '' });
     hasContentInTurnRef.current = false;
     turnEndedInErrorRef.current = false;
+    activeToolCallsRef.current.clear();
     // Clear active message ID to prevent filtering events from new messages after stop
     activeMsgIdRef.current = null;
   }, []);
