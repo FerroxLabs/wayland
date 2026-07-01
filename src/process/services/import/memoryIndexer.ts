@@ -27,6 +27,8 @@ type IndexDroppedMemoryOpts = {
   summary: string;
   /** Original source filename, used as a summary fallback. */
   sourceFile?: string;
+  /** Tags for the stored entry. Defaults to ['dropped']; the backfill adds 'backfill'. */
+  tags?: string[];
 };
 
 /**
@@ -48,7 +50,7 @@ export async function indexDroppedMemory(opts: IndexDroppedMemoryOpts): Promise<
       content: content.slice(0, MAX_CONTENT),
       type: 'observation',
       summary,
-      tags: ['dropped'],
+      tags: opts.tags ?? ['dropped'],
     });
     if (!result.ok) {
       const errorMessage = (result as { error?: string }).error;

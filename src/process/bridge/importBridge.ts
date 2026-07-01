@@ -25,6 +25,7 @@ import {
 } from '@process/services/import/dropFolderWatcher';
 import type { DropFolderWatcherHandle } from '@process/services/import/dropFolderWatcher';
 import { indexDroppedMemory } from '@process/services/import/memoryIndexer';
+import { backfillMemoryIndex } from '@process/services/import/memoryBackfill';
 import { deriveSummary, deriveTitle, stripBom } from '@process/services/import/memoryFrontmatter';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
@@ -253,6 +254,13 @@ export function initImportBridge(): void {
 
   // Auto-start the live drop folder watcher at bridge init (no-deferment #10).
   startDropWatcherIfNeeded();
+
+  // One-time backfill: index memories that predate store-on-drop so they become
+  // recallable without the user having to re-drop them (#256). Fire-and-forget -
+  // guarded by a marker so it runs once, and best-effort so it never blocks init.
+  void backfillMemoryIndex({ ijfwMemoryDir: resolveMemoryDir() }).catch((err: unknown) => {
+    log.warn('[import] memory backfill failed', { err });
+  });
 }
 
 /**
