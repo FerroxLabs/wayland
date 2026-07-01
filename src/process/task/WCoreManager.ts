@@ -270,6 +270,21 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       if (teamGuide) stdioMcpServers.push(teamGuide);
     }
 
+    // Raw-engine (power-user) mode: when `wcore.rawEngineMode` is
+    // true, the embedded engine runs on its OWN config.toml exactly like the
+    // standalone CLI - so we SKIP (a) the Desktop model override (applied in
+    // buildSpawnConfig via the `rawEngineMode` flag passed below), (b) the
+    // Constitution/skills/specialist prompt overlay built below, and (c) the
+    // Desktop MCP-connector injection below (raw mode uses only the engine's own
+    // [mcp.servers] table, like the CLI). The renderer (RuntimePane) only
+    // persists the preference; this seam enacts it. A storage read failure falls
+    // back to the normal (overridden) path - never raw.
+    // Use ProcessConfig (main-process store) NOT ConfigStorage (renderer-bridged):
+    // ConfigStorage.get round-trips to the renderer and HANGS when WCore is
+    // spawned from a channel (a pure main-process path with no renderer in the
+    // loop), wedging every channel-triggered turn. `.catch` cannot save a hang.
+    const rawEngineMode = (await ProcessConfig.get('wcore.rawEngineMode').catch(() => false)) === true;
+
     // Inject the user's enabled stdio MCP connectors (mcp.config) so an
     // app-enabled connector reaches the engine WITHOUT a separate settings
     // toggle - mirroring the ACP session-injection path. wcore otherwise depends
@@ -280,34 +295,24 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // #478 dedup: skip any connector already in the active config.toml
     // [mcp.servers] table (WCoreMcpAgent settings-time write) - the engine loads
     // those at startup, so re-adding at runtime would register the server twice.
-    // Best-effort: a config read failure must never block the spawn.
-    try {
-      const mcpConfig = await ProcessConfig.get('mcp.config');
-      const alreadyInConfig = await readWCoreConfigMcpServerNames();
-      const userServers = buildWCoreUserStdioMcpServers(
-        mcpConfig as IMcpServer[] | undefined,
-        mergedData.activeMcpServers,
-        alreadyInConfig
-      );
-      for (const server of userServers) {
-        stdioMcpServers.push({ name: server.name, command: server.command, args: server.args, env: server.env });
+    // Skipped entirely in raw-engine mode (above). Best-effort: a config read
+    // failure must never block the spawn.
+    if (!rawEngineMode) {
+      try {
+        const mcpConfig = await ProcessConfig.get('mcp.config');
+        const alreadyInConfig = await readWCoreConfigMcpServerNames();
+        const userServers = buildWCoreUserStdioMcpServers(
+          mcpConfig as IMcpServer[] | undefined,
+          mergedData.activeMcpServers,
+          alreadyInConfig
+        );
+        for (const server of userServers) {
+          stdioMcpServers.push({ name: server.name, command: server.command, args: server.args, env: server.env });
+        }
+      } catch (err) {
+        mainWarn('[WCoreManager]', 'failed to load user MCP connectors for injection', err);
       }
-    } catch (err) {
-      mainWarn('[WCoreManager]', 'failed to load user MCP connectors for injection', err);
     }
-
-    // Raw-engine (power-user) mode: when `wcore.rawEngineMode` is
-    // true, the embedded engine runs on its OWN config.toml exactly like the
-    // standalone CLI - so we SKIP both (a) the Desktop model override (applied
-    // in buildSpawnConfig via the `rawEngineMode` flag passed below) and (b) the
-    // Constitution/skills/specialist prompt overlay built here. The renderer
-    // (RuntimePane) only persists the preference; this seam enacts it. A storage
-    // read failure falls back to the normal (overridden) path - never raw.
-    // Use ProcessConfig (main-process store) NOT ConfigStorage (renderer-bridged):
-    // ConfigStorage.get round-trips to the renderer and HANGS when WCore is
-    // spawned from a channel (a pure main-process path with no renderer in the
-    // loop), wedging every channel-triggered turn. `.catch` cannot save a hang.
-    const rawEngineMode = (await ProcessConfig.get('wcore.rawEngineMode').catch(() => false)) === true;
 
     // #468: Output-budget override. When the user picked a Fixed budget, pass it
     // as the per-call `--max-tokens` (via buildSpawnConfig); Auto (default/unset)
