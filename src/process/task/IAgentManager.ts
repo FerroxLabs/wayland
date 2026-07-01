@@ -9,7 +9,7 @@
 import type { IConfirmation } from '@/common/chat/chatLib';
 import type { AgentType, AgentStatus } from './agentTypes';
 
-export type AgentKillReason = 'idle_timeout' | 'team_deleted';
+export type AgentKillReason = 'idle_timeout' | 'team_deleted' | 'workspace_rehome';
 
 export interface IAgentManager {
   readonly type: AgentType;

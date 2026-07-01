@@ -7,6 +7,7 @@
 import type { IProjectService } from './IProjectService';
 import type { IProjectRepository } from '@process/services/database/IProjectRepository';
 import type { IConversationService } from './IConversationService';
+import type { AgentStatus } from '@process/task/agentTypes';
 import type { IProject, ICreateProjectParams, IUpdateProjectParams } from '@/common/types/project';
 import type { TChatConversation } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
@@ -28,12 +29,17 @@ export class ProjectServiceImpl implements IProjectService {
     private readonly repo: IProjectRepository,
     private readonly conversations: IConversationService,
     /**
-     * Evicts a conversation's cached worker task so its next turn rebuilds with a
-     * corrected workspace (used after assign re-homes a chat). Injected, not
-     * imported, so the service carries no hard dependency on the task layer.
+     * Port over the cached worker tasks, used after assign re-homes a chat so its
+     * next turn rebuilds in the corrected workspace. Injected, not imported, so
+     * the service carries no hard dependency on the task layer. `getStatus`
+     * returns the cached task's status (undefined when none is cached) so we can
+     * skip evicting a task that is actively streaming; `evict` drops (kills) it.
      * Optional: omitted in unit tests and callers with no live task cache.
      */
-    private readonly evictTask?: (conversationId: string) => void
+    private readonly taskCache?: {
+      getStatus(conversationId: string): AgentStatus | undefined;
+      evict(conversationId: string): void;
+    }
   ) {}
 
   async createProject(params: ICreateProjectParams): Promise<IProject> {
@@ -124,10 +130,15 @@ export class ProjectServiceImpl implements IProjectService {
       true
     );
     // A chat that's already open keeps writing to its old temp cwd until its
-    // cached worker task is rebuilt. Drop the cached task so the next turn
-    // re-spawns in the re-homed workspace - no app restart needed. Only when the
-    // workspace actually moved.
-    if (rehomed) this.evictTask?.(conversationId);
+    // cached worker task is rebuilt. When the workspace actually moved, drop the
+    // cached task so the next turn re-spawns in the re-homed workspace - no app
+    // restart needed. But NEVER evict a task that is actively streaming
+    // ('running'): killing it would abort the in-flight turn and lose the
+    // response. That rare case re-homes on its next spawn instead;
+    // extra.workspace is already persisted above, so correctness holds either way.
+    if (rehomed && this.taskCache && this.taskCache.getStatus(conversationId) !== 'running') {
+      this.taskCache.evict(conversationId);
+    }
   }
 
   async removeConversationFromProject(conversationId: string): Promise<void> {

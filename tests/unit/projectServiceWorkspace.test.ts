@@ -95,14 +95,16 @@ describe('ProjectServiceImpl.assignConversation re-homes workspace (#30)', () =>
     mockEnforce.mockClear();
   });
 
-  it('ensures + enforces the project workspace, persists it, and evicts the cached task', async () => {
+  it('ensures + enforces the project workspace, persists it, and evicts the idle cached task', async () => {
     const repo = makeRepo();
     const convs = {
       getConversation: vi.fn(async () => ({ id: 'c1', extra: { workspace: '/tmp/wcore-temp-1' } })),
       updateConversation: vi.fn(async () => {}),
     };
-    const evict = vi.fn();
-    const svc = new ProjectServiceImpl(repo as never, convs as never, evict);
+    // An open-but-idle chat: the cached task exists and is finished, so evicting
+    // it is safe and forces the next turn to respawn in the project folder.
+    const taskCache = { getStatus: vi.fn(() => 'finished' as const), evict: vi.fn() };
+    const svc = new ProjectServiceImpl(repo as never, convs as never, taskCache);
 
     await svc.assignConversation('c1', 'p1');
 
@@ -116,8 +118,27 @@ describe('ProjectServiceImpl.assignConversation re-homes workspace (#30)', () =>
     expect(updates).toEqual({
       extra: expect.objectContaining({ projectId: 'p1', workspace: '/Docs/Wayland/Proj' }),
     });
-    // Re-homed -> cached task evicted so the next turn rebuilds in the project dir.
-    expect(evict).toHaveBeenCalledWith('c1');
+    // Re-homed + idle -> cached task evicted so the next turn rebuilds in the project dir.
+    expect(taskCache.evict).toHaveBeenCalledWith('c1');
+  });
+
+  it('does NOT evict an actively-streaming (running) task, but still persists the re-home', async () => {
+    const repo = makeRepo();
+    const convs = {
+      getConversation: vi.fn(async () => ({ id: 'c3', extra: { workspace: '/tmp/wcore-temp-9' } })),
+      updateConversation: vi.fn(async () => {}),
+    };
+    // Chat assigned mid-turn: evicting would kill the in-flight stream, so skip it.
+    const taskCache = { getStatus: vi.fn(() => 'running' as const), evict: vi.fn() };
+    const svc = new ProjectServiceImpl(repo as never, convs as never, taskCache);
+
+    await svc.assignConversation('c3', 'p1');
+
+    // Workspace is still re-homed + persisted (correctness holds either way)...
+    const persisted = convs.updateConversation.mock.calls[0][1] as { extra: { workspace: string } };
+    expect(persisted.extra.workspace).toBe('/Docs/Wayland/Proj');
+    // ...but the in-flight turn is NOT aborted; it re-homes on its next spawn.
+    expect(taskCache.evict).not.toHaveBeenCalled();
   });
 
   it('preserves a user-picked custom workspace and does not evict', async () => {
@@ -129,8 +150,8 @@ describe('ProjectServiceImpl.assignConversation re-homes workspace (#30)', () =>
       })),
       updateConversation: vi.fn(async () => {}),
     };
-    const evict = vi.fn();
-    const svc = new ProjectServiceImpl(repo as never, convs as never, evict);
+    const taskCache = { getStatus: vi.fn(() => 'finished' as const), evict: vi.fn() };
+    const svc = new ProjectServiceImpl(repo as never, convs as never, taskCache);
 
     await svc.assignConversation('c2', 'p1');
 
@@ -140,6 +161,7 @@ describe('ProjectServiceImpl.assignConversation re-homes workspace (#30)', () =>
     };
     expect(persisted.extra.projectId).toBe('p1');
     expect(persisted.extra.workspace).toBe('/picked/dir');
-    expect(evict).not.toHaveBeenCalled();
+    // Not re-homed -> no eviction (guard short-circuits before getStatus).
+    expect(taskCache.evict).not.toHaveBeenCalled();
   });
 });
