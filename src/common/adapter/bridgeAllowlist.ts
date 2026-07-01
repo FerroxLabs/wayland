@@ -207,6 +207,22 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // Also deny the read: it discloses the engine's security/tools posture to a
   // paired WebUI client (no secret values, but defence-in-depth — SEC review F2).
   'wcoreConfig.getSection',
+  // --- Cron write/exec surface. A cron job carries `agentConfig.mode`, which the
+  //     executor applies via `task.setMode()` at run time. With the bundled
+  //     engine now honoring a wire `set_mode` (WAYLAND_ALLOW_WIRE_FORCE, #495), a
+  //     remote-authored job with mode `yolo`/`force`/`auto_edit`/`bypassPermissions`
+  //     would spawn a Force/AutoEdit-mode agent with NO local user action. There
+  //     is no per-call remote/local signal inside a buildProvider handler (remote
+  //     enforcement is name-based here), so mode cannot be clamped in-handler;
+  //     deny the write/exec surface outright, mirroring `wcoreConfig.setSection`.
+  //     add-job/update-job set the mode; run-now fires the agent (exec). The
+  //     read-only views (cron.list-jobs / list-jobs-by-conversation / get-job)
+  //     and cron.remove-job stay allowed for the paired UI. Tradeoff: remote
+  //     devices can no longer create/update or manually trigger cron jobs;
+  //     scheduled jobs still fire and local creation is unaffected. ---
+  'cron.add-job',
+  'cron.update-job',
+  'cron.run-now',
   // --- In-app engine updater. `install` downloads + stages a native binary the
   //     next engine spawn executes; a remote caller reaching it is an RCE chain.
   //     `check` hits the network + discloses the engine version. HUMAN-only. ---

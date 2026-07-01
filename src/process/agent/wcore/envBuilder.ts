@@ -672,10 +672,13 @@ export function buildEngineSpawnEnv(opts: {
   //     per-mode approach would force a kill+respawn on every switch into a
   //     looser mode.
   //  2. This engine is the desktop's OWN trusted child, spawned over a private
-  //     stdin the desktop exclusively writes. `set_mode` is only ever emitted
-  //     from an explicit local user action (the composer selector) or a
-  //     user-configured cron job - NEVER from model output (inbound engine
-  //     events never call setMode). The model cannot induce a `set_mode`.
+  //     stdin the desktop exclusively writes. `set_mode` is emitted only from an
+  //     explicit local user action (the composer selector) or a cron job whose
+  //     mode was set by the local user - NEVER from model output (inbound engine
+  //     events never call setMode). The model cannot induce a `set_mode`. A
+  //     paired REMOTE device cannot author a looser cron mode either: the cron
+  //     write/exec surface (cron.add-job/update-job/run-now) is remote-denied in
+  //     bridgeAllowlist, so a remote caller cannot plant a Force/AutoEdit job.
   //  3. Remote/WebUI callers reach `acp.set-mode` only through the paired-device
   //     WebSocket, which is already gated by the WebUI's own token/pairing auth
   //     (see bridgeAllowlist). Opening the gate restores exactly the pre-0.12.19

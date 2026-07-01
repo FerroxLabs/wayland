@@ -104,3 +104,36 @@ describe('isAllowedForRemote - onboarding credential writes denied', () => {
     expect(isAllowedForRemote('subscribe-onboarding.infer-focus')).toBe(true);
   });
 });
+
+/**
+ * Cron write/exec surface must NOT be reachable by a remote (paired-device
+ * WebSocket) caller (#495 follow-up). A cron job carries `agentConfig.mode`,
+ * which the executor applies via `task.setMode()` at run time; with the bundled
+ * engine now honoring a wire `set_mode` (WAYLAND_ALLOW_WIRE_FORCE), a
+ * remote-authored `yolo`/`force`/`auto_edit`/`bypassPermissions` job would spawn
+ * a Force/AutoEdit-mode agent with no local user action. There is no per-call
+ * remote/local signal inside a buildProvider handler, so the mode cannot be
+ * clamped in-handler; the write/exec surface is denied outright, mirroring
+ * `wcoreConfig.setSection`. add-job/update-job set the mode; run-now fires the
+ * agent. The read-only views + remove-job stay allowed for the paired UI.
+ *
+ * Note: this is the REMOTE gate only. A LOCALLY-configured cron job (local
+ * Electron IPC renderer) never passes through `isAllowedForRemote` - the adapter
+ * applies it exclusively to the WebSocket path - so local creation with any mode
+ * is unaffected.
+ */
+describe('isAllowedForRemote - cron write/exec surface denied (#495)', () => {
+  it.each(['cron.add-job', 'cron.update-job', 'cron.run-now'])(
+    'denies subscribe-%s for remote callers (blocks remote mode escalation)',
+    (key) => {
+      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+    }
+  );
+
+  it.each(['cron.list-jobs', 'cron.list-jobs-by-conversation', 'cron.get-job', 'cron.remove-job'])(
+    'still allows the read/remove provider subscribe-%s for remote callers',
+    (key) => {
+      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
+    }
+  );
+});
