@@ -185,11 +185,12 @@ const ProjectWorkspacePage: React.FC = () => {
   ];
 
   return (
-    <div className='flex flex-col h-full w-full overflow-hidden'>
+    <div className='flex flex-col h-full w-full overflow-hidden' data-appearance-surface='project-workspace'>
       {/* Header */}
       <div
         className='flex items-center gap-12px px-24px py-16px flex-shrink-0'
         style={{ borderBottom: '1px solid var(--color-border-2)' }}
+        data-appearance-role='project-workspace-header'
       >
         <Button type='text' shape='circle' icon={<ChevronLeft size={18} />} onClick={() => navigate('/projects')} />
         <div
@@ -241,6 +242,7 @@ const ProjectWorkspacePage: React.FC = () => {
       <div
         className='flex items-center gap-2px px-20px flex-shrink-0'
         style={{ borderBottom: '1px solid var(--color-border-2)' }}
+        data-appearance-role='project-workspace-tabs'
       >
         {TABS.map((tab) => {
           const active = activeTab === tab.key;
@@ -268,9 +270,9 @@ const ProjectWorkspacePage: React.FC = () => {
       </div>
 
       {/* Tab content */}
-      <div className='flex-1 overflow-hidden'>
+      <div className='flex-1 overflow-hidden' data-appearance-role='project-workspace-content'>
         {activeTab === 'chats' && (
-          <div className='h-full overflow-auto px-24px py-16px'>
+          <div className='h-full overflow-auto px-24px py-16px' data-appearance-role='project-chat-list'>
             {!loading && conversations.length === 0 ? (
               <div className='flex flex-col items-center justify-center gap-16px h-full text-center'>
                 <div className='flex items-center justify-center w-56px h-56px rd-14px bg-fill-1 text-t-tertiary'>
@@ -308,6 +310,7 @@ const ProjectWorkspacePage: React.FC = () => {
                           if (e.key === 'Enter') navigate(`/conversation/${c.id}`);
                         }}
                         className={`group flex items-center gap-12px px-14px py-12px cursor-pointer ${styles.card}`}
+                        data-appearance-role='project-chat-card'
                       >
                         <div className='flex flex-col gap-2px min-w-0 flex-1'>
                           <div className='flex items-center gap-6px min-w-0'>

@@ -126,9 +126,12 @@ const ProjectsListPage: React.FC = () => {
       actions={newProjectButton}
       width='full'
     >
-      <div className='pb-24px'>
+      <div className='pb-24px' data-appearance-surface='projects-list'>
         {!loading && projects.length === 0 ? (
-          <div className='flex flex-col items-center justify-center gap-16px min-h-[360px] text-center'>
+          <div
+            className='flex flex-col items-center justify-center gap-16px min-h-[360px] text-center'
+            data-appearance-role='projects-empty-state'
+          >
             <div className='flex items-center justify-center w-64px h-64px rd-16px bg-fill-1 text-t-tertiary'>
               <FolderPlus size={28} />
             </div>
@@ -144,7 +147,11 @@ const ProjectsListPage: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className='grid gap-16px' style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+          <div
+            className='grid gap-16px'
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}
+            data-appearance-role='project-grid'
+          >
             {projects.map((p) => (
               <ProjectCard
                 key={p.id}
