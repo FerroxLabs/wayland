@@ -21,4 +21,38 @@ describe('formatMessages', () => {
     ];
     expect(formatMessages(msgs, agents)).toContain('[From Researcher] Done');
   });
+
+  it('truncates oversized mailbox messages before prompt assembly', () => {
+    const msgs: MailboxMessage[] = [
+      {
+        id: 'm1',
+        teamId: 't1',
+        toAgentId: 'slot-1',
+        fromAgentId: 'slot-2',
+        content: 'x'.repeat(100),
+        summary: 'Long research result',
+        type: 'message',
+      },
+    ];
+
+    const formatted = formatMessages(msgs, [], { messageCharLimit: 40, totalCharLimit: 500 });
+
+    expect(formatted).toContain('Summary: Long research result');
+    expect(formatted).toContain('truncated');
+    expect(formatted.length).toBeLessThan(140);
+  });
+
+  it('caps the total unread mailbox bundle included in a wake prompt', () => {
+    const msgs: MailboxMessage[] = [
+      { id: 'm1', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'a'.repeat(80), type: 'message' },
+      { id: 'm2', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'b'.repeat(80), type: 'message' },
+      { id: 'm3', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'c'.repeat(80), type: 'message' },
+    ];
+
+    const formatted = formatMessages(msgs, [], { messageCharLimit: 100, totalCharLimit: 130 });
+
+    expect(formatted).toContain('[From User]');
+    expect(formatted).toContain('omitted');
+    expect(formatted.length).toBeLessThan(240);
+  });
 });

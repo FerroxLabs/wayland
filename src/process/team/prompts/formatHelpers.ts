@@ -1,14 +1,66 @@
 import type { TeamAgent, MailboxMessage } from '../types';
 
+const DEFAULT_MESSAGE_CHAR_LIMIT = 6000;
+const DEFAULT_TOTAL_CHAR_LIMIT = 30000;
+
+export type FormatMessagesOptions = {
+  messageCharLimit?: number;
+  totalCharLimit?: number;
+};
+
+function clampPositive(value: number | undefined, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+}
+
+function formatContentForPrompt(message: MailboxMessage, limit: number): string {
+  const content = message.content ?? '';
+  if (content.length <= limit) return content;
+
+  const summary = message.summary?.trim();
+  const prefix = summary ? `Summary: ${summary}\n\n` : '';
+  const available = Math.max(0, limit - prefix.length);
+  const excerpt = available > 0 ? content.slice(0, available) : '';
+  return `${prefix}${excerpt}\n...[truncated ${content.length - excerpt.length} chars from mailbox message before prompt assembly]`;
+}
+
+function withTotalBudget(lines: string[], limit: number): string {
+  const selected: string[] = [];
+  let used = 0;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const separator = selected.length > 0 ? 1 : 0;
+    if (used + separator + line.length <= limit) {
+      selected.push(line);
+      used += separator + line.length;
+      continue;
+    }
+
+    const remaining = Math.max(0, limit - used - separator);
+    if (remaining > 120) {
+      selected.push(`${line.slice(0, remaining)}\n...[truncated unread mailbox bundle before prompt assembly]`);
+    }
+    const omitted = lines.length - i - (remaining > 120 ? 1 : 0);
+    if (omitted > 0) selected.push(`...[omitted ${omitted} additional mailbox message(s) due to prompt budget]`);
+    break;
+  }
+  return selected.join('\n');
+}
+
 /** Format mailbox messages, resolving sender names from the agents list. */
-export function formatMessages(messages: MailboxMessage[], agents: TeamAgent[]): string {
+export function formatMessages(
+  messages: MailboxMessage[],
+  agents: TeamAgent[],
+  options: FormatMessagesOptions = {}
+): string {
   if (messages.length === 0) return 'No unread messages.';
-  return messages
-    .map((m) => {
-      const filesNote = m.files?.length ? `\nFiles: ${m.files.join(', ')}` : '';
-      if (m.fromAgentId === 'user') return `[From User] ${m.content}${filesNote}`;
-      const sender = agents.find((a) => a.slotId === m.fromAgentId);
-      return `[From ${sender?.agentName ?? m.fromAgentId}] ${m.content}${filesNote}`;
-    })
-    .join('\n');
+  const messageLimit = clampPositive(options.messageCharLimit, DEFAULT_MESSAGE_CHAR_LIMIT);
+  const totalLimit = clampPositive(options.totalCharLimit, DEFAULT_TOTAL_CHAR_LIMIT);
+  const lines = messages.map((m) => {
+    const filesNote = m.files?.length ? `\nFiles: ${m.files.join(', ')}` : '';
+    const content = formatContentForPrompt(m, messageLimit);
+    if (m.fromAgentId === 'user') return `[From User] ${content}${filesNote}`;
+    const sender = agents.find((a) => a.slotId === m.fromAgentId);
+    return `[From ${sender?.agentName ?? m.fromAgentId}] ${content}${filesNote}`;
+  });
+  return withTotalBudget(lines, totalLimit);
 }
