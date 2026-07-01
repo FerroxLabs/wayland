@@ -24,6 +24,9 @@ import {
   getDropFolderStatus,
 } from '@process/services/import/dropFolderWatcher';
 import type { DropFolderWatcherHandle } from '@process/services/import/dropFolderWatcher';
+import { indexDroppedMemory } from '@process/services/import/memoryIndexer';
+import { backfillMemoryIndex } from '@process/services/import/memoryBackfill';
+import { deriveSummary, deriveTitle, stripBom } from '@process/services/import/memoryFrontmatter';
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -38,6 +41,60 @@ const ingestFileItemSchema = z.object({
 const ingestFilesSchema = z.object({
   files: z.array(ingestFileItemSchema).min(1).max(50),
 });
+
+// name/content are required by ingestFileItemSchema (`.min(1)`); they are typed
+// optional here only to match zod's inferred element type at the call site.
+type DragDropFile = { name?: string; content?: string; scope?: 'project' | 'global' };
+
+/**
+ * Assemble the persisted .md (frontmatter + body) and store payload for one
+ * drag-dropped memory. Pure + exported so the BOM / CRLF derivation that the
+ * drag-drop path got wrong (#256 B1) is unit-testable without the IPC harness.
+ * Derivation runs through the shared `memoryFrontmatter` helpers so this path
+ * and the drop-folder watcher cannot diverge again.
+ */
+export function buildDragDropMemoryFile(
+  file: DragDropFile,
+  timestamp: number
+): { destName: string; fileContent: string; summary: string; title: string; indexedContent: string } {
+  const name = file.name ?? 'memory.md';
+  // Strip a leading BOM up front so the written body, the dedup hash, the
+  // derived title/description, and the FTS5 store content all see clean text.
+  // Without this a Windows-authored file (BOM before the first `#`) lost its
+  // title to the filename fallback and stored mangled metadata.
+  const cleaned = stripBom(file.content ?? '');
+  const hash = crypto.createHash('sha1').update(cleaned).digest('hex').slice(0, 8);
+  const safeName = name.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.(?:md|txt|json)$/i, '.md');
+  const destName = `dropped-${timestamp}-${safeName}`;
+  const scope = file.scope ?? 'global';
+  const summary = deriveSummary(cleaned, name);
+  const title = deriveTitle(cleaned, name);
+  const hasFrontmatter = cleaned.trimStart().startsWith('---');
+
+  let fileContent: string;
+  if (hasFrontmatter) {
+    fileContent = cleaned;
+  } else {
+    // title + description let the IJFW reader tier surface a real label/desc
+    // instead of falling back to the generated filename.
+    const frontmatter = [
+      '---',
+      `id: ${hash}`,
+      `title: ${title}`,
+      `description: ${summary}`,
+      `type: observation`,
+      `created: ${timestamp}`,
+      `source: drag-drop`,
+      `scope: ${scope}`,
+      `summary: ${summary}`,
+      '---',
+      '',
+    ].join('\n');
+    fileContent = `${frontmatter}${cleaned}\n`;
+  }
+
+  return { destName, fileContent, summary, title, indexedContent: cleaned };
+}
 
 // ── Drop folder watcher handle (singleton) ───────────────────────────────────
 
@@ -176,41 +233,16 @@ export function initImportBridge(): void {
         continue;
       }
 
-      const timestamp = Date.now();
-      const hash = crypto.createHash('sha1').update(file.content).digest('hex').slice(0, 8);
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.(?:md|txt|json)$/i, '.md');
-      const destName = `dropped-${timestamp}-${safeName}`;
+      const { destName, fileContent, summary, indexedContent } = buildDragDropMemoryFile(file, Date.now());
       const destPath = path.join(memDir, destName);
-
-      const scope = file.scope ?? 'global';
-      const summary = file.content
-        .split('\n')[0]
-        .slice(0, 200)
-        .replace(/[\r\n]+/g, ' ');
-      const hasFrontmatter = file.content.trimStart().startsWith('---');
-
-      let fileContent: string;
-      if (hasFrontmatter) {
-        fileContent = file.content;
-      } else {
-        const frontmatter = [
-          '---',
-          `id: ${hash}`,
-          `type: observation`,
-          `created: ${timestamp}`,
-          `source: drag-drop`,
-          `scope: ${scope}`,
-          `summary: ${summary}`,
-          '---',
-          '',
-        ].join('\n');
-        fileContent = `${frontmatter}${file.content}\n`;
-      }
 
       try {
         await fs.promises.writeFile(destPath, fileContent, 'utf8');
         ingested++;
         log.info('[import] ingestFiles wrote', { destName });
+        // Index into the IJFW FTS5 store so the agent can recall it, not just
+        // see it in the Memory UI (#256). Fire-and-forget.
+        void indexDroppedMemory({ content: indexedContent, summary, sourceFile: file.name });
       } catch (err) {
         log.warn('[import] ingestFiles write failed', { destName, err });
         errors.push(`${file.name}: ${String(err)}`);
@@ -222,6 +254,13 @@ export function initImportBridge(): void {
 
   // Auto-start the live drop folder watcher at bridge init (no-deferment #10).
   startDropWatcherIfNeeded();
+
+  // One-time backfill: index memories that predate store-on-drop so they become
+  // recallable without the user having to re-drop them (#256). Fire-and-forget -
+  // guarded by a marker so it runs once, and best-effort so it never blocks init.
+  void backfillMemoryIndex({ ijfwMemoryDir: resolveMemoryDir() }).catch((err: unknown) => {
+    log.warn('[import] memory backfill failed', { err });
+  });
 }
 
 /**
