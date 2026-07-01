@@ -104,9 +104,26 @@ type SiderItem = {
   id: string;
   label: string;
   icon: React.ReactElement;
-  isImageIcon?: boolean;
+  maskIconUrl?: string;
   path: string;
 };
+
+const ExtensionMaskIcon: React.FC<{ src: string }> = ({ src }) => (
+  <span
+    className='block w-16px h-16px bg-current text-t-secondary'
+    style={{
+      maskImage: `url(${src})`,
+      maskRepeat: 'no-repeat',
+      maskPosition: 'center',
+      maskSize: 'contain',
+      WebkitMaskImage: `url(${src})`,
+      WebkitMaskRepeat: 'no-repeat',
+      WebkitMaskPosition: 'center',
+      WebkitMaskSize: 'contain',
+    }}
+    aria-hidden='true'
+  />
+);
 
 const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }> = ({
   collapsed = false,
@@ -333,8 +350,8 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
       return {
         id: tab.id,
         label: resolveExtTabName(tab),
-        icon: resolvedIcon ? <img src={resolvedIcon} alt='' className='w-full h-full object-contain' /> : <Puzzle />,
-        isImageIcon: Boolean(resolvedIcon),
+        icon: resolvedIcon ? <ExtensionMaskIcon src={resolvedIcon} /> : <Puzzle />,
+        maskIconUrl: resolvedIcon,
         path: `ext/${tab.id}`,
       };
     };
@@ -409,7 +426,7 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
                 }}
               >
                 <span className='w-20px h-20px flex items-center justify-center shrink-0'>
-                  {item.isImageIcon ? (
+                  {item.maskIconUrl ? (
                     <span className='w-16px h-16px flex items-center justify-center'>{item.icon}</span>
                   ) : (
                     React.cloneElement(
