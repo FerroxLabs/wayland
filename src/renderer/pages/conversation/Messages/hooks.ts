@@ -447,6 +447,72 @@ export const useClearErrorTips = () => {
   }, [update]);
 };
 
+/**
+ * Tool-card statuses that render a live spinner (see MessageToolGroup: a card is
+ * "loading" for any status other than Success/Error/Canceled). When a turn ends,
+ * a card left in one of these implies the tool is still running. (#486)
+ */
+const DANGLING_TOOL_STATUSES = new Set(['Executing', 'Confirming', 'Pending']);
+
+/**
+ * Defense-in-depth for #486 (root cause is core: wayland-core#133 call_id
+ * instability drops the terminal tool-card frame). On turn end the global
+ * running flags are cleared, but individual tool_group cards can be left in
+ * Executing/Confirming/Pending and keep spinning forever. This terminalizes
+ * any such dangling card to `Canceled` — the honest terminal: the turn ended,
+ * so the tool's real outcome was never reported to the UI. It never rewrites a
+ * card that already reached a terminal state (Success/Error/Canceled), and if a
+ * genuine late tool_group frame arrives after finish, composeMessage merges the
+ * real status back over `Canceled`, so this is non-destructive.
+ *
+ * Pure + referential-identity preserving: returns the same list reference when
+ * nothing is dangling so React can skip the re-render (the common case).
+ *
+ * LIMITATION (by design): this only reconciles the in-memory renderer list. The
+ * card's DB record was persisted by WCoreManager when the (incomplete) Executing
+ * frame arrived and is NOT rewritten here, so reloading the conversation
+ * re-reads `Executing` and the spinner returns. Durable, DB-side correctness
+ * requires the root fix in core (wayland-core#133); this hook is the
+ * live-session defense-in-depth only.
+ */
+export function reconcileDanglingToolGroups(list: TMessage[]): TMessage[] {
+  let listChanged = false;
+  const next = list.map((message) => {
+    if (message.type !== 'tool_group' || !Array.isArray(message.content)) {
+      return message;
+    }
+    let cardChanged = false;
+    const content = message.content.map((tool) => {
+      if (tool && DANGLING_TOOL_STATUSES.has(tool.status)) {
+        cardChanged = true;
+        return { ...tool, status: 'Canceled' as const };
+      }
+      return tool;
+    });
+    if (!cardChanged) return message;
+    listChanged = true;
+    return { ...message, content };
+  });
+  return listChanged ? next : list;
+}
+
+/**
+ * Returns a callback that terminalizes any tool card left spinning after a turn
+ * ends (stream_end / error). See reconcileDanglingToolGroups. Deferred by one
+ * macrotask so it runs AFTER useAddOrUpdateMessage's batched flush commits this
+ * turn's final tool_group frames; otherwise it would flip a card the flush then
+ * re-adds as Executing. Mirrors useClearErrorTips. (#486)
+ */
+export const useReconcileDanglingToolCards = () => {
+  const update = useUpdateMessageList();
+
+  return useCallback(() => {
+    setTimeout(() => {
+      update((list) => reconcileDanglingToolGroups(list));
+    });
+  }, [update]);
+};
+
 export const useMessageLstCache = (key: string) => {
   const update = useUpdateMessageList();
   useEffect(() => {

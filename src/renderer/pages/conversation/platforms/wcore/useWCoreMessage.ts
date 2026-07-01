@@ -9,7 +9,11 @@ import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TChatConversation, TokenUsageData } from '@/common/config/storage';
 import type { ThoughtData } from '@/renderer/components/chat/ThoughtDisplay';
-import { useAddOrUpdateMessage, useClearErrorTips } from '@/renderer/pages/conversation/Messages/hooks';
+import {
+  useAddOrUpdateMessage,
+  useClearErrorTips,
+  useReconcileDanglingToolCards,
+} from '@/renderer/pages/conversation/Messages/hooks';
 import { useTabResumeEffect } from '@/renderer/hooks/system/useTabResumeEffect';
 import { isToolUnsupportedErrorMessage } from '@/renderer/utils/model/errorDetection';
 import i18n from '@/renderer/services/i18n';
@@ -32,6 +36,7 @@ export const useWCoreMessage = (
   const onConfigChangedRef = useRef(onConfigChanged);
   const addOrUpdateMessage = useAddOrUpdateMessage();
   const clearErrorTips = useClearErrorTips();
+  const reconcileDanglingToolCards = useReconcileDanglingToolCards();
   const [streamRunning, setStreamRunning] = useState(false);
   const [hasActiveTools, setHasActiveTools] = useState(false);
   const [waitingResponse, setWaitingResponse] = useState(false);
@@ -175,6 +180,13 @@ export const useWCoreMessage = (
             setStreamRunning(false);
             setWaitingResponse(false);
             setThought({ subject: '', description: '' });
+            // Turn ended: clearing the GLOBAL running flags above stops the
+            // "Processing" spinner, but any individual tool card left in
+            // Executing/Confirming/Pending keeps spinning forever (#486, root
+            // cause wayland-core#133). Terminalize dangling cards. Deferred one
+            // macrotask so it runs after this turn's final tool_group frames
+            // commit; a genuine late frame still wins via composeMessage.
+            reconcileDanglingToolCards();
             // Only drop transient mid-turn error tips (e.g. wcore's non-fatal
             // "Cache full miss: TtlExpiry") when the turn actually SUCCEEDED. A
             // turn that ENDS in an error must keep its error tip — that banner is
@@ -267,6 +279,9 @@ export const useWCoreMessage = (
             setHasActiveTools(false);
             hasActiveToolsRef.current = false;
             setThought({ subject: '', description: '' });
+            // An error also ends the turn, so terminalize any tool card left
+            // spinning (same #486 defense-in-depth as the finish path).
+            reconcileDanglingToolCards();
             // Mark the turn as currently ended-in-error; a later content/tool_group
             // frame clears this if the turn actually continues and succeeds.
             turnEndedInErrorRef.current = true;
@@ -300,7 +315,7 @@ export const useWCoreMessage = (
       }
     });
     // Note: hasActiveTools and streamRunning are accessed via refs to avoid re-subscription
-  }, [conversation_id, addOrUpdateMessage, onError, clearErrorTips]);
+  }, [conversation_id, addOrUpdateMessage, onError, clearErrorTips, reconcileDanglingToolCards]);
 
   useEffect(() => {
     let cancelled = false;
@@ -365,6 +380,10 @@ export const useWCoreMessage = (
         waitingResponseRef.current = false;
         setHasActiveTools(false);
         hasActiveToolsRef.current = false;
+        // The turn is over: terminalize any tool card still spinning, same as
+        // the finish/error paths. Covers the case where finish fired while the
+        // tab was backgrounded (its deferred reconcile may be timer-throttled). (#486)
+        reconcileDanglingToolCards();
       } else if (isRunning && !streamRunningRef.current) {
         setStreamRunning(true);
         streamRunningRef.current = true;
@@ -372,7 +391,7 @@ export const useWCoreMessage = (
         waitingResponseRef.current = true;
       }
     });
-  }, [conversation_id, setStreamRunning, setWaitingResponse, setHasActiveTools]);
+  }, [conversation_id, setStreamRunning, setWaitingResponse, setHasActiveTools, reconcileDanglingToolCards]);
 
   useTabResumeEffect(reconcileRunningOnResume, [conversation_id]);
 
