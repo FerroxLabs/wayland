@@ -13,7 +13,7 @@ import {
 } from '@/common/config/storage';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
 import type { TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
-import { voiceAsset } from '@/common/adapter/ipcBridge';
+import { modelRegistry, voiceAsset } from '@/common/adapter/ipcBridge';
 import {
   isImageModelName,
   imageModelDisplayLabel,
@@ -417,6 +417,26 @@ export const SpeechToTextSettingsSection: React.FC<{
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Whether OpenAI is connected in the shared provider registry (the same store
+  // Models/Providers shows as "Connected"). When it is, OpenAI Whisper uses that
+  // key automatically, so the panel confirms the key is present instead of
+  // telling the user to go configure it.
+  const [openAIConnected, setOpenAIConnected] = useState<boolean | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void modelRegistry.list
+      .invoke()
+      .then((providers) => {
+        if (cancelled) return;
+        setOpenAIConnected(providers.some((p) => p.providerId === 'openai' && p.state === 'connected'));
+      })
+      .catch(() => {
+        if (!cancelled) setOpenAIConnected(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const handleOpenProvidersPage = useCallback(() => {
     try {
       navigate('/settings/models');
@@ -513,22 +533,41 @@ export const SpeechToTextSettingsSection: React.FC<{
         {config.provider === 'openai' ? (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>
-              <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
-                <div className='min-w-0'>
-                  <div className='text-13px font-medium text-t-primary'>
-                    {t('settings.voiceProviderKeyDeferTitle', 'Configure your OpenAI key in Providers')}
+              {openAIConnected ? (
+                <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
+                  <div className='min-w-0'>
+                    <div className='text-13px font-medium text-t-primary'>
+                      {t('settings.voiceProviderKeyConnectedTitle', 'Using your connected OpenAI key')}
+                    </div>
+                    <div className='text-12px text-t-secondary'>
+                      {t(
+                        'settings.voiceProviderKeyConnectedBody',
+                        'Speech-to-text uses the OpenAI provider you connected in Models. No extra key needed here.'
+                      )}
+                    </div>
                   </div>
-                  <div className='text-12px text-t-secondary'>
-                    {t(
-                      'settings.voiceProviderKeyDeferBody',
-                      'Provider keys live in one place so every feature can use them.'
-                    )}
-                  </div>
+                  <Button size='small' className='w-full sm:w-auto shrink-0' onClick={handleOpenProvidersPage}>
+                    {t('settings.voiceProviderKeyManageCTA', 'Manage in Providers →')}
+                  </Button>
                 </div>
-                <Button size='small' className='w-full sm:w-auto shrink-0' onClick={handleOpenProvidersPage}>
-                  {t('settings.voiceProviderKeyDeferCTA', 'Open Providers →')}
-                </Button>
-              </div>
+              ) : (
+                <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
+                  <div className='min-w-0'>
+                    <div className='text-13px font-medium text-t-primary'>
+                      {t('settings.voiceProviderKeyDeferTitle', 'Configure your OpenAI key in Providers')}
+                    </div>
+                    <div className='text-12px text-t-secondary'>
+                      {t(
+                        'settings.voiceProviderKeyDeferBody',
+                        'Provider keys live in one place so every feature can use them.'
+                      )}
+                    </div>
+                  </div>
+                  <Button size='small' className='w-full sm:w-auto shrink-0' onClick={handleOpenProvidersPage}>
+                    {t('settings.voiceProviderKeyDeferCTA', 'Open Providers →')}
+                  </Button>
+                </div>
+              )}
             </Form.Item>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextBaseUrl', 'optional')}>
               <Input value={config.openai?.baseUrl} onChange={(value) => handleOpenAIChange('baseUrl', value)} />

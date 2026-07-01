@@ -12,9 +12,18 @@ vi.mock('@process/utils/mainLogger', () => ({
   mainWarn: vi.fn(),
 }));
 
+vi.mock('@process/connectors/providerKey', () => ({
+  readConnectedProviderKey: vi.fn(),
+}));
+
+vi.mock('@process/connectors/fluxKey', () => ({
+  readConnectedFluxKey: vi.fn(async () => undefined),
+}));
+
 import { ProcessConfig } from '@process/utils/initStorage';
 import { SpeechToTextService } from '@process/bridge/services/SpeechToTextService';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
+import { readConnectedProviderKey } from '@process/connectors/providerKey';
 
 describe('SpeechToTextService', () => {
   beforeEach(() => {
@@ -193,5 +202,81 @@ describe('SpeechToTextService', () => {
         provider: 'deepgram',
       })
     );
+  });
+
+  it('falls back to the connected OpenAI provider key when no STT-specific key is set', async () => {
+    // OpenAI Whisper selected, but no key entered in the Voice panel (it defers
+    // to the shared Providers store). The connected OpenAI provider supplies it.
+    vi.mocked(ProcessConfig.get).mockResolvedValue({
+      enabled: true,
+      provider: 'openai',
+    });
+    vi.mocked(readConnectedProviderKey).mockResolvedValue('shared-openai-key');
+
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await SpeechToTextService.transcribe({
+      audioBuffer: new Uint8Array([1, 2, 3]),
+      fileName: 'sample.webm',
+      mimeType: 'audio/webm',
+    });
+
+    expect(readConnectedProviderKey).toHaveBeenCalledWith('openai');
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.openai.com/v1/audio/transcriptions',
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer shared-openai-key' }),
+      })
+    );
+    expect(result).toEqual({
+      language: 'en',
+      model: 'whisper-1',
+      provider: 'openai',
+      text: 'hi',
+    });
+  });
+
+  it('prefers an explicit STT OpenAI key over the shared provider key', async () => {
+    vi.mocked(ProcessConfig.get).mockResolvedValue({
+      enabled: true,
+      provider: 'openai',
+      openai: { apiKey: 'explicit-key', model: 'whisper-1' },
+    });
+    vi.mocked(readConnectedProviderKey).mockResolvedValue('shared-openai-key');
+
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await SpeechToTextService.transcribe({
+      audioBuffer: new Uint8Array([1, 2, 3]),
+      fileName: 'sample.webm',
+      mimeType: 'audio/webm',
+    });
+
+    // Explicit key wins and the shared store is never consulted.
+    expect(readConnectedProviderKey).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.openai.com/v1/audio/transcriptions',
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer explicit-key' }),
+      })
+    );
+  });
+
+  it('rejects when OpenAI is selected with neither an STT key nor a connected provider', async () => {
+    vi.mocked(ProcessConfig.get).mockResolvedValue({
+      enabled: true,
+      provider: 'openai',
+    });
+    vi.mocked(readConnectedProviderKey).mockResolvedValue(undefined);
+
+    await expect(
+      SpeechToTextService.transcribe({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      })
+    ).rejects.toThrow('STT_OPENAI_NOT_CONFIGURED');
   });
 });

@@ -16,6 +16,7 @@ import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { WhisperLocal } from '@process/services/voice/WhisperLocal';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
+import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { resolveFluxSttDefault } from '@process/utils/fluxSttDefault';
 
 type OpenAITranscriptionResponse = {
@@ -187,6 +188,26 @@ const resolveSpeechToTextConfig = async (): Promise<SpeechToTextConfig> => {
   if (!stored?.enabled) {
     mainWarn(STT_LOG_TAG, 'Speech-to-text request rejected because feature is disabled');
     throw new Error('STT_DISABLED');
+  }
+
+  // OpenAI Whisper: the key lives in the shared provider store (the connected
+  // OpenAI provider shown in Models/Providers), not the STT config. An explicit
+  // STT override still wins, but its absence falls back to the connected OpenAI
+  // key so a connected provider "just works" without re-entering the key here.
+  // Resolved before the Flux zero-config seed below so an explicit OpenAI choice
+  // backed by a connected key is never silently rerouted to Flux Voice.
+  if (stored.provider === 'openai' && !stored.openai?.apiKey?.trim()) {
+    const sharedKey = await readConnectedProviderKey('openai');
+    if (sharedKey) {
+      return {
+        ...stored,
+        openai: {
+          ...stored.openai,
+          apiKey: sharedKey,
+          model: stored.openai?.model ?? DEFAULT_OPENAI_MODEL,
+        },
+      };
+    }
   }
 
   // Zero-config default: if Flux is connected and the user hasn't configured
