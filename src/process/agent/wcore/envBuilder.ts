@@ -676,9 +676,10 @@ export function buildEngineSpawnEnv(opts: {
   //     explicit local user action (the composer selector) or a cron job whose
   //     mode was set by the local user - NEVER from model output (inbound engine
   //     events never call setMode). The model cannot induce a `set_mode`. A
-  //     paired REMOTE device cannot author a looser cron mode either: the cron
-  //     write/exec surface (cron.add-job/update-job/run-now) is remote-denied in
-  //     bridgeAllowlist, so a remote caller cannot plant a Force/AutoEdit job.
+  //     paired REMOTE device cannot author a looser cron mode either: the full
+  //     cron write/exec/skill surface (cron.add-job/update-job/run-now/save-skill/
+  //     confirm-proposal) is remote-denied in bridgeAllowlist, so a remote caller
+  //     cannot plant a Force/AutoEdit job nor a skill file it would run.
   //  3. Remote/WebUI callers reach `acp.set-mode` only through the paired-device
   //     WebSocket, which is already gated by the WebUI's own token/pairing auth
   //     (see bridgeAllowlist). Opening the gate restores exactly the pre-0.12.19

@@ -215,14 +215,22 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     is no per-call remote/local signal inside a buildProvider handler (remote
   //     enforcement is name-based here), so mode cannot be clamped in-handler;
   //     deny the write/exec surface outright, mirroring `wcoreConfig.setSection`.
-  //     add-job/update-job set the mode; run-now fires the agent (exec). The
-  //     read-only views (cron.list-jobs / list-jobs-by-conversation / get-job)
-  //     and cron.remove-job stay allowed for the paired UI. Tradeoff: remote
-  //     devices can no longer create/update or manually trigger cron jobs;
-  //     scheduled jobs still fire and local creation is unaffected. ---
+  //     add-job/update-job set the mode; run-now fires the agent (exec);
+  //     save-skill writes the job's SKILL.md verbatim (validated only for YAML
+  //     frontmatter shape, NOT instruction content), so a remote caller could
+  //     plant arbitrary agent instructions that the next scheduled fire runs
+  //     with exec capability — deny it too; confirm-proposal accepts a pending
+  //     cron proposal (creates a real job) and leaks its edit payload. The
+  //     read-only views (cron.list-jobs / list-jobs-by-conversation / get-job /
+  //     has-skill) and cron.remove-job stay allowed for the paired UI. Tradeoff:
+  //     remote devices can no longer create/update, plant skills for, accept
+  //     proposals for, or manually trigger cron jobs; scheduled jobs still fire
+  //     and local creation is unaffected. ---
   'cron.add-job',
   'cron.update-job',
   'cron.run-now',
+  'cron.save-skill',
+  'cron.confirm-proposal',
   // --- In-app engine updater. `install` downloads + stages a native binary the
   //     next engine spawn executes; a remote caller reaching it is an RCE chain.
   //     `check` hits the network + discloses the engine version. HUMAN-only. ---

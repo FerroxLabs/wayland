@@ -115,7 +115,11 @@ describe('isAllowedForRemote - onboarding credential writes denied', () => {
  * remote/local signal inside a buildProvider handler, so the mode cannot be
  * clamped in-handler; the write/exec surface is denied outright, mirroring
  * `wcoreConfig.setSection`. add-job/update-job set the mode; run-now fires the
- * agent. The read-only views + remove-job stay allowed for the paired UI.
+ * agent; save-skill writes the job's SKILL.md verbatim (a remote caller could
+ * otherwise plant arbitrary agent instructions the next fire runs with exec);
+ * confirm-proposal accepts a pending proposal (creates a job) and leaks its edit
+ * payload. The read-only views (+ has-skill) and remove-job stay allowed for the
+ * paired UI.
  *
  * Note: this is the REMOTE gate only. A LOCALLY-configured cron job (local
  * Electron IPC renderer) never passes through `isAllowedForRemote` - the adapter
@@ -123,14 +127,14 @@ describe('isAllowedForRemote - onboarding credential writes denied', () => {
  * is unaffected.
  */
 describe('isAllowedForRemote - cron write/exec surface denied (#495)', () => {
-  it.each(['cron.add-job', 'cron.update-job', 'cron.run-now'])(
-    'denies subscribe-%s for remote callers (blocks remote mode escalation)',
+  it.each(['cron.add-job', 'cron.update-job', 'cron.run-now', 'cron.save-skill', 'cron.confirm-proposal'])(
+    'denies subscribe-%s for remote callers (blocks remote mode escalation / skill planting)',
     (key) => {
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
     }
   );
 
-  it.each(['cron.list-jobs', 'cron.list-jobs-by-conversation', 'cron.get-job', 'cron.remove-job'])(
+  it.each(['cron.list-jobs', 'cron.list-jobs-by-conversation', 'cron.get-job', 'cron.has-skill', 'cron.remove-job'])(
     'still allows the read/remove provider subscribe-%s for remote callers',
     (key) => {
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
