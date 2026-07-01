@@ -533,7 +533,11 @@ export const SpeechToTextSettingsSection: React.FC<{
         {config.provider === 'openai' ? (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>
-              {openAIConnected ? (
+              {/* Three distinct states: connected (true) shows the "using your
+                  key" banner; not-connected (false) shows the configure/defer
+                  banner; loading (null) renders nothing so the defer banner -
+                  the exact Bug B symptom - never flashes for a connected user. */}
+              {openAIConnected === true ? (
                 <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
                   <div className='min-w-0'>
                     <div className='text-13px font-medium text-t-primary'>
@@ -550,7 +554,7 @@ export const SpeechToTextSettingsSection: React.FC<{
                     {t('settings.voiceProviderKeyManageCTA', 'Manage in Providers →')}
                   </Button>
                 </div>
-              ) : (
+              ) : openAIConnected === false ? (
                 <div className='rounded-12px bg-[var(--color-fill-2)] p-12px flex flex-col sm:flex-row sm:items-center sm:justify-between gap-12px'>
                   <div className='min-w-0'>
                     <div className='text-13px font-medium text-t-primary'>
@@ -567,7 +571,7 @@ export const SpeechToTextSettingsSection: React.FC<{
                     {t('settings.voiceProviderKeyDeferCTA', 'Open Providers →')}
                   </Button>
                 </div>
-              )}
+              ) : null}
             </Form.Item>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextBaseUrl', 'optional')}>
               <Input value={config.openai?.baseUrl} onChange={(value) => handleOpenAIChange('baseUrl', value)} />

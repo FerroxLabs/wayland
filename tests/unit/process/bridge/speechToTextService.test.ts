@@ -24,10 +24,16 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { SpeechToTextService } from '@process/bridge/services/SpeechToTextService';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
+import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 
 describe('SpeechToTextService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Clean per-test default: no connected keys unless a test opts in. Set after
+    // clearAllMocks (which clears call history but keeps implementations) so a
+    // per-test override never leaks into the next test.
+    vi.mocked(readConnectedProviderKey).mockResolvedValue(undefined);
+    vi.mocked(readConnectedFluxKey).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -235,6 +241,35 @@ describe('SpeechToTextService', () => {
       provider: 'openai',
       text: 'hi',
     });
+  });
+
+  it('resolves the OpenAI key before the Flux zero-config seed (no silent reroute)', async () => {
+    // OpenAI Whisper selected, no explicit STT key, and BOTH the connected
+    // OpenAI provider AND Flux have a key. Correct ordering resolves OpenAI
+    // first, so the request must hit the OpenAI endpoint with the OpenAI key -
+    // NOT be rerouted to Flux Voice. If the Flux seed ran first this fetch
+    // assertion fails (it would call the Flux endpoint with the Flux key).
+    vi.mocked(ProcessConfig.get).mockResolvedValue({
+      enabled: true,
+      provider: 'openai',
+    });
+    vi.mocked(readConnectedProviderKey).mockResolvedValue('shared-openai-key');
+    vi.mocked(readConnectedFluxKey).mockResolvedValue('flux-key');
+
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await SpeechToTextService.transcribe({
+      audioBuffer: new Uint8Array([1, 2, 3]),
+      fileName: 'sample.webm',
+      mimeType: 'audio/webm',
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, request] = fetchMock.mock.calls[0] as [string, { headers: Record<string, string> }];
+    expect(url).toBe('https://api.openai.com/v1/audio/transcriptions');
+    expect(request.headers.Authorization).toBe('Bearer shared-openai-key');
+    expect(result.provider).toBe('openai');
   });
 
   it('prefers an explicit STT OpenAI key over the shared provider key', async () => {
