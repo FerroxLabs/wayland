@@ -342,4 +342,65 @@ describe('useGuidSend', () => {
       );
     });
   });
+
+  describe('customWorkspace flag (project vs user-picked folder)', () => {
+    // wcore create call carries extra.customWorkspace directly, so assert on it.
+    const MODEL = { useModel: 'test-model', name: 'Test', platform: 'wcore' } as unknown as TProviderWithModel;
+
+    it('does NOT flag customWorkspace when the dir is the auto-filled project workspace', async () => {
+      const deps = makeDeps({
+        selectedAgent: 'wcore',
+        currentModel: MODEL,
+        dir: '/Docs/Wayland/Proj',
+        projectId: 'p1',
+        projectWorkspace: '/Docs/Wayland/Proj',
+      });
+      const { result } = renderHook(() => useGuidSend(deps));
+      await act(async () => {
+        await result.current.handleSend();
+      });
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'wcore',
+          extra: expect.objectContaining({ customWorkspace: false, projectId: 'p1' }),
+        })
+      );
+    });
+
+    it('flags customWorkspace when the user picked a folder different from the project workspace', async () => {
+      const deps = makeDeps({
+        selectedAgent: 'wcore',
+        currentModel: MODEL,
+        dir: '/some/other/folder',
+        projectId: 'p1',
+        projectWorkspace: '/Docs/Wayland/Proj',
+      });
+      const { result } = renderHook(() => useGuidSend(deps));
+      await act(async () => {
+        await result.current.handleSend();
+      });
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          extra: expect.objectContaining({ customWorkspace: true }),
+        })
+      );
+    });
+
+    it('flags customWorkspace for a non-project chat with a chosen dir', async () => {
+      const deps = makeDeps({
+        selectedAgent: 'wcore',
+        currentModel: MODEL,
+        dir: '/some/folder',
+      });
+      const { result } = renderHook(() => useGuidSend(deps));
+      await act(async () => {
+        await result.current.handleSend();
+      });
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          extra: expect.objectContaining({ customWorkspace: true }),
+        })
+      );
+    });
+  });
 });

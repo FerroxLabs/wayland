@@ -103,11 +103,16 @@ const GuidPage: React.FC = () => {
     projectId?: string;
     /** Project name, shown as a "New chat in {project}" indicator above the composer. */
     projectName?: string;
+    /** The project's managed workspace folder, auto-filled as the chat's dir. */
+    projectWorkspace?: string;
   } | null;
   // Project scoping: when present, useGuidSend stamps extra.projectId on the new
   // conversation. Backend / model / assistant pickers stay fully free.
   const projectId = workflowRouteState?.projectId;
   const projectName = workflowRouteState?.projectName;
+  // The project's own folder, when the composer opened from a project. Threaded
+  // into useGuidSend so an auto-filled project dir is NOT flagged customWorkspace.
+  const projectWorkspace = workflowRouteState?.projectWorkspace;
   const workflowSession = useWorkflowSession(
     workflowRouteState?.workflowSessionId,
     workflowRouteState?.initialWorkflowSession
@@ -263,6 +268,7 @@ const GuidPage: React.FC = () => {
 
     // Project scoping (undefined on the normal new-chat surface)
     projectId,
+    projectWorkspace,
   });
 
   const recordTelemetry = useUsageTelemetry();

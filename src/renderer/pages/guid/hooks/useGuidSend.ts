@@ -80,6 +80,14 @@ export type GuidSendDeps = {
    * model / assistant pickers stay fully free - the project does not constrain them.
    */
   projectId?: string;
+  /**
+   * The project's managed workspace folder, when the composer opened inside a
+   * project. Used to distinguish "user deliberately picked a custom folder" from
+   * "we auto-filled the project's own folder": only the former is a custom
+   * workspace. Marking an auto-filled project dir as custom would wrongly disable
+   * the project-workspace self-heal guards. Undefined outside a project.
+   */
+  projectWorkspace?: string;
 };
 
 export type GuidSendResult = {
@@ -151,11 +159,15 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     openTab,
     t,
     projectId,
+    projectWorkspace,
   } = deps;
   const sendingRef = useRef(false);
 
   const handleSend = useCallback(async (): Promise<boolean> => {
-    const isCustomWorkspace = !!dir;
+    // customWorkspace means ONLY that the user chose a folder that is NOT the
+    // project's managed folder. An auto-filled project dir (dir === project
+    // workspace) is not custom, so it never disables the project self-heal guards.
+    const isCustomWorkspace = !!dir && dir !== projectWorkspace;
     const finalWorkspace = dir || '';
     // Stamped into every create path's extra when the composer runs inside a
     // project. Omitted from extra when undefined so it never pollutes a normal chat.
@@ -550,6 +562,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     openTab,
     t,
     projectId,
+    projectWorkspace,
   ]);
 
   const sendMessageHandler = useCallback((opts?: { onSent?: () => void }) => {
