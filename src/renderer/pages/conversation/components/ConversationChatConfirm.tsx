@@ -302,6 +302,7 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
                     });
                   }}
                   key={label + option.value + index}
+                  data-testid={option.answer != null ? 'confirm-question-choice' : 'confirm-option'}
                   className='b-1px b-solid min-h-30px b-[var(--border-base)] rd-8px px-12px py-6px leading-snug hover:bg-[var(--bg-hover)] cursor-pointer mt-10px flex items-start gap-8px color-[var(--text-primary)]'
                 >
                   <span className='inline-flex items-center justify-center px-4px h-18px rd-4px bg-[var(--bg-2)] text-11px text-[var(--text-secondary)] font-mono shrink-0 mt-1px'>
