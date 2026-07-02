@@ -1137,6 +1137,10 @@ type CleanupModules = {
   // #139: reap webhook tunnel CLIs (cloudflared/ngrok/tailscale) on quit so
   // their long-lived child processes don't orphan past the app.
   tunnel: typeof import('@process/channels/tunnel');
+  // #443: last-resort reaper for wayland-core / ACP engine children. Runs after
+  // the graceful per-agent kill to force-kill any child left over (e.g. when the
+  // per-step budget truncates a slow kill), so engine processes never orphan.
+  agentChildren: typeof import('@process/agent/agentChildRegistry');
 };
 let _cleanupModulesPromise: Promise<CleanupModules> | undefined;
 
@@ -1152,6 +1156,7 @@ const prefetchCleanupModules = (): Promise<CleanupModules> => {
     import('@process/services/cron/cronServiceSingleton'),
     import('@process/bridge/fileWatchBridge'),
     import('@process/channels/tunnel'),
+    import('@process/agent/agentChildRegistry'),
   ]).then(
     ([
       ambient,
@@ -1164,6 +1169,7 @@ const prefetchCleanupModules = (): Promise<CleanupModules> => {
       cron,
       fileWatch,
       tunnel,
+      agentChildren,
     ]) => ({
       ambient,
       channels,
@@ -1175,6 +1181,7 @@ const prefetchCleanupModules = (): Promise<CleanupModules> => {
       cron,
       fileWatch,
       tunnel,
+      agentChildren,
     })
   );
 };
@@ -1315,6 +1322,11 @@ app.on('before-quit', async () => {
       safeImport('cron', () => import('@process/services/cron/cronServiceSingleton')),
       safeImport('fileWatch', () => import('@process/bridge/fileWatchBridge')),
       safeImport('tunnel', () => import('@process/channels/tunnel')),
+      // #443: must be in the fallback list too - the fallback path is hit exactly
+      // when the prefetch rejected (e.g. a native module failed to load, common
+      // on Windows - the platform this reaper targets), so omitting it here would
+      // silently disable the reaper in the case it is most needed.
+      safeImport('agentChildren', () => import('@process/agent/agentChildRegistry')),
     ]);
     const out: Partial<CleanupModules> = {};
     for (const [k, v] of entries) {
@@ -1459,6 +1471,21 @@ app.on('before-quit', async () => {
       pptPreviewStep,
       fileWatchStep,
     ]);
+
+    // #443: last-resort engine-child reaper. Runs AFTER the graceful path above
+    // (workerStep -> WorkerTaskManager.clear() -> per-agent kill), so normally
+    // there is nothing left. It force-kills any wayland-core / ACP child still
+    // alive - e.g. when a per-agent graceful kill was truncated by its 2s budget,
+    // or a child was spawned outside a tracked manager - so engine processes
+    // never orphan past the app (the "two sets of Wayland" report).
+    await withTimeout(
+      'killAllAgentChildren',
+      (async () => {
+        if (!mods.agentChildren) return;
+        await mods.agentChildren.killAllAgentChildren();
+      })(),
+      PER_STEP_TIMEOUT_MS
+    );
   };
 
   // Master ceiling: hard 10s upper bound on the entire cleanup phase.

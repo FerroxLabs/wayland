@@ -16,6 +16,7 @@ import { resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { killChild } from '@process/agent/acp/utils';
+import { trackAgentChild } from '@process/agent/agentChildRegistry';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 import { parseQuestionTool } from './questionTool';
 
@@ -234,6 +235,10 @@ export class WCoreAgent {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: this.options.workspace,
     });
+    // #443: register with the last-resort reaper so a quit that truncates the
+    // graceful per-agent kill still force-kills this engine child (auto-removed
+    // on exit / graceful kill).
+    trackAgentChild(this.childProcess);
 
     // Parse stdout JSON Lines
     const rl = createInterface({ input: this.childProcess.stdout! });

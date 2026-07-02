@@ -28,6 +28,7 @@ import path from 'path';
 import { connectClaude, connectCodebuddy, connectCodex, spawnGenericBackend } from './acpConnectors';
 import type { SpawnResult } from './acpConnectors';
 import { killChild, readTextFile, writeJsonRpcMessage, writeTextFile } from './utils';
+import { trackAgentChild } from '@process/agent/agentChildRegistry';
 // W4 audit CRIT-1 (2026-05-19): route ACP fs ops through the imported-team
 // sandbox gate before falling back to the legacy direct-fs helpers.
 import { gateAcpFileOp } from '@process/team/sandbox/acpFileOpGate';
@@ -182,6 +183,11 @@ export class AcpConnection {
   private async spawnAndSetup(result: SpawnResult, backend: string): Promise<void> {
     this.child = result.child;
     this.isDetached = result.isDetached;
+    // #443: register with the last-resort reaper so a quit that truncates the
+    // graceful per-agent kill still force-kills this backend child (auto-removed
+    // on exit / disconnect). Pass isDetached so the reaper group-kills it exactly
+    // like terminateChild does.
+    trackAgentChild(this.child, this.isDetached);
     await this.setupChildProcessHandlers(backend);
   }
 
@@ -1187,21 +1193,16 @@ export class AcpConnection {
   // teams fall through to the unchanged legacy direct-fs path.
   private async handleReadOperation(params: { path: string; sessionId?: string }): Promise<{ content: string }> {
     const conversationId = this.conversationId ?? '';
-    const gated = await gateAcpFileOp(
-      conversationId,
-      'read',
-      { path: params.path },
-      async () => {
-        const resolvedReadPath = this.resolveWorkspacePath(params.path);
-        this.onFileOperation({
-          method: 'fs/read_text_file',
-          path: resolvedReadPath,
-          sessionId: params.sessionId || '',
-        });
-        const { content } = await readTextFile(resolvedReadPath);
-        return { kind: 'read' as const, content };
-      }
-    );
+    const gated = await gateAcpFileOp(conversationId, 'read', { path: params.path }, async () => {
+      const resolvedReadPath = this.resolveWorkspacePath(params.path);
+      this.onFileOperation({
+        method: 'fs/read_text_file',
+        path: resolvedReadPath,
+        sessionId: params.sessionId || '',
+      });
+      const { content } = await readTextFile(resolvedReadPath);
+      return { kind: 'read' as const, content };
+    });
     if (gated.kind !== 'read') {
       throw new Error('handleReadOperation: gate returned non-read result');
     }
