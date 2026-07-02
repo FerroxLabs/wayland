@@ -14,7 +14,12 @@
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "ALLOWED_DIRS", "description": "Comma-separated list of directories the server may read/write.", "isRequired": true, "isSecret": false }
+        {
+          "name": "ALLOWED_DIRS",
+          "description": "Optional comma-separated list of absolute directories the server may read/write. Passed as positional arguments; defaults to your home folder when unset.",
+          "isRequired": false,
+          "isSecret": false
+        }
       ]
     }
   ],
@@ -35,7 +40,11 @@
       { "label": "Write", "count": 3 },
       { "label": "Search", "count": 2 }
     ],
-    "setupGuide": { "path": "guides/io.modelcontextprotocol-server-filesystem.md", "estimatedMinutes": 1, "stepCount": 1 },
+    "setupGuide": {
+      "path": "guides/io.modelcontextprotocol-server-filesystem.md",
+      "estimatedMinutes": 1,
+      "stepCount": 1
+    },
     "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }

@@ -36,8 +36,9 @@ import {
 } from '@renderer/hooks/mcp';
 import type { McpOAuthLoginResult } from '@renderer/hooks/mcp/useMcpOAuth';
 import { openExternalUrl } from '@renderer/utils/platform';
-import { mcpService } from '@/common/adapter/ipcBridge';
+import { mcpService, application } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
+import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { useMcpLibrary } from './hooks/useMcpLibrary';
 import { SetupGuide } from './components/SetupGuide';
 import StatusChip from './components/StatusChip';
@@ -198,10 +199,23 @@ export function DetailPage() {
   // threaded into login() so the authorization request actually asks for them.
   const oauthScopes = w.auth.scopes?.map((s) => s.name).filter((n) => n.length > 0);
 
+  // Build the record to persist, baking the filesystem server's allowed
+  // directories into its positional args from the user's home folder (#448).
+  // The renderer is sandboxed, so home comes from main via getPath. Baking at
+  // persist time - not just at connection-test time - means EVERY spawn consumer
+  // (connection test, agent sync, ACP session injection, fork Gemini) reads a
+  // transport that already carries the directory the server requires, instead of
+  // the dead ALLOWED_DIRS env var. Idempotent no-op for every other connector.
+  const buildServerData = async (): Promise<Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>> => {
+    const data = entryToServerData(entry, env);
+    const home = await application.getPath.invoke({ name: 'home' }).catch(() => '');
+    return home ? normalizeMcpServerForSpawn(data, home) : data;
+  };
+
   const install = async (): Promise<IMcpServer | null> => {
     setInstalling(true);
     try {
-      const serverData = entryToServerData(entry, env);
+      const serverData = await buildServerData();
       const newServer = await crud.handleAddMcpServer(serverData);
       if (!newServer) {
         message.error(
@@ -270,7 +284,7 @@ export function DetailPage() {
     }
     setInstalling(true);
     try {
-      const server = await crud.handleAddMcpServer(entryToServerData(entry, env));
+      const server = await crud.handleAddMcpServer(await buildServerData());
       if (!server) {
         message.error(t('mcpLibrary.install.errorFailed', 'Install failed: {{error}}', { error: 'unknown' }));
         return;

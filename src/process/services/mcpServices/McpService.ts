@@ -5,6 +5,7 @@
  */
 
 import { execSync } from 'child_process';
+import * as os from 'node:os';
 import type { IMcpServer } from '@/common/config/storage';
 import { ClaudeMcpAgent } from './agents/ClaudeMcpAgent';
 import { CodebuddyMcpAgent } from './agents/CodebuddyMcpAgent';
@@ -16,6 +17,7 @@ import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
 import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
+import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 
 /**
  * MCP service - coordinates the MCP operation protocol across agents
@@ -244,12 +246,18 @@ export class McpService {
     // Use the first available agent to test the connection; the test logic in the base class is generic
     const firstAgent = this.agents.values().next().value;
     if (firstAgent) {
+      // Translate a stored declaration into the transport that must actually be
+      // spawned (e.g. the filesystem server's allowed directories moved from the
+      // ineffective ALLOWED_DIRS env var to positional args, defaulting to home)
+      // BEFORE probing, so the Library "Needs attention" status reflects the real
+      // spawn instead of failing with "Connection closed" (#448).
+      const spawnable = normalizeMcpServerForSpawn(server, os.homedir());
       // Reuse Wayland's stored OAuth bearer for the test, exactly like
       // syncMcpToAgents does. Without it, an already-authorized hosted server
       // (Notion/Canva/...) 401s here, reports needsAuth, and the stored status
       // never advances to 'connected' - so the Library UI shows "Not connected"
       // even though every agent CLI has the server connected.
-      const authedServer = await this.attachOAuthToken(server);
+      const authedServer = await this.attachOAuthToken(spawnable);
       return await firstAgent.testMcpConnection(authedServer);
     }
     return {
@@ -276,7 +284,9 @@ export class McpService {
     // every sync. removeMcpFromAgents applies the same transform so the keys match.
     const enabledServers = mcpServers
       .filter((server) => server.enabled)
-      .map((server) => ({ ...server, name: sanitizeMcpServerName(server.name) }));
+      .map((server) =>
+        normalizeMcpServerForSpawn({ ...server, name: sanitizeMcpServerName(server.name) }, os.homedir())
+      );
 
     if (enabledServers.length === 0) {
       return Promise.resolve({ success: true, results: [] });
@@ -362,11 +372,7 @@ export class McpService {
    */
   private async attachOAuthToken(server: IMcpServer): Promise<IMcpServer> {
     const transport = server.transport;
-    if (
-      transport.type !== 'http' &&
-      transport.type !== 'sse' &&
-      transport.type !== 'streamable_http'
-    ) {
+    if (transport.type !== 'http' && transport.type !== 'sse' && transport.type !== 'streamable_http') {
       return server;
     }
     const headers = transport.headers ?? {};
