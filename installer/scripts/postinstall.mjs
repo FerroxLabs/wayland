@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 // Kept in lockstep with scripts/prepareWaylandCore.js DEFAULT_WCORE_VERSION by
 // scripts/stage-wcore-bump.mjs. Do not hand-edit; run that tool so both move.
-const WCORE_VERSION = 'v0.12.19';
+const WCORE_VERSION = 'v0.12.20';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PAYLOAD = resolve(HERE, '..', 'payload');
 

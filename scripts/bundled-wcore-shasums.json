@@ -1,5 +1,13 @@
 {
   "_comment": "Authoritative SHA-256 checksums for bundled wayland-core release archives (the downloaded .tar.gz / .zip assets), keyed by release tag then asset filename. Mirrors scripts/bundled-bun-shasums.json. Source of truth: the SHASUMS published alongside each signed FerroxLabs/wayland-core release. The downloaded archive is verified against this file BEFORE it is extracted, copied, or executed. Update this file in lockstep with DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js and regenerate on every engine version bump.",
+  "v0.12.20": {
+    "wayland-core-v0.12.20-aarch64-apple-darwin.tar.gz": "sha256:326a98ae60b2b8e65fd3fb56e398fe42d3d851182d629c92a13106ac776ea77d",
+    "wayland-core-v0.12.20-x86_64-apple-darwin.tar.gz": "sha256:20a2d52fea3088254e80b0a7275f9f6947e516fa93cb3671fd0c62c3d408dab3",
+    "wayland-core-v0.12.20-aarch64-unknown-linux-gnu.tar.gz": "sha256:53e374f1a46f61bc48afb7116533ce47e88b417397fb9c0fc47057ee51d13618",
+    "wayland-core-v0.12.20-x86_64-unknown-linux-gnu.tar.gz": "sha256:f0f2c8a9fdad599cde04ce4306a8fec2a666c5d5a996b280c5789effa657c1c3",
+    "wayland-core-v0.12.20-aarch64-pc-windows-msvc.zip": "sha256:e3d5ebbba0ca02127c70d6853acdc6ab0178b5f9c5eaf347e4ff29f63c492d4b",
+    "wayland-core-v0.12.20-x86_64-pc-windows-msvc.zip": "sha256:62ca1cfcd303c6cfcf7c68c90fa8f5347007775f3c1f8e9f9f70e3d757e4ddf8"
+  },
   "v0.12.19": {
     "wayland-core-v0.12.19-aarch64-apple-darwin.tar.gz": "sha256:a05b102abe834888451a1d1289e5b703a69617e190630c1a6b7654e2e99cc35d",
     "wayland-core-v0.12.19-x86_64-apple-darwin.tar.gz": "sha256:ddea7129b86d7c68c783b1ff452ed49b252ebbb824e671dc50e46d5cbe68003f",
