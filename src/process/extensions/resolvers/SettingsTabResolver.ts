@@ -42,6 +42,15 @@ export function resolveSettingsTabs(extensions: LoadedExtension[]): ResolvedSett
   const seenIds = new Set<string>();
 
   for (const ext of extensions) {
+    if (ext.source !== 'bundled') {
+      if (ext.manifest.contributes.settingsTabs?.length) {
+        console.warn(
+          `[Extensions] Settings tabs are first-party bundled only; skipping ${ext.manifest.name} (${ext.source})`
+        );
+      }
+      continue;
+    }
+
     const tabs = ext.manifest.contributes.settingsTabs;
     if (!tabs) continue;
 

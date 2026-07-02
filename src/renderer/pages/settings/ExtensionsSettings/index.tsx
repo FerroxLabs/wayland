@@ -47,6 +47,8 @@ type BuilderPlan = IExtensionBuilderPlan;
 type BuilderMessage = IExtensionBuilderMessage;
 type MigrationStatus = 'ready' | 'review' | 'blocked' | 'core';
 
+const ADVANCED_MODE_STORAGE_KEY = 'wayland.extensions.advancedMode';
+
 type MigrationCandidate = {
   id: string;
   name: string;
@@ -219,6 +221,11 @@ function includesAny(value: string, words: string[]) {
   return words.some((word) => value.includes(word));
 }
 
+function getInitialAdvancedMode() {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(ADVANCED_MODE_STORAGE_KEY) === 'true';
+}
+
 function slugifyExtensionName(value: string) {
   const slug = value
     .toLowerCase()
@@ -336,6 +343,17 @@ const ExtensionsSettings: React.FC = () => {
   const [builderApproved, setBuilderApproved] = useState(false);
   const [builderCreating, setBuilderCreating] = useState(false);
   const [builderCreated, setBuilderCreated] = useState<IExtensionBuilderCreateResult | null>(null);
+  const [advancedMode, setAdvancedMode] = useState(getInitialAdvancedMode);
+
+  const updateAdvancedMode = (enabled: boolean) => {
+    setAdvancedMode(enabled);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(ADVANCED_MODE_STORAGE_KEY, enabled ? 'true' : 'false');
+    }
+    if (!enabled) {
+      setBuilderOpen(false);
+    }
+  };
 
   const loadExtensions = useCallback(async () => {
     setLoading(true);
@@ -404,6 +422,7 @@ const ExtensionsSettings: React.FC = () => {
   }, [extensions, filter]);
 
   const openBuilderWithPrompt = (prompt: string) => {
+    if (!advancedMode) return;
     setBuilderIdea(prompt);
     setBuilderMessages([]);
     setBuilderPlan(null);
@@ -507,6 +526,7 @@ const ExtensionsSettings: React.FC = () => {
   };
 
   const draftBuilderPlan = async () => {
+    if (!advancedMode) return;
     if (builderIdea.trim().length < 12) {
       Message.warning('Describe the extension you want in a little more detail.');
       return;
@@ -552,6 +572,7 @@ const ExtensionsSettings: React.FC = () => {
   };
 
   const createBuilderExtension = async () => {
+    if (!advancedMode) return;
     if (!builderPlan || !builderApproved) return;
 
     setBuilderCreating(true);
@@ -661,21 +682,27 @@ const ExtensionsSettings: React.FC = () => {
       contentClassName='md:max-w-[1280px]'
       actions={
         <div className='flex items-center gap-8px'>
-          <Button
-            type='primary'
-            icon={<Sparkles size={14} />}
-            onClick={() => {
-              setBuilderIdea('');
-              setBuilderMessages([]);
-              setBuilderDraft(null);
-              setBuilderPlan(null);
-              setBuilderApproved(false);
-              setBuilderCreated(null);
-              setBuilderOpen(true);
-            }}
-          >
-            Build Extension
-          </Button>
+          <span className='flex items-center gap-6px text-12px text-[var(--color-text-3)]'>
+            Advanced
+            <Switch size='small' checked={advancedMode} onChange={updateAdvancedMode} />
+          </span>
+          {advancedMode && (
+            <Button
+              type='primary'
+              icon={<Sparkles size={14} />}
+              onClick={() => {
+                setBuilderIdea('');
+                setBuilderMessages([]);
+                setBuilderDraft(null);
+                setBuilderPlan(null);
+                setBuilderApproved(false);
+                setBuilderCreated(null);
+                setBuilderOpen(true);
+              }}
+            >
+              Build Extension
+            </Button>
+          )}
           <Button icon={<RefreshCw size={14} />} onClick={() => void loadExtensions()} loading={loading}>
             Refresh
           </Button>
@@ -740,15 +767,21 @@ const ExtensionsSettings: React.FC = () => {
               <div className='grid grid-cols-1 lg:grid-cols-3 gap-12px text-13px text-[var(--color-text-2)]'>
                 <div className='rounded-8px bg-[var(--color-fill-1)] px-12px py-10px'>
                   <div className='font-medium text-[var(--color-text-1)]'>One home</div>
-                  <div className='mt-4px'>Extension UI stays under Settings &gt; Extensions unless WL adds a native hook.</div>
+                  <div className='mt-4px'>
+                    Extension UI stays under Settings &gt; Extensions unless WL adds a native hook.
+                  </div>
                 </div>
                 <div className='rounded-8px bg-[var(--color-fill-1)] px-12px py-10px'>
                   <div className='font-medium text-[var(--color-text-1)]'>No junk drawer</div>
-                  <div className='mt-4px'>Project Tools stays focused; research, comms, and infrastructure get their own packages.</div>
+                  <div className='mt-4px'>
+                    Project Tools stays focused; research, comms, and infrastructure get their own packages.
+                  </div>
                 </div>
                 <div className='rounded-8px bg-[var(--color-fill-1)] px-12px py-10px'>
                   <div className='font-medium text-[var(--color-text-1)]'>Hooks before hacks</div>
-                  <div className='mt-4px'>If a feature needs renderer patching, propose the hook upstream before migrating it.</div>
+                  <div className='mt-4px'>
+                    If a feature needs renderer patching, propose the hook upstream before migrating it.
+                  </div>
                 </div>
               </div>
             </Card>
@@ -759,7 +792,11 @@ const ExtensionsSettings: React.FC = () => {
                   key={candidate.id}
                   title={candidate.name}
                   titleIcon={Puzzle}
-                  statusBadge={<Tag color={getMigrationStatusColor(candidate.status)}>{getMigrationStatusLabel(candidate.status)}</Tag>}
+                  statusBadge={
+                    <Tag color={getMigrationStatusColor(candidate.status)}>
+                      {getMigrationStatusLabel(candidate.status)}
+                    </Tag>
+                  }
                 >
                   <div className='flex flex-col gap-10px'>
                     <div className='text-13px text-[var(--color-text-2)]'>{candidate.summary}</div>
@@ -769,17 +806,19 @@ const ExtensionsSettings: React.FC = () => {
                       <span className='text-[var(--color-text-3)]'>Reason</span>
                       <span>{candidate.reason}</span>
                     </div>
-                    <div className='flex justify-end'>
-                      <Button
-                        size='small'
-                        type={candidate.status === 'ready' ? 'primary' : 'secondary'}
-                        disabled={!candidate.suggestedPrompt || candidate.status === 'core'}
-                        icon={<Sparkles size={13} />}
-                        onClick={() => candidate.suggestedPrompt && openBuilderWithPrompt(candidate.suggestedPrompt)}
-                      >
-                        Draft Builder Plan
-                      </Button>
-                    </div>
+                    {advancedMode && (
+                      <div className='flex justify-end'>
+                        <Button
+                          size='small'
+                          type={candidate.status === 'ready' ? 'primary' : 'secondary'}
+                          disabled={!candidate.suggestedPrompt || candidate.status === 'core'}
+                          icon={<Sparkles size={13} />}
+                          onClick={() => candidate.suggestedPrompt && openBuilderWithPrompt(candidate.suggestedPrompt)}
+                        >
+                          Draft Builder Plan
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </Card>
               ))}
@@ -789,29 +828,31 @@ const ExtensionsSettings: React.FC = () => {
 
         <Tabs.TabPane key='developer' title='Developer'>
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-12px'>
-            <Card title='Extension Builder' titleIcon={Sparkles}>
-              <div className='flex flex-col gap-10px text-13px text-[var(--color-text-2)]'>
-                <div>
-                  Start with plain English, turn it into a reviewable extension plan, then approve it before files are
-                  created.
+            {advancedMode && (
+              <Card title='Extension Builder' titleIcon={Sparkles}>
+                <div className='flex flex-col gap-10px text-13px text-[var(--color-text-2)]'>
+                  <div>
+                    Start with plain English, turn it into a reviewable extension plan, then approve it before files are
+                    created.
+                  </div>
+                  <Button
+                    type='primary'
+                    icon={<Sparkles size={14} />}
+                    onClick={() => {
+                      setBuilderIdea('');
+                      setBuilderMessages([]);
+                      setBuilderDraft(null);
+                      setBuilderPlan(null);
+                      setBuilderApproved(false);
+                      setBuilderCreated(null);
+                      setBuilderOpen(true);
+                    }}
+                  >
+                    Open Builder
+                  </Button>
                 </div>
-                <Button
-                  type='primary'
-                  icon={<Sparkles size={14} />}
-                  onClick={() => {
-                    setBuilderIdea('');
-                    setBuilderMessages([]);
-                    setBuilderDraft(null);
-                    setBuilderPlan(null);
-                    setBuilderApproved(false);
-                    setBuilderCreated(null);
-                    setBuilderOpen(true);
-                  }}
-                >
-                  Open Builder
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            )}
 
             <Card title='Load Order' titleIcon={FolderOpen}>
               <div className='flex flex-col gap-10px text-13px text-[var(--color-text-2)]'>
@@ -1017,7 +1058,7 @@ const ExtensionsSettings: React.FC = () => {
       <Drawer
         width={720}
         title='Extension Builder'
-        visible={builderOpen}
+        visible={advancedMode && builderOpen}
         onCancel={() => setBuilderOpen(false)}
         footer={null}
       >
@@ -1051,7 +1092,8 @@ const ExtensionsSettings: React.FC = () => {
               />
               <div className='flex items-center justify-between gap-10px'>
                 <div className='text-12px text-[var(--color-text-3)]'>
-                  The plan is review-only until you approve it. If no model is available, WL uses the fallback planner and labels it.
+                  The plan is review-only until you approve it. If no model is available, WL uses the fallback planner
+                  and labels it.
                 </div>
                 <Button
                   type='primary'
@@ -1108,10 +1150,7 @@ const ExtensionsSettings: React.FC = () => {
                   </div>
                   <div className='flex flex-col gap-6px'>
                     <span className='text-12px text-[var(--color-text-3)]'>Package slug</span>
-                    <Input
-                      value={builderPlan.slug}
-                      onChange={updateBuilderSlug}
-                    />
+                    <Input value={builderPlan.slug} onChange={updateBuilderSlug} />
                   </div>
                   <div className='flex flex-col gap-6px lg:col-span-2'>
                     <span className='text-12px text-[var(--color-text-3)]'>Summary</span>

@@ -115,7 +115,7 @@ describe('extensions/statePersistence', () => {
     warnSpy.mockRestore();
   });
 
-  it('savePersistedStates debounces rapid writes', async () => {
+  it('savePersistedStates debounces rapid writes and coalesces updates', async () => {
     const sandbox = createTempDir('wayland-debounce-');
     const statesFile = path.join(sandbox, 'extension-states.json');
     process.env.WAYLAND_EXTENSION_STATES_FILE = statesFile;
@@ -135,11 +135,11 @@ describe('extensions/statePersistence', () => {
       return loaded.has('ext-c');
     });
 
-    // Only the last save should persist
+    // Rapid saves should flush once while preserving all pending extension states.
     const loaded = await loadPersistedStates();
     expect(loaded.has('ext-c')).toBe(true);
-    expect(loaded.has('ext-a')).toBe(false);
-    expect(loaded.has('ext-b')).toBe(false);
+    expect(loaded.has('ext-a')).toBe(true);
+    expect(loaded.has('ext-b')).toBe(true);
   });
 
   describe('markExtensionForReinstall', () => {
