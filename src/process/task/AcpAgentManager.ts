@@ -46,9 +46,9 @@ import { mainWarn, mainError } from '@process/utils/mainLogger';
 import {
   getCodexSandboxModeForSessionMode,
   materializeFluxCodexHome,
+  materializeNativeCodexHome,
   normalizeCodexSandboxMode,
   type CodexSandboxMode,
-  writeCodexSandboxMode,
 } from '@process/task/codexConfig';
 import { materializeFluxClaudeConfigDir } from '@process/task/claudeConfig';
 import { materializeFluxHermesHome } from '@process/task/hermesConfig';
@@ -696,6 +696,20 @@ ${collectedResponses.join('\n')}`;
       }
     }
 
+    // Native (non-Flux) codex spawns: point CODEX_HOME at a Wayland-scoped clone
+    // of the user's ~/.codex so we can set the session sandbox mode WITHOUT ever
+    // writing the user's own config.toml (#536). The clone copies their config
+    // verbatim (model/provider/MCP/settings) + mirrors auth.json, overriding only
+    // sandbox_mode. Flux-routed codex already got its own scoped CODEX_HOME above.
+    if (data.backend === 'codex' && decision.routing !== 'flux') {
+      try {
+        const sandboxMode = normalizeCodexSandboxMode(data.sandboxMode);
+        mergedEnv.CODEX_HOME = await materializeNativeCodexHome(app.getPath('userData'), sandboxMode);
+      } catch (err) {
+        mainWarn('[AcpAgentManager]', 'materializeNativeCodexHome failed', err);
+      }
+    }
+
     // Native (non-Flux) claude slot picks (sonnet/opus/haiku) get no model list
     // from the bridge under subscription/OAuth auth, so an in-place set_model is
     // unreliable. Back the pick with ANTHROPIC_MODEL at spawn so the chosen slot
@@ -934,12 +948,14 @@ ${collectedResponses.join('\n')}`;
     }
 
     if (data.backend === 'codex') {
-      const sandboxMode = getCodexSandboxModeForSessionMode(
+      // #536: resolve the sandbox mode for this session and carry it on `data`
+      // so resolveAgentCliConfig materializes a scoped CODEX_HOME with it. We no
+      // longer write the user's ~/.codex/config.toml. Default is read-only; only
+      // an explicit escalated session mode raises it (see codexConfig.ts).
+      data.sandboxMode = getCodexSandboxModeForSessionMode(
         data.sessionMode || this.currentMode,
-        data.sandboxMode || codexConfig?.sandboxMode || 'workspace-write'
-      ) as CodexSandboxMode;
-      await writeCodexSandboxMode(sandboxMode);
-      data.sandboxMode = sandboxMode;
+        data.sandboxMode || codexConfig?.sandboxMode
+      );
     }
 
     return { cliPath, customArgs, yoloMode };
@@ -2107,9 +2123,11 @@ ${collectedResponses.join('\n')}`;
       const prev = this.currentMode;
       this.currentMode = mode;
       this.yoloMode = this.isYoloMode(mode);
-      const sandboxMode = getCodexSandboxModeForSessionMode(mode, this.options.sandboxMode);
-      this.options.sandboxMode = sandboxMode;
-      await writeCodexSandboxMode(sandboxMode);
+      // #536: persist the resolved sandbox mode on options so the next codex
+      // spawn's scoped CODEX_HOME (materializeNativeCodexHome) carries it. We no
+      // longer write the user's ~/.codex/config.toml. codex-acp has no live
+      // set_mode, so the change applies on the next spawn regardless.
+      this.options.sandboxMode = getCodexSandboxModeForSessionMode(mode, this.options.sandboxMode);
       this.saveSessionMode(mode);
 
       if (this.isYoloMode(prev) && !this.isYoloMode(mode)) {

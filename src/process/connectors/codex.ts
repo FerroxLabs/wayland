@@ -22,7 +22,7 @@
  *
  * Writes are surgical: we replace ONLY the `[model_providers.flux]` block as a
  * text section (regex-anchored), leaving every other table, key, and comment
- * byte-identical. This mirrors `writeCodexSandboxMode`'s text-merge philosophy
+ * byte-identical. This mirrors `setSandboxModeInConfig`'s text-merge philosophy
  * and avoids a comment-dropping full TOML round-trip. Reads use `smol-toml`
  * (already a dependency) to detect the on-disk flux provider for drift.
  */
@@ -45,8 +45,8 @@ type JsonObject = Record<string, unknown>;
 
 /**
  * Resolve codex's config file path. Honors `CODEX_HOME` (else `~/.codex`) via
- * the shared `getCodexConfigPath` so this connector and `writeCodexSandboxMode`
- * always agree on the file they mutate.
+ * the shared `getCodexConfigPath` so this connector and the codex config layer
+ * always agree on the file they read.
  */
 export function resolveCodexConfigPath(): string {
   return getCodexConfigPath();
@@ -155,7 +155,7 @@ export async function setupCodex(ctx: ConnectorContext): Promise<FluxConnectorRe
       parsed = parseToml(raw) as JsonObject;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      throw new Error(`codex config at ${configPath} is not valid TOML: ${message}`);
+      throw new Error(`codex config at ${configPath} is not valid TOML: ${message}`, { cause: err });
     }
     priorBaseURL = readFluxBaseURL(parsed);
   }
