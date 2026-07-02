@@ -721,10 +721,10 @@ export function initConversationBridge(
 
   // Generic confirmMessage - dispatches based on conversation type
 
-  ipcBridge.conversation.confirmation.confirm.provider(async ({ conversation_id, msg_id, data, callId }) => {
+  ipcBridge.conversation.confirmation.confirm.provider(async ({ conversation_id, msg_id, data, callId, answer }) => {
     const task = workerTaskManager.getTask(conversation_id);
     if (!task) return { success: false, msg: 'conversation not found' };
-    task.confirm(msg_id, callId, data);
+    task.confirm(msg_id, callId, data, answer);
     return { success: true };
   });
   ipcBridge.conversation.confirmation.list.provider(async ({ conversation_id }) => {

@@ -290,7 +290,12 @@ export type WCoreEvent =
 export type WCoreCommand =
   | { type: 'message'; msg_id: string; content: string; files?: string[] }
   | { type: 'stop' }
-  | { type: 'tool_approve'; call_id: string; scope: 'once' | 'always' }
+  // `answer` (wayland-core v0.9.3+, additive) threads an AskUserQuestion-class
+  // tool's chosen option back through the approval channel; the engine
+  // synthesizes the tool result from it (guarded engine-side on
+  // tool_name == "AskUserQuestion"). Omitted for a plain approval; older
+  // engines ignore the extra field (serde default None).
+  | { type: 'tool_approve'; call_id: string; scope: 'once' | 'always'; answer?: string }
   | { type: 'tool_deny'; call_id: string; reason?: string }
   // W7 S4 HITL: resume a suspended turn waiting on an `approval_required`.
   // Engine-side resolve is idempotent — a stale/duplicate token is ignored.

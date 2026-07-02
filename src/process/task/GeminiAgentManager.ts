@@ -686,6 +686,19 @@ export class GeminiAgentManager extends BaseAgentManager<
           );
         }
         break;
+      case 'question':
+        {
+          // #504: AskUserQuestion is a wcore engine tool, so Gemini does not
+          // emit it; this arm exists for confirmationDetails-union
+          // exhaustiveness. Surface the question + a plain proceed/cancel.
+          question = confirmationDetails.question;
+          description = confirmationDetails.header ?? '';
+          options.push(
+            { label: t('messages.confirmation.yesAllowOnce'), value: ToolConfirmationOutcome.ProceedOnce },
+            { label: t('messages.confirmation.no'), value: ToolConfirmationOutcome.Cancel }
+          );
+        }
+        break;
       default: {
         const mcpProps = confirmationDetails;
         question = t('messages.confirmation.allowMCPTool', {

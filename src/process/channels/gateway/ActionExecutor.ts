@@ -217,6 +217,17 @@ function getConfirmationPrompt(details: { type: string; title?: string; [key: st
       return `🔧 <b>MCP Tool Confirmation</b>\nTool: <code>${escapeHtml(details.toolDisplayName || details.toolName || 'Unknown tool')}</code>\nServer: <code>${escapeHtml(details.serverName || 'Unknown server')}</code>\n\nAllow calling this tool?`;
     case 'info':
       return `ℹ️ <b>Information Confirmation</b>\n${escapeHtml(details.prompt || '')}\n\nContinue?`;
+    case 'question': {
+      // #504: surface the question + its choices on remote channels. Selecting
+      // a specific choice (the `answer` return path) is desktop-only for now -
+      // remote answering is a channels-lane follow-up.
+      const choiceLines = Array.isArray(details.choices)
+        ? details.choices
+            .map((c: { label?: string }, i: number) => `${i + 1}. ${escapeHtml(c?.label || '')}`)
+            .join('\n')
+        : '';
+      return `❓ <b>${escapeHtml(details.question || details.title || 'Question')}</b>\n${choiceLines}`;
+    }
     default:
       return 'Please confirm the operation';
   }
@@ -448,19 +459,13 @@ export class ActionExecutor {
       // themselves. Everyone else goes through the pairing flow.
       if (!isAuthorized) {
         if (message.isOwner) {
-          const ownerUser = await this.pairingService.authorizeOwner(
-            user.id,
-            platform,
-            user.displayName ?? user.id
-          );
+          const ownerUser = await this.pairingService.authorizeOwner(user.id, platform, user.displayName ?? user.id);
           // authorizeOwner returns null only when the DB write failed. Do NOT
           // fall through to the getChannelUserByPlatform lookup below: it would
           // find nothing and send the owner the misleading "re-pair your
           // account" message. Report the real internal error and stop.
           if (!ownerUser) {
-            console.error(
-              `[ActionExecutor] authorizeOwner failed (DB write) for owner ${user.id} on ${platform}`
-            );
+            console.error(`[ActionExecutor] authorizeOwner failed (DB write) for owner ${user.id} on ${platform}`);
             await context.sendMessage({
               type: 'text',
               text: '❌ Internal error saving your account. Please try again.',

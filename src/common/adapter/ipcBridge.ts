@@ -181,9 +181,11 @@ export const conversation = {
   confirmation: {
     add: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.add'),
     update: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.update'),
-    confirm: buildProvider<IBridgeResponse, { conversation_id: string; msg_id: string; data: any; callId: string }>(
-      'confirmation.confirm'
-    ),
+    confirm: buildProvider<
+      IBridgeResponse,
+      // #504: `answer` carries an AskUserQuestion choice back to the engine.
+      { conversation_id: string; msg_id: string; data: any; callId: string; answer?: string }
+    >('confirmation.confirm'),
     list: buildProvider<IConfirmation<any>[], { conversation_id: string }>('confirmation.list'),
     remove: buildEmitter<{ conversation_id: string; id: string }>('confirmation.remove'),
   },

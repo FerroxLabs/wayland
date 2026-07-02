@@ -101,9 +101,10 @@ describe('BaseAgentManager with injected emitter', () => {
     });
     // Confirmation should NOT be added to the list
     expect(agent.getConfirmations()).toHaveLength(0);
-    // After the 50 ms delay, confirm should be called
+    // After the 50 ms delay, confirm should be called. #504: the option's
+    // `answer` (undefined here) is threaded through for AskUserQuestion support.
     await new Promise((r) => setTimeout(r, 80));
-    expect(confirmSpy).toHaveBeenCalledWith('conf1', 'call1', 'proceed');
+    expect(confirmSpy).toHaveBeenCalledWith('conf1', 'call1', 'proceed', undefined);
   });
 
   it('addConfirmation does NOT auto-confirm in yoloMode when options is empty', () => {
