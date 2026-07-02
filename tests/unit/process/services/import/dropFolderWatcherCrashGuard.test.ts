@@ -59,6 +59,24 @@ describe('startDropFolderWatcher native-binding crash guard (#447)', () => {
     expect(isDropFolderWatching()).toBe(false);
   });
 
+  it('absorbs an async watcher error event without crashing (the real #447 mode)', () => {
+    const watcher = new FakeWatcher();
+    watchMock.mockReturnValueOnce(watcher);
+
+    const onError = vi.fn();
+    startDropFolderWatcher({
+      ijfwMemoryDir: '/tmp/ijfw-mem-test',
+      dropFolder: '/tmp/drop-test',
+      onIngest: vi.fn(),
+      onError,
+    });
+
+    // chokidar surfaces backend failures as an async 'error' event; an unhandled
+    // 'error' on an EventEmitter is rethrown and would crash the app.
+    expect(() => watcher.emit('error', new Error('fsevents backend failed'))).not.toThrow();
+    expect(onError).toHaveBeenCalledWith(expect.stringContaining('Watcher error'));
+  });
+
   it('falls back to polling when the native watch init throws (no crash)', () => {
     const pollingWatcher = new FakeWatcher();
     watchMock

@@ -28,7 +28,8 @@ vi.mock('@process/agent/wcore/toolKeyStore', () => ({
 vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
   hydrateModelForSpawn: (m: unknown) => Promise.resolve(m),
 }));
-vi.mock('@process/agent/acp/utils', () => ({ killChild: vi.fn() }));
+const killChildMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock('@process/agent/acp/utils', () => ({ killChild: killChildMock }));
 
 import { WCoreAgent } from '@process/agent/wcore';
 import type { WCoreAgentOptions } from '@process/agent/wcore';
@@ -70,6 +71,7 @@ function baseOptions(): WCoreAgentOptions {
 describe('WCoreAgent init-failure surfacing (#484)', () => {
   beforeEach(() => {
     spawnMock.mockReset();
+    killChildMock.mockClear();
   });
 
   afterEach(() => {
@@ -130,5 +132,62 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     const err = (await result) as Error;
     expect(err.message).toContain('wcore ready timeout (30s)');
     expect(err.message).toContain('waiting for provider handshake');
+  });
+
+  it('resume-fallback tears down the stale child, resets the tail, and surfaces only the retry error (#484 audit)', async () => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    const second = makeChild();
+    spawnMock.mockReturnValueOnce(first).mockReturnValueOnce(second);
+
+    const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-abc' });
+    const result = agent.start().catch((e: unknown) => e);
+
+    // First (resume) attempt spawns, logs stderr, then never becomes ready.
+    await vi.advanceTimersByTimeAsync(0);
+    first.stderr.write('attempt 1: resume session not found\n');
+    await vi.advanceTimersByTimeAsync(0);
+
+    // The 30s ready-timeout fires → resume fallback: the stale (still-alive)
+    // child must be killed and its listeners detached before the retry spawns.
+    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(killChildMock).toHaveBeenCalledWith(first, false);
+    expect(spawnMock).toHaveBeenCalledTimes(2);
+
+    // A late stderr chunk from the orphaned first child must NOT leak into the
+    // retry's buffer (its listeners were removed).
+    first.stderr.write('attempt 1: late noise\n');
+    await vi.advanceTimersByTimeAsync(0);
+
+    // The retry fails with its own reason.
+    second.stderr.write('attempt 2: no API key configured\n');
+    await vi.advanceTimersByTimeAsync(0);
+    second.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('wcore exited with code 1 during init');
+    expect(err.message).toContain('no API key configured');
+    expect(err.message).not.toContain('attempt 1');
+  });
+
+  it('redacts high-confidence secret tokens from the surfaced stderr (#484 audit)', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned();
+    child.stderr.write('auth failed with key sk-abcdef0123456789ABCDEF for provider openai\n');
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    // The human-readable reason survives; the token does not.
+    expect(err.message).toContain('auth failed');
+    expect(err.message).toContain('[redacted]');
+    expect(err.message).not.toContain('sk-abcdef0123456789ABCDEF');
   });
 });
