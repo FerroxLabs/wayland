@@ -15,21 +15,15 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { IMcpServer } from '@/common/config/storage';
 
-const { handleAddMcpServer, login, messageSuccess, messageError, testMcpConnection } = vi.hoisted(
-  () => ({
-    handleAddMcpServer: vi.fn<
-      (data: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IMcpServer | null>
-    >(),
-    login: vi.fn<
-      (server: IMcpServer) => Promise<{ success: boolean; error?: string }>
-    >(),
-    messageSuccess: vi.fn<(msg: string) => void>(),
-    messageError: vi.fn<(msg: string) => void>(),
-    // The redesigned api-key install path runs a real connection test before
-    // toasting success and enabling the server; default it to a passing probe.
-    testMcpConnection: vi.fn().mockResolvedValue({ success: true, data: { success: true, tools: [] } }),
-  }),
-);
+const { handleAddMcpServer, login, messageSuccess, messageError, testMcpConnection } = vi.hoisted(() => ({
+  handleAddMcpServer: vi.fn<(data: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IMcpServer | null>>(),
+  login: vi.fn<(server: IMcpServer) => Promise<{ success: boolean; error?: string }>>(),
+  messageSuccess: vi.fn<(msg: string) => void>(),
+  messageError: vi.fn<(msg: string) => void>(),
+  // The redesigned api-key install path runs a real connection test before
+  // toasting success and enabling the server; default it to a passing probe.
+  testMcpConnection: vi.fn().mockResolvedValue({ success: true, data: { success: true, tools: [] } }),
+}));
 
 // The api-key save+connect flow probes the server through the IPC bridge.
 // Partial-mock so the bridge's other exports stay intact; only the MCP
@@ -41,6 +35,15 @@ vi.mock('@/common/adapter/ipcBridge', async (importOriginal) => {
     mcpService: {
       ...actual.mcpService,
       testMcpConnection: { invoke: testMcpConnection },
+    },
+    // DetailPage.buildServerData (#448) resolves the user's home via
+    // application.getPath to bake the filesystem server's directory arg. jsdom
+    // has no main process, so the real provider's invoke never resolves — stub
+    // it, or the install click rejects in buildServerData before it ever reaches
+    // handleAddMcpServer.
+    application: {
+      ...actual.application,
+      getPath: { invoke: vi.fn().mockResolvedValue('/Users/test') },
     },
   };
 });
@@ -103,8 +106,7 @@ vi.mock('@renderer/hooks/mcp', () => ({
 }));
 
 vi.mock('@arco-design/web-react', async () => {
-  const actual =
-    await vi.importActual<typeof import('@arco-design/web-react')>('@arco-design/web-react');
+  const actual = await vi.importActual<typeof import('@arco-design/web-react')>('@arco-design/web-react');
   return {
     ...actual,
     Message: {
@@ -125,13 +127,11 @@ const BRAVE_ENTRY_ID = 'com.brave/brave-search-mcp';
 
 function renderDetail() {
   return render(
-    <MemoryRouter
-      initialEntries={[`/settings/mcp-library/${encodeURIComponent(BRAVE_ENTRY_ID)}`]}
-    >
+    <MemoryRouter initialEntries={[`/settings/mcp-library/${encodeURIComponent(BRAVE_ENTRY_ID)}`]}>
       <Routes>
-        <Route path="/settings/mcp-library/:entryId" element={<DetailPage />} />
+        <Route path='/settings/mcp-library/:entryId' element={<DetailPage />} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 }
 
@@ -204,7 +204,7 @@ test('Install click calls handleAddMcpServer with library source + libraryEntryI
         type: 'stdio',
         env: expect.objectContaining({ BRAVE_API_KEY: 'sk_test_123' }),
       }),
-    }),
+    })
   );
 
   expect(messageSuccess).toHaveBeenCalledTimes(1);

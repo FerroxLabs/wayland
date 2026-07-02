@@ -41,6 +41,15 @@ vi.mock('@/common/adapter/ipcBridge', async (importOriginal) => {
       ...actual.mcpService,
       testMcpConnection: { invoke: testMcpConnection },
     },
+    // DetailPage.buildServerData (#448) resolves the user's home via
+    // application.getPath to bake the filesystem server's directory arg. jsdom
+    // has no main process, so the real provider's invoke never resolves — stub
+    // it, or the install/sign-in click rejects in buildServerData before it ever
+    // reaches handleAddMcpServer.
+    application: {
+      ...actual.application,
+      getPath: { invoke: vi.fn().mockResolvedValue('/Users/test') },
+    },
   };
 });
 
