@@ -223,7 +223,7 @@ export function startDropFolderWatcher(opts: {
     persistent: true,
     followSymlinks: false,
     usePolling: true,
-    interval: 1000,
+    interval: 250,
   } as const;
   let watcher: ReturnType<typeof chokidar.watch>;
   try {

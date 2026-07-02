@@ -45,9 +45,13 @@ export function watchInstallRoot(onChange: (exists: boolean) => void): () => voi
     // failure on macOS Intel, or EMFILE). An unhandled 'error' on an EventEmitter
     // is rethrown and would crash the app at startup (#447). Swallow it: the
     // watcher is best-effort observability, not critical - log and move on.
-    watcher.on('error', (err) => {
-      log.warn('[healthCheck] install-root watcher error (ignored)', { err });
-    });
+    // Guard `.on` because tests (and defensive callers) may hand back a minimal
+    // watcher object without the EventEmitter surface.
+    if (typeof watcher?.on === 'function') {
+      watcher.on('error', (err) => {
+        log.warn('[healthCheck] install-root watcher error (ignored)', { err });
+      });
+    }
   } catch (err) {
     // Parent missing or watch unavailable - caller can retry by recreating the
     // watcher later. Never throw from startup wiring (#447).
