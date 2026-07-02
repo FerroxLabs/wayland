@@ -405,6 +405,7 @@ const ConversationMessageList: React.FC<{
   } = useAutoScroll({
     messages: list,
     itemCount: processedList.length,
+    conversationId,
   });
 
   useEffect(() => {

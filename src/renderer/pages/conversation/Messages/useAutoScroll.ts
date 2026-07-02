@@ -28,6 +28,13 @@ const PROGRAMMATIC_SCROLL_GUARD_MS = 150;
 // distance a real read-history scroll travels.
 const USER_SCROLL_UP_DELTA = 24;
 
+// How long a wheel/touch scroll-up gesture keeps onScroll exempt from the
+// programmatic guard (ms). Long enough to cover the onScroll(s) a single wheel
+// notch / touch drag produces, short enough that a later unrelated reflow scroll
+// is still guarded. Refreshed on every gesture event so continuous scrolling
+// (trackpad momentum) stays exempt for its whole duration.
+const USER_SCROLL_INTENT_MS = 200;
+
 // Lightweight streaming signature for the in-place auto-scroll effect.
 // followOutput only fires on item-count change; ACP/Gemini grow the last
 // message's text in place, so we additionally key on the last message's text
@@ -51,6 +58,12 @@ interface UseAutoScrollOptions {
   messages: TMessage[];
   /** Total item count for scroll target */
   itemCount: number;
+  /**
+   * Active conversation id. When it changes the scroll-up latch is reset so a
+   * paused auto-follow from one chat never carries into the next (the list view
+   * is reused across conversation switches, it does not remount).
+   */
+  conversationId?: string;
 }
 
 interface UseAutoScrollReturn {
@@ -72,7 +85,7 @@ interface UseAutoScrollReturn {
   hideScrollButton: () => void;
 }
 
-export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): UseAutoScrollReturn {
+export function useAutoScroll({ messages, itemCount, conversationId }: UseAutoScrollOptions): UseAutoScrollReturn {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [scrollerEl, setScrollerEl] = useState<HTMLElement | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -89,6 +102,10 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
   const lastProgrammaticScrollTimeRef = useRef(0);
   const scrollerElRef = useRef<HTMLElement | null>(null);
   const followOutputTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Timestamp until which a real user scroll gesture (wheel / touch drag up) is
+  // in flight. While inside this window, handleScroll bypasses the programmatic
+  // guard so the resulting onScroll is evaluated on its true main-scroller delta.
+  const userScrollIntentUntilRef = useRef(0);
 
   // Capture Virtuoso's scroll container
   const handleScrollerRef = useCallback((ref: HTMLElement | Window | null) => {
@@ -148,6 +165,55 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
     };
   }, [scrollerEl]);
 
+  // Mark a real user scroll-up gesture (wheel / touch drag up) as in flight.
+  // Programmatic scrollTop changes NEVER emit wheel/touch events, so this is a
+  // reliable "the user is driving" signal. But rather than latch here directly,
+  // we only open a short intent window and let handleScroll decide from the
+  // MAIN scroller's actual delta. That matters two ways:
+  //   - wheel/touch events bubble, so a gesture that scrolls a nested overflow
+  //     child (code block, diff, tool panel) also reaches this listener; letting
+  //     the main-scroller delta decide means a child-consumed scroll (main list
+  //     did not move) never falsely pauses auto-follow.
+  //   - during fast streaming the programmatic guard is continuously refreshed
+  //     and would otherwise swallow the user's scroll-up in handleScroll (#479);
+  //     the intent window exempts the ensuing onScroll from that guard.
+  useEffect(() => {
+    if (!scrollerEl) return;
+
+    const markIntent = () => {
+      userScrollIntentUntilRef.current = Date.now() + USER_SCROLL_INTENT_MS;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY < 0) markIntent();
+    };
+
+    let lastTouchY: number | null = null;
+    const onTouchStart = (e: TouchEvent) => {
+      lastTouchY = e.touches[0]?.clientY ?? null;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0]?.clientY ?? null;
+      if (y === null || lastTouchY === null) {
+        lastTouchY = y;
+        return;
+      }
+      // Finger dragging down (clientY increases) reveals earlier content, i.e.
+      // the content scrolls up - the user is reading back through history.
+      if (y - lastTouchY > 0) markIntent();
+      lastTouchY = y;
+    };
+
+    scrollerEl.addEventListener('wheel', onWheel, { passive: true });
+    scrollerEl.addEventListener('touchstart', onTouchStart, { passive: true });
+    scrollerEl.addEventListener('touchmove', onTouchMove, { passive: true });
+    return () => {
+      scrollerEl.removeEventListener('wheel', onWheel);
+      scrollerEl.removeEventListener('touchstart', onTouchStart);
+      scrollerEl.removeEventListener('touchmove', onTouchMove);
+    };
+  }, [scrollerEl]);
+
   // Scroll to bottom helper - only for user messages and button clicks
   const scrollToBottom = useCallback(
     (behavior: 'smooth' | 'auto' = 'smooth') => {
@@ -196,10 +262,20 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
   // A full 150ms guard here caused jitter: user scrolls up → guard blocks detection
   // → atBottomStateChange(false) scrolls back → cycle.
   const handleAtBottomStateChange = useCallback((atBottom: boolean) => {
+    // The scroll-up latch is authoritative. Once the user has scrolled up, ONLY
+    // an explicit resume (the scroll-to-bottom button -> hideScrollButton, or
+    // sending a message) may clear it. A transient atBottom=true from a mid-stream
+    // layout shift, or from a small scroll-up still inside Virtuoso's 100px
+    // atBottomThreshold, must NOT clear the latch or snap the user down - that
+    // fight was the #479 bug. Keep the button visible while paused.
+    if (userScrolledRef.current) {
+      setShowScrollButton(true);
+      return;
+    }
+
     setShowScrollButton(!atBottom);
 
     if (atBottom) {
-      userScrolledRef.current = false;
       // Short guard: expire 50ms from now (not the full PROGRAMMATIC_SCROLL_GUARD_MS)
       lastProgrammaticScrollTimeRef.current = Date.now() - (PROGRAMMATIC_SCROLL_GUARD_MS - 50);
       // Close any residual gap within atBottomThreshold (e.g. after ThoughtDisplay
@@ -212,8 +288,8 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
           el.scrollTop = el.scrollHeight - el.clientHeight;
         }
       }
-    } else if (!userScrolledRef.current) {
-      // Layout shift pushed us off bottom - scroll back to bottom immediately.
+    } else {
+      // Layout shift pushed us off bottom while still following - snap back.
       const el = scrollerElRef.current;
       if (el) {
         lastProgrammaticScrollTimeRef.current = Date.now();
@@ -226,21 +302,42 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement;
     const currentScrollTop = target.scrollTop;
+    const delta = currentScrollTop - lastScrollTopRef.current;
 
-    // Ignore scroll events shortly after a programmatic scroll or container resize
+    // Resume auto-follow when the user scrolls back to the TRUE bottom (gap ~0).
+    // Runs BEFORE the programmatic guard: the guard only suppresses false
+    // scroll-UP latching, it must never block a genuine return to the bottom
+    // (e.g. wheeling straight back down within the guard window would otherwise
+    // leave the latch stuck). Uses the true bottom, not Virtuoso's 100px
+    // atBottomThreshold, so a deliberate small scroll-up is never mistaken for
+    // "back at the bottom". While latched, no programmatic scroll runs (every
+    // auto-scroll effect is gated on !userScrolledRef.current), so a delta > 0
+    // reaching the bottom here is always user-driven.
+    if (userScrolledRef.current && delta > 0) {
+      const gap = target.scrollHeight - target.clientHeight - currentScrollTop;
+      if (gap <= 2) {
+        userScrolledRef.current = false;
+        setShowScrollButton(false);
+      }
+    }
+
+    // Ignore scroll events shortly after a programmatic scroll or container
+    // resize - UNLESS a real user wheel/touch gesture is in flight, in which
+    // case this onScroll reflects the user's own movement and must be evaluated.
     const timeSinceGuard = Date.now() - lastProgrammaticScrollTimeRef.current;
-    if (timeSinceGuard < PROGRAMMATIC_SCROLL_GUARD_MS) {
+    const userGestureInFlight = Date.now() < userScrollIntentUntilRef.current;
+    if (!userGestureInFlight && timeSinceGuard < PROGRAMMATIC_SCROLL_GUARD_MS) {
       lastScrollTopRef.current = currentScrollTop;
       return;
     }
 
-    const delta = currentScrollTop - lastScrollTopRef.current;
     // Require a larger upward jump than the resting jitter a mid-stream layout
     // shift (orbit/ThoughtDisplay appearing, Virtuoso reflow) can emit, so a
     // spurious small negative delta doesn't permanently kill auto-follow. A
     // real read-history scroll-up travels well past this and still pauses follow.
     if (delta < -USER_SCROLL_UP_DELTA) {
       userScrolledRef.current = true;
+      setShowScrollButton(true);
     }
 
     // When in auto-follow mode and Virtuoso is scrolling down (following content),
@@ -320,6 +417,14 @@ export function useAutoScroll({ messages, itemCount }: UseAutoScrollOptions): Us
     };
     // streamingSignature changes on in-place text growth as well as count change.
   }, [streamingSig]);
+
+  // Reset the paused-scroll latch when switching conversations. The list view is
+  // reused across switches (it does not remount), so without this a scroll-up
+  // paused in one chat would leave the next chat stuck not-following.
+  useEffect(() => {
+    userScrolledRef.current = false;
+    setShowScrollButton(false);
+  }, [conversationId]);
 
   // Hide scroll button handler
   const hideScrollButton = useCallback(() => {

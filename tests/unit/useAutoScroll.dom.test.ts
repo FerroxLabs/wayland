@@ -299,8 +299,9 @@ describe('useAutoScroll - streaming guard refresh (#2017)', () => {
 
     // followOutput should return false (userScrolled is true)
     expect(result.current.handleFollowOutput(false)).toBe(false);
-    // scroll button should show
-    expect(result.current.showScrollButton).toBe(false); // button shown via atBottomStateChange
+    // #479: a detected scroll-up now surfaces the button directly (the latch
+    // drives it), rather than waiting for atBottomStateChange(false).
+    expect(result.current.showScrollButton).toBe(true);
   });
 
   it('followOutput should set guard so subsequent scroll events are ignored', () => {
@@ -354,7 +355,7 @@ describe('useAutoScroll - streaming guard refresh (#2017)', () => {
     expect(result.current.handleFollowOutput(false)).toBe(false);
   });
 
-  it('atBottomStateChange(true) should reset userScrolled and close residual gap', () => {
+  it('#479: atBottomStateChange(true) must NOT clear the latch or snap while the user is scrolled up', () => {
     const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
       initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
     });
@@ -366,7 +367,7 @@ describe('useAutoScroll - streaming guard refresh (#2017)', () => {
       result.current.handleScrollerRef(scrollerEl);
     });
 
-    // Simulate user scrolled up then atBottom fires true
+    // Simulate user scrolled up
     act(() => {
       result.current.handleScroll({
         target: { scrollTop: 500, scrollHeight: 1050, clientHeight: 504 },
@@ -378,19 +379,28 @@ describe('useAutoScroll - streaming guard refresh (#2017)', () => {
         target: { scrollTop: 300, scrollHeight: 1050, clientHeight: 504 },
       } as unknown as React.UIEvent<HTMLDivElement>);
     });
+    scrollerEl.scrollTop = 300;
 
     // User scrolled - followOutput returns false
     expect(result.current.handleFollowOutput(false)).toBe(false);
 
-    // atBottomStateChange(true) should reset
+    // A spurious atBottomStateChange(true) (mid-stream layout shift / threshold
+    // band) must be inert: the latch holds, the scroll position is untouched, and
+    // the button stays visible.
     act(() => {
       result.current.handleAtBottomStateChange(true);
     });
 
-    // Should close the gap: scrollTop = scrollHeight - clientHeight
-    expect(scrollerEl.scrollTop).toBe(1050 - 504);
-    // followOutput should return 'auto' again
+    expect(scrollerEl.scrollTop).toBe(300); // NOT snapped to bottom
+    expect(result.current.handleFollowOutput(false)).toBe(false); // still paused
+    expect(result.current.showScrollButton).toBe(true);
+
+    // Only the explicit resume (button -> hideScrollButton) re-enables auto-follow.
+    act(() => {
+      result.current.hideScrollButton();
+    });
     expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
   });
 
   it('atBottomStateChange(false) should scroll back when not user-scrolled (layout shift)', () => {
@@ -473,6 +483,227 @@ describe('useAutoScroll - streaming guard refresh (#2017)', () => {
     });
 
     expect(scrollerEl.scrollTop).toBe(1000 - 504);
+  });
+
+  it('#479: a wheel-up opens an intent window so the ensuing onScroll latches inside the guard window', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 500 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Fast streaming keeps the onScroll guard continuously fresh...
+    act(() => {
+      result.current.handleFollowOutput(false);
+    });
+    // ...and set the last-scroll baseline (this event is guarded -> early return).
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // A real wheel-up opens the intent window; the resulting onScroll (main list
+    // actually moved up) is now evaluated despite the fresh guard -> latch.
+    act(() => {
+      scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -120 }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 300, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+  });
+
+  it('#479: a wheel-DOWN does not open the intent window (no latch)', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 500 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    act(() => {
+      scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: 120 }));
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#479: a wheel-up consumed by a scrollable child (main list did not move) does NOT latch', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 500 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    act(() => {
+      result.current.handleFollowOutput(false);
+    });
+    // baseline
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // Wheel bubbles from a nested overflow child; the child consumed it, so the
+    // MAIN scroller did not move. onScroll fires with delta 0 -> no false latch.
+    act(() => {
+      scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -120 }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#479: after a wheel-latch, scrolling back to the bottom resumes even while the guard is still fresh', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    const scrollerEl = createScrollerEl({ clientHeight: 504, scrollHeight: 1050, scrollTop: 500 });
+    act(() => {
+      result.current.handleScrollerRef(scrollerEl);
+    });
+
+    // Guard freshly set by streaming, baseline established.
+    act(() => {
+      result.current.handleFollowOutput(false);
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    // Wheel-up + up-scroll latches.
+    act(() => {
+      scrollerEl.dispatchEvent(new WheelEvent('wheel', { deltaY: -120 }));
+    });
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 300, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+
+    // User scrolls straight back to the true bottom (gap 0) - no timer advance,
+    // so the guard is still fresh. Resume runs before the guard, so it fires and
+    // the latch clears WITHOUT needing the scroll-to-bottom button.
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 1050 - 504, scrollHeight: 1050, clientHeight: 504 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#479: scrolling back to the true bottom resumes auto-follow', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    // Latch via a real scroll-up (guard expired).
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1000, clientHeight: 500 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    vi.advanceTimersByTime(200);
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 300, scrollHeight: 1000, clientHeight: 500 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+
+    // User scrolls back down to the true bottom (gap 0): resume.
+    vi.advanceTimersByTime(200);
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1000, clientHeight: 500 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
+  });
+
+  it('#479: a small scroll-up within the atBottomThreshold still pauses (does not count as at-bottom)', () => {
+    const { result } = renderHook(({ messages, itemCount }) => useAutoScroll({ messages, itemCount }), {
+      initialProps: { messages: [createMessage('left', '1')], itemCount: 1 },
+    });
+
+    // Establish a baseline then a decisive up-move that lands only ~40px from the
+    // bottom - within Virtuoso's 100px atBottomThreshold, but gap > 2 so it is NOT
+    // treated as the true bottom and the latch holds.
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1000, clientHeight: 500 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    vi.advanceTimersByTime(200);
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 460, scrollHeight: 1000, clientHeight: 500 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+    expect(result.current.showScrollButton).toBe(true);
+  });
+
+  it('#479: switching conversation resets the paused latch', () => {
+    const { result, rerender } = renderHook(
+      ({ messages, itemCount, conversationId }) => useAutoScroll({ messages, itemCount, conversationId }),
+      {
+        initialProps: { messages: [createMessage('left', '1')], itemCount: 1, conversationId: 'conv-a' },
+      }
+    );
+
+    // Pause in conversation A.
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 500, scrollHeight: 1000, clientHeight: 500 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    vi.advanceTimersByTime(200);
+    act(() => {
+      result.current.handleScroll({
+        target: { scrollTop: 300, scrollHeight: 1000, clientHeight: 500 },
+      } as unknown as React.UIEvent<HTMLDivElement>);
+    });
+    expect(result.current.handleFollowOutput(false)).toBe(false);
+
+    // Switch to conversation B - latch must clear.
+    act(() => {
+      rerender({ messages: [createMessage('left', '9')], itemCount: 1, conversationId: 'conv-b' });
+    });
+
+    expect(result.current.handleFollowOutput(false)).toBe('auto');
+    expect(result.current.showScrollButton).toBe(false);
   });
 
   it('container resize should NOT correct when user has scrolled up', () => {
