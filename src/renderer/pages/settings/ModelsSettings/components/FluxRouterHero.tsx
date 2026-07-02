@@ -34,6 +34,9 @@ const ERROR_KEYS: Record<ConnectError, string> = {
   offline: 'settings.modelsPage.flux.errorOffline',
   unrecognized: 'settings.modelsPage.flux.errorUnrecognized',
   'no-models': 'settings.modelsPage.flux.errorNoModels',
+  'https-required': 'settings.modelsPage.flux.errorHttpsRequired',
+  'csrf-invalid': 'settings.modelsPage.flux.errorCsrfInvalid',
+  'auth-required': 'settings.modelsPage.flux.errorAuthRequired',
   unknown: 'settings.modelsPage.flux.errorUnknown',
 };
 
@@ -80,6 +83,8 @@ const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, onConnectKey
   const [key, setKey] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  // #524: verbatim server text for an unclassified failure (hosted WebUI path).
+  const [errorRaw, setErrorRaw] = useState<string | null>(null);
 
   // Pull live routing metrics from the Flux Desktop daemon when connected.
   // Best-effort: a null payload (daemon down / pre-warmup) leaves the hero in
@@ -111,6 +116,7 @@ const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, onConnectKey
     if (!trimmed || connecting) return;
     setConnecting(true);
     setErrorKey(null);
+    setErrorRaw(null);
     try {
       const res = await onConnectKey(trimmed);
       if (res.ok) {
@@ -119,6 +125,7 @@ const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, onConnectKey
         return;
       }
       setErrorKey(ERROR_KEYS[res.error ?? 'unknown']);
+      setErrorRaw(res.error === 'unknown' && res.errorMessage ? res.errorMessage : null);
     } catch {
       setErrorKey(ERROR_KEYS.unknown);
     } finally {
@@ -223,9 +230,9 @@ const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, onConnectKey
         </div>
       )}
 
-      {errorKey && (
+      {(errorRaw || errorKey) && (
         <div className={styles.error} role='alert'>
-          {t(errorKey, { provider: t('settings.modelsPage.flux.name') })}
+          {errorRaw ?? t(errorKey as string, { provider: t('settings.modelsPage.flux.name') })}
         </div>
       )}
     </div>

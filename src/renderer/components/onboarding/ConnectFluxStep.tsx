@@ -21,6 +21,11 @@ const ERROR_KEYS: Record<ConnectError, string> = {
   offline: 'onboarding.connect.errorOffline',
   unrecognized: 'onboarding.connect.errorUnrecognized',
   'no-models': 'onboarding.connect.errorNoModels',
+  // WebUI-only guard failures (#524) - the desktop onboarding flow never hits
+  // these, but the map must stay exhaustive over ConnectError.
+  'https-required': 'onboarding.connect.errorUnknown',
+  'csrf-invalid': 'onboarding.connect.errorUnknown',
+  'auth-required': 'onboarding.connect.errorUnknown',
   unknown: 'onboarding.connect.errorUnknown',
 };
 

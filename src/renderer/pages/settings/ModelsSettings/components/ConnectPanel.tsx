@@ -52,6 +52,9 @@ const ERROR_KEY: Record<PanelErrorCode, string> = {
   cloud: 'errorCloud',
   ambiguous: 'errorAmbiguous',
   'no-models': 'errorNoModels',
+  'https-required': 'errorHttpsRequired',
+  'csrf-invalid': 'errorCsrfInvalid',
+  'auth-required': 'errorAuthRequired',
   unknown: 'errorUnknown',
 };
 
@@ -77,6 +80,9 @@ const ConnectPanel: React.FC<Props> = ({
   const [usingDetected, setUsingDetected] = useState<string | null>(null);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorProvider, setErrorProvider] = useState<string | null>(null);
+  // #524: server-provided fallback text for an otherwise-unclassified failure,
+  // shown verbatim so the user still sees *why* rather than a bare "unknown".
+  const [errorRaw, setErrorRaw] = useState<string | null>(null);
   // #100: soft (non-error) advisory shown when a key connects but has no usable
   // credit yet - the provider is added connected-but-switched-off.
   const [noticeKey, setNoticeKey] = useState<string | null>(null);
@@ -136,15 +142,19 @@ const ConnectPanel: React.FC<Props> = ({
     setKeyValue(value);
     setErrorKey(null);
     setErrorProvider(null);
+    setErrorRaw(null);
     setNoticeKey(null);
     setNoticeProvider(null);
     // Once the user edits the field the deep-link badge no longer makes sense.
     setSeededFromDeepLink(false);
   }, []);
 
-  const showError = useCallback((code: PanelErrorCode, providerName?: string) => {
+  const showError = useCallback((code: PanelErrorCode, providerName?: string, rawMessage?: string) => {
     setErrorKey(ERROR_KEY[code]);
     setErrorProvider(providerName ?? null);
+    // Only surface raw server text for the unclassified fallback - a mapped code
+    // always has a localized message that reads better.
+    setErrorRaw(code === 'unknown' && rawMessage ? rawMessage : null);
   }, []);
 
   const handleConnect = useCallback(async () => {
@@ -172,6 +182,7 @@ const ConnectPanel: React.FC<Props> = ({
     setConnecting(true);
     setErrorKey(null);
     setErrorProvider(null);
+    setErrorRaw(null);
     setNoticeKey(null);
     setNoticeProvider(null);
     const providerName = providerMeta(recognition.provider).displayName;
@@ -187,7 +198,7 @@ const ConnectPanel: React.FC<Props> = ({
           setNoticeProvider(providerName);
         }
       } else {
-        showError(res.error ?? 'unknown', providerName);
+        showError(res.error ?? 'unknown', providerName, res.errorMessage);
       }
     } catch {
       showError('unknown', providerName);
@@ -213,11 +224,13 @@ const ConnectPanel: React.FC<Props> = ({
     [onUseDetected, showError]
   );
 
-  const errorText = errorKey
-    ? t(`settings.modelsPage.connect.${errorKey}`, {
-        provider: errorProvider ?? t('settings.modelsPage.connect.thatProvider'),
-      })
-    : null;
+  const errorText =
+    errorRaw ??
+    (errorKey
+      ? t(`settings.modelsPage.connect.${errorKey}`, {
+          provider: errorProvider ?? t('settings.modelsPage.connect.thatProvider'),
+        })
+      : null);
 
   const noticeText = noticeKey
     ? t(`settings.modelsPage.connect.${noticeKey}`, {

@@ -36,6 +36,11 @@ const ERROR_KEY: Record<ConnectError, string> = {
   offline: 'errorOffline',
   unrecognized: 'errorUnrecognized',
   'no-models': 'errorNoModels',
+  // WebUI-only guard failures (#524); never produced on this desktop re-key
+  // path, but the map must stay exhaustive over ConnectError.
+  'https-required': 'errorUnknown',
+  'csrf-invalid': 'errorUnknown',
+  'auth-required': 'errorUnknown',
   unknown: 'errorUnknown',
 };
 

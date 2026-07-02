@@ -1860,6 +1860,14 @@ export type IModelRegistryConnectResult = {
   ok: boolean;
   error?: ConnectError;
   /**
+   * Optional server-provided human-readable detail. Set ONLY by the hosted
+   * WebUI HTTP connect path (#524) when a request guard rejects with a reason
+   * that has no dedicated `ConnectError` code, so the panel can surface the
+   * server's own (secret-scrubbed) message text instead of a bare "unknown".
+   * The desktop IPC path never sets it.
+   */
+  errorMessage?: string;
+  /**
    * Non-fatal advisory on an otherwise successful connect. `'no-credit'` means
    * the key authenticated but has no usable credit yet, so the provider was
    * added connected-but-switched-off (#100); the panel surfaces a soft notice.

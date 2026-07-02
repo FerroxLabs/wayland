@@ -131,5 +131,22 @@ export type CuratedModel = CatalogModel & {
 /** Live connection state of a provider in the model registry. */
 export type ProviderConnState = 'connected' | 'testing' | 'error';
 
-/** Classified failure reason from a connect / test-connection attempt. */
-export type ConnectError = 'unauthorized' | 'no-credit' | 'offline' | 'unrecognized' | 'no-models' | 'unknown';
+/**
+ * Classified failure reason from a connect / test-connection attempt.
+ *
+ * The first group are host-side outcomes (produced on both desktop IPC and the
+ * hosted WebUI HTTP path). The `https-required` / `csrf-invalid` /
+ * `auth-required` group are WebUI-only: they are request guards the hosted
+ * `/api/providers/connect` route can reject with before the key ever reaches a
+ * provider, and the desktop IPC path never emits them (#524).
+ */
+export type ConnectError =
+  | 'unauthorized'
+  | 'no-credit'
+  | 'offline'
+  | 'unrecognized'
+  | 'no-models'
+  | 'https-required'
+  | 'csrf-invalid'
+  | 'auth-required'
+  | 'unknown';

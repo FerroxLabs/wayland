@@ -15,6 +15,7 @@ import { ModelRegistryProvider, useModelRegistry, useRefreshState } from '@rende
 import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { connectProviderHttp } from '@renderer/services/ProviderKeyService';
+import { reloadWithinTimeout } from './reloadWithinTimeout';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
@@ -28,6 +29,13 @@ import styles from './ModelsSettings.module.css';
 function detectedKeyId(dk: IModelRegistryDetectedKey): string {
   return `${dk.providerId}:${dk.source}`;
 }
+
+/**
+ * Cap on how long a successful headless connect blocks the Connect button on
+ * the post-connect registry `reload()`. The key already landed server-side; if
+ * the reload stalls we still resolve so the button never spins forever (#524).
+ */
+const RELOAD_AFTER_CONNECT_TIMEOUT_MS = 8_000;
 
 /**
  * Build the "updated Xh ago" / "Never" freshness label from the success-only
@@ -275,7 +283,7 @@ const ModelsSettingsInner: React.FC = () => {
         // to the same host-side connect the desktop IPC uses), so a remote WebUI
         // can add a local OpenAI-compatible endpoint host-side (#71).
         const res = await connectProviderHttp(providerId, key, baseUrl);
-        if (res.ok) await reload();
+        if (res.ok) await reloadWithinTimeout(reload, RELOAD_AFTER_CONNECT_TIMEOUT_MS);
         return res;
       }
       return connect(providerId, baseUrl ? { key, baseUrl } : { key });
@@ -288,7 +296,7 @@ const ModelsSettingsInner: React.FC = () => {
     async (key: string) => {
       if (headless) {
         const res = await connectProviderHttp('flux-router', key);
-        if (res.ok) await reload();
+        if (res.ok) await reloadWithinTimeout(reload, RELOAD_AFTER_CONNECT_TIMEOUT_MS);
         return res;
       }
       return connect('flux-router', { key });
