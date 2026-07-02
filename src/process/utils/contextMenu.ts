@@ -20,12 +20,20 @@ import { BrowserWindow, Menu, MenuItem } from 'electron';
  * Copy uses `role: 'copy'`, which fires the DOM copy event that the renderer's
  * shadow-copy handler intercepts, so copying agent messages (rendered inside an
  * open shadow root) works here too.
+ *
+ * This is intentionally attached to every webContents, including untrusted guest
+ * `<webview>`s: the menu only ever exposes cut/copy/paste/selectAll/spellcheck
+ * gated on `editFlags` (no devtools / navigation / open-external), and Paste into
+ * a guest input is already reachable via Ctrl+V, so it adds no new capability.
  */
 export function attachContextMenu(contents: WebContents): void {
   contents.on('context-menu', (_event, params) => {
     const menu = new Menu();
     const { editFlags, isEditable, selectionText, dictionarySuggestions, misspelledWord } = params;
-    const hasSelection = selectionText.trim().length > 0;
+    // Use Chromium's own `canCopy` for the Copy/Select-All gating: it reflects the
+    // frame selection (which includes open shadow-root selections) whereas
+    // `selectionText` can be empty for a selection that lives in a shadow root.
+    const hasSelection = editFlags.canCopy || selectionText.trim().length > 0;
 
     // Spellcheck suggestions for a misspelled word under the cursor.
     if (isEditable && misspelledWord) {
