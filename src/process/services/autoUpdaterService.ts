@@ -14,6 +14,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { writeFileSyncAtomic } from '@process/utils/atomicWrite';
+import { setIsQuitting } from '@process/utils/quitState';
 import type { AutoUpdateInstallFailedReason } from '@/common/update/updateTypes';
 
 /**
@@ -469,14 +470,38 @@ class AutoUpdaterService extends EventEmitter {
     // the next launch can detect a silent apply failure (downloaded + attempted
     // but the version never advanced) and surface it instead of looping (#286).
     this.writePendingInstallMarker();
-    // On macOS, autoUpdater.quitAndInstall() closes all windows but the
-    // 'window-all-closed' handler does NOT call app.quit() (standard macOS
-    // behavior + close-to-tray). This leaves the process alive and Squirrel
-    // cannot finish replacing the app bundle. Force-exit after a short delay
-    // to let Squirrel receive the install signal.
+
+    // The main window's 'close' handler hides-to-tray (and 'window-all-closed'
+    // never quits on macOS) unless we're explicitly quitting. Without this flag a
+    // clean app.quit() would just hide the window and the process would stay
+    // alive, so Squirrel/ShipIt can never swap the bundle. Mark the quit as
+    // intentional so windows actually close during the install handoff (#286).
+    setIsQuitting(true);
+
     autoUpdater.quitAndInstall(true, true);
+
+    // #286: the previous code force-killed the process with app.exit(0) one second
+    // later. That abrupt exit pre-empts the Squirrel relaunch handoff — on the
+    // affected macs ShipIt applied the update but the app never restarted
+    // (ShipItState launchAfterInstallation=false, no relaunch). Instead, arm
+    // Electron's own relaunch and quit cleanly: app.relaunch() schedules a fresh
+    // instance to start once this process exits (the same idiom as the tray
+    // "Restart" action), and app.quit() runs the normal before-quit teardown so
+    // ShipIt can finish replacing the bundle. The short delay gives
+    // quitAndInstall() time to stage the install before we tear down.
+    //
+    // NOTE: behavioral change to the quit/relaunch path — must be live-verified
+    // through a real macOS update cycle before merge (see PR description).
     setTimeout(() => {
-      app.exit(0);
+      // Only macOS needs Electron's own relaunch: Squirrel.Mac's launchAfterInstallation
+      // is the leg that's broken here, whereas the NSIS (Windows) and AppImage (Linux)
+      // updaters already relaunch themselves — so gate relaunch to darwin to avoid a
+      // redundant second spawn off-mac (#286 audit nit). app.quit() runs everywhere so
+      // the process still tears down cleanly for the install handoff.
+      if (process.platform === 'darwin') {
+        app.relaunch();
+      }
+      app.quit();
     }, 1000);
   }
 

@@ -14,7 +14,16 @@ vi.mock('electron', () => ({
     getVersion: vi.fn(() => '1.0.0'),
     isPackaged: true,
     exit: vi.fn(),
+    relaunch: vi.fn(),
+    quit: vi.fn(),
   },
+}));
+
+// quitAndInstall() flips the "is quitting" flag so the window close handler stops
+// hiding-to-tray during the install handoff (#286). It lives in the lightweight
+// quitState module; mock it to a spy.
+vi.mock('@process/utils/quitState', () => ({
+  setIsQuitting: vi.fn(),
 }));
 
 // Mock electron-updater
@@ -49,6 +58,13 @@ vi.mock('electron-log', () => ({
     warn: vi.fn(),
   },
 }));
+
+/** Temporarily override process.platform for a test; returns a restore fn. */
+function setPlatform(value: NodeJS.Platform): () => void {
+  const original = process.platform;
+  Object.defineProperty(process, 'platform', { value, configurable: true });
+  return () => Object.defineProperty(process, 'platform', { value: original, configurable: true });
+}
 
 describe('AutoUpdaterService', () => {
   let autoUpdaterService: any;
@@ -235,17 +251,51 @@ describe('AutoUpdaterService', () => {
   });
 
   describe('quitAndInstall', () => {
-    it('should call quitAndInstall on autoUpdater and force exit after delay', async () => {
+    it('on macOS: marks the quit intentional, stages the install, then relaunches + quits cleanly (#286)', async () => {
+      const restore = setPlatform('darwin');
+      vi.useFakeTimers();
+      const { app } = vi.mocked(await import('electron'));
+      const { setIsQuitting } = vi.mocked(await import('@process/utils/quitState'));
+
+      autoUpdaterService.quitAndInstall();
+
+      // Bypass close-to-tray so windows actually close during the handoff, then
+      // stage the Squirrel/ShipIt install — both synchronously, before the delay.
+      expect(setIsQuitting).toHaveBeenCalledWith(true);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
+
+      // Nothing tears the process down until the stage-install delay elapses.
+      expect(app.relaunch).not.toHaveBeenCalled();
+      expect(app.quit).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(1000);
+
+      // #286 fix: arm Electron's own relaunch and quit cleanly — NOT a blunt
+      // app.exit(0), which pre-empted the relaunch handoff and left the app dead.
+      expect(app.relaunch).toHaveBeenCalledTimes(1);
+      expect(app.quit).toHaveBeenCalledTimes(1);
+      expect(app.exit).not.toHaveBeenCalled();
+      vi.useRealTimers();
+      restore();
+    });
+
+    it('off macOS: quits cleanly but does NOT self-relaunch (NSIS/AppImage relaunch themselves) (#286)', async () => {
+      const restore = setPlatform('linux');
       vi.useFakeTimers();
       const { app } = vi.mocked(await import('electron'));
 
       autoUpdaterService.quitAndInstall();
       expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
 
-      // app.exit is called after a 1s delay
       vi.advanceTimersByTime(1000);
-      expect(app.exit).toHaveBeenCalledWith(0);
+
+      // Audit nit: gate the backstop relaunch to darwin so Win/Linux get no
+      // redundant double-spawn — quit still fires so the process tears down.
+      expect(app.relaunch).not.toHaveBeenCalled();
+      expect(app.quit).toHaveBeenCalledTimes(1);
+      expect(app.exit).not.toHaveBeenCalled();
       vi.useRealTimers();
+      restore();
     });
   });
 
