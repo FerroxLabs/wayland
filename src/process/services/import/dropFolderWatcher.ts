@@ -207,12 +207,26 @@ export function startDropFolderWatcher(opts: {
     onError(`Failed to create directories: ${String(err)}`);
   }
 
-  const watcher = chokidar.watch(dropFolder, {
-    depth: 0,
-    ignoreInitial: true,
-    persistent: true,
-    followSymlinks: false,
-  });
+  // Build the chokidar watcher. On macOS the default backend is the fsevents
+  // native binding; on some machines (notably macOS Intel) that binding can fail
+  // to load and throw at init, which previously unhandled-rejected the app at
+  // startup (#447). Guard the init and fall back to polling so a native-binding
+  // failure degrades to a working (if heavier) watcher rather than crashing.
+  const baseOpts = { depth: 0, ignoreInitial: true, persistent: true, followSymlinks: false } as const;
+  let watcher: ReturnType<typeof chokidar.watch> | null;
+  try {
+    watcher = chokidar.watch(dropFolder, baseOpts);
+  } catch (err) {
+    log.warn('[dropFolderWatcher] native watch failed - falling back to polling', { err });
+    try {
+      watcher = chokidar.watch(dropFolder, { ...baseOpts, usePolling: true, interval: 1000 });
+    } catch (fallbackErr) {
+      log.warn('[dropFolderWatcher] polling watch also failed - watcher disabled', { fallbackErr });
+      onError(`Failed to start drop-folder watcher: ${String(fallbackErr)}`);
+      _isWatching = false;
+      return { stop: () => {} };
+    }
+  }
 
   _isWatching = true;
 

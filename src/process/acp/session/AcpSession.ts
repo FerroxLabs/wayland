@@ -442,7 +442,11 @@ export class AcpSession {
     this.promptExecutor.clearPending();
     this.permissionResolver.rejectAll(new Error(displayMessage));
     this.promptExecutor.stopTimer();
-    this.setStatus('error');
+    // Emit the detailed error signal BEFORE flipping status to 'error'. A pending
+    // start op is rejected on the status change, and the reject wants the real
+    // reason (#483/#369): emitting the signal first lets AcpAgentV2 capture the
+    // message so the rejection carries it instead of a generic "failed to start".
     this.callbacks.onSignal({ type: 'error', message: displayMessage, recoverable: false });
+    this.setStatus('error');
   }
 }

@@ -129,6 +129,48 @@ describe('AcpAgentV2 - Lifecycle Methods', () => {
       expect(mockSessionMethods.start).toHaveBeenCalledOnce();
     });
 
+    it('should reject with the real error reason when an error signal precedes error status (#483/#369)', async () => {
+      const agent = createAgent();
+
+      // Mirror AcpSession.enterError ordering: the detailed error signal fires
+      // first, then the status flips to 'error'. The reject must carry the real
+      // reason, not a generic string.
+      mockSessionMethods.start.mockImplementation(() => {
+        setTimeout(() => {
+          capturedCallbacks.onSignal({
+            type: 'error',
+            message: 'No API key configured for model claude-opus-4',
+            recoverable: false,
+          });
+          capturedCallbacks.onStatusChange('error');
+        }, 0);
+      });
+
+      const promise = agent.start();
+      await expect(promise).rejects.toThrow('No API key configured for model claude-opus-4');
+    });
+
+    it('should not carry an error reason from a prior failed start into the next start (#483/#369)', async () => {
+      const agent = createAgent();
+
+      // First start fails with a specific reason.
+      mockSessionMethods.start.mockImplementation(() => {
+        setTimeout(() => {
+          capturedCallbacks.onSignal({ type: 'error', message: 'stale reason from attempt 1', recoverable: false });
+          capturedCallbacks.onStatusChange('error');
+        }, 0);
+      });
+      await expect(agent.start()).rejects.toThrow('stale reason from attempt 1');
+
+      // Second start fails via a bare status change (no signal): must fall back to
+      // the generic message, NOT reuse the stale reason from the first attempt.
+      mockSessionMethods.start.mockReset();
+      mockSessionMethods.start.mockImplementation(() => {
+        setTimeout(() => capturedCallbacks.onStatusChange('error'), 0);
+      });
+      await expect(agent.start()).rejects.toThrow('Session failed to start');
+    });
+
     it('should reject on timeout after the session-start budget', async () => {
       vi.useFakeTimers();
       const agent = createAgent();
