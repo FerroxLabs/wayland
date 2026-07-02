@@ -7,9 +7,19 @@
 import { isCodexNoSandboxMode } from '@/common/types/codex/codexModes';
 import { FLUX_AUTO_MODEL, FLUX_MODEL_DISPLAY, FLUX_MODEL_IDS, FLUX_SURFACE } from '@/common/config/flux';
 import { parse as parseToml, stringify as stringifyToml } from 'smol-toml';
-import { copyFile, mkdir, readFile, writeFile } from 'fs/promises';
+import { access, copyFile, mkdir, readFile, rm, symlink, writeFile } from 'fs/promises';
 import { homedir } from 'os';
 import { join, posix, win32 } from 'path';
+
+/** True when a path exists (file, dir, or symlink target), false otherwise. */
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export type CodexSandboxMode = 'read-only' | 'workspace-write' | 'danger-full-access';
 
@@ -109,13 +119,26 @@ function setSandboxModeInConfig(content: string, sandboxMode: CodexSandboxMode):
  *      MCP servers and every custom setting are preserved), then
  *   2. overrides ONLY the top-level `sandbox_mode` with the value Wayland
  *      resolved for this session, and
- *   3. mirrors the user's real `auth.json` into the scoped home so ChatGPT /
- *      API-key login keeps working (codex reads its credential from
- *      `$CODEX_HOME/auth.json`).
+ *   3. SYMLINKS the scoped `auth.json` at the user's real `auth.json` so ChatGPT
+ *      / API-key login keeps working AND a token refresh codex-acp writes into
+ *      the scoped home writes straight through to the user's real file (both
+ *      directions stay in sync; codex reads its credential from
+ *      `$CODEX_HOME/auth.json`). A copy would let a subscription-token refresh
+ *      inside the scoped home be lost on the next re-clone, forcing repeated
+ *      re-auth for ChatGPT-sub users.
  *
- * The user's real `~/.codex` is never written. `userDataDir` is the app's
- * userData path (caller passes `app.getPath('userData')`); `userConfigPath` /
- * `userAuthPath` are injectable so this stays unit-testable without electron.
+ * The user's real `~/.codex` config.toml is never written (that is the whole
+ * point of #536); only auth.json is a symlink through to the user's file.
+ *
+ * Concurrency (known LOW limitation): `codex-home` is a FIXED path
+ * re-materialized per spawn with no lock, so two near-simultaneous native codex
+ * spawns with different sandbox modes can race on config.toml. It fails safe -
+ * the default is read-only, and codex reads config only at startup so a running
+ * process is unaffected by a later re-write. Not worth per-conversation subdirs.
+ *
+ * `userDataDir` is the app's userData path (caller passes
+ * `app.getPath('userData')`); `userConfigPath` / `userAuthPath` are injectable
+ * so this stays unit-testable without electron.
  */
 export async function materializeNativeCodexHome(
   userDataDir: string,
@@ -141,13 +164,28 @@ export async function materializeNativeCodexHome(
   await mkdir(codexHomeDir, { recursive: true });
   await writeFile(configPath, content, 'utf8');
 
-  // Mirror the user's auth.json so native ChatGPT / API-key login survives the
-  // CODEX_HOME redirect. Best-effort: absence just means the user is not logged
-  // in (codex will handle auth itself), never a hard failure.
-  try {
-    await copyFile(userAuthPath, authPath);
-  } catch {
-    // no auth.json to mirror.
+  // Link the user's auth.json THROUGH so native ChatGPT / API-key login survives
+  // the CODEX_HOME redirect and codex-acp's token refresh writes back to the
+  // user's real file (a copy would strand a subscription refresh on re-clone).
+  // Skip entirely when the user has no auth.json (not logged in) - same
+  // graceful-degrade as before. Symlink can fail on Windows without dev mode
+  // (EPERM) or if a plain file is already there (EEXIST); fall back to a copy so
+  // login still works, accepting that a copied token won't write back.
+  if (await pathExists(userAuthPath)) {
+    try {
+      await rm(authPath, { force: true });
+    } catch {
+      // best-effort cleanup of a prior link/file before re-linking.
+    }
+    try {
+      await symlink(userAuthPath, authPath);
+    } catch {
+      try {
+        await copyFile(userAuthPath, authPath);
+      } catch {
+        // could not mirror auth at all - codex will handle auth itself.
+      }
+    }
   }
 
   return codexHomeDir;

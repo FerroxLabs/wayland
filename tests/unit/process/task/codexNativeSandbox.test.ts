@@ -12,12 +12,13 @@
  *   (a) the user's real config.toml is NEVER written,
  *   (b) the default sandbox mode is read-only (least privilege),
  *   (c) an explicit escalated mode still reaches Codex via the scoped home,
- *   (d) the user's own config + auth.json are carried into the scoped home.
+ *   (d) the user's config is cloned in + auth.json is symlinked through (so a
+ *       token refresh writes back to the user's real file).
  *
  * Uses real temp dirs (no fs mocking) and reads the materialized files back.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mkdtemp, readFile, rm, stat, writeFile } from 'fs/promises';
+import { lstat, mkdtemp, readFile, readlink, rm, stat, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { parse as parseToml } from 'smol-toml';
@@ -136,15 +137,55 @@ describe('materializeNativeCodexHome (#536 scoped CODEX_HOME)', () => {
     expect(parsedUser.sandbox_mode).toBe('read-only');
   });
 
-  it("mirrors the user's auth.json into the scoped home (native login survives)", async () => {
+  it("symlinks the scoped auth.json at the user's real auth.json (native login survives)", async () => {
     await writeFile(userConfig, 'model = "gpt-5"\n', 'utf8');
     await writeFile(userAuth, JSON.stringify({ tokens: { access_token: 'acc' } }), 'utf8');
 
     const home = await materializeNativeCodexHome(userDataDir, 'read-only', userConfig, userAuth);
-    const mirrored = JSON.parse(await readFile(join(home, 'auth.json'), 'utf8')) as {
-      tokens?: { access_token?: string };
-    };
-    expect(mirrored.tokens?.access_token).toBe('acc');
+    const scopedAuth = join(home, 'auth.json');
+
+    // It is a symlink pointing at the user's real auth.json.
+    const link = await lstat(scopedAuth);
+    expect(link.isSymbolicLink()).toBe(true);
+    expect(await readlink(scopedAuth)).toBe(userAuth);
+
+    // Reading through the link yields the user's token.
+    const seen = JSON.parse(await readFile(scopedAuth, 'utf8')) as { tokens?: { access_token?: string } };
+    expect(seen.tokens?.access_token).toBe('acc');
+  });
+
+  it("a token refresh written through the scoped auth.json lands in the user's real file", async () => {
+    await writeFile(userConfig, 'model = "gpt-5"\n', 'utf8');
+    await writeFile(userAuth, JSON.stringify({ tokens: { access_token: 'old' } }), 'utf8');
+
+    const home = await materializeNativeCodexHome(userDataDir, 'read-only', userConfig, userAuth);
+    // Simulate codex-acp refreshing the token INSIDE the scoped home.
+    await writeFile(join(home, 'auth.json'), JSON.stringify({ tokens: { access_token: 'refreshed' } }), 'utf8');
+
+    const userSide = JSON.parse(await readFile(userAuth, 'utf8')) as { tokens?: { access_token?: string } };
+    expect(userSide.tokens?.access_token).toBe('refreshed');
+  });
+
+  it('re-materialization replaces a stale scoped auth.json (relinks to the current user path)', async () => {
+    await writeFile(userConfig, 'model = "gpt-5"\n', 'utf8');
+    const home = join(userDataDir, 'codex-home');
+    // First spawn: user not logged in yet, then a stale plain file gets left behind.
+    await materializeNativeCodexHome(userDataDir, 'read-only', userConfig, join(userHome, 'absent.json'));
+    await writeFile(join(home, 'auth.json'), 'stale', 'utf8');
+
+    // Now the user logs in; re-materialize must replace the stale file with a link.
+    await writeFile(userAuth, JSON.stringify({ tokens: { access_token: 'fresh' } }), 'utf8');
+    await materializeNativeCodexHome(userDataDir, 'read-only', userConfig, userAuth);
+
+    const scopedAuth = join(home, 'auth.json');
+    expect((await lstat(scopedAuth)).isSymbolicLink()).toBe(true);
+    expect(await readlink(scopedAuth)).toBe(userAuth);
+  });
+
+  it('does not create a scoped auth.json when the user has none (graceful skip)', async () => {
+    await writeFile(userConfig, 'model = "gpt-5"\n', 'utf8');
+    const home = await materializeNativeCodexHome(userDataDir, 'read-only', userConfig, join(userHome, 'nope.json'));
+    await expect(lstat(join(home, 'auth.json'))).rejects.toThrow();
   });
 
   it('degrades gracefully when the user has no config or auth (still writes a valid scoped config)', async () => {
