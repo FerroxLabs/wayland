@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Express } from 'express';
+import type { Express, Request } from 'express';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import csrf from 'tiny-csrf';
 import crypto from 'crypto';
 import { AuthMiddleware } from '@process/webserver/auth/middleware/AuthMiddleware';
+import { classifyClientTrust } from '@process/webserver/middleware/networkTrust';
 import { errorHandler } from './middleware/errorHandler';
 import { attachCsrfToken } from './middleware/security';
 
@@ -96,7 +97,7 @@ function parseAllowedOriginsEnv(): string[] {
     .filter((origin): origin is string => Boolean(origin));
 }
 
-function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
+export function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
   // Localhost is always permitted. Network interface auto-detection was removed
   // because, on coffee-shop wifi / VPN / Docker bridges, it silently exposed the
   // API with `credentials: true` to every routable origin the box could see.
@@ -106,9 +107,7 @@ function getConfiguredOrigins(port: number, allowRemote: boolean): Set<string> {
 
   if (allowRemote) {
     if (envOrigins.length === 0) {
-      console.warn(
-        '[security] remote mode without WAYLAND_ALLOWED_ORIGINS: only localhost allowed'
-      );
+      console.warn('[security] remote mode without WAYLAND_ALLOWED_ORIGINS: only localhost allowed');
     } else {
       // In remote mode, WAYLAND_ALLOWED_ORIGINS is the explicit allowlist.
       for (const origin of envOrigins) {
@@ -159,16 +158,80 @@ export function setupTrustProxy(app: Express): void {
   app.set('trust proxy', trusted);
 }
 
-export function setupCors(app: Express, port: number, allowRemote: boolean): void {
-  const allowedOrigins = getConfiguredOrigins(port, allowRemote);
+/**
+ * Read a SINGLE-valued forwarded header. The only topology whose forwarded headers
+ * we believe is a single trusted hop (see deriveTrustedProxyOrigin), which sets
+ * exactly one value. A comma-joined or repeated header means a multi-hop chain or a
+ * client-supplied value the proxy appended/preserved - and the leftmost token is the
+ * LEAST-trusted (client) end, so we must NOT pick it. We fail closed to undefined and
+ * let the operator use SERVER_BASE_URL for genuine multi-hop deployments.
+ */
+function singleForwardedValue(header: string | string[] | undefined): string | undefined {
+  // A repeated header (Express joins duplicates with ', ') arrives as a string
+  // for most headers, but some can be arrays - reject anything that isn't one entry.
+  let raw: string | undefined;
+  if (Array.isArray(header)) {
+    if (header.length !== 1) return undefined;
+    raw = header[0];
+  } else {
+    raw = header;
+  }
+  if (!raw || raw.includes(',')) return undefined;
+  const value = raw.trim();
+  return value || undefined;
+}
 
-  app.use(
-    cors({
+/**
+ * Derive the public origin a TRUSTED reverse proxy is fronting, from its forwarded
+ * headers, so a TLS-terminated self-hosted deploy (e.g. Caddy on the same host)
+ * gets its public origin CORS-allowed OUT OF THE BOX - without the operator having
+ * to set SERVER_BASE_URL / WAYLAND_ALLOWED_ORIGINS (#524).
+ *
+ * SECURITY (trust model): the forwarded headers are believed ONLY when the request's
+ * DIRECT socket peer is a trusted proxy - loopback, Tailscale CGNAT, or an opt-in
+ * `WAYLAND_OPERATOR_CIDRS` range - per `classifyClientTrust(req.socket.remoteAddress)`,
+ * the same non-spoofable gate the operator-trust model uses. Trust is read from the
+ * raw socket peer, NEVER from `req.ip`/XFF (which a public attacker can forge).
+ *
+ * A request whose direct peer is public (someone hitting the app port directly, or a
+ * reverse proxy we do not trust) NEVER has its `X-Forwarded-Host` believed, so an
+ * attacker cannot self-allowlist an origin. This returns a SINGLE normalized origin
+ * (never a wildcard) that is then matched against the request's browser-set `Origin`.
+ *
+ * Note: behind a loopback proxy the DIRECT peer is always the proxy, so every proxied
+ * request classifies `operator`; the real per-request gate is then the `Origin` match
+ * plus the single-value requirement below - a browser cannot forge `X-Forwarded-Host`
+ * on a cross-origin credentialed request (the preflight OPTIONS never carries it).
+ */
+export function deriveTrustedProxyOrigin(req: Request): string | null {
+  if (classifyClientTrust(req.socket?.remoteAddress) !== 'operator') {
+    return null;
+  }
+
+  const host = singleForwardedValue(req.headers['x-forwarded-host']);
+  if (!host) return null;
+
+  const proto = singleForwardedValue(req.headers['x-forwarded-proto'])?.toLowerCase();
+  const scheme = proto === 'http' || proto === 'https' ? proto : req.protocol || 'https';
+  return normalizeOrigin(`${scheme}://${host}`);
+}
+
+/**
+ * Build the CORS middleware. Uses the per-request delegate form so the allowlist can
+ * be augmented, additively, with the trusted-proxy origin (see deriveTrustedProxyOrigin)
+ * on top of the static allowlist (localhost + SERVER_BASE_URL + WAYLAND_ALLOWED_ORIGINS).
+ */
+export function makeCorsMiddleware(allowedOrigins: Set<string>) {
+  return cors<Request>((req, callback) => {
+    // Per-request: only widens for a request that arrived via a trusted proxy.
+    const forwardedOrigin = deriveTrustedProxyOrigin(req);
+
+    callback(null, {
       credentials: true,
-      origin(origin, callback) {
+      origin(origin, cb) {
         if (!origin) {
           // Requests like curl or same-origin don't send an Origin header
-          callback(null, true);
+          cb(null, true);
           return;
         }
 
@@ -177,20 +240,25 @@ export function setupCors(app: Express, port: number, allowRemote: boolean): voi
         // allowing them effectively whitelists any attacker-controlled page
         // that can spawn such a context.
         if (origin === 'null') {
-          callback(null, false);
+          cb(null, false);
           return;
         }
 
         const normalizedOrigin = normalizeOrigin(origin);
-        if (normalizedOrigin && allowedOrigins.has(normalizedOrigin)) {
-          callback(null, true);
+        if (normalizedOrigin && (allowedOrigins.has(normalizedOrigin) || normalizedOrigin === forwardedOrigin)) {
+          cb(null, true);
           return;
         }
 
-        callback(null, false);
+        cb(null, false);
       },
-    })
-  );
+    });
+  });
+}
+
+export function setupCors(app: Express, port: number, allowRemote: boolean): void {
+  const allowedOrigins = getConfiguredOrigins(port, allowRemote);
+  app.use(makeCorsMiddleware(allowedOrigins));
 }
 
 /**
