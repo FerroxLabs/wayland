@@ -1,16 +1,7 @@
 import type { TeamAgent, MailboxMessage } from '../types';
 
-const DEFAULT_MESSAGE_CHAR_LIMIT = 6000;
-const DEFAULT_TOTAL_CHAR_LIMIT = 30000;
-
-export type FormatMessagesOptions = {
-  messageCharLimit?: number;
-  totalCharLimit?: number;
-};
-
-function clampPositive(value: number | undefined, fallback: number): number {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
-}
+const MESSAGE_CHAR_LIMIT = 6000;
+const TOTAL_CHAR_LIMIT = 30000;
 
 function formatContentForPrompt(message: MailboxMessage, limit: number): string {
   const content = message.content ?? '';
@@ -47,20 +38,14 @@ function withTotalBudget(lines: string[], limit: number): string {
 }
 
 /** Format mailbox messages, resolving sender names from the agents list. */
-export function formatMessages(
-  messages: MailboxMessage[],
-  agents: TeamAgent[],
-  options: FormatMessagesOptions = {}
-): string {
+export function formatMessages(messages: MailboxMessage[], agents: TeamAgent[]): string {
   if (messages.length === 0) return 'No unread messages.';
-  const messageLimit = clampPositive(options.messageCharLimit, DEFAULT_MESSAGE_CHAR_LIMIT);
-  const totalLimit = clampPositive(options.totalCharLimit, DEFAULT_TOTAL_CHAR_LIMIT);
   const lines = messages.map((m) => {
     const filesNote = m.files?.length ? `\nFiles: ${m.files.join(', ')}` : '';
-    const content = formatContentForPrompt(m, messageLimit);
+    const content = formatContentForPrompt(m, MESSAGE_CHAR_LIMIT);
     if (m.fromAgentId === 'user') return `[From User] ${content}${filesNote}`;
     const sender = agents.find((a) => a.slotId === m.fromAgentId);
     return `[From ${sender?.agentName ?? m.fromAgentId}] ${content}${filesNote}`;
   });
-  return withTotalBudget(lines, totalLimit);
+  return withTotalBudget(lines, TOTAL_CHAR_LIMIT);
 }

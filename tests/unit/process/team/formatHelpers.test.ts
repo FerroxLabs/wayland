@@ -29,30 +29,35 @@ describe('formatMessages', () => {
         teamId: 't1',
         toAgentId: 'slot-1',
         fromAgentId: 'slot-2',
-        content: 'x'.repeat(100),
+        content: 'x'.repeat(8000),
         summary: 'Long research result',
         type: 'message',
       },
     ];
 
-    const formatted = formatMessages(msgs, [], { messageCharLimit: 40, totalCharLimit: 500 });
+    const formatted = formatMessages(msgs, []);
 
     expect(formatted).toContain('Summary: Long research result');
     expect(formatted).toContain('truncated');
-    expect(formatted.length).toBeLessThan(140);
+    // Single message capped at the 6000-char per-message limit (+ label/suffix).
+    expect(formatted.length).toBeLessThan(6200);
   });
 
   it('caps the total unread mailbox bundle included in a wake prompt', () => {
     const msgs: MailboxMessage[] = [
-      { id: 'm1', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'a'.repeat(80), type: 'message' },
-      { id: 'm2', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'b'.repeat(80), type: 'message' },
-      { id: 'm3', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'c'.repeat(80), type: 'message' },
+      { id: 'm1', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'a'.repeat(6000), type: 'message' },
+      { id: 'm2', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'b'.repeat(6000), type: 'message' },
+      { id: 'm3', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'c'.repeat(6000), type: 'message' },
+      { id: 'm4', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'd'.repeat(6000), type: 'message' },
+      { id: 'm5', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'e'.repeat(6000), type: 'message' },
+      { id: 'm6', teamId: 't1', toAgentId: 'slot-1', fromAgentId: 'user', content: 'f'.repeat(6000), type: 'message' },
     ];
 
-    const formatted = formatMessages(msgs, [], { messageCharLimit: 100, totalCharLimit: 130 });
+    const formatted = formatMessages(msgs, []);
 
     expect(formatted).toContain('[From User]');
     expect(formatted).toContain('omitted');
-    expect(formatted.length).toBeLessThan(240);
+    // Bundle capped at the 30000-char total limit (+ truncation/omitted notes).
+    expect(formatted.length).toBeLessThan(30300);
   });
 });
