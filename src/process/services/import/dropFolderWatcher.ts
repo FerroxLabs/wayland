@@ -207,12 +207,33 @@ export function startDropFolderWatcher(opts: {
     onError(`Failed to create directories: ${String(err)}`);
   }
 
-  const watcher = chokidar.watch(dropFolder, {
+  // Build the chokidar watcher with POLLING, not the fsevents native backend.
+  // On macOS, chokidar's fsevents handler can async-reject deep inside
+  // `_addToFsEvents` (observed live: "Cannot read properties of undefined
+  // (reading 'SinceNow')") when the bundled native binding is incompatible with
+  // the Electron ABI. Because that rejection is internal to chokidar it is NOT
+  // routed to the watcher's 'error' event, so it escapes as an unhandledRejection
+  // that crashes the app at startup on affected machines (#447). The drop folder
+  // is a single shallow (depth 0) directory, so polling sidesteps the fsevents
+  // path entirely at negligible cost. The try/catch + 'error' handler below stay
+  // as defense-in-depth for any remaining synchronous/emitted failure.
+  const baseOpts = {
     depth: 0,
     ignoreInitial: true,
     persistent: true,
     followSymlinks: false,
-  });
+    usePolling: true,
+    interval: 250,
+  } as const;
+  let watcher: ReturnType<typeof chokidar.watch>;
+  try {
+    watcher = chokidar.watch(dropFolder, baseOpts);
+  } catch (err) {
+    log.warn('[dropFolderWatcher] watch init failed - watcher disabled', { err });
+    onError(`Failed to start drop-folder watcher: ${String(err)}`);
+    _isWatching = false;
+    return { stop: () => {} };
+  }
 
   _isWatching = true;
 

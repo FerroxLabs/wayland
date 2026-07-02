@@ -17,6 +17,7 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import log from 'electron-log';
 
 function targetPath(): string {
   return path.join(os.homedir(), '.ijfw', 'mcp-server');
@@ -40,8 +41,21 @@ export function watchInstallRoot(onChange: (exists: boolean) => void): () => voi
     watcher = fs.watch(parent, () => {
       onChange(exists());
     });
-  } catch {
-    // Parent missing - caller can retry by recreating the watcher later.
+    // An FSWatcher emits 'error' asynchronously (e.g. an FSEvents native-binding
+    // failure on macOS Intel, or EMFILE). An unhandled 'error' on an EventEmitter
+    // is rethrown and would crash the app at startup (#447). Swallow it: the
+    // watcher is best-effort observability, not critical - log and move on.
+    // Guard `.on` because tests (and defensive callers) may hand back a minimal
+    // watcher object without the EventEmitter surface.
+    if (typeof watcher?.on === 'function') {
+      watcher.on('error', (err) => {
+        log.warn('[healthCheck] install-root watcher error (ignored)', { err });
+      });
+    }
+  } catch (err) {
+    // Parent missing or watch unavailable - caller can retry by recreating the
+    // watcher later. Never throw from startup wiring (#447).
+    log.warn('[healthCheck] failed to start install-root watcher', { err });
   }
 
   return () => {

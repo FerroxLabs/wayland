@@ -21,6 +21,33 @@ import { parseQuestionTool } from './questionTool';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
 
+// Keep the last ~2KB of engine stderr so a spawn/init failure can surface the
+// engine's real bail reason (e.g. a keyless model, bad config) instead of an
+// opaque "exited with code N" (#484). Capped to bound memory on a chatty engine.
+const WCORE_STDERR_TAIL_MAX = 2048;
+
+// High-confidence secret shapes to mask before engine stderr is surfaced into the
+// user-facing error UI (#484 audit). Init failures shouldn't echo credentials,
+// but stderr is untrusted engine output, so scrub known token formats defensively
+// (the full text still goes to the local console log for debugging). Conservative
+// on purpose: only well-known prefixes + bearer tokens, so real error text is
+// preserved.
+const SECRET_PATTERNS: RegExp[] = [
+  /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{16,}\b/g, // OpenAI / Stripe style
+  /\bBearer\s+[A-Za-z0-9._-]{16,}\b/gi, // Authorization: Bearer <token>
+  /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b/g, // GitHub tokens
+  /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g, // Slack tokens
+  /\bAKIA[0-9A-Z]{16}\b/g, // AWS access key id
+];
+
+function redactSecrets(text: string): string {
+  let out = text;
+  for (const pattern of SECRET_PATTERNS) {
+    out = out.replace(pattern, '[redacted]');
+  }
+  return out;
+}
+
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
 
 /**
@@ -149,6 +176,12 @@ export class WCoreAgent {
    * truncation detection.
    */
   public resolvedMaxTokens?: number;
+  /**
+   * Rolling tail of the engine's stderr (last ~2KB). Captured so a failed spawn
+   * or a ready-timeout can surface the engine's real bail reason rather than an
+   * opaque exit code (#484).
+   */
+  private stderrTail = '';
 
   constructor(options: WCoreAgentOptions) {
     this.options = options;
@@ -246,16 +279,29 @@ export class WCoreAgent {
       }
     });
 
-    // Log stderr as diagnostics
+    // Log stderr as diagnostics and retain the tail for failure surfacing (#484).
     this.childProcess.stderr?.on('data', (chunk: Buffer) => {
-      console.error('[wcore]', chunk.toString());
+      const text = chunk.toString();
+      console.error('[wcore]', text);
+      this.stderrTail = (this.stderrTail + text).slice(-WCORE_STDERR_TAIL_MAX);
     });
 
     // Handle process exit
     this.childProcess.on('exit', (code) => {
       this.restoreProjectConfig();
       if (!this.ready) {
-        this.readyReject(new Error(`wcore exited with code ${code} during init`));
+        // Surface the engine's real bail reason (its last stderr) alongside the
+        // exit code so callers see the cause, not just "exited with code N"
+        // (#484). The "exited with code" wording distinguishes an engine that
+        // died during init from the separate 30s ready-timeout below.
+        const detail = redactSecrets(this.stderrTail.trim());
+        this.readyReject(
+          new Error(
+            detail
+              ? `wcore exited with code ${code} during init: ${detail}`
+              : `wcore exited with code ${code} during init`
+          )
+        );
       }
       if (this.activeMsgId && this._onProcessExit) {
         this._onProcessExit(code, this.activeMsgId);
@@ -264,9 +310,16 @@ export class WCoreAgent {
       this.childProcess = null;
     });
 
-    // Wait for ready event with timeout
+    // Wait for ready event with timeout. On timeout, include the engine's last
+    // stderr too: a hung engine that logged an error but never exited (e.g. it's
+    // blocked waiting on something) otherwise surfaces only a bare "timeout"
+    // (#484). The "ready timeout (30s)" wording keeps this case distinct from an
+    // engine that exited during init (handled above).
     const timeout = new Promise<void>((_, reject) => {
-      setTimeout(() => reject(new Error('wcore ready timeout (30s)')), 30000);
+      setTimeout(() => {
+        const detail = redactSecrets(this.stderrTail.trim());
+        reject(new Error(detail ? `wcore ready timeout (30s): ${detail}` : 'wcore ready timeout (30s)'));
+      }, 30000);
     });
 
     try {
@@ -275,6 +328,23 @@ export class WCoreAgent {
       // If resume failed (session not found), fallback to a new session
       if (this.options.resume) {
         console.error('[WCoreAgent] Resume failed, falling back to new session:', err);
+        // Tear down the failed resume attempt before recursing. The ready-timeout
+        // path leaves the engine alive, and its exit/stderr listeners read this.*
+        // dynamically - once we recurse they'd point at the fresh attempt, so a
+        // late exit or stderr chunk from the orphaned child could reject the new
+        // session, restore the wrong .wcore.toml, or contaminate the stderr tail.
+        // Detach its listeners, kill it best-effort, and reset the tail so the
+        // next failure surfaces only its own output (#484 audit).
+        const staleChild = this.childProcess;
+        if (staleChild) {
+          rl.close();
+          staleChild.removeAllListeners();
+          staleChild.stdout?.removeAllListeners();
+          staleChild.stderr?.removeAllListeners();
+          void killChild(staleChild, false).catch(() => {});
+        }
+        this.childProcess = null;
+        this.stderrTail = '';
         this.options = { ...this.options, resume: undefined, sessionId: this.options.resume };
         this.ready = false;
         this.readyPromise = new Promise((resolve, reject) => {

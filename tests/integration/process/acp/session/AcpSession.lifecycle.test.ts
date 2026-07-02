@@ -235,4 +235,34 @@ describe('AcpSession lifecycle', () => {
     );
     expect(crashSignals.length).toBeGreaterThan(0);
   });
+
+  it('enterError emits the error signal BEFORE flipping status to error (#483/#369)', async () => {
+    // Hold the session in 'starting' so starting→error is a valid transition -
+    // this mirrors the real start-failure path (handleStartError → enterError).
+    // A hung client.start() keeps status at 'starting'.
+    (client.start as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
+    const session = new AcpSession(baseConfig, clientFactory, callbacks);
+    session.start();
+    await vi.waitFor(() => expect(session.status).toBe('starting'));
+
+    session.enterError('No API key configured for provider openai');
+
+    const onSignal = callbacks.onSignal as ReturnType<typeof vi.fn>;
+    const onStatus = callbacks.onStatusChange as ReturnType<typeof vi.fn>;
+    const errorSignalIdx = onSignal.mock.calls.findIndex(([sig]) => sig.type === 'error');
+    const errorStatusIdx = onStatus.mock.calls.findIndex(([status]) => status === 'error');
+    expect(errorSignalIdx).toBeGreaterThanOrEqual(0);
+    expect(errorStatusIdx).toBeGreaterThanOrEqual(0);
+
+    // Ordering is load-bearing: AcpAgentV2 captures the error signal's message to
+    // reject a pending start op, and that reject happens on the status change. If
+    // the status flip preceded the signal, the reject would miss the real reason
+    // and fall back to a generic "Session failed to start".
+    expect(onSignal.mock.invocationCallOrder[errorSignalIdx]).toBeLessThan(
+      onStatus.mock.invocationCallOrder[errorStatusIdx]
+    );
+    expect(onSignal.mock.calls[errorSignalIdx][0]).toEqual(
+      expect.objectContaining({ type: 'error', message: expect.stringContaining('No API key configured') })
+    );
+  });
 });

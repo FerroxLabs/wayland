@@ -121,6 +121,11 @@ export class AcpAgentV2 {
   private cachedModes: ModeSnapshot | null = null;
   private lastSessionId: string | null = null;
   private lastStatus: SessionStatus = 'idle';
+  // Most recent error signal message, captured so a failed start rejects with the
+  // engine's real reason rather than a generic string (#483/#369). Set by the
+  // onSignal 'error' handler (which fires just before status flips to 'error')
+  // and cleared when a new start begins or the session reaches 'active'.
+  private lastErrorMessage: string | null = null;
 
   // Promise bridges for async methods (Tasks 4-6)
   private startOp: PendingOp<void> | null = null;
@@ -345,10 +350,14 @@ export class AcpAgentV2 {
 
         // Resolve startOp when reaching active/error
         if (status === 'active' && this.startOp) {
+          this.lastErrorMessage = null;
           this.resolveOp(this.startOp, undefined);
           this.startOp = null;
         } else if (status === 'error' && this.startOp) {
-          this.rejectOp(this.startOp, new Error('Session failed to start'));
+          // Surface the engine's real failure reason (captured from the error
+          // signal enterError emits just before this status change) instead of a
+          // generic "Session failed to start" (#483/#369).
+          this.rejectOp(this.startOp, new Error(this.lastErrorMessage ?? 'Session failed to start'));
           this.startOp = null;
         }
 
@@ -469,6 +478,15 @@ export class AcpAgentV2 {
       },
 
       onSignal: (event) => {
+        // Retain the real reason so a pending start op can reject with it
+        // (#483/#369). enterError emits this signal immediately before the status
+        // flips to 'error', so it is set in time for the reject in onStatusChange.
+        // Captured before the onSignalEvent guard so it works even when no signal
+        // sink is wired (the reject path does not depend on onSignalEvent).
+        if (event.type === 'error') {
+          this.lastErrorMessage = event.message;
+        }
+
         if (!this.onSignalEvent) return;
 
         switch (event.type) {
@@ -665,6 +683,9 @@ export class AcpAgentV2 {
   // ─── Lifecycle Methods (Task 4) ────────────────────────────────
 
   async start(): Promise<void> {
+    // Clear any stale error from a prior attempt so this start rejects only with
+    // its own failure reason (#483/#369).
+    this.lastErrorMessage = null;
     const session = await this.ensureSession();
     return new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => {
