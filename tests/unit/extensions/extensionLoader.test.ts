@@ -119,7 +119,7 @@ describe('extensions/ExtensionLoader', () => {
     try {
       const loaded = await new ExtensionLoader().loadAll();
       const names = loaded.map((e) => e.manifest.name).toSorted();
-      // 10 business packs ship bundled (see resources/bundled-extensions/*).
+      // Bundled extensions ship from resources/bundled-extensions/*.
       expect(names).toEqual([
         'business-commerce',
         'business-content',
@@ -131,6 +131,7 @@ describe('extensions/ExtensionLoader', () => {
         'business-marketing',
         'business-sales',
         'business-support',
+        'wayland-updater',
       ]);
       expect(loaded.every((e) => e.source === 'bundled')).toBe(true);
     } finally {

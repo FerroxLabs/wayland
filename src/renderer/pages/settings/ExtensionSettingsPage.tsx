@@ -7,13 +7,23 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
+import { extensions as extensionsIpc, ijfw as ijfwIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
 import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
 import WebviewHost from '@/renderer/components/media/WebviewHost';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
+import { runWaylandUpdaterExtensionCheck } from './utils/waylandUpdaterBridge';
 
 const isExternalSettingsUrl = (url?: string): boolean => /^https?:\/\//i.test(url || '');
+
+type WaylandUpdaterRequest = {
+  type?: string;
+  action?: string;
+  reqId?: string;
+  payload?: {
+    includePrerelease?: boolean;
+  };
+};
 
 /**
  * Route-based page for rendering extension-contributed settings tabs.
@@ -95,11 +105,51 @@ const ExtensionSettingsPage: React.FC = () => {
       const frameWindow = iframeRef.current?.contentWindow;
       if (!frameWindow || event.source !== frameWindow) return;
 
-      const data = event.data as { type?: string; reqId?: string } | undefined;
+      const data = event.data as ({ type?: string; reqId?: string } & WaylandUpdaterRequest) | undefined;
       if (!data) return;
 
       if (data.type === 'aion:get-locale') {
         void postLocaleInit();
+        return;
+      }
+
+      if (data.type === 'wayland-updater:request') {
+        if (tab._extensionName !== 'wayland-updater') return;
+        const reply = (body: Record<string, unknown>) => {
+          frameWindow.postMessage(
+            {
+              type: 'wayland-updater:response',
+              reqId: data.reqId,
+              ...body,
+            },
+            '*'
+          );
+        };
+
+        void (async () => {
+          try {
+            if (data.action === 'openModal') {
+              window.dispatchEvent(new Event('wayland-open-update-modal'));
+              reply({ ok: true });
+              return;
+            }
+
+            if (data.action === 'check') {
+              const includePrerelease = Boolean(data.payload?.includePrerelease);
+              reply(await runWaylandUpdaterExtensionCheck(includePrerelease, '[ExtensionSettingsPage]'));
+              return;
+            }
+
+            if (data.action === 'updateIjfw') {
+              reply(await ijfwIpc.triggerInstall.invoke());
+              return;
+            }
+
+            throw new Error('unsupported-updater-action');
+          } catch (err) {
+            reply({ ok: false, error: err instanceof Error ? err.message : String(err) });
+          }
+        })();
         return;
       }
 

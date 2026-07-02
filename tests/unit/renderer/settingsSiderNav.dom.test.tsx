@@ -20,7 +20,7 @@
  * still present per the spec).
  */
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -70,6 +70,7 @@ import SettingsSider, {
   BUILTIN_TAB_IDS,
   LEGACY_ANCHOR_REMAP,
 } from '../../../src/renderer/pages/settings/components/SettingsSider';
+import { extensions as extensionsIpc } from '../../../src/common/adapter/ipcBridge';
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -142,5 +143,36 @@ describe('SettingsSider - Packet 3A nav restructure', () => {
     const modelsItem = document.querySelector('[data-settings-id="models"]');
     expect(modelsItem).not.toBeNull();
     expect(header.compareDocumentPosition(modelsItem as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders extension settings icons as monochrome masks instead of full-color images', async () => {
+    vi.mocked(extensionsIpc.getSettingsTabs.invoke).mockResolvedValueOnce([
+      {
+        id: 'ext-wayland-updater-updater',
+        name: 'Updater',
+        icon: '/api/ext-asset?path=updater.svg',
+        entryUrl: '/api/ext-asset?path=updater.html',
+        position: { anchor: 'storage', placement: 'after' },
+        order: 10,
+        _extensionName: 'wayland-updater',
+      },
+    ]);
+
+    render(
+      <MemoryRouter>
+        <SettingsSider />
+      </MemoryRouter>
+    );
+
+    let updaterItem: Element | null = null;
+    await waitFor(() => {
+      updaterItem = document.querySelector('[data-settings-id="ext-wayland-updater-updater"]');
+      expect(updaterItem).not.toBeNull();
+    });
+    expect(updaterItem).not.toBeNull();
+    expect(updaterItem?.querySelector('img')).toBeNull();
+    const maskIcon = updaterItem?.querySelector('[aria-hidden="true"]') as HTMLElement | null;
+    expect(maskIcon?.style.maskImage).toContain('updater.svg');
+    expect(maskIcon?.className).toContain('text-t-secondary');
   });
 });

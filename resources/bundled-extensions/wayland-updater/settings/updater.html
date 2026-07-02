@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wayland Updater</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        --bg: #f7f8fa;
+        --panel: #ffffff;
+        --panel-soft: #f2f3f5;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --primary: #2563eb;
+        --primary-strong: #1d4ed8;
+        --success: #16a34a;
+        --warning: #d97706;
+        --danger: #dc2626;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #111318;
+          --panel: #171a21;
+          --panel-soft: #20242d;
+          --text: #f5f7fb;
+          --muted: #9aa3b2;
+          --border: #2d3340;
+          --primary: #60a5fa;
+          --primary-strong: #3b82f6;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .page {
+        min-height: 400px;
+        padding: 0;
+      }
+
+      .shell {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--panel);
+        overflow: hidden;
+      }
+
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px;
+        border-bottom: 1px solid var(--border);
+        background: var(--panel-soft);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .body {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        background: var(--panel);
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .title {
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      .meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        border-radius: 999px;
+        padding: 0 9px;
+        background: var(--panel-soft);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .badge.available {
+        background: rgba(37, 99, 235, 0.12);
+        color: var(--primary);
+      }
+
+      .badge.good {
+        background: rgba(22, 163, 74, 0.12);
+        color: var(--success);
+      }
+
+      .badge.warn {
+        background: rgba(217, 119, 6, 0.12);
+        color: var(--warning);
+      }
+
+      .badge.bad {
+        background: rgba(220, 38, 38, 0.12);
+        color: var(--danger);
+      }
+
+      button {
+        height: 32px;
+        border: 0;
+        border-radius: 7px;
+        padding: 0 14px;
+        background: var(--primary);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--primary-strong);
+      }
+
+      button.secondary {
+        background: var(--panel-soft);
+        color: var(--text);
+      }
+
+      label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      input {
+        accent-color: var(--primary);
+      }
+
+      pre {
+        margin: 10px 0 0;
+        white-space: pre-wrap;
+        color: var(--muted);
+        font:
+          12px/1.5 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Consolas,
+          monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="shell">
+        <header class="head">
+          <div>
+            <h1>Updater</h1>
+            <div class="subtitle">Wayland and Wayland Core update status from the extension host.</div>
+          </div>
+          <button id="check">Check now</button>
+        </header>
+        <div class="body">
+          <div class="card row">
+            <div>
+              <div class="title">Release channel</div>
+              <div class="meta" id="summary">Ready to check for updates.</div>
+            </div>
+            <label><input id="prerelease" type="checkbox" /> Include prereleases</label>
+          </div>
+          <div class="card row">
+            <div>
+              <div class="title">Wayland app</div>
+              <div class="meta" id="wayland">No check has run yet.</div>
+            </div>
+            <span class="badge" id="waylandBadge">Idle</span>
+          </div>
+          <div class="card row">
+            <div>
+              <div class="title">Wayland Core</div>
+              <div class="meta" id="core">No check has run yet.</div>
+            </div>
+            <span class="badge" id="coreBadge">Idle</span>
+          </div>
+          <div class="card row">
+            <div>
+              <div class="title">Install flow</div>
+              <div class="meta">Downloads, restart, and install actions stay in Wayland's built-in updater modal.</div>
+            </div>
+            <button class="secondary" id="openModal">Open updater</button>
+          </div>
+          <pre id="error" hidden></pre>
+        </div>
+      </section>
+    </main>
+    <script>
+      (function () {
+        var pending = new Map();
+        var seq = 0;
+        var REQUEST_TIMEOUT_MS = 60000;
+
+        function $(id) {
+          return document.getElementById(id);
+        }
+
+        function resize() {
+          parent.postMessage({ type: 'aion:settings-size', height: document.documentElement.scrollHeight }, '*');
+        }
+
+        function request(action, payload) {
+          var reqId = 'updater-' + ++seq;
+          parent.postMessage(
+            { type: 'wayland-updater:request', reqId: reqId, action: action, payload: payload || {} },
+            '*'
+          );
+          return new Promise(function (resolve) {
+            pending.set(reqId, resolve);
+            setTimeout(function () {
+              if (!pending.has(reqId)) return;
+              pending.delete(reqId);
+              resolve({ ok: false, error: 'Updater request timed out.' });
+            }, REQUEST_TIMEOUT_MS);
+          });
+        }
+
+        window.addEventListener('message', function (event) {
+          var data = event.data || {};
+          if (data.type !== 'wayland-updater:response' || !data.reqId) return;
+          var resolve = pending.get(data.reqId);
+          if (!resolve) return;
+          pending.delete(data.reqId);
+          resolve(data);
+        });
+
+        function setBadge(id, text, kind) {
+          var el = $(id);
+          el.textContent = text;
+          el.className = 'badge ' + (kind || '');
+        }
+
+        function setError(text) {
+          var el = $('error');
+          if (!text) {
+            el.hidden = true;
+            el.textContent = '';
+            return;
+          }
+          el.hidden = false;
+          el.textContent = text;
+        }
+
+        function renderCheck(result) {
+          if (!result.ok) {
+            setError(result.error || 'Update check failed.');
+            $('summary').textContent = 'Could not complete update check.';
+            setBadge('waylandBadge', 'Error', 'bad');
+            return;
+          }
+
+          setError('');
+          var manual = result.manual || {};
+          var data = manual.data || {};
+          var latest = data.latest || {};
+          var current = data.currentVersion || '-';
+          var updateAvailable = Boolean(data.updateAvailable || result.autoUpdateAvailable);
+          if (updateAvailable) {
+            $('summary').textContent = 'An update is available.';
+            $('wayland').textContent =
+              'Current ' + current + ' -> ' + (latest.version || result.autoVersion || 'latest');
+            setBadge('waylandBadge', 'Available', 'available');
+          } else {
+            $('summary').textContent = 'No Wayland app update is available.';
+            $('wayland').textContent = 'Current version: ' + current;
+            setBadge('waylandBadge', 'Up to date', 'good');
+          }
+
+          var core = data.ijfw || {};
+          if (core.installed && core.updateAvailable) {
+            $('core').textContent = 'IJFW ' + (core.currentVersion || '-') + ' -> ' + (core.latestVersion || '-');
+            setBadge('coreBadge', 'Available', 'available');
+          } else if (core.installed && !core.pathHealthy) {
+            $('core').textContent = 'IJFW is installed, but the ijfw command is not on PATH.';
+            setBadge('coreBadge', 'Path issue', 'warn');
+          } else if (core.installed) {
+            $('core').textContent = 'Current version: ' + (core.currentVersion || '-');
+            setBadge('coreBadge', 'Up to date', 'good');
+          } else {
+            $('core').textContent = 'Wayland Core updater status is unavailable.';
+            setBadge('coreBadge', 'Unknown', '');
+          }
+          resize();
+        }
+
+        $('check').addEventListener('click', function () {
+          $('summary').textContent = 'Checking...';
+          setBadge('waylandBadge', 'Checking', '');
+          request('check', { includePrerelease: $('prerelease').checked }).then(renderCheck);
+        });
+
+        $('openModal').addEventListener('click', function () {
+          request('openModal', {});
+        });
+
+        window.addEventListener('load', function () {
+          resize();
+          request('check', { includePrerelease: $('prerelease').checked }).then(renderCheck);
+        });
+      })();
+    </script>
+  </body>
+</html>

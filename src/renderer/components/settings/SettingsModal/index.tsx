@@ -45,6 +45,23 @@ const MODAL_HEIGHT = {
   desktop: 459,
 } as const;
 
+const ExtensionMaskIcon: React.FC<{ src: string }> = ({ src }) => (
+  <span
+    className='block w-20px h-20px bg-current'
+    style={{
+      maskImage: `url(${src})`,
+      maskRepeat: 'no-repeat',
+      maskPosition: 'center',
+      maskSize: 'contain',
+      WebkitMaskImage: `url(${src})`,
+      WebkitMaskRepeat: 'no-repeat',
+      WebkitMaskPosition: 'center',
+      WebkitMaskSize: 'contain',
+    }}
+    aria-hidden='true'
+  />
+);
+
 /** Resize event debounce delay (ms) */
 const RESIZE_DEBOUNCE_DELAY = 150;
 
@@ -259,7 +276,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onCancel, defaul
         key: tab.id,
         label: resolveExtTabName(tab),
         icon: resolvedIcon ? (
-          <img src={resolvedIcon} alt='' className='w-20px h-20px object-contain' />
+          <ExtensionMaskIcon src={resolvedIcon} />
         ) : (
           <Puzzle size={20} color={iconColors.secondary} />
         ),

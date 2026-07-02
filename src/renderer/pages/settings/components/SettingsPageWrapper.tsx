@@ -48,6 +48,26 @@ type NavItem = { label: string; icon: React.ReactElement; path: string; id: stri
 
 type TranslateFn = (key: string, options?: { defaultValue?: string }) => string;
 
+const ExtensionMaskIcon: React.FC<{ src: string; sizeClassName?: string }> = ({
+  src,
+  sizeClassName = 'w-16px h-16px',
+}) => (
+  <span
+    className={classNames('block bg-current text-t-secondary', sizeClassName)}
+    style={{
+      maskImage: `url(${src})`,
+      maskRepeat: 'no-repeat',
+      maskPosition: 'center',
+      maskSize: 'contain',
+      WebkitMaskImage: `url(${src})`,
+      WebkitMaskRepeat: 'no-repeat',
+      WebkitMaskPosition: 'center',
+      WebkitMaskSize: 'contain',
+    }}
+    aria-hidden='true'
+  />
+);
+
 export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): NavItem[] {
   const builtinMap: Record<string, NavItem> = {
     assistants: {
@@ -234,11 +254,7 @@ const SettingsPageWrapper: React.FC<SettingsPageWrapperProps> = ({ children, cla
       return {
         id: tab.id,
         label: resolveExtTabName(tab),
-        icon: resolvedIcon ? (
-          <img src={resolvedIcon} alt='' className='w-16px h-16px object-contain' />
-        ) : (
-          <Puzzle size={16} />
-        ),
+        icon: resolvedIcon ? <ExtensionMaskIcon src={resolvedIcon} /> : <Puzzle size={16} />,
         path: `ext/${tab.id}`,
       };
     };

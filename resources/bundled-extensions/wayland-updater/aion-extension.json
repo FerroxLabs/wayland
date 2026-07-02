@@ -1,0 +1,21 @@
+{
+  "name": "wayland-updater",
+  "displayName": "Wayland Updater",
+  "version": "1.0.0",
+  "apiVersion": "^1.0.0",
+  "description": "Settings extension for checking Wayland and Wayland Core updates.",
+  "author": "Wayland",
+  "icon": "assets/updater.svg",
+  "contributes": {
+    "settingsTabs": [
+      {
+        "id": "updater",
+        "name": "Updater",
+        "icon": "assets/updater.svg",
+        "entryPoint": "settings/updater.html",
+        "position": { "anchor": "storage", "placement": "after" },
+        "order": 10
+      }
+    ]
+  }
+}
