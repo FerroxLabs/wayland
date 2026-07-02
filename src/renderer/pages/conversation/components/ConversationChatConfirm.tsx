@@ -309,7 +309,20 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
                     {shortcut}
                   </span>
                   <span className='min-w-0'>
-                    <span>{label}</span>
+                    <span>
+                      {label}
+                      {/* #504: the first choice is the one yolo/full-auto
+                          auto-picks (choices[0]), so flag it as the recommended
+                          answer. Visual only - the sent answer is unchanged. */}
+                      {isChoice && index === 0 && (
+                        <span
+                          data-testid='confirm-question-recommended'
+                          className='ml-6px inline-flex items-center px-6px h-16px rd-4px bg-[var(--bg-2)] text-10px color-[var(--text-secondary)] align-middle'
+                        >
+                          {$t('messages.confirmation.recommended')}
+                        </span>
+                      )}
+                    </span>
                     {option.description && (
                       <span className='block text-12px color-[var(--text-secondary)] mt-2px'>{option.description}</span>
                     )}

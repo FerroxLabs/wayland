@@ -71,7 +71,8 @@
     "yesAllowAlways": "Yes, allow always",
     "yesAlwaysAllowTool": "Yes, always allow tool \"{{toolName}}\" from server \"{{serverName}}\"",
     "yesAlwaysAllowServer": "Yes, always allow all tools from server \"{{serverName}}\"",
-    "no": "No (esc)"
+    "no": "No (esc)",
+    "recommended": "Recommended"
   },
   "slash.customBadge": "Custom",
   "runaway": {

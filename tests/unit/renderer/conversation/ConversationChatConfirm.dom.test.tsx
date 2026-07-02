@@ -90,6 +90,23 @@ describe('ConversationChatConfirm — AskUserQuestion (#504)', () => {
     expect(screen.getByText('Paid now')).toBeTruthy(); // choice description surfaced
   });
 
+  it('marks only the first choice (the yolo auto-pick) as Recommended', async () => {
+    render(
+      <ConversationChatConfirm conversation_id={CONVERSATION_ID}>
+        <div>child</div>
+      </ConversationChatConfirm>
+    );
+
+    // Wait for the choices to render, then assert exactly one Recommended badge
+    // and that it sits on the first choice (choices[0], the auto-picked one).
+    await screen.findByText('Founding Member deal');
+    const badges = screen.getAllByTestId('confirm-question-recommended');
+    expect(badges).toHaveLength(1);
+
+    const firstChoice = screen.getByText('Founding Member deal').closest('[data-testid="confirm-question-choice"]');
+    expect(firstChoice?.contains(badges[0])).toBe(true);
+  });
+
   it('sends the picked choice as `answer` over the confirm channel', async () => {
     render(
       <ConversationChatConfirm conversation_id={CONVERSATION_ID}>
