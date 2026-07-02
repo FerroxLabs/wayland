@@ -34,15 +34,17 @@ const FETCH_TIMEOUT_MS = 12_000;
  * sees plausible models rather than a dead list; the live endpoint always wins
  * when reachable. Last synced from the live endpoint 2026-06-24 (verified the
  * prior `gpt-5.2`/`gpt-5.1` snapshot was 100% rejected by the backend).
+ * #538: dropped `gpt-5.3-codex-spark` - it is dead on the backend (the live
+ * fetch is what proves it, and offline it should not resurface as a phantom
+ * selectable/selected model).
  */
-export const CHATGPT_SUBSCRIPTION_MODEL_IDS = ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini', 'gpt-5.3-codex-spark'] as const;
+export const CHATGPT_SUBSCRIPTION_MODEL_IDS = ['gpt-5.5', 'gpt-5.4', 'gpt-5.4-mini'] as const;
 
 /** Human-facing display names for the offline-fallback set. */
 const DISPLAY: Record<string, string> = {
   'gpt-5.5': 'GPT-5.5',
   'gpt-5.4': 'GPT-5.4',
   'gpt-5.4-mini': 'GPT-5.4-Mini',
-  'gpt-5.3-codex-spark': 'GPT-5.3-Codex-Spark',
 };
 
 /** Build one catalog entry. Unenriched (no models.dev match for Codex slugs); */

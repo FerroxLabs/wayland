@@ -27,7 +27,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mutable model-config the mocked IPC returns. Starts empty (brand-new user),
 // then a Flux connect populates it.
-let modelConfig: Array<{ id: string; platform: string; model: string[] }> = [];
+let modelConfig: Array<{ id: string; platform: string; model: string[]; enabled?: boolean }> = [];
 
 // Capture the renderer's `modelRegistry.listChanged` subscriber so the test can
 // fire the event the same way a real connect does.
@@ -155,5 +155,23 @@ describe('useGuidModelSelection — issue #108 first-run Flux revalidation', () 
     // Give the flux-override path a chance to (wrongly) replace it.
     await new Promise((r) => setTimeout(r, 40));
     expect(result.current.currentModel?.useModel).toBe('gpt-5.5');
+  });
+
+  it('#538 - a disabled provider is excluded from the new-chat model list and never becomes the default', async () => {
+    // mc14: disabled all OpenAI, left only a local model available, yet a new chat
+    // defaulted to gpt-5.5. The disabled provider row must be filtered out of the
+    // candidate list (mirroring useModelProviderList) so it can't win the default.
+    modelConfig = [
+      { id: 'openai', platform: 'openai', model: ['gpt-5.5'], enabled: false },
+      { id: 'lmstudio', platform: 'openai-compatible', model: ['local-a'] },
+    ];
+    const { result } = renderHook(() => useGuidModelSelection('wcore'), { wrapper });
+
+    await waitFor(() => expect(result.current.modelList).toHaveLength(1));
+    expect(result.current.modelList.map((p) => p.id)).toEqual(['lmstudio']);
+    // Give any default-resolution pass a beat, then confirm the disabled model
+    // never surfaced as the selection.
+    await new Promise((r) => setTimeout(r, 40));
+    expect(result.current.currentModel?.useModel).not.toBe('gpt-5.5');
   });
 });

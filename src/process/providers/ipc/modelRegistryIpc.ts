@@ -1747,7 +1747,23 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.testConnection.provider((payload) => h.testConnection(payload));
   ipcBridge.modelRegistry.list.provider(() => h.list());
   ipcBridge.modelRegistry.getCatalog.provider((payload) => h.getCatalog(payload));
-  ipcBridge.modelRegistry.toggleModel.provider((payload) => h.toggleModel(payload));
+  ipcBridge.modelRegistry.toggleModel.provider(async (payload) => {
+    const result = await h.toggleModel(payload);
+    // #538/#539: a toggle writes only the registry override. Propagate it to the
+    // legacy `model.config` bridge row (mirror) and revalidate open pickers -
+    // exactly what refresh/rekey already do. Without this the legacy store the
+    // new-chat default resolver and the in-conversation WCore picker both read
+    // stays stale: a disabled model still surfaces as default/selected (#538),
+    // and a freshly-enabled local model never appears so its click is swallowed
+    // and it's dropped after a turn (#539).
+    // AWAIT the mirror before emitting (unlike refresh/rekey's fire-and-forget):
+    // listChanged makes subscribers re-read model.config, so the mirror write
+    // must land first or they'd revalidate onto the stale row - the exact desync
+    // this fix closes. mirrorConnectOrRekey is runSerial-guarded + best-effort.
+    if (result.ok && _repo) await mirrorConnectOrRekey(_repo, payload.providerId).catch(() => {});
+    if (result.ok) ipcBridge.modelRegistry.listChanged.emit();
+    return result;
+  });
   ipcBridge.modelRegistry.refresh.provider(async (payload) => {
     const result = await h.refresh(payload);
     if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);

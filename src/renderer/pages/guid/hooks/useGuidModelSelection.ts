@@ -222,7 +222,10 @@ export const useGuidModelSelection = (agentKey: ProviderAgentKey = 'wcore'): Gui
       allProviders = modelConfig || [];
     }
 
-    return allProviders.filter(hasAvailableModels);
+    // #538: honor the provider-level disable flag, mirroring useModelProviderList
+    // (:102) - otherwise a disabled provider row still feeds the new-chat default
+    // resolver and can win (e.g. a disabled OpenAI row surfacing gpt-5.5).
+    return allProviders.filter((p) => p.enabled !== false).filter(hasAvailableModels);
   }, [agentKey, geminiModelValues, isGoogleAuth, modelConfig]);
 
   const geminiModeLookup = useMemo(() => {

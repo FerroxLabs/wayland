@@ -140,14 +140,25 @@ export function selectMirrorModelIds(catalog: CatalogModel[], overrides: Registr
   const curated = new Curator().curate(catalog);
   const overrideEnabled = new Map(overrides.map((o) => [o.modelId, o.enabled]));
   const enabled = curated.filter((m) => overrideEnabled.get(m.id) ?? m.enabled);
-  // Never hand the picker an empty list: if nothing is curated-enabled (e.g. a
-  // provider with no eligible flagship family), fall back to the full curated
-  // text set rather than blanking the dropdown.
+  // Never hand the picker an empty list WHEN the emptiness isn't the user's doing:
+  // a provider with no eligible flagship family (Curator enables none, no user
+  // overrides) falls back to the full curated text set rather than blanking the
+  // dropdown. But if the user EXPLICITLY disabled models (a disabling override is
+  // present), an empty result is intentional - "disable all of provider X" must
+  // actually empty X's picker/default candidacy, not silently re-populate it
+  // (#538: disabling every OpenAI model still left gpt-5.5 as the new-chat
+  // default because this fallback re-added the whole set).
+  // "Disabled some" means the user explicitly turned off a model that is IN the
+  // curated set - the only overrides that can empty `enabled`. Scoping to curated
+  // avoids a stale override for a non-curated / dropped model spuriously
+  // suppressing the never-blank fallback.
+  const userDisabledCurated = curated.some((m) => overrideEnabled.get(m.id) === false);
+  const selected = enabled.length > 0 ? enabled : userDisabledCurated ? [] : curated;
   // Drop image-named models: a brand-new image model (e.g. `gpt-image-2`) that
   // models.dev hasn't enriched yet defaults to `kind: 'text'` and would slip
   // through the Curator into the chat pickers. It belongs only in the image
   // picker (see selectImageModelIds), never the chat dropdown.
-  return (enabled.length > 0 ? enabled : curated).filter((m) => !isImageModelName(m.id)).map((m) => m.id);
+  return selected.filter((m) => !isImageModelName(m.id)).map((m) => m.id);
 }
 
 /**

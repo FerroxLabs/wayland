@@ -9,12 +9,7 @@ import { selectMirrorModelIds } from '@process/providers/legacyModelConfigBridge
 import { Curator } from '@process/providers/catalog/Curator';
 import type { CatalogModel, ProviderId } from '@process/providers/types';
 
-function model(
-  id: string,
-  family: string,
-  releaseDate?: string,
-  kind: CatalogModel['kind'] = 'text'
-): CatalogModel {
+function model(id: string, family: string, releaseDate?: string, kind: CatalogModel['kind'] = 'text'): CatalogModel {
   return {
     id,
     providerId: 'openrouter' as ProviderId,
@@ -72,11 +67,22 @@ describe('selectMirrorModelIds (issue #13)', () => {
     expect(ids).not.toContain(target);
   });
 
-  it('never returns an empty picker: falls back to the curated set when overrides disable everything', () => {
+  it('#538: an explicit disable-all (user overrides off for every enabled model) empties the picker', () => {
+    // Regression of the old "never empty" fallback: when the user deliberately
+    // disables every model of a provider, the mirror must NOT re-populate the
+    // full curated set - otherwise a disabled provider still supplies the
+    // new-chat default (mc14: disabled all OpenAI, still got gpt-5.5).
     const disableAll = defaultEnabled.map((modelId) => ({ modelId, enabled: false }));
     const ids = selectMirrorModelIds(CATALOG, disableAll);
+    expect(ids).toEqual([]);
+  });
+
+  it('#13 preserved: with NO disabling override, the curated-enabled set is still returned (never blank)', () => {
+    // The genuine #13 fallback (Curator-enables-none, user set no disabling
+    // override) is untouched: the normal path returns the curated-enabled set
+    // rather than an empty picker. Only an explicit disable-all now empties it.
+    const ids = selectMirrorModelIds(CATALOG, []);
     expect(ids.length).toBeGreaterThan(0);
-    expect([...ids].sort()).toEqual(curated.map((m) => m.id).sort());
   });
 
   it('returns an empty list for an empty catalog without throwing', () => {
