@@ -79,6 +79,7 @@ import { onCloseToTrayChanged, onLanguageChanged } from './process/bridge/system
 import { setInitialLanguage } from '@process/services/i18n';
 import { workerTaskManager } from './process/task/workerTaskManagerSingleton';
 import { setupApplicationMenu } from './process/utils/appMenu';
+import { attachContextMenu } from './process/utils/contextMenu';
 import { startWebServer } from './process/webserver';
 import { initializeZoomFactor, setupZoomForWindow } from './process/utils/zoom';
 import { getOrCreateAnalyticsId } from './process/utils/analyticsId';
@@ -351,6 +352,10 @@ app.on('web-contents-created', (_event, contents) => {
   // Deny window.open() for every contents. The main renderer routes external
   // links through shell.openExternal; guests have no legitimate popup need.
   contents.setWindowOpenHandler(() => ({ action: 'deny' }));
+
+  // Wire a native right-click menu (cut/copy/paste/spellcheck). Electron has no
+  // default context menu, so without this paste-via-mouse is impossible (#523).
+  attachContextMenu(contents);
 
   // Only add the guest navigation lock to webview contents. The main window's
   // own will-navigate guard (in createWindow) already fully constrains it, and

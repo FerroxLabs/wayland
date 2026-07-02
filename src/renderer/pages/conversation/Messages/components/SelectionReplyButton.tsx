@@ -7,40 +7,12 @@
 import { Quote } from 'lucide-react';
 import type { TMessage } from '@/common/chat/chatLib';
 import { emitter } from '@/renderer/utils/emitter';
+import { getEffectiveSelection } from '@/renderer/utils/shadowSelection';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type ReplyPos = { top: number; left: number; text: string; msgId: string; msgPos: string };
-
-/**
- * Get the current selection, checking Shadow DOM roots if needed.
- * MarkdownView renders inside Shadow DOM, so document.getSelection() may
- * return a collapsed/empty selection while the real selection lives inside
- * a shadowRoot.
- */
-function getEffectiveSelection(target: EventTarget | null): Selection | null {
-  // First try the standard selection
-  const docSel = document.getSelection();
-  if (docSel && !docSel.isCollapsed && docSel.toString().trim()) {
-    return docSel;
-  }
-
-  // If standard selection is empty, search for selection inside Shadow DOM
-  // Walk up from the mouseup target to find a shadow host
-  let el = target instanceof Node ? target : null;
-  while (el) {
-    if (el instanceof Element && el.shadowRoot) {
-      const shadowSel = (el.shadowRoot as unknown as { getSelection?: () => Selection | null }).getSelection?.();
-      if (shadowSel && !shadowSel.isCollapsed && shadowSel.toString().trim()) {
-        return shadowSel;
-      }
-    }
-    el = el.parentNode;
-  }
-
-  return docSel;
-}
 
 /**
  * Find the closest message container from a selection's anchor node.
