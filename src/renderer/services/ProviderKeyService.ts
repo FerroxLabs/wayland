@@ -122,29 +122,40 @@ export async function connectProviderHttp(
 ): Promise<IModelRegistryConnectResult> {
   const csrf = getCsrfToken();
   const controller = new AbortController();
+  // The timeout must cover BOTH the fetch AND the body read: a broken proxy can
+  // send response headers (resolving `fetch`) then stall the body forever. So
+  // the signal stays armed across `res.json()` and the timer is only cleared in
+  // `finally` - never before the body has been read (#524).
   const timer = setTimeout(() => controller.abort(), CONNECT_TIMEOUT_MS);
 
-  let res: Response;
   try {
-    res = await fetch('/api/providers/connect', {
+    const res = await fetch('/api/providers/connect', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
       body: JSON.stringify({ providerId, key, baseUrl, _csrf: csrf }),
       signal: controller.signal,
     });
+
+    let json: ConnectResponseBody = {};
+    try {
+      json = (await res.json()) as ConnectResponseBody;
+    } catch (err) {
+      // A body read aborted by our own timeout is a stall - rethrow so it
+      // surfaces as offline below. A merely malformed/empty body is not fatal:
+      // leave `json` empty and classify from the HTTP status instead.
+      if (controller.signal.aborted) throw err;
+    }
+
+    if (!res.ok || !json.success) {
+      return { ok: false, ...classifyConnectFailure(json) };
+    }
+    return { ok: true };
   } catch {
-    // Timeout/abort or a network-level failure - the server was unreachable, so
-    // the connect never happened. Surface it as offline rather than spinning.
+    // Timeout/abort (fetch or a stalled body read) or a network-level failure -
+    // the server was unreachable, so surface offline rather than spinning.
     return { ok: false, error: 'offline' };
   } finally {
     clearTimeout(timer);
   }
-
-  const json = (await res.json().catch(() => ({}))) as ConnectResponseBody;
-
-  if (!res.ok || !json.success) {
-    return { ok: false, ...classifyConnectFailure(json) };
-  }
-  return { ok: true };
 }

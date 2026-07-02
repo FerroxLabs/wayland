@@ -117,6 +117,27 @@ describe('connectProviderHttp (#524 transport robustness)', () => {
 
     await expect(connectProviderHttp('flux-router', 'sk-flux-xxx')).resolves.toEqual({ ok: true });
   });
+
+  it('does not hang when headers arrive but the body read stalls, then times out to offline', async () => {
+    vi.useFakeTimers();
+    // Headers arrive (fetch resolves) but the body read never completes until
+    // our own AbortController fires - the "broken proxy" case the timeout must
+    // still cover (cross-audit finding, #524).
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, opts: { signal: AbortSignal }) =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () =>
+          new Promise((_resolve, reject) => {
+            opts.signal.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+          }),
+      })
+    ) as unknown as typeof fetch;
+
+    const promise = connectProviderHttp('flux-router', 'sk-flux-xxx');
+    await vi.advanceTimersByTimeAsync(30_000);
+    await expect(promise).resolves.toEqual({ ok: false, error: 'offline' });
+  });
 });
 
 // A reload that never resolves - the classic stalled modelRegistry.list.invoke.
