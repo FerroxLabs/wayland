@@ -281,6 +281,23 @@ export type WCoreEvent =
       op: string;
       app?: string;
       reason: string;
+    }
+  // #537 host-send-transport hook. When the engine is host-delegated
+  // (WAYLAND_SEND_MESSAGE_HOST_DELEGATE=1 at spawn) its `send_message` tool
+  // routes the send to the HOST instead of the engine's channel table (which is
+  // empty under the desktop → "unknown channel: email"). The engine emits this
+  // request; the host fulfils it through its own outbound channel plugins and
+  // replies with `host_send_message_result` (correlated by `call_id`).
+  // `platform`/`chat_id`/`thread_id` mirror the engine's ParsedTarget.
+  | {
+      type: 'host_send_message_request';
+      call_id: string;
+      platform: string;
+      chat_id?: string;
+      thread_id?: string;
+      body: string;
+      subject?: string;
+      conversation_id?: string;
     };
 
 // ============================================
@@ -318,5 +335,16 @@ export type WCoreCommand =
       env?: Record<string, string>;
       url?: string;
       headers?: Record<string, string>;
+    }
+  // #537 reply to `host_send_message_request`. `ok=true` → the engine resolves
+  // the tool call as sent (optional `message_id` receipt); `ok=false`/`error`
+  // → the engine surfaces a real send failure to the model (never a false
+  // success). Correlated to the request by `call_id`.
+  | {
+      type: 'host_send_message_result';
+      call_id: string;
+      ok: boolean;
+      message_id?: string;
+      error?: string;
     }
   | { type: 'ping' };

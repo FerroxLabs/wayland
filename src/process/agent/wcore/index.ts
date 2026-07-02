@@ -18,6 +18,7 @@ import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { killChild } from '@process/agent/acp/utils';
 import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
 import { parseQuestionTool } from './questionTool';
+import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMessage';
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
 
@@ -715,6 +716,15 @@ export class WCoreAgent {
         });
         break;
 
+      // ── #537 host-delegated send_message ──────────────────────────
+      // The engine (spawned with WAYLAND_SEND_MESSAGE_HOST_DELEGATE=1) routes an
+      // agent `send_message` here instead of failing on its empty channel table.
+      // We fulfil it through the desktop's own outbound channel plugins and reply
+      // with the result, correlated by call_id.
+      case 'host_send_message_request':
+        void this.handleHostSendMessage(event);
+        break;
+
       // ── Forward-compat default arm ────────────────────────────────
       // The W0 Host Decoder Contract (docs/json-stream-protocol.md
       // §"Host Decoder Contract") says hosts MUST drop unknown event
@@ -735,6 +745,23 @@ export class WCoreAgent {
         break;
       }
     }
+  }
+
+  /**
+   * #537: fulfil a host-delegated `send_message` via the desktop's outbound
+   * channel plugins and reply with `host_send_message_result`. Always replies
+   * (even on failure) so the engine's tool call never hangs; the handler itself
+   * never throws.
+   */
+  private async handleHostSendMessage(event: WCoreEvent & { type: 'host_send_message_request' }): Promise<void> {
+    const result = await handleHostSendMessageRequest(event, defaultHostSendDeps());
+    this.sendCommand({
+      type: 'host_send_message_result',
+      call_id: event.call_id,
+      ok: result.ok,
+      ...(result.message_id ? { message_id: result.message_id } : {}),
+      ...(result.error ? { error: result.error } : {}),
+    });
   }
 
   /**

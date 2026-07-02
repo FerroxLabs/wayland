@@ -688,5 +688,18 @@ export function buildEngineSpawnEnv(opts: {
   //     spawner (standalone CLI, third-party) from an untrusted wire peer.
   out.WAYLAND_ALLOW_WIRE_FORCE = '1';
 
+  // #537: opt the engine into host-delegated `send_message`. The desktop never
+  // writes channel `.toml` into WAYLAND_HOME/channels, so the engine's own
+  // channel table is empty and an agent `send_message` (e.g. to "email") fails
+  // with "unknown channel: email". With this set, the engine keeps the tool
+  // registered but routes the send back to the HOST (a `host_send_message_request`
+  // event), which fulfils it through the desktop's outbound channel plugins — the
+  // same path that already delivers replies — so there is ONE send path and the
+  // engine owns no channel credentials. Always set for the desktop's own trusted
+  // child: when no matching channel is configured the host replies with a clear
+  // error instead of the opaque "unknown channel". Standalone/CLI engines (which
+  // DO hand-author channel toml) never set this and are unaffected.
+  out.WAYLAND_SEND_MESSAGE_HOST_DELEGATE = '1';
+
   return out;
 }
