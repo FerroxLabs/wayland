@@ -207,25 +207,32 @@ export function startDropFolderWatcher(opts: {
     onError(`Failed to create directories: ${String(err)}`);
   }
 
-  // Build the chokidar watcher. On macOS the default backend is the fsevents
-  // native binding; on some machines (notably macOS Intel) that binding can fail
-  // to load and throw at init, which previously unhandled-rejected the app at
-  // startup (#447). Guard the init and fall back to polling so a native-binding
-  // failure degrades to a working (if heavier) watcher rather than crashing.
-  const baseOpts = { depth: 0, ignoreInitial: true, persistent: true, followSymlinks: false } as const;
-  let watcher: ReturnType<typeof chokidar.watch> | null;
+  // Build the chokidar watcher with POLLING, not the fsevents native backend.
+  // On macOS, chokidar's fsevents handler can async-reject deep inside
+  // `_addToFsEvents` (observed live: "Cannot read properties of undefined
+  // (reading 'SinceNow')") when the bundled native binding is incompatible with
+  // the Electron ABI. Because that rejection is internal to chokidar it is NOT
+  // routed to the watcher's 'error' event, so it escapes as an unhandledRejection
+  // that crashes the app at startup on affected machines (#447). The drop folder
+  // is a single shallow (depth 0) directory, so polling sidesteps the fsevents
+  // path entirely at negligible cost. The try/catch + 'error' handler below stay
+  // as defense-in-depth for any remaining synchronous/emitted failure.
+  const baseOpts = {
+    depth: 0,
+    ignoreInitial: true,
+    persistent: true,
+    followSymlinks: false,
+    usePolling: true,
+    interval: 1000,
+  } as const;
+  let watcher: ReturnType<typeof chokidar.watch>;
   try {
     watcher = chokidar.watch(dropFolder, baseOpts);
   } catch (err) {
-    log.warn('[dropFolderWatcher] native watch failed - falling back to polling', { err });
-    try {
-      watcher = chokidar.watch(dropFolder, { ...baseOpts, usePolling: true, interval: 1000 });
-    } catch (fallbackErr) {
-      log.warn('[dropFolderWatcher] polling watch also failed - watcher disabled', { fallbackErr });
-      onError(`Failed to start drop-folder watcher: ${String(fallbackErr)}`);
-      _isWatching = false;
-      return { stop: () => {} };
-    }
+    log.warn('[dropFolderWatcher] watch init failed - watcher disabled', { err });
+    onError(`Failed to start drop-folder watcher: ${String(err)}`);
+    _isWatching = false;
+    return { stop: () => {} };
   }
 
   _isWatching = true;

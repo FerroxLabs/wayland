@@ -42,7 +42,7 @@ describe('startDropFolderWatcher native-binding crash guard (#447)', () => {
     vi.clearAllMocks();
   });
 
-  it('returns a working handle and marks watching when the native backend loads', () => {
+  it('watches with polling (not the crash-prone fsevents backend) and marks watching', () => {
     const watcher = new FakeWatcher();
     watchMock.mockReturnValueOnce(watcher);
 
@@ -55,11 +55,14 @@ describe('startDropFolderWatcher native-binding crash guard (#447)', () => {
 
     expect(isDropFolderWatching()).toBe(true);
     expect(watchMock).toHaveBeenCalledTimes(1);
+    // usePolling:true is the actual #447 fix: it keeps chokidar off the fsevents
+    // native path that async-rejects (unhandledRejection) on affected macs.
+    expect(watchMock.mock.calls[0][1]).toMatchObject({ usePolling: true });
     handle.stop();
     expect(isDropFolderWatching()).toBe(false);
   });
 
-  it('absorbs an async watcher error event without crashing (the real #447 mode)', () => {
+  it('absorbs an async watcher error event without crashing (defense-in-depth)', () => {
     const watcher = new FakeWatcher();
     watchMock.mockReturnValueOnce(watcher);
 
@@ -71,39 +74,12 @@ describe('startDropFolderWatcher native-binding crash guard (#447)', () => {
       onError,
     });
 
-    // chokidar surfaces backend failures as an async 'error' event; an unhandled
-    // 'error' on an EventEmitter is rethrown and would crash the app.
-    expect(() => watcher.emit('error', new Error('fsevents backend failed'))).not.toThrow();
+    // An unhandled 'error' on an EventEmitter is rethrown and would crash the app.
+    expect(() => watcher.emit('error', new Error('watcher backend failed'))).not.toThrow();
     expect(onError).toHaveBeenCalledWith(expect.stringContaining('Watcher error'));
   });
 
-  it('falls back to polling when the native watch init throws (no crash)', () => {
-    const pollingWatcher = new FakeWatcher();
-    watchMock
-      .mockImplementationOnce(() => {
-        throw new Error('dlopen(fsevents.node): symbol not found'); // simulate native-binding failure
-      })
-      .mockReturnValueOnce(pollingWatcher);
-
-    const onError = vi.fn();
-    let handle: { stop: () => void } | undefined;
-    expect(() => {
-      handle = startDropFolderWatcher({
-        ijfwMemoryDir: '/tmp/ijfw-mem-test',
-        dropFolder: '/tmp/drop-test',
-        onIngest: vi.fn(),
-        onError,
-      });
-    }).not.toThrow();
-
-    // Second call must request the polling backend.
-    expect(watchMock).toHaveBeenCalledTimes(2);
-    expect(watchMock.mock.calls[1][1]).toMatchObject({ usePolling: true });
-    expect(isDropFolderWatching()).toBe(true);
-    handle?.stop();
-  });
-
-  it('returns a no-op handle when both native and polling init throw (still no crash)', () => {
+  it('returns a no-op handle when watch init throws synchronously (still no crash)', () => {
     watchMock.mockImplementation(() => {
       throw new Error('watch unavailable');
     });
@@ -119,7 +95,6 @@ describe('startDropFolderWatcher native-binding crash guard (#447)', () => {
       });
     }).not.toThrow();
 
-    expect(watchMock).toHaveBeenCalledTimes(2);
     expect(onError).toHaveBeenCalledWith(expect.stringContaining('Failed to start drop-folder watcher'));
     expect(isDropFolderWatching()).toBe(false);
     // The no-op handle must be safe to stop.
