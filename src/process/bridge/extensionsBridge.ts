@@ -106,6 +106,23 @@ function planIncludes(plan: IExtensionBuilderPlan, token: string): boolean {
   return [...plan.permissions, ...plan.contributions, ...plan.files].some((item) => item.toLowerCase().includes(lower));
 }
 
+function isSettingsSurfaceRequest(value: string): boolean {
+  const lower = value.toLowerCase();
+  return (
+    lower.includes('settings tab') ||
+    lower.includes('settings/') ||
+    lower.includes('settings page') ||
+    lower.includes('settings surface') ||
+    lower.includes('dashboard') ||
+    lower.includes('host bridge') ||
+    lower.endsWith('.html')
+  );
+}
+
+function uniq(items: string[]): string[] {
+  return Array.from(new Set(items));
+}
+
 function includesAny(value: string, words: string[]): boolean {
   return words.some((word) => value.includes(word));
 }
@@ -169,8 +186,9 @@ function createFallbackBuilderPlan(idea: string): IExtensionBuilderPlan {
   if (needsModel) permissions.add('ai: user-approved planning/build actions');
 
   if (needsSettings || needsModel) {
-    contributions.add('settings tab');
-    files.add(`settings/${slug}.html`);
+    contributions.add('MCP server');
+    files.add(`mcp/${slug}.js`);
+    files.add('README.md');
   }
   if (needsChannel) contributions.add('channel plugin');
   if (needsModel) contributions.add('assistant workflow');
@@ -188,7 +206,7 @@ function createFallbackBuilderPlan(idea: string): IExtensionBuilderPlan {
     contributions: Array.from(contributions),
     files: Array.from(files),
     reviewItems: [
-      'Confirm the extension belongs under Settings > Extensions instead of the main sidebar.',
+      'Settings tabs and host-bridge UI are first-party bundled only until the approval layer exists.',
       'Confirm the permission level is acceptable before enabling it by default.',
       'Define the first smoke test a user can run after install.',
       'Keep extension files outside the app bundle so Wayland updates do not overwrite them.',
@@ -214,6 +232,49 @@ function coerceStringList(value: unknown, fallback: string[]): string[] {
   return items.length > 0 ? items : fallback;
 }
 
+function normalizeLocalBuilderPlan(plan: IExtensionBuilderPlan): IExtensionBuilderPlan {
+  const slug = normalizeBuilderSlug(plan.slug);
+  const hadSettingsSurface = [...plan.contributions, ...plan.files].some(isSettingsSurfaceRequest);
+  const contributions = plan.contributions.filter((item) => !isSettingsSurfaceRequest(item));
+  const files = plan.files
+    .filter((item) => !isSettingsSurfaceRequest(item))
+    .map((file) => file.replaceAll(plan.slug, slug));
+  const reviewItems = [...plan.reviewItems];
+
+  if (hadSettingsSurface) {
+    contributions.push('MCP server');
+    files.push(`mcp/${slug}.js`, 'README.md');
+    reviewItems.unshift(
+      'Settings tabs and host-bridge UI are first-party bundled only until the approval layer exists.'
+    );
+  }
+
+  if (contributions.length === 0) {
+    contributions.push('MCP server');
+  }
+  if (!files.some((file) => file === 'aion-extension.json')) {
+    files.unshift('aion-extension.json');
+  }
+  if (!files.some((file) => file === `assets/${slug}.svg`)) {
+    files.push(`assets/${slug}.svg`);
+  }
+  if (
+    contributions.some((item) => item.toLowerCase().includes('mcp')) &&
+    !files.some((file) => file.startsWith('mcp/'))
+  ) {
+    files.push(`mcp/${slug}.js`);
+  }
+
+  return {
+    ...plan,
+    slug,
+    contributions: uniq(contributions),
+    files: uniq(files),
+    reviewItems: uniq(reviewItems),
+    creationPath: `user-data/extensions/${slug}`,
+  };
+}
+
 function normalizeModelPlan(raw: unknown, fallbackIdea: string): IExtensionBuilderPlan {
   const fallback = createFallbackBuilderPlan(fallbackIdea);
   const value = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
@@ -222,7 +283,7 @@ function normalizeModelPlan(raw: unknown, fallbackIdea: string): IExtensionBuild
   const riskLevel: IExtensionBuilderPlan['riskLevel'] =
     risk === 'safe' || risk === 'moderate' || risk === 'dangerous' ? risk : fallback.riskLevel;
 
-  return {
+  return normalizeLocalBuilderPlan({
     name: String(value.name || fallback.name).trim() || fallback.name,
     slug,
     summary: String(value.summary || fallback.summary).trim() || fallback.summary,
@@ -232,7 +293,7 @@ function normalizeModelPlan(raw: unknown, fallbackIdea: string): IExtensionBuild
     files: coerceStringList(value.files, fallback.files).map((file) => file.replaceAll(fallback.slug, slug)),
     reviewItems: coerceStringList(value.reviewItems, fallback.reviewItems),
     creationPath: `user-data/extensions/${slug}`,
-  };
+  });
 }
 
 export async function draftExtensionPlanWithModel(
@@ -249,7 +310,8 @@ export async function draftExtensionPlanWithModel(
       'Return only JSON with keys: name, slug, summary, riskLevel, permissions, contributions, files, reviewItems, reply.',
       'riskLevel must be safe, moderate, or dangerous.',
       'Slug must be kebab-case.',
-      'Keep extension UI under Settings > Extensions unless a core hook is explicitly needed.',
+      'Do not propose settingsTabs, settings pages, host bridges, or HTML tabs for local builder output.',
+      'Local builder output may scaffold MCP servers and other non-host-bridge contributions.',
       'Prefer grouped job-based extensions, not one page per tiny feature.',
       '',
       `Conversation:\n${transcript}`,
@@ -268,91 +330,6 @@ export async function draftExtensionPlanWithModel(
     source: 'ai',
     model: 'configured model',
   };
-}
-
-function renderBuilderSettingsHtml(plan: IExtensionBuilderPlan): string {
-  const title = escapeHtml(plan.name);
-  const summary = escapeHtml(plan.summary);
-  const permissions = plan.permissions.map((item) => `<li>${escapeHtml(item)}</li>`).join('\n');
-  const reviewItems = plan.reviewItems.map((item) => `<li>${escapeHtml(item)}</li>`).join('\n');
-
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${title}</title>
-    <style>
-      :root {
-        color-scheme: light dark;
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: transparent;
-        color: CanvasText;
-      }
-      * { box-sizing: border-box; }
-      body { margin: 0; padding: 2px; overflow: hidden; }
-      main {
-        display: grid;
-        gap: 12px;
-      }
-      section {
-        border: 1px solid color-mix(in srgb, CanvasText 14%, transparent);
-        border-radius: 8px;
-        padding: 14px;
-        background: color-mix(in srgb, Canvas 92%, CanvasText 4%);
-      }
-      h1, h2 { margin: 0; line-height: 1.2; }
-      h1 { font-size: 18px; }
-      h2 { font-size: 14px; }
-      p, ul { margin: 8px 0 0; color: color-mix(in srgb, CanvasText 78%, transparent); }
-      ul { padding-left: 18px; }
-      code {
-        border-radius: 6px;
-        padding: 2px 5px;
-        background: color-mix(in srgb, CanvasText 8%, transparent);
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <section>
-        <h1>${title}</h1>
-        <p>${summary}</p>
-      </section>
-      <section>
-        <h2>Permissions</h2>
-        <ul>
-          ${permissions}
-        </ul>
-      </section>
-      <section>
-        <h2>Review Checklist</h2>
-        <ul>
-          ${reviewItems}
-        </ul>
-      </section>
-      <section>
-        <h2>Next Implementation Step</h2>
-        <p>Replace this scaffold with the extension-specific UI and runtime code. Package path: <code>${escapeHtml(
-          plan.slug
-        )}</code>.</p>
-      </section>
-    </main>
-    <script>
-      const postSize = () => {
-        window.parent.postMessage(
-          { type: 'aion:settings-size', height: document.documentElement.scrollHeight },
-          '*'
-        );
-      };
-      new ResizeObserver(postSize).observe(document.body);
-      window.addEventListener('load', postSize);
-      postSize();
-    </script>
-  </body>
-</html>
-`;
 }
 
 function renderBuilderMcpStub(plan: IExtensionBuilderPlan): string {
@@ -421,6 +398,31 @@ process.stdin.on('data', (chunk) => {
 `;
 }
 
+function renderBuilderReadme(plan: IExtensionBuilderPlan): string {
+  const lines = [
+    `# ${plan.name}`,
+    '',
+    plan.summary,
+    '',
+    '## Generated Scaffold',
+    '',
+    'This extension was generated by the local Wayland Extension Builder.',
+    '',
+    'Local builder output intentionally avoids settings tabs and other host-bridge UI surfaces. Those are first-party bundled only until the centralized approval layer exists.',
+    '',
+    '## Review Checklist',
+    '',
+    ...plan.reviewItems.map((item) => `- ${item}`),
+    '',
+    '## Smoke Test',
+    '',
+    `Enable the extension, then call the \`${plan.slug}_status\` MCP tool. It should report that the scaffold is installed.`,
+    '',
+  ];
+
+  return `${lines.join('\n')}\n`;
+}
+
 function renderBuilderIcon(plan: IExtensionBuilderPlan): string {
   const initials = plan.name
     .split(/\s+/)
@@ -439,14 +441,16 @@ function renderBuilderIcon(plan: IExtensionBuilderPlan): string {
 `;
 }
 
-async function createExtensionFromBuilderPlan(plan: IExtensionBuilderPlan): Promise<IExtensionBuilderCreateResult> {
+export async function createExtensionFromBuilderPlan(
+  requestedPlan: IExtensionBuilderPlan
+): Promise<IExtensionBuilderCreateResult> {
+  const plan = normalizeLocalBuilderPlan(requestedPlan);
   const slug = normalizeBuilderSlug(plan.slug);
   const displayName = plan.name.trim() || slug;
   const installRoot = getInstallTargetDir();
   const targetDir = path.join(installRoot, slug);
-  const relativeFiles = new Set<string>(['aion-extension.json', `assets/${slug}.svg`]);
-  const needsMcp = planIncludes(plan, 'mcp');
-  const needsSettings = planIncludes(plan, 'settings') || planIncludes(plan, 'html');
+  const relativeFiles = new Set<string>(['aion-extension.json', 'README.md', `assets/${slug}.svg`]);
+  const needsMcp = planIncludes(plan, 'mcp') || !plan.contributions.length;
   const needsShell = planIncludes(plan, 'shell');
   const needsFilesystem = planIncludes(plan, 'filesystem');
   const needsNetwork = planIncludes(plan, 'network');
@@ -490,30 +494,14 @@ async function createExtensionFromBuilderPlan(plan: IExtensionBuilderPlan): Prom
       ];
     }
 
-    if (needsSettings || !needsMcp) {
-      const settingsFile = `settings/${slug}.html`;
-      await fs.mkdir(path.join(targetDir, 'settings'), { recursive: true });
-      await fs.writeFile(
-        path.join(targetDir, settingsFile),
-        renderBuilderSettingsHtml({ ...plan, slug, name: displayName }),
-        'utf-8'
-      );
-      relativeFiles.add(settingsFile);
-      contributes.settingsTabs = [
-        {
-          id: slug,
-          name: displayName,
-          entryPoint: settingsFile,
-          icon: `assets/${slug}.svg`,
-          position: { anchor: 'extensions', placement: 'after' },
-          order: 100,
-        },
-      ];
-    }
-
     await fs.writeFile(
       path.join(targetDir, 'assets', `${slug}.svg`),
       renderBuilderIcon({ ...plan, slug, name: displayName }),
+      'utf-8'
+    );
+    await fs.writeFile(
+      path.join(targetDir, 'README.md'),
+      renderBuilderReadme({ ...plan, slug, name: displayName }),
       'utf-8'
     );
 
