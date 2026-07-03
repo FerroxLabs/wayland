@@ -100,7 +100,20 @@
     "skip_description": "활성화하면 Wayland가 IJFW를 설치하거나 업그레이드하지 않습니다. 나중에 메모리 페이지를 통해 수동으로 설치할 수 있습니다.",
     "manual_install_hint": "수동으로 설치하려면 터미널에서 `npx -y @ijfw/install@latest`를 실행하세요",
     "about_title": "IJFW Memory",
-    "about_body": "Ferrox Labs가 개발한 오픈소스 영구 메모리 엔진입니다."
+    "about_body": "Ferrox Labs가 개발한 오픈소스 영구 메모리 엔진입니다.",
+    "setup_status_title": "설정 상태",
+    "status_install_label": "IJFW 설치됨",
+    "status_install_ok": "설치됨, 최신 상태",
+    "status_install_pending": "아직 설치되지 않음",
+    "status_clis_label": "감지된 CLI",
+    "status_clis_ok": "{{count}}개 감지됨",
+    "status_clis_none": "아직 감지되지 않음",
+    "status_runtime_label": "Memory 런타임",
+    "status_runtime_full": "실행 중",
+    "status_runtime_degraded": "성능 저하(연결 불가)",
+    "test_button": "테스트",
+    "test_pass": "Memory가 응답했습니다. 모두 정상입니다.",
+    "test_fail": "Memory가 응답하지 않았습니다. 위의 설치 상태를 확인하세요."
   },
   "prelude": {
     "installing_notice": "IJFW를 설치하고 있습니다. 외부 CLI (Claude Code, Codex, Gemini CLI)는 설치 완료 후 인식됩니다.",

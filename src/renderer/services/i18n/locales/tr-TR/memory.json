@@ -100,7 +100,20 @@
     "skip_description": "Etkin olduğunda Wayland, IJFW'yi yüklemez veya yükseltmez. Daha sonra Bellek sayfası üzerinden elle yükleyebilirsiniz.",
     "manual_install_hint": "Elle yüklemek için bir terminalde `npx -y @ijfw/install@latest` komutunu çalıştırın",
     "about_title": "IJFW Memory",
-    "about_body": "Ferrox Labs tarafından geliştirilen açık kaynaklı kalıcı bellek motoru."
+    "about_body": "Ferrox Labs tarafından geliştirilen açık kaynaklı kalıcı bellek motoru.",
+    "setup_status_title": "Kurulum durumu",
+    "status_install_label": "IJFW yüklü",
+    "status_install_ok": "Yüklü ve güncel",
+    "status_install_pending": "Henüz yüklü değil",
+    "status_clis_label": "Algılanan CLI'ler",
+    "status_clis_ok": "{{count}} algılandı",
+    "status_clis_none": "Henüz algılanmadı",
+    "status_runtime_label": "Memory çalışma zamanı",
+    "status_runtime_full": "Etkin",
+    "status_runtime_degraded": "Kısıtlı (erişilemiyor)",
+    "test_button": "Test et",
+    "test_pass": "Memory yanıt verdi. Her şey yolunda.",
+    "test_fail": "Memory yanıt vermedi. Yukarıdaki kurulum durumunu kontrol edin."
   },
   "prelude": {
     "installing_notice": "IJFW yükleniyor. Harici CLI'lar (Claude Code, Codex, Gemini CLI) kurulum tamamlandıktan sonra bunu algılayacak.",

@@ -1,0 +1,95 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+// @vitest-environment jsdom
+
+/**
+ * DOM tests for the IJFW Memory setup-status checklist + Test button (#414).
+ *
+ * The checklist renders three signals (install / CLIs / runtime) with a
+ * data-status of "ok" or "pending", and a Test button that probes the local
+ * IJFW MCP server via `ipcBridge.ijfw.brainInvoke({ verb: 'state' })`.
+ */
+
+import React from 'react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const brainInvoke = vi.hoisted(() => vi.fn());
+
+// i18n: return the defaultValue (reference English) so the component renders
+// without a live i18n backend.
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (_key: string, opts?: Record<string, unknown> & { defaultValue?: string }) =>
+      (opts?.defaultValue as string | undefined) ?? _key,
+  }),
+}));
+
+vi.mock('@/common', () => ({
+  ipcBridge: {
+    ijfw: {
+      brainInvoke: { invoke: brainInvoke },
+    },
+  },
+}));
+
+// eslint-disable-next-line import/first
+import IjfwSetupStatus from '@/renderer/pages/settings/components/IjfwSetupStatus';
+
+afterEach(() => {
+  cleanup();
+  brainInvoke.mockReset();
+});
+
+describe('IjfwSetupStatus (#414)', () => {
+  it('marks all checks ok when installed, CLIs present, runtime full', () => {
+    render(<IjfwSetupStatus status='installed_current' cliCount={3} runtimeMode='full' />);
+    expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('ok');
+    expect(screen.getByTestId('ijfw-status-item-clis').getAttribute('data-status')).toBe('ok');
+    expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('ok');
+  });
+
+  it('marks checks pending when not installed, no CLIs, runtime degraded', () => {
+    render(<IjfwSetupStatus status='not_installed' cliCount={0} runtimeMode='degraded' />);
+    expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('pending');
+    expect(screen.getByTestId('ijfw-status-item-clis').getAttribute('data-status')).toBe('pending');
+    expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('pending');
+  });
+
+  it('treats pending activation as an installed check', () => {
+    render(<IjfwSetupStatus status='installed_pending_activation' cliCount={0} runtimeMode={null} />);
+    expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('ok');
+  });
+
+  it('Test button shows pass when the brain probe succeeds', async () => {
+    brainInvoke.mockResolvedValue({ ok: true });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} runtimeMode='full' />);
+    fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('pass');
+    });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
+  });
+
+  it('Test button shows fail when the brain probe errors', async () => {
+    brainInvoke.mockResolvedValue({ ok: false, error: 'nope' });
+    render(<IjfwSetupStatus status='not_installed' cliCount={0} runtimeMode='degraded' />);
+    fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('fail');
+    });
+  });
+
+  it('Test button shows fail when the probe throws', async () => {
+    brainInvoke.mockRejectedValue(new Error('boom'));
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} runtimeMode='full' />);
+    fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('fail');
+    });
+  });
+});

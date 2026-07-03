@@ -100,7 +100,20 @@
     "skip_description": "Wenn aktiviert, installiert oder aktualisiert Wayland IJFW nicht. Du kannst es später manuell über die Gedächtnis-Seite installieren.",
     "manual_install_hint": "Manuelle Installation: Führe `npx -y @ijfw/install@latest` in einem Terminal aus",
     "about_title": "IJFW Memory",
-    "about_body": "Eine Open-Source-Engine für dauerhaftes Gedächtnis von Ferrox Labs."
+    "about_body": "Eine Open-Source-Engine für dauerhaftes Gedächtnis von Ferrox Labs.",
+    "setup_status_title": "Einrichtungsstatus",
+    "status_install_label": "IJFW installiert",
+    "status_install_ok": "Installiert und aktuell",
+    "status_install_pending": "Noch nicht installiert",
+    "status_clis_label": "CLIs erkannt",
+    "status_clis_ok": "{{count}} erkannt",
+    "status_clis_none": "Noch keine erkannt",
+    "status_runtime_label": "Speicher-Runtime",
+    "status_runtime_full": "Aktiv",
+    "status_runtime_degraded": "Eingeschränkt (nicht erreichbar)",
+    "test_button": "Testen",
+    "test_pass": "Memory hat geantwortet. Alles in Ordnung.",
+    "test_fail": "Memory hat nicht geantwortet. Prüfe den Installationsstatus oben."
   },
   "prelude": {
     "installing_notice": "IJFW wird installiert. Externe CLIs (Claude Code, Codex, Gemini CLI) übernehmen es, sobald die Installation abgeschlossen ist.",

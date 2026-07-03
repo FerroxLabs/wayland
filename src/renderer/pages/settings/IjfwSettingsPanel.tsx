@@ -19,6 +19,9 @@ import { Button, Message, Switch, Typography } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
+import type { IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
+import type { IjfwRuntimeModePublic } from '@/common/types/ijfw';
+import IjfwSetupStatus from './components/IjfwSetupStatus';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
 
 const IJFW_GITHUB_URL = 'https://github.com/FerroxLabs/ijfw';
@@ -27,9 +30,13 @@ const IjfwSettingsPanel: React.FC = () => {
   const { t } = useTranslation();
   const [skipEnabled, setSkipEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<IjfwLifecycleStatus | null>(null);
+  const [cliCount, setCliCount] = useState(0);
+  const [runtimeMode, setRuntimeMode] = useState<IjfwRuntimeModePublic | null>(null);
 
   // Read initial opt-out state from the lifecycle snapshot. Wave 2 sets
   // `status: 'not_installed', reason: 'opt_out'` whenever the Skip flag is on.
+  // Also seeds the setup-status checklist (install status + detected-CLI count).
   useEffect(() => {
     let disposed = false;
     void ipcBridge.ijfw.getStatus
@@ -37,9 +44,20 @@ const IjfwSettingsPanel: React.FC = () => {
       .then((payload) => {
         if (disposed || !payload) return;
         setSkipEnabled(payload.status === 'not_installed' && payload.reason === 'opt_out');
+        setStatus(payload.status);
+        setCliCount(payload.cliCount ?? 0);
       })
       .catch((err) => {
         console.error('[IjfwSettingsPanel] getStatus failed:', err);
+      });
+    void ipcBridge.ijfw.getRuntimeMode
+      .invoke()
+      .then((mode) => {
+        if (disposed || !mode) return;
+        setRuntimeMode(mode);
+      })
+      .catch((err) => {
+        console.error('[IjfwSettingsPanel] getRuntimeMode failed:', err);
       });
     return () => {
       disposed = true;
@@ -96,6 +114,8 @@ const IjfwSettingsPanel: React.FC = () => {
           {t('memory.settings.panel_title', { defaultValue: 'IJFW Memory (Ferrox Labs)' })}
         </Typography.Title>
 
+        <IjfwSetupStatus status={status} cliCount={cliCount} runtimeMode={runtimeMode} />
+
         <div className='flex flex-col gap-12px p-16px rd-12px bg-aou-1'>
           <div className='flex items-center justify-between gap-16px'>
             <Typography.Text className='text-14px font-medium'>
@@ -132,10 +152,7 @@ const IjfwSettingsPanel: React.FC = () => {
           </code>
         </div>
 
-        <div
-          className='flex flex-col gap-6px p-16px rd-12px bg-aou-1'
-          data-testid='ijfw-settings-about'
-        >
+        <div className='flex flex-col gap-6px p-16px rd-12px bg-aou-1' data-testid='ijfw-settings-about'>
           <Typography.Text className='text-14px font-semibold'>
             {t('memory.settings.about_title', { defaultValue: 'IJFW Memory' })}
           </Typography.Text>

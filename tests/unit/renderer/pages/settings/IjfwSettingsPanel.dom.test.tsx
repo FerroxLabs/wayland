@@ -22,14 +22,23 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 
-const { getStatusInvoke, skipSetupInvoke, openExternalInvoke, messageSuccess, messageError } =
-  vi.hoisted(() => ({
-    getStatusInvoke: vi.fn<() => Promise<IjfwStatusPayload | undefined>>(),
-    skipSetupInvoke: vi.fn<(args: { enabled: boolean }) => Promise<{ ok: true }>>(),
-    openExternalInvoke: vi.fn<(url: string) => Promise<void>>(),
-    messageSuccess: vi.fn<(msg: string) => void>(),
-    messageError: vi.fn<(msg: string) => void>(),
-  }));
+const {
+  getStatusInvoke,
+  getRuntimeModeInvoke,
+  brainInvoke,
+  skipSetupInvoke,
+  openExternalInvoke,
+  messageSuccess,
+  messageError,
+} = vi.hoisted(() => ({
+  getStatusInvoke: vi.fn<() => Promise<IjfwStatusPayload | undefined>>(),
+  getRuntimeModeInvoke: vi.fn<() => Promise<'full' | 'degraded'>>(),
+  brainInvoke: vi.fn<(args: { verb: string }) => Promise<{ ok: boolean }>>(),
+  skipSetupInvoke: vi.fn<(args: { enabled: boolean }) => Promise<{ ok: true }>>(),
+  openExternalInvoke: vi.fn<(url: string) => Promise<void>>(),
+  messageSuccess: vi.fn<(msg: string) => void>(),
+  messageError: vi.fn<(msg: string) => void>(),
+}));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -41,6 +50,8 @@ vi.mock('@/common', () => ({
   ipcBridge: {
     ijfw: {
       getStatus: { invoke: getStatusInvoke },
+      getRuntimeMode: { invoke: getRuntimeModeInvoke },
+      brainInvoke: { invoke: brainInvoke },
       skipSetup: { invoke: skipSetupInvoke },
     },
     shell: {
@@ -68,11 +79,15 @@ import IjfwSettingsPanel from '@renderer/pages/settings/IjfwSettingsPanel';
 
 beforeEach(() => {
   getStatusInvoke.mockReset();
+  getRuntimeModeInvoke.mockReset();
+  brainInvoke.mockReset();
   skipSetupInvoke.mockReset();
   openExternalInvoke.mockReset();
   messageSuccess.mockReset();
   messageError.mockReset();
   getStatusInvoke.mockResolvedValue({ status: 'installed_current' });
+  getRuntimeModeInvoke.mockResolvedValue('full');
+  brainInvoke.mockResolvedValue({ ok: true });
   skipSetupInvoke.mockResolvedValue({ ok: true });
   openExternalInvoke.mockResolvedValue(undefined);
 });
@@ -170,9 +185,7 @@ describe('IjfwSettingsPanel', () => {
     await flushAsync();
     expect(screen.getByTestId('ijfw-settings-about')).toBeTruthy();
     expect(screen.getByText('An open-source persistent memory engine by Ferrox Labs.')).toBeTruthy();
-    expect(screen.getByTestId('ijfw-settings-github-link').textContent).toContain(
-      'github.com/FerroxLabs/ijfw'
-    );
+    expect(screen.getByTestId('ijfw-settings-github-link').textContent).toContain('github.com/FerroxLabs/ijfw');
   });
 
   it('opens the IJFW GitHub URL via ipcBridge.shell.openExternal when the link is clicked', async () => {

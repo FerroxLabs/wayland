@@ -100,7 +100,20 @@
     "skip_description": "有効にすると、Wayland は IJFW をインストールまたはアップグレードしません。後でメモリページから手動でインストールできます。",
     "manual_install_hint": "手動でインストールするには、ターミナルで `npx -y @ijfw/install@latest` を実行してください",
     "about_title": "IJFW Memory",
-    "about_body": "Ferrox Labs によるオープンソースの永続メモリエンジンです。"
+    "about_body": "Ferrox Labs によるオープンソースの永続メモリエンジンです。",
+    "setup_status_title": "セットアップ状況",
+    "status_install_label": "IJFW インストール済み",
+    "status_install_ok": "インストール済みで最新",
+    "status_install_pending": "未インストール",
+    "status_clis_label": "検出された CLI",
+    "status_clis_ok": "{{count}} 件を検出",
+    "status_clis_none": "まだ検出されていません",
+    "status_runtime_label": "Memory ランタイム",
+    "status_runtime_full": "稼働中",
+    "status_runtime_degraded": "機能低下（到達不可）",
+    "test_button": "テスト",
+    "test_pass": "Memory が応答しました。問題ありません。",
+    "test_fail": "Memory が応答しませんでした。上のインストール状況を確認してください。"
   },
   "prelude": {
     "installing_notice": "IJFW のインストールが進行中です。外部 CLI（Claude Code、Codex、Gemini CLI）はインストール完了後に連携します。",

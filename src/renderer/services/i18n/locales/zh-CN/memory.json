@@ -100,7 +100,20 @@
     "skip_description": "启用后，Wayland 将不会安装或升级 IJFW。你之后可以通过记忆页面手动安装。",
     "manual_install_hint": "手动安装：在终端中运行 `npx -y @ijfw/install@latest`",
     "about_title": "IJFW Memory",
-    "about_body": "由 Ferrox Labs 出品的开源持久化记忆引擎。"
+    "about_body": "由 Ferrox Labs 出品的开源持久化记忆引擎。",
+    "setup_status_title": "设置状态",
+    "status_install_label": "IJFW 已安装",
+    "status_install_ok": "已安装且为最新",
+    "status_install_pending": "尚未安装",
+    "status_clis_label": "已检测到 CLI",
+    "status_clis_ok": "已检测到 {{count}} 个",
+    "status_clis_none": "尚未检测到",
+    "status_runtime_label": "Memory 运行时",
+    "status_runtime_full": "运行中",
+    "status_runtime_degraded": "降级（无法访问）",
+    "test_button": "测试",
+    "test_pass": "Memory 已响应，一切正常。",
+    "test_fail": "Memory 未响应。请检查上方的安装状态。"
   },
   "prelude": {
     "installing_notice": "IJFW 正在安装。外部命令行工具（Claude Code、Codex、Gemini CLI）会在安装完成后识别它。",

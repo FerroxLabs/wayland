@@ -100,7 +100,20 @@
     "skip_description": "Коли увімкнено, Wayland не встановлюватиме і не оновлюватиме IJFW. Ви зможете встановити вручну пізніше через сторінку Пам'яті.",
     "manual_install_hint": "Для встановлення вручну виконайте в терміналі: `npx -y @ijfw/install@latest`",
     "about_title": "IJFW Memory",
-    "about_body": "Відкритий рушій постійної пам'яті від Ferrox Labs."
+    "about_body": "Відкритий рушій постійної пам'яті від Ferrox Labs.",
+    "setup_status_title": "Стан налаштування",
+    "status_install_label": "IJFW встановлено",
+    "status_install_ok": "Встановлено та актуально",
+    "status_install_pending": "Ще не встановлено",
+    "status_clis_label": "Виявлені CLI",
+    "status_clis_ok": "Виявлено: {{count}}",
+    "status_clis_none": "Поки не виявлено",
+    "status_runtime_label": "Середовище Memory",
+    "status_runtime_full": "Активне",
+    "status_runtime_degraded": "Обмежено (недоступне)",
+    "test_button": "Перевірити",
+    "test_pass": "Memory відповіла. Усе гаразд.",
+    "test_fail": "Memory не відповіла. Перевірте стан встановлення вище."
   },
   "prelude": {
     "installing_notice": "IJFW встановлюється. Зовнішні CLI (Claude Code, Codex, Gemini CLI) підхоплять його після завершення встановлення.",
