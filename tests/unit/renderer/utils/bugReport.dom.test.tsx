@@ -78,13 +78,30 @@ describe('buildBugReportIssueUrl', () => {
     const url = buildBugReportIssueUrl(makeData({ diagnostics: huge }));
     const body = new URL(url).searchParams.get('body') ?? '';
     expect(body).toContain('…(diagnostics truncated)');
-    // Body must be far smaller than the raw diagnostics it was built from.
     expect(body.length).toBeLessThan(6000);
+  });
+
+  it('bounds the ENCODED URL under GitHubs limit even for percent-encoding-heavy diagnostics', () => {
+    // Every char here percent-encodes to 3 bytes; a char-only cap would blow the
+    // limit (4000 chars -> ~12 KB). The byte-budget guard must keep it under 8 KB.
+    const evil = '`#&=?%<>|\n'.repeat(4000);
+    const url = buildBugReportIssueUrl(makeData({ diagnostics: evil }));
+    const bytes = new TextEncoder().encode(url).length;
+    expect(bytes).toBeLessThan(8192);
+    // searchParams.get already decodes; it still marks the truncation.
+    expect(new URL(url).searchParams.get('body') ?? '').toContain('diagnostics truncated');
+  });
+
+  it('does not truncate when diagnostics already fit (no spurious truncation note)', () => {
+    const url = buildBugReportIssueUrl(makeData({ diagnostics: 'small diag' }));
+    const body = new URL(url).searchParams.get('body') ?? '';
+    expect(body).not.toContain('diagnostics truncated');
+    expect(new TextEncoder().encode(url).length).toBeLessThan(8192);
   });
 
   it('only carries title + body params (no extra data leaks into the URL)', () => {
     const params = new URL(buildBugReportIssueUrl(makeData())).searchParams;
-    expect([...params.keys()].sort()).toEqual(['body', 'title']);
+    expect([...params.keys()].toSorted()).toEqual(['body', 'title']);
   });
 });
 

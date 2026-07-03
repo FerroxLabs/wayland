@@ -29,20 +29,19 @@ export const GITHUB_ISSUE_CHOOSER_URL = 'https://github.com/FerroxLabs/wayland/i
  * rides the clipboard, not the URL, so the body stays lean.
  */
 const MAX_DIAGNOSTICS_CHARS = 4000;
-
-const truncateDiagnostics = (diagnostics: string): string => {
-  if (diagnostics.length <= MAX_DIAGNOSTICS_CHARS) return diagnostics;
-  return `${diagnostics.slice(0, MAX_DIAGNOSTICS_CHARS)}\n…(diagnostics truncated)`;
-};
-
 /**
- * Build the pre-filled GitHub new-issue URL from a bug-report payload. Pure and
- * side-effect-free so it can be unit-tested. Returns the chooser URL when no data
- * is available.
+ * Hard ceiling on the ENCODED URL, with margin under the ~8 KB browser/OS/GitHub
+ * limit. We bound by percent-encoded BYTE length, not characters, because a
+ * diagnostics block full of special chars (backticks, `#`, newlines, non-ASCII)
+ * each encode to 3 bytes — 4000 such chars alone would be ~12 KB.
  */
-export function buildBugReportIssueUrl(data: IBugReportData | null): string {
-  if (!data) return GITHUB_ISSUE_CHOOSER_URL;
+const MAX_URL_BYTES = 7500;
+const TRUNCATION_NOTE = '\n…(diagnostics truncated)';
 
+const urlByteLength = (url: string): number => new TextEncoder().encode(url).length;
+
+/** Assemble the full pre-filled new-issue URL for a given diagnostics block. */
+function assembleIssueUrl(data: IBugReportData, diagnosticsBlock: string): string {
   const engine = data.engineVersion ?? 'unknown';
   const screenshotNote = data.screenshotCopied
     ? '📎 A screenshot of the app was copied to your clipboard — paste it here (Cmd/Ctrl+V).'
@@ -58,7 +57,7 @@ export function buildBugReportIssueUrl(data: IBugReportData | null): string {
     `- OS: ${data.platform} ${data.arch} (${data.osRelease})`,
     '',
     '### Diagnostics',
-    truncateDiagnostics(data.diagnostics),
+    diagnosticsBlock,
     '',
     '---',
     screenshotNote,
@@ -66,6 +65,33 @@ export function buildBugReportIssueUrl(data: IBugReportData | null): string {
 
   const params = new URLSearchParams({ title: 'Bug report: ', body });
   return `${GITHUB_NEW_ISSUE_URL}?${params.toString()}`;
+}
+
+/**
+ * Build the pre-filled GitHub new-issue URL from a bug-report payload. Pure and
+ * side-effect-free so it can be unit-tested. Returns the chooser URL when no data
+ * is available. Diagnostics are truncated first by character count, then shrunk
+ * further by ENCODED byte length so the URL never exceeds {@link MAX_URL_BYTES}.
+ */
+export function buildBugReportIssueUrl(data: IBugReportData | null): string {
+  if (!data) return GITHUB_ISSUE_CHOOSER_URL;
+
+  let chars = Math.min(data.diagnostics.length, MAX_DIAGNOSTICS_CHARS);
+  let truncated = chars < data.diagnostics.length;
+  const render = () => {
+    const slice = data.diagnostics.slice(0, chars);
+    return assembleIssueUrl(data, truncated ? slice + TRUNCATION_NOTE : slice);
+  };
+
+  let url = render();
+  // Byte-budget guard: shrink the diagnostics until the encoded URL fits. Each
+  // pass drops 20%; terminates because `chars` strictly decreases toward 0.
+  while (urlByteLength(url) > MAX_URL_BYTES && chars > 0) {
+    chars = Math.floor(chars * 0.8);
+    truncated = true;
+    url = render();
+  }
+  return url;
 }
 
 /**
