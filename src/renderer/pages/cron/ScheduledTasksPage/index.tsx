@@ -43,6 +43,10 @@ const ScheduledTasksPage: React.FC = () => {
   const isMobile = layout?.isMobile ?? false;
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // #554: the list reconciles with the SQLite cron store on mount (route-enter
+  // remounts this page) and on window focus / tab-visible via useAllCronJobs,
+  // so a chat-created task surfaces even when its one-shot onJobCreated event
+  // was lost because this page was unmounted or the window was blurred.
   const { jobs, loading, pauseJob, resumeJob } = useAllCronJobs();
   const [createDialogVisible, setCreateDialogVisible] = useState(false);
   const [createInitialWorkflowSlug, setCreateInitialWorkflowSlug] = useState<string | undefined>(undefined);

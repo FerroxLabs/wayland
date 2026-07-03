@@ -31,18 +31,24 @@ const TaskDetailPage: React.FC = () => {
   const isManualOnly = job?.schedule.kind === 'cron' && !job.schedule.expr;
   const { conversations } = useCronJobConversations(jobId);
 
-  const fetchJob = useCallback(async () => {
-    if (!jobId) return;
-    setLoading(true);
-    try {
-      const found = await ipcBridge.cron.getJob.invoke({ jobId });
-      setJob(found ?? null);
-    } catch (err) {
-      console.error('[TaskDetailPage] Failed to fetch job:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [jobId]);
+  // `silent` skips the loading flag so a background reconcile (focus/
+  // visibility) doesn't replace the rendered detail with a full-page spinner.
+  const fetchJob = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!jobId) return;
+      const silent = opts?.silent === true;
+      if (!silent) setLoading(true);
+      try {
+        const found = await ipcBridge.cron.getJob.invoke({ jobId });
+        setJob(found ?? null);
+      } catch (err) {
+        console.error('[TaskDetailPage] Failed to fetch job:', err);
+      } finally {
+        if (!silent) setLoading(false);
+      }
+    },
+    [jobId]
+  );
 
   useEffect(() => {
     void fetchJob();
@@ -64,6 +70,27 @@ const TaskDetailPage: React.FC = () => {
     return () => {
       unsubUpdated();
       unsubExecuted();
+    };
+  }, [jobId, fetchJob]);
+
+  // Authoritative re-fetch on lifecycle boundaries (#554). The subscription
+  // above relies on one-shot onJobUpdated events, which are lost if the window
+  // was blurred when an agent updated this job from chat. Re-reading the store
+  // whenever the window regains focus or becomes visible reconciles the
+  // displayed detail with the source of truth without a live event.
+  useEffect(() => {
+    if (!jobId) return;
+    const onFocus = () => {
+      void fetchJob({ silent: true });
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void fetchJob({ silent: true });
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [jobId, fetchJob]);
 

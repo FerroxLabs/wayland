@@ -5,7 +5,7 @@
  */
 
 import { Bot, ChevronDown, Workflow as WorkflowIcon } from 'lucide-react';
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Input, Select, Message, TimePicker, Radio, Button } from '@arco-design/web-react';
 import ModalWrapper from '@renderer/components/base/ModalWrapper';
@@ -182,6 +182,62 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [customCronExpr, setCustomCronExpr] = useState<string>('');
 
   const isEditMode = !!editJob;
+
+  // #554: the editJob prop can be stale. The parent (TaskDetailPage) mirrors
+  // its job from one-shot onJobUpdated IPC events, which are lost if an agent
+  // updated the job from chat while this window was blurred. Re-fetch the
+  // authoritative record from the SQLite cron store when the dialog opens so
+  // both the edit form and the update baseline in handleSubmit reflect the
+  // latest saved config — never a stale snapshot that would clobber the
+  // agent's changes on save. Falls back to the prop if the fetch fails.
+  //
+  // freshJob (state) drives the form; latestJobRef mirrors the same value for
+  // the submit baseline (handleSubmit's freshJob closure can be stale relative
+  // to a just-resolved fetch, a ref can't); getJobPromiseRef lets a fast save
+  // await the in-flight fetch before merging.
+  const [freshJob, setFreshJob] = useState<ICronJob | undefined>(editJob);
+  const latestJobRef = useRef<ICronJob | undefined>(editJob);
+  const getJobPromiseRef = useRef<Promise<void> | null>(null);
+  // #554: set on any user edit within a dialog session. When getJob resolves
+  // with a newer record, the populate effect re-runs; if the user has already
+  // started editing we must NOT overwrite their in-progress input with the
+  // store copy. Reset per open (in the effect below).
+  const userEditedRef = useRef(false);
+  const markEdited = useCallback(() => {
+    userEditedRef.current = true;
+  }, []);
+  useEffect(() => {
+    // New dialog session (open, or editJob swap): start clean.
+    userEditedRef.current = false;
+    if (!visible || !editJob) {
+      setFreshJob(editJob);
+      latestJobRef.current = editJob;
+      getJobPromiseRef.current = null;
+      return;
+    }
+    // Optimistically show the prop so the dialog opens instantly, then
+    // reconcile with the store's copy once it resolves.
+    setFreshJob(editJob);
+    latestJobRef.current = editJob;
+    let cancelled = false;
+    // Optional-chain the whole call so a bridge without getJob can't throw
+    // synchronously inside this passive effect (and Promise.resolve tolerates
+    // a non-promise/undefined return).
+    getJobPromiseRef.current = Promise.resolve(ipcBridge.cron.getJob?.invoke?.({ jobId: editJob.id }))
+      .then((latest) => {
+        if (cancelled || !latest) return;
+        latestJobRef.current = latest;
+        // Only re-drive the form when the store copy actually differs from the
+        // optimistic prop — avoids a redundant second form-fill (and the
+        // in-progress-edit clobber it would cause) when the prop was current.
+        setFreshJob((prev) => (prev && JSON.stringify(prev) === JSON.stringify(latest) ? prev : latest));
+      })
+      .catch((err) => console.warn('[CreateTaskDialog] getJob on open failed:', err));
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, editJob]);
+
   // v0.6.2.6 - ExecutionMode default depends on context:
   //   - From a chat (conversationId set): NO preselect. Force the user to
   //     pick because "existing" appends to this chat (long-running thread)
@@ -261,34 +317,39 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   // Populate form when entering edit mode
   useEffect(() => {
     if (!visible) return;
-    if (editJob) {
-      const cronExpr = editJob.schedule.kind === 'cron' ? editJob.schedule.expr : '';
+    if (freshJob) {
+      // #554: this effect fires twice per edit open — once optimistically from
+      // the editJob prop, then again when getJob resolves a newer record. If the
+      // user began editing between the two, skip the second fill so their
+      // in-progress input survives (the submit baseline still uses latestJobRef).
+      if (userEditedRef.current) return;
+      const cronExpr = freshJob.schedule.kind === 'cron' ? freshJob.schedule.expr : '';
       const parsed = parseCronExpr(cronExpr);
       setFrequency(parsed.frequency);
       setTime(parsed.time);
       setWeekday(parsed.weekday);
       setCustomCronExpr(parsed.frequency === 'custom' ? cronExpr : '');
-      setExecutionMode(editJob.target.executionMode || 'existing');
+      setExecutionMode(freshJob.target.executionMode || 'existing');
       setAdvancedOpen(
         Boolean(
-          editJob.metadata.agentConfig?.modelId ||
-          editJob.metadata.agentConfig?.workspace ||
-          (editJob.metadata.agentConfig?.configOptions &&
-            Object.keys(editJob.metadata.agentConfig.configOptions).length > 0)
+          freshJob.metadata.agentConfig?.modelId ||
+          freshJob.metadata.agentConfig?.workspace ||
+          (freshJob.metadata.agentConfig?.configOptions &&
+            Object.keys(freshJob.metadata.agentConfig.configOptions).length > 0)
         )
       );
-      const agentKey = getAgentKeyFromJob(editJob);
+      const agentKey = getAgentKeyFromJob(freshJob);
       setSelectedAgent(agentKey);
       form.setFieldsValue({
-        name: editJob.name,
-        description: getDescriptionInitialValue(editJob),
-        prompt: editJob.target.payload.text,
+        name: freshJob.name,
+        description: getDescriptionInitialValue(freshJob),
+        prompt: freshJob.target.payload.text,
         agent: agentKey,
       });
-      // Populate advanced settings from editJob
-      setModelId(editJob.metadata.agentConfig?.modelId);
-      setConfigOptions(editJob.metadata.agentConfig?.configOptions);
-      setWorkspace(editJob.metadata.agentConfig?.workspace);
+      // Populate advanced settings from the authoritative job record
+      setModelId(freshJob.metadata.agentConfig?.modelId);
+      setConfigOptions(freshJob.metadata.agentConfig?.configOptions);
+      setWorkspace(freshJob.metadata.agentConfig?.workspace);
     } else {
       form.resetFields();
       setFrequency('manual');
@@ -352,7 +413,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     }
   }, [
     visible,
-    editJob,
+    freshJob,
     form,
     initialExecutionMode,
     conversationId,
@@ -423,18 +484,23 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     return undefined;
   }, [resolvedBackend, modelId, filteredProviders, getAvailableModels]);
 
-  const handleGeminiModelSelect = useCallback(async (model: TProviderWithModel) => {
-    setModelId(model.useModel);
-  }, []);
+  const handleGeminiModelSelect = useCallback(
+    async (model: TProviderWithModel) => {
+      markEdited();
+      setModelId(model.useModel);
+    },
+    [markEdited]
+  );
 
   const handleAcpModelSelect: React.Dispatch<React.SetStateAction<string | null>> = useCallback(
     (action: React.SetStateAction<string | null>) => {
+      markEdited();
       setModelId((prev) => {
         const next = typeof action === 'function' ? action(prev ?? null) : action;
         return next ?? undefined;
       });
     },
-    []
+    [markEdited]
   );
 
   // Load ACP cached model info when backend changes
@@ -493,11 +559,11 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         };
       }
       case 'custom':
-        return { expr: customCronExpr, description: editJob?.schedule.description || customCronExpr };
+        return { expr: customCronExpr, description: freshJob?.schedule.description || customCronExpr };
       default:
         return { expr: '', description: '' };
     }
-  }, [frequency, time, weekday, t, customCronExpr, editJob]);
+  }, [frequency, time, weekday, t, customCronExpr, freshJob]);
 
   const executionModeOptions = useMemo(
     () => [
@@ -529,27 +595,37 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const advancedFieldCount = Number(showModelSelector) + Number(showConfigSelector) + 1;
 
   const handleFrequencyChange = (value: FrequencyType) => {
+    markEdited();
     setFrequency(value);
     if (value !== 'custom') {
       setCustomCronExpr('');
     }
   };
 
-  const handleAgentChange = useCallback((value: string) => {
-    setSelectedAgent(value);
-    // Reset model and configOptions when agent changes
-    setModelId(undefined);
-    setConfigOptions(undefined);
-    // Workspace remains unchanged (agent-agnostic)
-  }, []);
+  const handleAgentChange = useCallback(
+    (value: string) => {
+      markEdited();
+      setSelectedAgent(value);
+      // Reset model and configOptions when agent changes
+      setModelId(undefined);
+      setConfigOptions(undefined);
+      // Workspace remains unchanged (agent-agnostic)
+    },
+    [markEdited]
+  );
 
   const handleWorkspaceClear = useCallback(() => {
+    markEdited();
     setWorkspace(undefined);
-  }, []);
+  }, [markEdited]);
 
-  const handleConfigOptionSelect = useCallback((configId: string, value: string) => {
-    setConfigOptions((prev) => ({ ...prev, [configId]: value }));
-  }, []);
+  const handleConfigOptionSelect = useCallback(
+    (configId: string, value: string) => {
+      markEdited();
+      setConfigOptions((prev) => ({ ...prev, [configId]: value }));
+    },
+    [markEdited]
+  );
 
   const resolveAgentConfig = (agentValue: string) => {
     const colonIdx = agentValue.indexOf(':');
@@ -624,20 +700,25 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       const { agentConfig, resolvedAgentType } = resolveAgentConfig(values.agent);
 
       if (isEditMode) {
-        // Edit mode: update existing job
+        // Edit mode: update existing job. Await any in-flight getJob and merge
+        // onto the store's latest record (#554) — never a stale prop snapshot
+        // that could silently revert an agent's chat-side changes. Even a save
+        // fired before the fetch resolved uses the freshest baseline.
+        await getJobPromiseRef.current;
+        const baseline = latestJobRef.current ?? editJob!;
         await ipcBridge.cron.updateJob.invoke({
-          jobId: editJob!.id,
+          jobId: baseline.id,
           updates: {
             name: values.name,
             description: values.description,
             schedule: { kind: 'cron', expr: scheduleExpr, description: scheduleDesc },
             target: {
-              ...editJob!.target,
+              ...baseline.target,
               payload: { kind: 'message', text: values.prompt },
               executionMode,
             },
             metadata: {
-              ...editJob!.metadata,
+              ...baseline.metadata,
               agentType: resolvedAgentType,
               agentConfig,
               updatedAt: Date.now(),
@@ -691,7 +772,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       unmountOnExit
     >
       <div className='overflow-y-auto px-24px pb-16px pr-18px max-h-[min(68vh,640px)]'>
-        <Form form={form} layout='vertical'>
+        <Form form={form} layout='vertical' onValuesChange={markEdited}>
           {/* Source toggle - hidden in edit mode since the saved job is
               already past the "did we start from a workflow?" choice.
               In create mode the two tabs route to the same submit path;
@@ -859,7 +940,10 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           <FormItem label={t('cron.page.form.executionMode')}>
             <Radio.Group
               value={executionMode}
-              onChange={(value) => setExecutionMode(value as ExecutionMode)}
+              onChange={(value) => {
+                markEdited();
+                setExecutionMode(value as ExecutionMode);
+              }}
               className='flex flex-wrap items-center gap-20px'
             >
               {executionModeOptions.map((option) => {
@@ -916,6 +1000,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 value={dayjs(`2000-01-01 ${time}`)}
                 onChange={(_timeStr, pickedTime) => {
                   if (pickedTime) {
+                    markEdited();
                     setTime(pickedTime.format('HH:mm'));
                   }
                 }}
@@ -928,7 +1013,13 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           {/* Weekday picker - shown for weekly */}
           {showWeekdayPicker && (
             <div className='mb-16px'>
-              <Select value={weekday} onChange={setWeekday}>
+              <Select
+                value={weekday}
+                onChange={(v) => {
+                  markEdited();
+                  setWeekday(v);
+                }}
+              >
                 {WEEKDAYS.map((d) => (
                   <Option key={d.value} value={d.value}>
                     {t(`cron.page.weekday.${d.label}`)}
@@ -993,7 +1084,10 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                   </label>
                   <WorkspaceFolderSelect
                     value={workspace}
-                    onChange={(next) => setWorkspace(next || undefined)}
+                    onChange={(next) => {
+                      markEdited();
+                      setWorkspace(next || undefined);
+                    }}
                     onClear={handleWorkspaceClear}
                     placeholder={t('cron.page.form.selectFolder')}
                     inputPlaceholder={t('cron.page.form.workspacePlaceholder')}

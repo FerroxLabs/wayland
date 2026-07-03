@@ -173,22 +173,46 @@ export function useAllCronJobs() {
   const [jobs, setJobs] = useState<ICronJob[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch all jobs
-  const fetchJobs = useCallback(async () => {
-    setLoading(true);
+  // Fetch all jobs. `silent` skips the loading flag so a background reconcile
+  // (focus/visibility) doesn't blank the already-rendered list to a spinner.
+  const fetchJobs = useCallback(async (opts?: { silent?: boolean }) => {
+    const silent = opts?.silent === true;
+    if (!silent) setLoading(true);
     try {
       const allJobs = await ipcBridge.cron.listJobs.invoke();
       setJobs(allJobs || []);
     } catch (err) {
       console.error('[useAllCronJobs] Failed to fetch jobs:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
   // Initial fetch
   useEffect(() => {
     void fetchJobs();
+  }, [fetchJobs]);
+
+  // Authoritative re-fetch on lifecycle boundaries. The list otherwise
+  // relies on one-shot main->renderer IPC events (onJobCreated/Updated/
+  // Removed); if the page was unmounted or the window was blurred when an
+  // event fired (e.g. a task created from chat, #554), that update is lost
+  // with no fallback. Re-reading the SQLite cron store whenever the window
+  // regains focus or becomes visible reconciles the UI with the source of
+  // truth without needing a live event to have been received.
+  useEffect(() => {
+    const onFocus = () => {
+      void fetchJobs({ silent: true });
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void fetchJobs({ silent: true });
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [fetchJobs]);
 
   // Event handlers
