@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   FolderMinus,
   FolderOpen,
+  History,
   MessageSquare,
   MessageSquarePlus,
   MoreHorizontal,
@@ -31,9 +32,10 @@ import ProjectFilesPanel from './components/ProjectFilesPanel';
 import ProjectSettingsDrawer, { type SettingsSection } from './components/ProjectSettingsDrawer';
 import ProjectReferencePanel from './components/ProjectReferencePanel';
 import ProjectMemoryPanel from './components/ProjectMemoryPanel';
+import ProjectHistoryPanel from './components/ProjectHistoryPanel';
 import styles from './components/projectCards.module.css';
 
-type ProjectTab = 'chats' | 'files' | 'reference' | 'memory';
+type ProjectTab = 'chats' | 'files' | 'reference' | 'memory' | 'history';
 
 /** Strip seeded heading/blockquote boilerplate to decide if instructions are real. */
 const hasContent = (raw: string): boolean =>
@@ -179,6 +181,7 @@ const ProjectWorkspacePage: React.FC = () => {
     { key: 'files', label: t('projects.workspace.tabFiles'), icon: <FolderOpen size={15} /> },
     { key: 'reference', label: t('projects.workspace.tabReference'), icon: <Paperclip size={15} /> },
     { key: 'memory', label: t('projects.workspace.tabMemory'), icon: <NotebookPen size={15} /> },
+    { key: 'history', label: t('projects.workspace.tabHistory'), icon: <History size={15} /> },
   ];
 
   return (
@@ -419,6 +422,15 @@ const ProjectWorkspacePage: React.FC = () => {
             />
           </div>
         )}
+
+        {activeTab === 'history' &&
+          (project ? (
+            <div className='h-full overflow-auto px-24px py-18px'>
+              <ProjectHistoryPanel project={project} conversations={conversations} />
+            </div>
+          ) : (
+            <div className='h-full' />
+          ))}
       </div>
 
       {project && settingsSection && (

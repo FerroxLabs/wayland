@@ -47,6 +47,7 @@
     "removeChat": "Remove",
     "tabReference": "Reference",
     "tabMemory": "Memory",
+    "tabHistory": "History",
     "setupDone": "Set up",
     "setupTodo": "Finish setup",
     "settings": "Settings"
@@ -73,6 +74,91 @@
   },
   "composer": {
     "newChatIn": "New chat in {{name}}"
+  },
+  "timeline": {
+    "title": "Project history",
+    "subtitle": "Chats, email ingests, reference saves, and remote attachment actions for this project.",
+    "refresh": "Refresh",
+    "noMatch": "No history events match this filter yet.",
+    "noWorkspaceHint": "Connect a workspace folder to include email ingest and reference history.",
+    "summaryHeading": "Summary",
+    "relatedHeading": "Related",
+    "noTimestamp": "No timestamp",
+    "filter": {
+      "all": "All",
+      "chat": "Chats",
+      "email": "Emails",
+      "reference": "Refs",
+      "remote": "Remote"
+    },
+    "eyebrow": {
+      "project": "Project",
+      "chat": "Chat",
+      "email": "Email ingest",
+      "reference": "Reference",
+      "remote": "Remote attachment"
+    },
+    "field": {
+      "project": "Project",
+      "workspace": "Workspace",
+      "backend": "Backend",
+      "type": "Type",
+      "from": "From",
+      "status": "Status",
+      "attachments": "Attachments",
+      "referencesSaved": "References saved",
+      "remoteLinks": "Remote links",
+      "reason": "Reason",
+      "file": "File",
+      "sourceEmail": "Source email",
+      "size": "Size",
+      "attachment": "Attachment",
+      "lastError": "Last error"
+    },
+    "event": {
+      "projectCreated": {
+        "title": "Project created",
+        "summary": "{{name}} was created as a Wayland project. This is the start of the project timeline."
+      },
+      "projectUpdated": {
+        "title": "Project updated",
+        "summary": "{{name}} changed after it was created — its settings, metadata, or workspace were updated."
+      },
+      "chat": {
+        "untitled": "Untitled chat",
+        "summary": "A project chat titled \"{{title}}\" ran on the {{backend}} backend. Open the chat for the full transcript.",
+        "open": "Open chat"
+      },
+      "email": {
+        "noSubject": "No subject",
+        "summary": "Wayland received a project email with status \"{{status}}\".",
+        "summaryFrom": "Wayland received a project email from {{from}} with status \"{{status}}\"."
+      },
+      "reference": {
+        "title": "Reference saved from email",
+        "summary": "\"{{file}}\" was saved from the email \"{{subject}}\" and added to the project reference set."
+      },
+      "inventory": {
+        "title": "Reference available",
+        "summary": "\"{{file}}\" is available in the project reference folder. Wayland has no reliable timestamp for when it was added, so it is listed after timed events."
+      },
+      "remoteImport": {
+        "title": "Remote attachment imported",
+        "summary": "A remote attachment from \"{{subject}}\" was imported into project references."
+      },
+      "remoteIgnore": {
+        "title": "Remote attachment excluded",
+        "summary": "A captured remote attachment from \"{{subject}}\" was excluded. It stays in history but is not queued for import."
+      },
+      "remotePending": {
+        "title": "Remote attachment captured",
+        "summary": "A remote attachment link from \"{{subject}}\" is waiting to be imported into references or excluded."
+      },
+      "remoteFailed": {
+        "title": "Remote attachment import failed",
+        "summary": "Wayland tried to import a remote attachment from \"{{subject}}\" but the download failed. Retry it from the References queue."
+      }
+    }
   },
   "knowledge": {
     "title": "Project knowledge",
