@@ -40,12 +40,7 @@ const openai = { id: 'openai', platform: 'openai', model: ['gpt-5.5'] } as unkno
 const fluxModel = { id: 'flux', useModel: 'flux-auto' } as unknown as TProviderWithModel;
 const onSelectModel = vi.fn().mockResolvedValue(true);
 
-function setList(
-  providers: IProvider[],
-  avail: Record<string, string[]>,
-  connected?: IProvider[],
-  isLoading = false
-) {
+function setList(providers: IProvider[], avail: Record<string, string[]>, connected?: IProvider[], isLoading = false) {
   providerListState.providers = providers;
   // The unfiltered connected list defaults to the picker list; pass it
   // explicitly to model the "connected but no available models" case.
@@ -130,5 +125,81 @@ describe('useWCoreModelSelection revalidation (#64)', () => {
     const { result } = renderHook(() => useWCoreModelSelection({ initialModel: initial, onSelectModel }));
     await waitFor(() => expect(result.current.currentModel?.id).toBe('prov_a1b2'));
     expect(result.current.currentModel?.useModel).toBe('gpt-5.5');
+  });
+
+  it('#555 rebinds a ChatGPT-subscription selection to its OWN provider, not a metered provider that shares the model id', async () => {
+    // Money bug: a wcore chat/team persists model.id as the registry ProviderId
+    // ('chatgpt-subscription') plus the bridge tag. On remount the id-only match
+    // fails (the mirrored legacy provider's id is opaque, e.g. '5d2e7ed9'), so
+    // the bare-model-id fallback picks the FIRST provider offering 'gpt-5.4' -
+    // the direct OpenAI API provider (metered, real sk-proj key), which is
+    // listed before the subscription. That silently moves billing off the
+    // subscription. The revalidation must disambiguate by the bridge tag first,
+    // exactly like resolveSelectedProvider, and re-bind to the subscription row.
+    const BRIDGE = '__waylandModelRegistryBridge';
+    const openaiDirect = {
+      id: '19cea7a9',
+      platform: 'openai',
+      model: ['gpt-5.4', 'gpt-5.5'],
+      [BRIDGE]: 'v2:openai',
+    } as unknown as IProvider;
+    const subscription = {
+      id: '5d2e7ed9',
+      platform: 'openai-compatible',
+      model: ['gpt-5.4', 'gpt-5.4-mini', 'gpt-5.5'],
+      [BRIDGE]: 'v2:chatgpt-subscription',
+    } as unknown as IProvider;
+    // Direct-API provider listed FIRST (as in the real model.config order).
+    setList([openaiDirect, subscription], {
+      '19cea7a9': ['gpt-5.4', 'gpt-5.5'],
+      '5d2e7ed9': ['gpt-5.4', 'gpt-5.4-mini', 'gpt-5.5'],
+    });
+    const initial = {
+      id: 'chatgpt-subscription',
+      platform: 'openai-compatible',
+      useModel: 'gpt-5.4',
+      [BRIDGE]: 'v2:chatgpt-subscription',
+    } as unknown as TProviderWithModel;
+    const { result } = renderHook(() => useWCoreModelSelection({ initialModel: initial, onSelectModel }));
+    // It must bind to the subscription provider (5d2e7ed9), NEVER the metered
+    // direct-API provider (19cea7a9).
+    await waitFor(() => expect(result.current.currentModel?.id).toBe('5d2e7ed9'));
+    expect(result.current.currentModel?.id).not.toBe('19cea7a9');
+    expect(result.current.currentModel?.useModel).toBe('gpt-5.4');
+  });
+
+  it('#555 binds by bridge tag even when the subscription row is curated out of getAvailableModels (#168/#158)', async () => {
+    // The bridge-tag match must NOT gate on getAvailableModels: a ChatGPT-
+    // subscription row can be filtered out of the function-calling set yet still
+    // be the true owner. Here getAvailableModels(subscription) does NOT include
+    // 'gpt-5.4' (curated out), but the subscription is still connected (it offers
+    // another model), while the metered direct-API provider DOES list 'gpt-5.4'.
+    // Tag resolution must still bind to the subscription, not the look-alike.
+    const BRIDGE = '__waylandModelRegistryBridge';
+    const openaiDirect = {
+      id: '19cea7a9',
+      platform: 'openai',
+      model: ['gpt-5.4', 'gpt-5.5'],
+      [BRIDGE]: 'v2:openai',
+    } as unknown as IProvider;
+    const subscription = {
+      id: '5d2e7ed9',
+      platform: 'openai-compatible',
+      model: ['gpt-5.4', 'gpt-5.4-mini'],
+      [BRIDGE]: 'v2:chatgpt-subscription',
+    } as unknown as IProvider;
+    setList([openaiDirect, subscription], {
+      '19cea7a9': ['gpt-5.4', 'gpt-5.5'],
+      '5d2e7ed9': ['gpt-5.4-mini'], // 'gpt-5.4' curated out of the available set
+    });
+    const initial = {
+      id: 'chatgpt-subscription',
+      platform: 'openai-compatible',
+      useModel: 'gpt-5.4',
+      [BRIDGE]: 'v2:chatgpt-subscription',
+    } as unknown as TProviderWithModel;
+    const { result } = renderHook(() => useWCoreModelSelection({ initialModel: initial, onSelectModel }));
+    await waitFor(() => expect(result.current.currentModel?.id).toBe('5d2e7ed9'));
+    expect(result.current.currentModel?.id).not.toBe('19cea7a9');
   });
 });
