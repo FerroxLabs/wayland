@@ -1341,6 +1341,17 @@ type ChatStartBuildResult =
   | { kind: 'unsupported' }
   | { kind: 'undecryptable' };
 
+/**
+ * Every bundled-catalog provider id (the "100+ more" OpenAI-compatible long tail).
+ * The catalog generator (`isCatalogEligible`) EXCLUDES every `openai_compatible
+ * === false` (anthropic-wire) entry, so membership here is a guaranteed proxy for
+ * "the bundled catalog marks this provider openai_compatible". Native providers
+ * (anthropic / gemini / bedrock / vertex / azure) are never in the catalog - they
+ * carry explicit `CHAT_START_PLATFORM` entries instead. Computed once from the
+ * static bundled JSON (sync, network-free). Powers the #578 chat-start fallback.
+ */
+const CATALOG_OPENAI_COMPATIBLE_IDS: ReadonlySet<string> = new Set(loadBaselineProviderCatalog().map((e) => e.id));
+
 function buildChatStartPayload(
   providerId: ProviderId,
   modelId: string,
@@ -1350,7 +1361,19 @@ function buildChatStartPayload(
   // `gemini-with-google-auth` platform string (Fix 6). No api-key check.
   const isGoogleAuthGemini = providerId === 'google-gemini' && creds.useGoogleAuth === true;
 
-  const platform = isGoogleAuthGemini ? 'gemini-with-google-auth' : CHAT_START_PLATFORM[providerId];
+  let platform = isGoogleAuthGemini ? 'gemini-with-google-auth' : CHAT_START_PLATFORM[providerId];
+  if (!platform && CATALOG_OPENAI_COMPATIBLE_IDS.has(providerId)) {
+    // Durable fallback (#578): the provider has no hand-maintained
+    // CHAT_START_PLATFORM entry, but the bundled catalog marks it
+    // openai_compatible and its endpoint was persisted into `creds.baseUrl` at
+    // connect time (catalog fallback, #63). Dispatch it OpenAI-compatible against
+    // that stored baseUrl instead of returning `unsupported` (which bounces the
+    // picker to Settings - #516 / #556). A resolved baseUrl is REQUIRED: without
+    // a host there is nothing to dispatch against, so keep it unsupported below
+    // rather than silently defaulting to api.openai.com (the #36 401 trap).
+    const catalogBaseUrl = typeof creds.baseUrl === 'string' ? creds.baseUrl.trim() : '';
+    if (catalogBaseUrl.length > 0) platform = 'openai-compatible';
+  }
   if (!platform) return { kind: 'unsupported' };
 
   const payload: IModelRegistryChatStartPayload = {

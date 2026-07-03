@@ -2170,3 +2170,101 @@ describe('modelRegistry IPC - resolveForChatStart (#516 OpenCode Go, #556 Vultr)
     }
   });
 });
+
+describe('modelRegistry IPC - resolveForChatStart durable catalog fallback (#578)', () => {
+  // The hand-maintained CHAT_START_PLATFORM allowlist drifted from the bundled
+  // catalog: ~97 openai_compatible catalog providers were missing and each bounced
+  // the picker to Settings. buildChatStartPayload now defaults ANY bundled-catalog
+  // provider (guaranteed openai_compatible - anthropic-wire is excluded at generation)
+  // with a resolved creds.baseUrl to 'openai-compatible', retiring the allowlist drift.
+
+  it('resolves a catalog openai_compatible provider NOT in CHAT_START_PLATFORM to openai-compatible', async () => {
+    const { deps, repo } = makeFakes();
+    // baseten is in the bundled catalog but has NO explicit CHAT_START_PLATFORM entry.
+    repo.upsertRegistryProvider({
+      providerId: 'baseten',
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: 'sk-baseten', baseUrl: 'https://inference.baseten.co/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'baseten', modelId: 'llama-3.3-70b' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.provider.platform).toBe('openai-compatible');
+      expect(result.provider.providerId).toBe('baseten');
+      expect(result.provider.baseUrl).toBe('https://inference.baseten.co/v1');
+    }
+  });
+
+  it('still returns unsupported for a catalog provider with NO resolved baseUrl (no host to dispatch to)', async () => {
+    const { deps, repo } = makeFakes();
+    // Connected catalog provider but creds carry no baseUrl - the fallback must NOT
+    // fire (defaulting to api.openai.com would be the #36 401 trap).
+    repo.upsertRegistryProvider({
+      providerId: 'baseten',
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: 'sk-baseten' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'baseten', modelId: 'llama-3.3-70b' });
+    expect(result).toEqual({ ok: false, error: 'unsupported' });
+  });
+
+  it('still returns unsupported for a non-catalog provider even with a baseUrl (not openai_compatible)', async () => {
+    const { deps, repo } = makeFakes();
+    // A provider id that is NOT in the bundled catalog and NOT in CHAT_START_PLATFORM
+    // must never be defaulted to openai-compatible, even with a baseUrl.
+    repo.upsertRegistryProvider({
+      providerId: 'totally-unknown-provider' as ProviderId,
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: 'sk-x', baseUrl: 'https://example.com/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({
+      providerId: 'totally-unknown-provider' as ProviderId,
+      modelId: 'm',
+    });
+    expect(result).toEqual({ ok: false, error: 'unsupported' });
+  });
+
+  it('does NOT default a native anthropic-wire provider to openai-compatible (over-fire guard)', async () => {
+    const { deps, repo } = makeFakes();
+    // azure is a native, NOT in the bundled catalog (native-collision excluded at
+    // generation) and intentionally absent from CHAT_START_PLATFORM. The fallback
+    // must not fire even though creds carry a baseUrl.
+    repo.upsertRegistryProvider({
+      providerId: 'azure',
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: 'sk-azure', baseUrl: 'https://my-azure.openai.azure.com' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'azure', modelId: 'gpt-4o' });
+    expect(result).toEqual({ ok: false, error: 'unsupported' });
+  });
+
+  it('routes an empty-key catalog provider (fallback fires) to undecryptable, not unsupported', async () => {
+    const { deps, repo } = makeFakes();
+    // Fallback fires (baseten in catalog + baseUrl present) -> platform set ->
+    // standard API-key block sees an empty key on a non-local host -> undecryptable
+    // (a re-key prompt), NOT unsupported and NOT a silent openai.com dispatch.
+    repo.upsertRegistryProvider({
+      providerId: 'baseten',
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: '', baseUrl: 'https://inference.baseten.co/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'baseten', modelId: 'llama-3.3-70b' });
+    expect(result).toEqual({ ok: false, error: 'undecryptable' });
+  });
+});
