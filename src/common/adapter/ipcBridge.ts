@@ -465,6 +465,17 @@ export const skills = {
     singleSkillMd: buildProvider<ImportResult, { srcPath: string }>('skills.import.single-skill-md'),
   },
   /**
+   * Register a previously-swept, user-approved `review` skill (C3 consent
+   * gate). Idempotent and replay-safe: the approval is keyed by the imported
+   * on-disk path + the `contentHash` the user actually saw, so an approval
+   * can't be replayed against a different body. Returns `{ ok: false }` with a
+   * reason when the on-disk content changed, is now blocked, or is missing.
+   */
+  confirmImport: buildProvider<
+    { ok: true } | { ok: false; error: 'content-changed' | 'blocked' | 'not-found' },
+    { name: string; destPath: string; contentHash: string }
+  >('skills.confirm-import'),
+  /**
    * Return entries from the SkillLibrary index. Defaults to `type: 'skill'`
    * so the Skills page contract is preserved; pass `{ type: 'workflow' }`
    * to feed the Workflows page or `{ type: 'agent-profile' }` if a third

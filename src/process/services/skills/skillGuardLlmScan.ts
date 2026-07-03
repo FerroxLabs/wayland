@@ -31,17 +31,31 @@ export type LlmScanResult = { findings: SkillFinding[]; ran: boolean };
  * findings with `ran: false` - Skill Guard is a warning system, not a
  * guarantee, and the absence of an LLM scan must be recorded in the report
  * so the user sees it (never report a non-existent scan as if it ran).
+ *
+ * Fail-open (C1): when an injected `call` throws (model unavailable, timeout,
+ * unparseable output surfaced as an error), the deep sweep is treated as
+ * inconclusive - `ran: false`, no findings - so the import falls back to the
+ * regex verdict rather than blocking on a model failure or, worse, silently
+ * claiming a scan happened. A regex `blocked` still blocks regardless; the
+ * fail-open only affects the LLM layer's contribution.
  */
 export const skillGuardLlmScan = async (
   batch: SkillScanInput[],
   call?: LlmScanCall
 ): Promise<LlmScanResult[]> => {
   if (call) {
-    const results = await call(batch);
-    return batch.map((_, i) => ({
-      findings: results[i]?.findings ?? [],
-      ran: true,
-    }));
+    try {
+      const results = await call(batch);
+      return batch.map((_, i) => ({
+        findings: results[i]?.findings ?? [],
+        ran: true,
+      }));
+    } catch {
+      // Deep sweep failed - fall back to the regex verdict, honestly marked
+      // as un-scanned by the LLM layer. Never invent findings, never claim
+      // the model ran.
+      return batch.map(() => ({ findings: [] as SkillFinding[], ran: false }));
+    }
   }
   return batch.map(() => ({ findings: [] as SkillFinding[], ran: false }));
 };

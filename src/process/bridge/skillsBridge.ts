@@ -64,6 +64,13 @@ export function initSkillsBridge(): void {
   ipcBridge.skills.import.zip.provider(async ({ zipPath }) => importer.importZip(zipPath));
   ipcBridge.skills.import.singleSkillMd.provider(async ({ srcPath }) => importer.importSingleSkillMd(srcPath));
 
+  // C3: register a previously-swept, user-approved `review` skill. Idempotent
+  // and replay-safe (keyed by the imported on-disk path + the contentHash the
+  // user actually approved). See SkillImport.confirmImport.
+  ipcBridge.skills.confirmImport.provider(async ({ name, destPath, contentHash }) =>
+    importer.confirmImport({ name, destPath, contentHash })
+  );
+
   // ---------------------------------------------------------------------------
   // Type-aware import (Assistants + Workflows)
   // ---------------------------------------------------------------------------
@@ -76,6 +83,13 @@ export function initSkillsBridge(): void {
     const items: ImportItemResult[] = [];
 
     for (const entry of result.imported) {
+      // C3: a `review` entry is HELD (registered:false) pending explicit
+      // consent - do not silently activate it as an assistant. It is still
+      // reported so the caller can surface the verdict.
+      if (!entry.registered) {
+        items.push({ name: entry.name, registeredAs: entry.type, verdict: entry.report.verdict });
+        continue;
+      }
       if (entry.type === 'agent-profile') {
         const parsed = parseFrontmatter(entry.body);
         const name = parsed?.name ?? entry.name;

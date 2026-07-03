@@ -178,12 +178,14 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'write-assistant-skill',
   'import-skill',
   'skills.build.draft',
+  'skills.confirm-import',
   'skills.import.folder',
   'skills.import.git',
   'skills.import.single-skill-md',
   'skills.import.zip',
   'skills.rescan-all',
   'skills.scan',
+  'skills.scan-library',
   'skills.set-pinned',
   // --- Model registry secret/write IPC. connect/rekey/detectKeys mutate or
   //     disclose stored credentials, so a paired WebUI must never reach them.
