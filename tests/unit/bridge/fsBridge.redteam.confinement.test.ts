@@ -475,8 +475,15 @@ describe('fsBridge confinement red-team', () => {
     });
 
     it('moves a legitimate in-root entry into a target directory', async () => {
-      fsMock.lstat.mockResolvedValue({ isDirectory: () => true });
-      fsMock.access.mockRejectedValue(new Error('no')); // no collision
+      // Target dir exists (isDirectory); the destination path is absent (ENOENT),
+      // so the move proceeds. Collision detection now stats the destination
+      // (#592 never-clobber hardening) rather than fs.access.
+      fsMock.lstat.mockImplementation(async (p: string) => {
+        if (p === `${ROOT}/sub`) return { isDirectory: () => true } as never;
+        const err = new Error('ENOENT') as NodeJS.ErrnoException;
+        err.code = 'ENOENT';
+        throw err;
+      });
       fsMock.rename.mockResolvedValue(undefined);
       const result = (await handlers.moveEntry({ sourcePath: `${ROOT}/a.txt`, targetDir: `${ROOT}/sub` })) as {
         success: boolean;
@@ -485,6 +492,25 @@ describe('fsBridge confinement red-team', () => {
       expect(fsMock.rename).toHaveBeenCalledWith(`${ROOT}/a.txt`, `${ROOT}/sub/a.txt`);
       expect(result.success).toBe(true);
       expect(result.data?.newPath).toBe(`${ROOT}/sub/a.txt`);
+    });
+
+    it('aborts and never renames when the destination check errors with a non-ENOENT code (#592 never-clobber)', async () => {
+      // The target dir exists, but statting the destination fails with EACCES
+      // (present-but-inaccessible). fs.access(...).catch(()=>false) would have
+      // treated this as "absent" and let fs.rename clobber; the lstat-based
+      // guard must fail closed instead.
+      fsMock.lstat.mockImplementation(async (p: string) => {
+        if (p === `${ROOT}/sub`) return { isDirectory: () => true } as never;
+        const err = new Error('EACCES') as NodeJS.ErrnoException;
+        err.code = 'EACCES';
+        throw err;
+      });
+      fsMock.rename.mockResolvedValue(undefined);
+      const result = (await handlers.moveEntry({ sourcePath: `${ROOT}/a.txt`, targetDir: `${ROOT}/sub` })) as {
+        success: boolean;
+      };
+      expect(result.success).toBe(false);
+      expect(fsMock.rename).not.toHaveBeenCalled();
     });
   });
 });

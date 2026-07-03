@@ -310,6 +310,27 @@ function invalidateWorkspaceFileListCacheByPath(changedPath: string): void {
   }
 }
 
+/**
+ * Fail-closed destination existence check for rename/move (#592 never-clobber).
+ *
+ * `fs.access(p).catch(() => false)` treats EVERY rejection as "absent", so a
+ * present-but-inaccessible destination (EACCES/ELOOP/ENOTDIR, or a transient FS
+ * error) would slip past the collision guard and let `fs.rename` overwrite it.
+ * Only a genuine ENOENT means "free to write here"; any other error is
+ * re-thrown so the caller aborts the move rather than risk clobbering.
+ */
+async function destinationExists(candidatePath: string): Promise<boolean> {
+  try {
+    await fs.lstat(candidatePath);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+}
+
 const MAX_WORKSPACE_FILES = 20_000;
 
 async function listWorkspaceFilesRecursive(root: string): Promise<IWorkspaceFlatFile[]> {
@@ -1220,12 +1241,7 @@ export function initFsBridge(): void {
         return { success: true, data: { newPath } };
       }
 
-      const exists = await fs
-        .access(newPath)
-        .then(() => true)
-        .catch(() => false);
-
-      if (exists) {
+      if (await destinationExists(newPath)) {
         // Avoid overwriting existing targets
         return { success: false, msg: 'Target path already exists' };
       }
@@ -1286,12 +1302,7 @@ export function initFsBridge(): void {
         return { success: false, msg: 'Cannot move a folder into itself' };
       }
 
-      const exists = await fs
-        .access(newPath)
-        .then(() => true)
-        .catch(() => false);
-
-      if (exists) {
+      if (await destinationExists(newPath)) {
         // Block on collision - never silently overwrite.
         return { success: false, msg: 'Target path already exists' };
       }
