@@ -105,9 +105,9 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, run
             data-status={item.ok ? 'ok' : 'pending'}
           >
             {item.ok ? (
-              <CheckOne theme='filled' size={16} fill='#00b42a' />
+              <CheckOne theme='filled' size={16} fill='rgb(var(--success-6))' />
             ) : (
-              <Attention theme='filled' size={16} fill='#ff7d00' />
+              <Attention theme='filled' size={16} fill='rgb(var(--warning-6))' />
             )}
             <Typography.Text className='text-13px font-medium'>{item.label}</Typography.Text>
             <Typography.Text type='secondary' className='text-12px'>
@@ -137,8 +137,8 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, run
             data-testid='ijfw-settings-test-result'
             data-result='pass'
           >
-            <CheckOne theme='filled' size={14} fill='#00b42a' />
-            <Typography.Text style={{ color: '#00b42a' }} className='text-12px'>
+            <CheckOne theme='filled' size={14} fill='rgb(var(--success-6))' />
+            <Typography.Text style={{ color: 'rgb(var(--success-6))' }} className='text-12px'>
               {t('memory.settings.test_pass', { defaultValue: 'Memory responded. All good.' })}
             </Typography.Text>
           </span>
@@ -150,8 +150,8 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, run
             data-testid='ijfw-settings-test-result'
             data-result='fail'
           >
-            <CloseOne theme='filled' size={14} fill='#f53f3f' />
-            <Typography.Text style={{ color: '#f53f3f' }} className='text-12px'>
+            <CloseOne theme='filled' size={14} fill='rgb(var(--danger-6))' />
+            <Typography.Text style={{ color: 'rgb(var(--danger-6))' }} className='text-12px'>
               {t('memory.settings.test_fail', {
                 defaultValue: 'Memory did not respond. Check the install status above.',
               })}
