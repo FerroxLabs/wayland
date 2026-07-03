@@ -77,6 +77,16 @@ describe('ModelSelectorFlyout', () => {
     expect(screen.getByText('GPT-5.2')).toBeInTheDocument();
   });
 
+  it('does not leak the raw providerId as a label pill (triple-label fix)', () => {
+    render(<ModelSelectorFlyout vm={baseVm} onSelect={noop} onTogglePin={noop} onManage={noop} />);
+    // The human labels/headers still show; the raw internal ids must not.
+    expect(screen.getByText('GPT-5.2')).toBeInTheDocument();
+    expect(screen.getByText('Recommended for OpenAI')).toBeInTheDocument();
+    expect(screen.queryByText('openai')).not.toBeInTheDocument();
+    expect(screen.queryByText('anthropic')).not.toBeInTheDocument();
+    expect(screen.queryByText('flux-router')).not.toBeInTheDocument();
+  });
+
   it('fires onSelect with (id, providerId) when a row is clicked', () => {
     const onSelect = vi.fn();
     render(<ModelSelectorFlyout vm={baseVm} onSelect={onSelect} onTogglePin={noop} onManage={noop} />);

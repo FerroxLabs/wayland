@@ -82,6 +82,27 @@ describe('useModelSelectorViewModel', () => {
     expect(result.current.empty).toBe(false);
   });
 
+  it('drops the provider from grouped-zone descriptors but keeps it in mixed zones (triple-label fix)', async () => {
+    // opus is pinned (mixed zone) AND recommended (provider-grouped zone).
+    mockCuratedForAgent.mockResolvedValue([opus, sonnet]);
+    mockUseFluxConnected.mockReturnValue(false);
+    mockUsePinnedModels.mockReturnValue({ pinned: new Set(['anthropic:claude-opus-4-8']), toggle: vi.fn() });
+
+    const { result } = renderHook(() => useModelSelectorViewModel('wcore'));
+    await waitFor(() => expect(result.current.zones.some((z) => z.id === 'pinned')).toBe(true));
+
+    // Pinned zone has no provider header -> descriptor keeps the provider.
+    const pinnedRow = result.current.zones.find((z) => z.id === 'pinned')?.rows.find((r) => r.id === 'claude-opus-4-8');
+    expect(pinnedRow?.descriptor).toBe('200K context · Anthropic');
+
+    // Recommended zone IS grouped under "Anthropic" -> descriptor drops it.
+    const recRow = result.current.zones
+      .find((z) => z.id.startsWith('recommended'))
+      ?.rows.find((r) => r.id === 'claude-opus-4-8');
+    expect(recRow?.descriptor).toBe('200K context');
+    expect(recRow?.descriptor).not.toContain('Anthropic');
+  });
+
   it('surfaces the non-auto Flux routing tiers as a top zone when connected', async () => {
     mockCuratedForAgent.mockResolvedValue([opus]);
     mockUseFluxConnected.mockReturnValue(true);

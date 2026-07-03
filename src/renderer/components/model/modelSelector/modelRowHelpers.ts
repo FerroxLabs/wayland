@@ -12,13 +12,23 @@ export const modelKey = (m: Pick<CatalogModel, 'providerId' | 'id'>): string => 
 
 /**
  * One-line descriptor for a model row: "<context> context · <provider>".
- * The context segment is dropped when `contextWindow` is unknown, leaving just
- * the human provider name (e.g. "OpenAI").
+ * The context segment is dropped when `contextWindow` is unknown.
+ *
+ * Set `includeProvider = false` for rows that already sit under a provider-named
+ * zone header (e.g. "Recommended for OpenAI"), so the provider isn't repeated a
+ * second time in the descriptor. Those rows collapse to "<context> context", or
+ * an empty string when the context window is unknown. Mixed zones (Pinned /
+ * Recently used) keep the provider since they have no provider header.
  */
-export const describeModel = (m: Pick<CatalogModel, 'providerId' | 'contextWindow'>): string => {
+export const describeModel = (
+  m: Pick<CatalogModel, 'providerId' | 'contextWindow'>,
+  includeProvider = true
+): string => {
+  const hasCtx = typeof m.contextWindow === 'number' && m.contextWindow > 0;
+  const ctx = hasCtx ? `${Math.round(m.contextWindow / 1000)}K context` : '';
+  if (!includeProvider) return ctx;
   const provider = providerLabel(m.providerId);
-  if (typeof m.contextWindow !== 'number' || m.contextWindow <= 0) return provider;
-  const ctx = `${Math.round(m.contextWindow / 1000)}K context`;
+  if (!hasCtx) return provider;
   return `${ctx} · ${provider}`;
 };
 

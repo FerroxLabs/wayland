@@ -107,11 +107,8 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
         <div className={`${styles.row} ${styles.unavail}`} key={row.key}>
           <Tile label={row.label} />
           <div className={styles.meta}>
-            <div className={styles.name}>
-              {row.label}
-              <span className={styles.srcTag}>{row.providerId}</span>
-            </div>
-            <div className={styles.desc}>{row.descriptor}</div>
+            <div className={styles.name}>{row.label}</div>
+            {row.descriptor && <div className={styles.desc}>{row.descriptor}</div>}
           </div>
           <span className={styles.unavailNote}>
             {t('conversation.modelSelector.unavailable', { defaultValue: 'Currently unavailable' })}
@@ -134,11 +131,8 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
       >
         <Tile label={row.label} />
         <div className={styles.meta}>
-          <div className={styles.name}>
-            {row.label}
-            <span className={styles.srcTag}>{row.providerId}</span>
-          </div>
-          <div className={styles.desc}>{row.descriptor}</div>
+          <div className={styles.name}>{row.label}</div>
+          {row.descriptor && <div className={styles.desc}>{row.descriptor}</div>}
         </div>
         {row.price && <span className={tierClass(row.price)}>{row.price}</span>}
         {active && (

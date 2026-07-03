@@ -6,7 +6,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { CuratedModel, ProviderId } from '@process/providers/types';
-import { FLUX_AUTO_MODEL, FLUX_MODEL_DISPLAY, FLUX_MODEL_IDS, isFluxModelId, type FluxModelId } from '@/common/config/flux';
+import {
+  FLUX_AUTO_MODEL,
+  FLUX_MODEL_DISPLAY,
+  FLUX_MODEL_IDS,
+  isFluxModelId,
+  type FluxModelId,
+} from '@/common/config/flux';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import { useFluxConnected } from '@renderer/hooks/useFluxConnected';
 import { usePinnedModels } from '@renderer/hooks/usage/usePinnedModels';
@@ -22,15 +28,20 @@ const EFFORT_BACKENDS = new Set(['codex', 'wcore', 'claude']);
 /** Cap on the recently-used zone (Claude-style short list). */
 const RECENT_LIMIT = 4;
 
-/** Build a row for a real curated model. */
-function curatedRow(m: CuratedModel, pinned: Set<string>): ModelRow {
+/**
+ * Build a row for a real curated model. `includeProvider` controls whether the
+ * descriptor repeats the provider name: pass `false` for rows that live under a
+ * provider-named zone header (Recommended / More) so the provider isn't shown
+ * twice; leave it `true` for the mixed Pinned / Recently used zones.
+ */
+function curatedRow(m: CuratedModel, pinned: Set<string>, includeProvider = true): ModelRow {
   const key = modelKey(m);
   return {
     key,
     id: m.id,
     providerId: m.providerId,
     label: m.displayName,
-    descriptor: describeModel(m),
+    descriptor: describeModel(m, includeProvider),
     price: priceTier(m),
     pinned: pinned.has(key),
     available: m.enabled,
@@ -157,7 +168,7 @@ export function useModelSelectorViewModel(backend: string, activeModelKey?: stri
     const recentKeys = new Set(recentRows.map((r) => r.key));
     const recommendedRows = base
       .filter((m) => m.recommended && !recentKeys.has(modelKey(m)))
-      .map((m) => curatedRow(m, pinned));
+      .map((m) => curatedRow(m, pinned, false));
     const recommendedZones = groupByProvider(recommendedRows, 'recommended');
 
     const zones: ModelZone[] = [];
@@ -175,7 +186,7 @@ export function useModelSelectorViewModel(backend: string, activeModelKey?: stri
     // More-models: the long tail not surfaced in any zone above, grouped by
     // provider (pinned ∪ recent ∪ recommended are excluded).
     const surfaced = new Set<string>([...pinnedKeys, ...recentKeys, ...recommendedRows.map((r) => r.key)]);
-    const moreRows = base.filter((m) => !surfaced.has(modelKey(m))).map((m) => curatedRow(m, pinned));
+    const moreRows = base.filter((m) => !surfaced.has(modelKey(m))).map((m) => curatedRow(m, pinned, false));
     const moreZones = groupByProvider(moreRows, 'more');
 
     return {

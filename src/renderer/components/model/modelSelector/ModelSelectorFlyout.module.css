@@ -195,14 +195,6 @@
   align-items: center;
   gap: 7px;
 }
-.srcTag {
-  font-family: var(--mono, ui-monospace, Menlo, monospace);
-  font-size: 9.5px;
-  color: var(--color-text-3);
-  background: var(--color-border-2);
-  padding: 1px 5px;
-  border-radius: 5px;
-}
 .desc {
   font-size: 11.5px;
   color: var(--color-text-3);
