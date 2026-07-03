@@ -31,13 +31,16 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ visible, onClose 
   const { t } = useTranslation();
   const [report, setReport] = useState<DoctorReport | null>(null);
   const [running, setRunning] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const run = useCallback(async () => {
     setRunning(true);
     setReport(null);
+    setFailed(false);
     try {
       setReport(await doctor.runDoctor.invoke());
     } catch {
+      setFailed(true);
       Message.error(t('settings.doctor.runFailed', { defaultValue: 'Could not run the Doctor' }));
     } finally {
       setRunning(false);
@@ -85,6 +88,10 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ visible, onClose 
       {running && !report ? (
         <div className='flex items-center justify-center py-32px'>
           <Spin />
+        </div>
+      ) : failed ? (
+        <div className='py-24px text-center text-13px text-[var(--color-text-2)]' role='alert'>
+          {t('messages.doctor.runError', { defaultValue: 'Could not run the Doctor. Please try again.' })}
         </div>
       ) : (
         <pre className='max-h-400px overflow-auto whitespace-pre-wrap break-words m-0 text-12px text-[var(--color-text-1)]'>

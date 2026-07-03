@@ -77,7 +77,8 @@
   "slash.customBadge": "Custom",
   "doctor": {
     "commandDescription": "Run a health check on your setup",
-    "close": "Close"
+    "close": "Close",
+    "runError": "Could not run the Doctor. Please try again."
   },
   "runaway": {
     "title": "Stopped a runaway loop",

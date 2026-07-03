@@ -23,6 +23,7 @@ import { mergeFileSelectionItems, type FileSelectionItem } from '@/renderer/util
 import type { FileOrFolderItem } from '@/renderer/utils/file/fileTypes';
 import { filterWorkspaceMentionItems } from '@/renderer/utils/file/workspaceMentions';
 import { copyText } from '@/renderer/utils/ui/clipboard';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import { blurActiveElement, shouldBlockMobileInputFocus } from '@/renderer/utils/ui/focus';
 import { Button, Input, Message, Tag } from '@arco-design/web-react';
 import { ArrowUp, Quote, X } from 'lucide-react';
@@ -425,13 +426,19 @@ const SendBox: React.FC<{
         source: 'builtin',
       });
     }
-    // App-wide diagnostic — always available, handled inline (opens a modal).
-    commands.push({
-      name: 'doctor',
-      description: t('messages.doctor.commandDescription', { defaultValue: 'Run a health check on your setup' }),
-      kind: 'builtin',
-      source: 'builtin',
-    });
+    // App-wide diagnostic, handled inline (opens a modal). Desktop-only: the
+    // `doctor.run` IPC is in REMOTE_DENIED_KEYS, so a paired-WebUI/remote session
+    // would open the modal only to have the run dropped ("Could not run the
+    // Doctor"). Gate the command on the local Electron desktop so it's never a
+    // dead affordance remotely.
+    if (isElectronDesktop()) {
+      commands.push({
+        name: 'doctor',
+        description: t('messages.doctor.commandDescription', { defaultValue: 'Run a health check on your setup' }),
+        kind: 'builtin',
+        source: 'builtin',
+      });
+    }
     return commands;
   }, [conversationContext?.conversationId, enableBtw, onSlashBuiltinCommand, t]);
 

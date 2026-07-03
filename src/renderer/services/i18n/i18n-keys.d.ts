@@ -1606,6 +1606,7 @@ export type I18nKey =
   | 'messages.copySuccess'
   | 'messages.doctor.close'
   | 'messages.doctor.commandDescription'
+  | 'messages.doctor.runError'
   | 'messages.downloadFailed'
   | 'messages.downloadSuccess'
   | 'messages.export.assistantLabel'
