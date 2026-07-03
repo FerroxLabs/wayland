@@ -492,6 +492,13 @@ export type ActivityNode = {
   endTime?: number;
   /** Accumulated streamed detail (tool_chunk stdout / thinking text / op trail). */
   detail?: string;
+  /**
+   * #520 - the raw tool invocation (a shell command's text, e.g.
+   * `echo hello`). Carried so the timeline can show WHAT ran, not just a
+   * humanized "Running a command". Populated for exec-style tools; the label
+   * layer falls back to the humanized verb when absent.
+   */
+  command?: string;
   children?: ActivityNode[];
   /** Parsed search result sources (web_search tool only). */
   sources?: import('./activity/sources').Source[];

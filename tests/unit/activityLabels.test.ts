@@ -82,3 +82,32 @@ describe('activityLabels.deriveStep - tool name humanizing', () => {
     expect(r.glyph).toBe('tool');
   });
 });
+
+// #520 command visibility: when a command-glyph tool carries the actual command,
+// show it instead of the generic "Running a command" (the regression users hit).
+describe('activityLabels.deriveStep - command surfacing (#520)', () => {
+  it('shows the actual command for a shell tool', () => {
+    const r = deriveStep({ kind: 'tool', name: 'Bash', command: 'echo WL520_LIVE_CHECK' });
+    expect(r).toEqual({ label: 'Running echo WL520_LIVE_CHECK', glyph: 'command' });
+  });
+  it('strips a leading "Execute: " prefix (the wcore description fallback)', () => {
+    const r = deriveStep({ kind: 'tool', name: 'Bash', command: 'Execute: ls -la' });
+    expect(r.label).toBe('Running ls -la');
+  });
+  it('collapses newlines and caps a long command to one legible line', () => {
+    const long = `for i in $(seq 1 100); do echo "line $i of a very long heredoc-ish command"; done`;
+    const r = deriveStep({ kind: 'tool', name: 'Bash', command: long });
+    expect(r.label.startsWith('Running ')).toBe(true);
+    expect(r.label).not.toContain('\n');
+    expect(r.label.endsWith('…')).toBe(true);
+    expect(r.label.length).toBeLessThanOrEqual('Running '.length + 64);
+  });
+  it('falls back to the humanized label when no command is present', () => {
+    const r = deriveStep({ kind: 'tool', name: 'exec_command', detail: 'ls -la' });
+    expect(r).toEqual({ label: 'Running a command', glyph: 'command' });
+  });
+  it('does not hijack non-command glyphs (file/web keep their rich labels)', () => {
+    const r = deriveStep({ kind: 'tool', name: 'Read', detail: '/src/config.ts', command: 'ignored' });
+    expect(r).toEqual({ label: 'Reading config.ts', glyph: 'file' });
+  });
+});

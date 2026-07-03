@@ -53,6 +53,24 @@ const firstPath = (s: string): string => {
   return m ? m[0] : '';
 };
 
+/**
+ * #520 - a one-line, capped rendering of a raw command for the timeline label.
+ * Collapses whitespace/newlines (a heredoc must not blow up the row) and caps
+ * length so a long command stays a legible single line; the full text remains
+ * available in the expandable detail.
+ */
+const CMD_LABEL_CAP = 64;
+export const formatCommandLabel = (command: string): string => {
+  // Drop a leading "Execute: " the wcore mapper prefixes onto the description
+  // fallback, so we show the bare command either way.
+  const bare = command
+    .replace(/^execute:\s*/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const capped = bare.length > CMD_LABEL_CAP ? `${bare.slice(0, CMD_LABEL_CAP - 1)}…` : bare;
+  return `Running ${capped}`;
+};
+
 type LabelRule = {
   /** matches against the lowercased "name + ' ' + detail" haystack. */
   test: RegExp;
@@ -125,7 +143,7 @@ const RULES: LabelRule[] = [
  * falling back to a cleaned tool name so a label is ALWAYS produced (never blank).
  */
 export const deriveStep = (
-  node: Pick<ActivityNode, 'kind' | 'name' | 'detail'>
+  node: Pick<ActivityNode, 'kind' | 'name' | 'detail' | 'command'>
 ): { label: string; glyph: GlyphKind } => {
   if (node.kind === 'thinking') return { label: 'Reasoning', glyph: 'reasoning' };
   if (node.kind === 'sub_agent') return { label: node.name || 'Sub-agent working', glyph: 'sub_agent' };
@@ -137,8 +155,16 @@ export const deriveStep = (
 
   const hay = `${node.name || ''} ${node.detail || ''}`;
   const lower = hay.toLowerCase();
+  const command = node.command?.trim();
   for (const rule of RULES) {
-    if (rule.test.test(lower)) return { label: rule.build(hay), glyph: rule.glyph };
+    if (rule.test.test(lower)) {
+      // #520: for a shell/command tool, show the ACTUAL command instead of the
+      // generic "Running a command" - that visibility is the whole point of the
+      // fix. Non-command glyphs (file/web/search) keep their richer humanized
+      // labels, which already name the file/host/query.
+      if (rule.glyph === 'command' && command) return { label: formatCommandLabel(command), glyph: 'command' };
+      return { label: rule.build(hay), glyph: rule.glyph };
+    }
   }
   // Fallback: cleaned tool name, title-ish, always non-empty.
   const clean = (node.name || 'tool').replace(/[_-]+/g, ' ').trim();

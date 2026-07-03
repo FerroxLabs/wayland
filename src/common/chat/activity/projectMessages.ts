@@ -62,10 +62,27 @@ const toolGroupDetail = (rd: IMessageToolGroup['content'][number]['resultDisplay
  */
 const WEB_SEARCH_RE = /^web$|web[_-]?search|google[_-]?search|search[_-]?web|brave[_-]?search/i;
 
+/**
+ * #520 - the humanized command string for a tool item, when the engine gave us
+ * one. For an exec/shell tool the actual command lives in the `exec`
+ * confirmationDetails (`command`), set at tool_request and preserved through the
+ * merge. Fall back to the item `description` (which the wcore mapper carries as
+ * "Execute: <cmd>") so a non-exec command-ish tool still surfaces something.
+ */
+const toolGroupCommand = (t: IMessageToolGroup['content'][number]): string | undefined => {
+  if (t.confirmationDetails?.type === 'exec') {
+    const cmd = t.confirmationDetails.command?.trim();
+    if (cmd) return cmd;
+  }
+  const desc = typeof t.description === 'string' ? t.description.trim() : '';
+  return desc || undefined;
+};
+
 /** Map one wcore tool_group message's items to canonical tool nodes. */
 export const toolGroupToNodes = (content: IMessageToolGroup['content']): ActivityNode[] =>
   content.map((t) => {
     const detail = toolGroupDetail(t.resultDisplay);
+    const command = toolGroupCommand(t);
     const node: ActivityNode = {
       id: t.callId,
       kind: 'tool',
@@ -73,6 +90,7 @@ export const toolGroupToNodes = (content: IMessageToolGroup['content']): Activit
       name: t.name,
       status: TOOLGROUP_STATUS[t.status] ?? 'running',
       ...(detail ? { detail } : {}),
+      ...(command ? { command } : {}),
     };
     if (WEB_SEARCH_RE.test(t.name)) {
       const raw = typeof t.resultDisplay === 'string' ? t.resultDisplay : '';

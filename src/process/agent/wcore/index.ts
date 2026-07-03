@@ -161,6 +161,16 @@ export class WCoreAgent {
   private _onPong: WCoreAgentOptions['onPong'];
   private options: WCoreAgentOptions;
   private activeMsgId: string | null = null;
+  // #520 command visibility: the wire's `tool_running` / `tool_result` events
+  // carry only `call_id` + `tool_name` - not the command/description. The engine
+  // sends the humanized command (e.g. "Execute: ls") once, on the preceding
+  // `tool_request` (ToolInfo.description). The renderer merges tool_group frames
+  // by callId with a plain `{...existing, ...incoming}` spread, so an incoming
+  // empty `description` OVERWRITES the command shown at request time - which is
+  // why the running/finished card lost the command after 0.11.2. We stash the
+  // request-time description per callId and re-attach it to the running/result
+  // frames so the command stays visible for the whole tool lifecycle.
+  private toolDescriptionByCallId = new Map<string, string>();
   private configBackup: { path: string; content: string | null; written: string | null } | null = null;
   private mcpReadyPromise: Promise<void>;
   private mcpReadyResolve!: () => void;
@@ -424,6 +434,9 @@ export class WCoreAgent {
         break;
 
       case 'tool_request':
+        // #520: remember the request-time command so the later running/result
+        // frames (which the wire sends without it) can re-surface it.
+        this.toolDescriptionByCallId.set(event.call_id, event.tool.description);
         this.onStreamEvent({
           type: 'tool_group',
           data: [
@@ -447,7 +460,8 @@ export class WCoreAgent {
             {
               callId: event.call_id,
               name: event.tool_name,
-              description: '',
+              // #520: carry the command forward (empty string would clobber it).
+              description: this.toolDescriptionByCallId.get(event.call_id) ?? '',
               status: 'Executing',
               renderOutputAsMarkdown: false,
             },
@@ -463,7 +477,9 @@ export class WCoreAgent {
             {
               callId: event.call_id,
               name: event.tool_name,
-              description: '',
+              // #520: keep the command on the finished card too (the result frame
+              // omits it, and the merge would otherwise blank it out).
+              description: this.toolDescriptionByCallId.get(event.call_id) ?? '',
               status: event.status === 'success' ? 'Success' : 'Error',
               resultDisplay:
                 event.output_type === 'diff'
@@ -474,6 +490,8 @@ export class WCoreAgent {
           ],
           msg_id: event.msg_id,
         });
+        // #520: the tool is terminal - drop its cached command.
+        this.toolDescriptionByCallId.delete(event.call_id);
         break;
 
       case 'tool_cancelled':
@@ -490,6 +508,8 @@ export class WCoreAgent {
           ],
           msg_id: event.msg_id,
         });
+        // #520: terminal - drop its cached command.
+        this.toolDescriptionByCallId.delete(event.call_id);
         break;
 
       case 'stream_end': {
