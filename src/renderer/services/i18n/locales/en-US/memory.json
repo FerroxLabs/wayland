@@ -112,6 +112,8 @@
     "status_runtime_label": "Memory runtime",
     "status_runtime_full": "Live",
     "status_runtime_degraded": "Degraded (not reachable)",
+    "status_runtime_checking": "Checking…",
+    "status_runtime_idle": "Waiting for install",
     "test_button": "Test",
     "test_pass": "Memory responded. All good.",
     "test_fail": "Memory did not respond. Check the install status above."

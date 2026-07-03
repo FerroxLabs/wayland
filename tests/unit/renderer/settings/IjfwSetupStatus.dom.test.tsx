@@ -58,14 +58,32 @@ describe('IjfwSetupStatus (#414)', () => {
     expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
   });
 
-  it('marks checks pending when not installed, no CLIs, runtime probe not reachable', async () => {
-    brainInvoke.mockResolvedValue({ ok: false, error: 'nope' });
+  it('does NOT probe the runtime (no MCP spawn) when IJFW is not installed', async () => {
+    brainInvoke.mockResolvedValue({ ok: true });
     render(<IjfwSetupStatus status='not_installed' cliCount={0} />);
     expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('pending');
     expect(screen.getByTestId('ijfw-status-item-clis').getAttribute('data-status')).toBe('pending');
+    // Mount probe must be gated: opening the panel while not installed must not
+    // spawn the IJFW MCP child process.
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('pending');
     });
+    expect(brainInvoke).not.toHaveBeenCalled();
+    // Runtime row renders as neutral not-applicable, never the degraded warning.
+    expect(screen.queryByText('Degraded (not reachable)')).toBeNull();
+    expect(screen.getByText('Waiting for install')).toBeTruthy();
+  });
+
+  it('renders the runtime row as neutral "checking" (not the degraded warning) while the mount probe is in flight', () => {
+    // Never-resolving probe keeps runtimeReachable === null so we observe the
+    // in-flight state before it flips to Live/Degraded.
+    brainInvoke.mockReturnValue(new Promise<never>(() => {}));
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    const runtime = screen.getByTestId('ijfw-status-item-runtime');
+    expect(runtime.getAttribute('data-status')).toBe('checking');
+    expect(screen.queryByText('Degraded (not reachable)')).toBeNull();
+    expect(screen.getByText('Checking…')).toBeTruthy();
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
   });
 
   it('marks the runtime row pending when the mount probe rejects', async () => {
