@@ -31,8 +31,17 @@
  *   [/CONCIERGE_PROPOSE]
  */
 
-/** The four config mutations the Concierge can propose. */
-export type ConciergeProposalKind = 'provider_connect' | 'set_default_model' | 'add_mcp' | 'edit_assistant';
+/**
+ * The config mutations the Concierge can propose, plus `file_bug_report` (#464) —
+ * a non-mutating action that opens a pre-filled GitHub issue (screenshot +
+ * diagnostics) when the diag/flow surfaces a serious problem.
+ */
+export type ConciergeProposalKind =
+  | 'provider_connect'
+  | 'set_default_model'
+  | 'add_mcp'
+  | 'edit_assistant'
+  | 'file_bug_report';
 
 /** The default-model engines a `set_default_model` proposal can target. */
 export type ConciergeDefaultModelEngine = 'wcore' | 'gemini';
@@ -80,6 +89,11 @@ export type ConciergeProposal =
       label: string;
       /** New rules/persona markdown body. */
       rules: string;
+    }
+  | {
+      kind: 'file_bug_report';
+      /** Short, non-secret summary of the problem for the card header. */
+      summary?: string;
     };
 
 /** Lifecycle of a proposal card (mirrors the cron propose state machine). */
@@ -135,6 +149,7 @@ export const CONCIERGE_PROPOSAL_KINDS: readonly ConciergeProposalKind[] = [
   'set_default_model',
   'add_mcp',
   'edit_assistant',
+  'file_bug_report',
 ];
 
 /** Hard cap on the rules body an `edit_assistant` proposal may carry. */
@@ -163,5 +178,7 @@ export function summarizeProposal(p: ConciergeProposal): string {
       return `Add MCP server "${p.name}" (${p.command} ${p.args.join(' ')})`;
     case 'edit_assistant':
       return `Update ${p.label} instructions`;
+    case 'file_bug_report':
+      return p.summary ? `File a bug report: ${p.summary}` : 'File a bug report';
   }
 }

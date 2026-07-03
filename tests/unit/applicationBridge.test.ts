@@ -246,6 +246,7 @@ describe('CDP configuration functions', () => {
           updateCdpConfig: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           getStartOnBootStatus: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
           setStartOnBoot: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
+          captureBugReport: { provider: vi.fn(), emit: vi.fn(), invoke: vi.fn() },
         },
       },
     }));
