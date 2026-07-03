@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import type { ConversationActivitySnapshot } from '@/common/chat/activity/conversationActivity';
 import type { TChatConversation } from '@/common/config/storage';
 
 export type WorkspaceGroup = {
@@ -44,6 +45,13 @@ export type ConversationRowProps = {
   conversation: TChatConversation;
   isGenerating: boolean;
   hasCompletionUnread: boolean;
+  /**
+   * #252 - live snapshot of what the agent is doing (current action + spawned
+   * sub-agents), read passively from the conversation-list sync store. Present
+   * only while the conversation is generating; drives the sidebar status label
+   * and the expandable sub-agent tree.
+   */
+  activity?: ConversationActivitySnapshot;
   collapsed: boolean;
   tooltipEnabled: boolean;
   batchMode: boolean;

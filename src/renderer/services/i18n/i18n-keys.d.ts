@@ -608,6 +608,8 @@ export type I18nKey =
   | 'conversation.sideQuestion.title'
   | 'conversation.sideQuestion.toolsRequired'
   | 'conversation.sideQuestion.unsupported'
+  | 'conversation.sidebarActivity.toggleAgents'
+  | 'conversation.sidebarActivity.working'
   | 'conversation.skill_generator.description'
   | 'conversation.skill_generator.failed'
   | 'conversation.skill_generator.generate'

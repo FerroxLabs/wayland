@@ -353,6 +353,10 @@
     "expandRow": "Toggle step detail",
     "sourcesCount": "{{count}} sources"
   },
+  "sidebarActivity": {
+    "working": "Working…",
+    "toggleAgents": "Show sub-agents"
+  },
   "actions": {
     "readAloud": "Read aloud",
     "stopReading": "Stop",
