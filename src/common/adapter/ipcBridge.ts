@@ -2654,6 +2654,10 @@ export const memory = {
   /** Import verbs - stubs until W1a wires the actual importers. */
   import: {
     claudeMem: buildProvider<{ count: number; errors: string[] }, void>('memory.import.claude-mem'),
+    /** Scan ~/Documents (max depth 4) for Obsidian vaults (dirs containing .obsidian/). */
+    obsidianDetectVaults: buildProvider<Array<{ path: string; name: string; mdFileCount: number }>, void>(
+      'memory.import.obsidian-detect-vaults'
+    ),
     obsidianVault: buildProvider<{ count: number; errors: string[] }, { vaultPath: string }>(
       'memory.import.obsidian-vault'
     ),

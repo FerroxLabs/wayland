@@ -16,7 +16,7 @@ import { z } from 'zod';
 import { ipcBridge } from '@/common';
 import { getIjfwArchiveService } from '@process/services/memory/ijfwArchiveService';
 import { runClaudeMemImport } from '@process/services/import/claudeMemImporter';
-import { runObsidianImport } from '@process/services/import/obsidianImporter';
+import { detectVaults, runObsidianImport } from '@process/services/import/obsidianImporter';
 import { runDevScanImport, scanForMemoryDirs } from '@process/services/import/devScanImporter';
 import {
   runDropFolderProcess,
@@ -128,6 +128,21 @@ export function initImportBridge(): void {
     } catch (err) {
       log.error('[import] claudeMem threw', { err });
       return { count: 0, errors: [String(err)] };
+    }
+  });
+
+  // ── obsidian vault detection ─────────────────────────────────────────────
+  // #553: scans ~/Documents for vaults so the Import drawer's Obsidian card can
+  // populate its list. Previously unexposed, which left the Import button a
+  // no-op (no vault could ever be selected).
+  ipcBridge.memory.import.obsidianDetectVaults.provider(async () => {
+    try {
+      const vaults = await detectVaults();
+      log.info('[import] obsidianDetectVaults done', { count: vaults.length });
+      return vaults;
+    } catch (err) {
+      log.error('[import] obsidianDetectVaults threw', { err });
+      return [];
     }
   });
 
