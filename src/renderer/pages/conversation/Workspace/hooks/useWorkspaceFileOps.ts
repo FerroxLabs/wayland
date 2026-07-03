@@ -268,14 +268,16 @@ export function useWorkspaceFileOps(options: UseWorkspaceFileOpsOptions) {
   ]);
 
   /**
-   * Move a dragged file/folder into a drop-target folder.
+   * Move a dragged file/folder to the resolved drop destination.
    *
+   * `dropPosition` (Arco Tree) decides intent: `0` moves INTO the drop-target
+   * folder, a gap drop (non-zero) moves it to the target's sibling directory.
    * The UI guard (resolveMoveTarget) filters no-ops and self/descendant moves;
    * the main process re-validates, confines both paths, and blocks collisions.
    */
   const handleMoveNode = useCallback(
-    async (dragData: IDirOrFile | null, dropData: IDirOrFile | null) => {
-      const resolved = resolveMoveTarget(dragData, dropData);
+    async (dragData: IDirOrFile | null, dropData: IDirOrFile | null, dropPosition: number) => {
+      const resolved = resolveMoveTarget(dragData, dropData, dropPosition);
       if (!resolved) return;
 
       try {

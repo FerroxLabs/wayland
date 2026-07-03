@@ -429,13 +429,19 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
                 }}
                 multiple
                 draggable
-                allowDrop={({ dropNode }) => {
-                  // Only folders accept move drops (issue #49).
-                  const target = extractNodeData(dropNode);
-                  return Boolean(target?.isDir) && !target?.isFile;
+                allowDrop={({ dropNode, dropPosition }) => {
+                  // An onto-drop (dropPosition 0) moves INTO the target, so only
+                  // folders may accept it. A gap drop (non-zero) places the entry
+                  // as a sibling of the target, so any node type is a valid gap
+                  // anchor - its parent directory is the destination (issue #49).
+                  if (dropPosition === 0) {
+                    const target = extractNodeData(dropNode);
+                    return Boolean(target?.isDir) && !target?.isFile;
+                  }
+                  return true;
                 }}
-                onDrop={({ dragNode, dropNode }) => {
-                  void fileOpsHook.handleMoveNode(extractNodeData(dragNode), extractNodeData(dropNode));
+                onDrop={({ dragNode, dropNode, dropPosition }) => {
+                  void fileOpsHook.handleMoveNode(extractNodeData(dragNode), extractNodeData(dropNode), dropPosition);
                 }}
                 renderTitle={(node) => {
                   const relativePath = node.dataRef.relativePath;
