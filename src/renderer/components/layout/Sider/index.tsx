@@ -1,6 +1,9 @@
 import classNames from 'classnames';
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Message } from '@arco-design/web-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { bugReport } from '@/common/adapter/ipcBridge';
 import { usePreviewContext } from '@renderer/pages/conversation/Preview/context/PreviewContext';
 import { cleanupSiderTooltips, getSiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 import { useAuth } from '@renderer/hooks/context/AuthContext';
@@ -40,6 +43,7 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
   const { pathname, search, hash } = location;
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { closePreview } = usePreviewContext();
   const { logout, status } = useAuth();
   const { theme, setTheme } = useThemeContext();
@@ -157,6 +161,27 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
     };
   }, [handleLogout, showLogout]);
 
+  // #464 Frictionless bug report: capture the app window to the clipboard, gather
+  // sanitized diagnostics + versions, and open a pre-filled GitHub new-issue page.
+  const handleOpenBugReport = useCallback(async () => {
+    const hide = Message.loading({ content: t('sider.bugReport.preparing'), duration: 0 });
+    try {
+      const result = await bugReport.fileWithDiagnostics.invoke({ title: t('sider.bugReport.defaultTitle') });
+      hide();
+      if (!result?.ok) {
+        Message.error(t('sider.bugReport.error'));
+        return;
+      }
+      Message.success(
+        result.screenshotOnClipboard ? t('sider.bugReport.readyWithScreenshot') : t('sider.bugReport.ready')
+      );
+    } catch (error) {
+      hide();
+      console.error('[Sider] bug report failed:', error);
+      Message.error(t('sider.bugReport.error'));
+    }
+  }, [t]);
+
   const handleCronNavigate = (path: string) => {
     cleanupSiderTooltips();
     blurActiveElement();
@@ -194,6 +219,7 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
           onThemeToggle={handleQuickThemeToggle}
           showLogout={showLogout}
           onLogoutClick={handleLogout}
+          onOpenBugReport={handleOpenBugReport}
         />
       </div>
     );
@@ -310,6 +336,7 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
           onThemeToggle={handleQuickThemeToggle}
           showLogout={showLogout}
           onLogoutClick={handleLogout}
+          onOpenBugReport={handleOpenBugReport}
         />
       </div>
     </div>

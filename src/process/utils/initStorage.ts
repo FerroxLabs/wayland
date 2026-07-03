@@ -54,6 +54,7 @@ import {
   BUILTIN_SEARCH_SKILLS_ID,
   BUILTIN_SEARCH_SKILLS_NAME,
 } from '../resources/builtinMcp/constants';
+import type { ConciergeDiagDeps } from '../resources/builtinMcp/conciergeDiagServer';
 import { resolveNpxPath } from './shellEnv';
 import { getPlaywrightBrowsersDir } from '../services/mcpServices/playwrightBrowsers';
 import { getMcpScriptPath, inspectMcpScripts } from './mcpScriptDir';
@@ -280,6 +281,28 @@ const cacheDir = dirConfig?.cacheDir || getHomePage();
 const configFile = JsonFileBuilder<IConfigStorageRefer & IChannelAssistantConfigRefer>(
   path.join(cacheDir, STORAGE_PATH.config)
 );
+
+/**
+ * On-disk sources the read-only `wayland_concierge_diag` tool inspects, using
+ * the EXACT path expressions the app writes them to. Shared as the single
+ * source of truth by two callers: the diag MCP subprocess (which receives these
+ * as WAYLAND_* env vars, since it has no Electron APIs) and the in-process bug
+ * report bridge (#464), which builds the same overview directly.
+ */
+export const buildConciergeDiagDeps = (): ConciergeDiagDeps => {
+  const dbPath = path.join(getDataPath(), 'wayland.db');
+  return {
+    configPath: path.join(cacheDir, STORAGE_PATH.config),
+    cronDbPath: dbPath,
+    providerDbPath: dbPath,
+    // projects + conversations live in the same shared wayland.db (workspace health).
+    workspaceDbPath: dbPath,
+    logDir: getPlatformServices().paths.getLogsDir(),
+    appConfigDir: cacheDir,
+    engineConfigDir: nativeConfigDir(),
+  };
+};
+
 type ConversationHistoryData = Record<string, TMessage[]>;
 
 const _chatMessageFile = JsonFileBuilder<ConversationHistoryData>(path.join(cacheDir, STORAGE_PATH.chatMessage));
@@ -902,18 +925,18 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
     //     config locations, for the configPaths report.
     // Enabled by default — the tool is silent unless invoked and never mutates.
     const conciergeDiagScriptPath = getBuiltinMcpScriptPath('builtin-mcp-concierge-diag');
-    const conciergeDiagDbPath = path.join(getDataPath(), 'wayland.db');
+    const diagDeps = buildConciergeDiagDeps();
     const conciergeDiagEnv: Record<string, string> = {
-      WAYLAND_CONFIG_PATH: path.join(cacheDir, STORAGE_PATH.config),
-      WAYLAND_CRON_DB: conciergeDiagDbPath,
-      WAYLAND_PROVIDER_DB: conciergeDiagDbPath,
+      WAYLAND_CONFIG_PATH: diagDeps.configPath as string,
+      WAYLAND_CRON_DB: diagDeps.cronDbPath as string,
+      WAYLAND_PROVIDER_DB: diagDeps.providerDbPath as string,
       // projects + conversations live in the same shared wayland.db (workspace health).
-      WAYLAND_WORKSPACE_DB: conciergeDiagDbPath,
-      WAYLAND_LOG_DIR: getPlatformServices().paths.getLogsDir(),
+      WAYLAND_WORKSPACE_DB: diagDeps.workspaceDbPath as string,
+      WAYLAND_LOG_DIR: diagDeps.logDir as string,
       // The two distinct config locations, for the configPaths report: the app
       // settings dir, and the wayland-core engine config dir.
-      WAYLAND_APP_CONFIG_DIR: cacheDir,
-      WAYLAND_ENGINE_CONFIG_DIR: nativeConfigDir(),
+      WAYLAND_APP_CONFIG_DIR: diagDeps.appConfigDir as string,
+      WAYLAND_ENGINE_CONFIG_DIR: diagDeps.engineConfigDir as string,
     };
     const conciergeDiagExistingIdx = mcpServers.findIndex(
       (s) => s.builtin === true && s.id === BUILTIN_CONCIERGE_DIAG_ID

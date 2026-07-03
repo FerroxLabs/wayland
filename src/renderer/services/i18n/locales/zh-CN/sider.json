@@ -24,6 +24,13 @@
       "hint": "已隐藏 Flux 状态。"
     }
   },
+  "bugReport": {
+    "defaultTitle": "Bug report",
+    "preparing": "Capturing screenshot and diagnostics…",
+    "ready": "Opened GitHub with your diagnostics pre-filled.",
+    "readyWithScreenshot": "Screenshot copied — paste it into the issue (Cmd/Ctrl+V). GitHub is pre-filled with your diagnostics.",
+    "error": "Couldn't prepare the bug report. Please try again."
+  },
   "accordion": {
     "scheduled": "定时任务",
     "workflows": "工作流",

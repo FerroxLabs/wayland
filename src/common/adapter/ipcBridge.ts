@@ -1133,6 +1133,24 @@ export const systemSettings = {
 // config, returning a machine-readable + human-readable report. Remote-denied
 // (bridgeAllowlist): the report discloses the host's connectivity + config
 // posture, so a paired WebUI client must never enumerate it.
+// #464 Frictionless "file a detailed GitHub issue". One call captures the app
+// window to the clipboard, gathers the sanitized diagnostics + versions, and
+// opens a pre-filled GitHub new-issue page. `title` is supplied by the renderer
+// so it stays i18n-localized; `whatHappened` is optional pre-fill text.
+export type BugReportResult = {
+  ok: boolean;
+  /** True when a screenshot was captured onto the clipboard (paste-into-issue hint). */
+  screenshotOnClipboard: boolean;
+  /** True when the diagnostics were trimmed to keep the issue URL within length limits. */
+  diagnosticsTruncated: boolean;
+  error?: string;
+};
+export const bugReport = {
+  fileWithDiagnostics: buildProvider<BugReportResult, { title: string; whatHappened?: string }>(
+    'bug-report.file-with-diagnostics'
+  ),
+};
+
 export const doctor = {
   runDoctor: buildProvider<DoctorReport, void>('doctor.run'),
   // Copy the rendered report text to the OS clipboard from the MAIN process.

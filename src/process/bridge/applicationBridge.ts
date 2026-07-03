@@ -158,6 +158,14 @@ export function setApplicationMainWindow(win: BrowserWindow): void {
   mainWindowRef = win;
 }
 
+/** The live main window, or null when unset/destroyed. Shared with other bridges (e.g. bug report screenshot). */
+export function getApplicationMainWindow(): BrowserWindow | null {
+  if (mainWindowRef && !mainWindowRef.isDestroyed()) {
+    return mainWindowRef;
+  }
+  return null;
+}
+
 export function initApplicationBridge(workerTaskManager: IWorkerTaskManager): void {
   // Platform-agnostic handlers: systemInfo, updateSystemInfo, getPath
   initApplicationBridgeCore();
