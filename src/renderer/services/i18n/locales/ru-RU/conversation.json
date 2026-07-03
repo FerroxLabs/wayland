@@ -165,7 +165,9 @@
       "revealFailed": "Не удалось открыть содержащую папку",
       "download": "Скачать",
       "downloadSuccess": "Скачивание успешно",
-      "downloadFailed": "Не удалось скачать"
+      "downloadFailed": "Не удалось скачать",
+      "moveSuccess": "Успешно перемещено",
+      "moveFailed": "Не удалось переместить"
     },
     "changes": {
       "tab": "Изменения",

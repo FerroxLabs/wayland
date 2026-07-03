@@ -165,7 +165,9 @@
       "revealFailed": "Übergeordneter Ordner konnte nicht geöffnet werden",
       "download": "Herunterladen",
       "downloadSuccess": "Download erfolgreich",
-      "downloadFailed": "Download fehlgeschlagen"
+      "downloadFailed": "Download fehlgeschlagen",
+      "moveSuccess": "Erfolgreich verschoben",
+      "moveFailed": "Verschieben fehlgeschlagen"
     },
     "changes": {
       "tab": "Änderungen",

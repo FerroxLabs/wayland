@@ -1243,6 +1243,72 @@ export function initFsBridge(): void {
     }
   });
 
+  // Move a file or directory into a target directory and return the new path
+  ipcBridge.fs.moveEntry.provider(async ({ sourcePath, targetDir }) => {
+    try {
+      // Confine the source to authorized roots (SEC-IPC-01).
+      const safeSource = await confinePath(sourcePath);
+      if (safeSource === null) {
+        return { success: false, msg: 'Source is outside the allowed workspace roots' };
+      }
+
+      // Confine the destination directory as well so a move cannot escape the root.
+      const safeDir = await confinePath(targetDir);
+      if (safeDir === null) {
+        return { success: false, msg: 'Target directory is outside the allowed workspace roots' };
+      }
+
+      let targetIsDirectory = false;
+      try {
+        const dirStats = await fs.lstat(safeDir);
+        targetIsDirectory = dirStats.isDirectory();
+      } catch {
+        targetIsDirectory = false;
+      }
+      if (!targetIsDirectory) {
+        return { success: false, msg: 'Target directory does not exist' };
+      }
+
+      // Destination path keeps the source's own name inside the target directory.
+      const candidateNewPath = path.join(safeDir, path.basename(safeSource));
+      const newPath = await confinePath(candidateNewPath);
+      if (newPath === null) {
+        return { success: false, msg: 'Target path is outside the allowed workspace roots' };
+      }
+
+      if (newPath === safeSource) {
+        // Already lives in the target directory - nothing to do.
+        return { success: true, data: { newPath } };
+      }
+
+      // Block moving a directory into itself or one of its own descendants.
+      if (safeDir === safeSource || safeDir.startsWith(safeSource + path.sep)) {
+        return { success: false, msg: 'Cannot move a folder into itself' };
+      }
+
+      const exists = await fs
+        .access(newPath)
+        .then(() => true)
+        .catch(() => false);
+
+      if (exists) {
+        // Block on collision - never silently overwrite.
+        return { success: false, msg: 'Target path already exists' };
+      }
+
+      await fs.rename(safeSource, newPath);
+      invalidateWorkspaceFileListCacheByPath(safeSource);
+      invalidateWorkspaceFileListCacheByPath(newPath);
+      return { success: true, data: { newPath } };
+    } catch (error) {
+      console.error('Failed to move entry:', error);
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  });
+
   // Read built-in rules file from app resources
   ipcBridge.fs.readBuiltinRule.provider(async ({ fileName }) => {
     try {

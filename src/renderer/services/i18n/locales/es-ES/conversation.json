@@ -165,7 +165,9 @@
       "revealFailed": "No se pudo abrir la carpeta contenedora",
       "download": "Descargar",
       "downloadSuccess": "Descarga correcta",
-      "downloadFailed": "Error en la descarga"
+      "downloadFailed": "Error en la descarga",
+      "moveSuccess": "Movido correctamente",
+      "moveFailed": "Error al mover"
     },
     "changes": {
       "tab": "Cambios",

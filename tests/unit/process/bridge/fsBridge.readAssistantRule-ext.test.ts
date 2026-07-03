@@ -89,6 +89,7 @@ vi.mock('@/common', () => ({
       copyFilesToWorkspace: { provider: vi.fn() },
       removeEntry: { provider: vi.fn() },
       renameEntry: { provider: vi.fn() },
+      moveEntry: { provider: vi.fn() },
       readBuiltinRule: { provider: vi.fn() },
       readBuiltinSkill: { provider: vi.fn() },
       readAssistantRule: {

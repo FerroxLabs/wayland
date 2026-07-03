@@ -428,6 +428,15 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
                   isLeaf: 'isFile',
                 }}
                 multiple
+                draggable
+                allowDrop={({ dropNode }) => {
+                  // Only folders accept move drops (issue #49).
+                  const target = extractNodeData(dropNode);
+                  return Boolean(target?.isDir) && !target?.isFile;
+                }}
+                onDrop={({ dragNode, dropNode }) => {
+                  void fileOpsHook.handleMoveNode(extractNodeData(dragNode), extractNodeData(dropNode));
+                }}
                 renderTitle={(node) => {
                   const relativePath = node.dataRef.relativePath;
                   const isFile = node.dataRef.isFile;
@@ -510,7 +519,9 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
                       treeHook.setSelected(filteredKeys);
                     }
                     treeHook.selectedNodeRef.current = null;
-                    if (nodeData && clickedKey && !wasSelected) {
+                    // Always open preview on a file click - including when the
+                    // same file was previously selected (issue #49).
+                    if (nodeData && clickedKey) {
                       void fileOpsHook.handlePreviewFile(nodeData);
                     }
                     return;

@@ -4,6 +4,7 @@ import type { IDirOrFile } from '@/common/adapter/ipcBridge';
 import {
   collectFilePaths,
   computeContextMenuPosition,
+  resolveMoveTarget,
 } from '@/renderer/pages/conversation/Workspace/utils/treeHelpers';
 
 // Helper to create a file node
@@ -166,5 +167,73 @@ describe('computeContextMenuPosition', () => {
         configurable: true,
       });
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveMoveTarget
+// ---------------------------------------------------------------------------
+describe('resolveMoveTarget', () => {
+  // Build a node with explicit full/relative paths (the `file`/`dir` helpers
+  // above tie relativePath to the name, which is too coarse for move cases).
+  const node = (over: Partial<IDirOrFile>): IDirOrFile => ({
+    name: 'x',
+    fullPath: '/ws/x',
+    relativePath: 'x',
+    isDir: false,
+    isFile: true,
+    ...over,
+  });
+
+  it('resolves a file dropped onto a folder to a move into that folder', () => {
+    const drag = node({ name: 'a.ts', fullPath: '/ws/a.ts', relativePath: 'a.ts', isFile: true, isDir: false });
+    const drop = node({ name: 'sub', fullPath: '/ws/sub', relativePath: 'sub', isFile: false, isDir: true });
+    expect(resolveMoveTarget(drag, drop)).toEqual({
+      sourceFullPath: '/ws/a.ts',
+      sourceRelativePath: 'a.ts',
+      targetDirFullPath: '/ws/sub',
+    });
+  });
+
+  it('returns null when the drop target is a file, not a folder', () => {
+    const drag = node({ name: 'a.ts', fullPath: '/ws/a.ts', relativePath: 'a.ts' });
+    const drop = node({ name: 'b.ts', fullPath: '/ws/b.ts', relativePath: 'b.ts', isFile: true, isDir: false });
+    expect(resolveMoveTarget(drag, drop)).toBeNull();
+  });
+
+  it('returns null for a no-op move into the current parent directory', () => {
+    const drag = node({ name: 'a.ts', fullPath: '/ws/sub/a.ts', relativePath: 'sub/a.ts' });
+    const drop = node({ name: 'sub', fullPath: '/ws/sub', relativePath: 'sub', isFile: false, isDir: true });
+    expect(resolveMoveTarget(drag, drop)).toBeNull();
+  });
+
+  it('returns null when moving a folder into itself', () => {
+    const drag = node({ name: 'sub', fullPath: '/ws/sub', relativePath: 'sub', isFile: false, isDir: true });
+    const drop = node({ name: 'sub', fullPath: '/ws/sub', relativePath: 'sub', isFile: false, isDir: true });
+    expect(resolveMoveTarget(drag, drop)).toBeNull();
+  });
+
+  it('returns null when moving a folder into one of its own descendants', () => {
+    const drag = node({ name: 'sub', fullPath: '/ws/sub', relativePath: 'sub', isFile: false, isDir: true });
+    const drop = node({
+      name: 'deep',
+      fullPath: '/ws/sub/deep',
+      relativePath: 'sub/deep',
+      isFile: false,
+      isDir: true,
+    });
+    expect(resolveMoveTarget(drag, drop)).toBeNull();
+  });
+
+  it('returns null when the drag source is the workspace root (empty relativePath)', () => {
+    const drag = node({ name: 'ws', fullPath: '/ws', relativePath: '', isFile: false, isDir: true });
+    const drop = node({ name: 'sub', fullPath: '/ws/sub', relativePath: 'sub', isFile: false, isDir: true });
+    expect(resolveMoveTarget(drag, drop)).toBeNull();
+  });
+
+  it('returns null for missing drag or drop data', () => {
+    const folder = node({ name: 'sub', fullPath: '/ws/sub', relativePath: 'sub', isFile: false, isDir: true });
+    expect(resolveMoveTarget(null, folder)).toBeNull();
+    expect(resolveMoveTarget(folder, null)).toBeNull();
   });
 });

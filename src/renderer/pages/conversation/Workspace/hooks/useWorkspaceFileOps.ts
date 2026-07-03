@@ -13,11 +13,11 @@ import {
   LARGE_TEXT_PREVIEW_MAX_LENGTH,
   LARGE_TEXT_PREVIEW_THRESHOLD,
 } from '@/renderer/pages/conversation/Preview/constants';
-import { removeWorkspaceEntry, renameWorkspaceEntry } from '@/renderer/utils/file/workspaceFs';
+import { moveWorkspaceEntry, removeWorkspaceEntry, renameWorkspaceEntry } from '@/renderer/utils/file/workspaceFs';
 import { useCallback } from 'react';
 import type { MessageApi, RenameModalState, DeleteModalState } from '../types';
 import type { FileOrFolderItem } from '@/renderer/utils/file/fileTypes';
-import { getPathSeparator, replacePathInList, updateTreeForRename } from '../utils/treeHelpers';
+import { getPathSeparator, replacePathInList, resolveMoveTarget, updateTreeForRename } from '../utils/treeHelpers';
 
 interface UseWorkspaceFileOpsOptions {
   workspace: string;
@@ -268,6 +268,37 @@ export function useWorkspaceFileOps(options: UseWorkspaceFileOpsOptions) {
   ]);
 
   /**
+   * Move a dragged file/folder into a drop-target folder.
+   *
+   * The UI guard (resolveMoveTarget) filters no-ops and self/descendant moves;
+   * the main process re-validates, confines both paths, and blocks collisions.
+   */
+  const handleMoveNode = useCallback(
+    async (dragData: IDirOrFile | null, dropData: IDirOrFile | null) => {
+      const resolved = resolveMoveTarget(dragData, dropData);
+      if (!resolved) return;
+
+      try {
+        const res = await moveWorkspaceEntry(resolved.sourceFullPath, resolved.targetDirFullPath);
+        if (!res?.success) {
+          messageApi.error(t('conversation.workspace.contextMenu.moveFailed'));
+          return;
+        }
+
+        setSelected([]);
+        selectedKeysRef.current = [];
+        selectedNodeRef.current = null;
+        emitter.emit(`${eventPrefix}.selected.file`, []);
+        messageApi.success(t('conversation.workspace.contextMenu.moveSuccess'));
+        setTimeout(() => refreshWorkspace(), 200);
+      } catch (error) {
+        messageApi.error(t('conversation.workspace.contextMenu.moveFailed'));
+      }
+    },
+    [eventPrefix, messageApi, refreshWorkspace, t, setSelected, selectedKeysRef, selectedNodeRef]
+  );
+
+  /**
    * Add to chat
    */
   const handleAddToChat = useCallback(
@@ -449,6 +480,7 @@ export function useWorkspaceFileOps(options: UseWorkspaceFileOpsOptions) {
     handleDeleteConfirm,
     handleRenameConfirm,
     handleAddToChat,
+    handleMoveNode,
     handlePreviewFile,
     openRenameModal,
     handleDownloadFile,

@@ -215,6 +215,46 @@ export function computeContextMenuPosition(
 }
 
 /**
+ * Resolve an internal drag-and-drop move within the workspace tree.
+ *
+ * Returns the source path and the destination directory when the move is
+ * allowed, or `null` when it must be ignored: missing data, a non-directory
+ * drop target, the workspace root as the drag source, a no-op move into the
+ * current parent, or moving a folder into itself / one of its descendants.
+ * The main process re-validates every move and blocks collisions - this is a
+ * UI-side guard only, never the security boundary.
+ */
+export function resolveMoveTarget(
+  dragData: IDirOrFile | null | undefined,
+  dropData: IDirOrFile | null | undefined
+): { sourceFullPath: string; sourceRelativePath: string; targetDirFullPath: string } | null {
+  if (!dragData?.fullPath || !dropData?.fullPath) return null;
+  // The workspace root (empty relativePath) cannot be moved.
+  if (!dragData.relativePath) return null;
+  // Drops are only accepted onto folders.
+  if (!dropData.isDir || dropData.isFile) return null;
+
+  const sourceFullPath = dragData.fullPath;
+  const targetDirFullPath = dropData.fullPath;
+
+  if (sourceFullPath === targetDirFullPath) return null;
+
+  const sep = getPathSeparator(sourceFullPath);
+  // No-op: the entry already lives directly inside the target directory.
+  const parentDir = sourceFullPath.slice(0, sourceFullPath.lastIndexOf(sep));
+  if (parentDir === targetDirFullPath) return null;
+
+  // Block moving a folder into itself or one of its own descendants.
+  if (targetDirFullPath === sourceFullPath || targetDirFullPath.startsWith(sourceFullPath + sep)) return null;
+
+  return {
+    sourceFullPath,
+    sourceRelativePath: dragData.relativePath,
+    targetDirFullPath,
+  };
+}
+
+/**
  * Get target folder path from selectedNodeRef or selected keys
  */
 export function getTargetFolderPath(

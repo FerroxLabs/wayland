@@ -165,7 +165,9 @@
       "revealFailed": "フォルダーを開けませんでした",
       "download": "ダウンロード",
       "downloadSuccess": "ダウンロードしました",
-      "downloadFailed": "ダウンロードに失敗しました"
+      "downloadFailed": "ダウンロードに失敗しました",
+      "moveSuccess": "移動しました",
+      "moveFailed": "移動に失敗しました"
     },
     "changes": {
       "tab": "変更",

@@ -165,7 +165,9 @@
       "revealFailed": "Échec de l'ouverture du dossier conteneur",
       "download": "Télécharger",
       "downloadSuccess": "Téléchargement réussi",
-      "downloadFailed": "Échec du téléchargement"
+      "downloadFailed": "Échec du téléchargement",
+      "moveSuccess": "Déplacé avec succès",
+      "moveFailed": "Échec du déplacement"
     },
     "changes": {
       "tab": "Modifications",

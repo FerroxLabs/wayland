@@ -243,6 +243,7 @@ describe('fsBridge skills functionality', () => {
             copyFilesToWorkspace: createCommandMock('copy-files-to-workspace'),
             removeEntry: createCommandMock('remove-entry'),
             renameEntry: createCommandMock('rename-entry'),
+            moveEntry: createCommandMock('move-entry'),
             readBuiltinRule: createCommandMock('read-builtin-rule'),
             readBuiltinSkill: createCommandMock('read-builtin-skill'),
             readAssistantRule: createCommandMock('read-assistant-rule'),

@@ -165,7 +165,9 @@
       "revealFailed": "Не вдалося відкрити папку з файлом",
       "download": "Завантажити",
       "downloadSuccess": "Завантаження успішне",
-      "downloadFailed": "Не вдалося завантажити"
+      "downloadFailed": "Не вдалося завантажити",
+      "moveSuccess": "Успішно переміщено",
+      "moveFailed": "Не вдалося перемістити"
     },
     "changes": {
       "tab": "Зміни",
