@@ -18,6 +18,7 @@ import type { AgentBackend } from '@/common/types/acpTypes';
 import type { IProvider, TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { getAssistantsDir } from '@process/utils/initStorage';
+import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/chatgptSubscriptionModels';
 import { EventLogger } from './EventLogger';
 import { TaskManager } from './TaskManager';
 import { Watchdog } from './Watchdog';
@@ -231,12 +232,54 @@ export class TeamSessionService {
       return geminiOwner ? ({ ...geminiOwner, useModel: modelId } as TProviderWithModel) : null;
     }
 
-    const owner = providers.find(owns);
+    // Prefer the ChatGPT-subscription provider (OAuth, no per-token cost) when it
+    // owns the pinned model id, so a subscription model is NOT hijacked by a
+    // metered look-alike that merely lists the same id first in model.config
+    // (direct OpenAI / OpenRouter). team_list_models hands the leader a BARE model
+    // id (e.g. 'gpt-5.4') with no provider identity, so first-match-by-config-order
+    // otherwise silently binds a subscription teammate to the metered API and
+    // bills it there instead of the subscription the user connected (#555 teams).
+    // Symmetric to the Gemini anti-hijack guard above (#207).
+    const isSubscriptionProvider = (p: IProvider): boolean =>
+      (p as unknown as Record<string, unknown>).__waylandModelRegistryBridge ===
+      `v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`;
+    const owner = providers.find((p) => owns(p) && isSubscriptionProvider(p)) ?? providers.find(owns);
     if (!owner) {
       return null;
     }
 
     return { ...owner, useModel: modelId } as TProviderWithModel;
+  }
+
+  /**
+   * #555 teams — final safety net against a teammate billing a ChatGPT-subscription
+   * model on a metered look-alike. Whatever path resolved the model (an explicit
+   * pin via resolveOwningProviderModelById, the wcore default `providers[0]`, or
+   * the gemini `fallbackProvider` first-match), if the resulting `useModel` is a
+   * model the ChatGPT-subscription provider OWNS (lists + enabled) but the
+   * resolved provider is NOT the subscription, re-bind to the subscription (OAuth,
+   * no per-token cost) provider so envBuilder routes `--provider openai-chatgpt`
+   * instead of the metered `--provider openai`. This is the choke point that
+   * covers the default/fallback paths every shipped launcher hits (team_spawn_agent
+   * is usually called with no explicit model), which bypass the pin resolver.
+   */
+  private async preferSubscriptionForOwnedModel(model: TProviderWithModel): Promise<TProviderWithModel> {
+    const useModel = model?.useModel;
+    if (!useModel) return model;
+    const subTag = `v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`;
+    const currentTag = (model as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
+    if (currentTag === subTag) return model; // already the subscription - nothing to do
+
+    const configuredProviders = await ProcessConfig.get('model.config');
+    const providers = Array.isArray(configuredProviders) ? configuredProviders.filter((p) => p.enabled !== false) : [];
+    const subscription = providers.find(
+      (p) =>
+        (p as unknown as Record<string, unknown>).__waylandModelRegistryBridge === subTag &&
+        Array.isArray(p.model) &&
+        p.model.includes(useModel) &&
+        p.modelEnabled?.[useModel] !== false
+    );
+    return subscription ? ({ ...subscription, useModel } as TProviderWithModel) : model;
   }
 
   private async resolveConversationModel(params: {
@@ -296,12 +339,7 @@ export class TeamSessionService {
         : sourceLauncherId.startsWith('builtin-')
           ? sourceLauncherId.slice(8)
           : sourceLauncherId;
-      const candidates = new Set([
-        sourceLauncherId,
-        bare,
-        `ext-${bare}`,
-        `builtin-${bare}`,
-      ]);
+      const candidates = new Set([sourceLauncherId, bare, `ext-${bare}`, `builtin-${bare}`]);
       const matches = (record: { id?: string; standing?: boolean } | undefined): boolean => {
         const id = record?.id;
         return typeof id === 'string' && candidates.has(id) && record?.standing === true;
@@ -469,10 +507,11 @@ export class TeamSessionService {
       presetAgentType: isPreset ? backend : undefined,
     });
 
+    const conversationType = getConversationTypeForBackend(backend);
+
     // Override the working model when the agent pins one explicitly.
     if (agent.model) {
-      const type = getConversationTypeForBackend(backend);
-      if (type === 'wcore' || type === 'gemini') {
+      if (conversationType === 'wcore' || conversationType === 'gemini') {
         // Re-select the provider that OWNS this model id so the spawn hydrates
         // the right key/baseUrl (#87). Without this a pinned teammate keeps the
         // default-resolved provider and only swaps the model name, so a
@@ -481,9 +520,24 @@ export class TeamSessionService {
         // useModel-only override on the already-resolved provider when no
         // enabled provider claims it - e.g. a Google-auth Gemini model that
         // lives outside model.config.
-        const owned = await this.resolveOwningProviderModelById(agent.model, type);
+        const owned = await this.resolveOwningProviderModelById(agent.model, conversationType);
         model = owned ?? { ...model, useModel: agent.model };
       }
+    }
+
+    // #555 teams choke point (WCORE ONLY): covers the wcore default
+    // (`providers[0]`) path that resolves a subscription model id onto the
+    // metered OpenAI provider (tag v2:openai) and would bill the API instead of
+    // the subscription. Scoped to wcore because ONLY the wcore engine can auth
+    // the keyless ChatGPT-subscription provider (OAuth via ~/.codex/auth.json,
+    // routed by envBuilder.mapProvider -> --provider openai-chatgpt). Re-binding a
+    // Gemini-CLI teammate to that keyless row would break bootstrap ("OpenAI API
+    // key is required"), so a gemini teammate on a subscription model id keeps the
+    // metered provider - the only route its backend can actually use. (Offering
+    // subscription-only ids to a gemini teammate at all is a separate concern in
+    // team_list_models/getTeamAvailableModels.)
+    if (conversationType === 'wcore') {
+      model = await this.preferSubscriptionForOwnedModel(model);
     }
 
     return buildAgentConversationParams({
