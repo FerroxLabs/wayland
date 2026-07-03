@@ -8,6 +8,7 @@ import type { IProvider, TProviderWithModel } from '@/common/config/storage';
 import { useModelProviderList } from '@/renderer/hooks/agent/useModelProviderList';
 import { useModelDisplayName } from '@/renderer/hooks/agent/useModelDisplayName';
 import { isFluxModelId } from '@/common/config/flux';
+import { BRIDGE_TAG_KEY, V2_TAG_PREFIX } from '@/renderer/components/model/modelSelector/resolveSelectedProvider';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type WCoreModelSelection = {
@@ -85,8 +86,34 @@ export const useWCoreModelSelection = ({
     // race). Once loaded, a genuinely-disconnected provider still clears (#64).
     if (providerListLoading) return;
     const useModel = currentModel.useModel ?? '';
+    // #555 - the selection's registry-bridge tag (`v2:<registryProviderId>`), if
+    // it carries one. A persisted wcore chat/team model can store `id` as the
+    // registry ProviderId (e.g. 'chatgpt-subscription') rather than the opaque
+    // mirrored legacy id, so the id-only match below misses. Without a
+    // tag-aware step the bare-model-id fallback then binds the picker to
+    // whatever provider lists the same bare id FIRST - e.g. a metered
+    // direct-API/OpenRouter provider that shares 'gpt-5.4' - mislabeling the
+    // selection as a provider the user never chose. (Real spend is routed
+    // engine-side from the persisted conversation.model tag, not this local
+    // state, so this is a picker/header/health display fix, not a billing fix.)
+    // Resolve the owner by tag before the bare-id fallback, mirroring
+    // resolveSelectedProvider's priority.
+    const currentTag = (currentModel as unknown as Record<string, unknown>)[BRIDGE_TAG_KEY];
+    const tagOf = (p: IProvider): unknown => (p as unknown as Record<string, unknown>)[BRIDGE_TAG_KEY];
     const owner =
+      // 1. exact legacy id (cheap, correct when registry and storage ids align)
       providers.find((p) => p.id === currentModel.id && getAvailableModels(p).includes(useModel)) ??
+      // 2. the selection's OWN bridge tag - deterministic registry owner. Match
+      //    by tag ALONE (no getAvailableModels gate), exactly like
+      //    resolveSelectedProvider.bridgeTagMatch: a ChatGPT-subscription row can
+      //    be curated out of the function-calling set (#168/#158) yet still be
+      //    the true owner - gating on availability would fall through to the
+      //    bare-id metered look-alike again.
+      (typeof currentTag === 'string' ? providers.find((p) => tagOf(p) === currentTag) : undefined) ??
+      // 3. persisted id IS the registry ProviderId (untagged model): match the
+      //    provider tagged `v2:<id>` (tag alone, same rationale as step 2)
+      providers.find((p) => tagOf(p) === `${V2_TAG_PREFIX}${currentModel.id}`) ??
+      // 4. bare-model-id membership fallback (untagged providers only in practice)
       providers.find((p) => getAvailableModels(p).includes(useModel));
     if (!owner) {
       // The model isn't in any provider's *curated* available list. Before

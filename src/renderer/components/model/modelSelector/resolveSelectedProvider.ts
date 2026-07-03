@@ -9,8 +9,8 @@ import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
 import { modelKey } from './modelRowHelpers';
 
 /** The tag the registry bridge stamps on each mirrored row: `v2:<registryProviderId>`. */
-const BRIDGE_TAG_KEY = '__waylandModelRegistryBridge';
-const V2_TAG_PREFIX = 'v2:';
+export const BRIDGE_TAG_KEY = '__waylandModelRegistryBridge';
+export const V2_TAG_PREFIX = 'v2:';
 
 /**
  * Resolve the legacy `IProvider` that owns a model the unified flyout emitted.
