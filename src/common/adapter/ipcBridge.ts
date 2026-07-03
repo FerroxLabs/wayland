@@ -454,6 +454,12 @@ export const skills = {
   scan: buildProvider<SkillSecurityReport | null, { name: string }>('skills.scan'),
   getReport: buildProvider<SkillSecurityReport | null, { name: string }>('skills.get-report'),
   rescanAll: buildProvider<{ rescanned: number }, void>('skills.rescan-all'),
+  /**
+   * Manual "Scan library" action (C4). Runs the same regex-only,
+   * scannerVersion-gated sweep as the app-start trigger and returns how many
+   * entries were (re)scanned. Never spends a model call — first-party content.
+   */
+  scanLibrary: buildProvider<{ rescanned: number }, void>('skills.scan-library'),
   import: {
     /** Import a skill from a local folder path. */
     folder: buildProvider<ImportResult, { srcPath: string }>('skills.import.folder'),

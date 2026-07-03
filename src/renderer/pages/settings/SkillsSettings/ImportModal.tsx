@@ -5,17 +5,21 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Input, Modal, Tabs } from '@arco-design/web-react';
+import { Button, Input, Message, Modal, Tabs } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { ImportResult } from '@process/services/skills/SkillImport';
-import type { SkillSecurityReport } from '@/common/types/skillTypes';
+import type { SkillFinding, SkillSecurityReport } from '@/common/types/skillTypes';
 
 type ImportTab = 'folder' | 'git' | 'zip' | 'singleSkillMd';
 
 type ScannedEntry = {
   name: string;
+  /** Absolute imported path - needed to confirm a held (review) skill. */
+  destPath: string;
   report: SkillSecurityReport;
+  /** Whether the skill is already live (clean) or held pending consent (review). */
+  registered: boolean;
 };
 
 type ScanScreen = {
@@ -45,21 +49,49 @@ const VerdictBadge: React.FC<{ verdict: SkillSecurityReport['verdict'] }> = ({ v
   );
 };
 
+/** Plain-English list of findings for a held (review) skill. */
+const FindingList: React.FC<{ findings: SkillFinding[] }> = ({ findings }) => {
+  const { t } = useTranslation();
+  if (findings.length === 0) return null;
+  return (
+    <ul className='flex flex-col gap-2px m-0 pl-16px'>
+      {findings.map((f, i) => (
+        <li key={i} className='text-12px text-t-secondary'>
+          {t(`skills.import.scan.threat.${f.threat}`, { defaultValue: f.threat })}
+          {f.evidence ? <span className='text-t-tertiary'> — {f.evidence}</span> : null}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
 const ScanResultsScreen: React.FC<{
   screen: ScanScreen;
-  onImportAllClean: () => void;
-  onReviewAndSelect: () => void;
-  onCancel: () => void;
-}> = ({ screen, onImportAllClean, onReviewAndSelect, onCancel }) => {
+  confirming: string | null;
+  onConfirmReview: (entry: ScannedEntry) => void;
+  onDone: () => void;
+}> = ({ screen, confirming, onConfirmReview, onDone }) => {
   const { t } = useTranslation();
   const hasBlocked = screen.quarantined.length > 0;
-  const hasReview = screen.entries.some((e) => e.report.verdict === 'review');
+  // Honesty (spec): if any non-blocked entry was NOT deep-swept, say so - never
+  // imply "verified safe" off the heuristic scan alone.
+  const heuristicOnly = screen.entries.some((e) => !e.report.llmScanned && e.report.verdict !== 'blocked');
 
   return (
     <div className='flex flex-col gap-16px'>
       <span className='text-15px font-semibold text-t-primary'>
         {t('skills.import.scan.title', { defaultValue: 'Scan results' })}
       </span>
+
+      {heuristicOnly && (
+        <div className='bg-[rgba(var(--warning-6),0.08)] border border-[rgba(var(--warning-6),0.2)] rd-8px px-12px py-10px'>
+          <span className='text-12px text-[rgb(var(--warning-6))]'>
+            {t('skills.import.scan.heuristicOnly', {
+              defaultValue: 'Deep sweep unavailable — heuristic scan only.',
+            })}
+          </span>
+        </div>
+      )}
 
       {screen.warnings.length > 0 && (
         <div className='bg-[rgba(var(--warning-6),0.08)] border border-[rgba(var(--warning-6),0.2)] rd-8px px-12px py-10px flex flex-col gap-4px'>
@@ -69,57 +101,67 @@ const ScanResultsScreen: React.FC<{
         </div>
       )}
 
-      <div className='flex flex-col gap-8px max-h-[320px] overflow-y-auto custom-scrollbar'>
-        {screen.entries.map((entry) => (
-          <div
-            key={entry.name}
-            className='flex items-start justify-between gap-12px p-12px bg-fill-1 rd-8px border border-b-base'
-          >
-            <div className='flex flex-col gap-4px min-w-0'>
-              <span className='text-13px font-medium text-t-primary truncate'>{entry.name}</span>
-              {entry.report.findings.length > 0 ? (
-                <span className='text-12px text-t-secondary'>
-                  {t('skills.import.scan.finding_other', {
-                    count: entry.report.findings.length,
-                    defaultValue: `${entry.report.findings.length} findings`,
-                  })}
-                </span>
-              ) : (
-                <span className='text-12px text-t-tertiary'>
-                  {t('skills.import.scan.noFindings', { defaultValue: 'No issues found' })}
-                </span>
+      <div className='flex flex-col gap-8px max-h-[360px] overflow-y-auto custom-scrollbar'>
+        {screen.entries.map((entry) => {
+          const isReview = entry.report.verdict === 'review';
+          return (
+            <div
+              key={entry.name}
+              className='flex flex-col gap-8px p-12px bg-fill-1 rd-8px border border-b-base'
+            >
+              <div className='flex items-start justify-between gap-12px'>
+                <div className='flex flex-col gap-4px min-w-0'>
+                  <span className='text-13px font-medium text-t-primary truncate'>{entry.name}</span>
+                  {entry.report.verdict === 'clean' ? (
+                    <span className='text-12px text-t-tertiary'>
+                      {t('skills.import.scan.clean', { defaultValue: 'Scanned — no red flags found.' })}
+                    </span>
+                  ) : (
+                    <FindingList findings={entry.report.findings} />
+                  )}
+                </div>
+                <VerdictBadge verdict={entry.report.verdict} />
+              </div>
+              {isReview && (
+                <div className='flex justify-end'>
+                  <Button
+                    size='small'
+                    status='warning'
+                    loading={confirming === entry.name}
+                    disabled={entry.registered}
+                    onClick={() => onConfirmReview(entry)}
+                  >
+                    {entry.registered
+                      ? t('skills.import.actions.imported', { defaultValue: 'Imported' })
+                      : t('skills.import.actions.importAnyway', { defaultValue: 'Import anyway' })}
+                  </Button>
+                </div>
               )}
             </div>
-            <VerdictBadge verdict={entry.report.verdict} />
-          </div>
-        ))}
+          );
+        })}
 
         {hasBlocked && screen.quarantined.map((name) => (
           <div
             key={name}
-            className='flex items-start justify-between gap-12px p-12px bg-fill-1 rd-8px border border-[rgba(var(--danger-6),0.2)]'
+            className='flex flex-col gap-4px p-12px bg-fill-1 rd-8px border border-[rgba(var(--danger-6),0.2)]'
           >
-            <span className='text-13px font-medium text-t-primary truncate'>{name}</span>
-            <VerdictBadge verdict='blocked' />
+            <div className='flex items-start justify-between gap-12px'>
+              <span className='text-13px font-medium text-t-primary truncate'>{name}</span>
+              <VerdictBadge verdict='blocked' />
+            </div>
+            <span className='text-12px text-t-secondary'>
+              {t('skills.import.scan.blocked', {
+                defaultValue: 'Blocked and quarantined — this skill will not be used.',
+              })}
+            </span>
           </div>
         ))}
       </div>
 
       <div className='flex items-center justify-end gap-12px pt-4px'>
-        <Button onClick={onCancel} style={{ borderRadius: 8 }} className='px-16px'>
-          {t('skills.import.actions.cancel', { defaultValue: 'Cancel' })}
-        </Button>
-        {hasReview && (
-          <Button onClick={onReviewAndSelect} style={{ borderRadius: 8 }} className='px-16px'>
-            {t('skills.import.actions.reviewAndSelect', { defaultValue: 'Review and select' })}
-          </Button>
-        )}
-        <Button
-          type='primary'
-          onClick={onImportAllClean}
-          className=''
-        >
-          {t('skills.import.actions.importAllClean', { defaultValue: 'Import all clean' })}
+        <Button type='primary' onClick={onDone} style={{ borderRadius: 8 }} className='px-16px'>
+          {t('skills.import.actions.done', { defaultValue: 'Done' })}
         </Button>
       </div>
     </div>
@@ -136,6 +178,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [scanScreen, setScanScreen] = useState<ScanScreen | null>(null);
+  const [confirming, setConfirming] = useState<string | null>(null);
 
   const reset = () => {
     setFolderPath('');
@@ -144,6 +187,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
     setSkillMdPath('');
     setError('');
     setScanScreen(null);
+    setConfirming(null);
     setLoading(false);
     setTab('folder');
   };
@@ -156,9 +200,13 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
   const applyResult = (result: ImportResult) => {
     const entries: ScannedEntry[] = result.imported.map((r) => ({
       name: r.name,
+      destPath: r.destPath,
       report: r.report,
+      registered: r.registered,
     }));
     setScanScreen({ entries, quarantined: result.quarantined, warnings: result.warnings });
+    // A clean skill is already live - refresh the underlying list immediately.
+    if (entries.some((e) => e.registered)) onImported();
   };
 
   const handleImport = async () => {
@@ -180,6 +228,44 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
       setError(err instanceof Error ? err.message : t('skills.import.error.failed', { defaultValue: 'Import failed' }));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // C3: user explicitly approves a held (review) skill. Keyed by the imported
+  // path + the contentHash the user saw, so the approval can't be replayed
+  // against different content.
+  const handleConfirmReview = async (entry: ScannedEntry) => {
+    setConfirming(entry.name);
+    try {
+      const res = await ipcBridge.skills.confirmImport.invoke({
+        name: entry.name,
+        destPath: entry.destPath,
+        contentHash: entry.report.contentHash ?? '',
+      });
+      if (res.ok) {
+        setScanScreen((prev) =>
+          prev
+            ? { ...prev, entries: prev.entries.map((e) => (e.name === entry.name ? { ...e, registered: true } : e)) }
+            : prev
+        );
+        onImported();
+        Message.success(t('skills.import.confirm.done', { defaultValue: 'Skill imported' }));
+      } else {
+        Message.error(
+          t(`skills.import.confirm.error.${res.error}`, {
+            defaultValue:
+              res.error === 'content-changed'
+                ? 'The skill changed since it was scanned — re-import it.'
+                : res.error === 'blocked'
+                  ? 'This skill is blocked and cannot be imported.'
+                  : 'The imported skill could not be found.',
+          })
+        );
+      }
+    } catch {
+      Message.error(t('skills.import.confirm.error.failed', { defaultValue: 'Import failed' }));
+    } finally {
+      setConfirming(null);
     }
   };
 
@@ -230,9 +316,9 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
       >
         <ScanResultsScreen
           screen={scanScreen}
-          onImportAllClean={() => { onImported(); handleClose(); }}
-          onReviewAndSelect={() => { onImported(); handleClose(); }}
-          onCancel={handleClose}
+          confirming={confirming}
+          onConfirmReview={(entry) => void handleConfirmReview(entry)}
+          onDone={handleClose}
         />
       </Modal>
     );
@@ -335,7 +421,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
           </Tabs.TabPane>
         </Tabs>
 
-        {/* Marketplace tile - FEATURE-FLAGGED OFF.
+        {/* Marketplace tile — FEATURE-FLAGGED OFF.
             ClawHub has no public API yet; this tile is intentionally disabled.
             Re-enable when ClawHub integration is available (see wayland roadmap). */}
         <div
@@ -347,7 +433,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
               {t('skills.import.source.marketplace', { defaultValue: 'Marketplace (coming soon)' })}
             </span>
             <span className='text-12px text-t-tertiary'>
-              ClawHub integration is not yet available.
+              {t('skills.import.source.marketplaceHint', { defaultValue: 'ClawHub integration is not yet available.' })}
             </span>
           </div>
         </div>

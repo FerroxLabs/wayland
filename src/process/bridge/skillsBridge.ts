@@ -42,20 +42,11 @@ export function initSkillsBridge(): void {
     return entry?.security ?? null;
   });
 
-  ipcBridge.skills.rescanAll.provider(async () => {
-    const lib = SkillLibrary.getInstance();
-    const { SKILL_SCANNER_VERSION } = await import('@/common/types/skillTypes');
-    const all = await lib.list();
-    let rescanned = 0;
-    for (const e of all) {
-      const sv = e.security?.scannerVersion ?? 0;
-      if (sv < SKILL_SCANNER_VERSION) {
-        await lib.rescanIfStale(e.name);
-        rescanned += 1;
-      }
-    }
-    return { rescanned };
-  });
+  // Regex-only, scannerVersion-gated library sweep (C4). Both the legacy
+  // rescanAll IPC and the manual "Scan library" action delegate to the same
+  // batched SkillLibrary.rescanStale so there is one code path and one gate.
+  ipcBridge.skills.rescanAll.provider(async () => SkillLibrary.getInstance().rescanStale());
+  ipcBridge.skills.scanLibrary.provider(async () => SkillLibrary.getInstance().rescanStale());
 
   const importer = new SkillImport();
 
@@ -306,4 +297,16 @@ export function initSkillsBridge(): void {
 
     return { name: kebab, verdict: report.verdict };
   });
+
+  // C4: one-time library sweep on app start. The 2,054 vendored skills seed as
+  // `unscanned` and nothing ever scans them, so the "verified safe" counter
+  // reads 0. Run the regex-only, scannerVersion-gated sweep once, fire-and-
+  // forget so it never blocks boot; after a full sweep the gate makes it a
+  // no-op on subsequent launches. Failures are swallowed - a scan miss must
+  // never crash startup.
+  void SkillLibrary.getInstance()
+    .rescanStale()
+    .catch((err) => {
+      console.warn('[skillsBridge] startup library sweep failed', err);
+    });
 }

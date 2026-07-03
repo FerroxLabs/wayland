@@ -502,4 +502,37 @@ export class SkillLibrary {
     entry.security = report;
     return report;
   }
+
+  /**
+   * One-time, regex-only sweep of the vendored library (C4).
+   *
+   * Flips every entry whose stored `scannerVersion` is behind the current
+   * `SKILL_SCANNER_VERSION` from `unscanned` to its real `clean`/`review`
+   * verdict, fixing the "verified safe" counter. First-party content, so it is
+   * ALWAYS `{ llm: false }` — never a model call. The `scannerVersion` gate
+   * makes it idempotent: a second call after a full sweep re-scans nothing.
+   *
+   * Batched with an `await` yield between chunks so a 2,000-entry sweep does
+   * not monopolize the event loop on the boot path.
+   *
+   * @returns the number of entries that were (re)scanned.
+   */
+  async rescanStale(opts?: { batchSize?: number }): Promise<{ rescanned: number }> {
+    await this.ensureLoaded();
+    const batchSize = opts?.batchSize ?? 100;
+    const stale = this.entries.filter((e) => (e.security?.scannerVersion ?? 0) < SKILL_SCANNER_VERSION);
+    let rescanned = 0;
+    for (let i = 0; i < stale.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.rescanIfStale(stale[i].name, { llm: false });
+      rescanned += 1;
+      // Yield to the event loop between batches so the sweep stays off the UI
+      // thread's critical path.
+      if (i > 0 && i % batchSize === 0) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setImmediate(resolve));
+      }
+    }
+    return { rescanned };
+  }
 }

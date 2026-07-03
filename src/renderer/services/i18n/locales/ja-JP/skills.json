@@ -39,7 +39,8 @@
     "disable": "無効化",
     "delete": "削除",
     "import": "インポート",
-    "build": "スキルを作成"
+    "build": "スキルを作成",
+    "scanLibrary": "Scan library"
   },
   "threats": {
     "credential-access": "認証情報へのアクセス",
@@ -62,7 +63,8 @@
       "git": "Git URL",
       "zip": "ZIPファイル",
       "marketplace": "マーケットプレイス（近日公開）",
-      "singleSkillMd": "単一の SKILL.md"
+      "singleSkillMd": "単一の SKILL.md",
+      "marketplaceHint": "ClawHub integration is not yet available."
     },
     "folder": {
       "label": "スキルフォルダ",
@@ -88,7 +90,10 @@
       "importing": "インポート中…",
       "importAllClean": "問題のないものをすべてインポート",
       "reviewAndSelect": "確認して選択",
-      "cancel": "キャンセル"
+      "cancel": "キャンセル",
+      "importAnyway": "Import anyway",
+      "imported": "Imported",
+      "done": "Done"
     },
     "scan": {
       "title": "スキャン結果",
@@ -99,11 +104,32 @@
       },
       "noFindings": "問題は見つかりませんでした",
       "finding": "{{count}} 件の検出",
-      "finding_other": "{{count}} 件の検出"
+      "finding_other": "{{count}} 件の検出",
+      "clean": "Scanned — no red flags found.",
+      "blocked": "Blocked and quarantined — this skill will not be used.",
+      "heuristicOnly": "Deep sweep unavailable — heuristic scan only.",
+      "threat": {
+        "credential-access": "Accesses credentials or tokens",
+        "network-exfiltration": "Sends data to an external destination",
+        "shell-execution": "Runs destructive or piped shell commands",
+        "filesystem-write": "Writes outside the workspace",
+        "instruction-override": "Tries to override the agent's instructions",
+        "obfuscation": "Hides intent (obfuscated payload)",
+        "index-poisoning": "Tags don't match the skill's content"
+      }
     },
     "error": {
       "failed": "インポートに失敗しました",
       "invalidUrl": "有効な https:// または git@ の URL を入力してください"
+    },
+    "confirm": {
+      "done": "Skill imported",
+      "error": {
+        "content-changed": "The skill changed since it was scanned — re-import it.",
+        "blocked": "This skill is blocked and cannot be imported.",
+        "not-found": "The imported skill could not be found.",
+        "failed": "Import failed"
+      }
     }
   },
   "builder": {
@@ -180,5 +206,9 @@
   },
   "addToChat": {
     "alreadyAdded": "Added"
+  },
+  "scanLibrary": {
+    "done": "Scanned {{count}} skills",
+    "failed": "Library scan failed"
   }
 }
