@@ -96,7 +96,9 @@ const ScanResultsScreen: React.FC<{
       {screen.warnings.length > 0 && (
         <div className='bg-[rgba(var(--warning-6),0.08)] border border-[rgba(var(--warning-6),0.2)] rd-8px px-12px py-10px flex flex-col gap-4px'>
           {screen.warnings.map((w, i) => (
-            <span key={i} className='text-12px text-[rgb(var(--warning-6))]'>{w}</span>
+            <span key={i} className='text-12px text-[rgb(var(--warning-6))]'>
+              {w}
+            </span>
           ))}
         </div>
       )}
@@ -105,10 +107,7 @@ const ScanResultsScreen: React.FC<{
         {screen.entries.map((entry) => {
           const isReview = entry.report.verdict === 'review';
           return (
-            <div
-              key={entry.name}
-              className='flex flex-col gap-8px p-12px bg-fill-1 rd-8px border border-b-base'
-            >
+            <div key={entry.name} className='flex flex-col gap-8px p-12px bg-fill-1 rd-8px border border-b-base'>
               <div className='flex items-start justify-between gap-12px'>
                 <div className='flex flex-col gap-4px min-w-0'>
                   <span className='text-13px font-medium text-t-primary truncate'>{entry.name}</span>
@@ -141,22 +140,23 @@ const ScanResultsScreen: React.FC<{
           );
         })}
 
-        {hasBlocked && screen.quarantined.map((name) => (
-          <div
-            key={name}
-            className='flex flex-col gap-4px p-12px bg-fill-1 rd-8px border border-[rgba(var(--danger-6),0.2)]'
-          >
-            <div className='flex items-start justify-between gap-12px'>
-              <span className='text-13px font-medium text-t-primary truncate'>{name}</span>
-              <VerdictBadge verdict='blocked' />
+        {hasBlocked &&
+          screen.quarantined.map((name) => (
+            <div
+              key={name}
+              className='flex flex-col gap-4px p-12px bg-fill-1 rd-8px border border-[rgba(var(--danger-6),0.2)]'
+            >
+              <div className='flex items-start justify-between gap-12px'>
+                <span className='text-13px font-medium text-t-primary truncate'>{name}</span>
+                <VerdictBadge verdict='blocked' />
+              </div>
+              <span className='text-12px text-t-secondary'>
+                {t('skills.import.scan.blocked', {
+                  defaultValue: 'Blocked and quarantined — this skill will not be used.',
+                })}
+              </span>
             </div>
-            <span className='text-12px text-t-secondary'>
-              {t('skills.import.scan.blocked', {
-                defaultValue: 'Blocked and quarantined — this skill will not be used.',
-              })}
-            </span>
-          </div>
-        ))}
+          ))}
       </div>
 
       <div className='flex items-center justify-end gap-12px pt-4px'>
@@ -242,7 +242,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
         destPath: entry.destPath,
         contentHash: entry.report.contentHash ?? '',
       });
-      if (res.ok) {
+      if (!('error' in res)) {
         setScanScreen((prev) =>
           prev
             ? { ...prev, entries: prev.entries.map((e) => (e.name === entry.name ? { ...e, registered: true } : e)) }
@@ -251,12 +251,13 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
         onImported();
         Message.success(t('skills.import.confirm.done', { defaultValue: 'Skill imported' }));
       } else {
+        const reason = res.error;
         Message.error(
-          t(`skills.import.confirm.error.${res.error}`, {
+          t(`skills.import.confirm.error.${reason}`, {
             defaultValue:
-              res.error === 'content-changed'
+              reason === 'content-changed'
                 ? 'The skill changed since it was scanned — re-import it.'
-                : res.error === 'blocked'
+                : reason === 'blocked'
                   ? 'This skill is blocked and cannot be imported.'
                   : 'The imported skill could not be found.',
           })
@@ -273,7 +274,9 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
     try {
       const paths = await ipcBridge.dialog.showOpen.invoke({ properties: ['openDirectory', 'createDirectory'] });
       if (paths && paths.length > 0) setFolderPath(paths[0]);
-    } catch { /* dismissed */ }
+    } catch {
+      /* dismissed */
+    }
   };
 
   const handleBrowseZip = async () => {
@@ -283,7 +286,9 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
         filters: [{ name: 'ZIP archives', extensions: ['zip'] }],
       } as Parameters<typeof ipcBridge.dialog.showOpen.invoke>[0]);
       if (paths && paths.length > 0) setZipPath(paths[0]);
-    } catch { /* dismissed */ }
+    } catch {
+      /* dismissed */
+    }
   };
 
   const handleBrowseSkillMd = async () => {
@@ -293,7 +298,9 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
         filters: [{ name: 'SKILL.md', extensions: ['md'] }],
       } as Parameters<typeof ipcBridge.dialog.showOpen.invoke>[0]);
       if (paths && paths.length > 0) setSkillMdPath(paths[0]);
-    } catch { /* dismissed */ }
+    } catch {
+      /* dismissed */
+    }
   };
 
   const canImport =
@@ -334,11 +341,14 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
       autoFocus={false}
     >
       <div className='flex flex-col gap-16px'>
-        <Tabs activeTab={tab} onChange={(k) => { setTab(k as ImportTab); setError(''); }}>
-          <Tabs.TabPane
-            key='folder'
-            title={t('skills.import.source.folder', { defaultValue: 'Folder' })}
-          >
+        <Tabs
+          activeTab={tab}
+          onChange={(k) => {
+            setTab(k as ImportTab);
+            setError('');
+          }}
+        >
+          <Tabs.TabPane key='folder' title={t('skills.import.source.folder', { defaultValue: 'Folder' })}>
             <div className='flex flex-col gap-8px pt-12px'>
               <span className='text-13px font-medium text-t-primary'>
                 {t('skills.import.folder.label', { defaultValue: 'Skill folder' })}
@@ -358,10 +368,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
             </div>
           </Tabs.TabPane>
 
-          <Tabs.TabPane
-            key='git'
-            title={t('skills.import.source.git', { defaultValue: 'Git URL' })}
-          >
+          <Tabs.TabPane key='git' title={t('skills.import.source.git', { defaultValue: 'Git URL' })}>
             <div className='flex flex-col gap-8px pt-12px'>
               <span className='text-13px font-medium text-t-primary'>
                 {t('skills.import.git.label', { defaultValue: 'Git URL' })}
@@ -374,10 +381,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
             </div>
           </Tabs.TabPane>
 
-          <Tabs.TabPane
-            key='zip'
-            title={t('skills.import.source.zip', { defaultValue: 'ZIP file' })}
-          >
+          <Tabs.TabPane key='zip' title={t('skills.import.source.zip', { defaultValue: 'ZIP file' })}>
             <div className='flex flex-col gap-8px pt-12px'>
               <span className='text-13px font-medium text-t-primary'>
                 {t('skills.import.zip.label', { defaultValue: 'ZIP file' })}
@@ -409,7 +413,9 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
                 <Input
                   value={skillMdPath}
                   onChange={setSkillMdPath}
-                  placeholder={t('skills.import.singleSkillMd.placeholder', { defaultValue: 'Click to choose a SKILL.md…' })}
+                  placeholder={t('skills.import.singleSkillMd.placeholder', {
+                    defaultValue: 'Click to choose a SKILL.md…',
+                  })}
                   className='flex-1'
                   readOnly
                 />
@@ -438,9 +444,7 @@ const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onImported 
           </div>
         </div>
 
-        {error && (
-          <span className='text-12px text-[rgb(var(--danger-6))]'>{error}</span>
-        )}
+        {error && <span className='text-12px text-[rgb(var(--danger-6))]'>{error}</span>}
 
         <div className='flex items-center justify-end gap-12px'>
           <Button onClick={handleClose} style={{ borderRadius: 8 }} className='px-16px'>

@@ -39,10 +39,7 @@ export type LlmScanResult = { findings: SkillFinding[]; ran: boolean };
  * claiming a scan happened. A regex `blocked` still blocks regardless; the
  * fail-open only affects the LLM layer's contribution.
  */
-export const skillGuardLlmScan = async (
-  batch: SkillScanInput[],
-  call?: LlmScanCall
-): Promise<LlmScanResult[]> => {
+export const skillGuardLlmScan = async (batch: SkillScanInput[], call?: LlmScanCall): Promise<LlmScanResult[]> => {
   if (call) {
     try {
       const results = await call(batch);

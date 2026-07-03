@@ -88,21 +88,17 @@ export function initSkillsBridge(): void {
         // ConfigStorage('assistants') array, so parallelizing would drop
         // writes. A single import batch is tiny, so the cost is negligible.
         // oxlint-disable-next-line no-await-in-loop
-        const imported = await importAgentProfile(
-          { name, description: parsed?.description },
-          entry.body,
-          {
-            getAssistants: async () => (await ProcessConfig.get('assistants')) ?? [],
-            setAssistants: async (next) => {
-              await ProcessConfig.set('assistants', next);
-            },
-            writeRule: async (assistantId, content) => {
-              await mkdir(getAssistantsDir(), { recursive: true });
-              await writeFile(path.join(getAssistantsDir(), `${assistantId}.en-US.md`), content, 'utf-8');
-            },
-            now: Date.now,
-          }
-        );
+        const imported = await importAgentProfile({ name, description: parsed?.description }, entry.body, {
+          getAssistants: async () => (await ProcessConfig.get('assistants')) ?? [],
+          setAssistants: async (next) => {
+            await ProcessConfig.set('assistants', next);
+          },
+          writeRule: async (assistantId, content) => {
+            await mkdir(getAssistantsDir(), { recursive: true });
+            await writeFile(path.join(getAssistantsDir(), `${assistantId}.en-US.md`), content, 'utf-8');
+          },
+          now: Date.now,
+        });
         items.push({
           name: entry.name,
           registeredAs: 'agent-profile',

@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { SKILL_SCANNER_VERSION, type SkillFinding, type SkillSecurityReport, type SkillVerdict } from '@/common/types/skillTypes';
+import {
+  SKILL_SCANNER_VERSION,
+  type SkillFinding,
+  type SkillSecurityReport,
+  type SkillVerdict,
+} from '@/common/types/skillTypes';
 import { SKILL_GUARD_RULES, type SkillScanInput } from './skillGuardRules';
 import { skillGuardLlmScan, type LlmScanCall } from './skillGuardLlmScan';
 import { skillContentHash } from './skillContentHash';
@@ -18,7 +23,10 @@ import { skillContentHash } from './skillContentHash';
  * boundary; Skill Guard surfaces signal so the user makes a better choice.
  */
 export class SkillGuard {
-  static async scan(skills: SkillScanInput[], opts: { llm?: boolean; llmCall?: LlmScanCall } = {}): Promise<SkillSecurityReport[]> {
+  static async scan(
+    skills: SkillScanInput[],
+    opts: { llm?: boolean; llmCall?: LlmScanCall } = {}
+  ): Promise<SkillSecurityReport[]> {
     // `llmScanned` on the report must reflect whether the LLM layer ACTUALLY
     // ran for each skill - not whether the caller merely requested it. If
     // `opts.llm` is true but no `llmCall` is wired, the seam returns

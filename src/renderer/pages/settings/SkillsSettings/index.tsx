@@ -284,7 +284,9 @@ const SkillsSettings: React.FC = () => {
       />
 
       <div
-        className={isMobile ? 'skills-shell rd-12px overflow-hidden flex flex-col' : 'skills-shell rd-12px overflow-hidden flex'}
+        className={
+          isMobile ? 'skills-shell rd-12px overflow-hidden flex flex-col' : 'skills-shell rd-12px overflow-hidden flex'
+        }
         style={{
           background: 'var(--color-bg-2)',
           border: '1px solid var(--color-border-2)',

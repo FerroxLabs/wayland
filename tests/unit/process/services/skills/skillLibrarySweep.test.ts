@@ -45,8 +45,7 @@ const makeReadFile = () =>
     throw new Error(`Not found: ${p}`);
   });
 
-const makeLib = () =>
-  SkillLibrary.getInstance({ resourceDir: '/fake/skills-library', readFile: makeReadFile() });
+const makeLib = () => SkillLibrary.getInstance({ resourceDir: '/fake/skills-library', readFile: makeReadFile() });
 
 beforeEach(() => {
   SkillLibrary.resetInstance();

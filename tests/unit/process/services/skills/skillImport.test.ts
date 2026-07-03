@@ -122,7 +122,11 @@ describe('SkillImport.importFolder', () => {
 
   it('holds a review-verdict skill without registering it (C3 consent gate)', async () => {
     vi.spyOn(SkillGuard, 'scan').mockResolvedValue([
-      { ...CLEAN_REPORT, verdict: 'review', findings: [{ threat: 'instruction-override', severity: 'medium', message: 'x', evidence: 'x', layer: 'regex' }] },
+      {
+        ...CLEAN_REPORT,
+        verdict: 'review',
+        findings: [{ threat: 'instruction-override', severity: 'medium', message: 'x', evidence: 'x', layer: 'regex' }],
+      },
     ]);
     const quarantineSpy = vi.spyOn(SkillQuarantine, 'quarantine').mockResolvedValue('');
     const lib = SkillLibrary.getInstance({ readFile: async () => '[]' });
@@ -183,7 +187,9 @@ describe('SkillImport.importGit', () => {
 
   it('cleans up the tmp dir even when gitClone fails', async () => {
     const io = makeFakeIo({
-      gitClone: vi.fn(async () => { throw new Error('network error'); }),
+      gitClone: vi.fn(async () => {
+        throw new Error('network error');
+      }),
     });
     const importer = new SkillImport(io);
 
@@ -239,9 +245,7 @@ describe('SkillImport.importZip', () => {
 
     await importer.importZip('/uploads/skill.zip');
 
-    const writtenFiles = (io.writeFile as ReturnType<typeof vi.fn>).mock.calls.map(
-      ([p]: [string]) => path.basename(p)
-    );
+    const writtenFiles = (io.writeFile as ReturnType<typeof vi.fn>).mock.calls.map(([p]: [string]) => path.basename(p));
     expect(writtenFiles).toContain('SKILL.md');
     expect(writtenFiles).toContain('README.md');
     expect(writtenFiles).not.toContain('run.sh');
@@ -290,11 +294,7 @@ describe('SkillImport - scan integration', () => {
 
     await importer.importFolder('/home/user/bad-skill');
 
-    expect(quarantineSpy).toHaveBeenCalledWith(
-      'bad-skill',
-      path.join(IMPORTED_DIR, 'bad-skill'),
-      undefined
-    );
+    expect(quarantineSpy).toHaveBeenCalledWith('bad-skill', path.join(IMPORTED_DIR, 'bad-skill'), undefined);
   });
 
   it('registers a clean skill into SkillLibrary', async () => {
@@ -307,9 +307,7 @@ describe('SkillImport - scan integration', () => {
     await importer.importFolder('/home/user/clean-skill');
 
     expect(registerSpy).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ name: 'clean-skill', source: 'imported' }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ name: 'clean-skill', source: 'imported' })])
     );
   });
 });
@@ -356,10 +354,7 @@ describe('SkillImport - recursive mkdir (FIX 1)', () => {
 
     await importer.importFolder('/home/user/new-skill');
 
-    expect(io.mkdir).toHaveBeenCalledWith(
-      path.join(IMPORTED_DIR, 'new-skill'),
-      { recursive: true }
-    );
+    expect(io.mkdir).toHaveBeenCalledWith(path.join(IMPORTED_DIR, 'new-skill'), { recursive: true });
   });
 
   it('importSingleSkillMd calls mkdir with { recursive: true }', async () => {
@@ -371,10 +366,7 @@ describe('SkillImport - recursive mkdir (FIX 1)', () => {
 
     await importer.importSingleSkillMd('/home/user/my-skill/SKILL.md');
 
-    expect(io.mkdir).toHaveBeenCalledWith(
-      path.join(IMPORTED_DIR, 'my-skill'),
-      { recursive: true }
-    );
+    expect(io.mkdir).toHaveBeenCalledWith(path.join(IMPORTED_DIR, 'my-skill'), { recursive: true });
   });
 });
 
@@ -473,7 +465,9 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
     const importer = new SkillImport(io);
 
     // Compute the hash the user "saw" from a real regex-only scan of the body.
-    const [report] = await SkillGuard.scan([{ name: 'r', body: REVIEW_BODY, description: '', tags: [] }], { llm: false });
+    const [report] = await SkillGuard.scan([{ name: 'r', body: REVIEW_BODY, description: '', tags: [] }], {
+      llm: false,
+    });
     const contentHash = report.contentHash!;
 
     const res = await importer.confirmImport({
@@ -517,7 +511,9 @@ describe('SkillImport.confirmImport (C3 consent gate)', () => {
     });
     const importer = new SkillImport(io);
 
-    const [report] = await SkillGuard.scan([{ name: 'r', body: blockedBody, description: '', tags: [] }], { llm: false });
+    const [report] = await SkillGuard.scan([{ name: 'r', body: blockedBody, description: '', tags: [] }], {
+      llm: false,
+    });
 
     const res = await importer.confirmImport({
       name: 'r',
