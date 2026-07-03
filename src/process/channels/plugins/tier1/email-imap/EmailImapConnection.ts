@@ -284,6 +284,7 @@ export class EmailImapConnection {
         // Suppress the agent's own outbound echoing back into INBOX (#547) - mark
         // it seen so it is not re-fetched, but never hand it to onMessage.
         if (this.isOwnEcho(unified)) {
+          console.debug(`[emailWorker] suppressing own echo uid=${raw.uid}`);
           if (raw.uid > this.lastSeenUid) this.lastSeenUid = raw.uid;
           seenUids.push(raw.uid);
           continue;
