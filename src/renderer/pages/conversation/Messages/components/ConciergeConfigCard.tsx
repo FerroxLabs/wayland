@@ -30,6 +30,7 @@ import classNames from 'classnames';
 import { ipcBridge } from '@/common';
 import type { IMessageConciergeConfig } from '@/common/chat/chatLib';
 import { proposalNeedsCardSecret, maskSecretValue, summarizeProposal } from '@/common/chat/conciergeConfig';
+import { fileBugReport } from '@/renderer/utils/bugReport';
 
 import styles from './ConciergeConfigCard.module.css';
 
@@ -88,6 +89,11 @@ const ConciergeConfigCard: React.FC<ConciergeConfigCardProps> = ({ message }) =>
     if (resolving) return;
     setResolving(true);
     try {
+      // file_bug_report (#464) is non-mutating: run the capture → clipboard → open
+      // flow in the renderer, then record acceptance in MAIN so the card resolves.
+      if (action === 'accept' && content.kind === 'file_bug_report') {
+        await fileBugReport(t);
+      }
       const result = await ipcBridge.conciergeConfig.confirmProposal.invoke({
         conversationId: message.conversation_id,
         msgId: message.msg_id ?? message.id,
@@ -106,7 +112,8 @@ const ConciergeConfigCard: React.FC<ConciergeConfigCardProps> = ({ message }) =>
         setResolving(false);
         return;
       }
-      if (action === 'accept') {
+      if (action === 'accept' && content.kind !== 'file_bug_report') {
+        // file_bug_report already toasts from fileBugReport(); avoid a double toast.
         Message.success(t('concierge.config.applied'));
       }
       // accept + cancel: the card transitions via the responseStream broadcast;

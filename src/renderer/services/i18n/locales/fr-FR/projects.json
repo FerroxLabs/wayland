@@ -43,6 +43,7 @@
     "emptyTitle": "Aucune conversation dans ce projet pour l'instant",
     "emptyBody": "Démarrez une conversation avec n'importe quel backend, modèle ou assistant. Elle sera rattachée à ce projet, et vous pouvez en lancer autant que vous le souhaitez en même temps.",
     "untitledChat": "Conversation sans titre",
+    "created": "Créé {{date}}",
     "removeChat": "Retirer",
     "tabReference": "Référence",
     "tabMemory": "Mémoire",

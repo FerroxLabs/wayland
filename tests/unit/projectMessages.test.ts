@@ -89,8 +89,52 @@ describe('projectMessages.toolSummaryToSteps', () => {
     const steps = toolSummaryToSteps([toolGroupMsg(), acpMsg()], 'wcore');
     expect(steps).toHaveLength(3);
     expect(steps[0]).toMatchObject({ id: 'c1', label: 'Reading config.ts', glyph: 'file', source: 'wcore' });
-    expect(steps[1].label).toBe('Running a command'); // Bash
+    expect(steps[1].label).toBe('Running a command'); // Bash, no command → humanized fallback
     expect(steps[2].glyph).toBe('web'); // web_search
+  });
+});
+
+// #520 command visibility: an exec tool carries its command in the `exec`
+// confirmationDetails; toolGroupToNodes must lift it onto the node so the
+// timeline label shows the ACTUAL command instead of a generic "Running a command".
+const execToolGroupMsg = (over?: Partial<IMessageToolGroup['content'][number]>): IMessageToolGroup =>
+  ({
+    type: 'tool_group',
+    content: [
+      {
+        callId: 'e1',
+        name: 'Bash',
+        description: '',
+        renderOutputAsMarkdown: false,
+        status: 'Executing',
+        confirmationDetails: { type: 'exec', title: 'Execute: echo hi', rootCommand: 'echo', command: 'echo hi' },
+        ...over,
+      },
+    ],
+  }) as unknown as IMessageToolGroup;
+
+describe('projectMessages.toolGroupToNodes command (#520)', () => {
+  it('lifts the exec command onto the node', () => {
+    const node = toolGroupToNodes(execToolGroupMsg().content)[0];
+    expect(node.command).toBe('echo hi');
+  });
+
+  it('falls back to the item description when there are no exec confirmationDetails', () => {
+    const node = toolGroupToNodes(
+      execToolGroupMsg({ confirmationDetails: undefined, description: 'Execute: ls -la' }).content
+    )[0];
+    expect(node.command).toBe('Execute: ls -la');
+  });
+
+  it('leaves command unset when neither is present', () => {
+    const node = toolGroupToNodes(execToolGroupMsg({ confirmationDetails: undefined, description: '' }).content)[0];
+    expect(node.command).toBeUndefined();
+  });
+
+  it('surfaces the command as the timeline label (not "Running a command")', () => {
+    const step = toolSummaryToSteps([execToolGroupMsg()], 'wcore')[0];
+    expect(step.label).toBe('Running echo hi');
+    expect(step.glyph).toBe('command');
   });
 });
 

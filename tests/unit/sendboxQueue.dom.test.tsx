@@ -55,6 +55,10 @@ let pasteServiceArgs: {
   onTextPaste?: (text: string) => void;
   conversationId?: string;
 } | null = null;
+// Controls the /doctor gate: the command is offered only on the local Electron
+// desktop (the `doctor.run` IPC is remote-denied). Default to desktop so the
+// existing merged-command assertion holds; the remote case flips this to false.
+let isElectronDesktopValue = true;
 
 vi.mock('@/common', () => ({
   ipcBridge: {
@@ -190,6 +194,10 @@ vi.mock('@/renderer/components/chat/SlashCommandMenu', () => ({
 vi.mock('@/renderer/utils/ui/focus', () => ({
   blurActiveElement: () => mockBlurActiveElement(),
   shouldBlockMobileInputFocus: () => mockShouldBlockMobileInputFocus(),
+}));
+
+vi.mock('@/renderer/utils/platform', () => ({
+  isElectronDesktop: () => isElectronDesktopValue,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -329,6 +337,7 @@ describe('SendBox queue and interaction behaviors', () => {
       onKeyDown: vi.fn(),
     };
     pasteServiceArgs = null;
+    isElectronDesktopValue = true;
     mockShouldBlockMobileInputFocus.mockReturnValue(false);
 
     HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
@@ -482,7 +491,28 @@ describe('SendBox queue and interaction behaviors', () => {
     fireEvent.click(screen.getByText('/plan'));
     expect(slashControllerState.onSelectByIndex).toHaveBeenCalledWith(1);
 
-    expect(slashControllerArgs?.commands.map((command) => command.name)).toEqual(['open', 'copy', 'export', 'plan']);
+    expect(slashControllerArgs?.commands.map((command) => command.name)).toEqual([
+      'open',
+      'copy',
+      'export',
+      'doctor',
+      'plan',
+    ]);
+  });
+
+  it('omits the /doctor builtin in a remote (non-desktop) session', () => {
+    // The doctor.run IPC is remote-denied, so a paired WebUI must not be offered
+    // /doctor — it would open the modal only for the run to be dropped.
+    isElectronDesktopValue = false;
+
+    renderControlledSendBox({
+      slashCommands: [{ name: 'plan', description: 'Plan next step', kind: 'template', source: 'custom' }],
+      onSlashBuiltinCommand: vi.fn(),
+    });
+
+    const commandNames = slashControllerArgs?.commands.map((command) => command.name) ?? [];
+    expect(commandNames).not.toContain('doctor');
+    expect(commandNames).toEqual(['open', 'copy', 'export', 'plan']);
   });
 
   it('executes builtin slash actions and template selection through the controller callbacks', async () => {

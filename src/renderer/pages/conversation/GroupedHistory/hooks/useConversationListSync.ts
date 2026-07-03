@@ -5,6 +5,11 @@
  */
 
 import { ipcBridge } from '@/common';
+import {
+  foldConversationActivity,
+  isActivityEvent,
+  type ConversationActivitySnapshot,
+} from '@/common/chat/activity/conversationActivity';
 import type { TChatConversation } from '@/common/config/storage';
 import { addEventListener } from '@/renderer/utils/emitter';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
@@ -54,6 +59,7 @@ type ConversationListSyncSnapshot = {
   conversations: TChatConversation[];
   generatingConversationIds: Set<string>;
   completionUnreadConversationIds: Set<string>;
+  activitySnapshots: Map<string, ConversationActivitySnapshot>;
 };
 
 const listeners = new Set<() => void>();
@@ -62,12 +68,14 @@ let isStoreInitialized = false;
 let conversationsState: TChatConversation[] = [];
 let generatingConversationIdsState = new Set<string>();
 let completionUnreadConversationIdsState = new Set<string>();
+let activitySnapshotsState = new Map<string, ConversationActivitySnapshot>();
 let conversationIdsState = new Set<string>();
 let activeConversationIdState: string | null = null;
 let snapshotState: ConversationListSyncSnapshot = {
   conversations: conversationsState,
   generatingConversationIds: generatingConversationIdsState,
   completionUnreadConversationIds: completionUnreadConversationIdsState,
+  activitySnapshots: activitySnapshotsState,
 };
 
 const emitStoreChange = () => {
@@ -75,6 +83,7 @@ const emitStoreChange = () => {
     conversations: conversationsState,
     generatingConversationIds: generatingConversationIdsState,
     completionUnreadConversationIds: completionUnreadConversationIdsState,
+    activitySnapshots: activitySnapshotsState,
   };
   listeners.forEach((listener) => listener());
 };
@@ -138,6 +147,41 @@ const clearGenerating = (conversationId: string) => {
   emitStoreChange();
 };
 
+/**
+ * #252 - fold a raw stream event into the conversation's live activity snapshot
+ * (current action + spawned sub-agents) so background rows can show WHAT the
+ * agent is doing, not just a bare spinner. Skips the emit when the fold reports
+ * no meaningful change (same reference) to avoid re-rendering the whole sidebar
+ * on every streamed token.
+ */
+const applyActivityEvent = (conversationId: string, message: Parameters<typeof foldConversationActivity>[1]) => {
+  const prev = activitySnapshotsState.get(conversationId) ?? null;
+  const next = foldConversationActivity(prev, message);
+  if (next === prev) {
+    return;
+  }
+
+  const map = new Map(activitySnapshotsState);
+  if (next === null) {
+    map.delete(conversationId);
+  } else {
+    map.set(conversationId, next);
+  }
+  activitySnapshotsState = map;
+  emitStoreChange();
+};
+
+const clearActivity = (conversationId: string) => {
+  if (!activitySnapshotsState.has(conversationId)) {
+    return;
+  }
+
+  const map = new Map(activitySnapshotsState);
+  map.delete(conversationId);
+  activitySnapshotsState = map;
+  emitStoreChange();
+};
+
 const markCompletionUnread = (conversationId: string) => {
   if (completionUnreadConversationIdsState.has(conversationId)) {
     return;
@@ -175,6 +219,7 @@ const initializeConversationListSyncStore = () => {
     if (event.action === 'deleted') {
       clearGenerating(event.conversationId);
       clearCompletionUnreadState(event.conversationId);
+      clearActivity(event.conversationId);
     }
     refreshConversations();
   });
@@ -195,11 +240,16 @@ const initializeConversationListSyncStore = () => {
         markCompletionUnread(conversationId);
       }
       clearGenerating(conversationId);
+      clearActivity(conversationId);
       return;
     }
 
     if (isGeneratingStreamMessage(message.type)) {
       markGenerating(conversationId);
+    }
+
+    if (isActivityEvent(message.type)) {
+      applyActivityEvent(conversationId, message);
     }
   });
   ipcBridge.conversation.turnCompleted.on((event) => {
@@ -207,6 +257,7 @@ const initializeConversationListSyncStore = () => {
       markCompletionUnread(event.sessionId);
     }
     clearGenerating(event.sessionId);
+    clearActivity(event.sessionId);
     refreshConversations();
   });
 };
@@ -216,11 +267,12 @@ export const useConversationListSync = () => {
     initializeConversationListSyncStore();
   }, []);
 
-  const { conversations, generatingConversationIds, completionUnreadConversationIds } = useSyncExternalStore(
-    subscribeConversationListSync,
-    getConversationListSyncSnapshot,
-    getConversationListSyncSnapshot
-  );
+  const { conversations, generatingConversationIds, completionUnreadConversationIds, activitySnapshots } =
+    useSyncExternalStore(
+      subscribeConversationListSync,
+      getConversationListSyncSnapshot,
+      getConversationListSyncSnapshot
+    );
 
   const clearCompletionUnread = useCallback((conversationId: string) => {
     clearCompletionUnreadState(conversationId);
@@ -244,10 +296,18 @@ export const useConversationListSync = () => {
     [completionUnreadConversationIds]
   );
 
+  const getConversationActivity = useCallback(
+    (conversationId: string): ConversationActivitySnapshot | undefined => {
+      return activitySnapshots.get(conversationId);
+    },
+    [activitySnapshots]
+  );
+
   return {
     conversations,
     isConversationGenerating,
     hasCompletionUnread,
+    getConversationActivity,
     clearCompletionUnread,
     setActiveConversation,
   };

@@ -63,6 +63,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
     conversations,
     isConversationGenerating,
     hasCompletionUnread,
+    getConversationActivity,
     expandedWorkspaces,
     pinnedConversations,
     timelineSections,
@@ -172,6 +173,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
       conversation,
       isGenerating: isConversationGenerating(conversation.id),
       hasCompletionUnread: hasCompletionUnread(conversation.id),
+      activity: getConversationActivity(conversation.id),
       collapsed,
       tooltipEnabled,
       batchMode,
@@ -197,6 +199,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
       batchMode,
       isConversationGenerating,
       hasCompletionUnread,
+      getConversationActivity,
       selectedConversationIds,
       id,
       dropdownVisibleId,
@@ -411,11 +414,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
                     {t('conversation.history.pinnedSection')}
                   </span>
                   <div className='ml-auto h-20px w-20px rd-4px flex items-center justify-center hover:bg-fill-3 transition-all shrink-0 text-t-secondary'>
-                    {collapsedSections.has('pinned') ? (
-                      <ChevronRight size={12} />
-                    ) : (
-                      <ChevronDown size={12} />
-                    )}
+                    {collapsedSections.has('pinned') ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
                   </div>
                 </div>
               )}
@@ -450,11 +449,7 @@ const WorkspaceGroupedHistory: React.FC<WorkspaceGroupedHistoryProps> = ({
               >
                 <span className='text-13px text-t-secondary font-bold leading-20px'>{section.timeline}</span>
                 <div className='ml-auto h-20px w-20px rd-4px flex items-center justify-center hover:bg-fill-3 transition-all shrink-0 text-t-secondary'>
-                  {collapsedSections.has(section.timeline) ? (
-                    <ChevronRight size={12} />
-                  ) : (
-                    <ChevronDown size={12} />
-                  )}
+                  {collapsedSections.has(section.timeline) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
                 </div>
               </div>
             )}

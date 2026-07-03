@@ -10,8 +10,12 @@ import type { ProviderRegistryReader, ConnectProbe } from '@process/doctor/check
 import { checkEngineReachable, checkEngineRouting } from '@process/doctor/checks/engineChecks';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
-import { checkWorkspaceDrift } from '@process/doctor/checks/workspaceChecks';
-import { checkSecretStorage, checkEngineConfigIntegrity } from '@process/doctor/checks/configChecks';
+import {
+  checkWorkspaceDrift,
+  checkWorkspaceConfigured,
+  isTempWorkspacePath,
+} from '@process/doctor/checks/workspaceChecks';
+import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from '@process/doctor/checks/configChecks';
 import type { RegistryProvider, RegistryCredsResult } from '@process/providers/storage/ProviderRepository';
 import type { ProviderId } from '@process/providers/types';
 import type { IMcpServer } from '@/common/config/storage';
@@ -119,7 +123,12 @@ describe('checkProviderConnectivity', () => {
     let probed = false;
     const reader = makeReader(
       [provider('chatgpt-subscription')],
-      { 'chatgpt-subscription': { status: 'ok', creds: { key: 'oauth-access-token', baseUrl: 'https://chatgpt.com/backend-api' } } },
+      {
+        'chatgpt-subscription': {
+          status: 'ok',
+          creds: { key: 'oauth-access-token', baseUrl: 'https://chatgpt.com/backend-api' },
+        },
+      },
       { 'chatgpt-subscription': 3 }
     );
     const probe: ConnectProbe = {
@@ -163,11 +172,7 @@ describe('checkModelRegistrySanity', () => {
   });
 
   it('warns when some providers are empty but a model exists', async () => {
-    const reader = makeReader(
-      [provider('openai'), provider('anthropic')],
-      {},
-      { openai: 3, anthropic: 0 }
-    );
+    const reader = makeReader([provider('openai'), provider('anthropic')], {}, { openai: 3, anthropic: 0 });
     const result = await checkModelRegistrySanity(reader);
     expect(result.status).toBe('warn');
     expect(result.detail).toContain('anthropic');
@@ -182,22 +187,14 @@ describe('checkModelRegistrySanity', () => {
   it('does not flag a tool provider with an empty chat catalog (#270)', async () => {
     // ElevenLabs is an audio/tool provider — zero chat models is its healthy
     // state, so it must NOT be reported as an "empty catalog" warning.
-    const reader = makeReader(
-      [provider('openai'), provider('elevenlabs')],
-      {},
-      { openai: 4, elevenlabs: 0 }
-    );
+    const reader = makeReader([provider('openai'), provider('elevenlabs')], {}, { openai: 4, elevenlabs: 0 });
     const result = await checkModelRegistrySanity(reader);
     expect(result.status).toBe('pass');
     expect(result.detail).not.toContain('elevenlabs');
   });
 
   it('still warns on a non-tool provider with an empty catalog', async () => {
-    const reader = makeReader(
-      [provider('openai'), provider('groq')],
-      {},
-      { openai: 4, groq: 0 }
-    );
+    const reader = makeReader([provider('openai'), provider('groq')], {}, { openai: 4, groq: 0 });
     const result = await checkModelRegistrySanity(reader);
     expect(result.status).toBe('warn');
     expect(result.detail).toContain('groq');
@@ -294,8 +291,7 @@ describe('checkMcpServers', () => {
     const result = await checkMcpServers({
       listServers: async () => [mcpServer({ name: 'fast', id: 'fast' }), mcpServer({ name: 'hung', id: 'hung' })],
       // `fast` returns immediately; `hung` never resolves.
-      testConnection: async (server) =>
-        server.name === 'fast' ? { success: true } : new Promise<never>(() => {}),
+      testConnection: async (server) => (server.name === 'fast' ? { success: true } : new Promise<never>(() => {})),
       perServerTimeoutMs: 20,
     });
     expect(result.status).toBe('fail');
@@ -368,7 +364,99 @@ describe('checkWorkspaceDrift', () => {
   });
 });
 
+// ── Workspace configured (temp/throwaway fallback) ──────────────────────────
+
+describe('isTempWorkspacePath', () => {
+  const TMP = '/tmp';
+
+  it('treats a null path (no workspace) as temp', () => {
+    expect(isTempWorkspacePath(null, TMP)).toBe(true);
+  });
+
+  it('flags a `<kind>-temp-<unix-ms>` engine temp folder', () => {
+    expect(isTempWorkspacePath('/Users/x/Wayland/chat-temp-1719800000000', TMP)).toBe(true);
+  });
+
+  it('flags any path under the OS temp dir', () => {
+    expect(isTempWorkspacePath('/tmp/whatever/here', TMP)).toBe(true);
+  });
+
+  it('does NOT flag a user folder like `client-temp-2024` (short suffix, not a timestamp)', () => {
+    expect(isTempWorkspacePath('/Users/x/work/client-temp-2024', TMP)).toBe(false);
+  });
+
+  it('does NOT flag a persistent user folder', () => {
+    expect(isTempWorkspacePath('/Users/x/projects/my-app', TMP)).toBe(false);
+  });
+
+  it('does not misfire when the tmp dir is an empty string', () => {
+    expect(isTempWorkspacePath('/Users/x/projects/my-app', '')).toBe(false);
+  });
+});
+
+describe('checkWorkspaceConfigured', () => {
+  const TMP = '/tmp';
+
+  it('passes when no workspaces are configured', async () => {
+    const result = await checkWorkspaceConfigured({ listWorkspaces: async () => [], tmpDir: TMP });
+    expect(result.status).toBe('pass');
+  });
+
+  it('warns when a chat carries the authoritative customWorkspace=false flag', async () => {
+    const result = await checkWorkspaceConfigured({
+      listWorkspaces: async () => [{ label: 'Chat "A"', path: '/Users/x/real-looking', customWorkspace: false }],
+      tmpDir: TMP,
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('Chat "A"');
+    expect(result.remediation).toBeDefined();
+  });
+
+  it('warns and reports the real path when a workspace sits under the OS temp dir', async () => {
+    const result = await checkWorkspaceConfigured({
+      listWorkspaces: async () => [{ label: 'Project "P"', path: '/tmp/ws-123', customWorkspace: null }],
+      tmpDir: TMP,
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('/tmp/ws-123');
+  });
+
+  it('passes when every workspace is a persistent user folder', async () => {
+    const result = await checkWorkspaceConfigured({
+      listWorkspaces: async () => [
+        { label: 'Project "P"', path: '/Users/x/projects/app', customWorkspace: null },
+        { label: 'Chat "B"', path: '/Users/x/projects/app', customWorkspace: true },
+      ],
+      tmpDir: TMP,
+    });
+    expect(result.status).toBe('pass');
+  });
+
+  it('bounds the listed paths in the detail when many are temp', async () => {
+    const many = Array.from({ length: 9 }, (_v, i) => ({
+      label: `Chat "${i}"`,
+      path: null,
+      customWorkspace: false,
+    }));
+    const result = await checkWorkspaceConfigured({ listWorkspaces: async () => many, tmpDir: TMP });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('and 4 more');
+  });
+});
+
 // ── Config ─────────────────────────────────────────────────────────────────
+
+describe('checkConfigPaths', () => {
+  it('passes and reports both the app and engine config directories', async () => {
+    const result = await checkConfigPaths({
+      appConfigDir: () => '/Users/x/Wayland/config',
+      engineConfigDir: () => '/Users/x/Library/Application Support/wayland-core',
+    });
+    expect(result.status).toBe('pass');
+    expect(result.detail).toContain('/Users/x/Wayland/config');
+    expect(result.detail).toContain('wayland-core');
+  });
+});
 
 describe('checkSecretStorage', () => {
   it('passes when the OS keychain is available', async () => {

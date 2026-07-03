@@ -40,6 +40,7 @@
     "emptyTitle": "No chats in this project yet",
     "emptyBody": "Start a chat with any backend, model or assistant. It will live under this project, and you can run as many as you like at once.",
     "untitledChat": "Untitled chat",
+    "created": "Створено {{date}}",
     "removeChat": "Remove",
     "tabChats": "Chats",
     "tabFiles": "Files",

@@ -27,6 +27,17 @@ import {
 const POLL_INTERVAL_MS = 30_000;
 const RECONNECT_BACKOFF_START_MS = 5_000;
 const RECONNECT_BACKOFF_MAX_MS = 60_000;
+/**
+ * Cap on remembered outbound Message-IDs. Bounds memory on a long-lived
+ * connection while comfortably covering the window between a send and IMAP
+ * polling that same message back into INBOX.
+ */
+const MAX_TRACKED_SENT_IDS = 500;
+
+/** Lower-case + trim an address/Message-ID for case-insensitive comparison. */
+function normalizeKey(value: string | undefined): string {
+  return (value ?? '').trim().toLowerCase();
+}
 
 export type TestResult = { success: boolean; botUsername?: string; error?: string };
 
@@ -41,12 +52,26 @@ export class EmailImapConnection {
   private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectBackoffMs = RECONNECT_BACKOFF_START_MS;
   private stopped = false;
+  /**
+   * Inbound self-reply loop guard (#547). The agent sends from its own inbox
+   * over SMTP; IMAP later polls that same mail back into INBOX as UNSEEN. Without
+   * a guard, fetchUnseen() would hand the agent its own message, trigger another
+   * reply, and loop unbounded. We suppress those echoes two ways:
+   *   - selfAddresses: any inbound whose From equals our own inbox address.
+   *   - sentMessageIds: any inbound carrying a Message-ID we just sent (covers
+   *     alias/relay rewrites where the From no longer matches the inbox).
+   * This is inbound-only - the send path is never gated.
+   */
+  private readonly selfAddresses = new Set<string>();
+  private readonly sentMessageIds = new Set<string>();
 
   constructor(private readonly onMessage: (message: IUnifiedIncomingMessage) => void) {}
 
   async connect(creds: ResolvedCredentials): Promise<void> {
     this.creds = creds;
     this.stopped = false;
+    this.rememberSelfAddress(creds.imap.user);
+    this.rememberSelfAddress(creds.smtp.user);
 
     // Build outbound SMTP transport eagerly so send-failures surface here
     // rather than on the first agent reply.
@@ -63,6 +88,9 @@ export class EmailImapConnection {
 
   async send(chatId: string, message: IUnifiedOutgoingMessage, fromUser: string): Promise<string> {
     if (!this.smtp) throw new Error('Email-IMAP worker not connected');
+    // The From we are about to send is one of our own addresses; record it so
+    // the echo it produces is recognised even before its Message-ID is known.
+    this.rememberSelfAddress(fromUser);
     const envelope = buildSmtpEnvelope(message, chatId, fromUser, message.replyToMessageId);
     const info = await this.smtp.sendMail({
       from: envelope.from,
@@ -74,6 +102,7 @@ export class EmailImapConnection {
     });
     const id = typeof info.messageId === 'string' ? info.messageId : '';
     if (!id) throw new Error('SMTP send returned no Message-ID');
+    this.rememberSentMessageId(id);
     return id;
   }
 
@@ -103,6 +132,8 @@ export class EmailImapConnection {
     this.creds = null;
     this.lastSeenUid = 0;
     this.reconnectBackoffMs = RECONNECT_BACKOFF_START_MS;
+    this.selfAddresses.clear();
+    this.sentMessageIds.clear();
   }
 
   /**
@@ -156,9 +187,7 @@ export class EmailImapConnection {
     this.idleActive = true;
     const client = this.client;
     client.on('exists', () => {
-      void this.fetchUnseen().catch((err) =>
-        console.error('[emailWorker] fetch on exists failed:', err)
-      );
+      void this.fetchUnseen().catch((err) => console.error('[emailWorker] fetch on exists failed:', err));
     });
     void (async () => {
       while (this.idleActive && this.client === client && !this.stopped) {
@@ -218,9 +247,7 @@ export class EmailImapConnection {
     if (this.pollTimer) return;
     this.pollTimer = setInterval(() => {
       if (this.pollInFlight) return;
-      void this.fetchUnseen().catch((err) =>
-        console.error('[emailWorker] poll fetch failed:', err)
-      );
+      void this.fetchUnseen().catch((err) => console.error('[emailWorker] poll fetch failed:', err));
     }, POLL_INTERVAL_MS);
   }
 
@@ -254,6 +281,14 @@ export class EmailImapConnection {
           console.warn('[emailWorker] dropping message with missing uid/from/messageId');
           continue;
         }
+        // Suppress the agent's own outbound echoing back into INBOX (#547) - mark
+        // it seen so it is not re-fetched, but never hand it to onMessage.
+        if (this.isOwnEcho(unified)) {
+          console.debug(`[emailWorker] suppressing own echo uid=${raw.uid}`);
+          if (raw.uid > this.lastSeenUid) this.lastSeenUid = raw.uid;
+          seenUids.push(raw.uid);
+          continue;
+        }
         try {
           this.onMessage(unified);
         } catch (err) {
@@ -275,6 +310,35 @@ export class EmailImapConnection {
       }
     } finally {
       this.pollInFlight = false;
+    }
+  }
+
+  /**
+   * True when an inbound message is the agent's own outbound mail echoing back
+   * into INBOX - either its From is one of our own addresses, or it carries a
+   * Message-ID we recently sent. See the selfAddresses/sentMessageIds fields.
+   */
+  private isOwnEcho(message: IUnifiedIncomingMessage): boolean {
+    const from = normalizeKey(message.email?.from ?? message.chatId);
+    if (from && this.selfAddresses.has(from)) return true;
+    const messageId = normalizeKey(message.email?.messageId ?? message.id);
+    if (messageId && this.sentMessageIds.has(messageId)) return true;
+    return false;
+  }
+
+  private rememberSelfAddress(address: string | undefined): void {
+    const key = normalizeKey(address);
+    if (key) this.selfAddresses.add(key);
+  }
+
+  private rememberSentMessageId(messageId: string): void {
+    const key = normalizeKey(messageId);
+    if (!key) return;
+    this.sentMessageIds.add(key);
+    // Evict oldest (insertion-ordered Set) once over the cap.
+    if (this.sentMessageIds.size > MAX_TRACKED_SENT_IDS) {
+      const oldest = this.sentMessageIds.values().next().value;
+      if (oldest !== undefined) this.sentMessageIds.delete(oldest);
     }
   }
 }

@@ -1,13 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import {
-  ArrowLeftCircle,
-  ChevronLeft,
-  ChevronRight,
-  PanelRightClose,
-  PanelRightOpen,
-  Plus,
-} from 'lucide-react';
+import { ArrowLeftCircle, ChevronLeft, ChevronRight, PanelRightClose, PanelRightOpen, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -20,6 +13,7 @@ import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useNavigationHistory } from '@/renderer/hooks/context/NavigationHistoryContext';
 import { isElectronDesktop, isMacOS } from '@/renderer/utils/platform';
 import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
+import { useTitlebarBrandHidden } from '@/renderer/hooks/ui/useNavPreferences';
 import UpdatePill from './UpdatePill';
 // Full brand lockups (orbit mark + wordmark + ™). Dark wordmark shows on light
 // theme, white wordmark on dark theme - toggled purely via CSS on [data-theme].
@@ -91,6 +85,10 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
   // #27 phase 2: in a pop-out window there is no sider, so the titlebar renders
   // standalone - suppress the sider toggle but preserve macOS traffic-light spacing.
   const isPopout = useIsPopoutMode();
+  // #118: the brand lockup (logo + wordmark + tagline) is hideable from
+  // Settings > Navigation. Only the desktop lockup is chrome; the mobile brand
+  // shows the active conversation/team title, so it stays regardless.
+  const brandHidden = useTitlebarBrandHidden();
   const navigationHistory = useNavigationHistory();
   const location = useLocation();
   const navigate = useNavigate();
@@ -354,36 +352,38 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
         )}
       </div>
       <UpdatePill />
-      <div
-        className='app-titlebar__brand'
-        aria-label={layout?.isMobile ? mobileCenterTitle : appTitle}
-        title={layout?.isMobile ? mobileCenterTitle : appTitle}
-      >
-        {layout?.isMobile ? (
-          <span className='app-titlebar__brand-mobile'>
-            <WaylandLogoMark />
-            <span className='app-titlebar__brand-text'>{mobileCenterTitle}</span>
-          </span>
-        ) : (
-          <span className='app-titlebar__brand-desktop'>
-            <img
-              src={lockupDark}
-              alt={appTitle}
-              className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-light'
-              aria-hidden='true'
-              draggable={false}
-            />
-            <img
-              src={lockupWhite}
-              alt={appTitle}
-              className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-dark'
-              aria-hidden='true'
-              draggable={false}
-            />
-            <span className='app-titlebar__brand-tagline'>Perceives · Reasons · Acts · Evolves</span>
-          </span>
-        )}
-      </div>
+      {(layout?.isMobile || !brandHidden) && (
+        <div
+          className='app-titlebar__brand'
+          aria-label={layout?.isMobile ? mobileCenterTitle : appTitle}
+          title={layout?.isMobile ? mobileCenterTitle : appTitle}
+        >
+          {layout?.isMobile ? (
+            <span className='app-titlebar__brand-mobile'>
+              <WaylandLogoMark />
+              <span className='app-titlebar__brand-text'>{mobileCenterTitle}</span>
+            </span>
+          ) : (
+            <span className='app-titlebar__brand-desktop'>
+              <img
+                src={lockupDark}
+                alt={appTitle}
+                className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-light'
+                aria-hidden='true'
+                draggable={false}
+              />
+              <img
+                src={lockupWhite}
+                alt={appTitle}
+                className='app-titlebar__brand-lockup app-titlebar__brand-lockup--on-dark'
+                aria-hidden='true'
+                draggable={false}
+              />
+              <span className='app-titlebar__brand-tagline'>Perceives · Reasons · Acts · Evolves</span>
+            </span>
+          )}
+        </div>
+      )}
       <div ref={toolbarRef} className='app-titlebar__toolbar'>
         {showNewConversationButton && (
           <button

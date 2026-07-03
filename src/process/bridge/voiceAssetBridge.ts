@@ -18,7 +18,12 @@ export function initVoiceAssetBridge(): void {
     // the inbound asset get filled from the registry; non-empty fields are
     // preserved (test overrides + future extension assets).
     const resolved = resolveVoiceAsset(asset);
-    return VoiceAssetManager.download(resolved);
+    // Stream per-chunk progress to the renderer so the download bar reflects
+    // real bytes instead of a hardcoded 0%. Cancel is already wired through
+    // the cancel provider + VoiceAssetManager's internal AbortController.
+    return VoiceAssetManager.download(resolved, (progress) => {
+      ipcBridge.voiceAsset.downloadProgress.emit(progress);
+    });
   });
   ipcBridge.voiceAsset.cancel.provider(async ({ assetId }) => ({
     cancelled: VoiceAssetManager.cancel(assetId),

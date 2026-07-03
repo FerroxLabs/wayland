@@ -18,6 +18,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ConversationActivityStatus } from './ConversationRowActivity';
 import type { ConversationRowProps } from './types';
 import { getBackendKeyFromConversation } from './utils/exportHelpers';
 import { isConversationPinned } from './utils/groupingHelpers';
@@ -27,6 +28,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
     conversation,
     isGenerating,
     hasCompletionUnread,
+    activity,
     collapsed,
     tooltipEnabled,
     batchMode,
@@ -57,6 +59,11 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
   const cronStatus = getJobStatus(conversation.id);
   const siderTooltipProps = getSiderTooltipProps(tooltipEnabled);
   const inlineNameTooltipEnabled = !collapsed && !isMobile && !!conversation.name;
+  // #252 - show the live activity line only while this conversation is actually
+  // generating, in the expanded sidebar, outside batch mode, and once the store
+  // has a snapshot with something to say.
+  const showActivity =
+    isGenerating && !batchMode && !collapsed && !!activity && (activity.label.length > 0 || activity.agents.length > 0);
 
   const renderLeadingIcon = () => {
     if (cronStatus !== 'none') {
@@ -129,8 +136,7 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
       <div
         id={'c-' + conversation.id}
         className={classNames(
-          'chat-history__item h-40px rd-8px flex items-center group cursor-pointer relative overflow-hidden shrink-0 conversation-item [&.conversation-item+&.conversation-item]:mt-2px min-w-0 transition-colors',
-          collapsed ? 'justify-center px-0' : 'justify-start gap-8px px-10px',
+          'chat-history__item rd-8px flex flex-col group cursor-pointer overflow-hidden shrink-0 conversation-item [&.conversation-item+&.conversation-item]:mt-2px min-w-0 transition-colors',
           {
             'hover:bg-[rgba(var(--primary-6),0.14)]': !batchMode,
             '!bg-active': selected,
@@ -140,211 +146,219 @@ const ConversationRow: React.FC<ConversationRowProps> = (props) => {
         onClick={handleRowClick}
         onContextMenu={handleRowContextMenu}
       >
-        {batchMode && (
-          <span
-            className='mr-8px flex-center'
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleChecked(conversation);
-            }}
-          >
-            <Checkbox checked={checked} />
-          </span>
-        )}
-        <span className='w-28px h-28px flex items-center justify-center shrink-0'>
-          {isGenerating && !batchMode ? <Spin size={16} /> : renderLeadingIcon()}
-        </span>
-        <FlexFullContainer
+        <div
           className={classNames(
-            'h-24px min-w-0 flex-1 collapsed-hidden',
-            isPinned && !isMobile ? siderStyles.pinnedTextSlot : 'pr-18px'
+            'relative flex items-center h-40px w-full min-w-0',
+            collapsed ? 'justify-center px-0' : 'justify-start gap-8px px-10px'
           )}
         >
-          <Tooltip
-            content={conversation.name}
-            disabled={!inlineNameTooltipEnabled}
-            trigger='hover'
-            popupVisible={inlineNameTooltipEnabled ? undefined : false}
-            unmountOnExit
-            popupHoverStay={false}
-            position='top'
+          {batchMode && (
+            <span
+              className='mr-8px flex-center'
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleChecked(conversation);
+              }}
+            >
+              <Checkbox checked={checked} />
+            </span>
+          )}
+          <span className='w-28px h-28px flex items-center justify-center shrink-0'>
+            {isGenerating && !batchMode ? <Spin size={16} /> : renderLeadingIcon()}
+          </span>
+          <FlexFullContainer
+            className={classNames(
+              'h-24px min-w-0 flex-1 collapsed-hidden',
+              isPinned && !isMobile ? siderStyles.pinnedTextSlot : 'pr-18px'
+            )}
           >
+            <Tooltip
+              content={conversation.name}
+              disabled={!inlineNameTooltipEnabled}
+              trigger='hover'
+              popupVisible={inlineNameTooltipEnabled ? undefined : false}
+              unmountOnExit
+              popupHoverStay={false}
+              position='top'
+            >
+              <div
+                className={classNames(
+                  'chat-history__item-name overflow-hidden text-ellipsis block w-full text-14px lh-24px whitespace-nowrap min-w-0 group-hover:text-1',
+                  selected && !batchMode ? 'text-1 font-medium' : 'text-2'
+                )}
+              >
+                <span className='block overflow-hidden text-ellipsis whitespace-nowrap'>{conversation.name}</span>
+              </div>
+            </Tooltip>
+          </FlexFullContainer>
+
+          {renderCompletionUnreadDot()}
+          {!batchMode && isPinned && !menuVisible && !isMobile && (
+            <span className='absolute right-8px top-1/2 -translate-y-1/2 flex-center text-t-secondary pointer-events-none !collapsed-hidden group-hover:hidden'>
+              <Pin size={16} />
+            </span>
+          )}
+          {!batchMode && (
             <div
               className={classNames(
-                'chat-history__item-name overflow-hidden text-ellipsis block w-full text-14px lh-24px whitespace-nowrap min-w-0 group-hover:text-1',
-                selected && !batchMode ? 'text-1 font-medium' : 'text-2'
+                'absolute right-0px top-0px h-full items-center justify-end !collapsed-hidden pr-8px',
+                {
+                  flex: isMobile || menuVisible,
+                  'hidden group-hover:flex': !isMobile && !menuVisible,
+                }
               )}
+              style={{
+                backgroundImage: selected
+                  ? `linear-gradient(to right, transparent, var(--aou-2) 100%)`
+                  : `linear-gradient(to right, transparent, var(--aou-1) 100%)`,
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
             >
-              <span className='block overflow-hidden text-ellipsis whitespace-nowrap'>{conversation.name}</span>
-            </div>
-          </Tooltip>
-        </FlexFullContainer>
-
-        {renderCompletionUnreadDot()}
-        {!batchMode && isPinned && !menuVisible && !isMobile && (
-          <span className='absolute right-8px top-1/2 -translate-y-1/2 flex-center text-t-secondary pointer-events-none !collapsed-hidden group-hover:hidden'>
-            <Pin size={16} />
-          </span>
-        )}
-        {!batchMode && (
-          <div
-            className={classNames(
-              'absolute right-0px top-0px h-full items-center justify-end !collapsed-hidden pr-8px',
-              {
-                flex: isMobile || menuVisible,
-                'hidden group-hover:flex': !isMobile && !menuVisible,
-              }
-            )}
-            style={{
-              backgroundImage: selected
-                ? `linear-gradient(to right, transparent, var(--aou-2) 100%)`
-                : `linear-gradient(to right, transparent, var(--aou-1) 100%)`,
-            }}
-            onClick={(event) => {
-              event.stopPropagation();
-            }}
-          >
-            {/* #74: a direct one-click pin toggle on row hover so the
+              {/* #74: a direct one-click pin toggle on row hover so the
                 pin-to-top feature is discoverable, instead of being buried in
                 the overflow menu. Recents still list underneath unchanged. */}
-            <Tooltip
-              content={isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}
-              position='top'
-              mini
-            >
-              <span
-                className='flex-center cursor-pointer hover:bg-fill-2 rd-4px p-4px mr-2px transition-colors text-t-secondary hover:text-t-primary'
-                aria-label={isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onTogglePin(conversation);
-                }}
+              <Tooltip
+                content={isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}
+                position='top'
+                mini
               >
-                <Pin size={14} className={classNames({ 'fill-current': isPinned })} />
-              </span>
-            </Tooltip>
-            <Dropdown
-              droplist={
-                <Menu
-                  style={{ maxHeight: 'min(60vh, 360px)', overflowY: 'auto' }}
-                  onClickMenuItem={(key) => {
-                    if (key === 'pin') {
-                      onTogglePin(conversation);
-                      return;
-                    }
-                    if (key === 'rename') {
-                      onEditStart(conversation);
-                      return;
-                    }
-                    if (key === 'schedule') {
-                      onScheduleChat?.(conversation);
-                      return;
-                    }
-                    if (key === 'export') {
-                      onExport?.(conversation);
-                      return;
-                    }
-                    if (key === 'assignProject') {
-                      onAssignToProject?.(conversation);
-                      return;
-                    }
-                    if (key === 'removeProject') {
-                      onRemoveFromProject?.(conversation);
-                      return;
-                    }
-                    if (key === 'delete') {
-                      onDelete(conversation.id);
-                    }
+                <span
+                  className='flex-center cursor-pointer hover:bg-fill-2 rd-4px p-4px mr-2px transition-colors text-t-secondary hover:text-t-primary'
+                  aria-label={isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onTogglePin(conversation);
                   }}
                 >
-                  <Menu.Item key='pin'>
-                    <div className='flex items-center gap-8px'>
-                      <Pin size={14} />
-                      <span>{isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}</span>
-                    </div>
-                  </Menu.Item>
-                  <Menu.Item key='rename'>
-                    <div className='flex items-center gap-8px'>
-                      <Pencil size={14} />
-                      <span>{t('conversation.history.rename')}</span>
-                    </div>
-                  </Menu.Item>
-                  {onScheduleChat && (
-                    <Menu.Item key='schedule'>
+                  <Pin size={14} className={classNames({ 'fill-current': isPinned })} />
+                </span>
+              </Tooltip>
+              <Dropdown
+                droplist={
+                  <Menu
+                    style={{ maxHeight: 'min(60vh, 360px)', overflowY: 'auto' }}
+                    onClickMenuItem={(key) => {
+                      if (key === 'pin') {
+                        onTogglePin(conversation);
+                        return;
+                      }
+                      if (key === 'rename') {
+                        onEditStart(conversation);
+                        return;
+                      }
+                      if (key === 'schedule') {
+                        onScheduleChat?.(conversation);
+                        return;
+                      }
+                      if (key === 'export') {
+                        onExport?.(conversation);
+                        return;
+                      }
+                      if (key === 'assignProject') {
+                        onAssignToProject?.(conversation);
+                        return;
+                      }
+                      if (key === 'removeProject') {
+                        onRemoveFromProject?.(conversation);
+                        return;
+                      }
+                      if (key === 'delete') {
+                        onDelete(conversation.id);
+                      }
+                    }}
+                  >
+                    <Menu.Item key='pin'>
                       <div className='flex items-center gap-8px'>
-                        <Clock size={14} />
-                        <span>
-                          {(conversation.extra as { cronJobId?: string } | undefined)?.cronJobId
-                            ? t('conversation.history.editSchedule')
-                            : t('conversation.history.schedule')}
-                        </span>
+                        <Pin size={14} />
+                        <span>{isPinned ? t('conversation.history.unpin') : t('conversation.history.pin')}</span>
                       </div>
                     </Menu.Item>
-                  )}
-                  {onExport && (
-                    <Menu.Item key='export'>
+                    <Menu.Item key='rename'>
                       <div className='flex items-center gap-8px'>
-                        <Upload size={14} />
-                        <span>{t('conversation.history.export')}</span>
+                        <Pencil size={14} />
+                        <span>{t('conversation.history.rename')}</span>
                       </div>
                     </Menu.Item>
-                  )}
-                  {onAssignToProject && !conversationProjectId && (
-                    <Menu.Item key='assignProject'>
-                      <div className='flex items-center gap-8px'>
-                        <FolderPlus size={14} />
-                        <span>{t('projects.history.addToProject')}</span>
+                    {onScheduleChat && (
+                      <Menu.Item key='schedule'>
+                        <div className='flex items-center gap-8px'>
+                          <Clock size={14} />
+                          <span>
+                            {(conversation.extra as { cronJobId?: string } | undefined)?.cronJobId
+                              ? t('conversation.history.editSchedule')
+                              : t('conversation.history.schedule')}
+                          </span>
+                        </div>
+                      </Menu.Item>
+                    )}
+                    {onExport && (
+                      <Menu.Item key='export'>
+                        <div className='flex items-center gap-8px'>
+                          <Upload size={14} />
+                          <span>{t('conversation.history.export')}</span>
+                        </div>
+                      </Menu.Item>
+                    )}
+                    {onAssignToProject && !conversationProjectId && (
+                      <Menu.Item key='assignProject'>
+                        <div className='flex items-center gap-8px'>
+                          <FolderPlus size={14} />
+                          <span>{t('projects.history.addToProject')}</span>
+                        </div>
+                      </Menu.Item>
+                    )}
+                    {onRemoveFromProject && conversationProjectId && (
+                      <Menu.Item key='removeProject'>
+                        <div className='flex items-center gap-8px'>
+                          <FolderMinus size={14} />
+                          <span>{t('projects.history.removeFromProject')}</span>
+                        </div>
+                      </Menu.Item>
+                    )}
+                    <Menu.Item key='delete'>
+                      <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
+                        <Trash2 size={14} />
+                        <span>{t('conversation.history.deleteTitle')}</span>
                       </div>
                     </Menu.Item>
-                  )}
-                  {onRemoveFromProject && conversationProjectId && (
-                    <Menu.Item key='removeProject'>
-                      <div className='flex items-center gap-8px'>
-                        <FolderMinus size={14} />
-                        <span>{t('projects.history.removeFromProject')}</span>
-                      </div>
-                    </Menu.Item>
-                  )}
-                  <Menu.Item key='delete'>
-                    <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
-                      <Trash2 size={14} />
-                      <span>{t('conversation.history.deleteTitle')}</span>
-                    </div>
-                  </Menu.Item>
-                </Menu>
-              }
-              trigger='click'
-              position='br'
-              popupVisible={menuVisible}
-              onVisibleChange={(visible) => onMenuVisibleChange(conversation.id, visible)}
-              getPopupContainer={() => document.body}
-              unmountOnExit={false}
-            >
-              <span
-                className={classNames(
-                  'flex-center cursor-pointer hover:bg-fill-2 rd-4px p-4px transition-colors relative text-t-primary',
-                  {
-                    flex: isMobile || menuVisible,
-                    'hidden group-hover:flex': !isMobile && !menuVisible,
-                  }
-                )}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onOpenMenu(conversation);
-                }}
+                  </Menu>
+                }
+                trigger='click'
+                position='br'
+                popupVisible={menuVisible}
+                onVisibleChange={(visible) => onMenuVisibleChange(conversation.id, visible)}
+                getPopupContainer={() => document.body}
+                unmountOnExit={false}
               >
-                <div
-                  className='flex flex-col gap-2px items-center justify-center'
-                  style={{ width: '16px', height: '16px' }}
+                <span
+                  className={classNames(
+                    'flex-center cursor-pointer hover:bg-fill-2 rd-4px p-4px transition-colors relative text-t-primary',
+                    {
+                      flex: isMobile || menuVisible,
+                      'hidden group-hover:flex': !isMobile && !menuVisible,
+                    }
+                  )}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onOpenMenu(conversation);
+                  }}
                 >
-                  <div className='w-2px h-2px rounded-full bg-current'></div>
-                  <div className='w-2px h-2px rounded-full bg-current'></div>
-                  <div className='w-2px h-2px rounded-full bg-current'></div>
-                </div>
-              </span>
-            </Dropdown>
-          </div>
-        )}
+                  <div
+                    className='flex flex-col gap-2px items-center justify-center'
+                    style={{ width: '16px', height: '16px' }}
+                  >
+                    <div className='w-2px h-2px rounded-full bg-current'></div>
+                    <div className='w-2px h-2px rounded-full bg-current'></div>
+                    <div className='w-2px h-2px rounded-full bg-current'></div>
+                  </div>
+                </span>
+              </Dropdown>
+            </div>
+          )}
+        </div>
+        {showActivity && activity ? <ConversationActivityStatus activity={activity} /> : null}
       </div>
     </Tooltip>
   );

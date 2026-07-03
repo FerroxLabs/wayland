@@ -7,6 +7,7 @@
 import { ipcBridge } from '@/common';
 import AtFileMenu from '@/renderer/components/chat/AtFileMenu';
 import BtwOverlay from '@/renderer/components/chat/BtwOverlay';
+import DoctorReportModal from '@/renderer/components/chat/DoctorReportModal';
 import { useInputFocusRing } from '@/renderer/hooks/chat/useInputFocusRing';
 import SlashCommandMenu, { type SlashCommandMenuItem } from '@/renderer/components/chat/SlashCommandMenu';
 import { useBtwCommand } from '@/renderer/components/chat/BtwOverlay/useBtwCommand';
@@ -22,6 +23,7 @@ import { mergeFileSelectionItems, type FileSelectionItem } from '@/renderer/util
 import type { FileOrFolderItem } from '@/renderer/utils/file/fileTypes';
 import { filterWorkspaceMentionItems } from '@/renderer/utils/file/workspaceMentions';
 import { copyText } from '@/renderer/utils/ui/clipboard';
+import { isElectronDesktop } from '@/renderer/utils/platform';
 import { blurActiveElement, shouldBlockMobileInputFocus } from '@/renderer/utils/ui/focus';
 import { Button, Input, Message, Tag } from '@arco-design/web-react';
 import { ArrowUp, Quote, X } from 'lucide-react';
@@ -224,6 +226,7 @@ const SendBox: React.FC<{
   const [workspaceMentionLoading, setWorkspaceMentionLoading] = useState(false);
   const [atFileMenuActiveIndex, setAtFileMenuActiveIndex] = useState(0);
   const [dismissedAtFileToken, setDismissedAtFileToken] = useState<string | null>(null);
+  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
   const mentionOwnedPathsRef = useRef<Set<string>>(new Set());
   const everMentionOwnedPathsRef = useRef<Set<string>>(new Set());
   const externalOwnedPathsRef = useRef<Set<string>>(new Set());
@@ -423,6 +426,19 @@ const SendBox: React.FC<{
         source: 'builtin',
       });
     }
+    // App-wide diagnostic, handled inline (opens a modal). Desktop-only: the
+    // `doctor.run` IPC is in REMOTE_DENIED_KEYS, so a paired-WebUI/remote session
+    // would open the modal only to have the run dropped ("Could not run the
+    // Doctor"). Gate the command on the local Electron desktop so it's never a
+    // dead affordance remotely.
+    if (isElectronDesktop()) {
+      commands.push({
+        name: 'doctor',
+        description: t('messages.doctor.commandDescription', { defaultValue: 'Run a health check on your setup' }),
+        kind: 'builtin',
+        source: 'builtin',
+      });
+    }
     return commands;
   }, [conversationContext?.conversationId, enableBtw, onSlashBuiltinCommand, t]);
 
@@ -490,6 +506,8 @@ const SendBox: React.FC<{
         }
       } else if (name === 'export') {
         void conversationExport.openExportFlow();
+      } else if (name === 'doctor') {
+        setIsDoctorModalOpen(true);
       } else {
         onSlashBuiltinCommand?.(name);
       }
@@ -1412,6 +1430,7 @@ const SendBox: React.FC<{
           parentTaskRunning={Boolean(loading || isLoading)}
           question={btwCommand.question}
         />
+        <DoctorReportModal visible={isDoctorModalOpen} onClose={() => setIsDoctorModalOpen(false)} />
         {isAtFileMenuOpen && (
           <div className='absolute left-12px right-12px bottom-[calc(100%+8px)] z-70'>
             <AtFileMenu

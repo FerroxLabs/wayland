@@ -42,7 +42,8 @@ export async function checkSecretStorage(isEncryptionAvailable: () => boolean): 
   return {
     status: 'warn',
     detail: 'No OS keychain available — credentials fall back to a weaker file-key store.',
-    remediation: 'On Linux, install libsecret + a running secret service (gnome-keyring / KWallet) for keychain-strength storage.',
+    remediation:
+      'On Linux, install libsecret + a running secret service (gnome-keyring / KWallet) for keychain-strength storage.',
   };
 }
 
@@ -63,6 +64,33 @@ export async function checkEngineConfigIntegrity(
   }
   return {
     status: 'pass',
-    detail: result.existed ? 'Engine config.toml parses cleanly.' : 'No engine config.toml yet (fresh install) — defaults apply.',
+    detail: result.existed
+      ? 'Engine config.toml parses cleanly.'
+      : 'No engine config.toml yet (fresh install) — defaults apply.',
+  };
+}
+
+/** Dependencies for {@link checkConfigPaths} — the two resolved config dirs. */
+export type ConfigPathsDeps = {
+  /** The desktop app config directory (`getConfigPath()` → `.../Wayland/config`). */
+  appConfigDir: () => string;
+  /** The engine (wayland-core) config directory (`nativeConfigDir()`). */
+  engineConfigDir: () => string;
+};
+
+/**
+ * Config locations — surface the TWO distinct config directories the app uses so
+ * the "which config is live / why didn't my setting take / where is my config"
+ * confusion is visible: the desktop app config dir (providers, channels, OAuth)
+ * and the SEPARATE wayland-core engine config dir. Informational — always PASS,
+ * with both resolved paths in the detail (uninstalling deletes neither, so a
+ * stale config can survive a reinstall).
+ */
+export async function checkConfigPaths(deps: ConfigPathsDeps): Promise<DoctorCheckOutcome> {
+  const appDir = deps.appConfigDir();
+  const engineDir = deps.engineConfigDir();
+  return {
+    status: 'pass',
+    detail: `App config: ${appDir} · Engine config: ${engineDir}. These are two separate locations — the engine reads its own config, not the app's.`,
   };
 }

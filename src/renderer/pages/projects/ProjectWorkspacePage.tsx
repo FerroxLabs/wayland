@@ -26,6 +26,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isConversationPinned } from '@/renderer/pages/conversation/GroupedHistory/utils/groupingHelpers';
+import { formatConversationDate } from '@/renderer/utils/chat/timeline';
 import ProjectFilesPanel from './components/ProjectFilesPanel';
 import ProjectSettingsDrawer, { type SettingsSection } from './components/ProjectSettingsDrawer';
 import ProjectReferencePanel from './components/ProjectReferencePanel';
@@ -53,7 +54,7 @@ const hasContent = (raw: string): boolean =>
  * execution lock: many chats can run at once, so nothing here disables.
  */
 const ProjectWorkspacePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
 
@@ -126,7 +127,9 @@ const ProjectWorkspacePage: React.FC = () => {
         await ipcBridge.conversation.update.invoke({
           id: c.id,
           updates: {
-            extra: { pinned: !pinned, pinnedAt: pinned ? undefined : Date.now() } as Partial<TChatConversation['extra']>,
+            extra: { pinned: !pinned, pinnedAt: pinned ? undefined : Date.now() } as Partial<
+              TChatConversation['extra']
+            >,
           } as Partial<TChatConversation>,
           mergeExtra: true,
         });
@@ -167,7 +170,12 @@ const ProjectWorkspacePage: React.FC = () => {
   const color = project?.iconColor || '#FF6A00';
 
   const TABS: Array<{ key: ProjectTab; label: string; icon: React.ReactNode; count?: number }> = [
-    { key: 'chats', label: t('projects.workspace.tabChats'), icon: <MessageSquare size={15} />, count: conversations.length },
+    {
+      key: 'chats',
+      label: t('projects.workspace.tabChats'),
+      icon: <MessageSquare size={15} />,
+      count: conversations.length,
+    },
     { key: 'files', label: t('projects.workspace.tabFiles'), icon: <FolderOpen size={15} /> },
     { key: 'reference', label: t('projects.workspace.tabReference'), icon: <Paperclip size={15} /> },
     { key: 'memory', label: t('projects.workspace.tabMemory'), icon: <NotebookPen size={15} /> },
@@ -285,77 +293,88 @@ const ProjectWorkspacePage: React.FC = () => {
                     return pb - pa;
                   })
                   .map((c) => {
-                  const backend = (c.extra as { backend?: string } | undefined)?.backend || c.type;
-                  return (
-                    <div
-                      key={c.id}
-                      role='button'
-                      tabIndex={0}
-                      onClick={() => navigate(`/conversation/${c.id}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') navigate(`/conversation/${c.id}`);
-                      }}
-                      className={`group flex items-center gap-12px px-14px py-12px cursor-pointer ${styles.card}`}
-                    >
-                      <div className='flex flex-col gap-2px min-w-0 flex-1'>
-                        <div className='flex items-center gap-6px min-w-0'>
-                          {isConversationPinned(c) && <Pin size={12} className='text-t-tertiary shrink-0' />}
-                          <div className='text-14px font-500 text-t-primary truncate'>
-                            {c.name || t('projects.workspace.untitledChat')}
+                    const backend = (c.extra as { backend?: string } | undefined)?.backend || c.type;
+                    const created = formatConversationDate(c.createTime, i18n.language || 'en-US');
+                    return (
+                      <div
+                        key={c.id}
+                        role='button'
+                        tabIndex={0}
+                        onClick={() => navigate(`/conversation/${c.id}`)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') navigate(`/conversation/${c.id}`);
+                        }}
+                        className={`group flex items-center gap-12px px-14px py-12px cursor-pointer ${styles.card}`}
+                      >
+                        <div className='flex flex-col gap-2px min-w-0 flex-1'>
+                          <div className='flex items-center gap-6px min-w-0'>
+                            {isConversationPinned(c) && <Pin size={12} className='text-t-tertiary shrink-0' />}
+                            <div className='text-14px font-500 text-t-primary truncate'>
+                              {c.name || t('projects.workspace.untitledChat')}
+                            </div>
+                          </div>
+                          <div className='flex items-center gap-6px text-11px text-t-tertiary'>
+                            <span className='uppercase tracking-wide'>{backend}</span>
+                            {created && (
+                              <>
+                                <span aria-hidden='true'>·</span>
+                                <span className='normal-case'>
+                                  {t('projects.workspace.created', { date: created })}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
-                        <div className='text-11px text-t-tertiary uppercase tracking-wide'>{backend}</div>
-                      </div>
-                      {/* stopPropagation on the wrapper (not the trigger button) so the
+                        {/* stopPropagation on the wrapper (not the trigger button) so the
                           row click doesn't navigate, while Arco's click-to-open still fires. */}
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <Dropdown
-                          trigger='click'
-                          position='br'
-                          droplist={
-                            <Menu
-                              onClickMenuItem={(key) => {
-                                if (key === 'pin') void togglePin(c);
-                                else if (key === 'rename') openRename(c);
-                                else if (key === 'remove') removeFromProject(c.id);
-                              }}
-                            >
-                              <Menu.Item key='pin'>
-                                <div className='flex items-center gap-8px'>
-                                  {isConversationPinned(c) ? <PinOff size={15} /> : <Pin size={15} />}
-                                  <span>
-                                    {isConversationPinned(c)
-                                      ? t('conversation.history.unpin')
-                                      : t('conversation.history.pin')}
-                                  </span>
-                                </div>
-                              </Menu.Item>
-                              <Menu.Item key='rename'>
-                                <div className='flex items-center gap-8px'>
-                                  <Pencil size={15} />
-                                  <span>{t('conversation.history.rename')}</span>
-                                </div>
-                              </Menu.Item>
-                              <Menu.Item key='remove'>
-                                <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
-                                  <FolderMinus size={15} />
-                                  <span>{t('projects.workspace.removeChat')}</span>
-                                </div>
-                              </Menu.Item>
-                            </Menu>
-                          }
-                        >
-                          <Button
-                            type='text'
-                            size='mini'
-                            className='opacity-0 group-hover:opacity-100 transition-opacity'
-                            icon={<MoreHorizontal size={16} />}
-                          />
-                        </Dropdown>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Dropdown
+                            trigger='click'
+                            position='br'
+                            droplist={
+                              <Menu
+                                onClickMenuItem={(key) => {
+                                  if (key === 'pin') void togglePin(c);
+                                  else if (key === 'rename') openRename(c);
+                                  else if (key === 'remove') removeFromProject(c.id);
+                                }}
+                              >
+                                <Menu.Item key='pin'>
+                                  <div className='flex items-center gap-8px'>
+                                    {isConversationPinned(c) ? <PinOff size={15} /> : <Pin size={15} />}
+                                    <span>
+                                      {isConversationPinned(c)
+                                        ? t('conversation.history.unpin')
+                                        : t('conversation.history.pin')}
+                                    </span>
+                                  </div>
+                                </Menu.Item>
+                                <Menu.Item key='rename'>
+                                  <div className='flex items-center gap-8px'>
+                                    <Pencil size={15} />
+                                    <span>{t('conversation.history.rename')}</span>
+                                  </div>
+                                </Menu.Item>
+                                <Menu.Item key='remove'>
+                                  <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
+                                    <FolderMinus size={15} />
+                                    <span>{t('projects.workspace.removeChat')}</span>
+                                  </div>
+                                </Menu.Item>
+                              </Menu>
+                            }
+                          >
+                            <Button
+                              type='text'
+                              size='mini'
+                              className='opacity-0 group-hover:opacity-100 transition-opacity'
+                              icon={<MoreHorizontal size={16} />}
+                            />
+                          </Dropdown>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             )}
           </div>

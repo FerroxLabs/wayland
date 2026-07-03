@@ -125,6 +125,14 @@ async function applyProposal(
       if (!ok) throw new Error(`Could not update ${content.label} instructions`);
       return `Updated ${content.label} instructions.`;
     }
+    case 'file_bug_report': {
+      // Non-mutating (#464): the renderer card runs the capture → clipboard → open
+      // flow (ipcBridge.application.captureBugReport) on accept. MAIN just records
+      // the acceptance so the card transitions and the action is auditable. The open
+      // result is not observable here (shell.openExternal does not report back), so
+      // the summary is action-oriented rather than asserting the browser opened.
+      return 'Bug report prepared — finish and submit it in your browser.';
+    }
   }
 }
 

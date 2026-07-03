@@ -11,6 +11,7 @@ import {
   Mic,
   MessageCircle,
   Monitor,
+  PanelLeft,
   Pencil,
   Puzzle,
   Radio,
@@ -54,6 +55,7 @@ export const BUILTIN_TAB_IDS = [
   // APPEARANCE
   'theme',
   'editor',
+  'navigation',
   // SYSTEM
   'general',
   'notifications',
@@ -266,6 +268,12 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
         label: t('settings.sider.editor', { defaultValue: 'Editor' }),
         icon: <Pencil />,
         path: 'editor',
+      },
+      navigation: {
+        id: 'navigation',
+        label: t('settings.sider.navigation', { defaultValue: 'Navigation' }),
+        icon: <PanelLeft />,
+        path: 'navigation',
       },
       general: {
         id: 'general',

@@ -43,6 +43,7 @@
     "emptyTitle": "Noch keine Chats in diesem Projekt",
     "emptyBody": "Starte einen Chat mit einem beliebigen Backend, Modell oder Assistenten. Er gehört zu diesem Projekt, und du kannst so viele gleichzeitig laufen lassen, wie du möchtest.",
     "untitledChat": "Unbenannter Chat",
+    "created": "Erstellt {{date}}",
     "removeChat": "Entfernen",
     "tabReference": "Referenz",
     "tabMemory": "Gedächtnis",

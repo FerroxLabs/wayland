@@ -38,6 +38,9 @@ vi.mock('react-i18next', () => ({
 const openExternalUrlMock = vi.hoisted(() => vi.fn());
 vi.mock('@/renderer/utils/platform', () => ({ openExternalUrl: openExternalUrlMock }));
 
+const fileBugReportMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock('@/renderer/utils/bugReport', () => ({ fileBugReport: fileBugReportMock }));
+
 const navigateMock = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
@@ -62,6 +65,8 @@ describe('SiderFooterQuickActions', () => {
     ipcState.statusChangedHandler = null;
     navigateMock.mockReset();
     openExternalUrlMock.mockReset();
+    fileBugReportMock.mockReset();
+    fileBugReportMock.mockResolvedValue(undefined);
   });
 
   it('renders 3 quick action buttons', () => {
@@ -89,17 +94,18 @@ describe('SiderFooterQuickActions', () => {
     expect(navigateMock).toHaveBeenCalledWith('/settings/webui');
   });
 
-  it('Bug button fires onOpenBugReport when provided', () => {
+  it('Bug button fires onOpenBugReport when provided (host handler wins over the built-in flow)', () => {
     const onOpenBugReport = vi.fn();
     renderActions({ onOpenBugReport });
     fireEvent.click(screen.getByTestId('sider-footer-quick-bug'));
     expect(onOpenBugReport).toHaveBeenCalledOnce();
+    expect(fileBugReportMock).not.toHaveBeenCalled();
   });
 
-  it('Bug button opens the GitHub issue chooser when no handler is provided (was a silent no-op)', () => {
+  it('Bug button runs the one-click bug-report flow when no handler is provided (#464)', () => {
     renderActions();
     fireEvent.click(screen.getByTestId('sider-footer-quick-bug'));
-    expect(openExternalUrlMock).toHaveBeenCalledWith('https://github.com/FerroxLabs/wayland/issues/new/choose');
+    expect(fileBugReportMock).toHaveBeenCalledOnce();
   });
 
   it('Repo button fires onOpenLink with GitHub URL when provided', () => {

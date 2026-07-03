@@ -18,6 +18,7 @@
  */
 
 import { access } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
@@ -26,6 +27,8 @@ import { Curator } from '@process/providers/catalog/Curator';
 import type { ProviderId } from '@process/providers/types';
 import { detectWCore } from '@process/agent/wcore/binaryResolver';
 import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
+import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
+import { getConfigPath } from '@process/utils/utils';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -38,8 +41,13 @@ import { checkProviderConnectivity, checkModelRegistrySanity } from './checks/pr
 import { checkEngineReachable, checkEngineRouting } from './checks/engineChecks';
 import { checkMcpServers } from './checks/mcpChecks';
 import { checkBackends } from './checks/backendChecks';
-import { checkWorkspaceDrift, type WorkspaceEntry } from './checks/workspaceChecks';
-import { checkSecretStorage, checkEngineConfigIntegrity } from './checks/configChecks';
+import {
+  checkWorkspaceDrift,
+  checkWorkspaceConfigured,
+  type WorkspaceEntry,
+  type WorkspaceConfigEntry,
+} from './checks/workspaceChecks';
+import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from './checks/configChecks';
 
 /** Build a `ProviderRepository` bound to the live UI database. */
 async function providerRepo(): Promise<ProviderRepository> {
@@ -118,6 +126,35 @@ async function listConfiguredWorkspaces(): Promise<WorkspaceEntry[]> {
     // since the union is wide and some kinds carry no workspace.
     const extra = conversation.extra as { workspace?: unknown } | undefined;
     add(`Chat "${conversation.name ?? conversation.id}"`, extra?.workspace);
+  }
+
+  return entries;
+}
+
+/**
+ * Collect every configured workspace with its persistent-vs-temp classification
+ * inputs: project workspaces (no `customWorkspace` flag → `null`) plus
+ * conversation `extra.workspace` / `extra.customWorkspace`. Conversations that
+ * carry no workspace binding at all are skipped (nothing to assess).
+ */
+async function listWorkspaceConfigEntries(): Promise<WorkspaceConfigEntry[]> {
+  const entries: WorkspaceConfigEntry[] = [];
+
+  const asPath = (value: unknown): string | null =>
+    typeof value === 'string' && value.trim().length > 0 ? value : null;
+
+  const projects = await projectServiceSingleton.listProjects().catch((): IProject[] => []);
+  for (const project of projects) {
+    entries.push({ label: `Project "${project.name}"`, path: asPath(project.workspace), customWorkspace: null });
+  }
+
+  const conversations = await conversationServiceSingleton.listAllConversations().catch((): TChatConversation[] => []);
+  for (const conversation of conversations) {
+    const extra = conversation.extra as { workspace?: unknown; customWorkspace?: unknown } | undefined;
+    const path = asPath(extra?.workspace);
+    const customWorkspace = typeof extra?.customWorkspace === 'boolean' ? extra.customWorkspace : null;
+    if (path === null && customWorkspace === null) continue;
+    entries.push({ label: `Chat "${conversation.name ?? conversation.id}"`, path, customWorkspace });
   }
 
   return entries;
@@ -210,6 +247,18 @@ export function buildDoctorChecks(): DoctorCheck[] {
       titleKey: 'settings.doctor.checks.workspaceDrift',
       category: 'workspace',
       run: () => checkWorkspaceDrift({ listWorkspaces: listConfiguredWorkspaces, pathExists }),
+    },
+    {
+      id: 'workspace.configured',
+      titleKey: 'settings.doctor.checks.workspaceConfigured',
+      category: 'workspace',
+      run: () => checkWorkspaceConfigured({ listWorkspaces: listWorkspaceConfigEntries, tmpDir: tmpdir() }),
+    },
+    {
+      id: 'config.paths',
+      titleKey: 'settings.doctor.checks.configPaths',
+      category: 'config',
+      run: () => checkConfigPaths({ appConfigDir: getConfigPath, engineConfigDir: nativeConfigDir }),
     },
     {
       id: 'config.secretStorage',

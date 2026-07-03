@@ -88,6 +88,20 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
     ruleFiles: {
       'en-US': 'ignition.md',
     },
+    // Ignition is a master income-asset builder: pin one always-on expert per
+    // domain it must cover end-to-end (strategy, project orchestration, build,
+    // brand, copy, launch). Without this the engine auto-loads a single wrong
+    // library skill for the opening prompt. Bodies load on demand — only the
+    // name+description of each is resident. The long tail stays reachable via
+    // wayland_search_skills (see ignition.md ARSENAL).
+    defaultEnabledSkills: [
+      'startup-advisor',
+      'project-manager',
+      'frontend-developer',
+      'brand-identity-designer',
+      'copywriter',
+      'marketing-strategist',
+    ],
     nameI18n: {
       'en-US': 'Ignition',
     },

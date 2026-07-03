@@ -17,6 +17,7 @@ import { getCdpStatus, updateCdpConfig } from '@process/utils/configureChromium'
 import { initApplicationBridgeCore } from './applicationBridgeCore';
 import { openRoutePopoutWindow } from '@process/utils/popoutWindowManager';
 import type { IStartOnBootStatus } from '@/common/adapter/ipcBridge';
+import { collectBugReport } from '@process/services/bugReport/collectBugReport';
 
 let mainWindowRef: BrowserWindow | null = null;
 
@@ -207,6 +208,17 @@ export function initApplicationBridge(workerTaskManager: IWorkerTaskManager): vo
       }
     }
     return Promise.resolve(false);
+  });
+
+  // One-click bug report (#464): capture the app window + gather diagnostics.
+  // The main process owns the BrowserWindow ref and the clipboard write.
+  ipcBridge.application.captureBugReport.provider(async () => {
+    try {
+      const data = await collectBugReport(mainWindowRef);
+      return { success: true, data };
+    } catch (e) {
+      return { success: false, msg: e instanceof Error ? e.message : String(e) };
+    }
   });
 
   ipcBridge.application.getZoomFactor.provider(() => Promise.resolve(getZoomFactor()));

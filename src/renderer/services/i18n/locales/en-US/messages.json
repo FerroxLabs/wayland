@@ -75,6 +75,11 @@
     "recommended": "Recommended"
   },
   "slash.customBadge": "Custom",
+  "doctor": {
+    "commandDescription": "Run a health check on your setup",
+    "close": "Close",
+    "runError": "Could not run the Doctor. Please try again."
+  },
   "runaway": {
     "title": "Stopped a runaway loop",
     "repeatedReadBody": "This turn kept re-reading the same content ({{count}} times) without making progress, so it was stopped to avoid burning tokens. You can send a new message to continue.",

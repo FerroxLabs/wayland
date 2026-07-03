@@ -42,6 +42,7 @@ describe('applicationBridge start-on-boot helpers', () => {
           updateCdpConfig: { provider: vi.fn() },
           getStartOnBootStatus: { provider: vi.fn() },
           setStartOnBoot: { provider: vi.fn() },
+          captureBugReport: { provider: vi.fn() },
         },
       },
     }));
@@ -259,6 +260,7 @@ describe('applicationBridge start-on-boot helpers', () => {
               capturedHandlers.setStartOnBoot = fn;
             }),
           },
+          captureBugReport: { provider: vi.fn() },
         },
       },
     }));
@@ -343,6 +345,7 @@ describe('applicationBridge start-on-boot helpers', () => {
               capturedHandlers.setStartOnBoot = fn;
             }),
           },
+          captureBugReport: { provider: vi.fn() },
         },
       },
     }));

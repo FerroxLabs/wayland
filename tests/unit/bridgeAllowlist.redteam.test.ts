@@ -141,3 +141,15 @@ describe('isAllowedForRemote - cron write/exec surface denied (#495)', () => {
     }
   );
 });
+
+/**
+ * Doctor / health-check surface (issue #35, #458). `doctor.run` discloses the
+ * host's full diagnostic posture (a reconnaissance aid) and `doctor.copy-text`
+ * writes caller-supplied text to the host OS clipboard from MAIN (a
+ * clipboard-injection primitive). Both are denied to remote WS callers.
+ */
+describe('isAllowedForRemote - doctor surface denied (#458)', () => {
+  it.each(['doctor.run', 'doctor.copy-text'])('denies subscribe-%s for remote callers', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
+});

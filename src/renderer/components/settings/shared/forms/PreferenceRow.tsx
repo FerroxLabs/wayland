@@ -2,7 +2,7 @@ import React from 'react';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 
 type PreferenceRowProps = {
-  label: string;
+  label: React.ReactNode;
   help?: string;
   required?: boolean;
   children: React.ReactNode;
