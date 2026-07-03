@@ -191,6 +191,11 @@ class AutoUpdaterService extends EventEmitter {
 
     // Disable auto-download for manual control
     autoUpdater.autoDownload = false;
+    // autoInstallOnAppQuit starts enabled (normal auto-update: a staged update
+    // installs on quit) but is DISABLED the moment a macOS block/apply-failure is
+    // detected — see setInstallOnQuit(). A bundle ShipIt can't apply in place must
+    // never auto-install on quit, or ShipIt relaunches the old version → re-stages
+    // → endless respawn loop (#575). The manual-download path stays available.
     autoUpdater.autoInstallOnAppQuit = true;
 
     // Set the correct update channel based on platform and architecture before
@@ -323,6 +328,9 @@ class AutoUpdaterService extends EventEmitter {
         log.warn(
           `[autoUpdater] Update ${info.version} cannot be applied in place (${blockReason}); surfacing guidance.`
         );
+        // Never let checkForUpdatesAndNotify's staged download auto-install on
+        // quit when we know the apply can't succeed — that's the #575 loop.
+        this.disableInstallOnQuit(`macOS block: ${blockReason}`);
         this.broadcastInstallFailed(blockReason, info.version);
         return;
       }
@@ -331,6 +339,7 @@ class AutoUpdaterService extends EventEmitter {
       // same doomed update (the loop in #286) — surface the failure + manual path.
       if (this._failedInstallVersion && info.version === this._failedInstallVersion) {
         log.warn(`[autoUpdater] Suppressing re-offer of ${info.version}: prior install silently failed (#286).`);
+        this.disableInstallOnQuit(`silent-noop re-offer of ${info.version}`);
         this.broadcastInstallFailed('silent-noop', info.version);
         return;
       }
@@ -540,6 +549,10 @@ class AutoUpdaterService extends EventEmitter {
 
     // Downloaded + install attempted, but the version never advanced.
     this._failedInstallVersion = expected;
+    // The staged update ShipIt keeps trying to apply is the #575 loop engine.
+    // Kill auto-install-on-quit now, at startup, before the next check re-stages —
+    // so this quit (and every quit after) stops handing the doomed bundle to ShipIt.
+    this.disableInstallOnQuit(`silent apply failure of ${expected}`);
     log.error(
       `[autoUpdater] Update to ${expected} was downloaded and install was attempted, but the app is ` +
         `still on ${current}. The post-quit Squirrel/ShipIt apply step silently failed (#286).`
@@ -643,6 +656,24 @@ class AutoUpdaterService extends EventEmitter {
       log.warn('[autoUpdater] isInApplicationsFolder check failed:', error);
     }
     return null;
+  }
+
+  /**
+   * Break the #575 respawn loop: when a macOS update block or a silent
+   * apply-failure is detected, disable autoInstallOnAppQuit so a bundle ShipIt
+   * can't apply in place is NEVER handed to ShipIt on quit. Without this, a
+   * staged-but-unappliable update makes every quit relaunch the old version →
+   * re-stage → loop (Dock spam + focus theft). Idempotent; the manual-download
+   * path (broadcastInstallFailed) still lets the user update deliberately.
+   *
+   * On the happy path (no block) autoInstallOnAppQuit is left at its enabled
+   * default, so normal auto-update on quit is preserved.
+   */
+  private disableInstallOnQuit(context: string): void {
+    if (autoUpdater.autoInstallOnAppQuit) {
+      log.warn(`[autoUpdater] Disabling autoInstallOnAppQuit (${context}) to prevent the #575 relaunch loop.`);
+      autoUpdater.autoInstallOnAppQuit = false;
+    }
   }
 
   /**

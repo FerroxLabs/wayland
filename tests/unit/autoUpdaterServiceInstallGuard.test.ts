@@ -187,4 +187,72 @@ describe('autoUpdaterService install guard (#286)', () => {
     expect(lastStatus().status).toBe('available');
     expect(app.isInApplicationsFolder).not.toHaveBeenCalled();
   });
+
+  // #575: a bundle ShipIt can't apply in place must never auto-install on quit,
+  // or ShipIt relaunches the old version → re-stages → endless respawn loop
+  // (Dock spam + focus theft). The loop-breaker is autoInstallOnAppQuit=false
+  // the moment any block/apply-failure is detected.
+  describe('autoInstallOnAppQuit loop-breaker (#575)', () => {
+    it('constructor leaves autoInstallOnAppQuit enabled (normal auto-update default)', () => {
+      // freshService() re-ran the constructor in beforeEach.
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+    });
+
+    it('macOS block (outside /Applications) → autoInstallOnAppQuit disabled', () => {
+      setPlatform('darwin');
+      (app.isInApplicationsFolder as ReturnType<typeof vi.fn>).mockReturnValue(false);
+
+      service.triggerEventForTest('update-available', { version: '2.0.0' });
+
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
+    });
+
+    it('happy path (macOS inside /Applications, no block) → autoInstallOnAppQuit stays true', () => {
+      setPlatform('darwin');
+      (app.isInApplicationsFolder as ReturnType<typeof vi.fn>).mockReturnValue(true);
+
+      service.triggerEventForTest('update-available', { version: '2.0.0' });
+
+      expect(lastStatus().status).toBe('available');
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+    });
+
+    it('non-macOS offer → autoInstallOnAppQuit stays true (loop is macOS-only)', () => {
+      setPlatform('win32');
+      service.triggerEventForTest('update-available', { version: '2.0.0' });
+
+      expect(lastStatus().status).toBe('available');
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+    });
+
+    it('silent apply failure on reconcile → autoInstallOnAppQuit disabled at startup', () => {
+      fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
+      (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
+
+      service.reconcilePendingInstall();
+
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
+    });
+
+    it('successful reconcile (version advanced) → autoInstallOnAppQuit stays true', () => {
+      fs.writeFileSync(markerPath(), JSON.stringify({ version: '1.0.0', attemptedAt: 1 }));
+      (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
+
+      service.reconcilePendingInstall();
+
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+    });
+
+    it('re-offer of a silently-failed version → autoInstallOnAppQuit disabled', () => {
+      fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
+      service.reconcilePendingInstall();
+      // reconcile already disabled it; re-enable to prove the re-offer path also disables.
+      autoUpdater.autoInstallOnAppQuit = true;
+
+      service.triggerEventForTest('update-available', { version: '2.0.0' });
+
+      expect(lastStatus().status).toBe('install-failed');
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
+    });
+  });
 });
