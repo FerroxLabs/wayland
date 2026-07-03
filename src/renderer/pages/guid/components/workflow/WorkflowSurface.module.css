@@ -6,9 +6,9 @@
 
 /* WorkflowSurface - SPEC §5.8 composition root.
  *
- * Two-column layout: chat body (header + asks + caller's chat tape) on the
- * left, ~280px rail on the right. The right column is replaced by the
- * complete card when the session reaches terminal state. The root applies
+ * Single-column chat body (header + asks + StepReviewBeat + caller's chat
+ * tape). The step rail / Complete card moved out of this surface into
+ * ChatLayout's right sider as the "Steps" tab (issue #116). The root applies
  * a faint amber tint when status === 'errored' (SPEC §5.8 + §11).
  */
 
@@ -109,15 +109,6 @@
 .continueText span {
   font-size: 12px;
   color: var(--color-text-3);
-}
-
-.right {
-  display: flex;
-  flex-shrink: 0;
-  min-height: 0;
-  width: 280px;
-  border-left: 1px solid var(--border-base);
-  background-color: var(--color-bg-2);
 }
 
 .errored {

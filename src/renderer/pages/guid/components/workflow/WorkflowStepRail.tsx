@@ -31,6 +31,12 @@ export type WorkflowStepRailProps = {
   onJumpToStep: (n: number) => void;
   /** True when the run is waiting on the user - the live step shows a blue "?" not a spinner. */
   needsInput?: boolean;
+  /**
+   * Embedded mode (issue #116): the rail lives inside ChatLayout's right sider
+   * tab rather than as its own fixed 280px column, so it fills the tab width and
+   * drops its own left border (the sider container supplies it).
+   */
+  embedded?: boolean;
   /** Bottom slot - `WorkflowStatusBar` is composed in by the parent (W3.J) via children prop. */
   children?: React.ReactNode;
 };
@@ -199,6 +205,7 @@ export const WorkflowStepRail: React.FC<WorkflowStepRailProps> = ({
   session,
   onJumpToStep,
   needsInput = false,
+  embedded = false,
   children,
 }) => {
   const { t } = useTranslation();
@@ -207,11 +214,12 @@ export const WorkflowStepRail: React.FC<WorkflowStepRailProps> = ({
     onJumpToStep(n);
   };
 
+  const layoutClass = embedded
+    ? 'w-full h-full flex flex-col overflow-y-auto bg-[color:var(--color-bg-2)] p-16px gap-6px'
+    : 'w-280px shrink-0 h-full flex flex-col overflow-y-auto border-l border-solid border-[color:var(--border-base)] bg-[color:var(--color-bg-2)] p-16px gap-6px';
+
   return (
-    <aside
-      data-testid='workflow-step-rail'
-      className={`${styles.rail} w-280px shrink-0 h-full flex flex-col overflow-y-auto border-l border-solid border-[color:var(--border-base)] bg-[color:var(--color-bg-2)] p-16px gap-6px`}
-    >
+    <aside data-testid='workflow-step-rail' className={`${styles.rail} ${layoutClass}`}>
       <div className={styles.titleStrip} data-testid='workflow-step-rail-title'>
         <span className={styles.modeDot} aria-hidden='true' />
         <span>{t('workflow.rail.title', { defaultValue: 'Steps' })}</span>

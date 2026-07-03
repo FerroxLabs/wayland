@@ -59,6 +59,18 @@ vi.mock('@/renderer/pages/conversation/components/ChatSider', () => ({
   default: () => <div data-testid='mock-chat-sider' />,
 }));
 
+// #116: ChatConversation now derives the workflow needs-input signal (via
+// useWorkflowNeedsInput) to feed the merged Steps sider panel. That reads the
+// shared generating-conversations store; stub it so the test never touches the
+// live ipcBridge / DB.
+vi.mock('@/renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync', () => ({
+  useConversationListSync: () => ({ isConversationGenerating: () => false }),
+}));
+
+vi.mock('@/renderer/pages/guid/components/workflow/WorkflowStepsTab', () => ({
+  WorkflowStepsTab: () => <div data-testid='mock-workflow-steps-tab' />,
+}));
+
 // Platform chat mocks - each renders a distinctive testid and captures props
 // so W0.3 can assert that `workflowTotalSteps` is forwarded from the hoisted
 // `useWorkflowSession` call in ChatConversation.
@@ -140,7 +152,7 @@ vi.mock('@/renderer/hooks/agent/usePresetAssistantInfo', () => ({
 // W0.3: hoisted workflow-session subscription lives in ChatConversation.
 // Mocked so we can assert `workflowTotalSteps` is forwarded to the platform
 // chat without touching the IPC bridge.
-let mockWorkflowSessionData: { total_steps: number } | null = null;
+let mockWorkflowSessionData: { total_steps: number; steps: unknown[] } | null = null;
 vi.mock('@/renderer/hooks/workflow/useWorkflowSession', () => ({
   useWorkflowSession: () => ({
     data: mockWorkflowSessionData,
@@ -378,7 +390,7 @@ describe('ChatConversation - workflowSessionId from location.state', () => {
 
 describe('ChatConversation - W0.3 hoisted workflow total_steps', () => {
   it('threads workflowTotalSteps from the hoisted useWorkflowSession into AcpChat', () => {
-    mockWorkflowSessionData = { total_steps: 7 };
+    mockWorkflowSessionData = { total_steps: 7, steps: [] };
     render(<ChatConversation conversation={buildAcpConversation({ workflowSessionId: 'sess-totals' })} />);
 
     expect(acpChatCalls.length).toBeGreaterThan(0);
@@ -395,7 +407,7 @@ describe('ChatConversation - W0.3 hoisted workflow total_steps', () => {
   });
 
   it('forwards workflowApplyStepMarker from the hoisted session into AcpChat', () => {
-    mockWorkflowSessionData = { total_steps: 3 };
+    mockWorkflowSessionData = { total_steps: 3, steps: [] };
     render(<ChatConversation conversation={buildAcpConversation({ workflowSessionId: 'sess-marker' })} />);
 
     // The hoisted hook's applyStepMarker callback is forwarded as a sibling

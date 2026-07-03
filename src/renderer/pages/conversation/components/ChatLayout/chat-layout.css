@@ -71,6 +71,27 @@
   color: var(--text-primary) !important;
 }
 
+/* #116: workflow right-sider tabs ("Steps" | "Workspace"). Make the Arco Tabs
+   fill the sider's content height so each pane (the scrollable step rail / the
+   workspace file tree) gets the full column and manages its own scroll. */
+.workflow-sider-tabs.arco-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-sider-tabs > .arco-tabs-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+}
+
+.workflow-sider-tabs > .arco-tabs-content .arco-tabs-content-inner,
+.workflow-sider-tabs > .arco-tabs-content .arco-tabs-content-item {
+  height: 100%;
+}
+
 /* Workspace open button dropdown styles */
 .workspace-open-dropdown {
   background-color: var(--color-bg-2);

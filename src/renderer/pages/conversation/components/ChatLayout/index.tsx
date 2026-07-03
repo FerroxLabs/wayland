@@ -30,7 +30,7 @@ import {
   WORKSPACE_HEADER_HEIGHT,
   calcLayoutMetrics,
 } from '@/renderer/pages/conversation/utils/layoutCalc';
-import { Layout as ArcoLayout } from '@arco-design/web-react';
+import { Layout as ArcoLayout, Tabs } from '@arco-design/web-react';
 import React from 'react';
 import useSWR from 'swr';
 import './chat-layout.css';
@@ -63,6 +63,14 @@ const ChatLayout: React.FC<{
    * workspace panel are unaffected.
    */
   hideHeader?: boolean;
+  /**
+   * Workflow "Steps" panel (issue #116). When provided, the right sider renders
+   * as two tabs - "Steps" (this node) and "Workspace" (`sider`) - inside the one
+   * collapsible panel, merging the workflow screen's former two right rails. The
+   * panel is shown (and stays collapsible) even when `workspaceEnabled` is false,
+   * so workspace-disabled workflows still surface their steps.
+   */
+  stepsPanel?: React.ReactNode;
 }> = (props) => {
   const { conversationId, workspacePath } = props;
   const { backend, presetAssistant, agentName } = props;
@@ -73,6 +81,13 @@ const ChatLayout: React.FC<{
   // only the tab bar is removed.
   const isPopout = useIsPopoutMode();
   const workspaceEnabled = props.workspaceEnabled ?? true;
+  // #116: a workflow's Steps panel lives in this same right sider. The panel
+  // (container + collapse control + layout width) must exist whenever there is
+  // EITHER a workspace OR a steps panel, so a workspace-disabled workflow still
+  // shows its steps. `workspaceEnabled` stays reserved for workspace-only bits
+  // (the Workspace tab + the "open in external tools" button).
+  const hasStepsPanel = Boolean(props.stepsPanel);
+  const panelEnabled = workspaceEnabled || hasStepsPanel;
   const layout = useLayoutContext();
   const isMacRuntime = isMacEnvironment();
   const isWindowsRuntime = isWindowsEnvironment();
@@ -84,7 +99,7 @@ const ChatLayout: React.FC<{
 
   // --- Hook A: workspace collapse ---
   const { rightSiderCollapsed, setRightSiderCollapsed } = useWorkspaceCollapse({
-    workspaceEnabled,
+    workspaceEnabled: panelEnabled,
     isMobile,
     conversationId,
   });
@@ -142,7 +157,7 @@ const ChatLayout: React.FC<{
     containerWidth,
     workspaceSplitRatio,
     chatSplitRatio: 60, // placeholder; only dynamicChatMinRatio/dynamicChatMaxRatio are used here
-    workspaceEnabled,
+    workspaceEnabled: panelEnabled,
     isDesktop,
     isPreviewOpen,
     rightSiderCollapsed,
@@ -166,7 +181,7 @@ const ChatLayout: React.FC<{
       containerWidth,
       workspaceSplitRatio,
       chatSplitRatio,
-      workspaceEnabled,
+      workspaceEnabled: panelEnabled,
       isDesktop,
       isPreviewOpen,
       rightSiderCollapsed,
@@ -177,7 +192,7 @@ const ChatLayout: React.FC<{
   usePreviewAutoCollapse({
     isPreviewOpen,
     isDesktop,
-    workspaceEnabled,
+    workspaceEnabled: panelEnabled,
     rightSiderCollapsed,
     setRightSiderCollapsed,
     siderCollapsed: layout?.siderCollapsed,
@@ -187,7 +202,7 @@ const ChatLayout: React.FC<{
   // --- Hook E: layout constraints ---
   useLayoutConstraints({
     containerWidth,
-    workspaceEnabled,
+    workspaceEnabled: panelEnabled,
     isDesktop,
     isPreviewOpen,
     rightSiderCollapsed,
@@ -259,7 +274,7 @@ const ChatLayout: React.FC<{
               assistantId={presetAssistant?.id}
             />
           )}
-          {isWindowsRuntime && workspaceEnabled && (
+          {isWindowsRuntime && panelEnabled && (
             <button
               type='button'
               className='workspace-header__toggle'
@@ -273,6 +288,27 @@ const ChatLayout: React.FC<{
       </ArcoLayout.Header>
       {resolvedTabsSlot}
     </>
+  );
+
+  // #116: right-sider inner content. With a workflow Steps panel present it
+  // becomes two tabs ("Steps" + "Workspace") in the one collapsible panel;
+  // a workspace-disabled workflow shows Steps alone (no tab bar); a plain
+  // conversation keeps the workspace `sider` exactly as before.
+  const siderInner = hasStepsPanel ? (
+    workspaceEnabled ? (
+      <Tabs defaultActiveTab='steps' className='workflow-sider-tabs' lazyload={false}>
+        <Tabs.TabPane key='steps' title={t('workflow.rail.title')}>
+          {props.stepsPanel}
+        </Tabs.TabPane>
+        <Tabs.TabPane key='workspace' title={t('conversation.workspace.title')}>
+          {props.sider}
+        </Tabs.TabPane>
+      </Tabs>
+    ) : (
+      props.stepsPanel
+    )
+  ) : (
+    props.sider
   );
 
   return (
@@ -376,7 +412,7 @@ const ChatLayout: React.FC<{
             )}
           </>
         )}
-        {workspaceEnabled && !layout?.isMobile && (
+        {panelEnabled && !layout?.isMobile && (
           <div
             className={classNames('!bg-1 relative chat-layout-right-sider layout-sider')}
             style={{
@@ -399,29 +435,30 @@ const ChatLayout: React.FC<{
               togglePlacement={layout?.isMobile ? 'left' : 'right'}
               workspacePath={workspacePath}
             >
-              {props.siderTitle}
+              {/* With the Steps/Workspace tabs the panel is self-labelling. */}
+              {hasStepsPanel ? null : props.siderTitle}
             </WorkspacePanelHeader>
             <ArcoLayout.Content style={{ height: `calc(100% - ${WORKSPACE_HEADER_HEIGHT}px)` }}>
-              {props.sider}
+              {siderInner}
             </ArcoLayout.Content>
           </div>
         )}
 
         {/* Mobile workspace overlay: backdrop + fixed panel + floating collapse handle */}
-        {workspaceEnabled && layout?.isMobile && (
+        {panelEnabled && layout?.isMobile && (
           <MobileWorkspaceOverlay
             rightSiderCollapsed={rightSiderCollapsed}
             setRightSiderCollapsed={setRightSiderCollapsed}
             workspaceWidthPx={workspaceWidthPx}
             mobileWorkspaceHandleRight={mobileWorkspaceHandleRight}
-            siderTitle={props.siderTitle}
-            sider={props.sider}
+            siderTitle={hasStepsPanel ? null : props.siderTitle}
+            sider={siderInner}
             workspacePath={workspacePath}
           />
         )}
 
-        {/* Desktop expand button when workspace is collapsed */}
-        {!isMacRuntime && !isWindowsRuntime && workspaceEnabled && rightSiderCollapsed && !layout?.isMobile && (
+        {/* Desktop expand button when the panel is collapsed */}
+        {!isMacRuntime && !isWindowsRuntime && panelEnabled && rightSiderCollapsed && !layout?.isMobile && (
           <DesktopWorkspaceToggle />
         )}
       </div>

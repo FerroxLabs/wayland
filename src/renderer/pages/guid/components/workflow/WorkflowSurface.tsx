@@ -11,21 +11,23 @@
  * mutations route through the `useWorkflowSession` hook so the hook stays
  * the single source of truth for session shape.
  *
- * Layout:
+ * Layout (issue #116 - the step rail no longer lives here):
  *
  *   [WorkflowLaunchOverlay - shown until its 1.6s sequence completes]
- *   ┌────────────────────────────────────────┬─────────────┐
- *   │ WorkflowHeader                                       │
- *   │ AskCard × N (pending asks only)                      │
+ *   ┌──────────────────────────────────────────────────────┐
+ *   │ WorkflowHeader                                        │
+ *   │ AskCard × N (pending asks only)                       │
+ *   │ StepReviewBeat (awaiting_input gate, inline)          │
  *   │ {children}  ← caller's chat tape + input             │
- *   │                                        │ StepRail    │
- *   │                                        │  └─ Status  │
- *   └────────────────────────────────────────┴─────────────┘
+ *   └──────────────────────────────────────────────────────┘
+ *
+ * The step rail / Complete card that used to sit in this surface's own fixed
+ * `.right` column now render as the "Steps" tab of ChatLayout's single
+ * collapsible right sider (see WorkflowStepsTab, fed from ChatConversation).
+ * That collapses the workflow screen's two right rails into one closeable panel.
  *
  * Status transitions:
- * - `complete`: header collapses (handled inside WorkflowHeader); rail
- *   slot renders `<WorkflowCompleteCard>` instead of `<WorkflowStepRail>`.
- * - `errored`:  root receives the `.errored` modifier class (amber tint).
+ * - `errored`: root receives the `.errored` modifier class (amber tint).
  *
  * Auto-send hidden begin (SPEC MUST 1 + §14): on first overlay-completion
  * for a *fresh* session (no asks, every step still `todo`), the surface
@@ -41,18 +43,18 @@ import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { WorkflowInteractivity, WorkflowSession } from '@/common/types/workflowTypes';
 import { useWorkflowSession } from '@/renderer/hooks/workflow/useWorkflowSession';
-import { useConversationListSync } from '@/renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync';
+import { useWorkflowNeedsInput } from '@/renderer/hooks/workflow/useWorkflowNeedsInput';
 import { AskCard } from '@/renderer/pages/guid/components/workflow/AskCard';
 import { QueuedSteeringChip } from '@/renderer/pages/guid/components/workflow/QueuedSteeringChip';
 import { WorkflowNeedsInputCard } from '@/renderer/pages/guid/components/workflow/WorkflowNeedsInputCard';
 import { StepReviewBeat } from '@/renderer/pages/guid/components/workflow/StepReviewBeat';
 import { WorkflowClarifyCard } from '@/renderer/pages/guid/components/workflow/WorkflowClarifyCard';
-import { WorkflowCompleteCard } from '@/renderer/pages/guid/components/workflow/WorkflowCompleteCard';
 import { WorkflowHeader } from '@/renderer/pages/guid/components/workflow/WorkflowHeader';
 import { WorkflowLaunchOverlay } from '@/renderer/pages/guid/components/workflow/WorkflowLaunchOverlay';
-import { WorkflowStatusBar } from '@/renderer/pages/guid/components/workflow/WorkflowStatusBar';
-import { WorkflowStepRail } from '@/renderer/pages/guid/components/workflow/WorkflowStepRail';
-import { WorkflowViewModeProvider, useWorkflowViewModeState } from '@/renderer/pages/guid/components/workflow/workflowViewMode';
+import {
+  WorkflowViewModeProvider,
+  useWorkflowViewModeState,
+} from '@/renderer/pages/guid/components/workflow/workflowViewMode';
 
 import styles from './WorkflowSurface.module.css';
 
@@ -61,14 +63,6 @@ export type WorkflowSurfaceProps = {
   initialSession?: WorkflowSession;
   /** Slot for the existing chat tape + input (caller passes from GuidPage). */
   children: React.ReactNode;
-  /** Suggested next workflows for the Complete card. Optional - caller can derive from category. */
-  suggestedNext?: Array<{ slug: string; display: string }>;
-  /**
-   * Launch a workflow by its slug/name. Backs both Complete-card CTAs:
-   * "Run again" passes this session's own `workflow_name`, "Up next" passes
-   * the suggested slug. The caller (ChatConversation) routes to the launcher.
-   */
-  onLaunchWorkflow?: (workflowName: string) => void;
 };
 
 const isFreshLaunch = (session: WorkflowSession): boolean => {
@@ -91,13 +85,7 @@ const buildBeginMessageId = (sessionId: string): string => `workflow-begin-${ses
 const buildWorkflowAnswerEnvelope = (askId: string, stepN: number, answer: string): string =>
   `[workflow_answer ask_id="${askId}" step_n="${stepN}"]\n<answer>${answer}</answer>\n[/workflow_answer]`;
 
-export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
-  sessionId,
-  initialSession,
-  children,
-  suggestedNext,
-  onLaunchWorkflow,
-}) => {
+export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({ sessionId, initialSession, children }) => {
   const { t } = useTranslation();
   const session = useWorkflowSession(sessionId, initialSession);
   const [launched, setLaunched] = useState(false);
@@ -109,41 +97,14 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
 
   const data = session.data;
 
-  // "Is the agent currently producing output for this conversation?" - read from
-  // the shared generating-conversations store (fed by responseStream /
-  // turnCompleted). When it is NOT generating and the step is not done, the run
-  // is waiting on the user. Debounce the idle edge so the brief gap between the
-  // user sending and the agent's first chunk does not flash the "Needs you"
-  // beat.
-  const { isConversationGenerating } = useConversationListSync();
-  const responding = data ? isConversationGenerating(data.conversation_id) : false;
-  const [idleStable, setIdleStable] = useState(false);
-  useEffect(() => {
-    if (responding) {
-      setIdleStable(false);
-      return;
-    }
-    const id = window.setTimeout(() => setIdleStable(true), 600);
-    return () => window.clearTimeout(id);
-  }, [responding]);
-
-  const liveStep = data?.steps.find((s) => s.n === data.current_step);
-  const currentStepTerminal = liveStep
-    ? liveStep.status === 'done' || liveStep.status === 'skipped' || liveStep.status === 'errored'
-    : false;
   // The "spinning forever" case: the run is nominally `running` but the agent
   // has gone idle without completing the step - it asked the user something in
   // prose (no structured marker), so the engine never flipped to awaiting_input.
   // Surface the blue "Needs you" beat. (A formal awaiting_input is handled by
   // the StepReviewBeat below - that's the step-complete Accept/Revise/Go-back
-  // gate, a different kind of "your move".)
-  const needsInput =
-    !!data &&
-    data.status === 'active' &&
-    data.begin_sent_at !== null &&
-    data.run_mode === 'running' &&
-    !currentStepTerminal &&
-    idleStable;
+  // gate, a different kind of "your move".) Shared with the merged Steps panel
+  // (WorkflowStepsTab) via this hook so both compute the identical value.
+  const needsInput = useWorkflowNeedsInput(data);
 
   // There is exactly ONE input - the conversation composer at the bottom. When
   // the run needs the user, jump them to it: scroll the end of the question
@@ -237,13 +198,6 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
       },
     });
   }, [session]);
-
-  const handleJumpToStep = useCallback(
-    (n: number) => {
-      void session.jumpToStep(n);
-    },
-    [session]
-  );
 
   const handleSetInteractivity = useCallback(
     (mode: WorkflowInteractivity) => {
@@ -406,7 +360,6 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
   }
 
   const showOverlay = !launched;
-  const isComplete = data.status === 'complete';
   const isErrored = data.status === 'errored';
   const rootClass = `${styles.root}${isErrored ? ` ${styles.errored}` : ''}`;
   const pendingAsks = data.asks.filter((ask) => ask.answer === null);
@@ -457,9 +410,11 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
               <WorkflowClarifyCard
                 workflowTitle={data.workflow_title}
                 mode={data.interactivity}
-                onSetMode={(m) => void session.setInteractivity(m).catch((err) => {
-                  console.warn('[WorkflowSurface] setInteractivity failed:', err);
-                })}
+                onSetMode={(m) =>
+                  void session.setInteractivity(m).catch((err) => {
+                    console.warn('[WorkflowSurface] setInteractivity failed:', err);
+                  })
+                }
                 onStart={handleClarifyStart}
               />
             ) : (
@@ -505,21 +460,6 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
                   {children}
                 </div>
               </>
-            )}
-          </div>
-
-          <div className={styles.right} data-testid='workflow-surface-right'>
-            {isComplete ? (
-              <WorkflowCompleteCard
-                session={data}
-                suggestedNext={suggestedNext}
-                onRunAgain={() => onLaunchWorkflow?.(data.workflow_name)}
-                onLaunchNext={(slug) => onLaunchWorkflow?.(slug)}
-              />
-            ) : (
-              <WorkflowStepRail session={data} needsInput={needsInput} onJumpToStep={handleJumpToStep}>
-                <WorkflowStatusBar session={data} />
-              </WorkflowStepRail>
             )}
           </div>
         </div>

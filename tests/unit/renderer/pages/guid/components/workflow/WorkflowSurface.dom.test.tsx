@@ -6,10 +6,13 @@
 
 /**
  * W3.J - DOM tests for WorkflowSurface. Covers the SPEC §5.8 composition
- * contract: launch overlay gate, header + rail + status bar layout, pending
- * AskCard rendering, status-driven swaps (complete → CompleteCard, errored
- * → root class), pause/end wiring, children slot preservation, and the
- * one-shot hidden begin send.
+ * contract: launch overlay gate, header + body layout, pending AskCard
+ * rendering, the errored root class, pause/end wiring, children slot
+ * preservation, and the one-shot hidden begin send.
+ *
+ * The step rail / Complete card no longer live in this surface (issue #116 -
+ * they moved to ChatLayout's right-sider "Steps" tab, see WorkflowStepsTab and
+ * its own spec). These tests assert the surface renders the chat body ONLY.
  */
 
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -47,9 +50,6 @@ vi.mock('@/renderer/pages/conversation/GroupedHistory/hooks/useConversationListS
 // internals (which have their own coverage in sibling spec files).
 type CapturedProps = Record<string, unknown>;
 const headerCalls: CapturedProps[] = [];
-const railCalls: CapturedProps[] = [];
-const statusBarCalls: CapturedProps[] = [];
-const completeCalls: CapturedProps[] = [];
 const overlayCalls: CapturedProps[] = [];
 const askCalls: CapturedProps[] = [];
 
@@ -59,23 +59,8 @@ vi.mock('@/renderer/pages/guid/components/workflow/WorkflowHeader', () => ({
     const paused = Boolean(props.paused);
     return (
       <div data-testid='mock-workflow-header' data-paused={paused ? 'true' : 'false'}>
-        <button onClick={props.onPauseToggle as () => void}>
-          {paused ? 'Resume' : 'Pause'}
-        </button>
+        <button onClick={props.onPauseToggle as () => void}>{paused ? 'Resume' : 'Pause'}</button>
         <button onClick={props.onEnd as () => void}>End workflow</button>
-      </div>
-    );
-  },
-  default: () => null,
-}));
-
-vi.mock('@/renderer/pages/guid/components/workflow/WorkflowStepRail', () => ({
-  WorkflowStepRail: (props: React.PropsWithChildren<CapturedProps>) => {
-    railCalls.push(props);
-    return (
-      <div data-testid='mock-workflow-rail'>
-        <button onClick={() => (props.onJumpToStep as (n: number) => void)(4)}>jump-4</button>
-        <div>{props.children}</div>
       </div>
     );
   },
@@ -85,9 +70,15 @@ vi.mock('@/renderer/pages/guid/components/workflow/WorkflowStepRail', () => ({
 vi.mock('@/renderer/pages/guid/components/workflow/StepReviewBeat', () => ({
   StepReviewBeat: (props: CapturedProps) => (
     <div data-testid='mock-step-review-beat'>
-      <button onClick={props.onAccept as () => void} data-testid='review-beat-accept'>Accept</button>
-      <button onClick={props.onRevise as () => void} data-testid='review-beat-revise'>Revise</button>
-      <button onClick={props.onGoBack as () => void} data-testid='review-beat-go-back'>Go back</button>
+      <button onClick={props.onAccept as () => void} data-testid='review-beat-accept'>
+        Accept
+      </button>
+      <button onClick={props.onRevise as () => void} data-testid='review-beat-revise'>
+        Revise
+      </button>
+      <button onClick={props.onGoBack as () => void} data-testid='review-beat-go-back'>
+        Go back
+      </button>
     </div>
   ),
   default: () => null,
@@ -95,27 +86,6 @@ vi.mock('@/renderer/pages/guid/components/workflow/StepReviewBeat', () => ({
 
 vi.mock('@/renderer/pages/guid/components/workflow/QueuedSteeringChip', () => ({
   QueuedSteeringChip: () => <div data-testid='mock-queued-chip' />,
-  default: () => null,
-}));
-
-vi.mock('@/renderer/pages/guid/components/workflow/WorkflowStatusBar', () => ({
-  WorkflowStatusBar: (props: CapturedProps) => {
-    statusBarCalls.push(props);
-    return <div data-testid='mock-workflow-status-bar' />;
-  },
-  default: () => null,
-}));
-
-vi.mock('@/renderer/pages/guid/components/workflow/WorkflowCompleteCard', () => ({
-  WorkflowCompleteCard: (props: CapturedProps) => {
-    completeCalls.push(props);
-    return (
-      <div data-testid='mock-workflow-complete'>
-        <button onClick={props.onRunAgain as () => void}>run-again</button>
-        <button onClick={() => (props.onLaunchNext as (s: string) => void)('next-wf')}>launch-next</button>
-      </div>
-    );
-  },
   default: () => null,
 }));
 
@@ -150,10 +120,7 @@ vi.mock('@/renderer/pages/guid/components/workflow/AskCard', () => ({
 vi.mock('@/renderer/pages/guid/components/workflow/WorkflowClarifyCard', () => ({
   WorkflowClarifyCard: (props: CapturedProps) => (
     <div data-testid='mock-workflow-clarify-card'>
-      <button
-        data-testid='mock-clarify-start'
-        onClick={() => (props.onStart as (note: string) => void)('')}
-      >
+      <button data-testid='mock-clarify-start' onClick={() => (props.onStart as (note: string) => void)('')}>
         Start
       </button>
       <button
@@ -177,22 +144,13 @@ vi.mock('@arco-design/web-react', () => ({
       {children}
     </button>
   ),
-  Radio: Object.assign(
-    ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
-    {
-      Group: ({
-        children,
-        value,
-      }: {
-        children?: React.ReactNode;
-        value?: string;
-      }) => (
-        <div data-testid='mock-radio-group' data-value={value}>
-          {children}
-        </div>
-      ),
-    }
-  ),
+  Radio: Object.assign(({ children }: { children?: React.ReactNode }) => <span>{children}</span>, {
+    Group: ({ children, value }: { children?: React.ReactNode; value?: string }) => (
+      <div data-testid='mock-radio-group' data-value={value}>
+        {children}
+      </div>
+    ),
+  }),
 }));
 
 // useWorkflowSession is the hook under composition. Stub it with a
@@ -332,9 +290,6 @@ const renderPostOverlay = (
 
 beforeEach(() => {
   headerCalls.length = 0;
-  railCalls.length = 0;
-  statusBarCalls.length = 0;
-  completeCalls.length = 0;
   overlayCalls.length = 0;
   askCalls.length = 0;
   hookOverrides = {};
@@ -359,7 +314,7 @@ describe('WorkflowSurface', () => {
 
     expect(screen.getByTestId('mock-workflow-launch-overlay')).toBeTruthy();
     expect(screen.queryByTestId('mock-workflow-header')).toBeNull();
-    expect(screen.queryByTestId('mock-workflow-rail')).toBeNull();
+    expect(screen.queryByTestId('workflow-step-rail')).toBeNull();
     expect(screen.queryByTestId('caller-children')).toBeNull();
     expect(overlayCalls[0].workflowName).toBe('Automate Business Workflows');
     expect(overlayCalls[0].totalSteps).toBe(4);
@@ -402,15 +357,15 @@ describe('WorkflowSurface', () => {
     expect(screen.getByTestId('caller-children')).toBeTruthy();
   });
 
-  it('after overlay onComplete, renders header + rail + status bar + children slot', () => {
+  it('after overlay onComplete, renders header + children slot (the rail moved to the sider tab, #116)', () => {
     renderPostOverlay(buildSession());
 
     expect(screen.getByTestId('mock-workflow-header')).toBeTruthy();
-    expect(screen.getByTestId('mock-workflow-rail')).toBeTruthy();
-    expect(screen.getByTestId('mock-workflow-status-bar')).toBeTruthy();
     expect(screen.getByTestId('caller-children')).toBeTruthy();
-    // StatusBar must be wired as the rail's children (per SPEC §5.8).
-    expect(railCalls.length).toBeGreaterThan(0);
+    // #116: the step rail / status bar are no longer part of this surface -
+    // they render in ChatLayout's right-sider "Steps" tab (WorkflowStepsTab).
+    expect(screen.queryByTestId('workflow-step-rail')).toBeNull();
+    expect(screen.queryByTestId('workflow-status-bar')).toBeNull();
   });
 
   it('shows the StepReviewBeat only when run_mode === "awaiting_input"', () => {
@@ -436,25 +391,14 @@ describe('WorkflowSurface', () => {
     expect(resumeRun).not.toHaveBeenCalled();
   });
 
-  it('renders WorkflowCompleteCard instead of the rail when status === "complete"', () => {
-    const onLaunchWorkflow = vi.fn();
-    renderPostOverlay(buildSession({ status: 'complete', completed_at: NOW }), {
-      onLaunchWorkflow,
-      suggestedNext: [{ slug: 'next-wf', display: 'Next Workflow' }],
-    });
+  it('does not render the Complete card in the surface when status === "complete" (#116: it lives in the sider tab)', () => {
+    renderPostOverlay(buildSession({ status: 'complete', completed_at: NOW }));
 
-    expect(screen.getByTestId('mock-workflow-complete')).toBeTruthy();
-    expect(screen.queryByTestId('mock-workflow-rail')).toBeNull();
-
-    // "Run again" relaunches THIS session's own workflow by name (#82).
-    fireEvent.click(screen.getByText('run-again'));
-    expect(onLaunchWorkflow).toHaveBeenCalledWith('automate-business-workflows');
-
-    // "Up next" relaunches the suggested slug.
-    fireEvent.click(screen.getByText('launch-next'));
-    expect(onLaunchWorkflow).toHaveBeenCalledWith('next-wf');
-
-    expect(completeCalls[0].suggestedNext).toEqual([{ slug: 'next-wf', display: 'Next Workflow' }]);
+    // The surface still shows its chat body; the Complete card / rail are the
+    // sider "Steps" tab's job now (WorkflowStepsTab), not this surface's.
+    expect(screen.getByTestId('caller-children')).toBeTruthy();
+    expect(screen.queryByTestId('workflow-complete-card')).toBeNull();
+    expect(screen.queryByTestId('workflow-step-rail')).toBeNull();
   });
 
   it('applies the errored class on the root when status === "errored"', () => {
@@ -576,15 +520,6 @@ describe('WorkflowSurface', () => {
       config.onOk();
     });
     expect(end).toHaveBeenCalledTimes(1);
-  });
-
-  it('wires rail callback: onJumpToStep -> session.jumpToStep', () => {
-    const jumpToStep = vi.fn().mockResolvedValue(undefined);
-    hookOverrides.jumpToStep = jumpToStep;
-    renderPostOverlay(buildSession());
-
-    fireEvent.click(screen.getByText('jump-4'));
-    expect(jumpToStep).toHaveBeenCalledWith(4);
   });
 
   it('fresh launch (begin_sent_at null, all steps todo): calls markBeginSent then sendMessage', async () => {

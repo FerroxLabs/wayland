@@ -13,6 +13,7 @@ import addChatIcon from '@/renderer/assets/icons/add-chat.svg';
 import { CronJobManager } from '@/renderer/pages/cron';
 import { usePresetAssistantInfo, resolveAssistantConfigId } from '@/renderer/hooks/agent/usePresetAssistantInfo';
 import { useWorkflowSession } from '@/renderer/hooks/workflow/useWorkflowSession';
+import { useWorkflowNeedsInput } from '@/renderer/hooks/workflow/useWorkflowNeedsInput';
 import { iconColors } from '@/renderer/styles/colors';
 import { Button, Dropdown, Menu, Tooltip, Typography } from '@arco-design/web-react';
 import React, { useCallback, useMemo, useRef } from 'react';
@@ -37,6 +38,7 @@ import { usePreviewContext } from '../Preview';
 import StarOfficeMonitorCard from '../platforms/openclaw/StarOfficeMonitorCard.tsx';
 import ConversationSkillsIndicator from './ConversationSkillsIndicator';
 import { WorkflowSurface } from '@/renderer/pages/guid/components/workflow/WorkflowSurface';
+import { WorkflowStepsTab } from '@/renderer/pages/guid/components/workflow/WorkflowStepsTab';
 // import SkillRuleGenerator from './components/SkillRuleGenerator'; // Temporarily hidden
 
 // Shared props for the wcore/gemini panels rendered inside WorkflowSurface.
@@ -47,7 +49,8 @@ type WorkflowPanelExtras = {
   initialWorkflowSession?: WorkflowSession;
   workflowTotalSteps: number | null;
   workflowApplyStepMarker: ReturnType<typeof useWorkflowSession>['applyStepMarker'];
-  onLaunchWorkflow: (workflowName: string) => void;
+  /** #116: the workflow "Steps" panel, rendered as a tab in ChatLayout's right sider. */
+  stepsPanel: React.ReactNode;
 };
 
 const _AssociatedConversation: React.FC<{ conversation_id: string }> = ({ conversation_id }) => {
@@ -281,7 +284,7 @@ const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & Workflo
   initialWorkflowSession,
   workflowTotalSteps,
   workflowApplyStepMarker,
-  onLaunchWorkflow,
+  stepsPanel,
 }) => {
   const onSelectModel = useCallback(
     async (_provider: IProvider, modelName: string) => {
@@ -298,16 +301,13 @@ const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & Workflo
       title={conversation.name}
       sider={<ChatSider conversation={conversation} />}
       siderTitle={sliderTitle}
+      stepsPanel={stepsPanel}
       workspaceEnabled={workspaceEnabled}
       workspacePath={conversation.extra.workspace}
       conversationId={conversation.id}
       hideHeader={true}
     >
-      <WorkflowSurface
-        sessionId={workflowSessionId}
-        initialSession={initialWorkflowSession}
-        onLaunchWorkflow={onLaunchWorkflow}
-      >
+      <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession}>
         <WCoreChat
           key={conversation.id}
           conversation_id={conversation.id}
@@ -323,7 +323,9 @@ const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & Workflo
   );
 };
 
-const GeminiWorkflowPanel: React.FC<{ conversation: GeminiConversation; hideSendBox?: boolean } & WorkflowPanelExtras> = ({
+const GeminiWorkflowPanel: React.FC<
+  { conversation: GeminiConversation; hideSendBox?: boolean } & WorkflowPanelExtras
+> = ({
   conversation,
   sliderTitle,
   workspaceEnabled,
@@ -331,7 +333,7 @@ const GeminiWorkflowPanel: React.FC<{ conversation: GeminiConversation; hideSend
   initialWorkflowSession,
   workflowTotalSteps,
   workflowApplyStepMarker,
-  onLaunchWorkflow,
+  stepsPanel,
   hideSendBox,
 }) => {
   const onSelectModel = useCallback(
@@ -348,16 +350,13 @@ const GeminiWorkflowPanel: React.FC<{ conversation: GeminiConversation; hideSend
       title={conversation.name}
       sider={<ChatSider conversation={conversation} />}
       siderTitle={sliderTitle}
+      stepsPanel={stepsPanel}
       workspaceEnabled={workspaceEnabled}
       workspacePath={conversation.extra.workspace}
       conversationId={conversation.id}
       hideHeader={true}
     >
-      <WorkflowSurface
-        sessionId={workflowSessionId}
-        initialSession={initialWorkflowSession}
-        onLaunchWorkflow={onLaunchWorkflow}
-      >
+      <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession}>
         <GeminiChat
           key={conversation.id}
           conversation_id={conversation.id}
@@ -419,6 +418,22 @@ const ChatConversation: React.FC<{
   const hoistedWorkflowSession = useWorkflowSession(workflowSessionId, initialWorkflowSession);
   const workflowTotalSteps: number | null = hoistedWorkflowSession.data?.total_steps ?? null;
   const workflowApplyStepMarker = hoistedWorkflowSession.applyStepMarker;
+
+  // #116: the workflow "Steps" surface (step rail / Complete card) is rendered
+  // into ChatLayout's single right sider as a tab, instead of WorkflowSurface's
+  // own second rail. It reads the already-hoisted session (no extra
+  // subscription) and the shared needs-input signal, and routes jumps/launches
+  // through the same hook that owns the session state.
+  const workflowNeedsInput = useWorkflowNeedsInput(hoistedWorkflowSession.data);
+  const hoistedJumpToStep = hoistedWorkflowSession.jumpToStep;
+  const workflowStepsPanel = isWorkflow ? (
+    <WorkflowStepsTab
+      session={hoistedWorkflowSession.data}
+      needsInput={workflowNeedsInput}
+      onJumpToStep={hoistedJumpToStep}
+      onLaunchWorkflow={handleLaunchWorkflow}
+    />
+  ) : undefined;
 
   const isGeminiConversation = conversation?.type === 'gemini';
   const isWCoreConversation = conversation?.type === 'wcore';
@@ -577,7 +592,7 @@ const ChatConversation: React.FC<{
           initialWorkflowSession={initialWorkflowSession}
           workflowTotalSteps={workflowTotalSteps}
           workflowApplyStepMarker={workflowApplyStepMarker}
-          onLaunchWorkflow={handleLaunchWorkflow}
+          stepsPanel={workflowStepsPanel}
         />
       );
     }
@@ -593,7 +608,7 @@ const ChatConversation: React.FC<{
           initialWorkflowSession={initialWorkflowSession}
           workflowTotalSteps={workflowTotalSteps}
           workflowApplyStepMarker={workflowApplyStepMarker}
-          onLaunchWorkflow={handleLaunchWorkflow}
+          stepsPanel={workflowStepsPanel}
           hideSendBox={hideSendBox}
         />
       );
@@ -606,12 +621,13 @@ const ChatConversation: React.FC<{
         title={conversation?.name}
         sider={<ChatSider conversation={conversation} />}
         siderTitle={sliderTitle}
+        stepsPanel={workflowStepsPanel}
         workspaceEnabled={workspaceEnabled}
         workspacePath={conversation?.extra?.workspace}
         conversationId={conversation?.id}
         hideHeader={true}
       >
-        <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession} onLaunchWorkflow={handleLaunchWorkflow}>
+        <WorkflowSurface sessionId={workflowSessionId} initialSession={initialWorkflowSession}>
           {conversationNode}
         </WorkflowSurface>
       </ChatLayout>
