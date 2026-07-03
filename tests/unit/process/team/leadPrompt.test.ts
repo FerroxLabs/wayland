@@ -39,42 +39,36 @@ describe('buildLeaderPrompt', () => {
     expect(prompt).toContain('If the user later says they are unhappy with an existing teammate');
   });
 
-  it('lists preset assistants and tells the leader how to spawn them', () => {
+  it('lists preset assistants (id + name + backend) and tells the leader how to spawn them', () => {
     const prompt = buildLeaderPrompt({
       teammates: [],
       availableAssistants: [
-        {
-          customAgentId: 'builtin-word-creator',
-          name: 'Word Creator',
-          backend: 'gemini',
-          description: 'Create, edit, and analyze professional Word documents',
-        },
+        { customAgentId: 'builtin-word-creator', name: 'Word Creator', backend: 'gemini' },
         { customAgentId: 'builtin-cowork', name: 'Cowork', backend: 'gemini' },
       ],
     });
 
     expect(prompt).toContain('## Available Preset Assistants for Spawning');
     expect(prompt).toContain('`builtin-word-creator` (Word Creator, backend: gemini)');
-    expect(prompt).toContain('Create, edit, and analyze professional Word documents');
     expect(prompt).toContain('`builtin-cowork` (Cowork, backend: gemini)');
     expect(prompt).toContain('`custom_agent_id`');
   });
 
-  it("shows each preset's enabled skills in the catalog so the leader can match by keyword", () => {
+  it('keeps the catalog compact: does NOT inline per-preset descriptions or skills (#557 - moved behind team_describe_assistant)', () => {
+    // The per-assistant description + skills were the largest slice of the leader's
+    // static prompt and are re-billed every turn; they now live behind the on-demand
+    // team_describe_assistant tool. Even if a caller passes extra fields, the catalog
+    // must not render prose or a "skills:" line.
     const prompt = buildLeaderPrompt({
       teammates: [],
       availableAssistants: [
-        {
-          customAgentId: 'builtin-word-creator',
-          name: 'Word Creator',
-          backend: 'gemini',
-          description: 'Create, edit, and analyze professional Word documents',
-          skills: ['officecli-docx'],
-        },
-      ],
+        { customAgentId: 'builtin-word-creator', name: 'Word Creator', backend: 'gemini' },
+      ] as unknown as { customAgentId: string; name: string; backend: string }[],
     });
 
-    expect(prompt).toContain('skills: officecli-docx');
+    expect(prompt).toContain('`builtin-word-creator` (Word Creator, backend: gemini)');
+    expect(prompt).not.toMatch(/\n\s*skills:/);
+    expect(prompt).toContain('`team_describe_assistant`'); // where the leader loads full detail
   });
 
   it('points the leader at team_describe_assistant for ambiguous preset matches', () => {
