@@ -21,10 +21,7 @@ import { agentRegistry } from '@process/agent/AgentRegistry';
 // each agent conversation so the ACP file-op gate can resolve the team
 // when sandboxed imported agents request file ops.
 import type { TTeam } from './types';
-import {
-  registerTeamConversation,
-  unregisterTeamConversation,
-} from './sandbox/acpTeamContextRegistry';
+import { registerTeamConversation, unregisterTeamConversation } from './sandbox/acpTeamContextRegistry';
 
 type TeammateManagerParams = {
   teamId: string;
@@ -324,9 +321,7 @@ export class TeammateManager extends EventEmitter {
       if (needsFullPrompt) {
         // Compute availableAgentTypes + availableAssistants only for leader's first prompt
         let availableAgentTypes: Array<{ type: string; name: string }> | undefined;
-        let availableAssistants:
-          | Array<{ customAgentId: string; name: string; backend: string; description?: string; skills?: string[] }>
-          | undefined;
+        let availableAssistants: Array<{ customAgentId: string; name: string; backend: string }> | undefined;
         if (agent.role === 'leader') {
           const cachedInitResults = await ProcessConfig.get('acp.cachedInitializeResult');
           availableAgentTypes = agentRegistry
@@ -364,14 +359,16 @@ export class TeammateManager extends EventEmitter {
             ...assistants,
             ...extensionAssistants.filter((a) => typeof a.id === 'string' && !configIds.has(a.id as string)),
           ];
+          // Emit id+name+backend only. The per-assistant description and skills
+          // list are intentionally omitted from the leader's static prompt (they
+          // were the largest slice of the catalog and are re-billed every turn);
+          // the leader loads them on demand via the team_describe_assistant tool.
           availableAssistants = mergedAssistants
             .filter((a) => a.isPreset && a.enabled !== false)
             .map((a) => ({
               customAgentId: a.id as string,
               name: a.name as string,
               backend: (a.presetAgentType as string) || 'gemini',
-              description: a.description,
-              skills: a.enabledSkills,
             }))
             .filter((a) => isTeamCapableBackend(a.backend, cachedInitResults));
         }
@@ -523,12 +520,7 @@ export class TeammateManager extends EventEmitter {
    * W1e - emit a `'wake'` event with duration + success flag. Helper so the
    * three wake() exit points (noop, success, failure) all share one schema.
    */
-  private logWakeEvent(
-    slotId: string,
-    startedAt: number,
-    success: boolean,
-    extra: Record<string, unknown> = {}
-  ): void {
+  private logWakeEvent(slotId: string, startedAt: number, success: boolean, extra: Record<string, unknown> = {}): void {
     if (!this.eventLogger) return;
     void this.eventLogger.append({
       teamId: this.teamId,
@@ -559,9 +551,7 @@ export class TeammateManager extends EventEmitter {
     // clean prompt/completion split (ACP gives `used` total only), so the split
     // fields stay 0 with the per-turn delta preserved as `total_tokens`.
     if (msg.type === 'acp_context_usage') {
-      const usage = msg.data as
-        | { used?: number; size?: number; cost?: { amount?: number; currency?: string } }
-        | null;
+      const usage = msg.data as { used?: number; size?: number; cost?: { amount?: number; currency?: string } } | null;
       if (usage && typeof usage.used === 'number') {
         const cumulativeUsed = usage.used;
         const costAmount = typeof usage.cost?.amount === 'number' ? usage.cost.amount : 0;

@@ -409,11 +409,8 @@ export class TeamMcpServer {
       // stored with `id: ext-<bare>`, but launcher prompts written against the
       // extension's own manifest use the bare form. Mirrors the renderer-side
       // tolerance in usePresetAssistantInfo.ts.
-      let preset:
-        | { id: string; isPreset?: boolean; enabled?: boolean; presetAgentType?: string }
-        | undefined = assistants.find(
-        (a) => (a.id === customAgentId || a.id === `ext-${customAgentId}`) && a.isPreset
-      );
+      let preset: { id: string; isPreset?: boolean; enabled?: boolean; presetAgentType?: string } | undefined =
+        assistants.find((a) => (a.id === customAgentId || a.id === `ext-${customAgentId}`) && a.isPreset);
       // Extension-contributed assistants live in ExtensionRegistry, not
       // ProcessConfig. Fall back to the registry so the leader can spawn
       // ext-* specialists (e.g. Quiet Money Council layer specialists).
@@ -426,9 +423,7 @@ export class TeamMcpServer {
               const id = (a as { id?: string }).id;
               if (typeof id !== 'string') return false;
               return id === customAgentId || id === `ext-${customAgentId}`;
-            }) as
-            | { id?: string; isPreset?: boolean; enabled?: boolean; presetAgentType?: string }
-            | undefined;
+            }) as { id?: string; isPreset?: boolean; enabled?: boolean; presetAgentType?: string } | undefined;
           if (extRecord && typeof extRecord.id === 'string' && extRecord.isPreset) {
             preset = {
               id: extRecord.id,
@@ -548,13 +543,9 @@ export class TeamMcpServer {
   private async handleTaskList(args: Record<string, unknown>): Promise<string> {
     const { teamId, taskManager } = this.params;
     const ownerSlotId = typeof args?.owner_slot_id === 'string' && args.owner_slot_id ? args.owner_slot_id : undefined;
-    const tasks = ownerSlotId
-      ? await taskManager.getByOwner(teamId, ownerSlotId)
-      : await taskManager.list(teamId);
+    const tasks = ownerSlotId ? await taskManager.getByOwner(teamId, ownerSlotId) : await taskManager.list(teamId);
     if (tasks.length === 0) {
-      return ownerSlotId
-        ? `No tasks owned by ${ownerSlotId} on this team.`
-        : 'No tasks on the board yet.';
+      return ownerSlotId ? `No tasks owned by ${ownerSlotId} on this team.` : 'No tasks on the board yet.';
     }
     const lines = tasks.map(
       (t) => `- [${t.id.slice(0, 8)}] ${t.subject} (${t.status}${t.owner ? `, owner: ${t.owner}` : ', unassigned'})`
@@ -613,9 +604,37 @@ export class TeamMcpServer {
 
     const assistants = (await ProcessConfig.get('assistants')) ?? [];
     // Accept both bare and ext-prefixed IDs (see handleSpawnAgent for rationale).
-    const assistant = assistants.find(
+    type DescribablePreset = {
+      id?: string;
+      name?: string;
+      description?: string;
+      isPreset?: boolean;
+      enabled?: boolean;
+      presetAgentType?: string;
+      enabledSkills?: string[];
+    };
+    let assistant: DescribablePreset | undefined = assistants.find(
       (a) => (a.id === customAgentId || a.id === `ext-${customAgentId}`) && a.isPreset
     );
+    // Extension-contributed assistants live in ExtensionRegistry, not
+    // ProcessConfig, but the leader's catalog lists them, so describe must be
+    // able to resolve them too - otherwise the slimmed catalog would leave the
+    // leader unable to load an ext-* preset's description/skills. Mirrors the
+    // fallback in handleSpawnAgent.
+    if (!assistant) {
+      try {
+        const { ExtensionRegistry } = await import('@process/extensions/ExtensionRegistry');
+        assistant = ExtensionRegistry.getInstance()
+          .getAssistants()
+          .find((a) => {
+            const id = (a as DescribablePreset).id;
+            return typeof id === 'string' && (id === customAgentId || id === `ext-${customAgentId}`);
+          }) as DescribablePreset | undefined;
+        if (assistant && !assistant.isPreset) assistant = undefined;
+      } catch {
+        // Registry not initialized - fall through to the not-found error below.
+      }
+    }
     if (!assistant) {
       const availableIds = assistants
         .filter((a) => a.isPreset && a.enabled !== false)

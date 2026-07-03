@@ -59,6 +59,20 @@ vi.mock('@process/agent/acp/AcpDetector', () => ({
   },
 }));
 
+// Mock ExtensionRegistry - extension-contributed presets live here, not in
+// ProcessConfig. Controls the registry fallback in handleSpawnAgent /
+// handleDescribeAssistant.
+const mockExtensionAssistants = vi.hoisted(() => ({
+  value: [] as Array<Record<string, unknown>>,
+}));
+vi.mock('@process/extensions/ExtensionRegistry', () => ({
+  ExtensionRegistry: {
+    getInstance: () => ({
+      getAssistants: () => mockExtensionAssistants.value,
+    }),
+  },
+}));
+
 import { TeamMcpServer } from '@process/team/mcp/team/TeamMcpServer';
 import type { Mailbox } from '@process/team/Mailbox';
 import type { TaskManager } from '@process/team/TaskManager';
@@ -159,6 +173,7 @@ describe('TeamMcpServer', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     mockAssistants.value = null;
+    mockExtensionAssistants.value = [];
     agents = [
       makeAgent({ slotId: 'slot-lead', agentName: 'Leader', role: 'leader' }),
       makeAgent({ slotId: 'slot-member', agentName: 'Alice', role: 'teammate' }),
@@ -618,6 +633,88 @@ describe('TeamMcpServer', () => {
 
       expect(response.error).toBeUndefined();
       expect(spawnAgent).toHaveBeenCalledWith('Quill', 'claude', undefined, 'ext-copy');
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // team_describe_assistant tool
+  //
+  // The leader's static-prompt catalog lists id+name+backend only; full
+  // description/skills are loaded on demand here. That makes describe the sole
+  // source of detail, so it must resolve EVERY preset the catalog can list -
+  // including extension-contributed presets that live in ExtensionRegistry and
+  // not in ProcessConfig.
+  // -------------------------------------------------------------------------
+  describe('team_describe_assistant', () => {
+    it('returns description and skills for a ProcessConfig preset', async () => {
+      // A user-defined (non-builtin) preset so its own description/skills are
+      // used rather than a builtin catalog override.
+      mockAssistants.value = [
+        {
+          id: 'acme-word-creator',
+          name: 'Word Creator',
+          description: 'Builds polished Word documents from an outline.',
+          isPreset: true,
+          enabled: true,
+          presetAgentType: 'gemini',
+          enabledSkills: ['docx-builder'],
+        },
+      ];
+
+      const response = (await tcpRequest(server.getPort(), {
+        tool: 'team_describe_assistant',
+        args: { custom_agent_id: 'acme-word-creator' },
+        from_slot_id: 'slot-lead',
+        auth_token: authToken,
+      })) as Record<string, unknown>;
+
+      expect(response.error).toBeUndefined();
+      expect(String(response.result)).toContain('Builds polished Word documents');
+      expect(String(response.result)).toContain('docx-builder');
+    });
+
+    it('resolves an extension preset that lives only in ExtensionRegistry (registry fallback)', async () => {
+      // Not present in ProcessConfig - only contributed via an extension.
+      mockAssistants.value = [];
+      mockExtensionAssistants.value = [
+        {
+          id: 'ext-quiet-money',
+          name: 'Windfall Navigator',
+          description: 'Guides a sudden-money decision through a staged plan.',
+          isPreset: true,
+          enabled: true,
+          presetAgentType: 'gemini',
+          enabledSkills: ['windfall-plan', 'tax-triage'],
+        },
+      ];
+
+      // Bare id form (as launcher prompts / catalog may reference it).
+      const response = (await tcpRequest(server.getPort(), {
+        tool: 'team_describe_assistant',
+        args: { custom_agent_id: 'quiet-money' },
+        from_slot_id: 'slot-lead',
+        auth_token: authToken,
+      })) as Record<string, unknown>;
+
+      expect(response.error).toBeUndefined();
+      const result = String(response.result);
+      expect(result).toContain('Guides a sudden-money decision');
+      expect(result).toContain('windfall-plan');
+      expect(result).toContain('tax-triage');
+    });
+
+    it('errors when a preset is in neither ProcessConfig nor ExtensionRegistry', async () => {
+      mockAssistants.value = [];
+      mockExtensionAssistants.value = [];
+
+      const response = (await tcpRequest(server.getPort(), {
+        tool: 'team_describe_assistant',
+        args: { custom_agent_id: 'nonexistent' },
+        from_slot_id: 'slot-lead',
+        auth_token: authToken,
+      })) as Record<string, unknown>;
+
+      expect(String(response.error)).toContain('not found');
     });
   });
 

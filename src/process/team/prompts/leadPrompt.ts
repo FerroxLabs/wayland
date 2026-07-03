@@ -9,8 +9,6 @@ export type LeaderPromptParams = {
     customAgentId: string;
     name: string;
     backend: string;
-    description?: string;
-    skills?: string[];
   }>;
   renamedAgents?: Map<string, string>;
   teamWorkspace?: string;
@@ -47,19 +45,13 @@ export function buildLeaderPrompt(params: LeaderPromptParams): string {
   const availableAssistantsSection =
     availableAssistants && availableAssistants.length > 0
       ? `\n\n## Available Preset Assistants for Spawning
-These are user-configured assistants with pre-loaded rules and skills for specific domains (writing, research, PPT building, etc.). When a task matches a preset's specialty, prefer spawning the preset over a generic CLI agent - you get its domain expertise automatically.
+These are user-configured assistants with pre-loaded rules and skills for specific domains (writing, research, PPT building, etc.). When a task matches a preset's specialty, prefer spawning the preset over a generic CLI agent - you get its domain expertise automatically. Only the id, name, and backend are listed here to keep this prompt compact; call \`team_describe_assistant\` to load a preset's full description, skills, and example tasks on demand.
 
-${availableAssistants
-  .map((a) => {
-    const desc = a.description ? ` - ${a.description}` : '';
-    const skills = a.skills && a.skills.length > 0 ? `\n   skills: ${a.skills.join(', ')}` : '';
-    return `- \`${a.customAgentId}\` (${a.name}, backend: ${a.backend})${desc}${skills}`;
-  })
-  .join('\n')}
+${availableAssistants.map((a) => `- \`${a.customAgentId}\` (${a.name}, backend: ${a.backend})`).join('\n')}
 
 ### How to pick a preset
-1. Scan the one-line descriptions and skills above. If one clearly matches the user's domain (e.g. "quarterly Word report" → \`word-creator\`), spawn it directly with \`team_spawn_agent\`.
-2. If two or more presets seem relevant, call \`team_describe_assistant\` on each candidate to see its full description, skills, and example tasks, then choose the best fit.
+1. Scan the preset names above. If one clearly matches the user's domain (e.g. "quarterly Word report" → \`word-creator\`), spawn it directly with \`team_spawn_agent\`.
+2. If a preset's fit is unclear, or two or more look relevant, call \`team_describe_assistant\` on each candidate to see its full description, skills, and example tasks, then choose the best fit.
 3. If no preset matches the task, fall back to a generic CLI agent from the "Available Agent Types" section.
 
 Pass the preset's ID as \`custom_agent_id\` to \`team_spawn_agent\`. The \`agent_type\` is derived from the preset's backend and does not need to be specified.`
