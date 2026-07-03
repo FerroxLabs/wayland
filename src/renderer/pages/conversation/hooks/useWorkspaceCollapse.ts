@@ -13,6 +13,16 @@ type UseWorkspaceCollapseParams = {
   workspaceEnabled: boolean;
   isMobile: boolean;
   conversationId?: string;
+  /**
+   * Build #116 regression fix. When the right sider hosts the workflow Steps
+   * rail (a workspace-less workflow keeps its Steps here), it must be VISIBLE by
+   * default - the shared "collapsed" default would otherwise hide the rail until
+   * the user manually toggled it. In this mode the sider defaults EXPANDED
+   * (desktop and mobile) unless the user set an explicit per-conversation
+   * collapse preference, it never auto-collapses to hide the rail, and it does
+   * not write the shared global collapse key (which would leak into plain chats).
+   */
+  stepsRailMode?: boolean;
 };
 
 type UseWorkspaceCollapseReturn = {
@@ -28,9 +38,25 @@ export function useWorkspaceCollapse({
   workspaceEnabled,
   isMobile,
   conversationId,
+  stepsRailMode = false,
 }: UseWorkspaceCollapseParams): UseWorkspaceCollapseReturn {
   // Workspace panel collapse state - globally persisted
   const [rightSiderCollapsed, setRightSiderCollapsed] = useState(() => {
+    // Steps rail sider: default EXPANDED so a workspace-less workflow shows its
+    // Steps rail on mount. Honor an explicit per-conversation preference, but
+    // ignore the shared global collapse key (it belongs to plain chats).
+    if (stepsRailMode) {
+      if (conversationId) {
+        try {
+          const pref = localStorage.getItem(`workspace-preference-${conversationId}`);
+          if (pref === 'collapsed') return true;
+          if (pref === 'expanded') return false;
+        } catch {
+          // ignore errors
+        }
+      }
+      return false;
+    }
     if (detectMobileViewportOrTouch()) {
       return true;
     }
@@ -97,8 +123,9 @@ export function useWorkspaceCollapse({
       // Update current conversation ID
       currentConversationIdRef.current = convId;
 
-      // Mobile: always keep workspace collapsed to avoid covering main chat area
-      if (isMobile) {
+      // Mobile: always keep workspace collapsed to avoid covering main chat area.
+      // Skipped in steps-rail mode so the workflow's Steps rail stays reachable.
+      if (isMobile && !stepsRailMode) {
         if (!rightCollapsedRef.current) {
           setRightSiderCollapsed(true);
         }
@@ -125,10 +152,11 @@ export function useWorkspaceCollapse({
           setRightSiderCollapsed(shouldCollapse);
         }
       } else {
-        // No user preference: expand if has files, collapse if not
+        // No user preference: expand if has files, collapse if not. In
+        // steps-rail mode never auto-collapse - that would hide the Steps rail.
         if (detail.hasFiles && rightSiderCollapsed) {
           setRightSiderCollapsed(false);
-        } else if (!detail.hasFiles && !rightSiderCollapsed) {
+        } else if (!detail.hasFiles && !rightSiderCollapsed && !stepsRailMode) {
           setRightSiderCollapsed(true);
         }
       }
@@ -137,7 +165,7 @@ export function useWorkspaceCollapse({
     return () => {
       window.removeEventListener(WORKSPACE_HAS_FILES_EVENT, handleHasFiles);
     };
-  }, [isMobile, workspaceEnabled, rightSiderCollapsed]);
+  }, [isMobile, workspaceEnabled, rightSiderCollapsed, stepsRailMode]);
 
   // Broadcast workspace state event
   useEffect(() => {
@@ -148,14 +176,19 @@ export function useWorkspaceCollapse({
     dispatchWorkspaceStateEvent(rightSiderCollapsed);
   }, [rightSiderCollapsed, workspaceEnabled]);
 
-  // Persist workspace panel collapse state
+  // Persist workspace panel collapse state. Skipped in steps-rail mode: the
+  // workflow's default-expanded Steps sider must not overwrite the shared global
+  // collapse default that plain chats read.
   useEffect(() => {
+    if (stepsRailMode) {
+      return;
+    }
     try {
       localStorage.setItem(STORAGE_KEYS.WORKSPACE_PANEL_COLLAPSE, String(rightSiderCollapsed));
     } catch {
       // ignore errors
     }
-  }, [rightSiderCollapsed]);
+  }, [rightSiderCollapsed, stepsRailMode]);
 
   // Force collapse when workspace is disabled
   useEffect(() => {
@@ -164,21 +197,24 @@ export function useWorkspaceCollapse({
     }
   }, [workspaceEnabled]);
 
-  // Mobile: force collapse when entering mobile mode
+  // Mobile: force collapse when entering mobile mode. Skipped in steps-rail mode
+  // so the workflow's Steps rail stays visible (there is no other affordance to
+  // reopen it on the workflow's header-less layout).
   useEffect(() => {
-    if (!workspaceEnabled || !isMobile || rightCollapsedRef.current) {
+    if (stepsRailMode || !workspaceEnabled || !isMobile || rightCollapsedRef.current) {
       return;
     }
     setRightSiderCollapsed(true);
-  }, [isMobile, workspaceEnabled]);
+  }, [isMobile, workspaceEnabled, stepsRailMode]);
 
-  // Mobile: force collapse workspace on conversation switch to prevent overlay
+  // Mobile: force collapse workspace on conversation switch to prevent overlay.
+  // Skipped in steps-rail mode (each workflow conversation should show its Steps).
   useEffect(() => {
-    if (!workspaceEnabled || !isMobile) {
+    if (stepsRailMode || !workspaceEnabled || !isMobile) {
       return;
     }
     setRightSiderCollapsed(true);
-  }, [conversationId, isMobile, workspaceEnabled]);
+  }, [conversationId, isMobile, workspaceEnabled, stepsRailMode]);
 
   // Mobile: blur active element on conversation switch to prevent soft keyboard
   useEffect(() => {

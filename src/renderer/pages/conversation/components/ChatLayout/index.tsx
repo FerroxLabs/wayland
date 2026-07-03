@@ -63,6 +63,12 @@ const ChatLayout: React.FC<{
    * workspace panel are unaffected.
    */
   hideHeader?: boolean;
+  /**
+   * Build #116: the right sider hosts the workflow Steps rail. Makes the sider
+   * default to EXPANDED (so a workspace-less workflow shows its Steps on mount)
+   * and prevents auto-collapse / global-default pollution. See useWorkspaceCollapse.
+   */
+  stepsRailSider?: boolean;
 }> = (props) => {
   const { conversationId, workspacePath } = props;
   const { backend, presetAssistant, agentName } = props;
@@ -87,6 +93,7 @@ const ChatLayout: React.FC<{
     workspaceEnabled,
     isMobile,
     conversationId,
+    stepsRailMode: props.stepsRailSider,
   });
 
   // --- Hook B: container width ---

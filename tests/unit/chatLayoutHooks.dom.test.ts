@@ -389,4 +389,60 @@ describe('useWorkspaceCollapse', () => {
 
     expect(result.current.rightSiderCollapsed).toBe(true);
   });
+
+  // Build #116 regression: the workflow Steps rail lives in this sider. It must
+  // default EXPANDED (workspace-less workflows never fire the files auto-expand).
+  describe('stepsRailMode (workflow Steps rail)', () => {
+    const CONV_PREF_KEY = 'workspace-preference-conv-1';
+
+    it('defaults EXPANDED, ignoring the collapsed global default', () => {
+      globalThis.localStorage.setItem(STORAGE_KEY, 'true'); // plain-chat default = collapsed
+      globalThis.localStorage.removeItem(CONV_PREF_KEY);
+
+      const { result } = renderHook(() =>
+        useWorkspaceCollapse({ workspaceEnabled: true, isMobile: false, conversationId: 'conv-1', stepsRailMode: true })
+      );
+
+      expect(result.current.rightSiderCollapsed).toBe(false);
+    });
+
+    it('defaults EXPANDED on mobile too (Steps must stay reachable)', () => {
+      mockDetectMobile.mockReturnValue(true);
+      globalThis.localStorage.removeItem(CONV_PREF_KEY);
+
+      const { result } = renderHook(() =>
+        useWorkspaceCollapse({ workspaceEnabled: true, isMobile: true, conversationId: 'conv-1', stepsRailMode: true })
+      );
+
+      expect(result.current.rightSiderCollapsed).toBe(false);
+    });
+
+    it('honors an explicit per-conversation collapse preference', () => {
+      globalThis.localStorage.setItem('workspace-preference-conv-1', 'collapsed');
+
+      const { result } = renderHook(() =>
+        useWorkspaceCollapse({ workspaceEnabled: true, isMobile: false, conversationId: 'conv-1', stepsRailMode: true })
+      );
+
+      expect(result.current.rightSiderCollapsed).toBe(true);
+
+      globalThis.localStorage.removeItem(CONV_PREF_KEY);
+    });
+
+    it('does not write the shared global collapse key', () => {
+      globalThis.localStorage.removeItem(STORAGE_KEY);
+      globalThis.localStorage.removeItem(CONV_PREF_KEY);
+
+      const { result } = renderHook(() =>
+        useWorkspaceCollapse({ workspaceEnabled: true, isMobile: false, conversationId: 'conv-1', stepsRailMode: true })
+      );
+
+      act(() => {
+        result.current.setRightSiderCollapsed(true);
+      });
+
+      // Global default stays untouched so plain chats keep their own preference.
+      expect(globalThis.localStorage.getItem(STORAGE_KEY)).toBeNull();
+    });
+  });
 });

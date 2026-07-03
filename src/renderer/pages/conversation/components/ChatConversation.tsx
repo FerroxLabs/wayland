@@ -308,6 +308,7 @@ const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & Workflo
         workspacePath={conversation.extra.workspace}
         conversationId={conversation.id}
         hideHeader={true}
+        stepsRailSider={true}
       >
         <WorkflowSurface
           sessionId={workflowSessionId}
@@ -363,6 +364,7 @@ const GeminiWorkflowPanel: React.FC<
         workspacePath={conversation.extra.workspace}
         conversationId={conversation.id}
         hideHeader={true}
+        stepsRailSider={true}
       >
         <WorkflowSurface
           sessionId={workflowSessionId}
@@ -626,6 +628,7 @@ const ChatConversation: React.FC<{
           workspacePath={conversation?.extra?.workspace}
           conversationId={conversation?.id}
           hideHeader={true}
+          stepsRailSider={true}
         >
           <WorkflowSurface
             sessionId={workflowSessionId}
