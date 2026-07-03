@@ -4905,6 +4905,8 @@ export type I18nKey =
   | 'workflow.review.revise'
   | 'workflow.review.subtitle'
   | 'workflow.review.title'
+  | 'workflow.sider.stepsTab'
+  | 'workflow.sider.workspaceTab'
   | 'workflow.transcript.activity'
   | 'workflow.transcript.assistant'
   | 'workflow.transcript.needsYou'

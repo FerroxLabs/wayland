@@ -1,0 +1,33 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* Fill the sider's content height; the tab body scrolls, the header stays put. */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Arco renders the pane content wrapper; make it flex so the pane fills + scrolls. */
+.tabs :global(.arco-tabs-content) {
+  flex: 1;
+  min-height: 0;
+}
+
+.tabs :global(.arco-tabs-content-inner),
+.tabs :global(.arco-tabs-pane) {
+  height: 100%;
+  min-height: 0;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}

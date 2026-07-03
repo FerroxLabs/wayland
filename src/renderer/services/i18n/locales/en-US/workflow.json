@@ -4,6 +4,10 @@
     "workflow": "Workflow view",
     "conversation": "Conversation view"
   },
+  "sider": {
+    "stepsTab": "Steps",
+    "workspaceTab": "Workspace"
+  },
   "transcript": {
     "activity": "Activity · {{count}} actions",
     "you": "You",

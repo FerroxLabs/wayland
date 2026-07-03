@@ -210,7 +210,11 @@ export const WorkflowStepRail: React.FC<WorkflowStepRailProps> = ({
   return (
     <aside
       data-testid='workflow-step-rail'
-      className={`${styles.rail} w-280px shrink-0 h-full flex flex-col overflow-y-auto border-l border-solid border-[color:var(--border-base)] bg-[color:var(--color-bg-2)] p-16px gap-6px`}
+      // Build #116: fluid width so the rail fills (and tracks the resize handle of)
+      // whatever container it lands in - the tabbed sider's Steps tab (portal) or the
+      // legacy 280px inline column. The left border comes from that container (the
+      // sider / the .right wrapper), so the rail no longer draws its own.
+      className={`${styles.rail} w-full min-w-0 box-border h-full flex flex-col overflow-y-auto bg-[color:var(--color-bg-2)] p-16px gap-6px`}
     >
       <div className={styles.titleStrip} data-testid='workflow-step-rail-title'>
         <span className={styles.modeDot} aria-hidden='true' />
