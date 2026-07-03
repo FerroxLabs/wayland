@@ -78,6 +78,33 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
     },
   },
   {
+    id: 'ignition',
+    avatar: 'lucide:Rocket',
+    // Runs on the native Wayland Core engine so a total beginner can start
+    // building with zero external CLI connected; switchable from the picker.
+    presetAgentType: 'wcore',
+    category: 'build',
+    resourceDir: 'src/process/resources/assistant/ignition',
+    ruleFiles: {
+      'en-US': 'ignition.md',
+    },
+    nameI18n: {
+      'en-US': 'Ignition',
+    },
+    descriptionI18n: {
+      'en-US':
+        "Your income-asset builder. Answer a few easy questions and I'll pick the single best money-making asset for you, plan it, then build and launch it live this week - you just approve at two points.",
+    },
+    promptsI18n: {
+      'en-US': [
+        "Build me a real income asset this week - I don't know where to start",
+        'What could I sell that people already pay for?',
+        'I have a skill but no idea how to make money from it',
+        'Set me up something that earns while I work my day job',
+      ],
+    },
+  },
+  {
     id: 'word-creator',
     avatar: 'lucide:FileText',
     presetAgentType: 'gemini',

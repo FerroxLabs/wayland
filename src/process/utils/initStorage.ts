@@ -592,6 +592,7 @@ const getBuiltinAssistants = (): AcpBackendConfig[] => {
     const defaultEnabledSkills = preset.defaultEnabledSkills;
     const enabledByDefault =
       preset.id === 'concierge' ||
+      preset.id === 'ignition' ||
       preset.id === 'word-creator' ||
       preset.id === 'ppt-creator' ||
       preset.id === 'excel-creator' ||
