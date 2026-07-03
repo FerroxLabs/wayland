@@ -1651,6 +1651,7 @@
     "migrate": "Migrate",
     "theme": "Theme & Display",
     "editor": "Editor",
+    "navigation": "Navigation",
     "general": "General",
     "notifications": "Notifications",
     "storage": "Storage",
@@ -2199,6 +2200,14 @@
     "restoreFailed": "Restore failed",
     "resetFailed": "Couldn't reset Wayland. Your data was not deleted. Please try again.",
     "exportSuccess": "Backup exported"
+  },
+  "navigationPage": {
+    "subtitle": "Choose which entries appear in the sidebar and titlebar.",
+    "sidebarEntriesTitle": "Sidebar entries",
+    "titlebarTitle": "Titlebar",
+    "showLogo": "Show Wayland logo",
+    "showLogoHelp": "Display the brand lockup in the desktop titlebar.",
+    "resetDefaults": "Reset to defaults"
   },
   "editorPage": {
     "title": "Editor",

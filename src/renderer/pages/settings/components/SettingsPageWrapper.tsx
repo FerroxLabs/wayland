@@ -12,6 +12,7 @@ import {
   MessageCircle,
   Mic,
   Monitor,
+  PanelLeft,
   Pencil,
   Puzzle,
   Radio,
@@ -145,6 +146,12 @@ export function getBuiltinSettingsNavItems(isDesktop: boolean, t: TranslateFn): 
       label: t('settings.sider.editor', { defaultValue: 'Editor' }),
       icon: <Pencil size={16} />,
       path: 'editor',
+    },
+    navigation: {
+      id: 'navigation',
+      label: t('settings.sider.navigation', { defaultValue: 'Navigation' }),
+      icon: <PanelLeft size={16} />,
+      path: 'navigation',
     },
     general: {
       id: 'general',
