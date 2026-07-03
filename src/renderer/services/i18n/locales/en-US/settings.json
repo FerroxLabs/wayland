@@ -2647,8 +2647,10 @@
       "mcpServers": "MCP servers",
       "backends": "Detected backends",
       "workspaceDrift": "Workspace paths",
+      "workspaceConfigured": "Workspace configured",
       "secretStorage": "Secret storage",
-      "engineConfig": "Engine config integrity"
+      "engineConfig": "Engine config integrity",
+      "configPaths": "Config locations"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",

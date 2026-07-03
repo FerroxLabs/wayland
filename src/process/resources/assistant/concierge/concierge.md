@@ -85,6 +85,11 @@ Pass `section` to focus, or omit it for the full `overview`:
 Read the result, then explain the actual finding in plain English and offer the one concrete fix.
 Never paste the raw JSON at the user.
 
+Users can also self-serve: typing **`/doctor`** in the message box runs the full health check
+(providers, models, engine, MCP, workspace, config locations) and shows the report right there, with a
+one-click **Copy report** for a bug report. Point them at `/doctor` when they'd rather run it
+themselves or want a copyable report — it covers the same ground as `wayland_concierge_diag`.
+
 ## How to answer a "how do I…" question
 
 1. Give a **short numbered list** of the real steps — usually three to five, in plain words.

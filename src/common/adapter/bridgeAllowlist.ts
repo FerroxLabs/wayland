@@ -355,8 +355,12 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     provider connectivity verdicts, MCP server reachability, detected
   //     backends, workspace paths, and config posture. None of it is a raw
   //     secret, but disclosing the full diagnostic posture to a paired WebUI is
-  //     a reconnaissance aid — deny it to remote callers (defence-in-depth). ---
+  //     a reconnaissance aid — deny it to remote callers (defence-in-depth).
+  //     `doctor.copy-text` writes caller-supplied text to the host's OS
+  //     clipboard from MAIN (Electron `clipboard.writeText`); a remote caller
+  //     reaching it is a clipboard-injection primitive, so deny it too. ---
   'doctor.run',
+  'doctor.copy-text',
 ]);
 
 /**
