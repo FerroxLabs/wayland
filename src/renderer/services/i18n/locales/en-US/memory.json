@@ -421,6 +421,10 @@
         "hint": "Click to scan for vaults",
         "count": "~{{count}} entries imported",
         "btn": "Import",
+        "scanBtn": "Scan for vaults",
+        "noVaults": "No Obsidian vaults found in ~/Documents/",
+        "scanError": "Vault scan failed. Try again.",
+        "chooseFolderBtn": "Choose folder…",
         "success": "Imported {{count}} entries · {{errors}} errors",
         "error": "Obsidian import failed. Try again."
       },

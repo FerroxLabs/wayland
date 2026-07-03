@@ -87,17 +87,21 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
     return () => document.removeEventListener('keydown', handleKey);
   }, [open, onClose]);
 
-  // On open: probe obsidian vaults (best-effort)
+  // Bumped on every open. An in-flight scan/import captures the current epoch
+  // and bails on resolve if it changed — the drawer only hides its body on
+  // close (never unmounts), so mountedRef alone can't catch a close→reopen
+  // that would let a stale async write clobber the fresh reset or pop a late toast.
+  const obsidianEpochRef = useRef(0);
+
+  // On open: reset obsidian to idle so the user re-scans each session (the scan
+  // itself is user-triggered via the card's button — see handleObsidianScan).
   useEffect(() => {
     if (!open) return;
-
-    // Probe obsidian - the obsidianDetectVaults verb is NOT exposed in ipcBridge,
-    // so we fall back to "idle" (show "Click to scan").
-    // DEVIATION: ipcBridge.memory.import.obsidianDetectVaults does not exist.
-    // Wave 2 / W1b must add this verb if vault detection is needed.
+    obsidianEpochRef.current += 1;
     setObsidianStatus('idle');
     setObsidianVaults([]);
     setSelectedVault(null);
+    setObsidianCount(null);
   }, [open]);
 
   // ── claude-mem import ────────────────────────────────────────────────────
@@ -109,10 +113,7 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
       setClaudeMemStatus('ready');
       setClaudeMemCount(result.count);
       Message.success(
-        t(
-          'archive.import.claudeMem.success',
-          `Imported ${result.count} entries · ${result.errors.length} errors`,
-        ),
+        t('archive.import.claudeMem.success', `Imported ${result.count} entries · ${result.errors.length} errors`)
       );
       // Fire refresh event for any listening list components
       window.dispatchEvent(new CustomEvent('wayland:memory:imported'));
@@ -123,28 +124,82 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
     }
   }, [t]);
 
-  // ── obsidian import ──────────────────────────────────────────────────────
-  const handleObsidianImport = useCallback(async () => {
-    if (!selectedVault) return;
-    setObsidianStatus('importing');
+  // Guard an async result against a close→reopen (stale epoch) or unmount.
+  const obsidianLive = useCallback(
+    (epoch: number): boolean => mountedRef.current && obsidianEpochRef.current === epoch,
+    []
+  );
+
+  // ── obsidian vault scan ──────────────────────────────────────────────────
+  // #553: scan ~/Documents for vaults and populate the list. Runs when the card
+  // has no vaults yet; a single hit auto-selects, multiple let the user pick.
+  const handleObsidianScan = useCallback(async () => {
+    const epoch = obsidianEpochRef.current;
+    setObsidianStatus('checking');
     try {
-      const result = await ipcBridge.memory.import.obsidianVault.invoke({ vaultPath: selectedVault });
-      if (!mountedRef.current) return;
-      setObsidianStatus('ready');
-      setObsidianCount(result.count);
-      Message.success(
-        t(
-          'archive.import.obsidian.success',
-          `Imported ${result.count} entries · ${result.errors.length} errors`,
-        ),
-      );
-      window.dispatchEvent(new CustomEvent('wayland:memory:imported'));
-    } catch {
-      if (!mountedRef.current) return;
+      const vaults = await ipcBridge.memory.import.obsidianDetectVaults.invoke();
+      if (!obsidianLive(epoch)) return;
+      const mapped: VaultEntry[] = vaults.map((v) => ({ path: v.path, mdCount: v.mdFileCount }));
+      setObsidianVaults(mapped);
+      if (mapped.length === 0) {
+        setObsidianStatus('idle');
+        Message.info(t('archive.import.obsidian.noVaults', 'No Obsidian vaults found in ~/Documents/'));
+        return;
+      }
+      setSelectedVault(mapped.length === 1 ? mapped[0].path : null);
       setObsidianStatus('idle');
-      Message.error(t('archive.import.obsidian.error', 'Obsidian import failed. Try again.'));
+    } catch {
+      if (!obsidianLive(epoch)) return;
+      setObsidianStatus('idle');
+      setObsidianVaults([]);
+      Message.error(t('archive.import.obsidian.scanError', 'Vault scan failed. Try again.'));
     }
-  }, [selectedVault, t]);
+  }, [t, obsidianLive]);
+
+  // ── obsidian import (shared by the selected-vault button and the picker) ──
+  const runObsidianImportPath = useCallback(
+    async (vaultPath: string) => {
+      const epoch = obsidianEpochRef.current;
+      setObsidianStatus('importing');
+      try {
+        const result = await ipcBridge.memory.import.obsidianVault.invoke({ vaultPath });
+        if (!obsidianLive(epoch)) return;
+        setObsidianStatus('ready');
+        setObsidianCount(result.count);
+        Message.success(
+          t('archive.import.obsidian.success', `Imported ${result.count} entries · ${result.errors.length} errors`)
+        );
+        window.dispatchEvent(new CustomEvent('wayland:memory:imported'));
+      } catch {
+        if (!obsidianLive(epoch)) return;
+        setObsidianStatus('idle');
+        Message.error(t('archive.import.obsidian.error', 'Obsidian import failed. Try again.'));
+      }
+    },
+    [t, obsidianLive]
+  );
+
+  const handleObsidianImport = useCallback(() => {
+    if (!selectedVault) return;
+    void runObsidianImportPath(selectedVault);
+  }, [selectedVault, runObsidianImportPath]);
+
+  // #553: folder-picker fallback for vaults outside ~/Documents (e.g. a
+  // OneDrive-redirected Documents on Windows, Desktop, a repo). The picked
+  // directory is imported directly; the main-process handler re-validates it
+  // stays within the home dir.
+  const handleObsidianChooseFolder = useCallback(async () => {
+    let picked: string[] | undefined;
+    try {
+      picked = await ipcBridge.dialog.showOpen.invoke({ properties: ['openDirectory'] });
+    } catch {
+      picked = undefined;
+    }
+    if (!mountedRef.current) return;
+    const dir = picked?.[0];
+    if (!dir) return;
+    void runObsidianImportPath(dir);
+  }, [runObsidianImportPath]);
 
   // ── dev scan import ──────────────────────────────────────────────────────
   const handleDevScanImport = useCallback(async () => {
@@ -157,8 +212,8 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
       Message.success(
         t(
           'archive.import.devScan.success',
-          `Imported ${result.count} entries from ${result.projectsFound ?? 0} projects`,
-        ),
+          `Imported ${result.count} entries from ${result.projectsFound ?? 0} projects`
+        )
       );
       window.dispatchEvent(new CustomEvent('wayland:memory:imported'));
     } catch {
@@ -184,10 +239,7 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
       setDropStatus('ready');
       setDropCount(result.count);
       Message.success(
-        t(
-          'archive.import.dropFolder.success',
-          `Processed ${result.count} files · ${result.errors.length} errors`,
-        ),
+        t('archive.import.dropFolder.success', `Processed ${result.count} files · ${result.errors.length} errors`)
       );
       window.dispatchEvent(new CustomEvent('wayland:memory:imported'));
     } catch {
@@ -208,11 +260,16 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
 
   function statusPillLabel(status: ImportStatus): string {
     switch (status) {
-      case 'ready': return t('archive.import.status.ready', 'ready');
-      case 'checking': return t('archive.import.status.checking', 'checking');
-      case 'importing': return t('archive.import.status.importing', 'importing');
-      case 'unavailable': return t('archive.import.status.unavailable', 'unavailable');
-      default: return t('archive.import.status.idle', 'idle');
+      case 'ready':
+        return t('archive.import.status.ready', 'ready');
+      case 'checking':
+        return t('archive.import.status.checking', 'checking');
+      case 'importing':
+        return t('archive.import.status.importing', 'importing');
+      case 'unavailable':
+        return t('archive.import.status.unavailable', 'unavailable');
+      default:
+        return t('archive.import.status.idle', 'idle');
     }
   }
 
@@ -248,10 +305,10 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
             {/* Card 1 - claude-mem */}
             <div className={styles.card} data-testid='import-card-claudemem'>
               <div className={styles.cardTopRow}>
-                <div className={styles.iconTile} aria-hidden>🧠</div>
-                <span className={styles.cardTitle}>
-                  {t('archive.import.claudeMem.title', 'claude-mem')}
-                </span>
+                <div className={styles.iconTile} aria-hidden>
+                  🧠
+                </div>
+                <span className={styles.cardTitle}>{t('archive.import.claudeMem.title', 'claude-mem')}</span>
                 {claudeMemStatus !== 'idle' && (
                   <span className={statusPillClass(claudeMemStatus)} data-testid='import-pill-claudemem'>
                     {statusPillLabel(claudeMemStatus)}
@@ -268,7 +325,9 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
                 long
                 loading={claudeMemStatus === 'importing'}
                 disabled={claudeMemStatus === 'importing'}
-                onClick={() => { void handleClaudeMemImport(); }}
+                onClick={() => {
+                  void handleClaudeMemImport();
+                }}
                 data-testid='import-btn-claudemem'
               >
                 {claudeMemStatus === 'importing'
@@ -280,10 +339,10 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
             {/* Card 2 - Obsidian vault */}
             <div className={styles.card} data-testid='import-card-obsidian'>
               <div className={styles.cardTopRow}>
-                <div className={styles.iconTile} aria-hidden>📓</div>
-                <span className={styles.cardTitle}>
-                  {t('archive.import.obsidian.title', 'Obsidian vault')}
-                </span>
+                <div className={styles.iconTile} aria-hidden>
+                  📓
+                </div>
+                <span className={styles.cardTitle}>{t('archive.import.obsidian.title', 'Obsidian vault')}</span>
                 {obsidianStatus !== 'idle' && (
                   <span className={statusPillClass(obsidianStatus)} data-testid='import-pill-obsidian'>
                     {statusPillLabel(obsidianStatus)}
@@ -332,24 +391,46 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
               <Button
                 type='primary'
                 long
-                loading={obsidianStatus === 'importing'}
-                disabled={obsidianStatus === 'importing' || (obsidianVaults.length > 0 && !selectedVault)}
-                onClick={() => { void handleObsidianImport(); }}
+                loading={obsidianStatus === 'importing' || obsidianStatus === 'checking'}
+                disabled={
+                  obsidianStatus === 'importing' ||
+                  obsidianStatus === 'checking' ||
+                  (obsidianVaults.length > 0 && !selectedVault)
+                }
+                onClick={() => {
+                  // No vaults yet → scan; once a vault is selected → import.
+                  void (obsidianVaults.length > 0 ? handleObsidianImport() : handleObsidianScan());
+                }}
                 data-testid='import-btn-obsidian'
               >
                 {obsidianStatus === 'importing'
                   ? t('archive.import.importing', 'Importing…')
-                  : t('archive.import.obsidian.btn', 'Import')}
+                  : obsidianVaults.length > 0
+                    ? t('archive.import.obsidian.btn', 'Import')
+                    : t('archive.import.obsidian.scanBtn', 'Scan for vaults')}
+              </Button>
+
+              {/* Fallback for vaults outside ~/Documents (Windows/OneDrive, etc.) */}
+              <Button
+                type='text'
+                long
+                disabled={obsidianStatus === 'importing' || obsidianStatus === 'checking'}
+                onClick={() => {
+                  void handleObsidianChooseFolder();
+                }}
+                data-testid='import-btn-obsidian-choose'
+              >
+                {t('archive.import.obsidian.chooseFolderBtn', 'Choose folder…')}
               </Button>
             </div>
 
             {/* Card 3 - ~/dev scan */}
             <div className={styles.card} data-testid='import-card-devscan'>
               <div className={styles.cardTopRow}>
-                <div className={styles.iconTile} aria-hidden>📁</div>
-                <span className={styles.cardTitle}>
-                  {t('archive.import.devScan.title', '~/dev scan')}
-                </span>
+                <div className={styles.iconTile} aria-hidden>
+                  📁
+                </div>
+                <span className={styles.cardTitle}>{t('archive.import.devScan.title', '~/dev scan')}</span>
                 {devStatus !== 'idle' && (
                   <span className={statusPillClass(devStatus)} data-testid='import-pill-devscan'>
                     {statusPillLabel(devStatus)}
@@ -366,7 +447,9 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
                 long
                 loading={devStatus === 'importing'}
                 disabled={devStatus === 'importing'}
-                onClick={() => { void handleDevScanImport(); }}
+                onClick={() => {
+                  void handleDevScanImport();
+                }}
                 data-testid='import-btn-devscan'
               >
                 {devStatus === 'importing'
@@ -378,10 +461,10 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
             {/* Card 4 - Drop folder */}
             <div className={styles.card} data-testid='import-card-dropfolder'>
               <div className={styles.cardTopRow}>
-                <div className={styles.iconTile} aria-hidden>📥</div>
-                <span className={styles.cardTitle}>
-                  {t('archive.import.dropFolder.title', 'Drop folder')}
-                </span>
+                <div className={styles.iconTile} aria-hidden>
+                  📥
+                </div>
+                <span className={styles.cardTitle}>{t('archive.import.dropFolder.title', 'Drop folder')}</span>
                 {dropStatus !== 'idle' && (
                   <span className={statusPillClass(dropStatus)} data-testid='import-pill-dropfolder'>
                     {statusPillLabel(dropStatus)}
@@ -397,19 +480,16 @@ export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactE
                 {DROP_FOLDER_PATH}
               </p>
               <div className={styles.cardBottomRow}>
-                <Button
-                  type='secondary'
-                  long
-                  onClick={handleOpenFolder}
-                  data-testid='import-btn-openfolder'
-                >
+                <Button type='secondary' long onClick={handleOpenFolder} data-testid='import-btn-openfolder'>
                   {t('archive.import.dropFolder.openBtn', 'Open folder')}
                 </Button>
                 <Button
                   type='primary'
                   loading={dropStatus === 'importing'}
                   disabled={dropStatus === 'importing'}
-                  onClick={() => { void handleProcessDropFolder(); }}
+                  onClick={() => {
+                    void handleProcessDropFolder();
+                  }}
                   data-testid='import-btn-dropfolder'
                 >
                   {dropStatus === 'importing'
