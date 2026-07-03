@@ -17,19 +17,16 @@
 
 import { Button, Typography } from '@arco-design/web-react';
 import { Attention, CheckOne, CloseOne, Loading } from '@icon-park/react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
-import type { IjfwRuntimeModePublic } from '@/common/types/ijfw';
 
 export type IjfwSetupStatusProps = {
   /** Latest lifecycle status from `ipcBridge.ijfw.getStatus`. */
   status: IjfwLifecycleStatus | null;
   /** Count of detected CLIs (excludes Wayland Core). */
   cliCount: number;
-  /** MCP runtime mode from `ipcBridge.ijfw.getRuntimeMode`. */
-  runtimeMode: IjfwRuntimeModePublic | null;
 };
 
 type ChecklistItem = {
@@ -41,13 +38,34 @@ type ChecklistItem = {
 
 type TestState = 'idle' | 'running' | 'pass' | 'fail';
 
-const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, runtimeMode }) => {
+const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount }) => {
   const { t } = useTranslation();
   const [testState, setTestState] = useState<TestState>('idle');
+  const [runtimeReachable, setRuntimeReachable] = useState<boolean | null>(null);
+
+  // Probe the IJFW MCP runtime once on mount with the SAME read-only round-trip
+  // the Test button uses, so the row reflects real reachability instead of the
+  // unprobed in-memory mode (which defaults to 'full' and stays green even when
+  // the runtime is absent). While the probe is in flight the row renders as
+  // pending; a resolved probe drives it green/amber to match the Test button.
+  useEffect(() => {
+    let disposed = false;
+    void ipcBridge.ijfw.brainInvoke
+      .invoke({ verb: 'state' })
+      .then((r) => {
+        if (!disposed) setRuntimeReachable(!!r?.ok);
+      })
+      .catch(() => {
+        if (!disposed) setRuntimeReachable(false);
+      });
+    return () => {
+      disposed = true;
+    };
+  }, []);
 
   const installOk = status === 'installed_current' || status === 'installed_pending_activation';
   const clisOk = cliCount > 0;
-  const runtimeOk = runtimeMode === 'full';
+  const runtimeOk = runtimeReachable === true;
 
   const items: ChecklistItem[] = [
     {

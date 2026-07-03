@@ -46,28 +46,45 @@ afterEach(() => {
 });
 
 describe('IjfwSetupStatus (#414)', () => {
-  it('marks all checks ok when installed, CLIs present, runtime full', () => {
-    render(<IjfwSetupStatus status='installed_current' cliCount={3} runtimeMode='full' />);
+  it('marks all checks ok when installed, CLIs present, runtime probe reachable', async () => {
+    brainInvoke.mockResolvedValue({ ok: true });
+    render(<IjfwSetupStatus status='installed_current' cliCount={3} />);
     expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('ok');
     expect(screen.getByTestId('ijfw-status-item-clis').getAttribute('data-status')).toBe('ok');
-    expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('ok');
+    // The runtime row is driven by a live probe on mount, not an unprobed mode.
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('ok');
+    });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
   });
 
-  it('marks checks pending when not installed, no CLIs, runtime degraded', () => {
-    render(<IjfwSetupStatus status='not_installed' cliCount={0} runtimeMode='degraded' />);
+  it('marks checks pending when not installed, no CLIs, runtime probe not reachable', async () => {
+    brainInvoke.mockResolvedValue({ ok: false, error: 'nope' });
+    render(<IjfwSetupStatus status='not_installed' cliCount={0} />);
     expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('pending');
     expect(screen.getByTestId('ijfw-status-item-clis').getAttribute('data-status')).toBe('pending');
-    expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('pending');
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('pending');
+    });
+  });
+
+  it('marks the runtime row pending when the mount probe rejects', async () => {
+    brainInvoke.mockRejectedValue(new Error('boom'));
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('pending');
+    });
   });
 
   it('treats pending activation as an installed check', () => {
-    render(<IjfwSetupStatus status='installed_pending_activation' cliCount={0} runtimeMode={null} />);
+    brainInvoke.mockResolvedValue({ ok: false });
+    render(<IjfwSetupStatus status='installed_pending_activation' cliCount={0} />);
     expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('ok');
   });
 
   it('Test button shows pass when the brain probe succeeds', async () => {
     brainInvoke.mockResolvedValue({ ok: true });
-    render(<IjfwSetupStatus status='installed_current' cliCount={1} runtimeMode='full' />);
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
     fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('pass');
@@ -77,7 +94,7 @@ describe('IjfwSetupStatus (#414)', () => {
 
   it('Test button shows fail when the brain probe errors', async () => {
     brainInvoke.mockResolvedValue({ ok: false, error: 'nope' });
-    render(<IjfwSetupStatus status='not_installed' cliCount={0} runtimeMode='degraded' />);
+    render(<IjfwSetupStatus status='not_installed' cliCount={0} />);
     fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('fail');
@@ -86,7 +103,7 @@ describe('IjfwSetupStatus (#414)', () => {
 
   it('Test button shows fail when the probe throws', async () => {
     brainInvoke.mockRejectedValue(new Error('boom'));
-    render(<IjfwSetupStatus status='installed_current' cliCount={1} runtimeMode='full' />);
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
     fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('fail');
