@@ -38,12 +38,22 @@ vi.mock('react-i18next', () => ({
 const mockMessageError = vi.fn();
 const mockMessageSuccess = vi.fn();
 vi.mock('@arco-design/web-react', () => ({
-  Modal: ({ children, footer, title }: { children: React.ReactNode; footer?: React.ReactNode; title?: React.ReactNode }) =>
-    React.createElement('div', null, React.createElement('div', null, title), children, footer),
+  Modal: ({
+    children,
+    footer,
+    title,
+  }: {
+    children: React.ReactNode;
+    footer?: React.ReactNode;
+    title?: React.ReactNode;
+  }) => React.createElement('div', null, React.createElement('div', null, title), children, footer),
   Button: ({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) =>
     React.createElement('button', { onClick, disabled }, children),
   Spin: () => React.createElement('div', null, 'spin'),
-  Message: { error: (...a: unknown[]) => mockMessageError(...a), success: (...a: unknown[]) => mockMessageSuccess(...a) },
+  Message: {
+    error: (...a: unknown[]) => mockMessageError(...a),
+    success: (...a: unknown[]) => mockMessageSuccess(...a),
+  },
 }));
 
 const mockRunDoctor = vi.fn();
