@@ -35,6 +35,14 @@ describe('detectConciergeProposals', () => {
     expect(out[0]).toEqual({ kind: 'provider_connect', providerId: 'openai', label: 'OpenAI' });
   });
 
+  it('parses file_bug_report with and without an optional summary (#464)', () => {
+    const withSummary = detectConciergeProposals(block('kind: file_bug_report\nsummary: app crashes on launch'));
+    expect(withSummary).toEqual([{ kind: 'file_bug_report', summary: 'app crashes on launch' }]);
+
+    const bare = detectConciergeProposals(block('kind: file_bug_report'));
+    expect(bare).toEqual([{ kind: 'file_bug_report' }]);
+  });
+
   it('parses set_default_model and rejects an unknown engine', () => {
     const ok = detectConciergeProposals(
       block(

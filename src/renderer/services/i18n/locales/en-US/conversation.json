@@ -19,7 +19,10 @@
     "none": "None",
     "quickActionsTitle": "What can Wayland do?",
     "quickActionFeedback": "Got feedback or suggestions?",
-    "quickActionStar": "Like us? Give us a star!"
+    "quickActionStar": "Like us? Give us a star!",
+    "bugReportScreenshotCopied": "Screenshot copied — paste it into the issue with Cmd/Ctrl+V.",
+    "bugReportNoScreenshot": "Opening a pre-filled GitHub issue — attach a screenshot manually.",
+    "bugReportChooser": "Opening the GitHub issue chooser (diagnostics unavailable)."
   },
   "history": {
     "recents": "Recents",

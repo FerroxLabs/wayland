@@ -244,6 +244,21 @@ export interface IStartOnBootStatus {
   platform: string;
 }
 
+/**
+ * One-click bug-report payload (#464): app-window screenshot is placed on the OS
+ * clipboard by the main process; the rest pre-fills a GitHub issue. `diagnostics`
+ * is the already secret-masked `wayland_concierge_diag` overview.
+ */
+export type IBugReportData = {
+  appVersion: string;
+  engineVersion: string | null;
+  platform: string;
+  arch: string;
+  osRelease: string;
+  diagnostics: string;
+  screenshotCopied: boolean;
+};
+
 export const application = {
   restart: buildProvider<void, void>('restart-app'), // Restart app
   openDevTools: buildProvider<boolean, void>('open-dev-tools'), // Open/close DevTools, returns the resulting state
@@ -253,6 +268,10 @@ export const application = {
     void
   >('system.info'), // Get system info
   getPath: buildProvider<string, { name: 'desktop' | 'home' | 'downloads' }>('app.get-path'), // Get system path
+  // One-click bug report (#464): capture the app window (needs no OS Screen-Recording
+  // permission), copy it to the clipboard, and return diagnostics + versions to
+  // pre-fill a GitHub issue. Returned diagnostics are already secret-masked.
+  captureBugReport: buildProvider<IBridgeResponse<IBugReportData>, void>('app.capture-bug-report'),
   updateSystemInfo: buildProvider<IBridgeResponse, { cacheDir: string; workDir: string }>('system.update-info'), // Update system info
   getZoomFactor: buildProvider<number, void>('app.get-zoom-factor'),
   setZoomFactor: buildProvider<number, { factor: number }>('app.set-zoom-factor'),

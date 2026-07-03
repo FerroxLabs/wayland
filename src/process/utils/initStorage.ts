@@ -12,6 +12,7 @@ import { application } from '@/common/adapter/ipcBridge';
 import type { TMessage } from '@/common/chat/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
+import type { ConciergeDiagDeps } from '@process/resources/builtinMcp/conciergeDiagServer';
 import type {
   IChannelAssistantConfigRefer,
   IChatConversationRefer,
@@ -276,6 +277,26 @@ const envFile = JsonFileBuilder<IEnvStorageRefer>(path.join(getHomePage(), STORA
 const dirConfig = envFile.getSync('wayland.dir');
 
 const cacheDir = dirConfig?.cacheDir || getHomePage();
+
+/**
+ * Resolve the on-disk sources the `wayland_concierge_diag` tool reads, using the
+ * EXACT same path expressions the app uses to write them. Single source of truth
+ * shared by (a) the stdio subprocess env-wiring below and (b) any in-process
+ * caller (e.g. the #464 bug-report collector) that runs `overview()` directly.
+ */
+export function resolveConciergeDiagDeps(): ConciergeDiagDeps {
+  const dbPath = path.join(getDataPath(), 'wayland.db');
+  return {
+    configPath: path.join(cacheDir, STORAGE_PATH.config),
+    cronDbPath: dbPath,
+    providerDbPath: dbPath,
+    // projects + conversations live in the same shared wayland.db (workspace health).
+    workspaceDbPath: dbPath,
+    logDir: getPlatformServices().paths.getLogsDir(),
+    appConfigDir: cacheDir,
+    engineConfigDir: nativeConfigDir(),
+  };
+}
 
 const configFile = JsonFileBuilder<IConfigStorageRefer & IChannelAssistantConfigRefer>(
   path.join(cacheDir, STORAGE_PATH.config)
@@ -902,18 +923,19 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
     //     config locations, for the configPaths report.
     // Enabled by default — the tool is silent unless invoked and never mutates.
     const conciergeDiagScriptPath = getBuiltinMcpScriptPath('builtin-mcp-concierge-diag');
-    const conciergeDiagDbPath = path.join(getDataPath(), 'wayland.db');
+    // Derive the subprocess env from the shared deps resolver so the in-process
+    // bug-report collector (#464) and the stdio tool always read identical paths.
+    const conciergeDiagDeps = resolveConciergeDiagDeps();
     const conciergeDiagEnv: Record<string, string> = {
-      WAYLAND_CONFIG_PATH: path.join(cacheDir, STORAGE_PATH.config),
-      WAYLAND_CRON_DB: conciergeDiagDbPath,
-      WAYLAND_PROVIDER_DB: conciergeDiagDbPath,
-      // projects + conversations live in the same shared wayland.db (workspace health).
-      WAYLAND_WORKSPACE_DB: conciergeDiagDbPath,
-      WAYLAND_LOG_DIR: getPlatformServices().paths.getLogsDir(),
+      WAYLAND_CONFIG_PATH: conciergeDiagDeps.configPath!,
+      WAYLAND_CRON_DB: conciergeDiagDeps.cronDbPath!,
+      WAYLAND_PROVIDER_DB: conciergeDiagDeps.providerDbPath!,
+      WAYLAND_WORKSPACE_DB: conciergeDiagDeps.workspaceDbPath!,
+      WAYLAND_LOG_DIR: conciergeDiagDeps.logDir!,
       // The two distinct config locations, for the configPaths report: the app
       // settings dir, and the wayland-core engine config dir.
-      WAYLAND_APP_CONFIG_DIR: cacheDir,
-      WAYLAND_ENGINE_CONFIG_DIR: nativeConfigDir(),
+      WAYLAND_APP_CONFIG_DIR: conciergeDiagDeps.appConfigDir!,
+      WAYLAND_ENGINE_CONFIG_DIR: conciergeDiagDeps.engineConfigDir!,
     };
     const conciergeDiagExistingIdx = mcpServers.findIndex(
       (s) => s.builtin === true && s.id === BUILTIN_CONCIERGE_DIAG_ID
