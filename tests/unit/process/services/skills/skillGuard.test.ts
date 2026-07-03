@@ -25,6 +25,13 @@ describe('SkillGuard.scan - clean', () => {
     expect(report.scannerVersion).toBe(SKILL_SCANNER_VERSION);
     expect(report.llmScanned).toBe(false);
   });
+
+  it('binds a contentHash to the scanned body+description (C5)', async () => {
+    const [a] = await SkillGuard.scan([skill({ body: '# one' })]);
+    const [b] = await SkillGuard.scan([skill({ body: '# two' })]);
+    expect(a.contentHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(a.contentHash).not.toBe(b.contentHash);
+  });
 });
 
 describe('SkillGuard.scan - regex layer', () => {

@@ -47,6 +47,14 @@ export type SkillSecurityReport = {
   scannedAt: number;
   scannerVersion: number;
   llmScanned: boolean;
+  /**
+   * sha256 of the normalized (description + body) the verdict was computed over
+   * (see `skillContentHash`). Binds the verdict to exact content: keys the
+   * review-consent confirm step so an approval can't be replayed against a
+   * different body, and lets a rescan skip unchanged skills. Optional so
+   * legacy reports (pre-C5) and hand-built test fixtures stay valid.
+   */
+  contentHash?: string;
 };
 
 export type SkillIndexEntry = {

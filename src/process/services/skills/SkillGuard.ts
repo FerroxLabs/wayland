@@ -7,6 +7,7 @@
 import { SKILL_SCANNER_VERSION, type SkillFinding, type SkillSecurityReport, type SkillVerdict } from '@/common/types/skillTypes';
 import { SKILL_GUARD_RULES, type SkillScanInput } from './skillGuardRules';
 import { skillGuardLlmScan, type LlmScanCall } from './skillGuardLlmScan';
+import { skillContentHash } from './skillContentHash';
 
 /**
  * Skill Guard - layered security scan for imported / vendored skills.
@@ -37,6 +38,9 @@ export class SkillGuard {
         scannedAt,
         scannerVersion: SKILL_SCANNER_VERSION,
         llmScanned: llmResult.ran,
+        // C5: bind the verdict to the exact content scanned. Keys the
+        // review-consent confirm step and the rescan short-circuit.
+        contentHash: skillContentHash(skill.body, skill.description),
       };
     });
   }
