@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Copy, Download, Loader2 } from 'lucide-react';
+import { Copy, Download, ExternalLink, Loader2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IMessageToolGroup } from '@/common/chat/chatLib';
 import { iconColors } from '@/renderer/styles/colors';
@@ -19,6 +19,8 @@ import CollapsibleContent from '@renderer/components/chat/CollapsibleContent';
 import LocalImageView from '@renderer/components/media/LocalImageView';
 import MarkdownView from '@renderer/components/Markdown';
 import { ToolConfirmationOutcome } from '@renderer/utils/common';
+import { openExternalUrl } from '@/renderer/utils/platform';
+import { extractGoogleConsentUrl } from '@/renderer/utils/mcp/googleConsentUrl';
 import { ImagePreviewContext } from '../MessageList';
 import { COLLAPSE_CONFIG, TEXT_CONFIG } from '../constants';
 import type { ImageGenerationResult, WriteFileResult } from '../types';
@@ -433,10 +435,18 @@ const ImageDisplay: React.FC<{
   );
 };
 
-const ToolResultDisplay: React.FC<{
+export const ToolResultDisplay: React.FC<{
   content: IMessageToolGroupProps['message']['content'][number];
 }> = ({ content }) => {
+  const { t } = useTranslation();
   const { resultDisplay, name } = content;
+
+  // Google Workspace MCP OAuth (#475): start_google_auth returns a consent URL
+  // as plain text. The <pre> below isn't clickable, so surface an explicit
+  // always-visible button that opens the consent page in the browser. Scoped to
+  // that tool + accounts.google.com so arbitrary tool output can't be turned
+  // into a one-click link.
+  const consentUrl = extractGoogleConsentUrl(name, resultDisplay);
 
   // Special handling for image generation
   if (name === 'ImageGeneration' && typeof resultDisplay === 'object') {
@@ -459,14 +469,27 @@ const ToolResultDisplay: React.FC<{
 
   // Wrap long content with CollapsibleContent
   return (
-    <CollapsibleContent maxHeight={RESULT_MAX_HEIGHT} defaultCollapsed={true} useMask={false}>
-      <pre
-        className='text-t-primary whitespace-pre-wrap break-words m-0'
-        style={{ fontSize: `${TEXT_CONFIG.FONT_SIZE}px`, lineHeight: TEXT_CONFIG.LINE_HEIGHT }}
-      >
-        {display}
-      </pre>
-    </CollapsibleContent>
+    <>
+      {consentUrl && (
+        <Button
+          type='primary'
+          size='small'
+          className='mb-8px'
+          icon={<ExternalLink size={14} />}
+          onClick={() => void openExternalUrl(consentUrl)}
+        >
+          {t('conversation.tool.openGoogleConsent')}
+        </Button>
+      )}
+      <CollapsibleContent maxHeight={RESULT_MAX_HEIGHT} defaultCollapsed={true} useMask={false}>
+        <pre
+          className='text-t-primary whitespace-pre-wrap break-words m-0'
+          style={{ fontSize: `${TEXT_CONFIG.FONT_SIZE}px`, lineHeight: TEXT_CONFIG.LINE_HEIGHT }}
+        >
+          {display}
+        </pre>
+      </CollapsibleContent>
+    </>
   );
 };
 

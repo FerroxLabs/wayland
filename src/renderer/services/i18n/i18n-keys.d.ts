@@ -642,6 +642,7 @@ export type I18nKey =
   | 'conversation.thinking.complete'
   | 'conversation.thinking.label'
   | 'conversation.thinking.thoughtFor'
+  | 'conversation.tool.openGoogleConsent'
   | 'conversation.welcome.clearWorkspace'
   | 'conversation.welcome.currentWorkspace'
   | 'conversation.welcome.fluxGroupLabel'

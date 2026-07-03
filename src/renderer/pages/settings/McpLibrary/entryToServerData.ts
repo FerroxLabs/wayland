@@ -130,6 +130,11 @@ export function entryToServerData(
   // libraryEntryId keeps the canonical slug for install/dedup matching.
   const safeName = entry.name.replace(/[^A-Za-z0-9_.-]/g, '-');
 
+  // Carry the connector's agent-facing usage guidance onto the installed record
+  // (#475) so the main process can inject it into the system prompt without
+  // reaching back into the renderer-side catalog. Only persisted when non-blank.
+  const agentGuidance = entry['x-wayland'].agentGuidance?.trim();
+
   return {
     name: safeName,
     description: entry.description,
@@ -138,5 +143,6 @@ export function entryToServerData(
     originalJson: JSON.stringify({ source: 'library', entry: entry.name }),
     source: 'library',
     libraryEntryId: entry.name,
+    ...(agentGuidance ? { agentGuidance } : {}),
   };
 }

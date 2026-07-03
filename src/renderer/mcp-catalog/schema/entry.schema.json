@@ -118,6 +118,7 @@
           }
         },
         "platforms": { "type": "array", "items": { "enum": ["macos", "windows", "linux"] } },
+        "agentGuidance": { "type": "string" },
         "minWaylandVersion": { "type": "string" }
       }
     }

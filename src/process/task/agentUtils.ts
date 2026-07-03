@@ -5,6 +5,7 @@
  */
 
 import { getSkillsDir, getBuiltinSkillsCopyDir, loadSkillsContent, ProcessConfig } from '@process/utils/initStorage';
+import { resolveMcpConnectorGuidance } from '@process/task/mcpConnectorGuidance';
 import { AcpSkillManager, buildSkillsIndexText, type SkillIndex } from './AcpSkillManager';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { SkillRetriever } from '@process/services/skills/SkillRetriever';
@@ -547,6 +548,14 @@ export async function buildSystemInstructions(config: FirstMessageConfig): Promi
     instructions.push(`${CAPABILITIES_MANIFEST_HEADER}\n${config.capabilitiesManifest}`);
   }
 
+  // Per-connector usage guidance for enabled MCP connectors (#475): ungated so
+  // the model always knows how to drive tools whose own descriptions are
+  // ambiguous (e.g. the Google Workspace MCP's start_google_auth).
+  const connectorGuidance = await resolveMcpConnectorGuidance();
+  if (connectorGuidance) {
+    instructions.push(connectorGuidance);
+  }
+
   // Workflow Launch Surface - append WORKFLOW_PROTOCOL LAST so it sits at the
   // end of the assembled system content (SPEC §7.3 "primacy at the end").
   const workflowProtocol = await tryComposeWorkflowProtocol(config.workflowSessionId);
@@ -668,6 +677,14 @@ If you find yourself about to escalate scheduling outside of Wayland or use a no
     instructions.push(`${CAPABILITIES_MANIFEST_HEADER}\n${config.capabilitiesManifest}`);
   }
 
+  // Per-connector usage guidance for enabled MCP connectors (#475): ungated so
+  // the model always knows how to drive tools whose own descriptions are
+  // ambiguous (e.g. the Google Workspace MCP's start_google_auth).
+  const connectorGuidance = await resolveMcpConnectorGuidance();
+  if (connectorGuidance) {
+    instructions.push(connectorGuidance);
+  }
+
   // 4. Workflow Launch Surface - append WORKFLOW_PROTOCOL LAST so it sits at
   // the end of the rules content (SPEC §7.3 "primacy at the end").
   const workflowProtocol = await tryComposeWorkflowProtocol(config.workflowSessionId);
@@ -733,6 +750,14 @@ export async function buildSystemInstructionsWithSkillsIndex(config: FirstMessag
   // after the skills index / team guide and before the workflow protocol.
   if (config.capabilitiesManifest) {
     instructions.push(`${CAPABILITIES_MANIFEST_HEADER}\n${config.capabilitiesManifest}`);
+  }
+
+  // Per-connector usage guidance for enabled MCP connectors (#475): ungated so
+  // the model always knows how to drive tools whose own descriptions are
+  // ambiguous (e.g. the Google Workspace MCP's start_google_auth).
+  const connectorGuidance = await resolveMcpConnectorGuidance();
+  if (connectorGuidance) {
+    instructions.push(connectorGuidance);
   }
 
   // Workflow Launch Surface - append WORKFLOW_PROTOCOL LAST so it sits at the

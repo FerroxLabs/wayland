@@ -112,6 +112,14 @@ export interface WaylandExtension {
   };
   toolGroups?: { label: string; count: number }[];
   setupGuide?: { path: string; estimatedMinutes: number; stepCount: number };
+  /**
+   * Agent-facing usage guidance injected into the system prompt when this
+   * connector is enabled (#475). Use for tools whose own descriptions don't
+   * spell out required arguments — e.g. the Google Workspace MCP's
+   * `start_google_auth`, which requires `service_name`. Keep it terse; it is
+   * added to every turn while the connector is on.
+   */
+  agentGuidance?: string;
   platforms?: ('macos' | 'windows' | 'linux')[];
   minWaylandVersion?: string;
 }

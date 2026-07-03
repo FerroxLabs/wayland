@@ -194,3 +194,34 @@ describe('entryToServerData pins BYO package versions (#343)', () => {
     expect(data.transport.args?.[0]).toBe(`workspace-mcp==${pkg.version}`);
   });
 });
+
+describe('entryToServerData agentGuidance (#475)', () => {
+  it('copies the Google Workspace agentGuidance onto the installed server record', () => {
+    const data = entryToServerData(googleWorkspaceEntry as unknown as CatalogEntry, {});
+    expect(data.agentGuidance).toBeTruthy();
+    expect(data.agentGuidance).toContain('start_google_auth');
+    expect(data.agentGuidance).toContain('service_name');
+  });
+
+  it('omits agentGuidance entirely when the entry has none', () => {
+    const entry = baseEntry({ packages: [{ registryType: 'pypi', identifier: 'x', version: '1.0.0' }] as never });
+    const data = entryToServerData(entry, {});
+    expect('agentGuidance' in data).toBe(false);
+  });
+
+  it('does not persist blank/whitespace-only guidance', () => {
+    const entry = baseEntry({
+      packages: [{ registryType: 'pypi', identifier: 'x', version: '1.0.0' }] as never,
+      'x-wayland': {
+        tier: 'builder',
+        categories: ['developer'],
+        maintainerType: 'community',
+        iconUrl: 'icons/test.svg',
+        auth: { method: 'api-key' },
+        agentGuidance: '   ',
+      },
+    } as unknown as Partial<CatalogEntry>);
+    const data = entryToServerData(entry, {});
+    expect('agentGuidance' in data).toBe(false);
+  });
+});

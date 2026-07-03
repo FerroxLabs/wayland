@@ -73,6 +73,7 @@
       "estimatedMinutes": 7,
       "stepCount": 4
     },
+    "agentGuidance": "Google Workspace: before using any Gmail/Drive/Calendar/Docs tool, authenticate by calling `start_google_auth` with BOTH required arguments: `service_name` (one of: gmail, drive, calendar, docs, sheets, slides, forms, tasks, chat) and `user_google_email` (the user's Google address). It returns a Google consent URL — tell the user their browser will open to approve access, then continue once they confirm. Never call `start_google_auth` without a valid `service_name`, and don't retry it in a loop: if it fails, report the error and ask the user rather than re-calling.",
     "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }

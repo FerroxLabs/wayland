@@ -71,6 +71,7 @@ import {
   CAPABILITIES_MANIFEST_HEADER,
   isConciergeAssistant,
 } from '@process/task/agentUtils';
+import { resolveMcpConnectorGuidance } from '@process/task/mcpConnectorGuidance';
 import { composePrompt } from '@process/services/constitution/composePrompt';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
 import { extractTextFromMessage, processCronInMessage } from './MessageMiddleware';
@@ -1583,6 +1584,13 @@ ${collectedResponses.join('\n')}`;
               agentKey: this.options.backend,
             });
             if (nativeManifest) parts.push(`${CAPABILITIES_MANIFEST_HEADER}\n${nativeManifest}`);
+            // Per-connector usage guidance for enabled MCP connectors (#475).
+            // Native ACP backends (Claude Code / Codex) assemble their rules
+            // block here rather than via buildSystemInstructions*, so inject the
+            // guidance directly or the Google Workspace start_google_auth notes
+            // never reach these backends.
+            const nativeConnectorGuidance = await resolveMcpConnectorGuidance();
+            if (nativeConnectorGuidance) parts.push(nativeConnectorGuidance);
             // Prepend Wayland Constitution + optional specialist overlay above
             // the preset rules + team guide. composePrompt returns '' when no
             // Constitution file exists, preserving the prior "skip rules block

@@ -886,6 +886,14 @@ export interface IMcpServer {
   /** Catalog entry id if this server was installed from the MCP Library. */
   libraryEntryId?: string;
   /**
+   * Optional agent-facing usage guidance for this connector (#475), copied from
+   * the catalog entry's `x-wayland.agentGuidance` at install. When the server is
+   * enabled, this text is injected into the agent's system prompt so the model
+   * knows how to drive tools whose own descriptions are ambiguous (e.g. the
+   * Google Workspace MCP's `start_google_auth` requiring `service_name`).
+   */
+  agentGuidance?: string;
+  /**
    * User-supplied OAuth client credentials for vendors that don't support
    * Dynamic Client Registration (Slack, GitHub, HubSpot, Zoom, Box, Figma…).
    * When present, the OAuth flow skips DCR and uses these credentials
