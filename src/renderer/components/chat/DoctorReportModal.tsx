@@ -64,6 +64,8 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ visible, onClose 
     }
   }, [reportText, t]);
 
+  if (!visible) return null;
+
   return (
     <Modal
       visible={visible}
