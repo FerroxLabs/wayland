@@ -43,6 +43,7 @@
     "emptyTitle": "Nenhuma conversa neste projeto ainda",
     "emptyBody": "Inicie uma conversa com qualquer backend, modelo ou assistente. Ela ficará dentro deste projeto, e você pode rodar quantas quiser ao mesmo tempo.",
     "untitledChat": "Conversa sem título",
+    "created": "Criado {{date}}",
     "removeChat": "Remover",
     "tabReference": "Referência",
     "tabMemory": "Memória",

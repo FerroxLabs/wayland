@@ -23,6 +23,20 @@ export const diffDay = (time1: number, time2: number): number => {
 };
 
 /**
+ * Format a conversation timestamp as a short, locale-aware absolute date + time.
+ *
+ * Absolute (with year) rather than relative so the oldest chat stays identifiable
+ * when pruning duplicates. Returns '' for a missing/zero/NaN timestamp.
+ *
+ * @param timestamp - Milliseconds since epoch (e.g. conversation.createTime)
+ * @param locale - Optional BCP 47 locale; defaults to the runtime locale
+ */
+export const formatConversationDate = (timestamp: number, locale?: string): string => {
+  if (!timestamp || Number.isNaN(timestamp)) return '';
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(timestamp);
+};
+
+/**
  * Get the activity time (most recent) from a conversation
  */
 export const getActivityTime = (conversation: TChatConversation): number => {

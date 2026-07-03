@@ -2173,6 +2173,7 @@ export type I18nKey =
   | 'projects.wizard.titleInstructions'
   | 'projects.wizard.titleRules'
   | 'projects.wizard.useDraft'
+  | 'projects.workspace.created'
   | 'projects.workspace.edit'
   | 'projects.workspace.emptyBody'
   | 'projects.workspace.emptyTitle'

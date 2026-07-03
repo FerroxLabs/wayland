@@ -43,6 +43,7 @@
     "emptyTitle": "Aún no hay chats en este proyecto",
     "emptyBody": "Inicia un chat con cualquier backend, modelo o asistente. Vivirá dentro de este proyecto, y puedes ejecutar tantos como quieras a la vez.",
     "untitledChat": "Chat sin título",
+    "created": "Creado {{date}}",
     "removeChat": "Quitar",
     "tabReference": "Referencia",
     "tabMemory": "Memoria",
