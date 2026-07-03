@@ -1,5 +1,15 @@
 {
   "memory": "Memory",
+  "navItems": {
+    "conversations": "Conversations",
+    "search": "Search",
+    "projects": "Projects",
+    "assistants": "Assistants",
+    "workflows": "Workflows",
+    "scheduled": "Scheduled Tasks",
+    "teams": "Teams",
+    "memory": "Memory"
+  },
   "fluxRouter": {
     "label": "Flux Status",
     "connect": {

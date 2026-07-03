@@ -19,6 +19,7 @@ const ChannelsIndex = React.lazy(() => import('@renderer/pages/settings/Channels
 const ChannelDetailPage = React.lazy(() => import('@renderer/pages/settings/ChannelsIndex/ChannelDetailPage'));
 const DisplaySettings = React.lazy(() => import('@renderer/pages/settings/DisplaySettings'));
 const EditorSettings = React.lazy(() => import('@renderer/pages/settings/EditorSettings'));
+const NavigationSettings = React.lazy(() => import('@renderer/pages/settings/NavigationSettings'));
 const GeneralSettings = React.lazy(() => import('@renderer/pages/settings/GeneralSettings'));
 const ImageGenSettings = React.lazy(() => import('@renderer/pages/settings/ImageGenSettings'));
 const McpLibraryBrowsePage = React.lazy(() =>
@@ -152,6 +153,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
             {/* APPEARANCE */}
             <Route path='/settings/theme' element={withRouteFallback(DisplaySettings)} />
             <Route path='/settings/editor' element={withRouteFallback(EditorSettings)} />
+            <Route path='/settings/navigation' element={withRouteFallback(NavigationSettings)} />
             {/* SYSTEM */}
             <Route path='/settings/general' element={withRouteFallback(GeneralSettings)} />
             <Route path='/settings/notifications' element={withRouteFallback(NotificationsSettings)} />

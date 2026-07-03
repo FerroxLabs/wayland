@@ -7,6 +7,7 @@ import { useAuth } from '@renderer/hooks/context/AuthContext';
 import { useLayoutContext } from '@renderer/hooks/context/LayoutContext';
 import { blurActiveElement } from '@renderer/utils/ui/focus';
 import { useThemeContext } from '@renderer/hooks/context/ThemeContext';
+import { useSiderVisibility } from '@renderer/hooks/ui/useSiderVisibility';
 import {
   SiderAssistantsEntry,
   SiderMemoryEntry,
@@ -43,6 +44,9 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
   const { closePreview } = usePreviewContext();
   const { logout, status } = useAuth();
   const { theme, setTheme } = useThemeContext();
+  // #118: per-item nav visibility. Hidden entries stay reachable from
+  // Settings → Navigation. Mission Control is pinned first and never hidden.
+  const { isHidden } = useSiderVisibility();
   const [isBatchMode, setIsBatchMode] = useState(false);
   const isSettings = pathname.startsWith('/settings');
   const lastNonSettingsPathRef = useRef('/guid');
@@ -214,61 +218,7 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
           onNewChat={handleNewChat}
           onToggleBatchMode={() => setIsBatchMode((prev) => !prev)}
         />
-        <SiderSessionsEntry
-          isMobile={isMobile}
-          isActive={pathname.startsWith('/conversations')}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onClick={() => handleTopZoneNav('/conversations')}
-        />
-        <SiderSearchEntry
-          isMobile={isMobile}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onConversationSelect={handleConversationSelect}
-          onSessionClick={onSessionClick}
-        />
-        <SiderProjectsEntry
-          isMobile={isMobile}
-          isActive={pathname.startsWith('/project')}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onClick={() => handleTopZoneNav('/projects')}
-        />
-        <SiderAssistantsEntry
-          isMobile={isMobile}
-          isActive={pathname === '/assistants'}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onClick={handleAssistantsClick}
-        />
-        <SiderWorkflowsEntry
-          isMobile={isMobile}
-          isActive={pathname.startsWith('/workflows')}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onClick={() => handleTopZoneNav('/workflows')}
-        />
-        <SiderScheduledEntry
-          isMobile={isMobile}
-          isActive={pathname.startsWith('/scheduled')}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onClick={() => handleTopZoneNav('/scheduled')}
-        />
-        <SiderTeamsEntry
-          isMobile={isMobile}
-          isActive={pathname.startsWith('/teams')}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-          onClick={() => handleTopZoneNav('/teams')}
-        />
-        <SiderMemoryEntry
-          isMobile={isMobile}
-          isActive={pathname.startsWith('/memory') || pathname.startsWith('/wiki')}
-          collapsed={collapsed}
-          siderTooltipProps={siderTooltipProps}
-        />
+        {/* #118: Mission Control is pinned first and always visible. */}
         <SiderMissionControlEntry
           isMobile={isMobile}
           isActive={pathname.startsWith('/mission-control')}
@@ -276,6 +226,77 @@ const Sider: React.FC<SiderProps> = ({ onSessionClick, collapsed = false }) => {
           siderTooltipProps={siderTooltipProps}
           onClick={() => handleTopZoneNav('/mission-control')}
         />
+        {!isHidden('conversations') && (
+          <SiderSessionsEntry
+            isMobile={isMobile}
+            isActive={pathname.startsWith('/conversations')}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+            onClick={() => handleTopZoneNav('/conversations')}
+          />
+        )}
+        {!isHidden('search') && (
+          <SiderSearchEntry
+            isMobile={isMobile}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+            onConversationSelect={handleConversationSelect}
+            onSessionClick={onSessionClick}
+          />
+        )}
+        {!isHidden('projects') && (
+          <SiderProjectsEntry
+            isMobile={isMobile}
+            isActive={pathname.startsWith('/project')}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+            onClick={() => handleTopZoneNav('/projects')}
+          />
+        )}
+        {!isHidden('assistants') && (
+          <SiderAssistantsEntry
+            isMobile={isMobile}
+            isActive={pathname === '/assistants'}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+            onClick={handleAssistantsClick}
+          />
+        )}
+        {!isHidden('workflows') && (
+          <SiderWorkflowsEntry
+            isMobile={isMobile}
+            isActive={pathname.startsWith('/workflows')}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+            onClick={() => handleTopZoneNav('/workflows')}
+          />
+        )}
+        {!isHidden('scheduled') && (
+          <SiderScheduledEntry
+            isMobile={isMobile}
+            isActive={pathname.startsWith('/scheduled')}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+            onClick={() => handleTopZoneNav('/scheduled')}
+          />
+        )}
+        {!isHidden('teams') && (
+          <SiderTeamsEntry
+            isMobile={isMobile}
+            isActive={pathname.startsWith('/teams')}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+            onClick={() => handleTopZoneNav('/teams')}
+          />
+        )}
+        {!isHidden('memory') && (
+          <SiderMemoryEntry
+            isMobile={isMobile}
+            isActive={pathname.startsWith('/memory') || pathname.startsWith('/wiki')}
+            collapsed={collapsed}
+            siderTooltipProps={siderTooltipProps}
+          />
+        )}
       </div>
 
       <div className={classNames('overflow-y-auto', siderStyles.scrollArea, siderStyles.scrollZone)}>

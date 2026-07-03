@@ -1,5 +1,12 @@
 {
   "title": "Settings",
+  "navigationPage": {
+    "logoTitle": "Sidebar logo",
+    "logoHint": "The sidebar logo duplicates the one in the titlebar. Hide it to reclaim vertical space for navigation.",
+    "showLogo": "Show sidebar logo",
+    "itemsTitle": "Navigation items",
+    "itemsHint": "Hide destinations you do not use. Re-enable them here anytime. Mission Control is always pinned to the top."
+  },
   "commandPalette": {
     "placeholder": "Search settings…",
     "noResults": "No results found"
@@ -1651,6 +1658,7 @@
     "migrate": "Migrate",
     "theme": "Theme & Display",
     "editor": "Editor",
+    "navigation": "Navigation",
     "general": "General",
     "notifications": "Notifications",
     "storage": "Storage",

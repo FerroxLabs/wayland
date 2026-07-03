@@ -26,6 +26,7 @@ import { cleanupSiderTooltips } from '@renderer/utils/ui/siderTooltip';
 import { useConversationShortcuts } from '@renderer/hooks/ui/useConversationShortcuts';
 import { useResponsive } from '@renderer/hooks/ui/useResponsive';
 import { useSidebarWidth } from '@renderer/hooks/ui/useSidebarWidth';
+import { useLogoVisible } from '@renderer/hooks/ui/useLogoVisible';
 import { useGlobalKeybind } from '@renderer/hooks/settings/useGlobalKeybind';
 import { CommandPalette } from '@renderer/components/cmdk';
 import BudgetGateModal from '@renderer/components/cost/BudgetGateModal';
@@ -134,6 +135,10 @@ const Layout: React.FC<{
   // + live). Falls back to the legacy default when unset; mobile uses its own
   // overlay-drawer sizing below and ignores this.
   const desktopSiderWidth = useSidebarWidth();
+  // #118: the sidebar logo duplicates the titlebar brand, so it is hidden by
+  // default and toggled from Settings → Navigation. Hiding it reclaims the
+  // header row's vertical space for nav content.
+  const logoVisible = useLogoVisible();
 
   // Logo click: plain click goes home; Cmd/Ctrl + triple-click opens DevTools.
   const handleLogoClick = useCallback(
@@ -588,83 +593,96 @@ const Layout: React.FC<{
               })}
               style={siderStyle}
             >
-              <ArcoLayout.Header
-                className={classNames(
-                  'flex items-center justify-start py-8px px-16px pl-20px gap-12px layout-sider-header',
-                  isMobile && 'layout-sider-header--mobile',
-                  {
-                    'cursor-pointer group ': collapsed,
-                  }
-                )}
-              >
-                <div
-                  className={classNames('shrink-0 relative rd-8px flex items-center justify-center', {
-                    'size-40px': !collapsed,
-                    '!size-24px': collapsed,
-                  })}
-                  style={{
-                    background:
-                      'radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.18), transparent 70%), var(--bg-2, #161616)',
-                    border: '1px solid var(--border-mid, #353535)',
-                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                    cursor: 'pointer',
-                  }}
-                  role='button'
-                  tabIndex={0}
-                  aria-label={t('common.brand')}
-                  onClick={handleLogoClick}
-                  onKeyDown={handleLogoKeyDown}
+              {/* #118: render the sidebar-logo header only when the logo is
+                  visible, or when a mobile drawer still needs its collapse
+                  button. Hiding the logo (default) drops this row entirely so
+                  the reclaimed space goes to nav content. */}
+              {(logoVisible || (isMobile && !collapsed)) && (
+                <ArcoLayout.Header
+                  className={classNames(
+                    'flex items-center justify-start py-8px px-16px pl-20px gap-12px layout-sider-header',
+                    isMobile && 'layout-sider-header--mobile',
+                    {
+                      'cursor-pointer group ': collapsed,
+                    }
+                  )}
                 >
-                  <svg
-                    className={classNames({
-                      'w-24px h-24px': !collapsed,
-                      'w-14px h-14px': collapsed,
-                    })}
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    style={{ stroke: 'var(--brand)' }}
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    aria-hidden='true'
-                    focusable='false'
-                  >
-                    <path d='M20.341 6.484A10 10 0 0 1 10.266 21.85' />
-                    <path d='M3.659 17.516A10 10 0 0 1 13.74 2.152' />
-                    <circle cx='12' cy='12' r='3' />
-                    <circle cx='19' cy='5' r='2' />
-                    <circle cx='5' cy='19' r='2' />
-                  </svg>
-                </div>
-                <div className='flex-1 flex flex-col gap-2px collapsed-hidden min-w-0'>
-                  <span className='text-14px font-700 text-t-primary leading-none tracking-[0.01em]'>
-                    {t('common.brand')}
-                  </span>
-                  <span className='text-10px font-500 uppercase tracking-[0.16em] text-[var(--text-dim,#555)] leading-none'>
-                    {t('common.brandTagline')}
-                  </span>
-                </div>
-                {isMobile && !collapsed && (
-                  <button
-                    type='button'
-                    className='app-titlebar__button'
-                    onClick={() => setCollapsed(true)}
-                    aria-label='Collapse sidebar'
-                  >
-                    {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-                  </button>
-                )}
-                {/* Sidebar folding handled by Titlebar toggle */}
-              </ArcoLayout.Header>
+                  {logoVisible && (
+                    <>
+                      <div
+                        className={classNames('shrink-0 relative rd-8px flex items-center justify-center', {
+                          'size-40px': !collapsed,
+                          '!size-24px': collapsed,
+                        })}
+                        style={{
+                          background:
+                            'radial-gradient(circle at 30% 30%, rgba(255, 107, 53, 0.18), transparent 70%), var(--bg-2, #161616)',
+                          border: '1px solid var(--border-mid, #353535)',
+                          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                          cursor: 'pointer',
+                        }}
+                        role='button'
+                        tabIndex={0}
+                        aria-label={t('common.brand')}
+                        onClick={handleLogoClick}
+                        onKeyDown={handleLogoKeyDown}
+                      >
+                        <svg
+                          className={classNames({
+                            'w-24px h-24px': !collapsed,
+                            'w-14px h-14px': collapsed,
+                          })}
+                          viewBox='0 0 24 24'
+                          fill='none'
+                          style={{ stroke: 'var(--brand)' }}
+                          strokeWidth='2'
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          aria-hidden='true'
+                          focusable='false'
+                        >
+                          <path d='M20.341 6.484A10 10 0 0 1 10.266 21.85' />
+                          <path d='M3.659 17.516A10 10 0 0 1 13.74 2.152' />
+                          <circle cx='12' cy='12' r='3' />
+                          <circle cx='19' cy='5' r='2' />
+                          <circle cx='5' cy='19' r='2' />
+                        </svg>
+                      </div>
+                      <div className='flex-1 flex flex-col gap-2px collapsed-hidden min-w-0'>
+                        <span className='text-14px font-700 text-t-primary leading-none tracking-[0.01em]'>
+                          {t('common.brand')}
+                        </span>
+                        <span className='text-10px font-500 uppercase tracking-[0.16em] text-[var(--text-dim,#555)] leading-none'>
+                          {t('common.brandTagline')}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                  {isMobile && !collapsed && (
+                    <button
+                      type='button'
+                      className='app-titlebar__button ml-auto'
+                      onClick={() => setCollapsed(true)}
+                      aria-label='Collapse sidebar'
+                    >
+                      {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+                    </button>
+                  )}
+                  {/* Sidebar folding handled by Titlebar toggle */}
+                </ArcoLayout.Header>
+              )}
               <ArcoLayout.Content className='pt-8px px-8px pb-0 layout-sider-content'>
                 {React.isValidElement(sider)
-                  ? React.cloneElement(sider as React.ReactElement<{ onSessionClick?: () => void; collapsed?: boolean }>, {
-                      onSessionClick: () => {
-                        cleanupSiderTooltips();
-                        if (isMobile) setCollapsed(true);
-                      },
-                      collapsed,
-                    })
+                  ? React.cloneElement(
+                      sider as React.ReactElement<{ onSessionClick?: () => void; collapsed?: boolean }>,
+                      {
+                        onSessionClick: () => {
+                          cleanupSiderTooltips();
+                          if (isMobile) setCollapsed(true);
+                        },
+                        collapsed,
+                      }
+                    )
                   : sider}
               </ArcoLayout.Content>
               {!isMobile && (
