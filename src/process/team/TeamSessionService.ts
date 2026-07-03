@@ -262,8 +262,18 @@ export class TeamSessionService {
    * instead of the metered `--provider openai`. This is the choke point that
    * covers the default/fallback paths every shipped launcher hits (team_spawn_agent
    * is usually called with no explicit model), which bypass the pin resolver.
+   *
+   * WCORE-ONLY, self-enforced: only the wcore engine can auth the keyless
+   * subscription provider (OAuth via ~/.codex/auth.json). Re-binding a non-wcore
+   * (e.g. Gemini-CLI) teammate to that keyless row breaks bootstrap ("OpenAI API
+   * key is required"), so the guard lives HERE - the invariant holds no matter
+   * how the method is called, not just because a call site remembered to gate it.
    */
-  private async preferSubscriptionForOwnedModel(model: TProviderWithModel): Promise<TProviderWithModel> {
+  private async preferSubscriptionForOwnedModel(
+    model: TProviderWithModel,
+    conversationType?: string
+  ): Promise<TProviderWithModel> {
+    if (conversationType !== 'wcore') return model;
     const useModel = model?.useModel;
     if (!useModel) return model;
     const subTag = `v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}`;
@@ -525,20 +535,13 @@ export class TeamSessionService {
       }
     }
 
-    // #555 teams choke point (WCORE ONLY): covers the wcore default
-    // (`providers[0]`) path that resolves a subscription model id onto the
-    // metered OpenAI provider (tag v2:openai) and would bill the API instead of
-    // the subscription. Scoped to wcore because ONLY the wcore engine can auth
-    // the keyless ChatGPT-subscription provider (OAuth via ~/.codex/auth.json,
-    // routed by envBuilder.mapProvider -> --provider openai-chatgpt). Re-binding a
-    // Gemini-CLI teammate to that keyless row would break bootstrap ("OpenAI API
-    // key is required"), so a gemini teammate on a subscription model id keeps the
-    // metered provider - the only route its backend can actually use. (Offering
-    // subscription-only ids to a gemini teammate at all is a separate concern in
-    // team_list_models/getTeamAvailableModels.)
-    if (conversationType === 'wcore') {
-      model = await this.preferSubscriptionForOwnedModel(model);
-    }
+    // #555 teams choke point: covers the wcore default (`providers[0]`) path that
+    // resolves a subscription model id onto the metered OpenAI provider (tag
+    // v2:openai) and would bill the API instead of the subscription. The method
+    // self-enforces the wcore-only invariant (a Gemini-CLI teammate cannot auth
+    // the keyless subscription provider, so it keeps the metered route), so we
+    // pass conversationType and let it decide rather than gating here.
+    model = await this.preferSubscriptionForOwnedModel(model, conversationType);
 
     return buildAgentConversationParams({
       backend,

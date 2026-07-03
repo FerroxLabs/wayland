@@ -195,6 +195,44 @@ describe('getTeamAvailableModels', () => {
     ]);
   });
 
+  it('#555: Gemini backend TRIMS subscription-only model ids (gemini cannot use ChatGPT OAuth) but keeps ids a metered provider also offers', () => {
+    const providers: IProvider[] = [
+      // Direct OpenAI (metered) - a gemini teammate CAN bill on this via API key.
+      makeProvider({
+        id: 'openai-direct',
+        platform: 'openai',
+        model: ['gpt-5.5'],
+        __waylandModelRegistryBridge: 'v2:openai',
+      } as Partial<IProvider> & { platform: string; model: string[] }),
+      // ChatGPT subscription (keyless OAuth) - offers a SHARED id (gpt-5.5) and a
+      // subscription-ONLY id (gpt-5.3-codex-spark) that no metered provider lists.
+      makeProvider({
+        id: 'chatgpt-sub',
+        platform: 'openai-compatible',
+        model: ['gpt-5.5', 'gpt-5.3-codex-spark'],
+        __waylandModelRegistryBridge: 'v2:chatgpt-subscription',
+      } as Partial<IProvider> & { platform: string; model: string[] }),
+    ];
+    const result = getTeamAvailableModels('gemini', {}, providers, false);
+    const ids = result.map((m) => m.id);
+    expect(ids).toContain('gpt-5.5'); // still offered via the metered provider
+    expect(ids).not.toContain('gpt-5.3-codex-spark'); // subscription-only -> trimmed for gemini
+  });
+
+  it('#555: Wcore backend still includes subscription-only model ids (wcore CAN auth the subscription)', () => {
+    const providers: IProvider[] = [
+      makeProvider({
+        id: 'chatgpt-sub',
+        platform: 'openai-compatible',
+        model: ['gpt-5.5', 'gpt-5.3-codex-spark'],
+        __waylandModelRegistryBridge: 'v2:chatgpt-subscription',
+      } as Partial<IProvider> & { platform: string; model: string[] }),
+    ];
+    const ids = getTeamAvailableModels('wcore', {}, providers, false).map((m) => m.id);
+    expect(ids).toContain('gpt-5.5');
+    expect(ids).toContain('gpt-5.3-codex-spark'); // wcore keeps it (routes to --provider openai-chatgpt)
+  });
+
   it('UT-36: Gemini backend with Google Auth + multiple platform providers', () => {
     const providers: IProvider[] = [
       makeProvider({

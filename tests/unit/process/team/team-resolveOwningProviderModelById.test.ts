@@ -200,47 +200,65 @@ describe('TeamSessionService.preferSubscriptionForOwnedModel (#555 teams choke p
     mockProcessConfig.get.mockImplementation(async (key: string) => (key === 'model.config' ? SUB_AND_METERED : null));
   });
 
-  it('re-binds a subscription model resolved onto the metered provider back to the subscription', async () => {
-    const svc = makeService() as unknown as {
-      preferSubscriptionForOwnedModel: (m: Record<string, unknown>) => Promise<Record<string, unknown>>;
-    };
+  type ChokeFn = {
+    preferSubscriptionForOwnedModel: (
+      m: Record<string, unknown>,
+      conversationType?: string
+    ) => Promise<Record<string, unknown>>;
+  };
+
+  it('re-binds a subscription model resolved onto the metered provider back to the subscription (wcore)', async () => {
+    const svc = makeService() as unknown as ChokeFn;
     // Simulates the default/gemini-fallback outcome: metered provider + gpt-5.5.
     const metered = { id: '19cea7a9', __waylandModelRegistryBridge: 'v2:openai', useModel: 'gpt-5.5' };
-    const fixed = await svc.preferSubscriptionForOwnedModel(metered);
+    const fixed = await svc.preferSubscriptionForOwnedModel(metered, 'wcore');
     expect(fixed.id).toBe('5d2e7ed9');
     expect(fixed.__waylandModelRegistryBridge).toBe('v2:chatgpt-subscription');
     expect(fixed.useModel).toBe('gpt-5.5');
   });
 
-  it('leaves a model the subscription does NOT own untouched', async () => {
-    const svc = makeService() as unknown as {
-      preferSubscriptionForOwnedModel: (m: Record<string, unknown>) => Promise<Record<string, unknown>>;
-    };
+  it('does NOT re-bind a GEMINI teammate pinned to a subscription model id (self-enforced wcore-only guard)', async () => {
+    // A Gemini-CLI teammate cannot auth the keyless subscription provider, so
+    // re-binding it would break bootstrap. The guard lives IN the method, so even
+    // a subscription-owned gpt-5.5 stays on the metered provider for gemini.
+    const svc = makeService() as unknown as ChokeFn;
+    const metered = { id: '19cea7a9', __waylandModelRegistryBridge: 'v2:openai', useModel: 'gpt-5.5' };
+    const out = await svc.preferSubscriptionForOwnedModel(metered, 'gemini');
+    expect(out.id).toBe('19cea7a9');
+    expect(out.__waylandModelRegistryBridge).toBe('v2:openai');
+  });
+
+  it('is a no-op for any non-wcore conversationType (including undefined)', async () => {
+    const svc = makeService() as unknown as ChokeFn;
+    const metered = { id: '19cea7a9', __waylandModelRegistryBridge: 'v2:openai', useModel: 'gpt-5.5' };
+    expect((await svc.preferSubscriptionForOwnedModel(metered, undefined)).id).toBe('19cea7a9');
+    expect((await svc.preferSubscriptionForOwnedModel(metered, 'acp')).id).toBe('19cea7a9');
+    expect((await svc.preferSubscriptionForOwnedModel(metered, 'remote')).id).toBe('19cea7a9');
+  });
+
+  it('leaves a model the subscription does NOT own untouched (wcore)', async () => {
+    const svc = makeService() as unknown as ChokeFn;
     const metered = { id: '19cea7a9', __waylandModelRegistryBridge: 'v2:openai', useModel: 'text-embedding-3' };
-    const out = await svc.preferSubscriptionForOwnedModel(metered);
+    const out = await svc.preferSubscriptionForOwnedModel(metered, 'wcore');
     expect(out.id).toBe('19cea7a9'); // subscription doesn't list it -> unchanged
   });
 
-  it('is a no-op when the model is already the subscription', async () => {
-    const svc = makeService() as unknown as {
-      preferSubscriptionForOwnedModel: (m: Record<string, unknown>) => Promise<Record<string, unknown>>;
-    };
+  it('is a no-op when the model is already the subscription (wcore)', async () => {
+    const svc = makeService() as unknown as ChokeFn;
     const sub = { id: '5d2e7ed9', __waylandModelRegistryBridge: 'v2:chatgpt-subscription', useModel: 'gpt-5.5' };
-    const out = await svc.preferSubscriptionForOwnedModel(sub);
+    const out = await svc.preferSubscriptionForOwnedModel(sub, 'wcore');
     expect(out.id).toBe('5d2e7ed9');
   });
 
-  it('skips a subscription that has the model disabled', async () => {
+  it('skips a subscription that has the model disabled (wcore)', async () => {
     mockProcessConfig.get.mockImplementation(async (key: string) =>
       key === 'model.config'
         ? [SUB_AND_METERED[0], { ...SUB_AND_METERED[1], modelEnabled: { 'gpt-5.5': false } }]
         : null
     );
-    const svc = makeService() as unknown as {
-      preferSubscriptionForOwnedModel: (m: Record<string, unknown>) => Promise<Record<string, unknown>>;
-    };
+    const svc = makeService() as unknown as ChokeFn;
     const metered = { id: '19cea7a9', __waylandModelRegistryBridge: 'v2:openai', useModel: 'gpt-5.5' };
-    const out = await svc.preferSubscriptionForOwnedModel(metered);
+    const out = await svc.preferSubscriptionForOwnedModel(metered, 'wcore');
     expect(out.id).toBe('19cea7a9'); // subscription has gpt-5.5 disabled -> unchanged
   });
 });

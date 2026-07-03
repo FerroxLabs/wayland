@@ -15,6 +15,19 @@ export type TeamAvailableModel = {
 };
 
 /**
+ * Registry-bridge tag stamped on the ChatGPT-subscription provider row
+ * (`v2:${CHATGPT_SUBSCRIPTION_PROVIDER_ID}` in envBuilder / legacyModelConfigBridge).
+ * Hardcoded here because this common-layer util must not import from @process.
+ */
+const CHATGPT_SUBSCRIPTION_BRIDGE_TAG = 'v2:chatgpt-subscription';
+
+function isChatGptSubscriptionProvider(provider: IProvider): boolean {
+  return (
+    (provider as unknown as Record<string, unknown>).__waylandModelRegistryBridge === CHATGPT_SUBSCRIPTION_BRIDGE_TAG
+  );
+}
+
+/**
  * Check whether a model passes the capability filter used by the frontend.
  * A model is included when:
  * - function_calling is true or undefined (unknown = allowed)
@@ -74,9 +87,16 @@ export function getTeamAvailableModels(
       }
     }
 
-    // ALL enabled providers' models with capability filtering
-    // Mirrors useModelProviderList(): every enabled provider is included
-    const enabledProviders = (providers || []).filter((p) => p.enabled !== false && p.model?.length);
+    // ALL enabled providers' models with capability filtering, EXCEPT the
+    // ChatGPT-subscription provider (#555): a Gemini-CLI teammate cannot use the
+    // ChatGPT OAuth route (it's keyless - only the wcore engine can auth it), so
+    // a subscription-ONLY model id (e.g. gpt-5.3-codex-spark) is unrunnable here
+    // and must not be offered. Ids the subscription shares with a metered
+    // provider (e.g. gpt-5.5 on the direct OpenAI provider) are still presented
+    // via that metered provider below, which a gemini teammate CAN bill on.
+    const enabledProviders = (providers || []).filter(
+      (p) => p.enabled !== false && p.model?.length && !isChatGptSubscriptionProvider(p)
+    );
     for (const p of enabledProviders) {
       for (const m of p.model || []) {
         if (p.modelEnabled?.[m] !== false && passesCapabilityFilter(p, m)) {
