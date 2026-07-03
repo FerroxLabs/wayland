@@ -54,7 +54,7 @@ const hasContent = (raw: string): boolean =>
  * execution lock: many chats can run at once, so nothing here disables.
  */
 const ProjectWorkspacePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
 
@@ -294,7 +294,7 @@ const ProjectWorkspacePage: React.FC = () => {
                   })
                   .map((c) => {
                     const backend = (c.extra as { backend?: string } | undefined)?.backend || c.type;
-                    const created = formatConversationDate(c.createTime);
+                    const created = formatConversationDate(c.createTime, i18n.language || 'en-US');
                     return (
                       <div
                         key={c.id}
