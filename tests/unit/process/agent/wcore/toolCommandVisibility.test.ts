@@ -40,7 +40,8 @@ const makeAgent = () => {
 const lastToolFrame = (emitted: Emitted[]) => {
   const groups = emitted.filter((e) => e.type === 'tool_group');
   const last = groups[groups.length - 1];
-  return (last?.data as Array<{ callId: string; name: string; description: string; status: string }>)[0];
+  const data = (last?.data ?? []) as Array<{ callId: string; name: string; description: string; status: string }>;
+  return data[0];
 };
 
 const request: WCoreEvent = {
