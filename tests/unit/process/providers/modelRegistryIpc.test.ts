@@ -324,6 +324,20 @@ describe('modelRegistry IPC - connect', () => {
     expect(call?.[2]).toBe('https://opencode.ai/zen/go/v1');
   });
 
+  it('threads the catalog baseUrl for Vultr on key-only connect (#556 - baseUrl the chat-start fix relies on)', async () => {
+    const { deps, test } = makeFakes();
+    const h = createModelRegistryHandlers(deps);
+
+    // vultr is likewise a bundled-catalog provider with no PROVIDER_ENDPOINTS
+    // entry; the #556 chat-start fix depends on this connect-time fallback
+    // persisting creds.baseUrl (CHAT_START_BASE_URL has no vultr entry).
+    await h.connect({ providerId: 'vultr' as ProviderId, creds: { key: 'sk-test' } });
+
+    const call = test.mock.calls.find((c) => c[0] === 'vultr');
+    expect(call).toBeDefined();
+    expect(call?.[2]).toBe('https://api.vultrinference.com/v1');
+  });
+
   it('returns the ConnectError and does not persist when the test fails', async () => {
     const { deps, repo } = makeFakes({ testResult: { ok: false, error: 'unauthorized' } });
     const h = createModelRegistryHandlers(deps);
@@ -2107,5 +2121,52 @@ describe('modelRegistry IPC - resolveForChatStart (#243 ChatGPT subscription)', 
 
     const result = await h.resolveForChatStart({ providerId: 'azure', modelId: 'gpt-4o' });
     expect(result).toEqual({ ok: false, error: 'unsupported' });
+  });
+});
+
+describe('modelRegistry IPC - resolveForChatStart (#516 OpenCode Go, #556 Vultr)', () => {
+  // Both are openai_compatible bundled-catalog providers connected via API key,
+  // whose endpoint is persisted into creds.baseUrl at connect time (#63). Before
+  // the fix they were absent from CHAT_START_PLATFORM, so resolveForChatStart
+  // returned `unsupported` and the Guid picker bounced the user to Settings.
+  it('resolves a connected OpenCode Go model to openai-compatible with its catalog baseUrl, no bounce (#516)', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'opencode-go',
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: 'sk-oc', baseUrl: 'https://opencode.ai/zen/go/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'opencode-go', modelId: 'glm-5.2' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.provider.platform).toBe('openai-compatible');
+      expect(result.provider.providerId).toBe('opencode-go');
+      expect(result.provider.modelId).toBe('glm-5.2');
+      expect(result.provider.baseUrl).toBe('https://opencode.ai/zen/go/v1');
+    }
+  });
+
+  it('resolves a connected Vultr model to openai-compatible with its catalog baseUrl, no bounce (#556)', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'vultr',
+      connectedVia: 'apiKey',
+      state: 'connected',
+      creds: { key: 'sk-vultr', baseUrl: 'https://api.vultrinference.com/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.resolveForChatStart({ providerId: 'vultr', modelId: 'llama-3.3-70b' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.provider.platform).toBe('openai-compatible');
+      expect(result.provider.providerId).toBe('vultr');
+      expect(result.provider.baseUrl).toBe('https://api.vultrinference.com/v1');
+    }
   });
 });

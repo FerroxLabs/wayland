@@ -1227,6 +1227,15 @@ const CHAT_START_PLATFORM: Partial<Record<ProviderId, string>> = {
   // and the picker bounced the user to Settings - the model could never be
   // selected and the #243 engine routing was never reached (live-E2E gap).
   'chatgpt-subscription': 'openai-compatible',
+  // OpenAI-compatible subscription/gateway providers from the bundled catalog
+  // ("100+ more"), connected via API key. Their endpoint is persisted into
+  // `creds.baseUrl` at connect time (catalog fallback, #63), so chat-start
+  // dispatches OpenAI-compatible against the right host. Without these entries
+  // buildChatStartPayload returned `unsupported`, resolveForChatStart failed, and
+  // the picker bounced the user to Settings -> Models with no error, so the model
+  // could never be selected. OpenCode Go = #516, Vultr = #556.
+  'opencode-go': 'openai-compatible',
+  vultr: 'openai-compatible',
   // Azure intentionally absent - the legacy dispatch has no Azure arm; a
   // future Azure chat-start will need its own dispatcher work.
 };
