@@ -49,7 +49,7 @@ import type {
 } from '../types/onboarding';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
 import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
-import type { DownloadResult, VoiceAsset } from '../types/voiceAsset';
+import type { DownloadProgress, DownloadResult, VoiceAsset } from '../types/voiceAsset';
 import type { SkillSecurityReport, SkillIndexEntry, SkillSource, SkillVerdict } from '../types/skillTypes';
 import type { ImportResult } from '../../process/services/skills/SkillImport';
 import type { KickoffGridResult, KickoffResult, KickoffTelemetryEvent } from '../../process/services/kickoff/types';
@@ -594,6 +594,11 @@ export const imports = {
 export const voiceAsset = {
   download: buildProvider<DownloadResult, VoiceAsset>('voice-asset.download'),
   cancel: buildProvider<{ cancelled: boolean }, { assetId: string }>('voice-asset.cancel'),
+  // Streamed per-chunk download progress. voiceAssetBridge feeds this from the
+  // onProgress callback it hands to VoiceAssetManager.download; the renderer's
+  // download controls subscribe to drive <Progress/> (replaces the old
+  // hardcoded 0% + "progress reporting coming soon" stub).
+  downloadProgress: buildEmitter<DownloadProgress>('voice-asset.download-progress'),
   // Resolve the install state for a known asset. The renderer uses this to
   // suppress the Download button when the model is already on disk (no more
   // "Download Model" alongside an already-installed model).

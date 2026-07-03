@@ -21,27 +21,14 @@ import {
   FLUX_RECOMMENDED_IMAGE_ID,
 } from '@/common/config/imageModels';
 import type { VoiceAsset } from '@/common/types/voiceAsset';
-import {
-  Divider,
-  Form,
-  Message,
-  Button,
-  Switch,
-  Input,
-  Slider,
-  Progress,
-} from '@arco-design/web-react';
+import { Divider, Form, Message, Button, Switch, Input, Slider, Progress } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useConfigModelListWithImage from '@/renderer/hooks/agent/useConfigModelListWithImage';
 import WaylandScrollArea from '@/renderer/components/base/WaylandScrollArea';
 import WaylandSelect from '@/renderer/components/base/WaylandSelect';
 import McpAgentStatusDisplay from '@/renderer/pages/settings/ToolsSettings/McpAgentStatusDisplay';
-import {
-  useMcpServers,
-  useMcpAgentStatus,
-  useMcpOperations,
-} from '@/renderer/hooks/mcp';
+import { useMcpServers, useMcpAgentStatus, useMcpOperations } from '@/renderer/hooks/mcp';
 import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsViewMode } from '../settingsViewContext';
@@ -112,25 +99,28 @@ const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
 
 type DownloadState = 'idle' | 'downloading' | 'success' | 'error';
 
-const WhisperLocalDownloadControl: React.FC<{
-  model: string;
-  onModelChange: (model: string) => void;
-}> = ({ model, onModelChange }) => {
-  const { t } = useTranslation();
+/**
+ * Shared download-with-progress controller for the local voice models (Whisper
+ * + Kokoro). Owns the download lifecycle, the on-disk install probe, and the
+ * live progress subscription so both controls render a real <Progress/> bar
+ * instead of the old hardcoded 0%. Pass `undefined` when no asset is selected
+ * (the hook stays inert until one is).
+ */
+const useVoiceAssetDownload = (asset: VoiceAsset | undefined) => {
   const [downloadState, setDownloadState] = useState<DownloadState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [installed, setInstalled] = useState<boolean | null>(null);
-  const cancelledRef = React.useRef(false);
+  const [percent, setPercent] = useState(0);
+  const cancelledRef = useRef(false);
+  const assetId = asset?.id;
 
-  // Probe install state on mount + every model switch so the UI shows
-  // "Installed" instead of a Download button when the file already exists
-  // on disk. Krug / Sutherland: don't make the user wonder.
+  // Probe install state on mount + every asset switch and after each download
+  // so the UI flips to "Installed" when the file already exists on disk.
   useEffect(() => {
+    if (!assetId) return;
     let cancelled = false;
-    const asset = WHISPER_MODEL_ASSETS[model];
-    if (!asset) return;
     void voiceAsset.exists
-      .invoke({ id: asset.id })
+      .invoke({ id: assetId })
       .then((r) => {
         if (!cancelled) setInstalled(Boolean(r?.installed));
       })
@@ -140,12 +130,26 @@ const WhisperLocalDownloadControl: React.FC<{
     return () => {
       cancelled = true;
     };
-  }, [model, downloadState]);
+  }, [assetId, downloadState]);
+
+  // Subscribe to streamed progress and translate bytes into a percentage.
+  // When the server omits Content-Length totalBytes is null and we stay at 0
+  // (indeterminate) rather than dividing by nothing.
+  useEffect(() => {
+    if (!assetId) return;
+    const removeListener = voiceAsset.downloadProgress.on((evt) => {
+      if (!evt || evt.assetId !== assetId) return;
+      setPercent(evt.totalBytes ? Math.min(100, Math.round((evt.bytesDownloaded / evt.totalBytes) * 100)) : 0);
+    });
+    return () => {
+      removeListener();
+    };
+  }, [assetId]);
 
   const handleDownload = useCallback(async () => {
-    const asset = WHISPER_MODEL_ASSETS[model];
     if (!asset) return;
     cancelledRef.current = false;
+    setPercent(0);
     setDownloadState('downloading');
     setErrorMsg('');
     try {
@@ -157,16 +161,28 @@ const WhisperLocalDownloadControl: React.FC<{
         setErrorMsg(err instanceof Error ? err.message : String(err));
       }
     }
-  }, [model]);
+  }, [asset]);
 
   const handleCancel = useCallback(async () => {
     cancelledRef.current = true;
-    const asset = WHISPER_MODEL_ASSETS[model];
-    if (asset) {
-      await voiceAsset.cancel.invoke({ assetId: asset.id }).catch(() => {});
+    if (assetId) {
+      await voiceAsset.cancel.invoke({ assetId }).catch(() => {});
     }
     setDownloadState('idle');
-  }, [model]);
+    setPercent(0);
+  }, [assetId]);
+
+  return { downloadState, errorMsg, installed, percent, handleDownload, handleCancel };
+};
+
+const WhisperLocalDownloadControl: React.FC<{
+  model: string;
+  onModelChange: (model: string) => void;
+}> = ({ model, onModelChange }) => {
+  const { t } = useTranslation();
+  const { downloadState, errorMsg, installed, percent, handleDownload, handleCancel } = useVoiceAssetDownload(
+    WHISPER_MODEL_ASSETS[model]
+  );
 
   return (
     <>
@@ -179,17 +195,12 @@ const WhisperLocalDownloadControl: React.FC<{
       <Form.Item label={t('settings.speechToTextDownloadModel')}>
         <div className='flex flex-col gap-8px'>
           {downloadState === 'downloading' ? (
-            <>
-              <div className='flex items-center gap-8px'>
-                <Progress percent={0} animation className='flex-1' />
-                <Button size='mini' onClick={handleCancel}>
-                  {t('settings.speechToTextCancelDownload')}
-                </Button>
-              </div>
-              <span className='text-12px text-t-tertiary'>
-                {t('settings.speechToTextDownloadProgressNotReported', 'Downloading… (progress reporting coming soon)')}
-              </span>
-            </>
+            <div className='flex items-center gap-8px'>
+              <Progress percent={percent} animation className='flex-1' />
+              <Button size='mini' onClick={handleCancel}>
+                {t('settings.speechToTextCancelDownload')}
+              </Button>
+            </div>
           ) : installed ? (
             <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
               <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
@@ -240,48 +251,14 @@ export const TextToSpeechSettingsSection: React.FC<{
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
-  const [downloadState, setDownloadState] = useState<DownloadState>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [installed, setInstalled] = useState<boolean | null>(null);
-  const cancelledRef = React.useRef(false);
-
-  // Same install probe as Whisper - flip the UI from "Download Model" to
-  // "Installed" when the on-disk file already exists.
-  useEffect(() => {
-    let cancelled = false;
-    void voiceAsset.exists
-      .invoke({ id: KOKORO_ASSET.id })
-      .then((r) => {
-        if (!cancelled) setInstalled(Boolean(r?.installed));
-      })
-      .catch(() => {
-        if (!cancelled) setInstalled(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [downloadState]);
-
-  const handleDownloadKokoro = useCallback(async () => {
-    cancelledRef.current = false;
-    setDownloadState('downloading');
-    setErrorMsg('');
-    try {
-      await voiceAsset.download.invoke(KOKORO_ASSET);
-      if (!cancelledRef.current) setDownloadState('success');
-    } catch (err) {
-      if (!cancelledRef.current) {
-        setDownloadState('error');
-        setErrorMsg(err instanceof Error ? err.message : String(err));
-      }
-    }
-  }, []);
-
-  const handleCancelDownload = useCallback(async () => {
-    cancelledRef.current = true;
-    await voiceAsset.cancel.invoke({ assetId: KOKORO_ASSET.id }).catch(() => {});
-    setDownloadState('idle');
-  }, []);
+  const {
+    downloadState,
+    errorMsg,
+    installed,
+    percent,
+    handleDownload: handleDownloadKokoro,
+    handleCancel: handleCancelDownload,
+  } = useVoiceAssetDownload(KOKORO_ASSET);
 
   const handleProviderChange = useCallback(
     (value: string) => {
@@ -372,7 +349,7 @@ export const TextToSpeechSettingsSection: React.FC<{
             <div className='flex flex-col gap-8px'>
               {downloadState === 'downloading' ? (
                 <div className='flex items-center gap-8px'>
-                  <Progress percent={0} animation className='flex-1' />
+                  <Progress percent={percent} animation className='flex-1' />
                   <Button size='mini' onClick={handleCancelDownload}>
                     {t('settings.textToSpeechCancelDownload')}
                   </Button>
@@ -660,14 +637,9 @@ const ModalMcpLibraryLinkSection: React.FC = () => {
     <div className='flex flex-col gap-12px min-h-0'>
       <div className='flex items-center justify-between gap-12px'>
         <div className='flex flex-col gap-4px'>
-          <span className='text-14px text-t-primary'>
-            {t('settings.mcpSettings', { defaultValue: 'MCP Servers' })}
-          </span>
+          <span className='text-14px text-t-primary'>{t('settings.mcpSettings', { defaultValue: 'MCP Servers' })}</span>
           <span className='text-13px text-t-secondary'>
-            {t(
-              'settings.mcpModalDeprecatedBody',
-              'Browse, install, and manage MCP servers in the new MCP Library.'
-            )}
+            {t('settings.mcpModalDeprecatedBody', 'Browse, install, and manage MCP servers in the new MCP Library.')}
           </span>
         </div>
         <Button type='outline' shape='round' onClick={handleOpenLibrary}>
