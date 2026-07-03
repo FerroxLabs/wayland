@@ -484,6 +484,6 @@
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
     "manageModels": "Manage models",
-    "claudeSubscriptionNotice": "Claude Code already runs on your Claude subscription — pick it from the agent selector. Choosing Claude models for direct chat here needs an Anthropic API key; using your subscription as chat models isn’t supported yet."
+    "claudeSubscriptionNotice": "Claude Code runs on your Claude subscription (Anthropic), so this chat stays on Claude models. To use a different provider like ChatGPT or Gemini, start a new chat and pick that agent."
   }
 }

@@ -98,6 +98,10 @@ describe('AcpModelSelector', () => {
       return () => {};
     });
     ipcMock.getModelConfig.mockResolvedValue([]);
+    // Reset per-test: clearAllMocks() wipes calls but NOT implementations, so a
+    // test that connects Flux (registryList -> flux-router) would otherwise leak
+    // "Flux connected" into later tests. Default every test to Flux disconnected.
+    ipcMock.registryList.mockResolvedValue([]);
     ipcMock.setModel.mockResolvedValue({
       success: true,
       data: { modelInfo: null },
@@ -363,6 +367,67 @@ describe('AcpModelSelector', () => {
     await waitFor(() => {
       expect(screen.getByText('GPT-5.5 Codex')).toBeTruthy();
     });
+  });
+
+  // #550: a claude-code chat is Anthropic-native; the picker only offers Claude
+  // models, so a user who wants ChatGPT/Gemini sees no path and thinks it's broken.
+  // The picker must EXPLAIN the scoping and point to the honest path (start a new
+  // chat + pick that agent) rather than silently omit the option.
+  const CLAUDE_MODEL_INFO = {
+    currentModelId: 'claude-opus-4-8',
+    currentModelLabel: 'Opus 4.8',
+    availableModels: [
+      { id: 'claude-opus-4-8', label: 'Opus 4.8' },
+      { id: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
+    ],
+    canSwitch: true,
+    source: 'models',
+    sourceDetail: 'cc-switch',
+  };
+  const CLAUDE_CURATED = [
+    {
+      id: 'claude-opus-4-8',
+      providerId: 'anthropic',
+      displayName: 'Opus 4.8',
+      family: 'claude',
+      enabled: true,
+      recommended: true,
+      contextWindow: 200000,
+      costInPerM: 5,
+      costOutPerM: 15,
+    },
+  ];
+
+  it('explains how to reach other providers from an active Claude Code chat (#550, State 3)', async () => {
+    // Real #550 path: an ACTIVE claude chat with switchable models, Flux off.
+    ipcMock.getModelInfo.mockResolvedValue({ success: true, data: { modelInfo: CLAUDE_MODEL_INFO } });
+    configGetMock.mockResolvedValue(null);
+    ipcMock.curatedForAgent.mockResolvedValue(CLAUDE_CURATED);
+
+    render(<AcpModelSelector conversationId='conv-550' backend='claude' />);
+    await waitFor(() => expect(screen.getAllByText(/Opus 4.8/).length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => {
+      expect(screen.getByText(/start a new chat and pick that agent/i)).toBeTruthy();
+    });
+  });
+
+  it('suppresses the "start a new chat" notice when Flux is connected (Flux tiers ARE the keep-going path) (#550)', async () => {
+    // Flux connected → the flyout surfaces Flux routing tiers, so the
+    // "stays on Claude models / start a new chat" guidance would contradict them.
+    ipcMock.getModelInfo.mockResolvedValue({ success: true, data: { modelInfo: CLAUDE_MODEL_INFO } });
+    configGetMock.mockResolvedValue(null);
+    ipcMock.curatedForAgent.mockResolvedValue(CLAUDE_CURATED);
+    ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);
+
+    render(<AcpModelSelector conversationId='conv-550-flux' backend='claude' />);
+    await waitFor(() => expect(screen.getAllByText(/Opus 4.8/).length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getByRole('button'));
+    // Flux tier surfaces; the contradictory notice must NOT.
+    await waitFor(() => expect(screen.getAllByText(/Flux/).length).toBeGreaterThan(0));
+    expect(screen.queryByText(/start a new chat and pick that agent/i)).toBeNull();
   });
 
   it('renders the connected opencode-go catalog for the OpenCode agent instead of the first-connection tooltip (#407)', async () => {

@@ -460,18 +460,25 @@ const AcpModelSelector: React.FC<{
   // still holds for a Flux selection.
   const onSelect = useCallback((modelId: string) => handleSelectModel(modelId), [handleSelectModel]);
   const onManage = useCallback(() => navigate('/settings/models'), [navigate]);
-  // #335 interim: in the Claude Code picker, clarify that the agent already runs
-  // on the user's Claude subscription, but picking Claude as direct chat models
-  // needs an Anthropic API key (subscription-as-chat-models isn't wired yet).
-  // Kills the "I signed in but can't see Claude under models — am I doing
-  // something wrong?" confusion until the engine OAuth provider lands (#367).
-  const notice =
+  // #550 / #335: a Claude Code chat runs the Claude Code CLI as its ACP agent, so
+  // it is Anthropic-native by construction — the picker only ever offers Claude
+  // models. A true mid-chat backend swap to ChatGPT/Gemini is not coherent (it
+  // would tear down the running agent = a new chat). Instead of leaving the picker
+  // looking broken when the user wants a different vendor, explain the scoping and
+  // point them at the honest path: start a new chat and pick that agent.
+  const claudeChatGuidance =
     backend === 'claude'
       ? t('conversation.modelSelector.claudeSubscriptionNotice', {
           defaultValue:
-            'Claude Code already runs on your Claude subscription — pick it from the agent selector. Choosing Claude models for direct chat here needs an Anthropic API key; using your subscription as chat models isn’t supported yet.',
+            'Claude Code runs on your Claude subscription (Anthropic), so this chat stays on Claude models. To use a different provider like ChatGPT or Gemini, start a new chat and pick that agent.',
         })
       : undefined;
+  // When Flux is connected the flyout surfaces Flux routing tiers as the
+  // keep-going path (they route cross-provider), so "this chat stays on Claude
+  // models / start a new chat" would contradict them — only show the notice when
+  // Flux is off. (State 2 below is only reachable with Flux off, so its read-only
+  // tooltip can carry the guidance unconditionally.)
+  const notice = claudeChatGuidance && !showFlux ? claudeChatGuidance : undefined;
   const flyoutDroplist = (
     <ModelSelectorFlyout
       vm={resolvedVm}
@@ -617,10 +624,16 @@ const AcpModelSelector: React.FC<{
     );
   }
 
-  // State 2: Has model info but cannot switch - read-only display
+  // State 2: Has model info but cannot switch - read-only display. This branch is
+  // reached only with Flux off (showFlux returns earlier), so a claude-code chat
+  // here has no in-picker path forward at all; fold the #550 guidance into the
+  // tooltip so the user still learns how to reach another provider.
   if (!modelInfo.canSwitch) {
+    const readOnlyTooltip = claudeChatGuidance
+      ? [tooltipContent, claudeChatGuidance].filter(Boolean).join('\n\n')
+      : tooltipContent;
     return (
-      <Tooltip content={tooltipContent} position='top'>
+      <Tooltip content={readOnlyTooltip} position='top'>
         <Button
           className='sendbox-model-btn header-model-btn agent-mode-compact-pill'
           shape='round'
