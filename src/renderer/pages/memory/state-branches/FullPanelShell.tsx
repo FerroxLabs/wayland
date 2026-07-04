@@ -30,11 +30,12 @@
 import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Input, Message } from '@arco-design/web-react';
 import type { RefInputType } from '@arco-design/web-react/es/Input/interface';
-import { Archive, Search, Import as ImportIcon, Settings2, Plus } from 'lucide-react';
+import { Archive, Search, Import as ImportIcon, Settings2, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { formatModifierShortcut } from '@/renderer/utils/platform';
 import { memory as memoryBridge, ijfw as ijfwBridge } from '@/common/adapter/ipcBridge';
-import type { IjfwStatusPayload } from '@/common/adapter/ipcBridge';
+import type { IjfwStatusPayload, IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
+import IjfwSetupStatus from '@/renderer/pages/settings/components/IjfwSetupStatus';
 import type { LastDream, ListFilter, MemoryType } from '@/common/types/memory';
 import { useTranslation } from 'react-i18next';
 import MemoryList from '../components/MemoryList';
@@ -64,8 +65,8 @@ const PromotionThresholdModalLazy = lazy(
     import('../components/PromotionThresholdModal').catch(
       (): PromotionThresholdModalModule => ({
         default: () => null,
-      }),
-    ) as Promise<PromotionThresholdModalModule>,
+      })
+    ) as Promise<PromotionThresholdModalModule>
 );
 
 // ---------------------------------------------------------------------------
@@ -97,12 +98,25 @@ const DEFAULT_FILTER: ListFilter = {
 
 const DEFAULT_THRESHOLD = 90;
 
+/** Persisted expand/collapse state for the #414 setup-status health strip. */
+const HEALTH_OPEN_KEY = 'wayland.memory.setupStatus.open';
+
+/** Coarse health tone for the strip dot, derived from the install lifecycle. */
+function statusTone(status: IjfwLifecycleStatus | null): 'ok' | 'warn' | 'checking' {
+  if (status === 'installed_current' || status === 'installed_pending_activation') return 'ok';
+  if (status === 'not_installed' || status === 'install_failed') return 'warn';
+  return 'checking'; // installing / upgrading / unknown (null)
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 const FullPanelShell: React.FC = () => {
   const { t } = useTranslation('memory');
+  // Root-namespace t for the one string reused from #591 (memory.settings.*),
+  // so the strip adds no new i18n keys.
+  const { t: tRoot } = useTranslation();
 
   const [filter, setFilter] = useState<ListFilter>(DEFAULT_FILTER);
   const [timeWindow, setTimeWindow] = useState<TimeWindow>('all');
@@ -112,6 +126,12 @@ const FullPanelShell: React.FC = () => {
 
   // cliCount from IjfwStatusPayload (no-deferment #3)
   const [cliCount, setCliCount] = useState(0);
+  // Install lifecycle status + collapse state for the #414 setup-status strip.
+  const [ijfwStatus, setIjfwStatus] = useState<IjfwLifecycleStatus | null>(null);
+  const [healthOpen, setHealthOpen] = useState<boolean>(() => {
+    const saved = typeof localStorage !== 'undefined' ? localStorage.getItem(HEALTH_OPEN_KEY) : null;
+    return saved === '1'; // default collapsed; the dot still conveys health
+  });
   const [lastDream, setLastDream] = useState<LastDream | undefined>(undefined);
   const [promotionThreshold, setPromotionThreshold] = useState(DEFAULT_THRESHOLD);
   const [showThresholdModal, setShowThresholdModal] = useState(false);
@@ -128,14 +148,20 @@ const FullPanelShell: React.FC = () => {
     const fetchStatus = async (): Promise<void> => {
       try {
         const status: IjfwStatusPayload = await ijfwBridge.getStatus.invoke();
-        if (!cancelled) setCliCount(status.cliCount ?? 0);
+        if (!cancelled) {
+          setCliCount(status.cliCount ?? 0);
+          setIjfwStatus(status.status);
+        }
       } catch {
         // Non-fatal
       }
     };
     void fetchStatus();
     const unsub = ijfwBridge.onStatusChanged.on((payload: IjfwStatusPayload) => {
-      if (!cancelled) setCliCount(payload.cliCount ?? 0);
+      if (!cancelled) {
+        setCliCount(payload.cliCount ?? 0);
+        setIjfwStatus(payload.status);
+      }
     });
     return () => {
       cancelled = true;
@@ -236,6 +262,19 @@ const FullPanelShell: React.FC = () => {
     setFilter((prev) => ({ ...prev, search: val, offset: 0 }));
   }, []);
 
+  // Setup-status strip expand/collapse (#414), persisted.
+  const toggleHealth = useCallback(() => {
+    setHealthOpen((v) => {
+      const next = !v;
+      try {
+        localStorage.setItem(HEALTH_OPEN_KEY, next ? '1' : '0');
+      } catch {
+        // Non-fatal (private mode / storage disabled)
+      }
+      return next;
+    });
+  }, []);
+
   // Row select: click same row → deselect
   const handleSelectRow = useCallback(
     (id: string) => {
@@ -245,7 +284,7 @@ const FullPanelShell: React.FC = () => {
         selectEntry(id);
       }
     },
-    [selectedId, clearSelection, selectEntry],
+    [selectedId, clearSelection, selectEntry]
   );
 
   // Promote entry
@@ -260,23 +299,27 @@ const FullPanelShell: React.FC = () => {
         reload();
       }
     },
-    [reload, t],
+    [reload, t]
   );
 
   // Open source file
-  const handleOpenSource = useCallback((path: string, _line: number) => {
-    ipcBridge.shell.openFile
-      .invoke(path)
-      .catch(() => {
+  const handleOpenSource = useCallback(
+    (path: string, _line: number) => {
+      ipcBridge.shell.openFile.invoke(path).catch(() => {
         void navigator.clipboard.writeText(path);
         Message.success(t('archive.toast.pathCopied', 'Path copied'));
       });
-  }, [t]);
+    },
+    [t]
+  );
 
-  const handleCopy = useCallback((text: string) => {
-    void navigator.clipboard.writeText(text);
-    Message.success(t('archive.toast.copied', 'Copied'));
-  }, [t]);
+  const handleCopy = useCallback(
+    (text: string) => {
+      void navigator.clipboard.writeText(text);
+      Message.success(t('archive.toast.copied', 'Copied'));
+    },
+    [t]
+  );
 
   // Cursor pagination (no-deferment #5)
   const handleEndReached = useCallback(() => {
@@ -295,14 +338,16 @@ const FullPanelShell: React.FC = () => {
   const showEmptyHero = entries.length === 0 && !isLoading && !hasActiveFilters;
 
   // Result count for filter bar
-  const resultCountLabel =
-    isLoading
-      ? ''
-      : `${total.toLocaleString()} ${t('archive.filter.results', 'results')}`;
+  const resultCountLabel = isLoading ? '' : `${total.toLocaleString()} ${t('archive.filter.results', 'results')}`;
 
   const projectSelected = filter.project !== 'all' ? filter.project : null;
   const typeCounts = stats?.typeCounts ?? {
-    decision: 0, pattern: 0, session: 0, observation: 0, wiki: 0, preference: 0,
+    decision: 0,
+    pattern: 0,
+    session: 0,
+    observation: 0,
+    wiki: 0,
+    preference: 0,
   };
 
   // ── Drag-drop handlers ──────────────────────────────────────────────────────
@@ -339,13 +384,11 @@ const FullPanelShell: React.FC = () => {
       if (files.length === 0) return;
 
       try {
-        const filePayloads = await Promise.all(
-          files.map(async (f) => ({ name: f.name, content: await f.text() })),
-        );
+        const filePayloads = await Promise.all(files.map(async (f) => ({ name: f.name, content: await f.text() })));
         const result = await memoryBridge.ingestFiles.invoke({ files: filePayloads });
         if (result.ingested > 0) {
           Message.success(
-            t('archive.dragDrop.toastIngested', `Ingested ${result.ingested} file${result.ingested === 1 ? '' : 's'}`),
+            t('archive.dragDrop.toastIngested', `Ingested ${result.ingested} file${result.ingested === 1 ? '' : 's'}`)
           );
           reload();
         } else {
@@ -356,7 +399,7 @@ const FullPanelShell: React.FC = () => {
         console.error('[FullPanelShell] drag-drop ingest error', err);
       }
     },
-    [reload, t],
+    [reload, t]
   );
 
   return (
@@ -369,7 +412,9 @@ const FullPanelShell: React.FC = () => {
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      onDrop={(e) => { void handleDrop(e); }}
+      onDrop={(e) => {
+        void handleDrop(e);
+      }}
     >
       {/* ---- Drag-drop overlay ---- */}
       {dragOver && (
@@ -385,29 +430,20 @@ const FullPanelShell: React.FC = () => {
             <span className={styles.breadcrumbIcon} aria-hidden>
               <Archive size={20} />
             </span>
-            <span className={styles.breadcrumbPrimary}>
-              {t('archive.topbar.archive', 'Archive')}
+            <span className={styles.breadcrumbPrimary}>{t('archive.topbar.archive', 'Archive')}</span>
+            <span className={styles.breadcrumbSep} aria-hidden>
+              ·
             </span>
-            <span className={styles.breadcrumbSep} aria-hidden>·</span>
             <span className={styles.breadcrumbProject}>
               {projects[0]?.basename ?? t('archive.topbar.allProjects', 'All projects')}
             </span>
           </span>
 
           {/* Type chips (no-deferment #1) */}
-          <TopbarChips
-            typeCounts={typeCounts}
-            activeType={activeChipType}
-            onFilterChange={handleChipFilter}
-          />
+          <TopbarChips typeCounts={typeCounts} activeType={activeChipType} onFilterChange={handleChipFilter} />
 
           {/* Streak pill (no-deferment #2) */}
-          {stats?.streak && (
-            <StreakPill
-              sessions={stats.streak.sessions}
-              longestDays={stats.streak.longestDays}
-            />
-          )}
+          {stats?.streak && <StreakPill sessions={stats.streak.sessions} longestDays={stats.streak.longestDays} />}
         </div>
 
         <div className={styles.topbarActions}>
@@ -443,6 +479,34 @@ const FullPanelShell: React.FC = () => {
         </div>
       </header>
 
+      {/* ---- Setup-status health strip (#414) ---- */}
+      <section
+        className={styles.healthStrip}
+        data-testid='memory-setup-status-strip'
+        data-open={healthOpen ? 'true' : 'false'}
+      >
+        <button
+          type='button'
+          className={styles.healthHeader}
+          onClick={toggleHealth}
+          aria-expanded={healthOpen}
+          data-testid='memory-setup-status-toggle'
+        >
+          <span className={styles.healthDot} data-tone={statusTone(ijfwStatus)} aria-hidden />
+          <span className={styles.healthTitle}>
+            {tRoot('memory.settings.setup_status_title', { defaultValue: 'Setup status' })}
+          </span>
+          <span className={styles.healthChevron} aria-hidden>
+            {healthOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </span>
+        </button>
+        {healthOpen && (
+          <div className={styles.healthBody} data-testid='memory-setup-status-body'>
+            <IjfwSetupStatus status={ijfwStatus} cliCount={cliCount} hideTitle />
+          </div>
+        )}
+      </section>
+
       {/* ---- Filter bar (48px) ---- */}
       <div className={styles.filterBar} data-testid='memory-filter-bar'>
         <div className={styles.filterLeft}>
@@ -463,20 +527,9 @@ const FullPanelShell: React.FC = () => {
           />
         </div>
         <div className={styles.filterDropdowns}>
-          <ProjectDropdown
-            projects={projects}
-            selected={projectSelected}
-            onSelect={handleProjectSelect}
-          />
-          <TimeDropdown
-            selected={timeWindow}
-            onSelect={handleTimeSelect}
-          />
-          <TypeDropdown
-            typeCounts={typeCounts}
-            selected={filter.types ?? []}
-            onFilterChange={handleTypeFilter}
-          />
+          <ProjectDropdown projects={projects} selected={projectSelected} onSelect={handleProjectSelect} />
+          <TimeDropdown selected={timeWindow} onSelect={handleTimeSelect} />
+          <TypeDropdown typeCounts={typeCounts} selected={filter.types ?? []} onFilterChange={handleTypeFilter} />
         </div>
         <div className={styles.resultCount} data-testid='memory-result-count'>
           {resultCountLabel}
@@ -486,10 +539,7 @@ const FullPanelShell: React.FC = () => {
       {/* ---- Main area (1fr) ---- */}
       <div className={styles.main} data-testid='memory-body'>
         {showEmptyHero ? (
-          <EmptyStateHero
-            onImportComplete={reload}
-            onSearchChange={handleSearchChange}
-          />
+          <EmptyStateHero onImportComplete={reload} onSearchChange={handleSearchChange} />
         ) : (
           <>
             {/* List column - shrinks when drawer opens (push-content) */}
@@ -525,11 +575,7 @@ const FullPanelShell: React.FC = () => {
       </div>
 
       {/* ---- Status bar (28px) ---- */}
-      <MemoryStatusBar
-        brainLive={!isLoading && stats !== null}
-        cliCount={cliCount}
-        lastDream={lastDream}
-      />
+      <MemoryStatusBar brainLive={!isLoading && stats !== null} cliCount={cliCount} lastDream={lastDream} />
 
       {/* ---- Import drawer ---- */}
       <ImportDrawer open={importOpen} onClose={() => setImportOpen(false)} />

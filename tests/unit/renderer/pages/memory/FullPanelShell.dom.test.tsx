@@ -143,9 +143,7 @@ const { mockMemory, mockShell, mockIjfw } = vi.hoisted(() => {
         scanDevDir: { invoke: vi.fn() },
         processDropFolder: { invoke: vi.fn() },
         getDropFolderStatus: {
-          invoke: vi
-            .fn()
-            .mockResolvedValue({ path: '~/Documents/Wayland-Memory', watching: false, ingestedToday: 0 }),
+          invoke: vi.fn().mockResolvedValue({ path: '~/Documents/Wayland-Memory', watching: false, ingestedToday: 0 }),
         },
       },
       readSourceContext: { invoke: vi.fn() },
@@ -157,6 +155,8 @@ const { mockMemory, mockShell, mockIjfw } = vi.hoisted(() => {
     mockIjfw: {
       getStatus: { invoke: vi.fn() },
       onStatusChanged: mockIjfwStatusEmitter,
+      // Used by the embedded IjfwSetupStatus (#414 health strip) on expand.
+      brainInvoke: { invoke: vi.fn() },
     },
   };
 });
@@ -172,6 +172,7 @@ vi.mock('@/common', () => ({
   ipcBridge: {
     shell: mockShell,
     memory: mockMemory,
+    ijfw: mockIjfw,
   },
 }));
 
@@ -186,13 +187,12 @@ vi.mock('@arco-design/web-react', async () => {
     },
     Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     Popover: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    Dropdown: ({
-      children,
-      droplist,
-    }: {
-      children: React.ReactNode;
-      droplist: React.ReactNode;
-    }) => <div>{children}{droplist}</div>,
+    Dropdown: ({ children, droplist }: { children: React.ReactNode; droplist: React.ReactNode }) => (
+      <div>
+        {children}
+        {droplist}
+      </div>
+    ),
   };
 });
 
@@ -202,18 +202,38 @@ vi.mock('@icon-park/react', () => ({
   LinkOne: (p: Record<string, unknown>) => <span data-testid='icon-link' {...p} />,
   FileCode: (p: Record<string, unknown>) => <span data-testid='icon-file-code' {...p} />,
   Help: (p: Record<string, unknown>) => <span data-testid='icon-help' {...p} />,
+  // Used by the embedded IjfwSetupStatus (#414 health strip) when expanded.
+  CheckOne: (p: Record<string, unknown>) => <span data-testid='icon-check-one' {...p} />,
+  Attention: (p: Record<string, unknown>) => <span data-testid='icon-attention' {...p} />,
+  CloseOne: (p: Record<string, unknown>) => <span data-testid='icon-close-one' {...p} />,
+  Loading: (p: Record<string, unknown>) => <span data-testid='icon-loading' {...p} />,
+  Round: (p: Record<string, unknown>) => <span data-testid='icon-round' {...p} />,
 }));
 
 vi.mock('react-i18next', () => ({
+  // Unified stub: FullPanelShell calls t(key, 'string fallback'); the embedded
+  // IjfwSetupStatus calls t(key, { defaultValue }). Handle both forms.
   useTranslation: () => ({
-    t: (_key: string, fallback: string, _opts?: Record<string, unknown>) => fallback ?? _key,
+    t: (_key: string, arg?: unknown) => {
+      if (typeof arg === 'string') return arg;
+      if (arg && typeof arg === 'object' && 'defaultValue' in arg) {
+        return (arg as { defaultValue?: string }).defaultValue ?? _key;
+      }
+      return _key;
+    },
   }),
 }));
 
 vi.mock(
   '@renderer/pages/memory/components/PromotionThresholdModal',
-  () => ({ default: ({ onClose }: { onClose: () => void }) => <div data-testid='threshold-modal'><button onClick={onClose}>Close</button></div> }),
-  { ssr: false },
+  () => ({
+    default: ({ onClose }: { onClose: () => void }) => (
+      <div data-testid='threshold-modal'>
+        <button onClick={onClose}>Close</button>
+      </div>
+    ),
+  }),
+  { ssr: false }
 );
 
 import FullPanelShell from '@renderer/pages/memory/state-branches/FullPanelShell';
@@ -222,12 +242,13 @@ const renderShell = (initialEntries: string[] = ['/memory']) =>
   render(
     <MemoryRouter initialEntries={initialEntries}>
       <FullPanelShell />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  localStorage.clear(); // reset the persisted setup-status strip open state
 });
 
 beforeEach(() => {
@@ -242,6 +263,7 @@ beforeEach(() => {
   mockMemory.import.scanDevDir.invoke.mockResolvedValue({ count: 0, projectsFound: 0, errors: [] });
   mockShell.openFile.invoke.mockResolvedValue(undefined);
   mockIjfw.getStatus.invoke.mockResolvedValue({ status: 'installed_current', cliCount: 5 });
+  mockIjfw.brainInvoke.invoke.mockResolvedValue({ ok: true });
 });
 
 // ---------------------------------------------------------------------------
@@ -347,5 +369,87 @@ describe('FullPanelShell (v0.6.4 Mail-style)', () => {
     });
     expect(screen.getByTestId('memory-list-pane')).toBeTruthy();
     expect(screen.queryByTestId('empty-state-hero')).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #414 - Setup-status health strip folded into the Memory panel header
+// ---------------------------------------------------------------------------
+
+describe('FullPanelShell setup-status strip (#414)', () => {
+  it('renders the strip toggle, collapsed by default (no body, no MCP probe)', async () => {
+    await act(async () => {
+      renderShell();
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    expect(screen.getByTestId('memory-setup-status-strip')).toBeTruthy();
+    expect(screen.getByTestId('memory-setup-status-toggle')).toBeTruthy();
+    // Collapsed: the checklist body is not mounted, so no MCP child is spawned.
+    expect(screen.queryByTestId('memory-setup-status-body')).toBeNull();
+    expect(mockIjfw.brainInvoke.invoke).not.toHaveBeenCalled();
+  });
+
+  it('reflects install health on the strip dot (ok when installed_current)', async () => {
+    await act(async () => {
+      renderShell();
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    const dot = screen.getByTestId('memory-setup-status-strip').querySelector('[data-tone]');
+    expect(dot?.getAttribute('data-tone')).toBe('ok');
+  });
+
+  it('marks the dot warn when IJFW is not installed', async () => {
+    mockIjfw.getStatus.invoke.mockResolvedValue({ status: 'not_installed', cliCount: 0 });
+    await act(async () => {
+      renderShell();
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    const dot = screen.getByTestId('memory-setup-status-strip').querySelector('[data-tone]');
+    expect(dot?.getAttribute('data-tone')).toBe('warn');
+  });
+
+  it('expands to show the IjfwSetupStatus checklist when the toggle is clicked', async () => {
+    await act(async () => {
+      renderShell();
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('memory-setup-status-toggle'));
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    expect(screen.getByTestId('memory-setup-status-body')).toBeTruthy();
+    // The embedded checklist renders its install row (title hidden via hideTitle).
+    expect(screen.getByTestId('ijfw-settings-setup-status')).toBeTruthy();
+    expect(screen.getByTestId('ijfw-status-item-install').getAttribute('data-status')).toBe('ok');
+  });
+
+  it('persists the expanded state across remounts (localStorage)', async () => {
+    await act(async () => {
+      renderShell();
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('memory-setup-status-toggle'));
+    });
+    expect(localStorage.getItem('wayland.memory.setupStatus.open')).toBe('1');
+    cleanup();
+    await act(async () => {
+      renderShell();
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 30));
+    });
+    // Re-opened already expanded from the persisted flag.
+    expect(screen.getByTestId('memory-setup-status-body')).toBeTruthy();
   });
 });

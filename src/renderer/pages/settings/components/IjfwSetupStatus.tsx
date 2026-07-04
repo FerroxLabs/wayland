@@ -27,6 +27,12 @@ export type IjfwSetupStatusProps = {
   status: IjfwLifecycleStatus | null;
   /** Count of detected CLIs (excludes Wayland Core). */
   cliCount: number;
+  /**
+   * Hide the internal "Setup status" heading. Used when a host already labels
+   * the section (e.g. the Memory panel's collapsible health strip in #414),
+   * so the title is not shown twice. Defaults to false (Settings usage).
+   */
+  hideTitle?: boolean;
 };
 
 /**
@@ -47,7 +53,7 @@ type ChecklistItem = {
 
 type TestState = 'idle' | 'running' | 'pass' | 'fail';
 
-const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount }) => {
+const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hideTitle = false }) => {
   const { t } = useTranslation();
   const [testState, setTestState] = useState<TestState>('idle');
   const [runtimeReachable, setRuntimeReachable] = useState<boolean | null>(null);
@@ -146,9 +152,11 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount }) =
 
   return (
     <div className='flex flex-col gap-12px p-16px rd-12px bg-aou-1' data-testid='ijfw-settings-setup-status'>
-      <Typography.Text className='text-14px font-semibold'>
-        {t('memory.settings.setup_status_title', { defaultValue: 'Setup status' })}
-      </Typography.Text>
+      {!hideTitle && (
+        <Typography.Text className='text-14px font-semibold'>
+          {t('memory.settings.setup_status_title', { defaultValue: 'Setup status' })}
+        </Typography.Text>
+      )}
 
       <div className='flex flex-col gap-8px'>
         {items.map((item) => (
