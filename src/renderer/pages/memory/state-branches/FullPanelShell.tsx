@@ -28,7 +28,7 @@
  */
 
 import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Input, Message } from '@arco-design/web-react';
+import { Button, Input, Message, Modal } from '@arco-design/web-react';
 import type { RefInputType } from '@arco-design/web-react/es/Input/interface';
 import { Archive, Search, Import as ImportIcon, Settings2, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { ipcBridge } from '@/common';
@@ -36,7 +36,7 @@ import { formatModifierShortcut } from '@/renderer/utils/platform';
 import { memory as memoryBridge, ijfw as ijfwBridge } from '@/common/adapter/ipcBridge';
 import type { IjfwStatusPayload, IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
 import IjfwSetupStatus from '@/renderer/pages/settings/components/IjfwSetupStatus';
-import type { LastDream, ListFilter, MemoryType } from '@/common/types/memory';
+import type { LastDream, ListFilter, MemoryEntry, MemoryType } from '@/common/types/memory';
 import { useTranslation } from 'react-i18next';
 import MemoryList from '../components/MemoryList';
 import RightDrawer from '../components/RightDrawer';
@@ -49,6 +49,7 @@ import EmptyStateHero from '../components/EmptyStateHero';
 import MemoryStatusBar from '../components/MemoryStatusBar';
 import ImportDrawer from '../components/ImportDrawer';
 import ComposerModal from '../components/ComposerModal';
+import EntryEditorModal from '../components/EntryEditorModal';
 import { useMemoryIndex } from '../hooks/useMemoryIndex';
 import { useSelectedEntry } from '../hooks/useSelectedEntry';
 import type { TimeWindow } from '../components/TimeDropdown';
@@ -137,6 +138,7 @@ const FullPanelShell: React.FC = () => {
   const [showThresholdModal, setShowThresholdModal] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<(MemoryEntry & { body: string }) | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   const searchRef = useRef<RefInputType>(null);
@@ -300,6 +302,48 @@ const FullPanelShell: React.FC = () => {
       }
     },
     [reload, t]
+  );
+
+  // Edit an entry (#414): the selected entry already carries its full body.
+  const handleEdit = useCallback((entry: MemoryEntry & { body: string }) => {
+    setEditTarget(entry);
+  }, []);
+
+  // After a successful edit, re-select by the (possibly new) id and refresh.
+  const handleEditorSaved = useCallback(
+    (newId: string) => {
+      setEditTarget(null);
+      reload();
+      selectEntry(newId);
+    },
+    [reload, selectEntry]
+  );
+
+  // Delete an entry (#414) behind a confirm that states it cannot be undone.
+  const handleDelete = useCallback(
+    (entry: MemoryEntry & { body: string }) => {
+      Modal.confirm({
+        title: t('archive.delete.confirmTitle', 'Delete this memory?'),
+        content: t(
+          'archive.delete.confirmContent',
+          'This permanently removes the memory from its file. It cannot be undone from the app.'
+        ),
+        okText: t('archive.delete.confirmOk', 'Delete'),
+        cancelText: t('archive.delete.confirmCancel', 'Cancel'),
+        okButtonProps: { status: 'danger' },
+        onOk: async () => {
+          const result = await memoryBridge.deleteEntry.invoke({ id: entry.id });
+          if (result.ok) {
+            Message.success(t('archive.delete.toastDeleted', 'Memory deleted'));
+            clearSelection();
+            reload();
+          } else {
+            Message.error(t('archive.delete.toastError', 'Could not delete memory'));
+          }
+        },
+      });
+    },
+    [t, clearSelection, reload]
   );
 
   // Open source file
@@ -569,6 +613,8 @@ const FullPanelShell: React.FC = () => {
               onPromote={handlePromote}
               onOpenSource={handleOpenSource}
               onCopy={handleCopy}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           </>
         )}
@@ -582,6 +628,14 @@ const FullPanelShell: React.FC = () => {
 
       {/* ---- Composer modal ---- */}
       <ComposerModal open={composerOpen} onClose={() => setComposerOpen(false)} />
+
+      {/* ---- Entry editor modal (#414) ---- */}
+      <EntryEditorModal
+        open={editTarget !== null}
+        entry={editTarget}
+        onClose={() => setEditTarget(null)}
+        onSaved={handleEditorSaved}
+      />
 
       {/* ---- Threshold modal ---- */}
       {showThresholdModal && (

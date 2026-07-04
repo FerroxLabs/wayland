@@ -17,6 +17,7 @@ import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import log from 'electron-log';
 import { parseMarkdownBlocks } from './markdownFrontmatter';
+import { applyDelete, applyEdit, type MemoryBlockPatch } from './memoryEntryMutation';
 import { computePromotionScore } from './promotionScore';
 import type {
   MemoryEntry,
@@ -790,6 +791,99 @@ class IjfwArchiveService {
     this.scheduleReindex();
   }
 
+  /**
+   * Delete a single memory entry (#414). Hard delete: the entry's `---`-block is
+   * removed from its source file (atomic write); if it was the file's last entry
+   * the file is unlinked. Every other entry in the file is preserved verbatim.
+   * The store is git-tracked, so this is recoverable outside the app.
+   */
+  async deleteEntry(id: string): Promise<{ ok: boolean; error?: string }> {
+    await this.init();
+    const entry = this.index.byId.get(id);
+    if (!entry) return { ok: false, error: 'not_found' };
+    if (!isManagedMemoryPath(entry.sourcePath)) return { ok: false, error: 'unmanaged_path' };
+
+    let content: string;
+    try {
+      content = await fs.promises.readFile(entry.sourcePath, 'utf8');
+    } catch {
+      return { ok: false, error: 'read_failed' };
+    }
+
+    const result = applyDelete(content, entry.summary);
+    if (result.ok === false) return { ok: false, error: result.error };
+
+    try {
+      if (result.remainingBlocks === 0) await fs.promises.unlink(entry.sourcePath);
+      else await atomicWriteFile(entry.sourcePath, result.content);
+    } catch (err) {
+      log.error('[memory-archive] deleteEntry write failed', { id, err });
+      return { ok: false, error: 'write_failed' };
+    }
+
+    await this.rebuildNow();
+    return { ok: true };
+  }
+
+  /**
+   * Edit a single memory entry in place (#414). Surgical: only the patched
+   * frontmatter keys (summary/type/tags) and body are rewritten; all other
+   * frontmatter and all other entries are preserved verbatim. Because the id is
+   * derived from (sourcePath, stored, summary), changing the summary changes the
+   * id — the new id is returned so the caller can re-select the entry.
+   */
+  async editEntry(id: string, patch: MemoryBlockPatch): Promise<{ ok: boolean; error?: string; newId?: string }> {
+    await this.init();
+    const entry = this.index.byId.get(id);
+    if (!entry) return { ok: false, error: 'not_found' };
+    if (!isManagedMemoryPath(entry.sourcePath)) return { ok: false, error: 'unmanaged_path' };
+
+    let content: string;
+    try {
+      content = await fs.promises.readFile(entry.sourcePath, 'utf8');
+    } catch {
+      return { ok: false, error: 'read_failed' };
+    }
+
+    const result = applyEdit(content, entry.summary, patch);
+    if (result.ok === false) return { ok: false, error: result.error };
+
+    try {
+      await atomicWriteFile(entry.sourcePath, result.content);
+    } catch (err) {
+      log.error('[memory-archive] editEntry write failed', { id, err });
+      return { ok: false, error: 'write_failed' };
+    }
+
+    await this.rebuildNow();
+
+    // Resolve the (possibly new) id after the summary change. `stored` is never
+    // patchable, so storedAt is stable across the edit — match on it too, so a
+    // renamed summary that now collides (first 80 chars) with a SIBLING entry in
+    // the same file cannot re-resolve to the wrong block's id.
+    const newSummary = (patch.summary ?? entry.summary).slice(0, 80);
+    const updated = this.index.all.find(
+      (e) => e.sourcePath === entry.sourcePath && e.storedAt === entry.storedAt && e.summary.slice(0, 80) === newSummary
+    );
+    return { ok: true, newId: updated?.id ?? id };
+  }
+
+  /**
+   * Force an immediate, awaited reindex (used after edit/delete so the caller's
+   * next read reflects the change). Mirrors the debounced scheduleReindex body
+   * but runs synchronously and fires the change callbacks.
+   */
+  private async rebuildNow(): Promise<void> {
+    if (this.debounceTimer !== null) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+    this.closeWatchers();
+    await this.buildIndex();
+    const stats = this.indexStats();
+    for (const cb of this.changeCallbacks) cb(stats);
+  }
+
   indexStats(): IndexStats {
     return {
       total: this.index.all.length,
@@ -815,6 +909,26 @@ class IjfwArchiveService {
  */
 function sanitizeYamlScalar(s: string): string {
   return s.replace(/[\r\n]+/g, ' ').slice(0, 200);
+}
+
+/**
+ * Write via temp file + rename so the file watcher never observes a partial
+ * write (mirrors wikiWriter.atomicWrite).
+ */
+async function atomicWriteFile(filePath: string, contents: string): Promise<void> {
+  const tmp = `${filePath}.tmp-${process.pid}-${Date.now()}`;
+  await fs.promises.writeFile(tmp, contents, 'utf8');
+  await fs.promises.rename(tmp, filePath);
+}
+
+/**
+ * Guard for mutating operations: only ever touch files inside a `.ijfw/memory`
+ * store. All service sourcePaths come from there, but this makes the invariant
+ * explicit so an edit/delete can never escape the store.
+ */
+function isManagedMemoryPath(filePath: string): boolean {
+  const norm = filePath.replace(/\\/g, '/');
+  return norm.includes('/.ijfw/memory/');
 }
 
 function groupBy<T>(items: T[], key: (item: T) => string): Map<string, T[]> {

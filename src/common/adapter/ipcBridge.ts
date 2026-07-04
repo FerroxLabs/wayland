@@ -2710,6 +2710,13 @@ export const memory = {
   setAutoPromoteEnabled: buildProvider<void, { enabled: boolean }>('memory.set-auto-promote-enabled'),
   /** Undo a recent promotion within the 24h grace window (added W3). */
   undoPromotion: buildProvider<{ ok: boolean; error?: string }, { id: string }>('memory.undo-promotion'),
+  /** Edit a single memory entry in place (#414); returns the new id if the summary changed. */
+  updateEntry: buildProvider<
+    { ok: boolean; error?: string; newId?: string },
+    { id: string; summary?: string; type?: string; tags?: string[]; body?: string }
+  >('memory.update-entry'),
+  /** Hard-delete a single memory entry from its source file (#414). */
+  deleteEntry: buildProvider<{ ok: boolean; error?: string }, { id: string }>('memory.delete-entry'),
   /** Trigger an immediate promotion sweep (added W3). */
   forceSweep: buildProvider<void, void>('memory.force-sweep'),
   /** Read a windowed slice of a source file centred on `line` for inline display. */

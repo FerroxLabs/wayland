@@ -200,6 +200,8 @@ vi.mock('@icon-park/react', () => ({
   Close: (p: Record<string, unknown>) => <span data-testid='icon-close' {...p} />,
   Copy: (p: Record<string, unknown>) => <span data-testid='icon-copy' {...p} />,
   LinkOne: (p: Record<string, unknown>) => <span data-testid='icon-link' {...p} />,
+  Edit: (p: Record<string, unknown>) => <span data-testid='icon-edit' {...p} />,
+  Delete: (p: Record<string, unknown>) => <span data-testid='icon-delete' {...p} />,
   FileCode: (p: Record<string, unknown>) => <span data-testid='icon-file-code' {...p} />,
   Help: (p: Record<string, unknown>) => <span data-testid='icon-help' {...p} />,
   // Used by the embedded IjfwSetupStatus (#414 health strip) when expanded.

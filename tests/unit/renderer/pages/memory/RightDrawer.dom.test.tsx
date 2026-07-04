@@ -52,6 +52,8 @@ vi.mock('@icon-park/react', () => ({
   Close: (p: Record<string, unknown>) => <span data-testid='icon-close' {...p} />,
   Copy: (p: Record<string, unknown>) => <span data-testid='icon-copy' {...p} />,
   LinkOne: (p: Record<string, unknown>) => <span data-testid='icon-link' {...p} />,
+  Edit: (p: Record<string, unknown>) => <span data-testid='icon-edit' {...p} />,
+  Delete: (p: Record<string, unknown>) => <span data-testid='icon-delete' {...p} />,
   FileCode: (p: Record<string, unknown>) => <span data-testid='icon-file-code' {...p} />,
   Help: (p: Record<string, unknown>) => <span data-testid='icon-help' {...p} />,
 }));
@@ -208,9 +210,7 @@ describe('RightDrawer', () => {
 
     // Wait for the async fetch to resolve
     await waitFor(() => expect(screen.getByTestId('source-panel-anchor')).toBeTruthy());
-    expect(screen.getByTestId('source-panel-anchor').textContent).toContain(
-      'Use Arco components everywhere.',
-    );
+    expect(screen.getByTestId('source-panel-anchor').textContent).toContain('Use Arco components everywhere.');
   });
 
   it('shows error message when IPC returns ok=false', async () => {
@@ -265,5 +265,26 @@ describe('RightDrawer', () => {
 
     await waitFor(() => expect(screen.getByTestId('source-panel-anchor')).toBeTruthy());
     expect(screen.getByTestId('source-panel-anchor').textContent).toContain('auto anchor');
+  });
+
+  // #414 - Edit / Delete row actions
+  it('renders Edit and Delete actions', () => {
+    render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} />);
+    expect(screen.getByTestId('drawer-edit-btn')).toBeTruthy();
+    expect(screen.getByTestId('drawer-delete-btn')).toBeTruthy();
+  });
+
+  it('clicking Edit calls onEdit with the full entry', () => {
+    const onEdit = vi.fn();
+    render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} onEdit={onEdit} />);
+    fireEvent.click(screen.getByTestId('drawer-edit-btn'));
+    expect(onEdit).toHaveBeenCalledWith(MOCK_ENTRY);
+  });
+
+  it('clicking Delete calls onDelete with the entry (confirm is owned by the host)', () => {
+    const onDelete = vi.fn();
+    render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} onDelete={onDelete} />);
+    fireEvent.click(screen.getByTestId('drawer-delete-btn'));
+    expect(onDelete).toHaveBeenCalledWith(MOCK_ENTRY);
   });
 });

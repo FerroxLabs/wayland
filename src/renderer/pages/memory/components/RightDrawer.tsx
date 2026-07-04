@@ -21,7 +21,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Tag, Tooltip } from '@arco-design/web-react';
-import { Close, Copy, LinkOne, FileCode, Help } from '@icon-park/react';
+import { Close, Copy, LinkOne, FileCode, Help, Edit, Delete } from '@icon-park/react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import type { MemoryEntry, MemoryType } from '@/common/types/memory';
@@ -49,6 +49,10 @@ export type RightDrawerProps = {
   onPromote?: (id: string) => void;
   onOpenSource?: (path: string, line: number) => void;
   onCopy?: (text: string) => void;
+  /** Open the editor for this entry (#414). */
+  onEdit?: (entry: ExtendedEntry) => void;
+  /** Delete this entry after confirmation (#414). */
+  onDelete?: (entry: ExtendedEntry) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -87,7 +91,15 @@ type SourcePanelState =
   | { status: 'idle' }
   | { status: 'loading' }
   | { status: 'error'; error: string }
-  | { status: 'ok'; before: string; anchor: string; after: string; totalLines: number; fromLine: number; toLine: number };
+  | {
+      status: 'ok';
+      before: string;
+      anchor: string;
+      after: string;
+      totalLines: number;
+      fromLine: number;
+      toLine: number;
+    };
 
 type SourcePanelProps = {
   path: string;
@@ -109,13 +121,28 @@ const SourcePanel: React.FC<SourcePanelProps> = ({ path, line, autoExpand = fals
     ipcBridge.memory.readSourceContext
       .invoke({ path, line, contextLines: 50 })
       .then((result) => {
-        const r = result as { ok: boolean; before?: string; anchor?: string; after?: string; totalLines?: number; error?: string };
+        const r = result as {
+          ok: boolean;
+          before?: string;
+          anchor?: string;
+          after?: string;
+          totalLines?: number;
+          error?: string;
+        };
         if (r.ok) {
           const ctxLines = 50;
           const anchorLine = Math.max(1, line);
           const fromLine = Math.max(1, anchorLine - ctxLines);
           const toLine = Math.min(r.totalLines ?? 0, anchorLine + ctxLines);
-          setState({ status: 'ok', before: r.before ?? '', anchor: r.anchor ?? '', after: r.after ?? '', totalLines: r.totalLines ?? 0, fromLine, toLine });
+          setState({
+            status: 'ok',
+            before: r.before ?? '',
+            anchor: r.anchor ?? '',
+            after: r.after ?? '',
+            totalLines: r.totalLines ?? 0,
+            fromLine,
+            toLine,
+          });
         } else {
           setState({ status: 'error', error: r.error ?? 'Unknown error' });
         }
@@ -200,6 +227,8 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
   onPromote,
   onOpenSource,
   onCopy,
+  onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation('memory');
 
@@ -224,7 +253,7 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
       }
       onCopy?.(text);
     },
-    [onCopy],
+    [onCopy]
   );
 
   const isOpen = entry !== null;
@@ -316,6 +345,25 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
               data-testid='drawer-copy-btn'
             >
               {t('archive.drawer.copy', 'Copy')}
+            </Button>
+            <Button
+              type='text'
+              size='small'
+              icon={<Edit theme='outline' size='13' />}
+              onClick={() => onEdit?.(entry)}
+              data-testid='drawer-edit-btn'
+            >
+              {t('archive.drawer.edit', 'Edit')}
+            </Button>
+            <Button
+              type='text'
+              size='small'
+              status='danger'
+              icon={<Delete theme='outline' size='13' />}
+              onClick={() => onDelete?.(entry)}
+              data-testid='drawer-delete-btn'
+            >
+              {t('archive.drawer.delete', 'Delete')}
             </Button>
           </div>
 
@@ -462,11 +510,7 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
             </div>
 
             {/* Inline source context */}
-            <SourcePanel
-              path={entry.sourcePath}
-              line={entry.sourceLine}
-              autoExpand={!entry.why && !entry.howToApply}
-            />
+            <SourcePanel path={entry.sourcePath} line={entry.sourceLine} autoExpand={!entry.why && !entry.howToApply} />
           </div>
         </div>
       )}

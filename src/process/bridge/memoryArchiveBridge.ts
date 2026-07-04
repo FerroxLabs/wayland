@@ -51,6 +51,16 @@ const autoPromoteSchema = z.object({ enabled: z.boolean() });
 
 const undoSchema = z.object({ id: z.string().min(1).max(64) });
 
+const updateEntrySchema = z.object({
+  id: z.string().min(1).max(64),
+  summary: z.string().min(1).max(500).optional(),
+  type: z.string().min(1).max(40).optional(),
+  tags: z.array(z.string().max(80)).max(50).optional(),
+  body: z.string().max(100_000).optional(),
+});
+
+const deleteEntrySchema = z.object({ id: z.string().min(1).max(64) });
+
 const readSourceContextSchema = z.object({
   path: z.string().min(1),
   line: z.number().int().min(0),
@@ -209,6 +219,38 @@ export function initMemoryArchiveBridge(): void {
       return await undoPromotion(parsed.data.id);
     } catch (err) {
       log.error('[memory-archive] undoPromotion failed', { err });
+      return { ok: false, error: (err as Error).message };
+    }
+  });
+
+  ipcBridge.memory.updateEntry.provider(async (args) => {
+    const parsed = updateEntrySchema.safeParse(args);
+    if (!parsed.success) return { ok: false, error: 'invalid args' };
+    const { id, ...patch } = parsed.data;
+    // Require at least one field to change.
+    if (
+      patch.summary === undefined &&
+      patch.type === undefined &&
+      patch.tags === undefined &&
+      patch.body === undefined
+    ) {
+      return { ok: false, error: 'no_changes' };
+    }
+    try {
+      return await svc.editEntry(id, patch);
+    } catch (err) {
+      log.error('[memory-archive] updateEntry failed', { err });
+      return { ok: false, error: (err as Error).message };
+    }
+  });
+
+  ipcBridge.memory.deleteEntry.provider(async (args) => {
+    const parsed = deleteEntrySchema.safeParse(args);
+    if (!parsed.success) return { ok: false, error: 'invalid id' };
+    try {
+      return await svc.deleteEntry(parsed.data.id);
+    } catch (err) {
+      log.error('[memory-archive] deleteEntry failed', { err });
       return { ok: false, error: (err as Error).message };
     }
   });
