@@ -11,7 +11,7 @@ import { createInterface } from 'node:readline';
 import { parse, stringify } from 'smol-toml';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { resolveWCoreBinary } from './binaryResolver';
-import { buildEngineSpawnEnv, buildSpawnConfig, MissingApiKeyError } from './envBuilder';
+import { buildEngineSpawnEnv, buildSpawnConfig, engineInheritsShellKey, MissingApiKeyError } from './envBuilder';
 import { resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
@@ -243,15 +243,18 @@ export class WCoreAgent {
     // (it uses the engine's own config.toml), so skip the lookup there.
     const spawnModel = this.options.rawEngineMode ? this.options.model : await hydrateModelForSpawn(this.options.model);
 
-    const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey } = buildSpawnConfig(spawnModel, {
-      workspace: this.options.workspace,
-      maxTokens: this.options.maxTokens,
-      maxTurns: this.options.maxTurns,
-      autoApprove: this.options.yoloMode,
-      sessionId: this.options.sessionId,
-      resume: this.options.resume,
-      rawEngine: this.options.rawEngineMode,
-    });
+    const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar } = buildSpawnConfig(
+      spawnModel,
+      {
+        workspace: this.options.workspace,
+        maxTokens: this.options.maxTokens,
+        maxTurns: this.options.maxTurns,
+        autoApprove: this.options.yoloMode,
+        sessionId: this.options.sessionId,
+        resume: this.options.resume,
+        rawEngine: this.options.rawEngineMode,
+      }
+    );
 
     // #629: refuse to spawn a doomed keyless engine. When the chosen provider
     // needs an API key but `model.apiKey` resolved empty (e.g. a Flux/BYO key
@@ -260,8 +263,11 @@ export class WCoreAgent {
     // with no recovery path. Fail fast with a classifiable error so the desktop
     // routes the user to the credential-recovery card (re-enter key / reconnect
     // Flux) instead. ChatGPT-OAuth, keyless-local openai, and raw-engine mode
-    // never set this flag, so their legitimately keyless spawns are unaffected.
-    if (missingRequiredApiKey) {
+    // never set this flag. Skip the guard when the engine would still inherit a
+    // matching provider key from the user's SHELL (buildEngineSpawnEnv passes
+    // allowlisted keys through) - that spawn is authenticated, so blocking it
+    // would wrongly push a shell-key user to re-enter a key they already have.
+    if (missingRequiredApiKey && !engineInheritsShellKey(requiredKeyEnvVar)) {
       throw new MissingApiKeyError(spawnModel.useModel);
     }
 

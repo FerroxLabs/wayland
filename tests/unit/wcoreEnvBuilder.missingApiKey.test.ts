@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { buildSpawnConfig, MissingApiKeyError } from '../../src/process/agent/wcore/envBuilder';
+import { buildSpawnConfig, engineInheritsShellKey, MissingApiKeyError } from '../../src/process/agent/wcore/envBuilder';
 import { looksLikeAuthFailure } from '../../src/renderer/pages/conversation/platforms/acp/acpAuthFailure';
 import type { TProviderWithModel } from '../../src/common/config/storage';
 
@@ -80,6 +80,43 @@ describe('buildSpawnConfig - missingRequiredApiKey (#629)', () => {
     });
   });
 
+  describe('reports the scoped key env var the engine reads (for the shell-key guard)', () => {
+    it('anthropic -> ANTHROPIC_API_KEY when empty', () => {
+      const r = buildSpawnConfig(makeModel({ platform: 'anthropic', useModel: 'claude-opus-4-8', apiKey: '' }), {
+        workspace,
+      });
+      expect(r.requiredKeyEnvVar).toBe('ANTHROPIC_API_KEY');
+    });
+    it('cloud openai -> OPENAI_API_KEY when empty', () => {
+      const r = buildSpawnConfig(
+        makeModel({ platform: 'openai', useModel: 'gpt-5.1', baseUrl: 'https://api.openai.com/v1', apiKey: '' }),
+        { workspace }
+      );
+      expect(r.requiredKeyEnvVar).toBe('OPENAI_API_KEY');
+    });
+  });
+
+  describe('does NOT flag providers that use non-key credentials', () => {
+    it('bedrock (AWS creds via bedrockConfig, not model.apiKey)', () => {
+      const r = buildSpawnConfig(
+        makeModel({
+          platform: 'bedrock',
+          useModel: 'claude',
+          apiKey: '',
+          bedrockConfig: { region: 'us-east-1', authMethod: 'profile', profile: 'default' },
+        } as never),
+        { workspace }
+      );
+      expect(r.missingRequiredApiKey).toBe(false);
+    });
+    it('gemini-vertex-ai (ADC / service account, not model.apiKey)', () => {
+      const r = buildSpawnConfig(makeModel({ platform: 'gemini-vertex-ai', useModel: 'gemini-2.5-pro', apiKey: '' }), {
+        workspace,
+      });
+      expect(r.missingRequiredApiKey).toBe(false);
+    });
+  });
+
   describe('does NOT flag legitimately keyless spawns', () => {
     it('local openai (localhost) - engine gets the keyless placeholder', () => {
       const r = buildSpawnConfig(
@@ -110,6 +147,32 @@ describe('buildSpawnConfig - missingRequiredApiKey (#629)', () => {
       });
       expect(r.missingRequiredApiKey).toBe(false);
     });
+  });
+});
+
+describe('engineInheritsShellKey (#629 audit - shell-exported key must not trip the guard)', () => {
+  it('is true when the engine would inherit a non-empty allowlisted key from the shell', () => {
+    expect(engineInheritsShellKey('OPENAI_API_KEY', { OPENAI_API_KEY: 'sk-shell' })).toBe(true);
+    expect(engineInheritsShellKey('ANTHROPIC_API_KEY', { ANTHROPIC_API_KEY: 'sk-ant' })).toBe(true);
+  });
+
+  it('is case-insensitive on the env var name (mirrors buildEngineSpawnEnv)', () => {
+    expect(engineInheritsShellKey('OPENAI_API_KEY', { openai_api_key: 'sk-x' } as never)).toBe(true);
+  });
+
+  it('is false when the var is unset or blank', () => {
+    expect(engineInheritsShellKey('OPENAI_API_KEY', {})).toBe(false);
+    expect(engineInheritsShellKey('OPENAI_API_KEY', { OPENAI_API_KEY: '   ' })).toBe(false);
+  });
+
+  it('is false for a non-allowlisted scoped var even if exported (it never reaches the engine)', () => {
+    // A catalog/native scoped var is NOT in ENGINE_ENV_ALLOWLIST, so a shell export
+    // of it does not authenticate the engine - the spawn stays "missing".
+    expect(engineInheritsShellKey('PERPLEXITY_API_KEY', { PERPLEXITY_API_KEY: 'pk-x' })).toBe(false);
+  });
+
+  it('is false for an undefined var', () => {
+    expect(engineInheritsShellKey(undefined, { OPENAI_API_KEY: 'sk-x' })).toBe(false);
   });
 });
 

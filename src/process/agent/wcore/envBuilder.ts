@@ -322,6 +322,38 @@ export class MissingApiKeyError extends Error {
 }
 
 /**
+ * Provider-key env vars the engine can read straight from the user's SHELL - the
+ * allowlisted subset of {@link ENGINE_ENV_ALLOWLIST} that carries a real key. A
+ * shell-exported one of these survives `buildEngineSpawnEnv` and satisfies the
+ * engine even when `model.apiKey` is empty, so a keyless in-app model is NOT
+ * actually doomed and must not trip the #629 missing-key guard.
+ */
+const SHELL_EXPORTABLE_KEY_VARS: ReadonlySet<string> = new Set([
+  'ANTHROPIC_API_KEY',
+  'ANTHROPIC_AUTH_TOKEN',
+  'OPENAI_API_KEY',
+  'GEMINI_API_KEY',
+  'GOOGLE_API_KEY',
+]);
+
+/**
+ * True when the engine would inherit a non-empty `varName` from the user's shell
+ * (case-insensitive, mirroring `buildEngineSpawnEnv`'s allowlist), so a spawn
+ * whose `model.apiKey` is empty is still authenticated and must NOT be refused.
+ * Only the allowlisted provider-key vars pass through - a non-allowlisted scoped
+ * var (e.g. a catalog PERPLEXITY_API_KEY) never reaches the engine from the
+ * shell, so it stays "missing" (#629 audit). `env` is injectable for tests.
+ */
+export function engineInheritsShellKey(varName: string | undefined, env: NodeJS.ProcessEnv = process.env): boolean {
+  if (!varName || !SHELL_EXPORTABLE_KEY_VARS.has(varName.toUpperCase())) return false;
+  const target = varName.toUpperCase();
+  for (const [k, v] of Object.entries(env)) {
+    if (k.toUpperCase() === target && typeof v === 'string' && v.trim()) return true;
+  }
+  return false;
+}
+
+/**
  * Build CLI args and env vars for spawning wcore.
  */
 export function buildSpawnConfig(
@@ -368,6 +400,14 @@ export function buildSpawnConfig(
    * (non-key auth), and raw-engine mode - none require `model.apiKey`.
    */
   missingRequiredApiKey: boolean;
+  /**
+   * The scoped key env var the engine reads for this provider (e.g.
+   * `OPENAI_API_KEY`), when key-based. The spawn guard uses it to check whether a
+   * shell-exported key would satisfy the engine before refusing an empty
+   * `model.apiKey` (#629 audit) - so a user who exported the key in their shell
+   * is not wrongly pushed to re-enter it. Undefined for keyless spawns.
+   */
+  requiredKeyEnvVar?: string;
 } {
   // Raw-engine mode: pass ONLY the session-protocol args and let the engine
   // resolve provider/model/auth/tokens/security from its own config.toml. No
@@ -423,11 +463,12 @@ export function buildSpawnConfig(
     // here would override the engine's authority) and NO shared OPENAI_API_KEY
     // (ghost-key: a catalog provider must use its OWN scoped var).
     const envVar = catalogEnvVarById().get(catalogId);
-    if (envVar && model.apiKey) env[envVar] = model.apiKey;
+    const catalogKey = model.apiKey?.trim();
+    if (envVar && catalogKey) env[envVar] = catalogKey;
     const projectConfig = buildProjectConfig(model, provider);
     // A catalog provider needs its scoped key; an empty one dooms the spawn (#629).
-    const missingRequiredApiKey = !!envVar && !model.apiKey?.trim();
-    return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey };
+    const missingRequiredApiKey = !!envVar && !catalogKey;
+    return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar: envVar };
   }
 
   // Engine-native providers (#177): the app persists these as openai-compatible
@@ -437,11 +478,12 @@ export function buildSpawnConfig(
   // api.openai.com. Mirrors the catalog block above.
   const nativeEnvVar = nativeEngineEnvVar(provider);
   if (nativeEnvVar !== undefined) {
-    if (model.apiKey) env[nativeEnvVar] = model.apiKey;
+    const nativeKey = model.apiKey?.trim();
+    if (nativeKey) env[nativeEnvVar] = nativeKey;
     const projectConfig = buildProjectConfig(model, provider);
     // An engine-native provider needs its scoped key; empty dooms the spawn (#629).
-    const missingRequiredApiKey = !model.apiKey?.trim();
-    return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey };
+    const missingRequiredApiKey = !nativeKey;
+    return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar: nativeEnvVar };
   }
 
   // ChatGPT subscription (#243): the engine owns the ChatGPT backend host and
@@ -457,15 +499,19 @@ export function buildSpawnConfig(
   }
 
   // Set for the key-based `switch` providers below (anthropic + cloud openai);
-  // the final return reports it so the caller can refuse a doomed keyless spawn.
+  // the final return reports them so the caller can refuse a doomed keyless spawn.
   let missingRequiredApiKey = false;
+  let requiredKeyEnvVar: string | undefined;
   switch (provider) {
     case 'anthropic': {
       // Trim like the openai branch so a whitespace-only key is treated as empty
       // (and flagged for recovery), not passed to the engine as a bogus key.
       const key = model.apiKey?.trim();
       if (key) env.ANTHROPIC_API_KEY = key;
-      else missingRequiredApiKey = true;
+      else {
+        missingRequiredApiKey = true;
+        requiredKeyEnvVar = 'ANTHROPIC_API_KEY';
+      }
       if (model.baseUrl) args.push('--base-url', stripTrailingV1(model.baseUrl));
       break;
     }
@@ -485,6 +531,7 @@ export function buildSpawnConfig(
       } else {
         // Cloud openai-compatible endpoint with no key: the spawn would bail.
         missingRequiredApiKey = true;
+        requiredKeyEnvVar = 'OPENAI_API_KEY';
       }
       if (baseUrl) args.push('--base-url', stripTrailingV1(baseUrl));
       break;
@@ -512,7 +559,7 @@ export function buildSpawnConfig(
   // Generate project config for compat overrides (e.g., max_tokens_field)
   const projectConfig = buildProjectConfig(model, provider);
 
-  return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey };
+  return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar };
 }
 
 /**
