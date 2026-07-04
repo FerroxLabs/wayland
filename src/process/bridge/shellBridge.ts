@@ -18,6 +18,17 @@ import * as path from 'path';
 const execAsync = promisify(exec);
 
 /**
+ * On Linux, Electron's `shell.openPath` routes through the desktop portal
+ * (GTK/GIO/xdg-desktop-portal). In a portal-less environment (headless box,
+ * minimal desktop, sandboxed session) that call NEVER resolves and hangs the
+ * whole IPC handler indefinitely (measured 25s+ with no fallback and no toast).
+ * We race it against this timeout and, if it wins, fall through to the proven
+ * direct `xdg-open` spawn. Real desktops resolve `shell.openPath` in well under
+ * this window, so the normal success/error paths are untouched.
+ */
+const LINUX_OPEN_PATH_TIMEOUT_MS = 2500;
+
+/**
  * Check if a command exists in PATH
  */
 async function commandExists(command: string): Promise<boolean> {
@@ -261,13 +272,37 @@ function spawnXdgOpen(target: string): Promise<ShellOpenResult> {
  */
 async function openPathReporting(target: string): Promise<ShellOpenResult> {
   try {
-    const errorMessage = await shell.openPath(target);
-    if (!errorMessage) return { ok: true };
     if (process.platform === 'linux') {
+      // Race shell.openPath against a timeout: it can hang forever when the
+      // desktop portal is unavailable (see LINUX_OPEN_PATH_TIMEOUT_MS). A fast
+      // rejection still propagates to the outer catch (unchanged behavior); a
+      // fast resolve of "" is success; anything else (non-empty error string OR
+      // a timeout/hang) falls through to the direct xdg-open spawn.
+      const TIMED_OUT = Symbol('shell.openPath-timeout');
+      let timer: ReturnType<typeof setTimeout>;
+      const timeoutPromise = new Promise<typeof TIMED_OUT>((resolve) => {
+        timer = setTimeout(() => resolve(TIMED_OUT), LINUX_OPEN_PATH_TIMEOUT_MS);
+      });
+      const openPathPromise = shell.openPath(target);
+      // If the timeout wins the race, openPathPromise is left pending; attach a
+      // no-op catch so an eventual late rejection can never surface as an
+      // unhandled promise rejection.
+      openPathPromise.catch(() => {});
+      let outcome: string | typeof TIMED_OUT;
+      try {
+        outcome = await Promise.race([openPathPromise, timeoutPromise]);
+      } finally {
+        clearTimeout(timer!);
+      }
+      if (outcome !== TIMED_OUT && !outcome) return { ok: true };
       const fallback = await spawnXdgOpen(target);
       if (fallback.ok) return { ok: true };
-      return { ok: false, error: fallback.error || errorMessage };
+      const openPathError = outcome === TIMED_OUT ? 'shell.openPath timed out' : outcome;
+      return { ok: false, error: fallback.error || openPathError };
     }
+    // macOS / Windows: shell.openPath is reliable, so await it directly.
+    const errorMessage = await shell.openPath(target);
+    if (!errorMessage) return { ok: true };
     return { ok: false, error: errorMessage };
   } catch (error) {
     return { ok: false, error: (error as Error).message };

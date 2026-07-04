@@ -165,6 +165,65 @@ describe('shellBridge with actual providers', () => {
         error: 'spawn xdg-open ENOENT',
       });
     });
+
+    it('linux: falls back to xdg-open when shell.openPath hangs and resolves { ok: true }', async () => {
+      vi.useFakeTimers();
+      try {
+        setPlatform('linux');
+        // In a portal-less environment shell.openPath routes through
+        // xdg-desktop-portal and NEVER resolves — model the hang with a promise
+        // that stays pending forever. Fake timers keep the test from waiting the
+        // real 2500ms + 200ms windows.
+        vi.mocked(shell.openPath).mockReturnValue(new Promise<string>(() => {}));
+        // Default spawn mock never emits 'error', so the xdg-open fallback launches.
+
+        const resultPromise = registeredProviders['openFile']('/test/file.txt');
+        // Advance past the LINUX_OPEN_PATH_TIMEOUT_MS (2500) hang window and the
+        // spawnXdgOpen 200ms launch-confirmation window.
+        await vi.advanceTimersByTimeAsync(2500 + 200 + 50);
+
+        await expect(resultPromise).resolves.toEqual({ ok: true });
+        expect(spawn).toHaveBeenCalledWith('xdg-open', ['/test/file.txt'], { detached: true, stdio: 'ignore' });
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('linux: resolves { ok: false, error } when shell.openPath hangs AND xdg-open ENOENTs', async () => {
+      vi.useFakeTimers();
+      try {
+        setPlatform('linux');
+        vi.mocked(shell.openPath).mockReturnValue(new Promise<string>(() => {}));
+        // xdg-utils absent → the spawned child emits an ENOENT 'error' event.
+        vi.mocked(spawn).mockReturnValue({
+          on: vi.fn((event: string, cb: (err: Error) => void) => {
+            if (event === 'error') cb(new Error('spawn xdg-open ENOENT'));
+          }),
+          unref: vi.fn(),
+        } as never);
+
+        const resultPromise = registeredProviders['openFile']('/test/file.txt');
+        await vi.advanceTimersByTimeAsync(2500 + 200 + 50);
+
+        await expect(resultPromise).resolves.toEqual({ ok: false, error: 'spawn xdg-open ENOENT' });
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('linux: fast-resolving success does not wait for the hang timeout', async () => {
+      vi.useFakeTimers();
+      try {
+        setPlatform('linux');
+        vi.mocked(shell.openPath).mockResolvedValue('');
+
+        // No timer advance: a successful openPath must settle on microtasks alone.
+        await expect(registeredProviders['openFile']('/test/file.txt')).resolves.toEqual({ ok: true });
+        expect(spawn).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 
   describe('showItemInFolder provider', () => {
