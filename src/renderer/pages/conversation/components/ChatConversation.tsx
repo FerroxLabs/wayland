@@ -635,6 +635,7 @@ const ChatConversation: React.FC<{
             sessionId={workflowSessionId}
             initialSession={initialWorkflowSession}
             onLaunchWorkflow={handleLaunchWorkflow}
+            headerAccessory={modelSelector}
           >
             {conversationNode}
           </WorkflowSurface>
