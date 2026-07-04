@@ -1,5 +1,6 @@
 import { ipcBridge } from '@/common';
 import type { IConfirmation } from '@/common/chat/chatLib';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { Divider, Typography } from '@arco-design/web-react';
 import type { PropsWithChildren } from 'react';
@@ -263,11 +264,13 @@ const ConversationChatConfirm: React.FC<PropsWithChildren<{ conversation_id: str
         >
           <div className='flex-1 overflow-y-auto min-h-0'>
             <Typography.Ellipsis className='text-16px font-bold color-[var(--text-primary)]' rows={2} expandable>
-              {$t(confirmation.title) || 'Choose an action'}
+              {/* #610: mask inline secrets - the wcore/acp mapper puts the real
+                  command in the confirmation title/description ("Execute: <cmd>"). */}
+              {redactCommandSecrets($t(confirmation.title)) || 'Choose an action'}
             </Typography.Ellipsis>
             <Divider className={'!my-10px'}></Divider>
             <Typography.Ellipsis className='text-14px color-[var(--text-primary)]' rows={5} expandable>
-              {$t(confirmation.description)}
+              {redactCommandSecrets($t(confirmation.description))}
             </Typography.Ellipsis>
           </div>
           <div className='shrink-0'>

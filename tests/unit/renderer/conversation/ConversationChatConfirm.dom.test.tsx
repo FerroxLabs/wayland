@@ -128,3 +128,51 @@ describe('ConversationChatConfirm — AskUserQuestion (#504)', () => {
     );
   });
 });
+
+/**
+ * #610: the wcore/acp mapper puts the REAL command into the approval prompt's
+ * title/description ("Execute: <cmd>"). Inline credentials in that command must
+ * be masked before they render — this is the approval-card leg of the timeline
+ * redaction, caught by live-verify after the activity-step leg was already fixed.
+ */
+const execConfirmation = {
+  conversation_id: CONVERSATION_ID,
+  id: 'call-exec',
+  callId: 'call-exec',
+  action: 'exec',
+  title: "Execute: echo 'Bearer sk-live-SECRETabcdef123456 api_key=MYSECRETVALUE99'",
+  description: "Execute: echo 'Bearer sk-live-SECRETabcdef123456 api_key=MYSECRETVALUE99'",
+  options: [
+    { label: 'Yes, allow once', value: 'proceed_once' },
+    { label: 'messages.confirmation.no', value: 'cancel' },
+  ],
+};
+
+describe('ConversationChatConfirm — command secret redaction (#610)', () => {
+  beforeEach(() => {
+    confirmInvoke.mockClear();
+    listInvoke.mockReset();
+    listInvoke.mockResolvedValue([execConfirmation]);
+  });
+
+  it('masks inline secrets in the approval prompt title and description', async () => {
+    render(
+      <ConversationChatConfirm conversation_id={CONVERSATION_ID}>
+        <div>child</div>
+      </ConversationChatConfirm>
+    );
+
+    // The approve option still renders so the card is up.
+    await screen.findByText('Yes, allow once');
+
+    // No raw credential shape survives anywhere in the rendered card.
+    expect(screen.queryByText(/sk-live-SECRETabcdef123456/)).toBeNull();
+    expect(screen.queryByText(/MYSECRETVALUE99/)).toBeNull();
+    expect(document.body.textContent).not.toContain('sk-live-SECRETabcdef123456');
+    expect(document.body.textContent).not.toContain('MYSECRETVALUE99');
+
+    // The mask is shown and the non-secret command shell is preserved.
+    expect(document.body.textContent).toContain('••••••');
+    expect(document.body.textContent).toContain('Execute: echo');
+  });
+});
