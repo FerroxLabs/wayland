@@ -19,7 +19,6 @@ const AUTH_FAILURE_SIGNATURES = [
   '[acp-auth-',
   'oauth',
   'unauthorized',
-  '401',
   // Engine-start credential failures (#629): the wcore engine bails during init
   // with "No API key found" (engine config.rs) when it is spawned without a
   // working key - the exact dead-end a paid user hit after a credit top-up left
@@ -30,7 +29,20 @@ const AUTH_FAILURE_SIGNATURES = [
   'missingapikey',
   'api key not found',
   'no working provider',
+  // NOTE: bare '401' intentionally removed (#624) - a raw substring misroutes
+  // non-auth errors that merely contain "401"; HTTP_401_PATTERN (\b401\b) below
+  // handles the real status-code shapes with word boundaries.
 ] as const;
+
+/**
+ * HTTP 401 as a standalone status code. Matched with word boundaries rather
+ * than a bare `includes('401')` so an unrelated number that merely CONTAINS
+ * "401" - e.g. a token count like 40100, or an id like 124015 - does not
+ * misroute a non-auth error to the auth-failure card (#624). `\b401\b` still
+ * matches the real shapes: "401 Unauthorized", "error 401", "status=401",
+ * "HTTP/1.1 401".
+ */
+const HTTP_401_PATTERN = /\b401\b/;
 
 /** A descriptor for how to remedy an ACP auth failure for a given backend. */
 export type AcpAuthRemedy = {
@@ -68,7 +80,7 @@ export type AcpAuthRemedy = {
 /** Case-insensitive substring match against the generic auth-failure signatures. */
 export function looksLikeAuthFailure(errorMsg: string): boolean {
   const haystack = errorMsg.toLowerCase();
-  return AUTH_FAILURE_SIGNATURES.some((signature) => haystack.includes(signature));
+  return AUTH_FAILURE_SIGNATURES.some((signature) => haystack.includes(signature)) || HTTP_401_PATTERN.test(haystack);
 }
 
 /** Display labels for backend ids that do not Title-case cleanly. */
