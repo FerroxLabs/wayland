@@ -411,6 +411,28 @@ export function isAllowedForRemote(name: string): boolean {
 }
 
 /**
+ * Emitter/broadcast (main -> client) names that must NOT be forwarded to a
+ * remote WebSocket peer. Inbound denial (isAllowedForRemote) stops a peer
+ * INVOKING a provider; this stops a peer passively RECEIVING an emitter stream.
+ *
+ * #645: terminal.output / terminal.exit carry the live PTY stream (command
+ * output, file contents, whatever the agent CLI prints). The terminal is
+ * local-only, so a paired peer must never receive it even though it can never
+ * spawn/drive one. The local Electron renderer is unaffected — it receives
+ * emitters over the in-process IPC adapter, not this WS broadcast path.
+ */
+const REMOTE_OUTBOUND_DENIED_PREFIXES: readonly string[] = ['terminal.'];
+
+/** True iff an emitter `name` may be broadcast to remote WS peers. */
+export function isAllowedOutboundToRemote(name: string): boolean {
+  if (typeof name !== 'string' || name.length === 0) return false;
+  for (const prefix of REMOTE_OUTBOUND_DENIED_PREFIXES) {
+    if (name.startsWith(prefix)) return false;
+  }
+  return true;
+}
+
+/**
  * Return true iff `name` is a wire event that the renderer (or WebUI client)
  * is permitted to send to the main-process bridge emitter.
  */

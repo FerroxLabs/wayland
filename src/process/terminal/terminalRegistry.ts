@@ -35,8 +35,19 @@ const defaultForceKill: PtyForceKill = (pid) => {
   }
 };
 
-/** Track a freshly spawned PTY. Overwrites any stale entry for the same id. */
+/**
+ * Track a freshly spawned PTY. If a different PTY was already registered under
+ * this id (an id-collision race), kill it first so it cannot orphan untracked.
+ */
 export function registerPty(terminalId: string, pty: IPty): void {
+  const existing = livePtys.get(terminalId);
+  if (existing && existing.pty !== pty) {
+    try {
+      existing.pty.kill();
+    } catch {
+      /* already exited */
+    }
+  }
   livePtys.set(terminalId, { pty, pid: pty.pid });
 }
 

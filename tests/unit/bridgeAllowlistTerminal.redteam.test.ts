@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { isAllowedForRemote } from '@/common/adapter/bridgeAllowlist';
+import { isAllowedForRemote, isAllowedOutboundToRemote } from '@/common/adapter/bridgeAllowlist';
 
 /**
  * #645 acceptance §8.6 (the security gate): a paired-device WebSocket peer must
@@ -42,5 +42,22 @@ describe('isAllowedForRemote — terminal.* denied to remote callers (#645)', ()
 
   it('does not over-deny: a sibling read the paired WebUI needs stays allowed', () => {
     expect(isAllowedForRemote('subscribe-system-settings:get-close-to-tray')).toBe(true);
+  });
+});
+
+/**
+ * #645 — OUTBOUND leak: inbound denial stops a peer INVOKING terminal.*, but the
+ * live PTY stream is pushed via the terminal.output / terminal.exit emitters. A
+ * paired peer must never RECEIVE that stream (command output / file contents /
+ * secrets the agent CLI prints), so the WS outbound broadcaster drops it.
+ */
+describe('isAllowedOutboundToRemote — terminal.* emitters not broadcast to peers (#645)', () => {
+  it.each(['terminal.output', 'terminal.exit'])('does not broadcast %s to remote peers', (name) => {
+    expect(isAllowedOutboundToRemote(name)).toBe(false);
+  });
+
+  it('still broadcasts ordinary emitters to paired peers (not over-denied)', () => {
+    expect(isAllowedOutboundToRemote('project.changed')).toBe(true);
+    expect(isAllowedOutboundToRemote('system-settings:language-changed')).toBe(true);
   });
 });

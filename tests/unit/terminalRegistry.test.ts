@@ -43,6 +43,17 @@ describe('terminalRegistry (#645)', () => {
     expect(p.kill).toHaveBeenCalledTimes(1);
   });
 
+  it('registering a different PTY under a live id kills the displaced one (no orphan)', () => {
+    const first = fakePty(51);
+    const second = fakePty(52);
+    registerPty('dup', first as never);
+    registerPty('dup', second as never);
+    expect(first.kill).toHaveBeenCalledTimes(1); // displaced -> killed
+    expect(second.kill).not.toHaveBeenCalled();
+    expect(getPty('dup')).toBe(second);
+    expect(livePtyCount()).toBe(1);
+  });
+
   it('forgetPty drops bookkeeping without killing (self-exit path)', () => {
     const p = fakePty(33);
     registerPty('t3', p as never);

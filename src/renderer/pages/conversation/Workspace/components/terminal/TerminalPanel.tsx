@@ -36,6 +36,10 @@ const TerminalPanel: React.FC<TerminalPanelProps> = ({ conversationId }) => {
     const container = containerRef.current;
     if (!container) return;
     const terminalId = terminalIdRef.current;
+    // If the tab unmounts before open() resolves, we must still close the PTY
+    // that open() is about to spawn — otherwise it lives untracked-by-any-view
+    // until app quit and counts against the concurrency cap.
+    let disposed = false;
 
     const term = new Terminal({ convertEol: true, fontSize: 13, cursorBlink: true });
     const fit = new FitAddon();
@@ -69,9 +73,16 @@ const TerminalPanel: React.FC<TerminalPanelProps> = ({ conversationId }) => {
     void terminalClient
       .open({ terminalId, sessionId: conversationId, cols: term.cols, rows: term.rows })
       .then((res) => {
+        // Unmounted mid-open: kill the just-spawned PTY, don't touch the term.
+        if (disposed) {
+          void terminalClient.close(terminalId);
+          return;
+        }
         if ('reason' in res) writeNotice(failureMessage(res.reason));
       })
-      .catch(() => writeNotice(failureMessage('not-found')));
+      .catch(() => {
+        if (!disposed) writeNotice(failureMessage('not-found'));
+      });
 
     const observer = new ResizeObserver(() => {
       try {
@@ -84,6 +95,7 @@ const TerminalPanel: React.FC<TerminalPanelProps> = ({ conversationId }) => {
     observer.observe(container);
 
     return () => {
+      disposed = true;
       observer.disconnect();
       inputDisposable.dispose();
       disposers.forEach((d) => d());
