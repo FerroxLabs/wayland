@@ -208,6 +208,15 @@
       "vscode": "VS Code",
       "terminal": "Terminal",
       "explorer": "File Explorer"
+    },
+    "terminal": {
+      "tab": "Terminal",
+      "exited": "[process exited]",
+      "disabled": "Terminal mode is off. Enable it in Settings to use the terminal.",
+      "unsupported": "This agent has no terminal view yet.",
+      "missingCli": "The agent's command-line tool is not installed or not on PATH. Install it, then reopen this tab.",
+      "atCapacity": "Too many terminals are open. Close one and try again.",
+      "notFound": "This chat could not be found."
     }
   },
   "minimap": {

@@ -50,6 +50,7 @@ import { startWikiAutoSync } from '@process/services/wiki/wikiAutoSync';
 import { initImportBridge } from './importBridge';
 import { initMigrationBridge } from './migrationBridge';
 import { initSystemSettingsBridge } from './systemSettingsBridge';
+import { initTerminalBridge } from '@process/terminal/terminalBridge';
 import { initFluxConnectorBridge } from './fluxConnectorBridge';
 import { initAmbientBridge } from './ambientBridge';
 import { initWindowControlsBridge } from './windowControlsBridge';
@@ -117,6 +118,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initProjectBridge();
   initKickoffBridge();
   initSystemSettingsBridge();
+  initTerminalBridge();
   initFluxConnectorBridge();
   initIjfwBridge();
   initIjfwDropBridge();

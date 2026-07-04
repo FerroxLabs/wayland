@@ -140,6 +140,14 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // later. byConversation/series in particular disclose per-conversation usage
   // and a fine-grained activity timeline. Local-renderer-only surface.
   'cost.',
+  // #645 Terminal mode. terminal.open spawns a real PTY running the chat's agent
+  // CLI on a TTY; terminal.input writes keystrokes into it. A paired-device WS
+  // token proves a remote browser, NOT the local trusted user, so the ENTIRE
+  // terminal.* namespace (open/input/resize/close) is denied to remote callers.
+  // This IS the "local-only" control from the spec: a buildProvider handler has
+  // no per-call remote signal, so the guarantee is enforced here at the wire by
+  // name — a remote peer can never spawn or attach a PTY (acceptance §8.6).
+  'terminal.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -377,6 +385,12 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     reaching it is a clipboard-injection primitive, so deny it too. ---
   'doctor.run',
   'doctor.copy-text',
+  // --- Terminal mode (#645) ENABLE toggle. The read (get-terminal-enabled) is a
+  //     harmless boolean and stays allowed, but a remote peer must not flip the
+  //     advanced PTY feature ON. The PTY spawn itself is already denied via the
+  //     `terminal.` prefix, so this is defense-in-depth against enabling the
+  //     capability surface, matching app.set-* / storage:* setting denials. ---
+  'system-settings:set-terminal-enabled',
 ]);
 
 /**
@@ -402,6 +416,28 @@ export function isAllowedForRemote(name: string): boolean {
   if (REMOTE_DENIED_KEYS.has(key)) return false;
   for (const prefix of REMOTE_DENIED_PREFIXES) {
     if (key.startsWith(prefix)) return false;
+  }
+  return true;
+}
+
+/**
+ * Emitter/broadcast (main -> client) names that must NOT be forwarded to a
+ * remote WebSocket peer. Inbound denial (isAllowedForRemote) stops a peer
+ * INVOKING a provider; this stops a peer passively RECEIVING an emitter stream.
+ *
+ * #645: terminal.output / terminal.exit carry the live PTY stream (command
+ * output, file contents, whatever the agent CLI prints). The terminal is
+ * local-only, so a paired peer must never receive it even though it can never
+ * spawn/drive one. The local Electron renderer is unaffected — it receives
+ * emitters over the in-process IPC adapter, not this WS broadcast path.
+ */
+const REMOTE_OUTBOUND_DENIED_PREFIXES: readonly string[] = ['terminal.'];
+
+/** True iff an emitter `name` may be broadcast to remote WS peers. */
+export function isAllowedOutboundToRemote(name: string): boolean {
+  if (typeof name !== 'string' || name.length === 0) return false;
+  for (const prefix of REMOTE_OUTBOUND_DENIED_PREFIXES) {
+    if (name.startsWith(prefix)) return false;
   }
   return true;
 }

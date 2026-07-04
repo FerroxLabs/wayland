@@ -15,6 +15,7 @@ import { getPlatformServices } from '@/common/platform';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { changeLanguage } from '@process/services/i18n';
 import { getClaudeNativeDefaultModelId } from '@process/services/ccSwitchModelSource';
+import { TERMINAL_ENABLED_KEY } from '@process/terminal/terminalConfig';
 
 // Keep-awake power blocker state
 let _keepAwakeBlockerId: number | null = null;
@@ -163,5 +164,18 @@ export function initSystemSettingsBridge(): void {
   // Set "auto preview new Office files"
   ipcBridge.systemSettings.setAutoPreviewOfficeFiles.provider(async ({ enabled }) => {
     await ProcessConfig.set('system.autoPreviewOfficeFiles', enabled);
+  });
+
+  // Get "terminal mode" setting (#645) — advanced, disabled by default.
+  ipcBridge.systemSettings.getTerminalEnabled.provider(async () => {
+    const value = await ProcessConfig.get(TERMINAL_ENABLED_KEY);
+    return value ?? false; // Default disabled (advanced)
+  });
+
+  // Set "terminal mode". The setter is remote-denied in bridgeAllowlist, so only
+  // the local trusted renderer reaches it. The main-side spawn guard re-reads
+  // the same key, so flipping this never bypasses the PTY control.
+  ipcBridge.systemSettings.setTerminalEnabled.provider(async ({ enabled }) => {
+    await ProcessConfig.set(TERMINAL_ENABLED_KEY, enabled);
   });
 }

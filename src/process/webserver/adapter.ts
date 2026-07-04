@@ -6,7 +6,7 @@
 
 import type { WebSocketServer } from 'ws';
 import { registerWebSocketBroadcaster, getBridgeEmitter } from '@/common/adapter/registry';
-import { isAllowedInboundName, isAllowedForRemote } from '@/common/adapter/bridgeAllowlist';
+import { isAllowedInboundName, isAllowedForRemote, isAllowedOutboundToRemote } from '@/common/adapter/bridgeAllowlist';
 import { WebSocketManager } from './websocket/WebSocketManager';
 
 // Store unregister function for cleanup when server stops
@@ -25,8 +25,11 @@ export function initWebAdapter(wss: WebSocketServer): void {
   wsManagerInstance = wsManager;
   wsManager.initialize();
 
-  // Register WebSocket broadcast function to main adapter
+  // Register WebSocket broadcast function to main adapter.
+  // #645: filter the outbound stream so a paired peer never receives a
+  // local-only emitter (terminal.output/exit carry the live PTY stream).
   unregisterBroadcaster = registerWebSocketBroadcaster((name, data) => {
+    if (!isAllowedOutboundToRemote(name)) return;
     wsManager.broadcast(name, data);
   });
 

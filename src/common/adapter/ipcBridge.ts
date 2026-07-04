@@ -50,6 +50,12 @@ import type {
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
 import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
 import type { DownloadProgress, DownloadResult, VoiceAsset } from '../types/voiceAsset';
+import type {
+  TerminalOpenParams,
+  TerminalOpenResult,
+  TerminalOutputPayload,
+  TerminalExitPayload,
+} from '../types/terminal';
 import type { SkillSecurityReport, SkillIndexEntry, SkillSource, SkillVerdict } from '../types/skillTypes';
 import type { ImportResult } from '../../process/services/skills/SkillImport';
 import type { KickoffGridResult, KickoffResult, KickoffTelemetryEvent } from '../../process/services/kickoff/types';
@@ -1159,6 +1165,12 @@ export const systemSettings = {
   setSaveUploadToWorkspace: buildProvider<void, { enabled: boolean }>('system-settings:set-save-upload-to-workspace'),
   getAutoPreviewOfficeFiles: buildProvider<boolean, void>('system-settings:get-auto-preview-office-files'),
   setAutoPreviewOfficeFiles: buildProvider<void, { enabled: boolean }>('system-settings:set-auto-preview-office-files'),
+  // Terminal mode (#645) — advanced, OFF by default. Gates whether the per-chat
+  // Terminal tab appears (renderer reads the getter) and is re-checked in the
+  // main process before any PTY spawn (defense-in-depth). The setter is
+  // remote-denied in bridgeAllowlist so a paired peer cannot enable it.
+  getTerminalEnabled: buildProvider<boolean, void>('system-settings:get-terminal-enabled'),
+  setTerminalEnabled: buildProvider<void, { enabled: boolean }>('system-settings:set-terminal-enabled'),
 };
 
 // Doctor / health-check (issue #35). `runDoctor` runs the full diagnostic
@@ -2903,4 +2915,25 @@ export const project = {
 export const migrate = {
   scan: buildProvider<MigrationPlan, { toolId: MigrationToolId }>('migrate.scan'),
   apply: buildProvider<MigrationResult, { toolId: MigrationToolId; selectedIds: string[] }>('migrate.apply'),
+};
+
+/**
+ * #645 Terminal mode — per-chat native agent TUI over a real PTY.
+ *
+ * SECURITY: every key is namespaced `terminal.*` so bridgeAllowlist's
+ * `terminal.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket peer from
+ * ever invoking any of them (a remote peer must never spawn or drive a PTY).
+ * The channel is multiplexed, so every payload carries `terminalId` for
+ * renderer-side self-filtering. `open` resolves the command entirely main-side
+ * from `sessionId` — the renderer never supplies an argv.
+ */
+export const terminal = {
+  open: buildProvider<TerminalOpenResult, TerminalOpenParams>('terminal.open'),
+  input: buildProvider<void, { terminalId: string; data: string }>('terminal.input'),
+  resize: buildProvider<void, { terminalId: string; cols: number; rows: number }>('terminal.resize'),
+  close: buildProvider<void, { terminalId: string }>('terminal.close'),
+  /** PTY stdout/stderr chunk → renderer (filter by terminalId). */
+  output: buildEmitter<TerminalOutputPayload>('terminal.output'),
+  /** PTY exited → renderer (filter by terminalId). */
+  exit: buildEmitter<TerminalExitPayload>('terminal.exit'),
 };
