@@ -371,6 +371,60 @@ describe('ChatConversation - workflow model switcher (#587)', () => {
   });
 });
 
+describe('ChatConversation - workflow model switcher for ACP/codex/remote backends (#626)', () => {
+  // Follow-up to #587: the generic/ACP workflow panel rendered WorkflowSurface
+  // without a headerAccessory, so ACP/codex conversations lost their model
+  // switcher inside a workflow. The fix passes the same per-backend `modelSelector`
+  // memo the non-workflow header uses. ACP/codex get the live AcpModelSelector;
+  // openclaw/nanobot/remote get the disabled placeholder (parity with normal chat).
+  it('passes the ACP model selector to WorkflowSurface via headerAccessory', () => {
+    render(<ChatConversation conversation={buildAcpConversation({ workflowSessionId: 'sess-acc-acp' })} />);
+
+    const accessory = workflowSurfaceCalls.at(-1)?.headerAccessory as React.ReactElement | undefined;
+    expect(accessory).toBeTruthy();
+    const { getByTestId } = render(<>{accessory}</>);
+    expect(getByTestId('mock-acp-model-selector')).toBeTruthy();
+  });
+
+  it('passes the ACP model selector for a codex conversation via headerAccessory', () => {
+    const conv = {
+      id: 'conv-codex',
+      name: 'Codex Chat',
+      type: 'codex',
+      extra: { workflowSessionId: 'sess-acc-codex' },
+      createTime: 0,
+      modifyTime: 0,
+    } as unknown as Parameters<typeof ChatConversation>[0]['conversation'];
+
+    render(<ChatConversation conversation={conv} />);
+
+    const accessory = workflowSurfaceCalls.at(-1)?.headerAccessory as React.ReactElement | undefined;
+    expect(accessory).toBeTruthy();
+    const { getByTestId } = render(<>{accessory}</>);
+    expect(getByTestId('mock-acp-model-selector')).toBeTruthy();
+  });
+
+  it('passes the disabled placeholder selector for a fixed-model backend (openclaw) via headerAccessory', () => {
+    const conv = {
+      id: 'conv-openclaw',
+      name: 'OpenClaw Chat',
+      type: 'openclaw-gateway',
+      extra: { workflowSessionId: 'sess-acc-openclaw' },
+      createTime: 0,
+      modifyTime: 0,
+    } as unknown as Parameters<typeof ChatConversation>[0]['conversation'];
+
+    render(<ChatConversation conversation={conv} />);
+
+    const accessory = workflowSurfaceCalls.at(-1)?.headerAccessory as React.ReactElement | undefined;
+    expect(accessory).toBeTruthy();
+    const { getByTestId } = render(<>{accessory}</>);
+    // openclaw/nanobot/remote are fixed-model: the header shows the same disabled
+    // GeminiModelSelector placeholder it shows in normal (non-workflow) chat.
+    expect(getByTestId('mock-gemini-model-selector')).toBeTruthy();
+  });
+});
+
 describe('ChatConversation - workflowSessionId from location.state', () => {
   it('state.workflowSessionId takes precedence when both state and extra are present', () => {
     // State says 'state-sess', extra says 'extra-sess' - state wins.
