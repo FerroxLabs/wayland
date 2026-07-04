@@ -222,6 +222,26 @@ export interface IChannelPluginConfig {
 }
 
 /**
+ * Saved-config view for rehydrating a channel's Settings form on reopen.
+ *
+ * Deliberately split from IChannelPluginStatus (which is remote-readable by a
+ * paired WebUI) because it discloses the operator's saved connection details
+ * (e.g. the IMAP/SMTP hosts + the account address). `config` carries only the
+ * non-secret scalar fields; every sensitive field (per `isSensitiveField`) is
+ * reduced to a presence boolean in `secretPresence` so the form can show a
+ * "saved - leave blank to keep" hint without the secret ever leaving main.
+ * The `channel.get-plugin-config` provider is remote-denied for this reason.
+ */
+export interface IChannelPluginConfigView {
+  id: string;
+  type: PluginType;
+  enabled: boolean;
+  status: PluginStatus;
+  config: Record<string, string | number | boolean>;
+  secretPresence: Record<string, boolean>;
+}
+
+/**
  * Plugin status for IPC communication
  */
 export interface IChannelPluginStatus {

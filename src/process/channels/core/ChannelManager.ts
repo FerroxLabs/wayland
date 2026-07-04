@@ -264,10 +264,7 @@ export class ChannelManager {
       try {
         await plugin.handleWebhookPayload(event.payload, event.headers, event.pluginInstanceId);
       } catch (err) {
-        console.error(
-          `[ChannelManager] Plugin ${event.pluginInstanceId} threw on webhook delivery:`,
-          err
-        );
+        console.error(`[ChannelManager] Plugin ${event.pluginInstanceId} threw on webhook delivery:`, err);
       }
     });
   }
@@ -440,24 +437,31 @@ export class ChannelManager {
       // them and silently fall back to defaults. Keep the whole block together
       // in credentials. Passwords are whitespace-stripped to match the form +
       // resolveCredentials (Gmail/Outlook app passwords paste with spaces).
-      const stripPw = (v: unknown): string | undefined =>
-        typeof v === 'string' ? v.replace(/\s+/g, '') : undefined;
+      const stripPw = (v: unknown): string | undefined => (typeof v === 'string' ? v.replace(/\s+/g, '') : undefined);
       const str = (v: unknown): string | undefined => (typeof v === 'string' ? v.trim() : undefined);
       const num = (v: unknown): number | undefined => (typeof v === 'number' ? v : undefined);
       const bool = (v: unknown): boolean | undefined => (typeof v === 'boolean' ? v : undefined);
+
+      // Preserve the stored app password when the form re-saves with a blank
+      // password field (#548: the form now rehydrates saved host/user/ports but
+      // deliberately never receives the secret back, so an edit-and-save of any
+      // OTHER field would otherwise wipe the password). A non-empty incoming
+      // password always wins (a genuine rotation).
+      const existingCreds = (existing?.credentials ?? {}) as Record<string, unknown>;
+      const keepStr = (v: unknown): string | undefined => (typeof v === 'string' && v ? v : undefined);
 
       credentials = {
         imapHost: str(config.imapHost),
         imapPort: num(config.imapPort),
         imapUser: str(config.imapUser),
-        imapPassword: stripPw(config.imapPassword),
+        imapPassword: stripPw(config.imapPassword) ?? keepStr(existingCreds.imapPassword),
         imapTls: bool(config.imapTls),
         useSameAuth: bool(config.useSameAuth),
         smtpHost: str(config.smtpHost),
         smtpPort: num(config.smtpPort),
         smtpTls: bool(config.smtpTls),
         smtpUser: str(config.smtpUser),
-        smtpPassword: stripPw(config.smtpPassword),
+        smtpPassword: stripPw(config.smtpPassword) ?? keepStr(existingCreds.smtpPassword),
       };
     } else {
       // Extension or unknown plugin type:
@@ -471,7 +475,10 @@ export class ChannelManager {
           }
         | undefined;
 
-      const nextCredentials: Record<string, string | number | boolean | readonly string[] | readonly number[] | undefined> = {
+      const nextCredentials: Record<
+        string,
+        string | number | boolean | readonly string[] | readonly number[] | undefined
+      > = {
         ...credentials,
       };
       // pluginRuntimeConfig stays scalar-only - array-typed fields like IRC
@@ -702,7 +709,28 @@ export class ChannelManager {
     }
 
     if (pluginType === 'email-imap') {
-      const result = await EmailImapPlugin.testConnection(token);
+      // Let the user re-test a saved connection without re-typing the app
+      // password. The form rehydrates every field EXCEPT secrets (#548), so a
+      // blank password on re-test means "keep the stored one" - fall back to it
+      // here instead of testing with an empty string (which always fails).
+      let effectiveToken = token;
+      try {
+        const parsed = JSON.parse(token) as Record<string, unknown>;
+        const needsImapPw = !parsed.imapPassword;
+        const needsSmtpPw = parsed.useSameAuth === false && !parsed.smtpPassword;
+        if (needsImapPw || needsSmtpPw) {
+          const db = await getDatabase();
+          const stored = db.getChannelPlugin('email-imap').data?.credentials as Record<string, unknown> | undefined;
+          if (stored) {
+            if (needsImapPw && typeof stored.imapPassword === 'string') parsed.imapPassword = stored.imapPassword;
+            if (needsSmtpPw && typeof stored.smtpPassword === 'string') parsed.smtpPassword = stored.smtpPassword;
+            effectiveToken = JSON.stringify(parsed);
+          }
+        }
+      } catch {
+        // token was not JSON (shouldn't happen for email-imap) - test as-is.
+      }
+      const result = await EmailImapPlugin.testConnection(effectiveToken);
       return { success: result.success, botUsername: result.botUsername, error: result.error };
     }
 

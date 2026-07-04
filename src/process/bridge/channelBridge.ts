@@ -17,6 +17,7 @@ import type {
   IChannelSession,
 } from '@process/channels/types';
 import { hasPluginCredentials } from '@process/channels/types';
+import { isSensitiveField } from '@process/secrets';
 import type { IChannelRepository } from '@process/services/database/IChannelRepository';
 
 /**
@@ -229,6 +230,47 @@ export function initChannelBridge(channelRepo: IChannelRepository): void {
   });
 
   /**
+   * Return a plugin's SAVED non-secret config so the Settings form can
+   * rehydrate on reopen (#548 - the form previously always mounted blank).
+   * Secret values never leave main: each sensitive field (per isSensitiveField)
+   * is reduced to a presence boolean in `secretPresence`. Resolves the row by
+   * exact id first, then by type prefix, because the email form tests under
+   * `<type>_default` but persists under `<type>` - either resolves the same row.
+   */
+  channel.getPluginConfig.provider(async ({ pluginId }) => {
+    try {
+      const plugins = await channelRepo.getChannelPlugins();
+      const row =
+        plugins.find((p) => p.id === pluginId) ??
+        plugins.find((p) => pluginId.startsWith(p.type) || p.type === pluginId);
+      if (!row) return { success: true, data: null };
+
+      const config: Record<string, string | number | boolean> = {};
+      const secretPresence: Record<string, boolean> = {};
+      const record = (source: Record<string, unknown> | undefined): void => {
+        if (!source) return;
+        for (const [key, value] of Object.entries(source)) {
+          if (isSensitiveField(key)) {
+            secretPresence[key] = typeof value === 'string' ? value.length > 0 : value != null;
+          } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+            config[key] = value;
+          }
+        }
+      };
+      record(row.credentials as Record<string, unknown> | undefined);
+      record(row.config as Record<string, unknown> | undefined);
+
+      return {
+        success: true,
+        data: { id: row.id, type: row.type, enabled: row.enabled, status: row.status, config, secretPresence },
+      };
+    } catch (error: any) {
+      console.error('[ChannelBridge] getPluginConfig error:', error);
+      return { success: false, msg: error.message };
+    }
+  });
+
+  /**
    * Enable a plugin
    */
   channel.enablePlugin.provider(async ({ pluginId, config }) => {
@@ -434,9 +476,8 @@ export function initChannelBridge(channelRepo: IChannelRepository): void {
       // forms (generic webhook / AgentMail / WhatsApp / Twilio) that call
       // rotate without a secret would persist secret='' and inbound delivery
       // would fail with secret-not-found (audit fix NEW HIGH1 2026-05-18).
-      const resolvedSecret = secret && secret.trim()
-        ? secret
-        : await resolvePersistedSecretForPlatform(platform, pluginInstanceId);
+      const resolvedSecret =
+        secret && secret.trim() ? secret : await resolvePersistedSecretForPlatform(platform, pluginInstanceId);
       const minted = store.register(platform, pluginInstanceId, agentId, resolvedSecret);
       // CRITICAL: persist the mutated store back to ProcessConfig so the new
       // URL survives restart. Without this, ChannelManager.wireWebhookDispatcher
@@ -466,45 +507,43 @@ export function initChannelBridge(channelRepo: IChannelRepository): void {
   // front of the local webhook server. The opt-in defaults OFF in the UI; the
   // channel's provider signature verification stays enforced regardless of how
   // the URL is obtained. This resolver never relaxes signature checks.
-  channel.getWebhookExposure.provider(
-    async ({ platform, tunnelEnabled, connectionToken, userPublicUrl, provider }) => {
-      try {
-        if (!platform) {
-          return { success: false, msg: 'platform is required' };
-        }
-        const { resolveExposure, buildWebhookUrl } = await import('@process/channels/tunnel');
-        const { SERVER_CONFIG } = await import('@process/webserver/config/constants');
-        const webhookPort = SERVER_CONFIG._currentConfig.port;
-
-        const status = await resolveExposure({
-          platform,
-          webhookPort,
-          tunnelEnabled: tunnelEnabled === true,
-          userPublicUrl,
-          tunnelProvider: provider,
-        });
-
-        const webhookUrl =
-          status.configured && status.publicUrl && connectionToken
-            ? buildWebhookUrl(status.publicUrl, platform, connectionToken)
-            : null;
-
-        return {
-          success: true,
-          data: {
-            configured: status.configured,
-            publicUrl: status.publicUrl,
-            source: status.source,
-            message: status.message,
-            webhookUrl,
-          },
-        };
-      } catch (error: unknown) {
-        console.error('[ChannelBridge] getWebhookExposure error:', error);
-        return { success: false, msg: error instanceof Error ? error.message : String(error) };
+  channel.getWebhookExposure.provider(async ({ platform, tunnelEnabled, connectionToken, userPublicUrl, provider }) => {
+    try {
+      if (!platform) {
+        return { success: false, msg: 'platform is required' };
       }
+      const { resolveExposure, buildWebhookUrl } = await import('@process/channels/tunnel');
+      const { SERVER_CONFIG } = await import('@process/webserver/config/constants');
+      const webhookPort = SERVER_CONFIG._currentConfig.port;
+
+      const status = await resolveExposure({
+        platform,
+        webhookPort,
+        tunnelEnabled: tunnelEnabled === true,
+        userPublicUrl,
+        tunnelProvider: provider,
+      });
+
+      const webhookUrl =
+        status.configured && status.publicUrl && connectionToken
+          ? buildWebhookUrl(status.publicUrl, platform, connectionToken)
+          : null;
+
+      return {
+        success: true,
+        data: {
+          configured: status.configured,
+          publicUrl: status.publicUrl,
+          source: status.source,
+          message: status.message,
+          webhookUrl,
+        },
+      };
+    } catch (error: unknown) {
+      console.error('[ChannelBridge] getWebhookExposure error:', error);
+      return { success: false, msg: error instanceof Error ? error.message : String(error) };
     }
-  );
+  });
 
   console.log('[ChannelBridge] Initialized');
 }
@@ -521,10 +560,7 @@ export function initChannelBridge(channelRepo: IChannelRepository): void {
  *
  * Audit fix NEW HIGH1 2026-05-18.
  */
-async function resolvePersistedSecretForPlatform(
-  platform: string,
-  pluginInstanceId: string,
-): Promise<string> {
+async function resolvePersistedSecretForPlatform(platform: string, pluginInstanceId: string): Promise<string> {
   try {
     const cm = getChannelManager();
     // ChannelManager exposes plugin configs via the same DB the bridge uses.
