@@ -7,7 +7,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { extensions as extensionsIpc, ijfw as ijfwIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
+import { extensions as extensionsIpc, type IExtensionSettingsTab } from '@/common/adapter/ipcBridge';
 import { useExtI18n } from '@/renderer/hooks/system/useExtI18n';
 import WebviewHost from '@/renderer/components/media/WebviewHost';
 import { resolveExtensionAssetUrl } from '@/renderer/utils/platform';
@@ -137,11 +137,6 @@ const ExtensionSettingsPage: React.FC = () => {
             if (data.action === 'check') {
               const includePrerelease = Boolean(data.payload?.includePrerelease);
               reply(await runWaylandUpdaterExtensionCheck(includePrerelease, '[ExtensionSettingsPage]'));
-              return;
-            }
-
-            if (data.action === 'updateIjfw') {
-              reply(await ijfwIpc.triggerInstall.invoke());
               return;
             }
 
