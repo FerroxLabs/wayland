@@ -2574,5 +2574,7 @@
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
-  "settings": {}
+  "settings": {},
+  "deferUpdateWhileBusy": "Updates bei Aktivität verschieben",
+  "deferUpdateWhileBusyDesc": "Warten, bis aktive Chats, geplante Aufgaben und Teams abgeschlossen sind, bevor zum Aktualisieren neu gestartet wird. Das Update wird im Leerlauf oder beim Beenden angewendet."
 }

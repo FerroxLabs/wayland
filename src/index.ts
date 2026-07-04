@@ -1523,6 +1523,20 @@ app.on('before-quit', async () => {
   });
 
   await Promise.race([cleanup(), masterCeiling]);
+
+  // #651/#632: LAST step — apply a staged auto-update now that in-flight work is
+  // drained (workers cleared, cron silenced, agent children reaped above). This
+  // is why autoInstallOnAppQuit is disabled: instead of electron-updater
+  // installing at an uncoordinated moment, we install here, after cleanup, in a
+  // controlled order. No-op unless an update was downloaded AND it is safe to
+  // apply (installOnQuitIfReady honours the #575/#286 block). Non-force-exit so
+  // it can't race the cleanup we just awaited.
+  try {
+    const { autoUpdaterService } = await import('./process/services/autoUpdaterService');
+    autoUpdaterService.installOnQuitIfReady();
+  } catch (err) {
+    console.warn('[Wayland] on-quit update install step failed (ignored):', err);
+  }
 });
 
 app.on('will-quit', () => {

@@ -136,6 +136,7 @@ export interface AutoUpdateStatus {
     | 'downloaded'
     | 'error'
     | 'install-failed'
+    | 'deferred'
     | 'cancelled';
   version?: string;
   releaseDate?: string;
@@ -182,6 +183,13 @@ class AutoUpdaterService extends EventEmitter {
    * this version are surfaced as install-failed instead of a plain offer (#286).
    */
   private _failedInstallVersion: string | null = null;
+  /**
+   * True once a macOS block or a silent apply-failure has been detected, meaning
+   * a staged update is NOT safe to apply on quit (it would loop — #575/#286).
+   * {@link installOnQuitIfReady} honours this so the coordinated before-quit
+   * install never re-arms the loop. Set by {@link disableInstallOnQuit}.
+   */
+  private _installOnQuitBlocked = false;
 
   constructor() {
     super();
@@ -191,12 +199,13 @@ class AutoUpdaterService extends EventEmitter {
 
     // Disable auto-download for manual control
     autoUpdater.autoDownload = false;
-    // autoInstallOnAppQuit starts enabled (normal auto-update: a staged update
-    // installs on quit) but is DISABLED the moment a macOS block/apply-failure is
-    // detected — see setInstallOnQuit(). A bundle ShipIt can't apply in place must
-    // never auto-install on quit, or ShipIt relaunches the old version → re-stages
-    // → endless respawn loop (#575). The manual-download path stays available.
-    autoUpdater.autoInstallOnAppQuit = true;
+    // Disable electron-updater's OWN install-on-quit. We drive the on-quit
+    // install explicitly as the last step of before-quit cleanup (see
+    // installOnQuitIfReady + src/index.ts), AFTER in-flight work is drained, so a
+    // real quit applies the update in a controlled order instead of an update
+    // yanking the rug mid-task (#651/#632). Safety against the #575/#286 loop is
+    // preserved by _installOnQuitBlocked, which installOnQuitIfReady checks.
+    autoUpdater.autoInstallOnAppQuit = false;
 
     // Set the correct update channel based on platform and architecture before
     // any update checks are performed
@@ -257,6 +266,7 @@ class AutoUpdaterService extends EventEmitter {
     this._statusBroadcastCallback = null;
     this._lastDownloadedVersion = null;
     this._failedInstallVersion = null;
+    this._installOnQuitBlocked = false;
     // Remove listeners from this EventEmitter instance
     this.removeAllListeners();
     // Remove each registered handler from autoUpdater to prevent
@@ -490,6 +500,49 @@ class AutoUpdaterService extends EventEmitter {
   }
 
   /**
+   * Broadcast a 'deferred' status: an update is downloaded but its restart was
+   * held because the app is actively working. The renderer surfaces "Update
+   * ready — applies when your tasks finish or on quit" with an override. The
+   * quiesce gate calls this when it defers (#651/#632).
+   */
+  notifyDeferred(): void {
+    log.info('[autoUpdater] Update restart deferred while the app is busy.');
+    this.broadcastStatus({ status: 'deferred', version: this._lastDownloadedVersion ?? undefined });
+  }
+
+  /**
+   * Apply a downloaded update NOW, as the last step of before-quit cleanup —
+   * after in-flight work is drained (#651/#632). Unlike {@link quitAndInstall}
+   * it does NOT schedule an app.exit(0): we are already inside the quit
+   * sequence, so forcing an exit would race the very cleanup we waited for.
+   *
+   * No-op (returns false) unless an update was actually downloaded AND it is
+   * safe to apply — a macOS block or a known silent apply-failure keeps
+   * _installOnQuitBlocked set so we never hand ShipIt a doomed bundle and
+   * re-arm the #575/#286 relaunch loop.
+   *
+   * @returns true if an install was triggered.
+   */
+  installOnQuitIfReady(): boolean {
+    if (!this._lastDownloadedVersion) {
+      return false; // nothing staged to install
+    }
+    if (this._installOnQuitBlocked) {
+      log.warn('[autoUpdater] Skipping on-quit install: update is not safely applicable (#575/#286 guard).');
+      return false;
+    }
+    log.info(`[autoUpdater] Applying staged update ${this._lastDownloadedVersion} on quit (post-cleanup).`);
+    // Persist the pending-install marker so the next launch can verify the apply
+    // actually advanced the version (#286), same as the manual path.
+    this.writePendingInstallMarker();
+    // isSilent=true, isForceRunAfter=false: install on quit without relaunching
+    // (apply-on-quit semantics, like VS Code/Slack) and without the force-exit
+    // timer — the caller is already quitting.
+    autoUpdater.quitAndInstall(true, false);
+    return true;
+  }
+
+  /**
    * Path of the cross-launch pending-install marker under userData.
    */
   private pendingInstallMarkerPath(): string {
@@ -666,14 +719,18 @@ class AutoUpdaterService extends EventEmitter {
    * re-stage → loop (Dock spam + focus theft). Idempotent; the manual-download
    * path (broadcastInstallFailed) still lets the user update deliberately.
    *
-   * On the happy path (no block) autoInstallOnAppQuit is left at its enabled
-   * default, so normal auto-update on quit is preserved.
+   * On the happy path (no block) the update stays installable, so the
+   * coordinated before-quit install in {@link installOnQuitIfReady} still runs.
    */
   private disableInstallOnQuit(context: string): void {
-    if (autoUpdater.autoInstallOnAppQuit) {
-      log.warn(`[autoUpdater] Disabling autoInstallOnAppQuit (${context}) to prevent the #575 relaunch loop.`);
-      autoUpdater.autoInstallOnAppQuit = false;
+    if (!this._installOnQuitBlocked) {
+      log.warn(`[autoUpdater] Marking update NOT installable on quit (${context}) to prevent the #575 relaunch loop.`);
     }
+    // Mark the staged update unsafe to apply on quit. electron-updater's own
+    // autoInstallOnAppQuit already starts false (we drive install explicitly),
+    // but keep it pinned false as defense in depth.
+    this._installOnQuitBlocked = true;
+    autoUpdater.autoInstallOnAppQuit = false;
   }
 
   /**

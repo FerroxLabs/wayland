@@ -41,5 +41,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "Mise à jour prête",
+  "deferredDesc": "Cette mise à jour sera appliquée une fois vos tâches terminées, ou à la fermeture. Installer quand même maintenant ?",
+  "installNowAnyway": "Installer quand même"
 }

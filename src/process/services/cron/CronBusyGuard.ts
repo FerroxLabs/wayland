@@ -21,6 +21,13 @@ type IdleCallback = () => void;
 export class CronBusyGuard {
   private states = new Map<string, ConversationState>();
   private idleCallbacks = new Map<string, IdleCallback[]>();
+  /**
+   * One-shot callbacks fired when the LAST processing conversation clears, i.e.
+   * the whole app goes idle. Backs update-on-quiesce (#651/#632): because team
+   * wakes and cron runs all funnel through the agent managers that call
+   * setProcessing(), this single registry already spans chat + cron + team.
+   */
+  private globalIdleCallbacks: IdleCallback[] = [];
 
   /**
    * Check if a conversation is currently processing a message
@@ -48,7 +55,42 @@ export class CronBusyGuard {
         this.idleCallbacks.delete(conversationId);
         for (const cb of callbacks) cb();
       }
+
+      // Global idle: fire the one-shot app-idle callbacks only when THIS clear
+      // left nothing else processing (the last busy conversation went idle).
+      if (this.globalIdleCallbacks.length > 0 && !this.isAppBusy()) {
+        const globals = this.globalIdleCallbacks;
+        this.globalIdleCallbacks = [];
+        for (const cb of globals) cb();
+      }
     }
+  }
+
+  /**
+   * True if ANY tracked conversation is currently processing. The single source
+   * of truth for "is the app working right now" across chat, cron, and team
+   * wakes (they all route through setProcessing). (#651/#632)
+   */
+  isAppBusy(): boolean {
+    for (const state of this.states.values()) {
+      if (state.isProcessing) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Register a one-shot callback for when the WHOLE app becomes idle (no
+   * conversation processing). If already idle, fires immediately — this matches
+   * onceIdle's already-idle behavior and closes the busy→idle race: a caller
+   * that checks isAppBusy() and then registers can never miss the transition,
+   * because registration is synchronous with the check. (#651/#632)
+   */
+  onceAllIdle(callback: IdleCallback): void {
+    if (!this.isAppBusy()) {
+      callback();
+      return;
+    }
+    this.globalIdleCallbacks.push(callback);
   }
 
   /**
@@ -128,6 +170,8 @@ export class CronBusyGuard {
    */
   clear(): void {
     this.states.clear();
+    this.idleCallbacks.clear();
+    this.globalIdleCallbacks = [];
   }
 }
 

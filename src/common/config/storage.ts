@@ -316,6 +316,10 @@ export interface IConfigStorageRefer {
   'system.routeThroughFlux'?: boolean;
   // Automatically preview newly created Office files in the current workspace
   'system.autoPreviewOfficeFiles'?: boolean;
+  // Update-on-quiesce (#651/#632): defer an auto-update restart while any
+  // session/cron/team is actively working, applying it once idle or on quit.
+  // Default true (read in main by updateQuiesceGate).
+  'update.deferWhileBusy'?: boolean;
   // Per-channel assistant default-model and agent selections
   // (`assistant.<platform>.defaultModel` / `assistant.<platform>.agent`) are
   // provided by IChannelAssistantConfigRefer, intersected into ConfigStorage above.

@@ -330,8 +330,17 @@ export const autoUpdate = {
   >('auto-update.check'),
   /** Download update using electron-updater */
   download: buildProvider<IBridgeResponse, void>('auto-update.download'),
-  /** Quit and install the downloaded update */
-  quitAndInstall: buildProvider<void, void>('auto-update.quit-and-install'),
+  /**
+   * Quit and install the downloaded update. Routed through the update-on-quiesce
+   * gate (#651/#632): if the app is busy and defer-while-busy is on, the restart
+   * is DEFERRED until idle (status → 'deferred') instead of killing in-flight
+   * work. Pass `{ force: true }` to bypass the gate ("install now anyway").
+   */
+  quitAndInstall: buildProvider<void, { force?: boolean } | undefined>('auto-update.quit-and-install'),
+  /** Read the update-on-quiesce "defer while busy" setting (default true). */
+  getDeferWhileBusy: buildProvider<boolean, void>('auto-update.get-defer-while-busy'),
+  /** Set the update-on-quiesce "defer while busy" setting. */
+  setDeferWhileBusy: buildProvider<void, { enabled: boolean }>('auto-update.set-defer-while-busy'),
   /** Auto-update status events */
   status: buildEmitter<AutoUpdateStatus>('auto-update.status'),
   /**

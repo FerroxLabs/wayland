@@ -41,5 +41,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "업데이트 준비됨",
+  "deferredDesc": "이 업데이트는 작업이 끝나거나 종료할 때 적용됩니다. 지금 바로 설치할까요?",
+  "installNowAnyway": "지금 설치"
 }

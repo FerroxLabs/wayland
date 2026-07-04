@@ -2575,5 +2575,7 @@
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
-  "settings": {}
+  "settings": {},
+  "deferUpdateWhileBusy": "Откладывать обновления при активности",
+  "deferUpdateWhileBusyDesc": "Дождаться завершения активных чатов, запланированных задач и команд перед перезапуском для обновления. Обновление применяется в простое или при выходе."
 }

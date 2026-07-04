@@ -41,5 +41,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "Güncelleme hazır",
+  "deferredDesc": "Bu güncelleme, görevleriniz bittiğinde veya çıktığınızda uygulanacak. Yine de şimdi yüklensin mi?",
+  "installNowAnyway": "Yine de şimdi yükle"
 }

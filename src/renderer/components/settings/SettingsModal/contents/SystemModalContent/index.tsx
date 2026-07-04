@@ -53,6 +53,9 @@ const SystemModalContent: React.FC = () => {
   const [autoPreviewOfficeFiles, setAutoPreviewOfficeFiles] = useState(true);
   // #645 Terminal mode (advanced, off by default).
   const [terminalMode, setTerminalMode] = useState(false);
+  // Update-on-quiesce (#651/#632): defer an auto-update restart while the app is
+  // actively working. Default ON.
+  const [deferUpdateWhileBusy, setDeferUpdateWhileBusy] = useState(true);
   // Concierge default landing persona (reversible). Default ON: a fresh chat
   // starts on the Concierge assistant; off keeps the last-used engine.
   const [conciergeDefaultPersona, setConciergeDefaultPersona] = useState(true);
@@ -142,6 +145,13 @@ const SystemModalContent: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    ipcBridge.autoUpdate.getDeferWhileBusy
+      .invoke()
+      .then((enabled) => setDeferUpdateWhileBusy(enabled))
+      .catch((err) => console.warn('[SystemModalContent.getDeferWhileBusy]', err));
+  }, []);
+
+  useEffect(() => {
     ConfigStorage.get('concierge.defaultPersona')
       .then((val) => setConciergeDefaultPersona(val !== false))
       .catch((err) => console.warn('[SystemModalContent.get concierge.defaultPersona]', err));
@@ -151,6 +161,13 @@ const SystemModalContent: React.FC = () => {
     setCloseToTray(checked);
     ipcBridge.systemSettings.setCloseToTray.invoke({ enabled: checked }).catch(() => {
       setCloseToTray(!checked);
+    });
+  }, []);
+
+  const handleDeferUpdateWhileBusyChange = useCallback((checked: boolean) => {
+    setDeferUpdateWhileBusy(checked);
+    ipcBridge.autoUpdate.setDeferWhileBusy.invoke({ enabled: checked }).catch(() => {
+      setDeferUpdateWhileBusy(!checked);
     });
   }, []);
 
@@ -332,6 +349,18 @@ const SystemModalContent: React.FC = () => {
       }),
       component: (
         <Switch checked={terminalMode} onChange={handleTerminalModeChange} data-testid='terminal-mode-switch' />
+      ),
+    },
+    {
+      key: 'deferUpdateWhileBusy',
+      label: t('settings.deferUpdateWhileBusy'),
+      description: t('settings.deferUpdateWhileBusyDesc'),
+      component: (
+        <Switch
+          checked={deferUpdateWhileBusy}
+          onChange={handleDeferUpdateWhileBusyChange}
+          data-testid='defer-update-while-busy-switch'
+        />
       ),
     },
     {

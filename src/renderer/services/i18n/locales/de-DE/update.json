@@ -41,5 +41,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "Update bereit",
+  "deferredDesc": "Dieses Update wird angewendet, wenn Ihre Aufgaben abgeschlossen sind oder wenn Sie die App beenden. Trotzdem jetzt installieren?",
+  "installNowAnyway": "Trotzdem jetzt installieren"
 }

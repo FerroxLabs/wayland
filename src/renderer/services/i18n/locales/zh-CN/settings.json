@@ -2574,5 +2574,7 @@
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
-  "settings": {}
+  "settings": {},
+  "deferUpdateWhileBusy": "忙碌时延迟更新",
+  "deferUpdateWhileBusyDesc": "在重启以更新之前，等待进行中的对话、计划任务和团队完成。更新将在空闲时或退出时应用。"
 }

@@ -53,5 +53,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "Обновление готово",
+  "deferredDesc": "Это обновление будет применено после завершения задач или при выходе. Всё равно установить сейчас?",
+  "installNowAnyway": "Всё равно установить"
 }

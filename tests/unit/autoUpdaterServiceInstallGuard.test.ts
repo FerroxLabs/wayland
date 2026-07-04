@@ -188,71 +188,78 @@ describe('autoUpdaterService install guard (#286)', () => {
     expect(app.isInApplicationsFolder).not.toHaveBeenCalled();
   });
 
-  // #575: a bundle ShipIt can't apply in place must never auto-install on quit,
-  // or ShipIt relaunches the old version → re-stages → endless respawn loop
-  // (Dock spam + focus theft). The loop-breaker is autoInstallOnAppQuit=false
-  // the moment any block/apply-failure is detected.
-  describe('autoInstallOnAppQuit loop-breaker (#575)', () => {
-    it('constructor leaves autoInstallOnAppQuit enabled (normal auto-update default)', () => {
+  // #575: a bundle ShipIt can't apply in place must never install on quit, or
+  // ShipIt relaunches the old version → re-stages → endless respawn loop (Dock
+  // spam + focus theft). Since #651/#632 disables electron-updater's own
+  // autoInstallOnAppQuit and drives the on-quit install explicitly via
+  // installOnQuitIfReady(), the loop-breaker is now: installOnQuitIfReady()
+  // REFUSES to install (returns false, no quitAndInstall) the moment any
+  // block/apply-failure is detected, and only installs a safe, staged update.
+  describe('on-quit install safety (#575/#651)', () => {
+    it('constructor disables electron-updater autoInstallOnAppQuit (we drive it explicitly)', () => {
       // freshService() re-ran the constructor in beforeEach.
-      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+      expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
     });
 
-    it('macOS block (outside /Applications) → autoInstallOnAppQuit disabled', () => {
+    it('macOS block (outside /Applications) → refuses on-quit install even with a staged download', () => {
+      service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
       setPlatform('darwin');
       (app.isInApplicationsFolder as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      service.triggerEventForTest('update-available', { version: '3.0.0' });
 
-      service.triggerEventForTest('update-available', { version: '2.0.0' });
-
-      expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
+      expect(service.installOnQuitIfReady()).toBe(false);
+      expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
 
-    it('happy path (macOS inside /Applications, no block) → autoInstallOnAppQuit stays true', () => {
+    it('happy path (macOS inside /Applications, no block) → installs the staged update on quit', () => {
       setPlatform('darwin');
       (app.isInApplicationsFolder as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
       service.triggerEventForTest('update-available', { version: '2.0.0' });
+      service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-      expect(lastStatus().status).toBe('available');
-      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+      expect(service.installOnQuitIfReady()).toBe(true);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, false);
     });
 
-    it('non-macOS offer → autoInstallOnAppQuit stays true (loop is macOS-only)', () => {
+    it('non-macOS offer → installs the staged update on quit (loop is macOS-only)', () => {
       setPlatform('win32');
       service.triggerEventForTest('update-available', { version: '2.0.0' });
+      service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-      expect(lastStatus().status).toBe('available');
-      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+      expect(service.installOnQuitIfReady()).toBe(true);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, false);
     });
 
-    it('silent apply failure on reconcile → autoInstallOnAppQuit disabled at startup', () => {
+    it('silent apply failure on reconcile → refuses on-quit install', () => {
       fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
       (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
-
       service.reconcilePendingInstall();
+      // Even if a download is later staged, the sticky block wins.
+      service.triggerEventForTest('update-downloaded', { version: '3.0.0' });
 
-      expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
+      expect(service.installOnQuitIfReady()).toBe(false);
+      expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
 
-    it('successful reconcile (version advanced) → autoInstallOnAppQuit stays true', () => {
+    it('successful reconcile (version advanced) → still installs a safe staged update on quit', () => {
       fs.writeFileSync(markerPath(), JSON.stringify({ version: '1.0.0', attemptedAt: 1 }));
       (app.getVersion as ReturnType<typeof vi.fn>).mockReturnValue('1.0.0');
-
       service.reconcilePendingInstall();
+      service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-      expect(autoUpdater.autoInstallOnAppQuit).toBe(true);
+      expect(service.installOnQuitIfReady()).toBe(true);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, false);
     });
 
-    it('re-offer of a silently-failed version → autoInstallOnAppQuit disabled', () => {
+    it('re-offer of a silently-failed version → refuses on-quit install', () => {
       fs.writeFileSync(markerPath(), JSON.stringify({ version: '2.0.0', attemptedAt: 1 }));
       service.reconcilePendingInstall();
-      // reconcile already disabled it; re-enable to prove the re-offer path also disables.
-      autoUpdater.autoInstallOnAppQuit = true;
-
       service.triggerEventForTest('update-available', { version: '2.0.0' });
+      service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
-      expect(lastStatus().status).toBe('install-failed');
-      expect(autoUpdater.autoInstallOnAppQuit).toBe(false);
+      expect(lastStatus().status).not.toBe('available');
+      expect(service.installOnQuitIfReady()).toBe(false);
+      expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
   });
 });

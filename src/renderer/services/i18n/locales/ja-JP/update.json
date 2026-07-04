@@ -41,5 +41,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "アップデートの準備完了",
+  "deferredDesc": "このアップデートは、タスクの完了時または終了時に適用されます。今すぐインストールしますか？",
+  "installNowAnyway": "今すぐインストール"
 }

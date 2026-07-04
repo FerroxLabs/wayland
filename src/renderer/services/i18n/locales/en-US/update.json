@@ -54,5 +54,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "Update ready",
+  "deferredDesc": "This update will apply when your tasks finish, or when you quit. Install now anyway?",
+  "installNowAnyway": "Install now anyway"
 }

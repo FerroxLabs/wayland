@@ -2574,5 +2574,7 @@
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
-  "settings": {}
+  "settings": {},
+  "deferUpdateWhileBusy": "Différer les mises à jour si occupé",
+  "deferUpdateWhileBusyDesc": "Attendre la fin des conversations actives, des tâches planifiées et des équipes avant de redémarrer pour mettre à jour. La mise à jour s’applique à l’inactivité ou à la fermeture."
 }

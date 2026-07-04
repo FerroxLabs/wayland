@@ -101,6 +101,11 @@ export type AutoUpdateStatusType =
   // Squirrel/ShipIt no-op), or the app can't update in place (macOS app running
   // outside /Applications). Surfaced instead of silently re-offering (#286).
   | 'install-failed'
+  // An update is downloaded but its restart was deferred because the app is
+  // actively working (a chat responding, a cron job running, a team wake). It
+  // applies automatically once everything goes idle, or on the next quit
+  // (#651/#632). The user can still force it via "install now anyway".
+  | 'deferred'
   | 'cancelled';
 
 /** Why an update could not be applied, carried on an 'install-failed' status. */

@@ -41,5 +41,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "Оновлення готове",
+  "deferredDesc": "Це оновлення буде застосовано після завершення завдань або під час виходу. Усе одно встановити зараз?",
+  "installNowAnyway": "Усе одно встановити"
 }

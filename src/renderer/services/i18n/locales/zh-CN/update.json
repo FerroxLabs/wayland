@@ -41,5 +41,8 @@
     "downloading": "Updating...",
     "ready": "Restart to update",
     "tooltip": "Update available: {{version}}"
-  }
+  },
+  "deferredTitle": "更新已就绪",
+  "deferredDesc": "此更新将在您的任务完成时或退出时应用。仍要立即安装吗？",
+  "installNowAnyway": "仍要立即安装"
 }
