@@ -53,8 +53,18 @@ const PREFIXED_KEY_REGEX =
 // (the `_` before `API` is not a `\b`). Excluding only `[A-Za-z0-9]` treats the
 // `_` (and any separator, and start-of-string) as a boundary, so UPPER_SNAKE and
 // snake_case key names match (#610 Overwatch).
+//
+// The TRAILING side has the same `\b` trap in reverse: the recognized keyword
+// must be the LAST segment before the delimiter, so a name that GLUES more
+// segments after it - `AWS_SECRET_ACCESS_KEY=...`, `SECRET_KEY=...`,
+// `CLIENT_SECRET_ID=...`, `REFRESH_TOKEN_EXPIRY=...` - failed the old `\b`
+// (`SECRET` is followed by the `_` of `_ACCESS_KEY`, both word chars) and leaked
+// the value in full. Fix: consume any trailing `[_-]segment` runs and end on a
+// `(?![A-Za-z0-9])` lookahead (also fires against digits/punctuation, unlike
+// `\b`). The keyword AND its trailing segments are captured together so the whole
+// name is preserved in the masked render, not just the keyword (#610 Overwatch).
 const KEY_VALUE_REGEX =
-  /(?<![A-Za-z0-9])(api[_-]?key|apikey|access[_-]?token|refresh[_-]?token|auth[_-]?token|client[_-]?secret|secret|password|passwd|token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/gi;
+  /(?<![A-Za-z0-9])((?:api[_-]?key|apikey|access[_-]?token|refresh[_-]?token|auth[_-]?token|client[_-]?secret|secret|password|passwd|token)(?:[_-][a-z0-9]+)*)(?![A-Za-z0-9])(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/gi;
 
 // camelCase key names (`openaiApiKey`, `clientSecret`, `accessToken`) glue the
 // key to a lowercase prefix, so neither `\b` nor the separator boundary above

@@ -125,6 +125,27 @@ describe('redactCommandSecrets', () => {
     expect(redactCommandSecrets('cat /etc/hosts_file=/tmp/x')).toBe('cat /etc/hosts_file=/tmp/x');
   });
 
+  it('masks key names with segments glued AFTER the keyword (#610 Overwatch re-audit)', () => {
+    // The trailing `\b` treated `_` as a word char, so the keyword had to be the
+    // LAST segment before the delimiter - `AWS_SECRET_ACCESS_KEY=` leaked because
+    // `SECRET` is followed by `_ACCESS_KEY`. These are canonical real-world names.
+    const aws = redactCommandSecrets('export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
+    expect(aws).not.toContain('wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY');
+    expect(aws).toContain('••••••');
+    // the full key NAME is preserved (not truncated to AWS_SECRET=)
+    expect(aws).toContain('AWS_SECRET_ACCESS_KEY=');
+
+    expect(redactCommandSecrets('SECRET_KEY=django-insecure-abc123def456xyz')).not.toContain(
+      'django-insecure-abc123def456xyz'
+    );
+    expect(redactCommandSecrets('CLIENT_SECRET_ID=someRandomValue1234')).not.toContain('someRandomValue1234');
+    expect(redactCommandSecrets('API_SECRET_KEY=raw_value_abcdef123')).not.toContain('raw_value_abcdef123');
+    // hyphen-segment form too
+    expect(redactCommandSecrets('--api-key-id sk-live-abc123def456')).not.toContain('sk-live-abc123def456');
+    // a non-secret snake name with extra segments still stays intact
+    expect(redactCommandSecrets('cat /etc/hosts_file_path=/tmp/x')).toBe('cat /etc/hosts_file_path=/tmp/x');
+  });
+
   it('masks camelCase key names glued to a lowercase prefix (#610 audit)', () => {
     const json = redactCommandSecrets('{"openaiApiKey":"sk-proj-secretvalue123"}');
     expect(json).not.toContain('sk-proj-secretvalue123');
