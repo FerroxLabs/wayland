@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Store registered providers so we can test them
 const registeredProviders: Record<string, Function> = {};
@@ -80,13 +80,33 @@ import { shell } from 'electron';
 import * as fs from 'fs';
 import { exec, spawn } from 'child_process';
 
+// process.platform drives shellBridge's per-OS branches: on Linux, openFile falls
+// back to an `xdg-open` spawn when shell.openPath fails, and showItemInFolder
+// reveals by opening the containing directory instead of calling
+// shell.showItemInFolder. Tests MUST pin the platform explicitly so they behave
+// identically on macOS and Linux CI runners rather than inheriting the host OS.
+const ORIGINAL_PLATFORM = process.platform;
+function setPlatform(value: NodeJS.Platform): void {
+  Object.defineProperty(process, 'platform', { value, configurable: true });
+}
+
 describe('shellBridge with actual providers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Deterministic baseline: default every test to a non-Linux platform, and a
+    // spawn mock whose child never emits 'error' (so a Linux xdg-open fallback is
+    // treated as launched). Tests that exercise other platforms override these.
+    setPlatform('darwin');
+    vi.mocked(spawn).mockReturnValue({ on: vi.fn(), unref: vi.fn() } as never);
     // Clear registered providers
     Object.keys(registeredProviders).forEach((key) => delete registeredProviders[key]);
     // Re-initialize to register providers
     initShellBridge();
+  });
+
+  afterEach(() => {
+    // Restore so platform never leaks across tests or into other suites.
+    setPlatform(ORIGINAL_PLATFORM);
   });
 
   describe('openFile provider', () => {
@@ -98,7 +118,8 @@ describe('shellBridge with actual providers', () => {
       expect(shell.openPath).toHaveBeenCalledWith('/test/file.txt');
     });
 
-    it('resolves { ok: false, error } when shell.openPath returns error', async () => {
+    it('resolves { ok: false, error } when shell.openPath returns error (non-Linux)', async () => {
+      setPlatform('darwin');
       vi.mocked(shell.openPath).mockResolvedValue('No application associated with this file type');
 
       await expect(registeredProviders['openFile']('/test/unknown.xyz')).resolves.toEqual({
@@ -116,13 +137,55 @@ describe('shellBridge with actual providers', () => {
         error: 'Failed to open',
       });
     });
+
+    it('linux: retries via xdg-open and resolves { ok: true } when the spawn launches', async () => {
+      setPlatform('linux');
+      // Electron's shell.openPath returns a non-empty error string on a headless
+      // Linux box; the code then retries with an explicit xdg-open spawn.
+      vi.mocked(shell.openPath).mockResolvedValue('Failed to open path');
+      // Default spawn mock never emits 'error', so xdg-open is treated as launched.
+
+      await expect(registeredProviders['openFile']('/test/file.txt')).resolves.toEqual({ ok: true });
+      expect(spawn).toHaveBeenCalledWith('xdg-open', ['/test/file.txt'], { detached: true, stdio: 'ignore' });
+    });
+
+    it('linux: resolves { ok: false, error } when the xdg-open spawn errors (ENOENT)', async () => {
+      setPlatform('linux');
+      vi.mocked(shell.openPath).mockResolvedValue('Failed to open path');
+      // xdg-utils absent → the spawned child emits an ENOENT 'error' event.
+      vi.mocked(spawn).mockReturnValue({
+        on: vi.fn((event: string, cb: (err: Error) => void) => {
+          if (event === 'error') cb(new Error('spawn xdg-open ENOENT'));
+        }),
+        unref: vi.fn(),
+      } as never);
+
+      await expect(registeredProviders['openFile']('/test/file.txt')).resolves.toEqual({
+        ok: false,
+        error: 'spawn xdg-open ENOENT',
+      });
+    });
   });
 
   describe('showItemInFolder provider', () => {
-    it('calls shell.showItemInFolder with the path', async () => {
+    it('calls shell.showItemInFolder with the path (non-Linux)', async () => {
+      setPlatform('darwin');
+
       await registeredProviders['showItemInFolder']('/test/folder');
 
       expect(shell.showItemInFolder).toHaveBeenCalledWith('/test/folder');
+    });
+
+    it('linux: reveals via the containing directory instead of shell.showItemInFolder', async () => {
+      setPlatform('linux');
+      vi.mocked(shell.openPath).mockResolvedValue('');
+
+      const result = await registeredProviders['showItemInFolder']('/test/folder/file.txt');
+
+      // Linux has no reliable shell.showItemInFolder, so it opens the parent dir.
+      expect(shell.showItemInFolder).not.toHaveBeenCalled();
+      expect(shell.openPath).toHaveBeenCalledWith('/test/folder');
+      expect(result).toEqual({ ok: true });
     });
   });
 
