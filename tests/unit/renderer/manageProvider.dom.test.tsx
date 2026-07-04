@@ -141,6 +141,8 @@ vi.mock('@arco-design/web-react', async () => {
 const mockList = vi.fn();
 const mockGetCatalog = vi.fn();
 const mockToggleModel = vi.fn();
+const mockAddCustomModel = vi.fn();
+const mockRemoveCustomModel = vi.fn();
 const mockRefresh = vi.fn();
 const mockRekey = vi.fn();
 const mockDisconnect = vi.fn();
@@ -153,6 +155,8 @@ vi.mock('../../../src/common/adapter/ipcBridge', () => ({
     testConnection: { invoke: vi.fn() },
     getCatalog: { invoke: (...a: unknown[]) => mockGetCatalog(...a) },
     toggleModel: { invoke: (...a: unknown[]) => mockToggleModel(...a) },
+    addCustomModel: { invoke: (...a: unknown[]) => mockAddCustomModel(...a) },
+    removeCustomModel: { invoke: (...a: unknown[]) => mockRemoveCustomModel(...a) },
     refresh: { invoke: (...a: unknown[]) => mockRefresh(...a) },
     disconnect: { invoke: (...a: unknown[]) => mockDisconnect(...a) },
     rekey: { invoke: (...a: unknown[]) => mockRekey(...a) },
@@ -270,6 +274,8 @@ beforeEach(() => {
   mockList.mockReset().mockResolvedValue([provider]);
   mockGetCatalog.mockReset().mockResolvedValue({ catalog: [], curated });
   mockToggleModel.mockReset().mockResolvedValue({ ok: true });
+  mockAddCustomModel.mockReset().mockResolvedValue({ ok: true });
+  mockRemoveCustomModel.mockReset().mockResolvedValue({ ok: true });
   mockRefresh.mockReset().mockResolvedValue({ ok: true });
   mockRekey.mockReset().mockResolvedValue({ ok: true });
   mockDisconnect.mockReset().mockResolvedValue({ ok: true });
@@ -339,6 +345,51 @@ describe('ManageProvider page', () => {
     );
     // Optimistic flip reflected in the DOM.
     await waitFor(() => expect(olderRow.getAttribute('data-enabled')).toBe('true'));
+  });
+
+  it('adds a custom model id verbatim via the custom-model input (#617)', async () => {
+    renderPage();
+    await waitFor(() => expect(rows().length).toBe(5));
+
+    // Type a preset id (with @ and /) and click Add - it must reach IPC untouched.
+    const input = screen.getByPlaceholderText('settings.modelsPage.manage.customModelPlaceholder');
+    fireEvent.change(input, { target: { value: '@preset/myfusion' } });
+    fireEvent.click(screen.getByText('settings.modelsPage.manage.customModelAdd'));
+
+    await waitFor(() =>
+      expect(mockAddCustomModel).toHaveBeenCalledWith({
+        providerId: 'anthropic',
+        modelId: '@preset/myfusion',
+      })
+    );
+    // The catalog is re-fetched so the new custom row surfaces.
+    await waitFor(() => expect(mockGetCatalog).toHaveBeenCalledTimes(2));
+  });
+
+  it('renders a custom model in its own section with a remove control (#617)', async () => {
+    const customRow = model({
+      id: '@preset/myfusion',
+      displayName: '@preset/myfusion',
+      family: 'custom',
+      enabled: true,
+    });
+    mockGetCatalog.mockReset().mockResolvedValue({ catalog: [customRow], curated: [...curated, customRow] });
+
+    renderPage();
+    await waitFor(() => expect(document.querySelector('[data-model="@preset/myfusion"]')).toBeInTheDocument());
+
+    const row = document.querySelector('[data-model="@preset/myfusion"]') as HTMLElement;
+    const remove = within(row).getByLabelText(
+      'settings.modelsPage.manage.customModelRemoveAria:model=@preset/myfusion'
+    );
+    fireEvent.click(remove);
+
+    await waitFor(() =>
+      expect(mockRemoveCustomModel).toHaveBeenCalledWith({
+        providerId: 'anthropic',
+        modelId: '@preset/myfusion',
+      })
+    );
   });
 
   it('filters the unified list by the search input', async () => {

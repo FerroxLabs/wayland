@@ -99,6 +99,7 @@ class FakeRepo {
   providers = new Map<ProviderId, RegistryProvider & { creds: Record<string, unknown> }>();
   catalogs = new Map<ProviderId, CatalogModel[]>();
   overrides = new Map<ProviderId, RegistryOverride[]>();
+  customModels = new Map<ProviderId, string[]>();
 
   listRegistryProviders(): RegistryProvider[] {
     return [...this.providers.values()];
@@ -166,6 +167,7 @@ class FakeRepo {
     this.providers.delete(id);
     this.catalogs.delete(id);
     this.overrides.delete(id);
+    this.customModels.delete(id);
   }
 
   replaceRegistryCatalog(id: ProviderId, models: CatalogModel[]): void {
@@ -190,6 +192,23 @@ class FakeRepo {
 
   listRegistryOverrides(id: ProviderId): RegistryOverride[] {
     return this.overrides.get(id) ?? [];
+  }
+
+  addCustomModel(id: ProviderId, modelId: string): void {
+    const list = this.customModels.get(id) ?? [];
+    if (!list.includes(modelId)) list.push(modelId);
+    this.customModels.set(id, list);
+  }
+
+  removeCustomModel(id: ProviderId, modelId: string): void {
+    this.customModels.set(
+      id,
+      (this.customModels.get(id) ?? []).filter((m) => m !== modelId)
+    );
+  }
+
+  listCustomModels(id: ProviderId): string[] {
+    return this.customModels.get(id) ?? [];
   }
 }
 
@@ -632,6 +651,79 @@ describe('modelRegistry IPC - getCatalog', () => {
     const { deps } = makeFakes();
     const h = createModelRegistryHandlers(deps);
     expect(await h.getCatalog({ providerId: 'openai' })).toEqual({ catalog: [], curated: [] });
+  });
+});
+
+describe('modelRegistry IPC - custom models (#617)', () => {
+  function connectedRepo(): Fakes {
+    const fakes = makeFakes();
+    fakes.repo.upsertRegistryProvider({
+      providerId: 'openrouter',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    return fakes;
+  }
+
+  it('addCustomModel persists a non-catalog id verbatim (preset with @ and /)', async () => {
+    const { deps, repo } = connectedRepo();
+    const h = createModelRegistryHandlers(deps);
+
+    const res = await h.addCustomModel({ providerId: 'openrouter', modelId: '  @preset/myfusion  ' });
+
+    expect(res).toEqual({ ok: true });
+    // Trimmed, but @ and / are preserved (a preset ref is meaningless without them).
+    expect(repo.listCustomModels('openrouter')).toEqual(['@preset/myfusion']);
+  });
+
+  it('rejects an empty id and a not-connected provider', async () => {
+    const { deps, repo } = connectedRepo();
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.addCustomModel({ providerId: 'openrouter', modelId: '   ' })).toEqual({ ok: false });
+    expect(await h.addCustomModel({ providerId: 'openai', modelId: '@preset/x' })).toEqual({ ok: false });
+    expect(repo.listCustomModels('openrouter')).toEqual([]);
+  });
+
+  it('surfaces a custom model as an enabled row in getCatalog (catalog + curated)', async () => {
+    const { deps } = connectedRepo();
+    const h = createModelRegistryHandlers(deps);
+    await h.addCustomModel({ providerId: 'openrouter', modelId: '@preset/myfusion' });
+
+    const { catalog, curated } = await h.getCatalog({ providerId: 'openrouter' });
+
+    expect(catalog.map((m) => m.id)).toContain('@preset/myfusion');
+    const row = curated.find((m) => m.id === '@preset/myfusion');
+    expect(row?.enabled).toBe(true);
+    expect(row?.providerId).toBe('openrouter');
+  });
+
+  it('surfaces a custom model (enabled) in the wcore picker union; a disable override flips its flag', async () => {
+    const { deps, repo } = connectedRepo();
+    const h = createModelRegistryHandlers(deps);
+    await h.addCustomModel({ providerId: 'openrouter', modelId: '@preset/myfusion' });
+
+    const enabledRow = (await h.curatedForAgent({ agentKey: 'wcore' })).find((m) => m.id === '@preset/myfusion');
+    expect(enabledRow?.enabled).toBe(true);
+
+    // Toggling it off routes through the same override path a catalog model uses.
+    // curatedForAgent still returns the row (enabled:false) - the picker
+    // viewmodel is what hides disabled rows, exactly like any catalog model.
+    repo.setRegistryOverride('openrouter', '@preset/myfusion', false);
+    const disabledRow = (await h.curatedForAgent({ agentKey: 'wcore' })).find((m) => m.id === '@preset/myfusion');
+    expect(disabledRow?.enabled).toBe(false);
+  });
+
+  it('removeCustomModel drops it from the curated view', async () => {
+    const { deps } = connectedRepo();
+    const h = createModelRegistryHandlers(deps);
+    await h.addCustomModel({ providerId: 'openrouter', modelId: '@preset/myfusion' });
+
+    expect(await h.removeCustomModel({ providerId: 'openrouter', modelId: '@preset/myfusion' })).toEqual({ ok: true });
+
+    const { curated } = await h.getCatalog({ providerId: 'openrouter' });
+    expect(curated.find((m) => m.id === '@preset/myfusion')).toBeUndefined();
   });
 });
 

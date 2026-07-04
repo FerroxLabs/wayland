@@ -275,6 +275,38 @@ export class ProviderRepository {
       .all(providerId) as Array<Record<string, unknown>>;
     return rows.map((r) => ({ modelId: r.model_id as string, enabled: (r.enabled as number) === 1 }));
   }
+
+  // ── Model registry: custom (non-catalog) models ──────────────────────────
+  // User-typed model ids a provider accepts but that never appear in its public
+  // catalog - e.g. an OpenRouter preset `@preset/<slug>` (#617). Kept separate
+  // from `model_registry_catalog` (which a refresh fully overwrites) so a custom
+  // id survives every catalog refresh. Merged into the curated view on read.
+
+  /** Persist a custom model id for a provider (no-op if already present). */
+  addCustomModel(providerId: ProviderId, modelId: string): void {
+    this.db
+      .prepare(
+        `INSERT INTO model_registry_custom_models (provider_id, model_id, created_at)
+         VALUES (?, ?, ?)
+         ON CONFLICT(provider_id, model_id) DO NOTHING`
+      )
+      .run(providerId, modelId, Date.now());
+  }
+
+  /** Remove a custom model id from a provider. */
+  removeCustomModel(providerId: ProviderId, modelId: string): void {
+    this.db
+      .prepare(`DELETE FROM model_registry_custom_models WHERE provider_id = ? AND model_id = ?`)
+      .run(providerId, modelId);
+  }
+
+  /** Every custom model id for a provider, oldest first. */
+  listCustomModels(providerId: ProviderId): string[] {
+    const rows = this.db
+      .prepare(`SELECT model_id FROM model_registry_custom_models WHERE provider_id = ? ORDER BY created_at ASC`)
+      .all(providerId) as Array<Record<string, unknown>>;
+    return rows.map((r) => r.model_id as string);
+  }
 }
 
 /** Map a `model_registry_providers` row onto a `RegistryProvider`. */
