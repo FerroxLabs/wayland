@@ -24,6 +24,8 @@ import PasteConfirmModal from './components/PasteConfirmModal';
 import WorkspaceContextMenu from './components/WorkspaceContextMenu';
 import WorkspaceDialogs from './components/WorkspaceDialogs';
 import WorkspaceTabBar from './components/WorkspaceTabBar';
+import TerminalPanel from './components/terminal/TerminalPanel';
+import { useTerminalEnabled } from './hooks/useTerminalEnabled';
 import WorkspaceToolbar from './components/WorkspaceToolbar';
 import { useFileChanges } from './hooks/useFileChanges';
 import { useWorkspaceCollapse } from './hooks/useWorkspaceCollapse';
@@ -66,6 +68,7 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
 
   // Tab state and file changes
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('files');
+  const terminalEnabled = useTerminalEnabled();
   const fileChangesHook = useFileChanges({ workspace });
   const favoritesHook = useWorkspaceFavorites({ conversationId: conversation_id });
 
@@ -311,6 +314,7 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
           changeCount={fileChangesHook.changeCount}
           branch={fileChangesHook.snapshotInfo?.branch ?? null}
           branches={fileChangesHook.branches}
+          showTerminal={terminalEnabled}
         />
 
         {/* Toolbar: search input + directory name + action buttons */}
@@ -593,6 +597,13 @@ const ChatWorkspace: React.FC<WorkspaceProps> = ({
               onDiscardFile={fileChangesHook.discardFile}
               onResetFile={fileChangesHook.resetFile}
             />
+          </FlexFullContainer>
+        )}
+
+        {/* #645 Terminal tab — the chat's agent in its native TUI over a PTY. */}
+        {!isWorkspaceCollapsed && terminalEnabled && activeTab === 'terminal' && (
+          <FlexFullContainer containerClassName='overflow-hidden'>
+            <TerminalPanel conversationId={conversation_id} cwd={workspace} />
           </FlexFullContainer>
         )}
       </div>

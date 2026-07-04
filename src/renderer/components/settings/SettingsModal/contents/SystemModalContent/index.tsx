@@ -51,6 +51,8 @@ const SystemModalContent: React.FC = () => {
   const [agentIdleTimeout, setAgentIdleTimeout] = useState<number>(5);
   const [saveUploadToWorkspace, setSaveUploadToWorkspace] = useState(false);
   const [autoPreviewOfficeFiles, setAutoPreviewOfficeFiles] = useState(true);
+  // #645 Terminal mode (advanced, off by default).
+  const [terminalMode, setTerminalMode] = useState(false);
   // Concierge default landing persona (reversible). Default ON: a fresh chat
   // starts on the Concierge assistant; off keeps the last-used engine.
   const [conciergeDefaultPersona, setConciergeDefaultPersona] = useState(true);
@@ -122,6 +124,13 @@ const SystemModalContent: React.FC = () => {
       .invoke()
       .then((enabled) => setAutoPreviewOfficeFiles(enabled))
       .catch((err) => console.warn('[SystemModalContent.getAutoPreviewOfficeFiles]', err));
+  }, []);
+
+  useEffect(() => {
+    ipcBridge.systemSettings.getTerminalEnabled
+      .invoke()
+      .then((enabled) => setTerminalMode(enabled))
+      .catch((err) => console.warn('[SystemModalContent.getTerminalEnabled]', err));
   }, []);
 
   // L17 (AUDIT-05 F16): poll auto-updater bootstrap status once on mount.
@@ -216,6 +225,13 @@ const SystemModalContent: React.FC = () => {
     });
   }, []);
 
+  const handleTerminalModeChange = useCallback((checked: boolean) => {
+    setTerminalMode(checked);
+    ipcBridge.systemSettings.setTerminalEnabled.invoke({ enabled: checked }).catch(() => {
+      setTerminalMode(!checked);
+    });
+  }, []);
+
   const handleAutoPreviewOfficeFilesChange = useCallback((checked: boolean) => {
     setAutoPreviewOfficeFiles(checked);
     void mutateSWR(AUTO_PREVIEW_OFFICE_FILES_SWR_KEY, checked, {
@@ -307,6 +323,16 @@ const SystemModalContent: React.FC = () => {
       label: t('settings.autoPreviewOfficeFiles'),
       description: t('settings.autoPreviewOfficeFilesDesc'),
       component: <Switch checked={autoPreviewOfficeFiles} onChange={handleAutoPreviewOfficeFilesChange} />,
+    },
+    {
+      key: 'terminalMode',
+      label: t('settings.terminalMode', { defaultValue: 'Terminal mode' }),
+      description: t('settings.terminalModeDesc', {
+        defaultValue: "Open the current chat's agent in its native terminal UI. Advanced.",
+      }),
+      component: (
+        <Switch checked={terminalMode} onChange={handleTerminalModeChange} data-testid='terminal-mode-switch' />
+      ),
     },
     {
       key: 'conciergeDefaultPersona',

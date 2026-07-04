@@ -179,6 +179,8 @@
   "saveUploadToWorkspace": "Save Uploads to Workspace",
   "autoPreviewOfficeFiles": "Auto Preview New Office Files",
   "autoPreviewOfficeFilesDesc": "Automatically open newly created Word, Excel, and PowerPoint files in the current workspace. Office temporary lock files are ignored.",
+  "terminalMode": "Terminal mode",
+  "terminalModeDesc": "Open the current chat's agent in its native terminal UI. Advanced.",
   "startOnBoot": "Start on Boot",
   "startOnBootDesc": "Launch Wayland automatically when you sign in to macOS, Windows, or Linux.",
   "startOnBootUnsupported": "Available only in packaged macOS, Windows, and Linux apps.",

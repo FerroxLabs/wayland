@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Check, ChevronDown, ChevronRight, GitBranch } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, GitBranch, TerminalSquare } from 'lucide-react';
 import { Badge, Dropdown, Tabs } from '@arco-design/web-react';
 import type { TFunction } from 'i18next';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -17,6 +17,8 @@ type WorkspaceTabBarProps = {
   changeCount: number;
   branch: string | null;
   branches: string[];
+  /** #645: show the Terminal tab (advanced flag on). */
+  showTerminal?: boolean;
 };
 
 // --- Branch tree helpers ---
@@ -127,6 +129,7 @@ const WorkspaceTabBar: React.FC<WorkspaceTabBarProps> = ({
   changeCount,
   branch,
   branches,
+  showTerminal = false,
 }) => {
   const tree = useMemo(() => buildBranchTree(branches), [branches]);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(branch ? getAncestorPaths(branch) : []));
@@ -190,6 +193,17 @@ const WorkspaceTabBar: React.FC<WorkspaceTabBarProps> = ({
     >
       <Tabs.TabPane key='files' title={t('conversation.workspace.changes.filesTab')} />
       <Tabs.TabPane key='changes' title={changesTitle} />
+      {showTerminal && (
+        <Tabs.TabPane
+          key='terminal'
+          title={
+            <span className='flex items-center gap-4px'>
+              <TerminalSquare size={13} className='shrink-0' />
+              {t('conversation.workspace.terminal.tab')}
+            </span>
+          }
+        />
+      )}
     </Tabs>
   );
 };

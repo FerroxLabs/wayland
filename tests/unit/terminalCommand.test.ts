@@ -47,7 +47,10 @@ describe('resolveTerminalCommand (#645)', () => {
   });
 
   it('prefers an explicit cliPath for claude when recorded', () => {
-    const spec = resolveTerminalCommand({ type: 'acp', extra: { backend: 'claude', cliPath: '/usr/local/bin/claude' } });
+    const spec = resolveTerminalCommand({
+      type: 'acp',
+      extra: { backend: 'claude', cliPath: '/usr/local/bin/claude' },
+    });
     expect(spec?.command).toBe('/usr/local/bin/claude');
   });
 
@@ -55,7 +58,10 @@ describe('resolveTerminalCommand (#645)', () => {
     expect(resolveTerminalCommand({ type: 'acp', extra: { backend: 'qwen', workspace: '/w' } })).toBeNull();
   });
 
-  it.each(['gemini', 'openclaw-gateway', 'nanobot', 'remote', 'unknown'])('returns null for unmapped agent %s', (type) => {
-    expect(resolveTerminalCommand({ type, extra: { workspace: '/w' } }, wcoreFound)).toBeNull();
-  });
+  it.each(['gemini', 'openclaw-gateway', 'nanobot', 'remote', 'unknown'])(
+    'returns null for unmapped agent %s',
+    (type) => {
+      expect(resolveTerminalCommand({ type, extra: { workspace: '/w' } }, wcoreFound)).toBeNull();
+    }
+  );
 });
