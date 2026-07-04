@@ -27,6 +27,9 @@ import {
   __resetForTest,
 } from '@/process/services/updateQuiesceGate';
 
+// A deferred install fires on the next macrotask after the app goes idle (#651).
+const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
+
 describe('updateQuiesceGate (#651)', () => {
   beforeEach(() => {
     deferSetting = undefined; // default → true
@@ -68,8 +71,11 @@ describe('updateQuiesceGate (#651)', () => {
       expect(onDeferred).toHaveBeenCalledTimes(1);
       expect(install).not.toHaveBeenCalled(); // work is NOT killed
 
-      // Work finishes → the deferred install fires.
+      // Work finishes → the deferred install fires (on the next tick, so turn
+      // finalization / follow-up work can complete first).
       cronBusyGuard.setProcessing('chat', false);
+      expect(install).not.toHaveBeenCalled(); // not synchronous
+      await flush();
       expect(install).toHaveBeenCalledTimes(1);
     });
 
@@ -92,6 +98,7 @@ describe('updateQuiesceGate (#651)', () => {
       expect(onDeferred).toHaveBeenCalledTimes(2); // UX re-surfaced each click
 
       cronBusyGuard.setProcessing('chat', false);
+      await flush();
       expect(install).toHaveBeenCalledTimes(1); // but only ONE install fires
     });
 
@@ -102,8 +109,10 @@ describe('updateQuiesceGate (#651)', () => {
       await installOrDefer(install);
 
       cronBusyGuard.setProcessing('chat', false);
+      await flush();
       expect(install).not.toHaveBeenCalled(); // cron still running
       cronBusyGuard.setProcessing('cron', false);
+      await flush();
       expect(install).toHaveBeenCalledTimes(1);
     });
   });

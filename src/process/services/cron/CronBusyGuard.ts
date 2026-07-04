@@ -56,14 +56,37 @@ export class CronBusyGuard {
         for (const cb of callbacks) cb();
       }
 
-      // Global idle: fire the one-shot app-idle callbacks only when THIS clear
-      // left nothing else processing (the last busy conversation went idle).
-      if (this.globalIdleCallbacks.length > 0 && !this.isAppBusy()) {
-        const globals = this.globalIdleCallbacks;
-        this.globalIdleCallbacks = [];
-        for (const cb of globals) cb();
-      }
+      // Global idle: fire the one-shot app-idle callbacks when this clear left
+      // nothing else processing (the last busy conversation went idle).
+      this.fireGlobalIdleIfIdle();
     }
+  }
+
+  /**
+   * Fire the one-shot global-idle callbacks IF the app is now idle — but on the
+   * NEXT macrotask, not synchronously, and only after a re-check.
+   *
+   * Callers mark a conversation idle at the START of turn teardown and then keep
+   * working: WCoreManager.handleTurnEnd() calls setProcessing(false) first, then
+   * flushes buffered text, persists a cron schedule, and can even start a
+   * follow-up turn. Firing synchronously here would let a deferred update restart
+   * pre-empt that finalization — the exact rug-pull #651 exists to prevent. So we
+   * defer to setImmediate and re-check: if work resumed (a follow-up turn
+   * re-asserts busy), re-arm and wait for the next real idle. (#651/#632)
+   */
+  private fireGlobalIdleIfIdle(): void {
+    if (this.globalIdleCallbacks.length === 0 || this.isAppBusy()) return;
+    const globals = this.globalIdleCallbacks;
+    this.globalIdleCallbacks = [];
+    setImmediate(() => {
+      if (this.isAppBusy()) {
+        // Work resumed before the callback ran (e.g. a follow-up turn). Put the
+        // callbacks back; the next transition to idle re-schedules them.
+        this.globalIdleCallbacks.unshift(...globals);
+        return;
+      }
+      for (const cb of globals) cb();
+    });
   }
 
   /**
@@ -155,6 +178,8 @@ export class CronBusyGuard {
         this.states.delete(id);
       }
     }
+    // Removing states can make the app idle without a setProcessing(false) call.
+    this.fireGlobalIdleIfIdle();
   }
 
   /**
@@ -163,6 +188,9 @@ export class CronBusyGuard {
    */
   remove(conversationId: string): void {
     this.states.delete(conversationId);
+    // Deleting the last processing conversation flips the app to idle without a
+    // setProcessing(false); make sure a pending global-idle install still fires.
+    this.fireGlobalIdleIfIdle();
   }
 
   /**
