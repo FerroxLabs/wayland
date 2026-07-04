@@ -193,13 +193,17 @@ describe('getEnhancedEnv', () => {
 //   node bin and capture NVM_DIR / VOLTA_HOME.
 // -------------------------------------------------------------------
 describe('getEnhancedEnv version-manager node (#628)', () => {
+  // Build every path with path.join so the mock keys use the SAME separators as
+  // the code under test (which uses path.join). The code spoofs platform to
+  // 'darwin', but path.join still follows the REAL runner OS (backslashes on
+  // Windows), so hardcoded forward-slash literals would never match there.
   const HOME = '/home/tester';
-  const NVM_NODE_BASE = `${HOME}/.nvm/versions/node`;
-  const NVM_BIN = `${NVM_NODE_BASE}/v20.11.0/bin`;
-  const NVM_NODE = `${NVM_BIN}/node`;
-  const VOLTA_DIR = `${HOME}/.volta`;
-  const VOLTA_BIN = `${VOLTA_DIR}/bin`;
-  const NVM_DIR = `${HOME}/.nvm`;
+  const NVM_DIR = path.join(HOME, '.nvm');
+  const NVM_NODE_BASE = path.join(NVM_DIR, 'versions', 'node');
+  const NVM_BIN = path.join(NVM_NODE_BASE, 'v20.11.0', 'bin');
+  const NVM_NODE = path.join(NVM_BIN, 'node');
+  const VOLTA_DIR = path.join(HOME, '.volta');
+  const VOLTA_BIN = path.join(VOLTA_DIR, 'bin');
   const originalPlatform = process.platform;
   let savedNvmDir: string | undefined;
   let savedVoltaHome: string | undefined;
