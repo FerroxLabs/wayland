@@ -1159,6 +1159,12 @@ export const systemSettings = {
   setSaveUploadToWorkspace: buildProvider<void, { enabled: boolean }>('system-settings:set-save-upload-to-workspace'),
   getAutoPreviewOfficeFiles: buildProvider<boolean, void>('system-settings:get-auto-preview-office-files'),
   setAutoPreviewOfficeFiles: buildProvider<void, { enabled: boolean }>('system-settings:set-auto-preview-office-files'),
+  // Terminal mode (#645) — advanced, OFF by default. Gates whether the per-chat
+  // Terminal tab appears (renderer reads the getter) and is re-checked in the
+  // main process before any PTY spawn (defense-in-depth). The setter is
+  // remote-denied in bridgeAllowlist so a paired peer cannot enable it.
+  getTerminalEnabled: buildProvider<boolean, void>('system-settings:get-terminal-enabled'),
+  setTerminalEnabled: buildProvider<void, { enabled: boolean }>('system-settings:set-terminal-enabled'),
 };
 
 // Doctor / health-check (issue #35). `runDoctor` runs the full diagnostic
