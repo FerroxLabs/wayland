@@ -201,14 +201,28 @@ describe('getEnhancedEnv version-manager node (#628)', () => {
   const VOLTA_BIN = `${VOLTA_DIR}/bin`;
   const NVM_DIR = `${HOME}/.nvm`;
   const originalPlatform = process.platform;
+  let savedNvmDir: string | undefined;
+  let savedVoltaHome: string | undefined;
 
   beforeEach(() => {
     vi.resetModules();
     Object.defineProperty(process, 'platform', { value: 'darwin' });
+    // findSuitableNodeBin derives its nvm search base from process.env.NVM_DIR
+    // (falling back to ~/.nvm). A runner/leaked NVM_DIR would point the base
+    // away from the mocked dirs and defeat the append. Neutralize both vars so
+    // these tests are deterministic regardless of the ambient env or ordering.
+    savedNvmDir = process.env.NVM_DIR;
+    savedVoltaHome = process.env.VOLTA_HOME;
+    delete process.env.NVM_DIR;
+    delete process.env.VOLTA_HOME;
   });
 
   afterEach(() => {
     Object.defineProperty(process, 'platform', { value: originalPlatform });
+    if (savedNvmDir === undefined) delete process.env.NVM_DIR;
+    else process.env.NVM_DIR = savedNvmDir;
+    if (savedVoltaHome === undefined) delete process.env.VOLTA_HOME;
+    else process.env.VOLTA_HOME = savedVoltaHome;
   });
 
   // Mock os.homedir + fs so the version-manager dirs "exist"; the login shell
