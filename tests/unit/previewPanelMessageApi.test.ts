@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
+import { resolveOpenInSystemToast } from '@/renderer/pages/conversation/Preview/fileUtils';
+
 /**
  * Tests for the defensive messageApi pattern used in PreviewPanel's handleOpenInSystem.
  *
@@ -67,5 +69,31 @@ describe('handleOpenInSystem defensive messageApi pattern', () => {
     }
 
     expect(messageApi.success).toHaveBeenCalledWith('Open in system succeeded');
+  });
+});
+
+// #621: the "open in system" handlers (PreviewPanel + PDFViewer) must gate the
+// success toast on ShellOpenResult.ok - a failed shell open resolves { ok:false }
+// rather than throwing, so the old catch-only code showed a misleading success.
+describe('resolveOpenInSystemToast (#621)', () => {
+  const messages = { success: 'Opened', failed: 'Failed to open' };
+
+  it('shows the success toast when the shell open succeeded (ok:true)', () => {
+    expect(resolveOpenInSystemToast({ ok: true }, messages)).toEqual({ kind: 'success', message: 'Opened' });
+  });
+
+  it('shows an error toast surfacing the real error when the open failed (ok:false with error)', () => {
+    expect(resolveOpenInSystemToast({ ok: false, error: 'no xdg association' }, messages)).toEqual({
+      kind: 'error',
+      message: 'no xdg association',
+    });
+  });
+
+  it('falls back to the localized failed message when ok:false has no error string', () => {
+    expect(resolveOpenInSystemToast({ ok: false }, messages)).toEqual({ kind: 'error', message: 'Failed to open' });
+  });
+
+  it('treats a missing/undefined result as a failure (never a false success)', () => {
+    expect(resolveOpenInSystemToast(undefined, messages)).toEqual({ kind: 'error', message: 'Failed to open' });
   });
 });

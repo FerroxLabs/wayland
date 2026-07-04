@@ -5,6 +5,7 @@
  */
 
 import { ipcBridge } from '@/common';
+import { resolveOpenInSystemToast } from '../../fileUtils';
 import { usePreviewToolbarExtras } from '../../context/PreviewToolbarExtrasContext';
 import { Button, Message } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -43,8 +44,15 @@ const PDFPreview: React.FC<PDFPreviewProps> = ({ filePath, content, hideToolbar 
     }
 
     try {
-      await ipcBridge.shell.openFile.invoke(filePath);
-      messageApi.success(t('preview.openInSystemSuccess'));
+      // #621: openFile resolves to { ok, error? } (#616 contract) and does NOT
+      // throw on a failed shell open, so gate the toast on `ok` (see
+      // resolveOpenInSystemToast) instead of showing an unconditional success.
+      const result = await ipcBridge.shell.openFile.invoke(filePath);
+      const toast = resolveOpenInSystemToast(result, {
+        success: t('preview.openInSystemSuccess'),
+        failed: t('preview.openInSystemFailed'),
+      });
+      messageApi[toast.kind](toast.message);
     } catch (err) {
       messageApi.error(t('preview.openInSystemFailed'));
     }

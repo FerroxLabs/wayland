@@ -38,6 +38,7 @@ import {
   type PreviewTab,
 } from '.';
 import { DEFAULT_SPLIT_RATIO, FILE_TYPES_WITH_BUILTIN_OPEN, MAX_SPLIT_WIDTH, MIN_SPLIT_WIDTH } from '../../constants';
+import { resolveOpenInSystemToast } from '../../fileUtils';
 import {
   usePreviewHistory,
   usePreviewKeyboardShortcuts,
@@ -435,10 +436,17 @@ const PreviewPanel: React.FC = () => {
     }
 
     try {
-      // Open file with system default application
-      await ipcBridge.shell.openFile.invoke(metadata.filePath);
+      // Open file with system default application. #621: openFile resolves to
+      // { ok, error? } (#616 contract) and does NOT throw on a failed shell
+      // open (e.g. no Linux xdg association), so gate the toast on `ok` (see
+      // resolveOpenInSystemToast) instead of an unconditional success.
+      const result = await ipcBridge.shell.openFile.invoke(metadata.filePath);
+      const toast = resolveOpenInSystemToast(result, {
+        success: t('preview.openInSystemSuccess'),
+        failed: t('preview.openInSystemFailed'),
+      });
       try {
-        messageApi.success(t('preview.openInSystemSuccess'));
+        messageApi[toast.kind](toast.message);
       } catch {
         // Context holder may be unmounted after async operation
       }

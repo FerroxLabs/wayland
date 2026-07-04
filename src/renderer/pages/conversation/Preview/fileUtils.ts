@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import type { PreviewContentType } from '@/common/types/preview';
 
 /**
@@ -109,3 +110,26 @@ export const isOfficeFile = (filePath: string): boolean => {
   const contentType = getContentTypeByExtension(filePath);
   return ['word', 'excel', 'ppt'].includes(contentType);
 };
+
+/** The toast an "open in system" action should show. */
+export type OpenInSystemToast = { kind: 'success' | 'error'; message: string };
+
+/**
+ * #621: decide the toast for an "open in system" action.
+ *
+ * `shell.openFile` resolves to `{ ok, error? }` (the #616 contract) and does
+ * NOT throw when the shell open fails (e.g. a Linux file type with no xdg
+ * association). Callers that only caught a thrown error therefore showed a
+ * misleading success toast. Gate success on `ok`, and on failure surface the
+ * real `error` when present, falling back to the localized failed message.
+ *
+ * @param result - the ShellOpenResult (undefined tolerated → treated as failure)
+ * @param messages - already-localized success/failed strings
+ */
+export const resolveOpenInSystemToast = (
+  result: ShellOpenResult | undefined,
+  messages: { success: string; failed: string }
+): OpenInSystemToast =>
+  result?.ok
+    ? { kind: 'success', message: messages.success }
+    : { kind: 'error', message: result?.error || messages.failed };
