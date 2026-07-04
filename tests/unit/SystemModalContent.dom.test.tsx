@@ -137,6 +137,9 @@ vi.mock('@/common', () => ({
       setAutoPreviewOfficeFiles: {
         invoke: (...args: any[]) => mockSetAutoPreviewOfficeFiles(...args),
       },
+      // #645 terminal mode toggle — default off; setter is a no-op resolve.
+      getTerminalEnabled: { invoke: () => Promise.resolve(false) },
+      setTerminalEnabled: { invoke: () => Promise.resolve(undefined) },
     },
     dialog: {
       showOpen: { invoke: (...args: any[]) => mockShowOpen(...args) },
