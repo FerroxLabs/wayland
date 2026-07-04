@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Input, Message, Modal, Spin, Switch, Tooltip } from '@arco-design/web-react';
-import { AlertTriangle, ChevronLeft, RefreshCw as RefreshIcon } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, Plus, RefreshCw as RefreshIcon, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
 import type { ConnectError, CuratedModel, UsageTag } from '@process/providers/types';
@@ -76,7 +76,7 @@ const PRIMARY_TAGS = new Set<UsageTag>(['chat', 'image', 'audio', 'embeddings', 
  */
 const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) => {
   const { t } = useTranslation();
-  const { getCatalog, toggleModel, refresh, rekey, disconnect } = useModelRegistry();
+  const { getCatalog, toggleModel, addCustomModel, removeCustomModel, refresh, rekey, disconnect } = useModelRegistry();
 
   const meta = providerMeta(provider.providerId);
   const isError = provider.state === 'error';
@@ -93,6 +93,10 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   const [refreshing, setRefreshing] = useState(false);
   const [busyModel, setBusyModel] = useState<string | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
+
+  // Custom (non-catalog) model id input (#617).
+  const [customInput, setCustomInput] = useState('');
+  const [addingCustom, setAddingCustom] = useState(false);
 
   // Re-key dialog state.
   const [rekeyOpen, setRekeyOpen] = useState(false);
@@ -145,8 +149,14 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   }, [filtered, isFluxRouter, fluxTierOrder]);
   const rest = useMemo(() => {
     if (isFluxRouter) return filtered.filter((m) => !fluxTierOrder.has(m.id));
-    return filtered.filter((m) => !m.recommended);
+    // Custom models (family 'custom', #617) render in their own section below,
+    // never in the catalog list.
+    return filtered.filter((m) => !m.recommended && m.family !== 'custom');
   }, [filtered, isFluxRouter, fluxTierOrder]);
+
+  // User-typed custom models get their own section (with a remove affordance),
+  // independent of the catalog search so a just-added id is always visible.
+  const customModels = useMemo(() => models.filter((m) => m.family === 'custom'), [models]);
 
   // ---- Per-row meta (context window + cost) ------------------------------
   const modelMeta = useCallback(
@@ -181,6 +191,56 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
       }
     },
     [toggleModel, provider.providerId, t]
+  );
+
+  // ---- Custom (non-catalog) model id (#617) ------------------------------
+  // Adds a user-typed model string this provider accepts but that never appears
+  // in its catalog - e.g. an OpenRouter preset `@preset/<slug>`. The id is sent
+  // to the provider verbatim, so it is only trimmed, never sanitized (`@` / `/`
+  // are meaningful). It flows through the SAME curated -> picker -> engine path a
+  // catalog model does.
+  const handleAddCustom = useCallback(async () => {
+    const id = customInput.trim();
+    if (!id) return;
+    if (models.some((m) => m.id === id)) {
+      Message.warning(t('settings.modelsPage.manage.customModelDuplicate'));
+      return;
+    }
+    setAddingCustom(true);
+    try {
+      const res = await addCustomModel(provider.providerId, id);
+      if (!res?.ok) {
+        // The server is authoritative on collisions: an id that raced into the
+        // catalog after the local check is rejected with `reason: 'duplicate'`.
+        if (res?.reason === 'duplicate') {
+          Message.warning(t('settings.modelsPage.manage.customModelDuplicate'));
+          return;
+        }
+        throw new Error('add failed');
+      }
+      setCustomInput('');
+      await loadCatalog();
+    } catch {
+      Message.error(t('settings.modelsPage.manage.customModelAddFailed'));
+    } finally {
+      setAddingCustom(false);
+    }
+  }, [customInput, models, addCustomModel, provider.providerId, loadCatalog, t]);
+
+  const handleRemoveCustom = useCallback(
+    async (modelId: string) => {
+      setBusyModel(modelId);
+      try {
+        const res = await removeCustomModel(provider.providerId, modelId);
+        if (!res?.ok) throw new Error('remove failed');
+        await loadCatalog();
+      } catch {
+        Message.error(t('settings.modelsPage.manage.customModelRemoveFailed'));
+      } finally {
+        setBusyModel(null);
+      }
+    },
+    [removeCustomModel, provider.providerId, loadCatalog, t]
   );
 
   // ---- Bulk toggle (respects the active search) --------------------------
@@ -529,6 +589,55 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
             )}
           </>
         )}
+      </div>
+
+      {/* Custom (non-catalog) model ids, e.g. an OpenRouter preset (#617). */}
+      <div className={styles.secLabel}>{t('settings.modelsPage.manage.customModelHead')}</div>
+      <div className={styles.secExplain}>{t('settings.modelsPage.manage.customModelExplain')}</div>
+
+      <div className={styles.card}>
+        <div className='flex gap-8px p-12px'>
+          <Input
+            value={customInput}
+            onChange={setCustomInput}
+            onPressEnter={() => void handleAddCustom()}
+            placeholder={t('settings.modelsPage.manage.customModelPlaceholder')}
+            aria-label={t('settings.modelsPage.manage.customModelPlaceholder')}
+            disabled={addingCustom}
+          />
+          <Button
+            type='primary'
+            icon={<Plus size={14} aria-hidden='true' />}
+            loading={addingCustom}
+            disabled={!customInput.trim()}
+            onClick={() => void handleAddCustom()}
+          >
+            {t('settings.modelsPage.manage.customModelAdd')}
+          </Button>
+        </div>
+
+        {customModels.map((model) => (
+          <div key={model.id} className={styles.row} data-model={model.id} data-enabled={model.enabled}>
+            <span className={styles.modelName}>{model.displayName}</span>
+            <Switch
+              className={styles.toggle}
+              size='small'
+              checked={model.enabled}
+              loading={busyModel === model.id}
+              onChange={(checked) => void handleToggle(model, checked)}
+              aria-label={t('settings.modelsPage.manage.toggleAria', { model: model.displayName })}
+            />
+            <Button
+              type='text'
+              size='mini'
+              status='danger'
+              icon={<Trash2 size={14} aria-hidden='true' />}
+              loading={busyModel === model.id}
+              onClick={() => void handleRemoveCustom(model.id)}
+              aria-label={t('settings.modelsPage.manage.customModelRemoveAria', { model: model.displayName })}
+            />
+          </div>
+        ))}
       </div>
 
       <Modal

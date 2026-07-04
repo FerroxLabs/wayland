@@ -51,6 +51,10 @@ export type UseModelRegistry = {
   getCatalog: (providerId: ProviderId) => Promise<IModelRegistryCatalogView>;
   /** Enable / disable a single model. */
   toggleModel: (providerId: ProviderId, modelId: string, enabled: boolean) => Promise<{ ok: boolean }>;
+  /** Add a user-typed model id not in the provider's catalog (e.g. an OpenRouter preset). */
+  addCustomModel: (providerId: ProviderId, modelId: string) => Promise<{ ok: boolean; reason?: 'duplicate' }>;
+  /** Remove a previously added custom model id. */
+  removeCustomModel: (providerId: ProviderId, modelId: string) => Promise<{ ok: boolean }>;
   /** Re-fetch + re-enrich a provider's model list. */
   refresh: (providerId: ProviderId) => Promise<{ ok: boolean }>;
   /** Disconnect a provider and drop its catalog. */
@@ -225,6 +229,25 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
     [reload]
   );
 
+  const addCustomModel = useCallback(
+    async (providerId: ProviderId, modelId: string) => {
+      const res = await modelRegistry.addCustomModel.invoke({ providerId, modelId });
+      // A custom model changes the provider's model set - refresh the row badge.
+      if (res?.ok) await reload();
+      return res;
+    },
+    [reload]
+  );
+
+  const removeCustomModel = useCallback(
+    async (providerId: ProviderId, modelId: string) => {
+      const res = await modelRegistry.removeCustomModel.invoke({ providerId, modelId });
+      if (res?.ok) await reload();
+      return res;
+    },
+    [reload]
+  );
+
   const refresh = useCallback(
     async (providerId: ProviderId) => {
       const res = await modelRegistry.refresh.invoke({ providerId });
@@ -277,6 +300,8 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
       testConnection,
       getCatalog,
       toggleModel,
+      addCustomModel,
+      removeCustomModel,
       refresh,
       disconnect,
       rekey,
@@ -295,6 +320,8 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
       testConnection,
       getCatalog,
       toggleModel,
+      addCustomModel,
+      removeCustomModel,
       refresh,
       disconnect,
       rekey,

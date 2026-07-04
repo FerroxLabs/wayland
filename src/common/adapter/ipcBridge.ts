@@ -2093,6 +2093,16 @@ export const modelRegistry = {
   toggleModel: buildProvider<{ ok: boolean }, { providerId: ProviderId; modelId: string; enabled: boolean }>(
     'modelRegistry.toggleModel'
   ),
+  // Add a user-typed model id that isn't in the provider's public catalog
+  // (e.g. an OpenRouter preset `@preset/<slug>`, #617). Persisted separately so
+  // it survives catalog refreshes and merges into the curated picker view.
+  addCustomModel: buildProvider<{ ok: boolean; reason?: 'duplicate' }, { providerId: ProviderId; modelId: string }>(
+    'modelRegistry.addCustomModel'
+  ),
+  // Remove a previously added custom model id.
+  removeCustomModel: buildProvider<{ ok: boolean }, { providerId: ProviderId; modelId: string }>(
+    'modelRegistry.removeCustomModel'
+  ),
   // Re-fetch a provider's model list + re-enrich.
   refresh: buildProvider<{ ok: boolean }, { providerId: ProviderId }>('modelRegistry.refresh'),
   // Disconnect a provider and drop its persisted catalog.

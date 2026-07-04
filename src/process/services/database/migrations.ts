@@ -2021,9 +2021,7 @@ const migration_v45: IMigration = {
   version: 45,
   name: 'Add lease/heartbeat/retry columns to team_tasks for durable execution',
   up: (db) => {
-    const columns = new Set(
-      (db.pragma('table_info(team_tasks)') as Array<{ name: string }>).map((c) => c.name)
-    );
+    const columns = new Set((db.pragma('table_info(team_tasks)') as Array<{ name: string }>).map((c) => c.name));
     if (!columns.has('lease_owner')) {
       db.exec('ALTER TABLE team_tasks ADD COLUMN lease_owner TEXT');
     }
@@ -2338,6 +2336,36 @@ const migration_v52: IMigration = {
 };
 
 /**
+ * Migration v52 -> v53: Add model_registry_custom_models for user-typed model ids
+ *
+ * Some providers accept model strings that never appear in the public catalog -
+ * e.g. OpenRouter "Presets" referenced as `@preset/<slug>` (#617). A catalog
+ * refresh does a full overwrite of `model_registry_catalog`, so a custom id
+ * cannot live there. This table persists the user's custom model ids separately;
+ * the IPC layer merges them into the curated/catalog views on read, so a custom
+ * id flows through the exact same picker -> selection -> engine path a catalog
+ * model does.
+ */
+const migration_v53: IMigration = {
+  version: 53,
+  name: 'Add model_registry_custom_models for user-typed (non-catalog) model ids',
+  up: (db) => {
+    db.exec(`CREATE TABLE IF NOT EXISTS model_registry_custom_models (
+      provider_id TEXT NOT NULL,
+      model_id TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY (provider_id, model_id),
+      FOREIGN KEY (provider_id) REFERENCES model_registry_providers(provider_id) ON DELETE CASCADE
+    )`);
+    console.log('[Migration v53] Added model_registry_custom_models');
+  },
+  down: (db) => {
+    db.exec('DROP TABLE IF EXISTS model_registry_custom_models');
+    console.log('[Migration v53] Rolled back: Removed model_registry_custom_models');
+  },
+};
+
+/**
  * All migrations in order
  */
 // prettier-ignore
@@ -2351,6 +2379,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
+  migration_v53,
 ];
 
 /**
