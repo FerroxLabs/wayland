@@ -849,7 +849,8 @@
         "imapPassword": {
           "label": "IMAP 密码",
           "help": "Gmail / Outlook 请使用应用专用密码，账户登录密码无法使用。",
-          "required": "IMAP 密码为必填项"
+          "required": "IMAP 密码为必填项",
+          "savedPlaceholder": "已保存 - 留空以保留"
         },
         "imapTls": {
           "label": "IMAP TLS",
@@ -874,7 +875,8 @@
         },
         "smtpPassword": {
           "label": "SMTP 密码",
-          "required": "SMTP 密码为必填项"
+          "required": "SMTP 密码为必填项",
+          "savedPlaceholder": "已保存 - 留空以保留"
         },
         "smtpTls": {
           "label": "SMTP TLS",

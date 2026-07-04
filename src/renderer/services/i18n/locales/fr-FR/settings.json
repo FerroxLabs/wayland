@@ -859,7 +859,8 @@
         "imapPassword": {
           "label": "Mot de passe IMAP",
           "help": "Utilisez un mot de passe d'application pour Gmail / Outlook, l'identifiant de votre compte ne fonctionnera pas.",
-          "required": "Le mot de passe IMAP est requis"
+          "required": "Le mot de passe IMAP est requis",
+          "savedPlaceholder": "Enregistré – laisser vide pour conserver"
         },
         "imapTls": {
           "label": "TLS IMAP",
@@ -884,7 +885,8 @@
         },
         "smtpPassword": {
           "label": "Mot de passe SMTP",
-          "required": "Le mot de passe SMTP est requis"
+          "required": "Le mot de passe SMTP est requis",
+          "savedPlaceholder": "Enregistré – laisser vide pour conserver"
         },
         "smtpTls": {
           "label": "TLS SMTP",

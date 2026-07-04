@@ -849,7 +849,8 @@
         "imapPassword": {
           "label": "IMAP Parolası",
           "help": "Gmail / Outlook için uygulama parolası kullanın; hesap giriş parolanız çalışmaz.",
-          "required": "IMAP parolası gereklidir"
+          "required": "IMAP parolası gereklidir",
+          "savedPlaceholder": "Kaydedildi - korumak için boş bırakın"
         },
         "imapTls": {
           "label": "IMAP TLS",
@@ -874,7 +875,8 @@
         },
         "smtpPassword": {
           "label": "SMTP Parolası",
-          "required": "SMTP parolası gereklidir"
+          "required": "SMTP parolası gereklidir",
+          "savedPlaceholder": "Kaydedildi - korumak için boş bırakın"
         },
         "smtpTls": {
           "label": "SMTP TLS",

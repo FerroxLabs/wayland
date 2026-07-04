@@ -849,7 +849,8 @@
         "imapPassword": {
           "label": "IMAP 비밀번호",
           "help": "Gmail / Outlook은 앱 비밀번호를 사용하세요. 계정 로그인 비밀번호는 작동하지 않습니다.",
-          "required": "IMAP 비밀번호는 필수입니다"
+          "required": "IMAP 비밀번호는 필수입니다",
+          "savedPlaceholder": "저장됨 - 유지하려면 비워 두세요"
         },
         "imapTls": {
           "label": "IMAP TLS",
@@ -874,7 +875,8 @@
         },
         "smtpPassword": {
           "label": "SMTP 비밀번호",
-          "required": "SMTP 비밀번호는 필수입니다"
+          "required": "SMTP 비밀번호는 필수입니다",
+          "savedPlaceholder": "저장됨 - 유지하려면 비워 두세요"
         },
         "smtpTls": {
           "label": "SMTP TLS",

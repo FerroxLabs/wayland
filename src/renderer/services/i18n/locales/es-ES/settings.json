@@ -859,7 +859,8 @@
         "imapPassword": {
           "label": "Contraseña IMAP",
           "help": "Usa una contraseña de app para Gmail / Outlook; el inicio de sesión de tu cuenta no funcionará.",
-          "required": "La contraseña IMAP es obligatoria"
+          "required": "La contraseña IMAP es obligatoria",
+          "savedPlaceholder": "Guardado: deja en blanco para mantenerlo"
         },
         "imapTls": {
           "label": "TLS IMAP",
@@ -884,7 +885,8 @@
         },
         "smtpPassword": {
           "label": "Contraseña SMTP",
-          "required": "La contraseña SMTP es obligatoria"
+          "required": "La contraseña SMTP es obligatoria",
+          "savedPlaceholder": "Guardado: deja en blanco para mantenerlo"
         },
         "smtpTls": {
           "label": "TLS SMTP",

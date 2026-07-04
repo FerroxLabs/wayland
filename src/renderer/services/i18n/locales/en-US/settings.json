@@ -865,7 +865,8 @@
         "imapPassword": {
           "label": "IMAP Password",
           "help": "Use an app password for Gmail / Outlook, your account login will not work.",
-          "required": "IMAP password is required"
+          "required": "IMAP password is required",
+          "savedPlaceholder": "Saved - leave blank to keep"
         },
         "imapTls": {
           "label": "IMAP TLS",
@@ -890,7 +891,8 @@
         },
         "smtpPassword": {
           "label": "SMTP Password",
-          "required": "SMTP password is required"
+          "required": "SMTP password is required",
+          "savedPlaceholder": "Saved - leave blank to keep"
         },
         "smtpTls": {
           "label": "SMTP TLS",

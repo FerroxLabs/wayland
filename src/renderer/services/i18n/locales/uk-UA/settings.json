@@ -847,7 +847,8 @@
         "imapPassword": {
           "label": "Пароль IMAP",
           "help": "Використовуйте пароль застосунку для Gmail / Outlook, логін вашого облікового запису не працюватиме.",
-          "required": "Пароль IMAP обов'язковий"
+          "required": "Пароль IMAP обов'язковий",
+          "savedPlaceholder": "Збережено — залиште порожнім, щоб зберегти"
         },
         "imapTls": {
           "label": "IMAP TLS",
@@ -872,7 +873,8 @@
         },
         "smtpPassword": {
           "label": "Пароль SMTP",
-          "required": "Пароль SMTP обов'язковий"
+          "required": "Пароль SMTP обов'язковий",
+          "savedPlaceholder": "Збережено — залиште порожнім, щоб зберегти"
         },
         "smtpTls": {
           "label": "SMTP TLS",
