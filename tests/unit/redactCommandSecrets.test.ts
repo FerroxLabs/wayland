@@ -84,6 +84,34 @@ describe('redactCommandSecrets', () => {
     }
   });
 
+  it('does not over-mask the common word "basic" followed by an ordinary word', () => {
+    // BASIC_REGEX must not treat prose as a Basic-auth credential (#610 audit).
+    for (const cmd of ['git commit -m "basic refactor"', 'echo basic config here', 'npm run basic-example README.md']) {
+      expect(redactCommandSecrets(cmd)).toBe(cmd);
+    }
+    // ...but a real base64-shaped Basic value is still masked.
+    const real = redactCommandSecrets('curl -H "Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l"');
+    expect(real).toContain('Basic ••••••');
+    expect(real).not.toContain('YWxhZGRpbjpvcGVuc2VzYW1l');
+  });
+
+  it('does not over-mask a secret-named word followed by a plain word (bare-space form)', () => {
+    // The bare-whitespace separator must not clobber prose (#610 audit).
+    for (const cmd of [
+      'git log --grep secret main',
+      'echo "password field required"',
+      'token refresh completed',
+      'the client secret was rotated',
+    ]) {
+      expect(redactCommandSecrets(cmd)).toBe(cmd);
+    }
+    // ...but a credential-shaped value after the same key IS still masked.
+    expect(redactCommandSecrets('run --password hunter2pass')).not.toContain('hunter2pass');
+    expect(redactCommandSecrets('deploy --api-key sk-live-abc123def')).not.toContain('sk-live-abc123def');
+    // ...and the explicit `=`/`:` form always masks, even a plain-word value.
+    expect(redactCommandSecrets('password=field')).toContain('password=••••••');
+  });
+
   it('handles empty / whitespace input', () => {
     expect(redactCommandSecrets('')).toBe('');
     expect(redactCommandSecrets('   ')).toBe('   ');

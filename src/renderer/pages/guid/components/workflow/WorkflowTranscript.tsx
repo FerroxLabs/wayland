@@ -30,10 +30,27 @@
  * acp_permission renders verbatim (fully functional). agent_status is dropped.
  */
 
-import { AlertCircle, CheckCircle2, ChevronDown, ChevronRight, Circle, Edit2, HelpCircle, Loader2, MinusCircle } from 'lucide-react';
-import type { IMessageAcpToolCall, IMessageAcpPermission, IMessageToolGroup, IMessageText, IMessageThinking } from '@/common/chat/chatLib';
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Circle,
+  Edit2,
+  HelpCircle,
+  Loader2,
+  MinusCircle,
+} from 'lucide-react';
+import type {
+  IMessageAcpToolCall,
+  IMessageAcpPermission,
+  IMessageToolGroup,
+  IMessageText,
+  IMessageThinking,
+} from '@/common/chat/chatLib';
 import type { StepState, WorkflowSession } from '@/common/types/workflowTypes';
 import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
 import { useWorkflowViewMode } from '@/renderer/pages/guid/components/workflow/workflowViewMode';
 import { WorkflowMessageBody } from '@renderer/pages/conversation/Messages/components/WorkflowMessageBody';
@@ -58,7 +75,10 @@ const BEGIN_COMMAND_RE = /^begin\s+[a-z0-9][a-z0-9-]*\s*$/i;
 const STEP_MARKER_RE = /<step\s+n=["']?(\d+)["']?(?:\s+status=["']?([a-z_]+)["']?)?/i;
 
 const stripWorkflowEnvelopes = (text: string): string =>
-  text.replace(WORKFLOW_STEP_CONTEXT_RE, '').replace(WORKFLOW_ANSWER_RE, (_m, answer: string) => answer).trimStart();
+  text
+    .replace(WORKFLOW_STEP_CONTEXT_RE, '')
+    .replace(WORKFLOW_ANSWER_RE, (_m, answer: string) => answer)
+    .trimStart();
 
 /** The raw string content of a text message, or '' when absent. */
 const textOf = (m: IMessageText): string => {
@@ -113,11 +133,7 @@ type PanelStatus = 'done' | 'now' | 'review' | 'ask' | 'todo' | 'errored' | 'ski
 // Status derivation - panel chrome comes from the session, not the markers
 // ---------------------------------------------------------------------------
 
-const panelStatusFor = (
-  block: StepBlock,
-  session: WorkflowSession | undefined,
-  needsInput: boolean
-): PanelStatus => {
+const panelStatusFor = (block: StepBlock, session: WorkflowSession | undefined, needsInput: boolean): PanelStatus => {
   const st: StepState | undefined = session?.steps.find((s) => s.n === block.stepN);
   if (block.doneMarker || st?.status === 'done') return 'done';
   if (st?.status === 'errored') return 'errored';
@@ -178,15 +194,14 @@ const ActivityBlock: React.FC<{ item: ActivityItem }> = ({ item }) => {
   const titles = item.messages.map((m) => {
     if (m.type === 'thinking') return t('workflow.transcript.thinking');
     if (m.type === 'tool_group') return m.content?.[0]?.name ?? 'Tool';
-    return (m as IMessageAcpToolCall).content?.update?.title ?? 'Action';
+    const acpTitle = (m as IMessageAcpToolCall).content?.update?.title;
+    return acpTitle ? redactCommandSecrets(acpTitle) : 'Action';
   });
 
   return (
     <div className={styles.activity}>
       <button className={styles.activityHeader} onClick={() => setExpanded(!expanded)} aria-expanded={expanded}>
-        <span className={styles.activityIcon}>
-          {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        </span>
+        <span className={styles.activityIcon}>{expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}</span>
         <span className={styles.activityLabel}>{t('workflow.transcript.activity', { count })}</span>
       </button>
       {expanded && (
@@ -213,7 +228,8 @@ const StepPanel: React.FC<{
   const status = panelStatusFor(block, session, needsInput);
   const live = status === 'now' && session?.run_mode === 'running';
   const isActive = status === 'now' || status === 'review' || status === 'ask';
-  const title = session?.steps.find((s) => s.n === block.stepN)?.title || stepTitles[block.stepN - 1] || `Step ${block.stepN}`;
+  const title =
+    session?.steps.find((s) => s.n === block.stepN)?.title || stepTitles[block.stepN - 1] || `Step ${block.stepN}`;
   const sub = subLineFor(block, status, session);
 
   const panelClass = [

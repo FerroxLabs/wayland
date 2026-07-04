@@ -21,7 +21,7 @@ const ExecCommandDisplay: React.FC<{ content: ExecCommandUpdate }> = ({ content 
   const { t } = useTranslation();
 
   const getDisplayTitle = () => {
-    if (title) return title;
+    if (title) return redactCommandSecrets(title);
 
     switch (subtype) {
       case 'exec_command_begin':
@@ -67,7 +67,7 @@ const ExecCommandDisplay: React.FC<{ content: ExecCommandUpdate }> = ({ content 
       toolCallId={toolCallId}
       title={getDisplayTitle()}
       status={status}
-      description={description}
+      description={description ? redactCommandSecrets(description) : description}
       icon='🔧'
       additionalTags={getAdditionalTags()}
     >

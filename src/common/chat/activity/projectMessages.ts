@@ -114,7 +114,7 @@ export const acpToolCallToNode = (content: IMessageAcpToolCall['content']): Acti
     id,
     kind: 'tool',
     callId: id,
-    name: u.title ?? '',
+    name: u.title ? redactCommandSecrets(u.title) : '',
     status: ACP_STATUS[u.status] ?? 'running',
   };
 };

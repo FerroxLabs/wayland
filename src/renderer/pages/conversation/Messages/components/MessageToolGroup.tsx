@@ -609,7 +609,7 @@ const MessageToolGroup: React.FC<IMessageToolGroupProps> = ({ message }) => {
                   <div
                     className={`text-12px text-t-secondary mb-2 ${status === 'Error' ? 'whitespace-pre-wrap break-words' : 'truncate'}`}
                   >
-                    {description}
+                    {redactCommandSecrets(description)}
                   </div>
                 )}
                 {resultDisplay && (
