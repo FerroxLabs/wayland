@@ -841,7 +841,8 @@
         "imapPassword": {
           "label": "Пароль IMAP",
           "help": "Используйте пароль приложения для Gmail / Outlook - пароль от учётной записи не подойдёт.",
-          "required": "Необходимо указать пароль IMAP"
+          "required": "Необходимо указать пароль IMAP",
+          "savedPlaceholder": "Сохранено — оставьте пустым, чтобы сохранить"
         },
         "imapTls": {
           "label": "IMAP TLS",
@@ -866,7 +867,8 @@
         },
         "smtpPassword": {
           "label": "Пароль SMTP",
-          "required": "Необходимо указать пароль SMTP"
+          "required": "Необходимо указать пароль SMTP",
+          "savedPlaceholder": "Сохранено — оставьте пустым, чтобы сохранить"
         },
         "smtpTls": {
           "label": "SMTP TLS",

@@ -23,6 +23,7 @@ function makeChannel(name: string) {
 vi.mock('../../src/common/adapter/ipcBridge', () => ({
   channel: {
     getPluginStatus: makeChannel('getPluginStatus'),
+    getPluginConfig: makeChannel('getPluginConfig'),
     enablePlugin: makeChannel('enablePlugin'),
     disablePlugin: makeChannel('disablePlugin'),
     testPlugin: makeChannel('testPlugin'),
@@ -147,6 +148,78 @@ describe('channelBridge', () => {
       expect(result.success).toBe(true);
       const types = result.data.map((p: { type: string }) => p.type);
       expect(types).toContain('telegram');
+    });
+  });
+
+  // --- getPluginConfig (#548 secret-redacted rehydrate) ---
+
+  describe('getPluginConfig', () => {
+    const emailImapRow = {
+      id: 'email-imap',
+      type: 'email-imap',
+      name: 'Email (IMAP/SMTP)',
+      enabled: true,
+      status: 'running' as const,
+      createdAt: 1000,
+      updatedAt: 1000,
+      credentials: {
+        imapHost: 'imap.x.com',
+        imapPort: 993,
+        imapUser: 'a@x.com',
+        imapPassword: 'secret123',
+        imapTls: true,
+        useSameAuth: true,
+        smtpHost: 'smtp.x.com',
+        smtpPort: 587,
+        smtpTls: true,
+      },
+    } as unknown as IChannelPluginConfig;
+
+    it('returns non-secret config and reduces secrets to presence booleans', async () => {
+      vi.mocked(repo.getChannelPlugins).mockReturnValue([emailImapRow]);
+
+      const result = await handlers['getPluginConfig']({ pluginId: 'email-imap' });
+
+      expect(result.success).toBe(true);
+      const { config, secretPresence } = result.data;
+
+      // Non-secret scalars are surfaced verbatim.
+      expect(config).toMatchObject({
+        imapHost: 'imap.x.com',
+        imapPort: 993,
+        imapUser: 'a@x.com',
+        imapTls: true,
+        useSameAuth: true,
+        smtpHost: 'smtp.x.com',
+        smtpPort: 587,
+        smtpTls: true,
+      });
+
+      // The secret is never surfaced as a value - only its presence.
+      expect(config).not.toHaveProperty('imapPassword');
+      expect(secretPresence.imapPassword).toBe(true);
+
+      // Defence in depth: the raw secret must not appear anywhere in the payload.
+      expect(JSON.stringify(result.data)).not.toContain('secret123');
+    });
+
+    it('resolves the row by exact pluginId', async () => {
+      vi.mocked(repo.getChannelPlugins).mockReturnValue([emailImapRow]);
+
+      const result = await handlers['getPluginConfig']({ pluginId: 'email-imap' });
+
+      expect(result.success).toBe(true);
+      expect(result.data.id).toBe('email-imap');
+      expect(result.data.type).toBe('email-imap');
+    });
+
+    it('returns data: null for an unknown pluginId', async () => {
+      vi.mocked(repo.getChannelPlugins).mockReturnValue([emailImapRow]);
+
+      const result = await handlers['getPluginConfig']({ pluginId: 'does-not-exist' });
+
+      expect(result.success).toBe(true);
+      expect(result.data).toBeNull();
     });
   });
 

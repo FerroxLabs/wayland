@@ -849,7 +849,8 @@
         "imapPassword": {
           "label": "IMAP 密碼",
           "help": "Gmail / Outlook 請使用應用程式密碼，您的帳號登入密碼無法使用。",
-          "required": "必須填寫 IMAP 密碼"
+          "required": "必須填寫 IMAP 密碼",
+          "savedPlaceholder": "已儲存 - 留空以保留"
         },
         "imapTls": {
           "label": "IMAP TLS",
@@ -874,7 +875,8 @@
         },
         "smtpPassword": {
           "label": "SMTP 密碼",
-          "required": "必須填寫 SMTP 密碼"
+          "required": "必須填寫 SMTP 密碼",
+          "savedPlaceholder": "已儲存 - 留空以保留"
         },
         "smtpTls": {
           "label": "SMTP TLS",
