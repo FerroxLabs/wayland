@@ -62,6 +62,7 @@
   "noOptionsAvailable": "No options available",
   "processing": "Processing...",
   "responseSentSuccessfully": "Response sent successfully",
+  "permissionDenied": "Request denied",
   "confirmation": {
     "applyChange": "Apply this change?",
     "allowExecution": "Allow execution?",

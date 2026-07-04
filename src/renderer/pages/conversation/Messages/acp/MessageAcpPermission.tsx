@@ -52,6 +52,11 @@ const MessageAcpPermission: React.FC<MessageAcpPermissionProps> = React.memo(({ 
   const [isResponding, setIsResponding] = useState(false);
   const [hasResponded, setHasResponded] = useState(false);
 
+  // #663 P3: a denial must NOT read as a green success. Derive whether the
+  // chosen option was a reject (reject_once / reject_always) so the outcome
+  // banner reflects allowed vs denied.
+  const respondedDenied = (options.find((o) => o.optionId === selected)?.kind ?? '').startsWith('reject');
+
   const handleConfirm = async () => {
     if (hasResponded || !selected) return;
 
@@ -129,10 +134,20 @@ const MessageAcpPermission: React.FC<MessageAcpPermissionProps> = React.memo(({ 
         {hasResponded && (
           <div
             className='mt-10px p-2 rounded-md border'
-            style={{ backgroundColor: 'var(--color-success-light-1)', borderColor: 'rgb(var(--success-3))' }}
+            data-testid={respondedDenied ? 'acp-permission-denied' : 'acp-permission-allowed'}
+            style={
+              respondedDenied
+                ? { backgroundColor: 'var(--color-danger-light-1)', borderColor: 'rgb(var(--danger-3))' }
+                : { backgroundColor: 'var(--color-success-light-1)', borderColor: 'rgb(var(--success-3))' }
+            }
           >
-            <Text className='text-sm' style={{ color: 'rgb(var(--success-6))' }}>
-              ✓ {t('messages.responseSentSuccessfully')}
+            <Text
+              className='text-sm'
+              style={{ color: respondedDenied ? 'rgb(var(--danger-6))' : 'rgb(var(--success-6))' }}
+            >
+              {respondedDenied
+                ? `✕ ${t('messages.permissionDenied', 'Request denied')}`
+                : `✓ ${t('messages.responseSentSuccessfully')}`}
             </Text>
           </div>
         )}

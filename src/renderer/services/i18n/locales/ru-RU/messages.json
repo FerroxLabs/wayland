@@ -56,6 +56,7 @@
   "noOptionsAvailable": "Нет доступных опций",
   "processing": "Обработка...",
   "responseSentSuccessfully": "Ответ успешно отправлен",
+  "permissionDenied": "Запрос отклонён",
   "confirmation": {
     "applyChange": "Применить это изменение?",
     "allowExecution": "Разрешить выполнение?",

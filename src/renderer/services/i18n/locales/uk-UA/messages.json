@@ -58,6 +58,7 @@
   "noOptionsAvailable": "Немає доступних варіантів",
   "processing": "Обробка...",
   "responseSentSuccessfully": "Відповідь надіслано успішно",
+  "permissionDenied": "Запит відхилено",
   "confirmation": {
     "applyChange": "Застосувати цю зміну?",
     "allowExecution": "Дозволити виконання?",

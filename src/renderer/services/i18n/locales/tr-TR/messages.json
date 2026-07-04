@@ -59,6 +59,7 @@
   "noOptionsAvailable": "Seçenek yok",
   "processing": "İşleniyor...",
   "responseSentSuccessfully": "Yanıt başarıyla gönderildi",
+  "permissionDenied": "İstek reddedildi",
   "confirmation": {
     "applyChange": "Bu değişikliği uygula?",
     "allowExecution": "Yürütmeye izin ver?",

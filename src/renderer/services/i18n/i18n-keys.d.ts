@@ -1680,6 +1680,7 @@ export type I18nKey =
   | 'messages.noOptionsAvailable'
   | 'messages.openLinkFailed'
   | 'messages.option'
+  | 'messages.permissionDenied'
   | 'messages.permissionRequest'
   | 'messages.processing'
   | 'messages.responseSentSuccessfully'

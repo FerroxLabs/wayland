@@ -59,6 +59,7 @@
   "noOptionsAvailable": "无可用选项",
   "processing": "处理中...",
   "responseSentSuccessfully": "响应已成功发送",
+  "permissionDenied": "请求已拒绝",
   "confirmation": {
     "applyChange": "应用此更改？",
     "allowExecution": "允许执行？",
