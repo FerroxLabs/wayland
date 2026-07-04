@@ -112,6 +112,30 @@ describe('redactCommandSecrets', () => {
     expect(redactCommandSecrets('password=field')).toContain('password=••••••');
   });
 
+  it('masks UPPER_SNAKE / snake_case key names glued by underscores (#610 audit)', () => {
+    // `\b` treats `_` as a word char and MISSED these - the real leak Overwatch caught.
+    const env = redactCommandSecrets('export ANTHROPIC_API_KEY=sk-ant-abc123def456');
+    expect(env).not.toContain('sk-ant-abc123def456');
+    expect(env).toContain('ANTHROPIC_API_KEY=');
+    expect(env).toContain('••••••');
+
+    expect(redactCommandSecrets('OPENAI_API_KEY=raw_secret_value_1234')).not.toContain('raw_secret_value_1234');
+    expect(redactCommandSecrets('run --config db_password=hunter2pass')).not.toContain('hunter2pass');
+    // non-secret snake name still untouched
+    expect(redactCommandSecrets('cat /etc/hosts_file=/tmp/x')).toBe('cat /etc/hosts_file=/tmp/x');
+  });
+
+  it('masks camelCase key names glued to a lowercase prefix (#610 audit)', () => {
+    const json = redactCommandSecrets('{"openaiApiKey":"sk-proj-secretvalue123"}');
+    expect(json).not.toContain('sk-proj-secretvalue123');
+    expect(json).toContain('••••••');
+
+    expect(redactCommandSecrets('config.clientSecret = topsecretvalue99')).not.toContain('topsecretvalue99');
+    expect(redactCommandSecrets('headers accessToken=abc123def456ghi')).not.toContain('abc123def456ghi');
+    // camelCase secret-named word with a plain short value stays intact (no over-mask)
+    expect(redactCommandSecrets('the userPassword field is blank')).toBe('the userPassword field is blank');
+  });
+
   it('handles empty / whitespace input', () => {
     expect(redactCommandSecrets('')).toBe('');
     expect(redactCommandSecrets('   ')).toBe('   ');

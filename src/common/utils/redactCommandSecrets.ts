@@ -47,8 +47,22 @@ const PREFIXED_KEY_REGEX =
 // omitted here - Bearer/Basic handle it. NOTE: for the bare-whitespace separator
 // (no `:`/`=`) the value is masked only when it LOOKS like a credential - see the
 // replace callback - so prose like `git log --grep secret main` stays intact.
+//
+// Leading boundary is `(?<![A-Za-z0-9])` rather than `\b`: `\w` counts `_` as a
+// word char, so `\b` MISSES an underscore-glued name like `ANTHROPIC_API_KEY=...`
+// (the `_` before `API` is not a `\b`). Excluding only `[A-Za-z0-9]` treats the
+// `_` (and any separator, and start-of-string) as a boundary, so UPPER_SNAKE and
+// snake_case key names match (#610 Overwatch).
 const KEY_VALUE_REGEX =
-  /\b(api[_-]?key|apikey|access[_-]?token|refresh[_-]?token|auth[_-]?token|client[_-]?secret|secret|password|passwd|token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/gi;
+  /(?<![A-Za-z0-9])(api[_-]?key|apikey|access[_-]?token|refresh[_-]?token|auth[_-]?token|client[_-]?secret|secret|password|passwd|token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/gi;
+
+// camelCase key names (`openaiApiKey`, `clientSecret`, `accessToken`) glue the
+// key to a lowercase prefix, so neither `\b` nor the separator boundary above
+// fires - the boundary is the lower->upper seam. This is case-SENSITIVE (no `i`
+// flag) on purpose: under `i` the `[a-z]`/`[A-Z]` classes collapse and the seam
+// is lost (#610 Overwatch). Names are the Capitalized compound forms.
+const CAMEL_KEY_VALUE_REGEX =
+  /(?<=[a-z])(ApiKey|ApiToken|ApiSecret|AccessToken|RefreshToken|AuthToken|AccessKey|SecretKey|PrivateKey|ClientSecret|Secret|Password|Passwd|Token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/g;
 
 // `scheme://user:PASSWORD@host` - mask only the password segment.
 const URL_USERINFO_REGEX = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s:@/]+:)([^\s@/]+)(@)/gi;
@@ -64,7 +78,8 @@ export function redactCommandSecrets(command: string): string {
   out = out.replace(BEARER_REGEX, `Bearer ${MASK}`);
   out = out.replace(BASIC_REGEX, (m: string, tok: string) => (/[0-9+/=]/.test(tok) ? `Basic ${MASK}` : m));
   out = out.replace(PREFIXED_KEY_REGEX, MASK);
-  out = out.replace(KEY_VALUE_REGEX, (m: string, key: string, sep: string, quote: string, value: string) => {
+  // Shared key=value masker for both the snake/separator and camelCase forms.
+  const maskKeyValue = (m: string, key: string, sep: string, quote: string, value: string) => {
     // With an explicit `:`/`=` the pair is unambiguous - always mask. With a bare
     // whitespace separator, only mask a value that actually looks like a secret
     // (has an uppercase/digit/symbol, or is long) so a secret-NAMED English word
@@ -74,6 +89,8 @@ export function redactCommandSecrets(command: string): string {
     const looksSecret = /[^a-z]/.test(value) || value.length >= 16;
     if (!hasDelim && !looksSecret) return m;
     return `${key}${sep}${quote}${MASK}`;
-  });
+  };
+  out = out.replace(KEY_VALUE_REGEX, maskKeyValue);
+  out = out.replace(CAMEL_KEY_VALUE_REGEX, maskKeyValue);
   return out;
 }
