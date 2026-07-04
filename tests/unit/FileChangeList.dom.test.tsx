@@ -36,7 +36,9 @@ vi.mock('@/common', () => ({
 }));
 
 vi.mock('@/renderer/services/FileService', () => ({
-  isTextFile: vi.fn(() => true),
+  // FileChangeList gates diff-expand on isLikelyTextFile (#655); mock it true so
+  // the rows are expandable regardless of the sample paths' extensions.
+  isLikelyTextFile: vi.fn(() => true),
 }));
 
 vi.mock('@/renderer/components/media/Diff2Html', () => ({

@@ -26,11 +26,21 @@ vi.mock('../../src/common', () => ({
   },
 }));
 
-vi.mock('../../src/renderer/services/FileService', () => ({
-  getFileExtension: (name: string) => {
+vi.mock('../../src/renderer/services/FileService', () => {
+  const getFileExtension = (name: string) => {
     const dot = name.lastIndexOf('.');
-    return dot >= 0 ? name.slice(dot) : '';
-  },
+    return dot >= 0 ? name.slice(dot).toLowerCase() : '';
+  };
+  const DOC_EXTS = ['.pdf', '.doc', '.docx', '.pptx', '.xlsx', '.odt', '.odp', '.ods'];
+  return {
+    getFileExtension,
+    // #655: real document classification used by the attach-time doc hint.
+    isDocumentFile: (name: string) => DOC_EXTS.includes(getFileExtension(name)),
+  };
+});
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (_key: string, dflt?: string) => dflt ?? _key }),
 }));
 
 vi.mock('@arco-design/web-react', () => ({
@@ -132,6 +142,31 @@ describe('FilePreview', () => {
     // Should not attempt to load image
     expect(getImageBase64Mock).not.toHaveBeenCalled();
     expect(screen.getByText('document.pdf')).toBeDefined();
+  });
+
+  it('shows the "will be read as a document" hint for a document in the composer', async () => {
+    render(<FilePreview path='/workspace/report.docx' onRemove={vi.fn()} />);
+    await flushMicrotasks();
+    const hint = screen.getByTestId('file-doc-ingest-hint');
+    expect(hint).toBeDefined();
+    expect(hint.textContent).toBe('Will be read as a document');
+  });
+
+  it('hides the doc hint on already-sent (readonly) bubbles', async () => {
+    render(<FilePreview path='/workspace/report.docx' onRemove={vi.fn()} readonly />);
+    await flushMicrotasks();
+    expect(screen.queryByTestId('file-doc-ingest-hint')).toBeNull();
+  });
+
+  it('does not show the doc hint for images or plain-text files', async () => {
+    getImageBase64Mock.mockResolvedValue(REAL_IMAGE_B64);
+    const { rerender } = render(<FilePreview path='/workspace/photo.png' onRemove={vi.fn()} />);
+    await flushMicrotasks();
+    expect(screen.queryByTestId('file-doc-ingest-hint')).toBeNull();
+
+    rerender(<FilePreview path='/workspace/notes.txt' onRemove={vi.fn()} />);
+    await flushMicrotasks();
+    expect(screen.queryByTestId('file-doc-ingest-hint')).toBeNull();
   });
 
   it('cleans up retry timer on unmount', async () => {

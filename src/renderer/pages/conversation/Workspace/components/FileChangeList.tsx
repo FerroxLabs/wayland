@@ -8,7 +8,7 @@ import { ChevronDown, ChevronRight, Eye, Minus, Plus, Redo2, RefreshCw } from 'l
 import { ipcBridge } from '@/common';
 import type { FileChangeInfo, SnapshotInfo } from '@/common/types/fileSnapshot';
 import Diff2Html from '@/renderer/components/media/Diff2Html';
-import { isTextFile } from '@/renderer/services/FileService';
+import { isLikelyTextFile } from '@/renderer/services/FileService';
 import { Button, Empty, Spin, Tooltip } from '@arco-design/web-react';
 import { createTwoFilesPatch } from 'diff';
 import type { TFunction } from 'i18next';
@@ -184,7 +184,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
   const loadDiffState = useCallback(
     async (change: FileChangeInfo) => {
       const fileName = change.relativePath;
-      if (!isTextFile(fileName)) return null;
+      if (!isLikelyTextFile(fileName)) return null;
 
       try {
         let before = '';
@@ -221,7 +221,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
   const handleToggleDiff = useCallback(
     async (change: FileChangeInfo) => {
       const fileName = change.relativePath;
-      if (!isTextFile(fileName)) return;
+      if (!isLikelyTextFile(fileName)) return;
 
       if (expandedFilePath === change.filePath) {
         setExpandedFilePath(null);
@@ -387,7 +387,7 @@ const FileChangeList: React.FC<FileChangeListProps> = ({
                 const diffState = diffCache[change.filePath];
                 const isExpanded = expandedFilePath === change.filePath;
                 const isLoadingDiff = loadingFilePath === change.filePath;
-                const canExpand = isTextFile(change.relativePath);
+                const canExpand = isLikelyTextFile(change.relativePath);
 
                 return (
                   <FileChangeItem

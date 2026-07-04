@@ -6,7 +6,8 @@
 
 import { X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { getFileExtension } from '@/renderer/services/FileService';
+import { useTranslation } from 'react-i18next';
+import { getFileExtension, isDocumentFile } from '@/renderer/services/FileService';
 import { ipcBridge } from '@/common';
 import { Image } from '@arco-design/web-react';
 import fileIcon from '@/renderer/assets/icons/file-icon.svg';
@@ -46,10 +47,15 @@ const FilePreview: React.FC<FilePreviewProps> = ({ path, onRemove, readonly = fa
     return null;
   }
 
+  const { t } = useTranslation();
   const isImage = isImageFile(path);
   // Extract filename directly from path without cleaning timestamp suffix
   const fileName = path.split(/[\\/]/).pop() || '';
   const fileExt = getFileExtension(path).toUpperCase().replace('.', '');
+  // #655: passive attach-time hint that a document will be auto-read (extracted)
+  // by the engine on send. Composer-only (not on already-sent readonly bubbles);
+  // purely desktop-side classification, no engine data.
+  const showDocHint = !readonly && !isImage && isDocumentFile(fileName);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [fileSize, setFileSize] = useState<string>('');
 
@@ -147,6 +153,11 @@ const FilePreview: React.FC<FilePreviewProps> = ({ path, onRemove, readonly = fa
           <span className='text-12px text-t-secondary'>
             {fileExt}: {fileSize || '...'}
           </span>
+          {showDocHint && (
+            <span className='text-11px text-t-secondary max-w-150px truncate' data-testid='file-doc-ingest-hint'>
+              {t('common.fileAttach.docIngestHint', 'Will be read as a document')}
+            </span>
+          )}
         </div>
       </div>
       {!readonly && (

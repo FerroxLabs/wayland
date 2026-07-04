@@ -288,34 +288,48 @@ export function formatFileSize(bytes: number): string {
   return formatBytes(bytes, 2); // Keep 2-digit precision for backward compatibility
 }
 
+// File-type classification (#655 doc-ingestion routing). These do REAL extension
+// membership — deliberately distinct from isSupportedFile, which stays accept-all
+// (Wayland uploads any file type; classification only decides how a file is
+// surfaced/ingested downstream, never whether it is accepted for upload).
+
 /**
- * Check whether a file is an image file.
- * Note: since isSupportedFile currently always returns true, this also always returns true.
- * Designed ahead, reserved for a future file-type detection feature.
- * Currently unused; kept for future extension.
+ * Check whether a file is an image file (by extension).
  */
 export function isImageFile(fileName: string): boolean {
-  return isSupportedFile(fileName, imageExts);
+  return imageExts.includes(getFileExtension(fileName));
 }
 
 /**
- * Check whether a file is a document file.
- * Note: since isSupportedFile currently always returns true, this also always returns true.
- * Designed ahead, reserved for a future file-type detection feature.
- * Currently unused; kept for future extension.
+ * Check whether a file is a document file (office / pdf) by extension — the set
+ * the engine's doc_extract / pdf_extract auto-ingest path targets (#650). The
+ * engine determines the actual extraction result; this is the desktop-side
+ * classification used for the "will be read as a document" attach hint (#655).
  */
 export function isDocumentFile(fileName: string): boolean {
-  return isSupportedFile(fileName, documentExts);
+  return documentExts.includes(getFileExtension(fileName));
 }
 
 /**
- * Check whether a file is a text file.
- * Note: since isSupportedFile currently always returns true, this also always returns true.
- * Designed ahead, reserved for a future file-type detection feature.
- * Currently unused; kept for future extension.
+ * Check whether a file is a plain-text / code file (by extension) — reachable by
+ * the engine's read tool directly, no extraction step needed.
  */
 export function isTextFile(fileName: string): boolean {
-  return isSupportedFile(fileName, textExts);
+  return textExts.includes(getFileExtension(fileName));
+}
+
+/**
+ * Whether a file is text-diffable — i.e. NOT an image and NOT a binary office
+ * document. Deliberately broader than isTextFile (a finite allowlist of known
+ * text/code extensions): this also treats unknown and extension-less files
+ * (Dockerfile, Makefile, LICENSE, .env, arbitrary code extensions) as text,
+ * matching the Workspace diff viewer's "expand anything that isn't binary"
+ * intent. Used where the old always-true isSupportedFile gate previously let
+ * every file expand; now only genuine binaries (images / office docs) are
+ * excluded, and every real text/code file stays expandable (#655).
+ */
+export function isLikelyTextFile(fileName: string): boolean {
+  return !isImageFile(fileName) && !isDocumentFile(fileName);
 }
 
 class FileServiceClass {
