@@ -156,6 +156,7 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'write-file',
   'remove-entry',
   'rename-entry',
+  'move-entry',
   'read-file',
   'read-file-buffer',
   'create-temp-file',

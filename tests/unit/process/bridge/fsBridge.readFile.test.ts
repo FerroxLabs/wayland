@@ -64,6 +64,7 @@ vi.mock('@/common', () => {
         copyFilesToWorkspace: makeProvider('copyFilesToWorkspace'),
         removeEntry: makeProvider('removeEntry'),
         renameEntry: makeProvider('renameEntry'),
+        moveEntry: makeProvider('moveEntry'),
         readBuiltinRule: makeProvider('readBuiltinRule'),
         readBuiltinSkill: makeProvider('readBuiltinSkill'),
         readAssistantRule: makeProvider('readAssistantRule'),

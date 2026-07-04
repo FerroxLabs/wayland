@@ -158,7 +158,9 @@
       "revealFailed": "İçeren klasör açılamadı",
       "download": "İndir",
       "downloadSuccess": "İndirme başarılı",
-      "downloadFailed": "İndirme başarısız"
+      "downloadFailed": "İndirme başarısız",
+      "moveSuccess": "Başarıyla taşındı",
+      "moveFailed": "Taşıma başarısız"
     },
     "expand": "Çalışma Alanını Genişlet",
     "collapse": "Çalışma Alanını Daralt",

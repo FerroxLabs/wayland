@@ -709,6 +709,8 @@ export type I18nKey =
   | 'conversation.workspace.contextMenu.downloadFailed'
   | 'conversation.workspace.contextMenu.downloadSuccess'
   | 'conversation.workspace.contextMenu.favorite'
+  | 'conversation.workspace.contextMenu.moveFailed'
+  | 'conversation.workspace.contextMenu.moveSuccess'
   | 'conversation.workspace.contextMenu.open'
   | 'conversation.workspace.contextMenu.openFailed'
   | 'conversation.workspace.contextMenu.openLocation'

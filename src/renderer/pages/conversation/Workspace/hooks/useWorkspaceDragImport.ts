@@ -30,6 +30,19 @@ const getBaseName = (targetPath: string): string => {
   return parts.pop() || targetPath;
 };
 
+/**
+ * True only for drags carrying OS files (from Finder/Explorer). Internal
+ * workspace-tree node drags (drag-to-move, issue #49) carry no files, so this
+ * lets them pass through to the Tree's own drop handling instead of triggering
+ * the import overlay.
+ */
+const isOsFileDrag = (event: DragEvent): boolean => {
+  const dataTransfer = event.dataTransfer || event.nativeEvent?.dataTransfer;
+  const types = dataTransfer?.types;
+  if (!types) return false;
+  return Array.from(types).includes('Files');
+};
+
 const dedupeItems = (items: DroppedItem[]): DroppedItem[] => {
   const map = new Map<string, DroppedItem>();
   for (const item of items) {
@@ -55,6 +68,7 @@ export function useWorkspaceDragImport({
   }, []);
 
   const handleDragEnter = useCallback((event: DragEvent) => {
+    if (!isOsFileDrag(event)) return;
     event.preventDefault();
     event.stopPropagation();
     dragCounterRef.current += 1;
@@ -63,6 +77,7 @@ export function useWorkspaceDragImport({
 
   const handleDragOver = useCallback(
     (event: DragEvent) => {
+      if (!isOsFileDrag(event)) return;
       event.preventDefault();
       event.stopPropagation();
       if (!isDragging) {
@@ -73,6 +88,7 @@ export function useWorkspaceDragImport({
   );
 
   const handleDragLeave = useCallback((event: DragEvent) => {
+    if (!isOsFileDrag(event)) return;
     event.preventDefault();
     event.stopPropagation();
     dragCounterRef.current = Math.max(0, dragCounterRef.current - 1);
@@ -119,6 +135,7 @@ export function useWorkspaceDragImport({
 
   const handleDrop = useCallback(
     async (event: DragEvent) => {
+      if (!isOsFileDrag(event)) return;
       event.preventDefault();
       event.stopPropagation();
       resetDragState();

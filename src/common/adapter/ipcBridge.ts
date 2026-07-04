@@ -397,6 +397,9 @@ export const fs = {
   >('copy-files-to-workspace'), // Copy files into workspace
   removeEntry: buildProvider<IBridgeResponse, { path: string }>('remove-entry'), // Delete file or folder
   renameEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { path: string; newName: string }>('rename-entry'), // Rename file or folder
+  moveEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { sourcePath: string; targetDir: string }>(
+    'move-entry'
+  ), // Move file or folder into a target directory
   readBuiltinRule: buildProvider<string, { fileName: string }>('read-builtin-rule'), // Read builtin rules file
   readBuiltinSkill: buildProvider<string, { fileName: string }>('read-builtin-skill'), // Read builtin skills file
   // Assistant rule file operations

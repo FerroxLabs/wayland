@@ -25,3 +25,10 @@ export const removeWorkspaceEntry = (path: string) => {
 export const renameWorkspaceEntry = (path: string, newName: string) => {
   return ipcBridge.fs.renameEntry.invoke({ path, newName }) as Promise<IBridgeResponse<{ newPath: string }>>;
 };
+
+/**
+ * Move a file or directory into another directory inside the workspace.
+ */
+export const moveWorkspaceEntry = (sourcePath: string, targetDir: string) => {
+  return ipcBridge.fs.moveEntry.invoke({ sourcePath, targetDir }) as Promise<IBridgeResponse<{ newPath: string }>>;
+};

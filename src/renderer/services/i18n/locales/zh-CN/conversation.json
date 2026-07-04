@@ -165,7 +165,9 @@
       "revealFailed": "无法打开所在目录",
       "download": "下载",
       "downloadSuccess": "下载成功",
-      "downloadFailed": "下载失败"
+      "downloadFailed": "下载失败",
+      "moveSuccess": "移动成功",
+      "moveFailed": "移动失败"
     },
     "changes": {
       "tab": "变更",

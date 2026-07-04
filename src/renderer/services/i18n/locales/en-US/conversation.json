@@ -177,7 +177,9 @@
       "revealFailed": "Failed to open containing folder",
       "download": "Download",
       "downloadSuccess": "Download successful",
-      "downloadFailed": "Download failed"
+      "downloadFailed": "Download failed",
+      "moveSuccess": "Moved successfully",
+      "moveFailed": "Move failed"
     },
     "favorites": {
       "title": "Favorites"

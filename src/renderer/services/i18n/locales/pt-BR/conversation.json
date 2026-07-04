@@ -165,7 +165,9 @@
       "revealFailed": "Falha ao abrir a pasta que contém o arquivo",
       "download": "Baixar",
       "downloadSuccess": "Download concluído",
-      "downloadFailed": "Falha no download"
+      "downloadFailed": "Falha no download",
+      "moveSuccess": "Movido com sucesso",
+      "moveFailed": "Falha ao mover"
     },
     "changes": {
       "tab": "Alterações",

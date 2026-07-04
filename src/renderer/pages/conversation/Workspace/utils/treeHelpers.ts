@@ -215,6 +215,69 @@ export function computeContextMenuPosition(
 }
 
 /**
+ * Resolve an internal drag-and-drop move within the workspace tree.
+ *
+ * `dropPosition` follows Arco Tree semantics: `0` means the entry was dropped
+ * directly ONTO `dropData` (move INTO it - only valid for folders); a non-zero
+ * value (-1 before, 1 after) means a gap drop between rows, which places the
+ * entry at sibling level - the destination is then `dropData`'s parent
+ * directory, whether `dropData` is a file or a folder. This is why a gap drop
+ * next to a folder must not fall INTO that folder (issue #49).
+ *
+ * Returns the source path and the destination directory when the move is
+ * allowed, or `null` when it must be ignored: missing data, the workspace root
+ * as the drag source, an onto-drop whose target is not a folder, a gap drop
+ * with no resolvable parent directory, a no-op move into the current parent, or
+ * moving a folder into itself / one of its descendants. The main process
+ * re-validates every move and blocks collisions - this is a UI-side guard only,
+ * never the security boundary.
+ */
+export function resolveMoveTarget(
+  dragData: IDirOrFile | null | undefined,
+  dropData: IDirOrFile | null | undefined,
+  dropPosition: number
+): { sourceFullPath: string; sourceRelativePath: string; targetDirFullPath: string } | null {
+  if (!dragData?.fullPath || !dropData?.fullPath) return null;
+  // The workspace root (empty relativePath) cannot be moved.
+  if (!dragData.relativePath) return null;
+
+  const sourceFullPath = dragData.fullPath;
+
+  // Resolve the destination directory from the drop position. An onto-drop
+  // (dropPosition === 0) moves INTO the target and is only valid for folders;
+  // a gap drop (non-zero) places the entry as a sibling of the target, so its
+  // destination is the target's parent directory.
+  let targetDirFullPath: string;
+  if (dropPosition === 0) {
+    if (!dropData.isDir || dropData.isFile) return null;
+    targetDirFullPath = dropData.fullPath;
+  } else {
+    const dropSep = getPathSeparator(dropData.fullPath);
+    const dropParentIndex = dropData.fullPath.lastIndexOf(dropSep);
+    // A drop target with no separated parent (index <= 0) has no resolvable
+    // sibling directory inside the workspace.
+    if (dropParentIndex <= 0) return null;
+    targetDirFullPath = dropData.fullPath.slice(0, dropParentIndex);
+  }
+
+  if (sourceFullPath === targetDirFullPath) return null;
+
+  const sep = getPathSeparator(sourceFullPath);
+  // No-op: the entry already lives directly inside the target directory.
+  const parentDir = sourceFullPath.slice(0, sourceFullPath.lastIndexOf(sep));
+  if (parentDir === targetDirFullPath) return null;
+
+  // Block moving a folder into itself or one of its own descendants.
+  if (targetDirFullPath === sourceFullPath || targetDirFullPath.startsWith(sourceFullPath + sep)) return null;
+
+  return {
+    sourceFullPath,
+    sourceRelativePath: dragData.relativePath,
+    targetDirFullPath,
+  };
+}
+
+/**
  * Get target folder path from selectedNodeRef or selected keys
  */
 export function getTargetFolderPath(

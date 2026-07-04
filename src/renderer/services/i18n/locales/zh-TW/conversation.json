@@ -165,7 +165,9 @@
       "revealFailed": "無法開啟所在資料夾",
       "download": "下載",
       "downloadSuccess": "下載成功",
-      "downloadFailed": "下載失敗"
+      "downloadFailed": "下載失敗",
+      "moveSuccess": "移動成功",
+      "moveFailed": "移動失敗"
     },
     "changes": {
       "tab": "變更",

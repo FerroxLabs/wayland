@@ -310,6 +310,40 @@ function invalidateWorkspaceFileListCacheByPath(changedPath: string): void {
   }
 }
 
+/**
+ * Fail-closed destination existence check for rename/move (#592 never-clobber).
+ *
+ * `fs.access(p).catch(() => false)` treats EVERY rejection as "absent", so a
+ * present-but-inaccessible destination (EACCES/ELOOP/ENOTDIR, or a transient FS
+ * error) would slip past the collision guard and let `fs.rename` overwrite it.
+ * Only a genuine ENOENT means "free to write here"; any other error is
+ * re-thrown so the caller aborts the move rather than risk clobbering.
+ */
+async function destinationExists(candidatePath: string): Promise<boolean> {
+  try {
+    await fs.lstat(candidatePath);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Normalize path separators to POSIX `/` (#49 Windows fix). `path.join` emits
+ * backslashes on Windows, but `confinePath` normalizes to `/` internally and
+ * compares against `/`-formed roots — so a freshly joined destination would be
+ * misread as an out-of-root escape, and the string comparisons below (collision
+ * target, self-move, descendant guard) would break. Node's `fs` accepts forward
+ * slashes on Windows, so normalizing here keeps move/rename separator-agnostic
+ * on every platform.
+ */
+function toPosixPath(p: string): string {
+  return p.replace(/\\/g, '/');
+}
+
 const MAX_WORKSPACE_FILES = 20_000;
 
 async function listWorkspaceFilesRecursive(root: string): Promise<IWorkspaceFlatFile[]> {
@@ -1208,24 +1242,21 @@ export function initFsBridge(): void {
 
       const directory = path.dirname(safeTarget);
       // newName may contain traversal (e.g. `../../etc/cron.d/x`); confine the
-      // resulting destination as well so a rename cannot escape the root.
-      const candidateNewPath = path.join(directory, newName);
+      // resulting destination as well so a rename cannot escape the root. Keep
+      // path.join's `..` resolution but normalize separators to `/` (#49): on
+      // Windows path.join emits `\`, which confinePath misreads as an escape.
+      const candidateNewPath = toPosixPath(path.join(directory, newName));
       const newPath = await confinePath(candidateNewPath);
       if (newPath === null) {
         return { success: false, msg: 'Target name is outside the allowed workspace roots' };
       }
 
-      if (newPath === safeTarget) {
+      if (toPosixPath(newPath) === toPosixPath(safeTarget)) {
         // Skip when the new name equals the original path
         return { success: true, data: { newPath } };
       }
 
-      const exists = await fs
-        .access(newPath)
-        .then(() => true)
-        .catch(() => false);
-
-      if (exists) {
+      if (await destinationExists(newPath)) {
         // Avoid overwriting existing targets
         return { success: false, msg: 'Target path already exists' };
       }
@@ -1236,6 +1267,73 @@ export function initFsBridge(): void {
       return { success: true, data: { newPath } };
     } catch (error) {
       console.error('Failed to rename entry:', error);
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  });
+
+  // Move a file or directory into a target directory and return the new path
+  ipcBridge.fs.moveEntry.provider(async ({ sourcePath, targetDir }) => {
+    try {
+      // Confine the source to authorized roots (SEC-IPC-01).
+      const safeSource = await confinePath(sourcePath);
+      if (safeSource === null) {
+        return { success: false, msg: 'Source is outside the allowed workspace roots' };
+      }
+
+      // Confine the destination directory as well so a move cannot escape the root.
+      const safeDir = await confinePath(targetDir);
+      if (safeDir === null) {
+        return { success: false, msg: 'Target directory is outside the allowed workspace roots' };
+      }
+
+      let targetIsDirectory = false;
+      try {
+        const dirStats = await fs.lstat(safeDir);
+        targetIsDirectory = dirStats.isDirectory();
+      } catch {
+        targetIsDirectory = false;
+      }
+      if (!targetIsDirectory) {
+        return { success: false, msg: 'Target directory does not exist' };
+      }
+
+      // Destination path keeps the source's own name inside the target
+      // directory. Build it with POSIX separators (#49): path.join emits `\` on
+      // Windows, which confinePath then misreads as an out-of-root escape.
+      const posixDir = toPosixPath(safeDir);
+      const posixSource = toPosixPath(safeSource);
+      const candidateNewPath = `${posixDir.replace(/\/+$/, '')}/${path.basename(posixSource)}`;
+      const newPath = await confinePath(candidateNewPath);
+      if (newPath === null) {
+        return { success: false, msg: 'Target path is outside the allowed workspace roots' };
+      }
+
+      const posixNewPath = toPosixPath(newPath);
+      if (posixNewPath === posixSource) {
+        // Already lives in the target directory - nothing to do.
+        return { success: true, data: { newPath } };
+      }
+
+      // Block moving a directory into itself or one of its own descendants
+      // (separator-agnostic so it holds on Windows too).
+      if (posixDir === posixSource || posixDir.startsWith(`${posixSource}/`)) {
+        return { success: false, msg: 'Cannot move a folder into itself' };
+      }
+
+      if (await destinationExists(newPath)) {
+        // Block on collision - never silently overwrite.
+        return { success: false, msg: 'Target path already exists' };
+      }
+
+      await fs.rename(safeSource, newPath);
+      invalidateWorkspaceFileListCacheByPath(safeSource);
+      invalidateWorkspaceFileListCacheByPath(newPath);
+      return { success: true, data: { newPath } };
+    } catch (error) {
+      console.error('Failed to move entry:', error);
       return {
         success: false,
         msg: error instanceof Error ? error.message : 'Unknown error',
