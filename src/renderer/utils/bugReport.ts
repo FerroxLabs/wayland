@@ -97,7 +97,9 @@ export function buildBugReportIssueUrl(data: IBugReportData | null): string {
 /**
  * Run the full one-click flow: capture + collect in main, open a pre-filled issue,
  * and toast the user that the screenshot is on the clipboard. Falls back to the
- * template chooser if the capture/collect step fails. Never throws.
+ * template chooser if the capture/collect step fails. The capture/collect phase
+ * is swallowed, but the trailing `openExternalUrl(url)` can still reject (e.g. the
+ * shell open fails), so callers should treat this as potentially throwing.
  */
 export async function fileBugReport(t: TFunction): Promise<void> {
   let data: IBugReportData | null = null;

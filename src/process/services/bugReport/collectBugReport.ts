@@ -9,8 +9,9 @@
  *
  * Gathers everything needed to file a DETAILED GitHub issue in one click:
  *   1. An app-window screenshot via Electron `webContents.capturePage()` — copied
- *      to the OS clipboard (nativeImage) and written to a temp PNG. `capturePage`
- *      needs NO OS Screen-Recording permission and captures exactly the Wayland UI.
+ *      to the OS clipboard only (as a nativeImage); no temp file is written.
+ *      `capturePage` needs NO OS Screen-Recording permission and captures exactly
+ *      the Wayland UI.
  *   2. App + bundled-engine versions and OS/arch, for the environment block.
  *   3. The sanitized `wayland_concierge_diag` overview (already secret-masked) as a
  *      compact, problem-focused markdown block.
