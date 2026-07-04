@@ -153,3 +153,27 @@ describe('isAllowedForRemote - doctor surface denied (#458)', () => {
     expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
   });
 });
+
+/**
+ * Memory mutation surface (#414). The memory.* namespace is intentionally open
+ * to the paired WebUI for READS, but the two edit/delete providers perform a
+ * real, hard, unrecoverable rewrite/delete of the user's local memory files.
+ * A remote (paired-device WebSocket) caller must never reach them, else a paired
+ * peer could destroy or silently rewrite the user's memories. The read-only
+ * views stay allowed so the remote Archive panel still functions.
+ */
+describe('isAllowedForRemote - memory edit/delete denied (#414)', () => {
+  it.each(['memory.update-entry', 'memory.delete-entry'])(
+    'denies subscribe-%s for remote callers (blocks remote memory destruction/rewrite)',
+    (key) => {
+      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+    }
+  );
+
+  it.each(['memory.list-entries', 'memory.get-entry', 'memory.get-projects', 'memory.get-tags', 'memory.get-stats'])(
+    'still allows the read-only %s for remote callers',
+    (key) => {
+      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
+    }
+  );
+});

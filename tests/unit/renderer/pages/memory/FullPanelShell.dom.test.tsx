@@ -105,7 +105,7 @@ const MOCK_CANDIDATES: PromotionCandidates = {
 // Mocks
 // ---------------------------------------------------------------------------
 
-const { mockMemory, mockShell, mockIjfw } = vi.hoisted(() => {
+const { mockMemory, mockShell, mockIjfw, mockModalConfirm } = vi.hoisted(() => {
   let _indexChangedListeners: Array<(v: unknown) => void> = [];
   let _ijfwListeners: Array<(v: unknown) => void> = [];
   const mockIndexChangedEmitter = {
@@ -135,6 +135,9 @@ const { mockMemory, mockShell, mockIjfw } = vi.hoisted(() => {
       getPromotionCandidates: { invoke: vi.fn() },
       promote: { invoke: vi.fn() },
       setQuickAdd: { invoke: vi.fn() },
+      // #414 edit/delete mutations (used by the drawer actions).
+      updateEntry: { invoke: vi.fn() },
+      deleteEntry: { invoke: vi.fn() },
       setPromotionThreshold: { invoke: vi.fn() },
       onIndexChanged: mockIndexChangedEmitter,
       import: {
@@ -158,6 +161,9 @@ const { mockMemory, mockShell, mockIjfw } = vi.hoisted(() => {
       // Used by the embedded IjfwSetupStatus (#414 health strip) on expand.
       brainInvoke: { invoke: vi.fn() },
     },
+    // Captures the config passed to Modal.confirm so the delete-gate test can
+    // assert deleteEntry fires ONLY from the confirm dialog's onOk.
+    mockModalConfirm: vi.fn((_cfg: unknown) => ({ close: vi.fn() })),
   };
 });
 
@@ -185,6 +191,13 @@ vi.mock('@arco-design/web-react', async () => {
       error: vi.fn(),
       info: vi.fn(),
     },
+    // Modal.confirm is captured (delete gate); the component form renders its
+    // children when visible so any other Modal usage in the tree still works.
+    Modal: Object.assign(
+      ({ visible, children }: { visible?: boolean; children?: React.ReactNode }) =>
+        visible ? <div data-testid='arco-modal'>{children}</div> : null,
+      { confirm: mockModalConfirm }
+    ),
     Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     Popover: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     Dropdown: ({ children, droplist }: { children: React.ReactNode; droplist: React.ReactNode }) => (
@@ -262,6 +275,8 @@ beforeEach(() => {
   mockMemory.getPromotionCandidates.invoke.mockResolvedValue(MOCK_CANDIDATES);
   mockMemory.promote.invoke.mockResolvedValue({ ok: true });
   mockMemory.setQuickAdd.invoke.mockResolvedValue({ ok: true });
+  mockMemory.deleteEntry.invoke.mockResolvedValue({ ok: true });
+  mockMemory.updateEntry.invoke.mockResolvedValue({ ok: true });
   mockMemory.import.scanDevDir.invoke.mockResolvedValue({ count: 0, projectsFound: 0, errors: [] });
   mockShell.openFile.invoke.mockResolvedValue(undefined);
   mockIjfw.getStatus.invoke.mockResolvedValue({ status: 'installed_current', cliCount: 5 });
@@ -453,5 +468,48 @@ describe('FullPanelShell setup-status strip (#414)', () => {
     });
     // Re-opened already expanded from the persisted flag.
     expect(screen.getByTestId('memory-setup-status-body')).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #414 - Delete is gated behind the confirm dialog (cannot-be-undone). The
+// destructive deleteEntry mutation must fire ONLY from the dialog's onOk, never
+// on the bare button click. Automated coverage so a refactor can't silently
+// weaken the gate the #414 ruling mandates.
+// ---------------------------------------------------------------------------
+
+describe('FullPanelShell delete confirm gate (#414)', () => {
+  it('does not call deleteEntry on button click; only the confirm onOk fires it', async () => {
+    await act(async () => {
+      renderShell(['/memory?entry=entry-001']);
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 30));
+    });
+
+    // Drawer is open with the selected entry; the Delete action is present.
+    const deleteBtn = screen.getByTestId('drawer-delete-btn');
+    expect(deleteBtn).toBeTruthy();
+
+    // Click Delete: the confirm dialog is requested, but NOTHING is deleted yet.
+    await act(async () => {
+      fireEvent.click(deleteBtn);
+    });
+    expect(mockModalConfirm).toHaveBeenCalledTimes(1);
+    expect(mockMemory.deleteEntry.invoke).not.toHaveBeenCalled();
+
+    // The confirm copy states the action cannot be undone (the #414 ruling).
+    const cfg = mockModalConfirm.mock.calls[0]![0] as {
+      content?: string;
+      onOk?: () => Promise<void> | void;
+    };
+    expect(String(cfg.content)).toContain('cannot be undone');
+
+    // Only firing the dialog's onOk performs the real, hard delete.
+    await act(async () => {
+      await cfg.onOk?.();
+    });
+    expect(mockMemory.deleteEntry.invoke).toHaveBeenCalledTimes(1);
+    expect(mockMemory.deleteEntry.invoke).toHaveBeenCalledWith({ id: 'entry-001' });
   });
 });

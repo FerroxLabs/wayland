@@ -340,6 +340,16 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'mcp.cancel-oauth',
   'mcp.logout-oauth',
   'mcp.set-byo-oauth-credentials',
+  // --- Memory mutation (#414 edit/delete of the user's local memory files) ---
+  //     The memory.* namespace is intentionally open to the paired WebUI for
+  //     READS (list/get/projects/tags/stats). These two providers perform a
+  //     real, hard, unrecoverable rewrite/delete of an on-disk memory block, so
+  //     a remote/paired peer must never reach them: update-entry silently
+  //     rewrites a block, delete-entry hard-deletes it (atomic rename/unlink,
+  //     no recycle). Reads stay allowed; only the destructive mutations are
+  //     denied to remote. (Local Electron IPC never passes through this gate.)
+  'memory.update-entry',
+  'memory.delete-entry',
   // --- Project knowledge draft (reads arbitrary filePaths to feed the model) ---
   'project.generate-knowledge-draft',
   // --- Storage destructive / disk operations ---
