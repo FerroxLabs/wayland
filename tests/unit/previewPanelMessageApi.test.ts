@@ -69,3 +69,46 @@ describe('handleOpenInSystem defensive messageApi pattern', () => {
     expect(messageApi.success).toHaveBeenCalledWith('Open in system succeeded');
   });
 });
+
+/**
+ * #621: shell.openFile resolves with a { ok, error? } result and does NOT throw
+ * when the OS launcher fails (e.g. no xdg association on Linux). Both open-in-
+ * system handlers (PreviewPanel + PDFViewer) must branch on `result.ok` rather
+ * than assuming success, or a failed open shows a misleading success toast.
+ * This mirrors the isolation approach above (the components are deeply coupled
+ * to React contexts + the IPC bridge).
+ */
+describe('handleOpenInSystem success is gated on the openFile result (#621)', () => {
+  // The exact decision both handlers make once openFile resolves.
+  function reportOpenOutcome(
+    result: { ok: boolean; error?: string } | undefined,
+    messageApi: { success: (m: string) => void; error: (m: string) => void }
+  ) {
+    if (result?.ok) {
+      messageApi.success('preview.openInSystemSuccess');
+    } else {
+      messageApi.error('preview.openInSystemFailed');
+    }
+  }
+
+  it('shows success only when the launcher reports ok', () => {
+    const messageApi = { success: vi.fn(), error: vi.fn() };
+    reportOpenOutcome({ ok: true }, messageApi);
+    expect(messageApi.success).toHaveBeenCalledWith('preview.openInSystemSuccess');
+    expect(messageApi.error).not.toHaveBeenCalled();
+  });
+
+  it('shows an error (not success) when the launcher reports ok:false without throwing', () => {
+    const messageApi = { success: vi.fn(), error: vi.fn() };
+    reportOpenOutcome({ ok: false, error: 'xdg-open: not found' }, messageApi);
+    expect(messageApi.error).toHaveBeenCalledWith('preview.openInSystemFailed');
+    expect(messageApi.success).not.toHaveBeenCalled();
+  });
+
+  it('treats a missing/undefined result as failure', () => {
+    const messageApi = { success: vi.fn(), error: vi.fn() };
+    reportOpenOutcome(undefined, messageApi);
+    expect(messageApi.error).toHaveBeenCalledWith('preview.openInSystemFailed');
+    expect(messageApi.success).not.toHaveBeenCalled();
+  });
+});

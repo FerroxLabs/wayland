@@ -43,8 +43,15 @@ const PDFPreview: React.FC<PDFPreviewProps> = ({ filePath, content, hideToolbar 
     }
 
     try {
-      await ipcBridge.shell.openFile.invoke(filePath);
-      messageApi.success(t('preview.openInSystemSuccess'));
+      // openFile resolves with { ok } even when the OS launcher fails without
+      // throwing (e.g. no xdg association on Linux), so branch on ok instead of
+      // assuming success (#621) - otherwise a failed open shows a success toast.
+      const result = await ipcBridge.shell.openFile.invoke(filePath);
+      if (result?.ok) {
+        messageApi.success(t('preview.openInSystemSuccess'));
+      } else {
+        messageApi.error(t('preview.openInSystemFailed'));
+      }
     } catch (err) {
       messageApi.error(t('preview.openInSystemFailed'));
     }
