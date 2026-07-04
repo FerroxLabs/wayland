@@ -4,6 +4,7 @@ import {
   isApiKeyError,
   isApiErrorMessage,
   isToolUnsupportedErrorMessage,
+  isContextCeilingErrorMessage,
 } from '../../src/renderer/utils/model/errorDetection';
 
 describe('isQuotaErrorMessage', () => {
@@ -264,5 +265,45 @@ describe('isToolUnsupportedErrorMessage', () => {
     expect(isToolUnsupportedErrorMessage({ error: 'No endpoints found that support tool use' })).toBe(false);
     expect(isToolUnsupportedErrorMessage(null)).toBe(false);
     expect(isToolUnsupportedErrorMessage(undefined)).toBe(false);
+  });
+});
+
+describe('isContextCeilingErrorMessage', () => {
+  const realFrame =
+    "Run stopped: estimated request size (178458) reached the context-window ceiling (177000) for model 'flux-auto', and compaction could not reduce it further.";
+
+  it('returns true for the real engine frame (issue #615)', () => {
+    expect(isContextCeilingErrorMessage(realFrame)).toBe(true);
+  });
+
+  it('is resilient to different token counts and model ids', () => {
+    expect(
+      isContextCeilingErrorMessage(
+        "Run stopped: estimated request size (42) reached the context-window ceiling (16) for model 'gpt-x', and compaction could not reduce it further."
+      )
+    ).toBe(true);
+  });
+
+  it('matches on the "compaction could not reduce" phrase alone', () => {
+    expect(isContextCeilingErrorMessage('compaction could not reduce it further')).toBe(true);
+  });
+
+  it('matches case-insensitively', () => {
+    expect(isContextCeilingErrorMessage('REACHED THE CONTEXT-WINDOW CEILING')).toBe(true);
+  });
+
+  it('returns false for an unrelated error', () => {
+    expect(isContextCeilingErrorMessage('API error 429: rate limit exceeded')).toBe(false);
+  });
+
+  it('returns false for a normal message', () => {
+    expect(isContextCeilingErrorMessage('Hello, how can I help you?')).toBe(false);
+  });
+
+  it('returns false for non-string data', () => {
+    expect(isContextCeilingErrorMessage({ error: 'context-window ceiling' })).toBe(false);
+    expect(isContextCeilingErrorMessage(null)).toBe(false);
+    expect(isContextCeilingErrorMessage(undefined)).toBe(false);
+    expect(isContextCeilingErrorMessage(42)).toBe(false);
   });
 });
