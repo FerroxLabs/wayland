@@ -907,8 +907,9 @@ export function initUpdateBridge(): void {
 
   ipcBridge.autoUpdate.quitAndInstall.provider(async (params: { force?: boolean } | undefined): Promise<void> => {
     try {
-      // "Install now anyway" bypasses the quiesce gate and installs immediately,
-      // accepting the interruption (#651/#632 override).
+      // "Install now anyway" bypasses the quiesce gate AND the drain, installing
+      // immediately via the raw hard-exit — the one case the user explicitly
+      // accepted an abrupt interruption (#651/#632 override).
       if (params?.force) {
         autoUpdaterService.quitAndInstall();
         return;
@@ -918,7 +919,16 @@ export function initUpdateBridge(): void {
       // module's load graph (same rationale as getI18n above).
       const { installOrDefer } = await import('../services/updateQuiesceGate');
       await installOrDefer(
-        () => autoUpdaterService.quitAndInstall(),
+        // Route the install through the normal quit sequence — NOT the raw
+        // autoUpdaterService.quitAndInstall(), which hard-exits (app.exit(0) on a
+        // 1s timer) and would bypass the 12-step before-quit drain (DB, cron,
+        // workers, team sessions, tunnels, websocket/http server, agent
+        // children). app.quit() lets that drain run to completion and then
+        // installOnQuitIfReady() applies the staged update as the LAST step, in
+        // the correct order. Hard-exiting here would orphan child processes and
+        // drop unflushed writes right after the busy flag clears — the exact
+        // #651 bug class this feature exists to prevent.
+        () => app.quit(),
         () => autoUpdaterService.notifyDeferred()
       );
     } catch (err: unknown) {
