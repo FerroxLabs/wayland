@@ -371,7 +371,7 @@ describe('ChatConversation - workflow model switcher (#587)', () => {
   });
 });
 
-describe('ChatConversation - workflow model switcher for ACP/codex/remote backends (#626)', () => {
+describe('ChatConversation - workflow model switcher for ACP/codex and fixed-model backends (#626)', () => {
   // Follow-up to #587: the generic/ACP workflow panel rendered WorkflowSurface
   // without a headerAccessory, so ACP/codex conversations lost their model
   // switcher inside a workflow. The fix passes the same per-backend `modelSelector`
