@@ -526,6 +526,134 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
     });
   });
 
+  // ── #264: auto-mode escalation through the existing Confirming gate ─
+  //
+  // A non-info `approval_required` that carries a resume token and arrives in an
+  // auto mode is the wedge case: the engine could not self-resolve and there is
+  // no dedicated HITL UI. We escalate it through the existing Confirming gate
+  // (interactive) or loud-deny it (non-interactive), and route the card's
+  // allow/deny back to the engine by resume_token via confirm().
+
+  describe('#264: auto-mode escalation through the Confirming gate', () => {
+    const PROCEED_ONCE = 'proceed_once'; // ToolConfirmationOutcome.ProceedOnce
+    const CANCEL = 'cancel'; // ToolConfirmationOutcome.Cancel
+
+    // Attach an agent whose approval calls are observable.
+    function withAgent(m: WCoreManager) {
+      const resumeApproval = vi.fn();
+      const approveTool = vi.fn();
+      const denyTool = vi.fn();
+      (m as any).agent = { resumeApproval, approveTool, denyTool };
+      return { resumeApproval, approveTool, denyTool };
+    }
+
+    // Drive a non-info approval_required with a resume token into `manager`.
+    function escalate(m: WCoreManager, callId = 'c1', resumeToken = 'tok-1') {
+      emitEvent(m, {
+        type: 'approval_required',
+        data: { callId, resumeToken, reason: 'destructive_operation' },
+        msg_id: 'msg-1',
+      });
+    }
+
+    it('interactive auto mode: escalates via the Confirming gate, does NOT auto-resume', () => {
+      (manager as any).currentMode = 'yolo'; // user Autopilot: has a UI (yoloMode stays false)
+      const { resumeApproval } = withAgent(manager);
+
+      escalate(manager);
+
+      // A card was synthesized for this callId with allow-once / deny options.
+      const card = (manager as any).confirmations.find((c: any) => c.callId === 'c1');
+      expect(card).toBeDefined();
+      expect(card.title).toBe('messages.permissionRequest');
+      expect(card.options.map((o: any) => o.value)).toEqual([PROCEED_ONCE, CANCEL]);
+      // The resume token is parked for confirm() to pick up; not auto-resumed.
+      expect((manager as any).pendingApprovalTokens.get('c1')).toBe('tok-1');
+      expect(resumeApproval).not.toHaveBeenCalled();
+    });
+
+    it('confirm(allow) redirects to resumeApproval(true) and NOT approveTool/denyTool; clears the map (#264 a,e)', () => {
+      (manager as any).currentMode = 'yolo';
+      const { resumeApproval, approveTool, denyTool } = withAgent(manager);
+      escalate(manager);
+
+      manager.confirm('c1', 'c1', PROCEED_ONCE);
+
+      expect(resumeApproval).toHaveBeenCalledWith('tok-1', true);
+      expect(approveTool).not.toHaveBeenCalled();
+      expect(denyTool).not.toHaveBeenCalled();
+      // Map entry removed after resume: no leak, no stale reuse.
+      expect((manager as any).pendingApprovalTokens.has('c1')).toBe(false);
+    });
+
+    it('confirm(deny) redirects to resumeApproval(false) (#264 d)', () => {
+      (manager as any).currentMode = 'auto_edit';
+      const { resumeApproval, approveTool, denyTool } = withAgent(manager);
+      escalate(manager);
+
+      manager.confirm('c1', 'c1', CANCEL);
+
+      expect(resumeApproval).toHaveBeenCalledWith('tok-1', false);
+      expect(approveTool).not.toHaveBeenCalled();
+      expect(denyTool).not.toHaveBeenCalled();
+    });
+
+    it('confirm for a non-escalated callId leaves the approveTool/denyTool path byte-unchanged (#264 b)', () => {
+      const { resumeApproval, approveTool } = withAgent(manager);
+      // No escalation: the map is empty, so this is an ordinary tool_group approval.
+      manager.confirm('m', 'other-call', PROCEED_ONCE);
+
+      expect(approveTool).toHaveBeenCalledWith('other-call', 'once', undefined);
+      expect(resumeApproval).not.toHaveBeenCalled();
+    });
+
+    it('interactive tool_group approval never escalates or double-prompts (#264 c)', () => {
+      // Default (non-auto) mode: the renderer tool_group Confirming gate owns the
+      // approval. No escalation card is synthesized and confirm() uses the normal
+      // approveTool path — the callId is never in the map, so no double-drive.
+      (manager as any).currentMode = 'default';
+      const { resumeApproval, approveTool } = withAgent(manager);
+
+      escalate(manager, 'tg-1', 'tok-tg');
+
+      expect((manager as any).confirmations.some((c: any) => c.callId === 'tg-1')).toBe(false);
+      expect((manager as any).pendingApprovalTokens.has('tg-1')).toBe(false);
+
+      manager.confirm('tg-1', 'tg-1', PROCEED_ONCE);
+      expect(approveTool).toHaveBeenCalledWith('tg-1', 'once', undefined);
+      expect(resumeApproval).not.toHaveBeenCalled();
+    });
+
+    it('non-interactive (yoloMode) auto mode: loud-denies via resumeApproval(false), no silent approve, no card', () => {
+      // A channel/cron spawn (yoloMode:true) has no user to prompt. Escalating would
+      // hit addConfirmation's yoloMode auto-approve and SILENTLY APPROVE — so we
+      // loud-deny instead.
+      const data = {
+        workspace: '/test/workspace',
+        model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
+        conversation_id: 'conv-yolo',
+        sessionMode: 'yolo',
+        yoloMode: true,
+      };
+      const m = new WCoreManager(data as any, data.model as any);
+      vi.spyOn(m as any, 'postMessagePromise').mockResolvedValue(undefined);
+      const { resumeApproval } = withAgent(m);
+
+      escalate(m, 'cy', 'tok-y');
+
+      expect(resumeApproval).toHaveBeenCalledWith('tok-y', false);
+      // No confirmation card was created for a headless run.
+      expect((m as any).confirmations.some((c: any) => c.callId === 'cy')).toBe(false);
+      expect((m as any).pendingApprovalTokens.has('cy')).toBe(false);
+      // And it was recorded loudly, not silently.
+      const loud = mockMainError.mock.calls.find(
+        ([, msg]: [unknown, unknown]) =>
+          typeof msg === 'string' && msg.includes("reason='destructive_operation'") && msg.includes('yoloMode')
+      );
+      expect(loud).toBeDefined();
+    });
+  });
+
   // ── ipcBridge still receives all events (no regression) ─────────
 
   describe('Regression: ipcBridge still receives all events', () => {

@@ -188,6 +188,14 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   // cleared) can be stamped onto the correct turn's activity card.
   private _lastTurnMsgId: string | null = null;
 
+  // #264 - an auto-mode `approval_required` the engine could not self-resolve is
+  // escalated through the existing Confirming gate (see the approval_required
+  // handler). That card is resumed by resume_token, but the renderer only routes
+  // a callId back to confirm(); map callId -> resumeToken here so confirm() can
+  // redirect to resumeApproval(). ONLY escalation callIds are stored, so ordinary
+  // interactive tool_group approvals never hit the redirect and cannot double-drive.
+  private readonly pendingApprovalTokens = new Map<string, string>();
+
   // Heartbeat state
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   private readonly heartbeatIntervalMs = 30_000;
@@ -1100,30 +1108,75 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // `approval_resume` so the turn can never hang. (A stale/duplicate token is
       // safely ignored engine-side.)
       if (data.type === 'approval_required') {
-        const appr = (data.data ?? {}) as { resumeToken?: string; reason?: string };
+        const appr = (data.data ?? {}) as {
+          callId?: string;
+          resumeToken?: string;
+          reason?: string;
+          context?: unknown;
+        };
         const autoMode = this.currentMode === 'yolo' || this.currentMode === 'auto_edit';
-        if (appr.resumeToken && (autoMode || appr.reason === 'info')) {
+        const isInfo = appr.reason === 'info';
+
+        // Informational approvals (e.g. the engine's internal todo tool) are safe
+        // to self-resume in ANY mode - unchanged happy path.
+        if (appr.resumeToken && isInfo) {
           this.agent?.resumeApproval(appr.resumeToken, true);
-        } else if (appr.reason && appr.reason !== 'info') {
-          // A non-info approval we did not auto-resume. Whether that is a problem
-          // depends on the mode:
-          //
-          // - Interactive (non-auto) mode: EXPECTED. The renderer tool-confirmation
-          //   gate (the `Confirming` tool_group path above) prompts the user and
-          //   drives the resume; this `approval_required` is the engine's parallel
-          //   signal, not a dropped approval. A normal exec/mcp approval legitimately
-          //   carries no resume token here, so the old error (and a resume-token
-          //   check) fired on every exec approval and falsely read as a failure
-          //   (#390). Keep only a quiet trace for diagnosability.
-          //
-          // - Auto mode (Autopilot/Auto Edit): the engine was supposed to
-          //   self-resolve but we could not (no resume token, or a non-info reason
-          //   the auto path can't satisfy) and there is no HITL UI to fall back on,
-          //   so the turn can genuinely wedge (#264). That is the real error.
-          if (autoMode) {
+          return;
+        }
+
+        // #264: a NON-info `approval_required` reached us in an auto mode
+        // (Autopilot/Auto Edit). The engine expected to self-resolve but could not
+        // (notably Anthropic-format `toolu_` ids routed via Flux), and there is no
+        // dedicated HITL UI - so the turn would wedge, and previously we silently
+        // auto-resumed(true), which is exactly the silent auto-approve the trust
+        // audit fights. Escalate through the EXISTING Confirming gate so the user
+        // explicitly allows/denies; the decision resumes by resume_token in
+        // confirm() (keyed via pendingApprovalTokens).
+        if (autoMode && !isInfo && appr.resumeToken) {
+          const callId = appr.callId ?? '';
+          // A non-interactive spawn (channel/cron sets this.yoloMode) has no user
+          // to prompt. addConfirmation() would auto-pick the first (allow) option
+          // under yoloMode and SILENTLY APPROVE - the opposite of what an
+          // un-anticipated approval needs. So loud-deny instead: a visible,
+          // recorded denial, never a silent approve and never a hang.
+          if (this.yoloMode) {
+            this.agent?.resumeApproval(appr.resumeToken, false);
             mainError(
               '[WCoreManager]',
-              `approval_required reason='${appr.reason}' in auto mode could not self-resume and has no HITL UI; turn may wedge`,
+              `approval_required reason='${appr.reason}' in a non-interactive (yoloMode) session with no user to prompt; denied`,
+              data.data
+            );
+            return;
+          }
+          this.pendingApprovalTokens.set(callId, appr.resumeToken);
+          const context = typeof appr.context === 'string' && appr.context ? appr.context : '';
+          this.addConfirmation({
+            title: 'messages.permissionRequest',
+            id: callId,
+            description: context || `reason: ${appr.reason ?? ''}`,
+            callId,
+            options: [
+              { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },
+              { label: 'messages.confirmation.no', value: ToolConfirmationOutcome.Cancel },
+            ],
+          });
+          return;
+        }
+
+        // Any other non-info approval. In interactive (non-auto) mode this is
+        // EXPECTED: the renderer tool-confirmation gate (the `Confirming`
+        // tool_group path above) prompts the user and drives the resume; this
+        // `approval_required` is the engine's parallel signal, not a dropped
+        // approval. A normal exec/mcp approval legitimately carries no resume
+        // token here, so the old resume-token check fired on every exec approval
+        // and falsely read as a failure (#390) - keep only a quiet trace. The one
+        // genuinely un-actionable case is an auto-mode approval with NO resume
+        // token: we can neither resume nor escalate, so surface a diagnostic.
+        if (appr.reason && !isInfo) {
+          if (autoMode && !appr.resumeToken) {
+            mainError(
+              '[WCoreManager]',
+              `approval_required reason='${appr.reason}' in auto mode has no resume token and no HITL UI; turn may wedge`,
               data.data
             );
           } else {
@@ -1431,6 +1484,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   confirm(id: string, callId: string, data: string, answer?: string) {
+    // #264: an escalated auto-mode `approval_required` is resumed by resume_token,
+    // NOT by approveTool/denyTool. If this callId was escalated, clear its card,
+    // drive the engine's approval_resume, and stop - do not also fall through to
+    // approveTool/denyTool. Non-escalation callIds are never in the map, so the
+    // ordinary approval path below is byte-unchanged for them.
+    const pendingToken = this.pendingApprovalTokens.get(callId);
+    if (pendingToken !== undefined) {
+      this.pendingApprovalTokens.delete(callId);
+      super.confirm(id, callId, data);
+      this.agent?.resumeApproval(pendingToken, data !== ToolConfirmationOutcome.Cancel);
+      return;
+    }
+
     // Store "always allow" in approval store
     if (data === ToolConfirmationOutcome.ProceedAlways) {
       const confirmation = this.confirmations.find((c) => c.callId === callId);
