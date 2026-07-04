@@ -74,6 +74,13 @@ export type WorkflowSurfaceProps = {
    * the suggested slug. The caller (ChatConversation) routes to the launcher.
    */
   onLaunchWorkflow?: (workflowName: string) => void;
+  /**
+   * #587: right-aligned control shown in the workflow's top control row (next
+   * to the view-mode toggle). The caller passes the platform model selector so
+   * users can switch chat models mid-workflow, just like a normal chat header -
+   * the ChatLayout header itself stays hidden (`hideHeader`) in workflow mode.
+   */
+  headerAccessory?: React.ReactNode;
 };
 
 const isFreshLaunch = (session: WorkflowSession): boolean => {
@@ -102,6 +109,7 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
   children,
   suggestedNext,
   onLaunchWorkflow,
+  headerAccessory,
 }) => {
   const { t } = useTranslation();
   const session = useWorkflowSession(sessionId, initialSession);
@@ -475,6 +483,9 @@ export const WorkflowSurface: React.FC<WorkflowSurfaceProps> = ({
                 <Radio value='workflow'>{t('workflow.view.workflow')}</Radio>
                 <Radio value='conversation'>{t('workflow.view.conversation')}</Radio>
               </Radio.Group>
+              {/* #587: model switcher lives here so it stays reachable in a
+                  workflow (the ChatLayout header is hidden in workflow mode). */}
+              {headerAccessory && <div className={styles.headerAccessory}>{headerAccessory}</div>}
             </div>
             {showClarifyCard ? (
               <WorkflowClarifyCard

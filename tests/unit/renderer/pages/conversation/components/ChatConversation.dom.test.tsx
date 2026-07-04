@@ -348,6 +348,29 @@ describe('ChatConversation - workflow composer model selection (#132)', () => {
   });
 });
 
+describe('ChatConversation - workflow model switcher (#587)', () => {
+  // The reported bug: in a workflow the ChatLayout header is hidden, so no model
+  // switcher showed. The fix passes the platform selector to WorkflowSurface's
+  // `headerAccessory` slot. These assert the wiring actually happens.
+  it('passes the WCore model selector to WorkflowSurface via headerAccessory', () => {
+    render(<ChatConversation conversation={buildWCoreConversation({ workflowSessionId: 'sess-acc-wcore' })} />);
+
+    const accessory = workflowSurfaceCalls.at(-1)?.headerAccessory as React.ReactElement | undefined;
+    expect(accessory).toBeTruthy();
+    const { getByTestId } = render(<>{accessory}</>);
+    expect(getByTestId('mock-wcore-model-selector')).toBeTruthy();
+  });
+
+  it('passes the Gemini model selector to WorkflowSurface via headerAccessory', () => {
+    render(<ChatConversation conversation={buildGeminiConversation({ workflowSessionId: 'sess-acc-gemini' })} />);
+
+    const accessory = workflowSurfaceCalls.at(-1)?.headerAccessory as React.ReactElement | undefined;
+    expect(accessory).toBeTruthy();
+    const { getByTestId } = render(<>{accessory}</>);
+    expect(getByTestId('mock-gemini-model-selector')).toBeTruthy();
+  });
+});
+
 describe('ChatConversation - workflowSessionId from location.state', () => {
   it('state.workflowSessionId takes precedence when both state and extra are present', () => {
     // State says 'state-sess', extra says 'extra-sess' - state wins.

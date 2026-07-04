@@ -59,9 +59,7 @@ vi.mock('@/renderer/pages/guid/components/workflow/WorkflowHeader', () => ({
     const paused = Boolean(props.paused);
     return (
       <div data-testid='mock-workflow-header' data-paused={paused ? 'true' : 'false'}>
-        <button onClick={props.onPauseToggle as () => void}>
-          {paused ? 'Resume' : 'Pause'}
-        </button>
+        <button onClick={props.onPauseToggle as () => void}>{paused ? 'Resume' : 'Pause'}</button>
         <button onClick={props.onEnd as () => void}>End workflow</button>
       </div>
     );
@@ -85,9 +83,15 @@ vi.mock('@/renderer/pages/guid/components/workflow/WorkflowStepRail', () => ({
 vi.mock('@/renderer/pages/guid/components/workflow/StepReviewBeat', () => ({
   StepReviewBeat: (props: CapturedProps) => (
     <div data-testid='mock-step-review-beat'>
-      <button onClick={props.onAccept as () => void} data-testid='review-beat-accept'>Accept</button>
-      <button onClick={props.onRevise as () => void} data-testid='review-beat-revise'>Revise</button>
-      <button onClick={props.onGoBack as () => void} data-testid='review-beat-go-back'>Go back</button>
+      <button onClick={props.onAccept as () => void} data-testid='review-beat-accept'>
+        Accept
+      </button>
+      <button onClick={props.onRevise as () => void} data-testid='review-beat-revise'>
+        Revise
+      </button>
+      <button onClick={props.onGoBack as () => void} data-testid='review-beat-go-back'>
+        Go back
+      </button>
     </div>
   ),
   default: () => null,
@@ -150,10 +154,7 @@ vi.mock('@/renderer/pages/guid/components/workflow/AskCard', () => ({
 vi.mock('@/renderer/pages/guid/components/workflow/WorkflowClarifyCard', () => ({
   WorkflowClarifyCard: (props: CapturedProps) => (
     <div data-testid='mock-workflow-clarify-card'>
-      <button
-        data-testid='mock-clarify-start'
-        onClick={() => (props.onStart as (note: string) => void)('')}
-      >
+      <button data-testid='mock-clarify-start' onClick={() => (props.onStart as (note: string) => void)('')}>
         Start
       </button>
       <button
@@ -177,22 +178,13 @@ vi.mock('@arco-design/web-react', () => ({
       {children}
     </button>
   ),
-  Radio: Object.assign(
-    ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
-    {
-      Group: ({
-        children,
-        value,
-      }: {
-        children?: React.ReactNode;
-        value?: string;
-      }) => (
-        <div data-testid='mock-radio-group' data-value={value}>
-          {children}
-        </div>
-      ),
-    }
-  ),
+  Radio: Object.assign(({ children }: { children?: React.ReactNode }) => <span>{children}</span>, {
+    Group: ({ children, value }: { children?: React.ReactNode; value?: string }) => (
+      <div data-testid='mock-radio-group' data-value={value}>
+        {children}
+      </div>
+    ),
+  }),
 }));
 
 // useWorkflowSession is the hook under composition. Stub it with a
@@ -697,5 +689,40 @@ describe('WorkflowSurface', () => {
 
     // sendMessage must NOT fire for a mid-flight resume.
     expect(sendMessageMock).not.toHaveBeenCalled();
+  });
+
+  // #587: the caller (ChatConversation workflow panels) passes the platform
+  // model selector as `headerAccessory` so users can switch chat models
+  // mid-workflow - the ChatLayout header is hidden in workflow mode, so without
+  // this slot there was no model switcher at all (the reported bug).
+  describe('#587 headerAccessory (model switcher slot)', () => {
+    const accessory = <div data-testid='model-accessory'>MODEL-SWITCHER</div>;
+
+    it('renders the headerAccessory alongside the view-mode toggle once launched (resumed session)', () => {
+      renderPostOverlay(buildSession({ begin_sent_at: NOW - 1000 }), { headerAccessory: accessory });
+
+      // The switcher is present next to the workflow/conversation view toggle.
+      expect(screen.getByTestId('model-accessory')).toBeTruthy();
+      expect(screen.getByTestId('mock-radio-group')).toBeTruthy();
+    });
+
+    it('surfaces the switcher even at the clarify beat (fresh session, before Start)', () => {
+      // A user whose model ran out of credits needs to switch BEFORE the first
+      // send. The accessory row renders above the clarify card, so it must show
+      // even while the clarify card is up.
+      renderPostOverlay(buildSession({ begin_sent_at: null }), { headerAccessory: accessory }, { skipClarify: false });
+
+      expect(screen.getByTestId('mock-workflow-clarify-card')).toBeTruthy();
+      expect(screen.getByTestId('model-accessory')).toBeTruthy();
+    });
+
+    it('renders nothing extra when no headerAccessory is provided (back-compat)', () => {
+      renderPostOverlay(buildSession({ begin_sent_at: NOW - 1000 }));
+
+      expect(screen.queryByTestId('model-accessory')).toBeNull();
+      // The surface still renders its normal launched layout.
+      expect(screen.getByTestId('mock-radio-group')).toBeTruthy();
+      expect(screen.getByTestId('caller-children')).toBeTruthy();
+    });
   });
 });

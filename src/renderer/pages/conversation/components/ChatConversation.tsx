@@ -268,13 +268,12 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
   );
 };
 
-// #132: wcore/gemini conversations wrapped in WorkflowSurface previously got a
-// null-object model selection (currentModel: undefined), so typing in the
-// composer threw "No model selected for current session" - the send box gate
-// requires currentModel?.useModel. These panels own the real selection hook
-// seeded from conversation.model (identical to the non-workflow panels above).
-// The surface still hides the header (hideHeader), so no in-workflow model
-// switcher is shown; the selection exists purely so the composer can send.
+// #132: wcore/gemini conversations wrapped in WorkflowSurface own the real
+// selection hook seeded from conversation.model (identical to the non-workflow
+// panels above), so the composer can send and - since #587 - the user can
+// switch models mid-workflow. The ChatLayout header stays hidden (hideHeader)
+// in workflow mode; the model switcher is surfaced inside WorkflowSurface's
+// top control row via `headerAccessory` instead.
 const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & WorkflowPanelExtras> = ({
   conversation,
   sliderTitle,
@@ -314,6 +313,7 @@ const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & Workflo
           sessionId={workflowSessionId}
           initialSession={initialWorkflowSession}
           onLaunchWorkflow={onLaunchWorkflow}
+          headerAccessory={<WCoreModelSelector selection={modelSelection} conversationId={conversation.id} />}
         >
           <WCoreChat
             key={conversation.id}
@@ -370,6 +370,7 @@ const GeminiWorkflowPanel: React.FC<
           sessionId={workflowSessionId}
           initialSession={initialWorkflowSession}
           onLaunchWorkflow={onLaunchWorkflow}
+          headerAccessory={<GeminiModelSelector selection={modelSelection} />}
         >
           <GeminiChat
             key={conversation.id}
