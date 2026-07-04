@@ -81,9 +81,18 @@ export type SkillStats = {
   verified: number;
 };
 
+/**
+ * Result of a shell open/reveal operation. The IPC bridge's `invoke` has no
+ * rejection channel (a throwing provider leaves the caller's promise pending
+ * forever), so open/reveal report success or failure through this value instead
+ * of throwing - letting the renderer surface a real error instead of a silent
+ * no-op when the OS handler (e.g. `xdg-open` on Linux) is missing or fails.
+ */
+export type ShellOpenResult = { ok: boolean; error?: string };
+
 export const shell = {
-  openFile: buildProvider<void, string>('open-file'), // Open file with the system default program
-  showItemInFolder: buildProvider<void, string>('show-item-in-folder'), // Open folder
+  openFile: buildProvider<ShellOpenResult, string>('open-file'), // Open file with the system default program
+  showItemInFolder: buildProvider<ShellOpenResult, string>('show-item-in-folder'), // Open folder
   openExternal: buildProvider<void, string>('open-external'), // Open external link with the system default program
   checkToolInstalled: buildProvider<boolean, { tool: string }>('shell.check-tool-installed'), // Check whether a tool is installed
   openFolderWith: buildProvider<void, { folderPath: string; tool: 'vscode' | 'terminal' | 'explorer' }>(

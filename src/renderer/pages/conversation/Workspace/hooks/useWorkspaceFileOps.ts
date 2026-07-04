@@ -84,7 +84,13 @@ export function useWorkspaceFileOps(options: UseWorkspaceFileOpsOptions) {
     async (nodeData: IDirOrFile | null) => {
       if (!nodeData) return;
       try {
-        await ipcBridge.shell.openFile.invoke(nodeData.fullPath);
+        // The provider reports failure via `{ ok: false }` (the IPC bridge cannot
+        // reject), so a silent OS-handler failure on Linux surfaces as an error
+        // toast instead of doing nothing (#616).
+        const res = await ipcBridge.shell.openFile.invoke(nodeData.fullPath);
+        if (!res?.ok) {
+          messageApi.error(t('conversation.workspace.contextMenu.openFailed') || 'Failed to open');
+        }
       } catch (error) {
         messageApi.error(t('conversation.workspace.contextMenu.openFailed') || 'Failed to open');
       }
@@ -99,7 +105,10 @@ export function useWorkspaceFileOps(options: UseWorkspaceFileOpsOptions) {
     async (nodeData: IDirOrFile | null) => {
       if (!nodeData) return;
       try {
-        await ipcBridge.shell.showItemInFolder.invoke(nodeData.fullPath);
+        const res = await ipcBridge.shell.showItemInFolder.invoke(nodeData.fullPath);
+        if (!res?.ok) {
+          messageApi.error(t('conversation.workspace.contextMenu.revealFailed') || 'Failed to reveal');
+        }
       } catch (error) {
         messageApi.error(t('conversation.workspace.contextMenu.revealFailed') || 'Failed to reveal');
       }

@@ -12,6 +12,7 @@
  */
 
 import { ipcBridge } from '@/common';
+import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import { isAllowedExternalUrl } from '@/common/utils/urlValidation';
 import { execFile } from 'node:child_process';
 import * as fs from 'node:fs';
@@ -62,10 +63,20 @@ function openPathSafely(targetPath: string): Promise<void> {
   return runOpen([targetPath]);
 }
 
-export function initShellBridgeStandalone(): void {
-  ipcBridge.shell.openFile.provider((filePath) => openPathSafely(filePath));
+/** Run an opener and report success/failure (the IPC bridge has no reject channel). */
+async function openReporting(target: string): Promise<ShellOpenResult> {
+  try {
+    await openPathSafely(target);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+}
 
-  ipcBridge.shell.showItemInFolder.provider((filePath) => openPathSafely(path.dirname(filePath)));
+export function initShellBridgeStandalone(): void {
+  ipcBridge.shell.openFile.provider((filePath) => openReporting(filePath));
+
+  ipcBridge.shell.showItemInFolder.provider((filePath) => openReporting(path.dirname(filePath)));
 
   ipcBridge.shell.openExternal.provider((url) => {
     // Allowlist schemes (https:/http:/mailto: and the app's own wayland: deep-link
