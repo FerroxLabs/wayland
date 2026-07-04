@@ -22,6 +22,18 @@ describe('looksLikeAuthFailure', () => {
   it('returns false for an unrelated error', () => {
     expect(looksLikeAuthFailure('network timeout while reading file')).toBe(false);
   });
+
+  // #629 - engine-start credential failures must classify as auth failures so the
+  // recovery card shows instead of a raw stderr bubble (the post-top-up dead-end).
+  it.each([
+    'Agent failed to start: wcore exited with code 1 during init: Error: No API key found',
+    'No API key found',
+    'MissingApiKey: provider requires a key',
+    'API key not found for provider',
+    'engine start aborted: no working provider configured',
+  ])('returns true for the engine-start credential failure %s', (errorMsg) => {
+    expect(looksLikeAuthFailure(errorMsg)).toBe(true);
+  });
 });
 
 describe('classifyAcpAuthFailure', () => {
@@ -54,6 +66,18 @@ describe('classifyAcpAuthFailure', () => {
 
   it('returns null for a non-auth error', () => {
     expect(classifyAcpAuthFailure('claude', 'network timeout while reading file')).toBeNull();
+  });
+
+  it('classifies an engine-start "No API key found" failure for wcore into the recovery remedy (#629)', () => {
+    const remedy = classifyAcpAuthFailure(
+      'wcore',
+      'Agent failed to start: wcore exited with code 1 during init: Error: No API key found'
+    );
+    expect(remedy).not.toBeNull();
+    expect(remedy?.backendLabel).toBe('Wayland Core');
+    // The two remedies #629 requires: reconnect Flux + add any provider key.
+    expect(remedy?.fluxRoutable).toBe(true);
+    expect(remedy?.genericProviderKey).toBe(true);
   });
 
   it('classifies wcore as flux-routable, no CLI login, with a tailored explainer', () => {

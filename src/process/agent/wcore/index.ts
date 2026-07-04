@@ -11,7 +11,7 @@ import { createInterface } from 'node:readline';
 import { parse, stringify } from 'smol-toml';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { resolveWCoreBinary } from './binaryResolver';
-import { buildEngineSpawnEnv, buildSpawnConfig } from './envBuilder';
+import { buildEngineSpawnEnv, buildSpawnConfig, MissingApiKeyError } from './envBuilder';
 import { resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
@@ -243,7 +243,7 @@ export class WCoreAgent {
     // (it uses the engine's own config.toml), so skip the lookup there.
     const spawnModel = this.options.rawEngineMode ? this.options.model : await hydrateModelForSpawn(this.options.model);
 
-    const { args, env, projectConfig, resolvedMaxTokens } = buildSpawnConfig(spawnModel, {
+    const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey } = buildSpawnConfig(spawnModel, {
       workspace: this.options.workspace,
       maxTokens: this.options.maxTokens,
       maxTurns: this.options.maxTurns,
@@ -252,6 +252,19 @@ export class WCoreAgent {
       resume: this.options.resume,
       rawEngine: this.options.rawEngineMode,
     });
+
+    // #629: refuse to spawn a doomed keyless engine. When the chosen provider
+    // needs an API key but `model.apiKey` resolved empty (e.g. a Flux/BYO key
+    // that was never persisted came back blank after a credit top-up), spawning
+    // would burn a 30s ready-timeout and then surface a raw "No API key found"
+    // with no recovery path. Fail fast with a classifiable error so the desktop
+    // routes the user to the credential-recovery card (re-enter key / reconnect
+    // Flux) instead. ChatGPT-OAuth, keyless-local openai, and raw-engine mode
+    // never set this flag, so their legitimately keyless spawns are unaffected.
+    if (missingRequiredApiKey) {
+      throw new MissingApiKeyError(spawnModel.useModel);
+    }
+
     this.resolvedMaxTokens = resolvedMaxTokens;
 
     // Write temporary .wcore.toml for provider compat overrides

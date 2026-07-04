@@ -20,6 +20,16 @@ const AUTH_FAILURE_SIGNATURES = [
   'oauth',
   'unauthorized',
   '401',
+  // Engine-start credential failures (#629): the wcore engine bails during init
+  // with "No API key found" (engine config.rs) when it is spawned without a
+  // working key - the exact dead-end a paid user hit after a credit top-up left
+  // `model.apiKey` empty. Treat it as an auth failure so the recovery card
+  // (re-enter key / reconnect Flux) shows instead of a raw stderr bubble. The
+  // desktop's pre-spawn guard (MissingApiKeyError) also surfaces this phrasing.
+  'no api key',
+  'missingapikey',
+  'api key not found',
+  'no working provider',
 ] as const;
 
 /** A descriptor for how to remedy an ACP auth failure for a given backend. */

@@ -303,6 +303,25 @@ function stripTrailingV1(url: string): string {
 }
 
 /**
+ * Thrown by the wcore spawn path (#629) BEFORE spawning the engine when the
+ * chosen provider requires an API key but `model.apiKey` is empty - e.g. a
+ * Flux/BYO key that was injected only per-spawn and never persisted, so it came
+ * back empty on a re-run after a credit top-up. Spawning anyway would bail 30s
+ * later with a raw "No API key found" and no recovery path (the reported
+ * dead-end). The message carries the classifiable "No API key found" phrasing so
+ * the renderer's auth-failure classifier routes it to the credential-recovery
+ * card (re-enter key / reconnect Flux) instead of a raw stderr bubble.
+ */
+export class MissingApiKeyError extends Error {
+  readonly code = 'MISSING_API_KEY' as const;
+  constructor(modelLabel?: string) {
+    const suffix = modelLabel ? ` for "${modelLabel}"` : '';
+    super(`No API key found${suffix}. Re-enter your API key or reconnect Flux to continue.`);
+    this.name = 'MissingApiKeyError';
+  }
+}
+
+/**
  * Build CLI args and env vars for spawning wcore.
  */
 export function buildSpawnConfig(
@@ -339,6 +358,16 @@ export function buildSpawnConfig(
    * signal is the emitted `finish_reason:'length'`, which is budget-independent.
    */
   resolvedMaxTokens: number | undefined;
+  /**
+   * True when this spawn would hit the engine's "No API key found" init bail
+   * (#629): a key-based provider (catalog / engine-native / anthropic / cloud
+   * openai) whose `model.apiKey` is empty - the post-top-up dead-end. Callers
+   * MUST NOT spawn a doomed keyless engine; they throw a {@link MissingApiKeyError}
+   * so the credential-recovery card shows instead of a 30s ready-timeout + raw
+   * stderr. False for ChatGPT-OAuth, keyless-local openai, bedrock/vertex
+   * (non-key auth), and raw-engine mode - none require `model.apiKey`.
+   */
+  missingRequiredApiKey: boolean;
 } {
   // Raw-engine mode: pass ONLY the session-protocol args and let the engine
   // resolve provider/model/auth/tokens/security from its own config.toml. No
@@ -351,7 +380,7 @@ export function buildSpawnConfig(
     } else if (options.sessionId) {
       args.push('--session-id', options.sessionId);
     }
-    return { args, env: {}, projectConfig: '', resolvedMaxTokens: undefined };
+    return { args, env: {}, projectConfig: '', resolvedMaxTokens: undefined, missingRequiredApiKey: false };
   }
 
   const provider = mapProvider(model);
@@ -396,7 +425,9 @@ export function buildSpawnConfig(
     const envVar = catalogEnvVarById().get(catalogId);
     if (envVar && model.apiKey) env[envVar] = model.apiKey;
     const projectConfig = buildProjectConfig(model, provider);
-    return { args, env, projectConfig, resolvedMaxTokens };
+    // A catalog provider needs its scoped key; an empty one dooms the spawn (#629).
+    const missingRequiredApiKey = !!envVar && !model.apiKey?.trim();
+    return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey };
   }
 
   // Engine-native providers (#177): the app persists these as openai-compatible
@@ -408,7 +439,9 @@ export function buildSpawnConfig(
   if (nativeEnvVar !== undefined) {
     if (model.apiKey) env[nativeEnvVar] = model.apiKey;
     const projectConfig = buildProjectConfig(model, provider);
-    return { args, env, projectConfig, resolvedMaxTokens };
+    // An engine-native provider needs its scoped key; empty dooms the spawn (#629).
+    const missingRequiredApiKey = !model.apiKey?.trim();
+    return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey };
   }
 
   // ChatGPT subscription (#243): the engine owns the ChatGPT backend host and
@@ -419,26 +452,39 @@ export function buildSpawnConfig(
   // engine-owned, not the openai-compatible backend URL on the legacy row.
   if (provider === CHATGPT_SUBSCRIPTION_ENGINE_PROVIDER) {
     const projectConfig = buildProjectConfig(model, provider);
-    return { args, env, projectConfig, resolvedMaxTokens };
+    // OAuth backend (token from ~/.codex/auth.json) - no `model.apiKey` needed.
+    return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey: false };
   }
 
+  // Set for the key-based `switch` providers below (anthropic + cloud openai);
+  // the final return reports it so the caller can refuse a doomed keyless spawn.
+  let missingRequiredApiKey = false;
   switch (provider) {
-    case 'anthropic':
-      if (model.apiKey) env.ANTHROPIC_API_KEY = model.apiKey;
+    case 'anthropic': {
+      // Trim like the openai branch so a whitespace-only key is treated as empty
+      // (and flagged for recovery), not passed to the engine as a bogus key.
+      const key = model.apiKey?.trim();
+      if (key) env.ANTHROPIC_API_KEY = key;
+      else missingRequiredApiKey = true;
       if (model.baseUrl) args.push('--base-url', stripTrailingV1(model.baseUrl));
       break;
+    }
 
     case 'openai': {
       const baseUrl = resolveOpenAIBaseUrl(model);
       // Keyless LOCAL backend (local Ollama, #268): the engine still demands a
       // key for `--provider openai` or it bails at init, so inject the dummy
       // placeholder (the local daemon ignores Authorization). A keyless CLOUD
-      // endpoint is a genuine misconfig and is left to fail as before.
+      // endpoint is a genuine misconfig - #629 catches it pre-spawn (below) and
+      // routes the user to recovery instead of a raw "No API key found" bail.
       const trimmedKey = model.apiKey?.trim();
       if (trimmedKey) {
         env.OPENAI_API_KEY = trimmedKey;
       } else if (isLocalBaseUrl(baseUrl)) {
         env.OPENAI_API_KEY = LOCAL_KEYLESS_PLACEHOLDER;
+      } else {
+        // Cloud openai-compatible endpoint with no key: the spawn would bail.
+        missingRequiredApiKey = true;
       }
       if (baseUrl) args.push('--base-url', stripTrailingV1(baseUrl));
       break;
@@ -466,7 +512,7 @@ export function buildSpawnConfig(
   // Generate project config for compat overrides (e.g., max_tokens_field)
   const projectConfig = buildProjectConfig(model, provider);
 
-  return { args, env, projectConfig, resolvedMaxTokens };
+  return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey };
 }
 
 /**
