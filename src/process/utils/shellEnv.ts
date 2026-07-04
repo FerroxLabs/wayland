@@ -490,6 +490,69 @@ function getPosixExtraToolPaths(): string[] {
 }
 
 /**
+ * Minimum Node.js the desktop tries to surface from a version manager. Matches
+ * the ACP backends' floor (`ensureMinNodeVersion(..., 18, 17)` in
+ * acpConnectors) - Claude Code / Codex / Gemini all require Node >= 18.17.
+ */
+const NODE_MIN = { major: 18, minor: 17 } as const;
+
+/**
+ * #628: node/npm/claude installed via a version manager (nvm/volta/fnm) go on
+ * PATH from the user's INTERACTIVE rc (`~/.zshrc`), which the login-only shell
+ * env capture (`-l -c env`, see loadShellEnvironment) never sources. On a
+ * Finder/Dock/launchd start there is no interactive rc, so those node dirs are
+ * missing and the agent reports "neither Node.js nor npm" even though node is
+ * installed. Return the version-manager node bin dirs (not already on PATH) so
+ * they are discoverable regardless of how the app was launched. Appended (not
+ * prepended) so an explicitly-configured system node in the login PATH still
+ * wins; this only ADDS a fallback, it never overrides.
+ */
+function getPosixNodeManagerPaths(): string[] {
+  if (process.platform === 'win32') return [];
+
+  const homeDir = os.homedir();
+  const currentPath = process.env.PATH || '';
+  const dirs: string[] = [];
+
+  // volta exposes node through stable shims in ~/.volta/bin (they resolve the
+  // active tool via VOLTA_HOME, captured in getEnhancedEnv below).
+  const voltaBin = path.join(homeDir, '.volta', 'bin');
+  if (existsSync(voltaBin)) dirs.push(voltaBin);
+
+  // nvm/fnm (and volta's image dir) have no stable shim - resolve the concrete
+  // latest-suitable versioned bin dir via the existing scanner.
+  const nodeBin = findSuitableNodeBin(NODE_MIN.major, NODE_MIN.minor);
+  if (nodeBin) dirs.push(nodeBin);
+
+  return dirs.filter((p) => !currentPath.includes(p));
+}
+
+/**
+ * #628: capture the version-manager home vars (`NVM_DIR`, `VOLTA_HOME`) when
+ * their install dirs exist but the vars are absent from both the login shell
+ * env and process.env (the interactive rc that normally exports them was never
+ * sourced). volta's shims in particular need `VOLTA_HOME` to resolve node.
+ */
+function getPosixNodeManagerEnv(shellEnv: Record<string, string>): Record<string, string> {
+  if (process.platform === 'win32') return {};
+
+  const homeDir = os.homedir();
+  const extra: Record<string, string> = {};
+
+  const nvmDir = path.join(homeDir, '.nvm');
+  if (!shellEnv.NVM_DIR && !process.env.NVM_DIR && existsSync(nvmDir)) {
+    extra.NVM_DIR = nvmDir;
+  }
+
+  const voltaHome = path.join(homeDir, '.volta');
+  if (!shellEnv.VOLTA_HOME && !process.env.VOLTA_HOME && existsSync(voltaHome)) {
+    extra.VOLTA_HOME = voltaHome;
+  }
+
+  return extra;
+}
+
+/**
  * Get enhanced environment variables by merging shell env with process.env.
  * For PATH, we merge both sources to ensure CLI tools are found regardless of
  * how the app was started (terminal vs Finder/launchd).
@@ -516,6 +579,14 @@ export function getEnhancedEnv(customEnv?: Record<string, string>): Record<strin
     mergedPath = mergePaths(mergedPath, posixExtraPaths.join(':'));
   }
 
+  // #628: append version-manager node dirs (nvm/volta/fnm) so a Finder/Dock
+  // launch can still find node/npm/npx/claude - the login-only shell env never
+  // sourced the interactive rc that puts them on PATH.
+  const nodeManagerPaths = getPosixNodeManagerPaths();
+  if (nodeManagerPaths.length > 0) {
+    mergedPath = mergePaths(mergedPath, nodeManagerPaths.join(':'));
+  }
+
   // Prepend bundled bun directory (highest priority - ensures extensions always
   // have access to bun/bunx even if the user hasn't installed it)
   const bundledBunDir = getBundledBunDir();
@@ -533,7 +604,14 @@ export function getEnhancedEnv(customEnv?: Record<string, string>): Record<strin
     mergedPath = `${bundledNpmBinDirs.join(separator)}${separator}${mergedPath}`;
   }
 
+  // #628: capture NVM_DIR / VOLTA_HOME when their install dirs exist but the
+  // vars are missing (interactive rc that exports them was never sourced), so
+  // the version managers' own shims/CLIs resolve. Placed BEFORE the spreads so
+  // a real value from the shell/process env still wins.
+  const nodeManagerEnv = getPosixNodeManagerEnv(shellEnv);
+
   return {
+    ...nodeManagerEnv,
     ...process.env,
     ...shellEnv,
     ...customEnv,
