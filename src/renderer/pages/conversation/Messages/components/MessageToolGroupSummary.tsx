@@ -3,6 +3,7 @@ import type { BadgeProps } from '@arco-design/web-react';
 import { Badge } from '@arco-design/web-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { IMessageAcpToolCall, IMessageToolGroup } from '@/common/chat/chatLib';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import './MessageToolGroupSummary.css';
 
 type ToolItem = {
@@ -55,10 +56,12 @@ const ToolGroupMapper = (m: IMessageToolGroup): ToolItem[] => {
     // Output: from resultDisplay (available for success/error/executing states)
     const output = getResultDisplayText(resultDisplay);
 
+    // Mask inline secrets in the command/args before display (#610). desc carries
+    // the exec command; input is the stringified args (which may embed a token).
     return {
       key: callId,
       name,
-      desc,
+      desc: redactCommandSecrets(desc),
       status: (status === 'Success'
         ? 'success'
         : status === 'Error'
@@ -66,7 +69,7 @@ const ToolGroupMapper = (m: IMessageToolGroup): ToolItem[] => {
           : status === 'Canceled'
             ? 'default'
             : 'processing') as BadgeProps['status'],
-      input,
+      input: input ? redactCommandSecrets(input) : undefined,
       output,
     };
   });
@@ -132,17 +135,18 @@ const ToolAcpMapper = (message: IMessageAcpToolCall): ToolItem | undefined => {
 
   const keyParam = buildParamSummary(update.kind, update.rawInput);
 
+  // Mask inline secrets in the command/args before display (#610).
   return {
     key: update.toolCallId,
     name: update.title,
-    desc: keyParam || (update.rawInput?.command as string) || update.kind,
+    desc: redactCommandSecrets(keyParam || (update.rawInput?.command as string) || update.kind),
     status:
       update.status === 'completed'
         ? 'success'
         : update.status === 'failed'
           ? 'error'
           : ('default' as BadgeProps['status']),
-    input,
+    input: input ? redactCommandSecrets(input) : undefined,
     output,
   };
 };

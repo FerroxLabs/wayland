@@ -7,6 +7,7 @@
 import { Copy, Download, ExternalLink, Loader2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { IMessageToolGroup } from '@/common/chat/chatLib';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { iconColors } from '@/renderer/styles/colors';
 import { Alert, Button, Image, Message, Radio, Tag, Tooltip } from '@arco-design/web-react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
@@ -176,7 +177,9 @@ const ConfirmationDetails: React.FC<{
       case 'edit':
         return null; // Rendered separately below with hooks support
       case 'exec': {
-        const bashSnippet = `\`\`\`bash\n${confirmationDetails.command}\n\`\`\``;
+        // Mask inline secrets (Bearer tokens, sk- keys, key=value pairs) before
+        // rendering the real command in the expanded card (#610).
+        const bashSnippet = `\`\`\`bash\n${redactCommandSecrets(confirmationDetails.command)}\n\`\`\``;
         return (
           <div className='w-full max-w-100% min-w-0'>
             <MarkdownView codeStyle={CODE_STYLE}>{bashSnippet}</MarkdownView>

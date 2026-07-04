@@ -1,0 +1,65 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * Mask the common secret shapes that can appear inline in a shell command so the
+ * activity timeline - which renders the REAL command since #520/#604 - never
+ * displays a live credential (#610).
+ *
+ * Deliberately TARGETED. The diagnostics redactor in conciergeDiagServer masks
+ * any long token because over-redaction is safe for a machine-read dump; a
+ * command shown to the user is different - masking every 24-char run would hide
+ * legitimate paths, flags and long args and defeat the whole point of showing
+ * the real command. So this only masks recognizable secret shapes:
+ *   - Bearer / Basic auth values (`Authorization: Bearer sk-...`),
+ *   - prefixed provider API keys (`sk-`, `sk-ant-`, `ghp_`, `xoxb-`, `glpat-`,
+ *     `AKIA`, `AIza`, Stripe `sk_live_`, ...),
+ *   - secret-named `key=value` / `key: value` / `--key value` pairs,
+ *   - URL userinfo passwords (`scheme://user:PASSWORD@host`).
+ *
+ * This is the command/args RENDER side on desktop; tool OUTPUT redaction is
+ * handled separately at the engine emit choke point (wayland-core #584).
+ */
+
+/** What a masked secret renders as. Fixed bullets - no last-4, this is a UI display. */
+const MASK = '••••••';
+
+// `Authorization: Bearer <token>` or a bare `Bearer <token>`.
+const BEARER_REGEX = /\bbearer\s+[A-Za-z0-9._~+/=-]{6,}/gi;
+
+// `Authorization: Basic <base64>`.
+const BASIC_REGEX = /\bbasic\s+[A-Za-z0-9+/=]{6,}/gi;
+
+// Prefixed provider API keys. Boundaried so an ordinary word is never masked.
+const PREFIXED_KEY_REGEX =
+  /\b(?:sk-ant-|sk-|sk_live_|sk_test_|rk_live_|rk_test_|pk_live_|pk_test_|xox[abprs]-|gh[posru]_|github_pat_|glpat-|AKIA|ASIA|AIza|gsk_|xai-|r8_|dop_v1_)[A-Za-z0-9_./-]{6,}/g;
+
+// Secret-NAMED key followed by its value. Preserves the key name + separator and
+// masks only the value, so `--api-key sk-x`, `TOKEN=abc123` and the JSON form
+// `"password":"p@ss"` all mask the value while `path=/tmp/x` (non-secret name)
+// stays untouched. The optional quote BEFORE the separator lets it catch the
+// JSON args shape (the timeline stringifies rawInput). `authorization` is
+// omitted here - Bearer/Basic handle it.
+const KEY_VALUE_REGEX =
+  /\b(api[_-]?key|apikey|access[_-]?token|refresh[_-]?token|auth[_-]?token|client[_-]?secret|secret|password|passwd|token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/gi;
+
+// `scheme://user:PASSWORD@host` - mask only the password segment.
+const URL_USERINFO_REGEX = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s:@/]+:)([^\s@/]+)(@)/gi;
+
+/**
+ * Return `command` with recognizable inline secrets masked. Safe on any string
+ * (returns it unchanged when there is nothing to mask); never throws.
+ */
+export function redactCommandSecrets(command: string): string {
+  if (!command) return command;
+  let out = command;
+  out = out.replace(URL_USERINFO_REGEX, (_m, prefix: string, _secret: string, at: string) => `${prefix}${MASK}${at}`);
+  out = out.replace(BEARER_REGEX, `Bearer ${MASK}`);
+  out = out.replace(BASIC_REGEX, `Basic ${MASK}`);
+  out = out.replace(PREFIXED_KEY_REGEX, MASK);
+  out = out.replace(KEY_VALUE_REGEX, (_m, key: string, sep: string, quote: string) => `${key}${sep}${quote}${MASK}`);
+  return out;
+}
