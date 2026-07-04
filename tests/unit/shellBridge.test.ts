@@ -128,29 +128,28 @@ describe('shellBridge', () => {
       initShellBridge();
     });
 
-    it('calls shell.openPath with the given path', async () => {
+    it('calls shell.openPath with the given path and reports success', async () => {
       shellMock.openPath.mockResolvedValue('');
-      await openFileProvider.fn!('/some/file.txt');
+      await expect(openFileProvider.fn!('/some/file.txt')).resolves.toEqual({ ok: true });
       expect(shellMock.openPath).toHaveBeenCalledWith('/some/file.txt');
     });
 
-    it('logs warning when shell.openPath returns an error string', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('resolves { ok: false, error } when shell.openPath returns an error string', async () => {
       shellMock.openPath.mockResolvedValue('No application associated with this file type');
-      await openFileProvider.fn!('/some/file.xyz');
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to open path'));
-      warnSpy.mockRestore();
+      await expect(openFileProvider.fn!('/some/file.xyz')).resolves.toEqual({
+        ok: false,
+        error: 'No application associated with this file type',
+      });
     });
 
-    it('does not throw when shell.openPath rejects', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      shellMock.openPath.mockRejectedValue(new Error('Failed to open: No application is associated with the specified file for this operation. (0x483)'));
-      await expect(openFileProvider.fn!('/some/file.xyz')).resolves.toBeUndefined();
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to open path'),
-        expect.stringContaining('No application is associated')
+    it('resolves { ok: false, error } when shell.openPath rejects', async () => {
+      shellMock.openPath.mockRejectedValue(
+        new Error('Failed to open: No application is associated with the specified file for this operation. (0x483)')
       );
-      warnSpy.mockRestore();
+      await expect(openFileProvider.fn!('/some/file.xyz')).resolves.toEqual({
+        ok: false,
+        error: 'Failed to open: No application is associated with the specified file for this operation. (0x483)',
+      });
     });
   });
 
@@ -181,7 +180,9 @@ describe('shellBridge', () => {
 
     it('does not throw when shell.openExternal rejects (ELECTRON-HW)', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      shellMock.openExternal.mockRejectedValueOnce(new Error('Failed to open: The system cannot find the file specified. (0x2)'));
+      shellMock.openExternal.mockRejectedValueOnce(
+        new Error('Failed to open: The system cannot find the file specified. (0x2)')
+      );
       await expect(openExternalProvider.fn!('https://example.com/missing')).resolves.toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Failed to open external URL'),

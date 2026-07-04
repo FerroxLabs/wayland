@@ -12,6 +12,9 @@ vi.mock('@/common', () => ({
       getImageBase64: {
         invoke: vi.fn(),
       },
+      readFileBuffer: {
+        invoke: vi.fn(),
+      },
     },
   },
 }));
@@ -19,7 +22,12 @@ vi.mock('@/common', () => ({
 import { downloadFileFromPath, downloadTextContent } from '../../src/renderer/utils/file/download';
 import { ipcBridge } from '@/common';
 
-const mockGetImageBase64 = ipcBridge.fs.getImageBase64.invoke as ReturnType<typeof vi.fn>;
+const mockReadFileBuffer = ipcBridge.fs.readFileBuffer.invoke as ReturnType<typeof vi.fn>;
+
+/** Build a small ArrayBuffer to stand in for real file bytes returned over the IPC bridge. */
+function bytes(...values: number[]): ArrayBuffer {
+  return new Uint8Array(values).buffer;
+}
 
 function setupDomMocks() {
   const mockLink = { href: '', download: '', click: vi.fn() };
@@ -36,15 +44,17 @@ describe('downloadFileFromPath', () => {
     vi.clearAllMocks();
   });
 
-  it('downloads a zip file with correct MIME type', async () => {
+  it('downloads a zip file with correct MIME type using the real file bytes', async () => {
     const mockLink = setupDomMocks();
-    mockGetImageBase64.mockResolvedValue('data:application/octet-stream;base64,UEsDBA==');
+    // 'PK\x03\x04' - the ZIP local-file-header magic, standing in for real archive bytes.
+    mockReadFileBuffer.mockResolvedValue(bytes(0x50, 0x4b, 0x03, 0x04));
 
     await downloadFileFromPath('/workspace/archive.zip', 'archive.zip');
 
-    expect(mockGetImageBase64).toHaveBeenCalledWith({ path: '/workspace/archive.zip' });
+    expect(mockReadFileBuffer).toHaveBeenCalledWith({ path: '/workspace/archive.zip' });
     const blob = (URL.createObjectURL as ReturnType<typeof vi.fn>).mock.calls[0][0] as Blob;
     expect(blob.type).toBe('application/zip');
+    expect(blob.size).toBe(4);
     expect(mockLink.download).toBe('archive.zip');
     expect(mockLink.click).toHaveBeenCalled();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
@@ -52,7 +62,7 @@ describe('downloadFileFromPath', () => {
 
   it('downloads an xlsx file with correct MIME type', async () => {
     setupDomMocks();
-    mockGetImageBase64.mockResolvedValue('data:application/octet-stream;base64,');
+    mockReadFileBuffer.mockResolvedValue(bytes(0x50, 0x4b, 0x03, 0x04));
 
     await downloadFileFromPath('/workspace/data.xlsx', 'data.xlsx');
 
@@ -62,7 +72,7 @@ describe('downloadFileFromPath', () => {
 
   it('uses application/octet-stream for unknown file extensions', async () => {
     setupDomMocks();
-    mockGetImageBase64.mockResolvedValue('data:application/octet-stream;base64,');
+    mockReadFileBuffer.mockResolvedValue(bytes(0x00, 0x01, 0x02));
 
     await downloadFileFromPath('/workspace/file.xyz', 'file.xyz');
 
@@ -72,9 +82,29 @@ describe('downloadFileFromPath', () => {
 
   it('rejects when ipcBridge throws', async () => {
     setupDomMocks();
-    mockGetImageBase64.mockRejectedValue(new Error('IPC error'));
+    mockReadFileBuffer.mockRejectedValue(new Error('IPC error'));
 
     await expect(downloadFileFromPath('/workspace/file.zip', 'file.zip')).rejects.toThrow('IPC error');
+  });
+
+  it('throws when readFileBuffer resolves null (read failure)', async () => {
+    setupDomMocks();
+    mockReadFileBuffer.mockResolvedValue(null);
+
+    await expect(downloadFileFromPath('/workspace/missing.zip', 'missing.zip')).rejects.toThrow(
+      'Failed to read file for download: /workspace/missing.zip'
+    );
+    expect(URL.createObjectURL).not.toHaveBeenCalled();
+  });
+
+  it('throws when the file exceeds the fsBridge size cap (readFileBuffer returns null)', async () => {
+    setupDomMocks();
+    // fsBridge caps reads at 64MB and returns null past the limit; surface that as a download failure.
+    mockReadFileBuffer.mockResolvedValue(null);
+
+    await expect(downloadFileFromPath('/workspace/huge.zip', 'huge.zip')).rejects.toThrow(
+      'Failed to read file for download: /workspace/huge.zip'
+    );
   });
 });
 

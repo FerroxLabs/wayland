@@ -174,11 +174,14 @@ describe('shellBridgeStandalone', () => {
       initShellBridgeStandalone();
     });
 
-    it('rejects when execFile returns an error', async () => {
+    it('resolves { ok: false, error } when execFile returns an error', async () => {
       const error = new Error('open failed');
       execFileMock.mockImplementation((_cmd: string, _args: string[], cb: (err: Error) => void) => cb(error));
 
-      await expect(openFileProvider.fn!('/path/to/file.pdf')).rejects.toThrow('open failed');
+      await expect(openFileProvider.fn!('/path/to/file.pdf')).resolves.toEqual({
+        ok: false,
+        error: 'open failed',
+      });
     });
   });
 });

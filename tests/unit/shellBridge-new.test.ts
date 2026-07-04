@@ -90,33 +90,31 @@ describe('shellBridge with actual providers', () => {
   });
 
   describe('openFile provider', () => {
-    it('calls shell.openPath with the given path', async () => {
+    it('calls shell.openPath with the given path and reports success', async () => {
       vi.mocked(shell.openPath).mockResolvedValue('');
 
-      await registeredProviders['openFile']('/test/file.txt');
+      await expect(registeredProviders['openFile']('/test/file.txt')).resolves.toEqual({ ok: true });
 
       expect(shell.openPath).toHaveBeenCalledWith('/test/file.txt');
     });
 
-    it('logs warning when shell.openPath returns error', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('resolves { ok: false, error } when shell.openPath returns error', async () => {
       vi.mocked(shell.openPath).mockResolvedValue('No application associated with this file type');
 
-      await registeredProviders['openFile']('/test/unknown.xyz');
-
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to open path'));
-      warnSpy.mockRestore();
+      await expect(registeredProviders['openFile']('/test/unknown.xyz')).resolves.toEqual({
+        ok: false,
+        error: 'No application associated with this file type',
+      });
     });
 
-    it('handles shell.openPath rejection gracefully', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('resolves { ok: false, error } when shell.openPath rejects', async () => {
       const error = new Error('Failed to open');
       vi.mocked(shell.openPath).mockRejectedValue(error);
 
-      await registeredProviders['openFile']('/test/file.txt');
-
-      expect(warnSpy).toHaveBeenCalledWith('[shellBridge] Failed to open path:', 'Failed to open');
-      warnSpy.mockRestore();
+      await expect(registeredProviders['openFile']('/test/file.txt')).resolves.toEqual({
+        ok: false,
+        error: 'Failed to open',
+      });
     });
   });
 
