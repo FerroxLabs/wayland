@@ -140,6 +140,14 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // later. byConversation/series in particular disclose per-conversation usage
   // and a fine-grained activity timeline. Local-renderer-only surface.
   'cost.',
+  // #645 Terminal mode. terminal.open spawns a real PTY running the chat's agent
+  // CLI on a TTY; terminal.input writes keystrokes into it. A paired-device WS
+  // token proves a remote browser, NOT the local trusted user, so the ENTIRE
+  // terminal.* namespace (open/input/resize/close) is denied to remote callers.
+  // This IS the "local-only" control from the spec: a buildProvider handler has
+  // no per-call remote signal, so the guarantee is enforced here at the wire by
+  // name — a remote peer can never spawn or attach a PTY (acceptance §8.6).
+  'terminal.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -367,6 +375,12 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     reaching it is a clipboard-injection primitive, so deny it too. ---
   'doctor.run',
   'doctor.copy-text',
+  // --- Terminal mode (#645) ENABLE toggle. The read (get-terminal-enabled) is a
+  //     harmless boolean and stays allowed, but a remote peer must not flip the
+  //     advanced PTY feature ON. The PTY spawn itself is already denied via the
+  //     `terminal.` prefix, so this is defense-in-depth against enabling the
+  //     capability surface, matching app.set-* / storage:* setting denials. ---
+  'system-settings:set-terminal-enabled',
 ]);
 
 /**
