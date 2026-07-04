@@ -299,8 +299,9 @@ export type ModelRegistryHandlers = {
   list: () => Promise<IModelRegistryProviderView[]>;
   getCatalog: (p: { providerId: ProviderId }) => Promise<IModelRegistryCatalogView>;
   toggleModel: (p: { providerId: ProviderId; modelId: string; enabled: boolean }) => Promise<{ ok: boolean }>;
-  /** Persist a user-typed model id that isn't in the provider's catalog (#617). */
-  addCustomModel: (p: { providerId: ProviderId; modelId: string }) => Promise<{ ok: boolean }>;
+  /** Persist a user-typed model id that isn't in the provider's catalog (#617).
+   *  Rejects with `reason: 'duplicate'` if the id already exists in the catalog. */
+  addCustomModel: (p: { providerId: ProviderId; modelId: string }) => Promise<{ ok: boolean; reason?: 'duplicate' }>;
   /** Remove a previously added custom model id. */
   removeCustomModel: (p: { providerId: ProviderId; modelId: string }) => Promise<{ ok: boolean }>;
   refresh: (p: { providerId: ProviderId }) => Promise<{ ok: boolean }>;
@@ -583,20 +584,29 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * enable/disable override still applies on top (see `curatedWithCustom`). The
    * id is used verbatim as the display name - a custom id is its own label.
    */
-  function customCuratedModels(providerId: ProviderId): CuratedModel[] {
-    return repo.listCustomModels(providerId).map(
-      (id): CuratedModel => ({
-        id,
-        providerId,
-        displayName: id,
-        family: 'custom',
-        kind: 'text',
-        enriched: false,
-        tags: [],
-        recommended: false,
-        enabled: true,
-      })
-    );
+  function customCuratedModels(providerId: ProviderId, catalog: CatalogModel[]): CuratedModel[] {
+    // #617 collision guard: a custom id that also exists in the real catalog is
+    // NOT synthesized here. Otherwise the custom row (spread after the catalog)
+    // would render twice under the same key and shadow the catalog row's
+    // metadata (tags/cost/context). The real catalog entry always wins - even
+    // for a custom id added before the provider later published that same id.
+    const catalogIds = new Set(catalog.map((m) => m.id));
+    return repo
+      .listCustomModels(providerId)
+      .filter((id) => !catalogIds.has(id))
+      .map(
+        (id): CuratedModel => ({
+          id,
+          providerId,
+          displayName: id,
+          family: 'custom',
+          kind: 'text',
+          enriched: false,
+          tags: [],
+          recommended: false,
+          enabled: true,
+        })
+      );
   }
 
   /**
@@ -606,8 +616,9 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * custom id flows exactly like a catalog model.
    */
   function curatedWithCustom(providerId: ProviderId): CuratedModel[] {
-    const base = curator.curate(repo.getRegistryCatalog(providerId));
-    return applyOverrides(providerId, [...base, ...customCuratedModels(providerId)]);
+    const catalog = repo.getRegistryCatalog(providerId);
+    const base = curator.curate(catalog);
+    return applyOverrides(providerId, [...base, ...customCuratedModels(providerId, catalog)]);
   }
 
   /**
@@ -858,7 +869,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     async getCatalog({ providerId }): Promise<IModelRegistryCatalogView> {
       try {
         const stored = repo.getRegistryCatalog(providerId);
-        const customs = customCuratedModels(providerId);
+        const customs = customCuratedModels(providerId, stored);
         // Custom models join BOTH lists: the full `catalog` (so the Manage page's
         // `mergeCatalogRows`, which iterates the catalog, renders a row) and the
         // `curated` view (so the row carries the enable/override flag). A
@@ -880,13 +891,21 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       }
     },
 
-    async addCustomModel({ providerId, modelId }): Promise<{ ok: boolean }> {
+    async addCustomModel({ providerId, modelId }): Promise<{ ok: boolean; reason?: 'duplicate' }> {
       try {
         // Trim only - a custom id may legitimately contain `@` and `/` (an
         // OpenRouter preset is `@preset/<slug>`), so never sanitize those out.
         const id = modelId.trim();
         if (!id) return { ok: false };
         if (!repo.getRegistryProvider(providerId)) return { ok: false };
+        // #617 collision guard (server-authoritative): reject an id that already
+        // exists in the real catalog. The client checks its rendered list too,
+        // but only the server can win the race against the auto-refresh scheduler
+        // (or a provider that later publishes this id) - persisting it would let
+        // the synthetic custom row double-render and shadow the catalog metadata.
+        if (repo.getRegistryCatalog(providerId).some((m) => m.id === id)) {
+          return { ok: false, reason: 'duplicate' };
+        }
         repo.addCustomModel(providerId, id);
         return { ok: true };
       } catch {

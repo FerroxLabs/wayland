@@ -209,7 +209,15 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
     setAddingCustom(true);
     try {
       const res = await addCustomModel(provider.providerId, id);
-      if (!res?.ok) throw new Error('add failed');
+      if (!res?.ok) {
+        // The server is authoritative on collisions: an id that raced into the
+        // catalog after the local check is rejected with `reason: 'duplicate'`.
+        if (res?.reason === 'duplicate') {
+          Message.warning(t('settings.modelsPage.manage.customModelDuplicate'));
+          return;
+        }
+        throw new Error('add failed');
+      }
       setCustomInput('');
       await loadCatalog();
     } catch {

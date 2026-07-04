@@ -52,7 +52,7 @@ export type UseModelRegistry = {
   /** Enable / disable a single model. */
   toggleModel: (providerId: ProviderId, modelId: string, enabled: boolean) => Promise<{ ok: boolean }>;
   /** Add a user-typed model id not in the provider's catalog (e.g. an OpenRouter preset). */
-  addCustomModel: (providerId: ProviderId, modelId: string) => Promise<{ ok: boolean }>;
+  addCustomModel: (providerId: ProviderId, modelId: string) => Promise<{ ok: boolean; reason?: 'duplicate' }>;
   /** Remove a previously added custom model id. */
   removeCustomModel: (providerId: ProviderId, modelId: string) => Promise<{ ok: boolean }>;
   /** Re-fetch + re-enrich a provider's model list. */

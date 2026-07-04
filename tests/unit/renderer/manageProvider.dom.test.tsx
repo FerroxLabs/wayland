@@ -51,9 +51,10 @@ vi.mock('react-i18next', () => ({
 
 // Hoisted spies for the imperative `Message` API - declared with `vi.hoisted`
 // so they exist when the (also-hoisted) `vi.mock` factory below closes over them.
-const { messageError, messageSuccess } = vi.hoisted(() => ({
+const { messageError, messageSuccess, messageWarning } = vi.hoisted(() => ({
   messageError: vi.fn(),
   messageSuccess: vi.fn(),
+  messageWarning: vi.fn(),
 }));
 
 // `@arco-design/web-react` - keep every real component; only the imperative
@@ -129,6 +130,7 @@ vi.mock('@arco-design/web-react', async () => {
       get: (_t, prop) => {
         if (prop === 'error') return messageError;
         if (prop === 'success') return messageSuccess;
+        if (prop === 'warning') return messageWarning;
         return () => undefined;
       },
     }
@@ -281,6 +283,7 @@ beforeEach(() => {
   mockDisconnect.mockReset().mockResolvedValue({ ok: true });
   messageError.mockReset();
   messageSuccess.mockReset();
+  messageWarning.mockReset();
 });
 
 afterEach(() => {
@@ -364,6 +367,24 @@ describe('ManageProvider page', () => {
     );
     // The catalog is re-fetched so the new custom row surfaces.
     await waitFor(() => expect(mockGetCatalog).toHaveBeenCalledTimes(2));
+  });
+
+  it('shows the duplicate warning when the server rejects a colliding custom id (#617)', async () => {
+    // The server is authoritative on collisions: even if the id raced into the
+    // catalog after the local check, it comes back `{ ok: false, reason: 'duplicate' }`.
+    mockAddCustomModel.mockReset().mockResolvedValue({ ok: false, reason: 'duplicate' });
+    renderPage();
+    await waitFor(() => expect(rows().length).toBe(5));
+
+    const input = screen.getByPlaceholderText('settings.modelsPage.manage.customModelPlaceholder');
+    fireEvent.change(input, { target: { value: 'brand-new-collider' } });
+    fireEvent.click(screen.getByText('settings.modelsPage.manage.customModelAdd'));
+
+    // The duplicate warning fires, not the generic add-failed error.
+    await waitFor(() => expect(messageWarning).toHaveBeenCalledWith('settings.modelsPage.manage.customModelDuplicate'));
+    expect(messageError).not.toHaveBeenCalled();
+    // No re-fetch - the add was a no-op.
+    expect(mockGetCatalog).toHaveBeenCalledTimes(1);
   });
 
   it('renders a custom model in its own section with a remove control (#617)', async () => {

@@ -725,6 +725,58 @@ describe('modelRegistry IPC - custom models (#617)', () => {
     const { curated } = await h.getCatalog({ providerId: 'openrouter' });
     expect(curated.find((m) => m.id === '@preset/myfusion')).toBeUndefined();
   });
+
+  it('addCustomModel rejects an id already in the real catalog (server-authoritative, #617)', async () => {
+    const { deps, repo } = connectedRepo();
+    repo.replaceRegistryCatalog('openrouter', [
+      catalogModel({ id: 'anthropic/claude-3-5-sonnet', providerId: 'openrouter' }),
+    ]);
+    const h = createModelRegistryHandlers(deps);
+
+    const res = await h.addCustomModel({ providerId: 'openrouter', modelId: '  anthropic/claude-3-5-sonnet  ' });
+
+    // Rejected with a clear reason, and nothing was persisted - the real catalog
+    // entry stays canonical (no synthetic custom row to shadow it).
+    expect(res).toEqual({ ok: false, reason: 'duplicate' });
+    expect(repo.listCustomModels('openrouter')).toEqual([]);
+  });
+
+  it('does not double-emit when a stored custom id later collides with a catalog id (real row wins, #617)', async () => {
+    const { deps, repo } = connectedRepo();
+    // Custom id persisted while the id was NOT in the catalog (written straight
+    // to the repo to model the race - the handler guard would reject it now)...
+    repo.addCustomModel('openrouter', 'anthropic/claude-3-5-sonnet');
+    // ...then the provider's auto-refresh publishes that same id with real metadata.
+    repo.replaceRegistryCatalog('openrouter', [
+      catalogModel({
+        id: 'anthropic/claude-3-5-sonnet',
+        providerId: 'openrouter',
+        family: 'claude-3-5',
+        tags: ['recommended'],
+        enriched: true,
+      }),
+    ]);
+    const h = createModelRegistryHandlers(deps);
+
+    const { catalog, curated } = await h.getCatalog({ providerId: 'openrouter' });
+
+    // Appears exactly once in each list - the synthetic custom row is dropped.
+    expect(catalog.filter((m) => m.id === 'anthropic/claude-3-5-sonnet')).toHaveLength(1);
+    expect(curated.filter((m) => m.id === 'anthropic/claude-3-5-sonnet')).toHaveLength(1);
+    // The surviving row is the REAL catalog entry (metadata intact), not the
+    // synthetic custom row (which carries family:'custom', empty tags).
+    const row = catalog.find((m) => m.id === 'anthropic/claude-3-5-sonnet');
+    expect(row?.family).toBe('claude-3-5');
+    expect(row?.enriched).toBe(true);
+    expect(row?.tags).toContain('recommended');
+
+    // The wcore picker union is deduped too.
+    const picker = (await h.curatedForAgent({ agentKey: 'wcore' })).filter(
+      (m) => m.id === 'anthropic/claude-3-5-sonnet'
+    );
+    expect(picker).toHaveLength(1);
+    expect(picker[0]?.family).toBe('claude-3-5');
+  });
 });
 
 describe('modelRegistry IPC - curatedForAgent', () => {

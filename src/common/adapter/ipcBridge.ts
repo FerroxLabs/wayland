@@ -2096,7 +2096,7 @@ export const modelRegistry = {
   // Add a user-typed model id that isn't in the provider's public catalog
   // (e.g. an OpenRouter preset `@preset/<slug>`, #617). Persisted separately so
   // it survives catalog refreshes and merges into the curated picker view.
-  addCustomModel: buildProvider<{ ok: boolean }, { providerId: ProviderId; modelId: string }>(
+  addCustomModel: buildProvider<{ ok: boolean; reason?: 'duplicate' }, { providerId: ProviderId; modelId: string }>(
     'modelRegistry.addCustomModel'
   ),
   // Remove a previously added custom model id.
