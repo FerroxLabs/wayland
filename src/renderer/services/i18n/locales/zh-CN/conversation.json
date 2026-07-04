@@ -370,6 +370,22 @@
     "dismiss": "关闭",
     "recommended": "（推荐）"
   },
+  "contextCeiling": {
+    "title": "This run exceeded {{model}}’s context window",
+    "titleNoModel": "This run exceeded the model’s context window",
+    "explainer": "The request grew past the model’s context-window limit and history compaction couldn’t shrink it any further. Switch to a model with a larger context window, then retry the last message.",
+    "switch": {
+      "label": "Switch to a larger-context model",
+      "sublabel": "Pick a model with a bigger context window from the picker."
+    },
+    "retry": {
+      "label": "Retry the last message",
+      "sublabel": "Re-run the message that hit the limit on the selected model.",
+      "action": "Retry"
+    },
+    "details": "Show error details",
+    "dismiss": "Dismiss"
+  },
   "composerMenu": {
     "skills": "Skills",
     "connectors": "Connectors",

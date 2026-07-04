@@ -33,6 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import LocalImageView from '@renderer/components/media/LocalImageView';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import WCoreSendBox from './WCoreSendBox';
+import WCoreContextCeilingCard from './WCoreContextCeilingCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 
 const WCoreChat: React.FC<{
@@ -91,6 +92,30 @@ const WCoreChat: React.FC<{
     },
     [conversation_id]
   );
+  // Context-window-ceiling remedy card (#615): shown above the send box when the
+  // engine stops a run because the request exceeded the model's context window
+  // and compaction could not shrink it. Leads with a one-click model switch (to a
+  // larger-context model) and a retry of the failed turn.
+  const [ceilingRemedy, setCeilingRemedy] = useState<{ model?: string; rawError?: string } | null>(null);
+  const pendingCeilingTurnRef = useRef<FluxFailoverTurn | null>(null);
+  useAddEventListener(
+    'wcore.context.ceiling.card',
+    (p) => {
+      if (p.conversation_id !== conversation_id) return;
+      pendingCeilingTurnRef.current =
+        p.pendingInput !== undefined ? { input: p.pendingInput, files: p.pendingFiles ?? [] } : null;
+      setCeilingRemedy({ model: p.model, rawError: p.rawError });
+    },
+    [conversation_id]
+  );
+  const onCeilingRetry = useCallback(() => {
+    const turn = pendingCeilingTurnRef.current;
+    if (turn) {
+      emitter.emit('wcore.context.retry', { conversation_id, input: turn.input, files: turn.files });
+    }
+    pendingCeilingTurnRef.current = null;
+    setCeilingRemedy(null);
+  }, [conversation_id]);
   // #466: Computer-Use permission onboarding. WCoreSendBox emits the engine's
   // `computer_use` capability; we prime the macOS permission card only while CUA
   // is available (the card itself stays null unless a grant is actually missing).
@@ -108,6 +133,8 @@ const WCoreChat: React.FC<{
   useEffect(() => {
     setAuthRemedy(null);
     pendingTurnRef.current = null;
+    setCeilingRemedy(null);
+    pendingCeilingTurnRef.current = null;
     setHasCuaCapability(false);
     setCuaCardDismissed(false);
   }, [conversation_id]);
@@ -201,6 +228,18 @@ const WCoreChat: React.FC<{
                 onAddKey={goToModels}
                 onRouteThroughFlux={onAuthRouteThroughFlux}
                 onDismiss={() => setAuthRemedy(null)}
+              />
+            </div>
+          )}
+          {ceilingRemedy && (
+            <div className='max-w-800px w-full mx-auto mb-12px'>
+              <WCoreContextCeilingCard
+                conversationId={conversation_id}
+                modelSelection={modelSelection}
+                model={ceilingRemedy.model}
+                rawError={ceilingRemedy.rawError}
+                onRetry={onCeilingRetry}
+                onDismiss={() => setCeilingRemedy(null)}
               />
             </div>
           )}

@@ -70,6 +70,22 @@ export const isToolUnsupportedErrorMessage = (data: unknown): boolean => {
 };
 
 /**
+ * Detect the engine's terminal context-window-ceiling error. Wayland Core stops
+ * a run when the estimated request size exceeds the model's context window and
+ * history compaction can no longer shrink it, emitting e.g. "Run stopped:
+ * estimated request size (178458) reached the context-window ceiling (177000)
+ * for model 'flux-auto', and compaction could not reduce it further." The fix is
+ * to switch to a model with a larger context window, so the desktop surfaces a
+ * one-click model-switch remedy. Match the stable phrasing, resilient to the
+ * embedded token counts and model id.
+ */
+export const isContextCeilingErrorMessage = (data: unknown): boolean => {
+  if (typeof data !== 'string') return false;
+  const text = data.toLowerCase();
+  return text.includes('context-window ceiling') || text.includes('compaction could not reduce');
+};
+
+/**
  * Detect general API errors (400, 401, 403, 404, 5xx, etc.)
  * excluding API key errors which are user configuration issues.
  */

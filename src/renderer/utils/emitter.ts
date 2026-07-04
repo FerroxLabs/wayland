@@ -68,6 +68,25 @@ interface EventTypes {
   /** Fired by WCoreChat after a successful Flux failover; WCoreSendBox replays the failed turn. */
   'wcore.flux.replay': [{ conversation_id: string; input: string; files: string[] }];
   /**
+   * Fired by WCoreSendBox when a Wayland Core turn is stopped because the request
+   * exceeded the model's context-window ceiling and history compaction could not
+   * shrink it further. WCoreChat listens and shows the WCoreContextCeilingCard
+   * above the send box, offering a one-click model switch (to a larger-context
+   * model) and a retry of the failed turn. `model` is the failing model's display
+   * name; `rawError` preserves the engine's message so the user can inspect it.
+   */
+  'wcore.context.ceiling.card': [
+    {
+      conversation_id: string;
+      model?: string;
+      rawError?: string;
+      pendingInput?: string;
+      pendingFiles?: string[];
+    },
+  ];
+  /** Fired by WCoreChat after a context-ceiling model switch; WCoreSendBox replays the failed turn. */
+  'wcore.context.retry': [{ conversation_id: string; input: string; files: string[] }];
+  /**
    * #466 Fired by WCoreSendBox when the engine advertises (or drops) the
    * Computer-Use capability for this conversation. WCoreChat listens and shows
    * the macOS permission onboarding card while CUA is available + grants are
