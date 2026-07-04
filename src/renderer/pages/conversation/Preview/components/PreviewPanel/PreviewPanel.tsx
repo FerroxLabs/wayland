@@ -435,10 +435,17 @@ const PreviewPanel: React.FC = () => {
     }
 
     try {
-      // Open file with system default application
-      await ipcBridge.shell.openFile.invoke(metadata.filePath);
+      // Open file with system default application. openFile resolves with
+      // { ok } even when the OS launcher fails without throwing (e.g. no xdg
+      // association on Linux), so branch on ok instead of assuming success
+      // (#621) - otherwise a failed open shows a misleading success toast.
+      const result = await ipcBridge.shell.openFile.invoke(metadata.filePath);
       try {
-        messageApi.success(t('preview.openInSystemSuccess'));
+        if (result?.ok) {
+          messageApi.success(t('preview.openInSystemSuccess'));
+        } else {
+          messageApi.error(t('preview.openInSystemFailed'));
+        }
       } catch {
         // Context holder may be unmounted after async operation
       }
