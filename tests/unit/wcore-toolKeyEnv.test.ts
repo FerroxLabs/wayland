@@ -141,6 +141,19 @@ describe('buildEngineSpawnEnv - SEC-1 allowlist', () => {
     expect(env.LD_LIBRARY_PATH).toBe('/opt/openssl-1.1/lib:/usr/lib/aarch64-linux-gnu');
   });
 
+  it('forwards NVM_DIR and VOLTA_HOME so the engine bash tool can run version-manager node (#628)', () => {
+    // getEnhancedEnv captures these on a Finder/Dock launch; without the
+    // allowlist entry the engine spawn would strip them and volta's shims (which
+    // resolve node via VOLTA_HOME) would break even with the bin dir on PATH.
+    process.env.NVM_DIR = '/home/tester/.nvm';
+    process.env.VOLTA_HOME = '/home/tester/.volta';
+
+    const env = buildEngineSpawnEnv({ providerEnv: {} });
+
+    expect(env.NVM_DIR).toBe('/home/tester/.nvm');
+    expect(env.VOLTA_HOME).toBe('/home/tester/.volta');
+  });
+
   it('always preserves the provider auth env even though it is a secret name', () => {
     const env = buildEngineSpawnEnv({ providerEnv: { ANTHROPIC_API_KEY: 'sk-ant-123' } });
     expect(env.ANTHROPIC_API_KEY).toBe('sk-ant-123');

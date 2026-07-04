@@ -536,6 +536,13 @@ const ENGINE_ENV_ALLOWLIST: readonly string[] = [
   'TMP',
   'TEMP',
   'PWD',
+  // ── Node version managers (#628) ───────────────────────────────────────
+  // getEnhancedEnv captures these when the version manager is installed but
+  // its interactive-rc export never ran (Finder/Dock launch). volta's shims
+  // in particular need VOLTA_HOME to resolve node; forward both so the engine's
+  // bash tool can run node/npm/npx installed via nvm/volta.
+  'NVM_DIR',
+  'VOLTA_HOME',
   // ── Linux dynamic linker ───────────────────────────────────────────────
   // Shared-library search path. Required on ARM64 Ubuntu 24.04 (Noble) when
   // the engine needs OpenSSL 1.1 from a non-system prefix. Without it the
