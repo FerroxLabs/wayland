@@ -37,7 +37,12 @@ const DROP_FILES = new Set(['discovery-queries.json']);
 function parseOutDir(): string {
   const i = process.argv.indexOf('--out');
   const out = i >= 0 ? process.argv[i + 1] : 'out/main';
-  return path.isAbsolute(out) ? out : path.join(REPO_ROOT, out);
+  const resolved = path.isAbsolute(out) ? path.resolve(out) : path.resolve(REPO_ROOT, out);
+  const relative = path.relative(REPO_ROOT, resolved);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error(`Invalid --out path: ${out}`);
+  }
+  return resolved;
 }
 
 async function stageLibrary(name: string, outRoot: string): Promise<void> {
