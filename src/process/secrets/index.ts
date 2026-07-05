@@ -16,3 +16,5 @@ export {
 export { FILE_CIPHER_PREFIX } from './fileKeyStore';
 
 export { SENSITIVE_FIELD_NAMES, isSensitiveField } from './fieldClassification';
+
+export { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from './vaultPassphrase';
