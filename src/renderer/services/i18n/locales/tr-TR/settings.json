@@ -1084,6 +1084,7 @@
   "speechToTextProviderDeepgram": "Deepgram Nova-2",
   "speechToTextApiKey": "API Key",
   "speechToTextBaseUrl": "Base URL",
+  "speechToTextBaseUrlHint": "OpenAI yerine kullanmak için burayı, üçüncü taraf Whisper benzeri uygulamalar dahil OpenAI ile uyumlu herhangi bir transkripsiyon API'sine yönlendirin.",
   "speechToTextModel": "Model",
   "speechToTextLanguage": "Varsayılan Dil",
   "speechToTextDetectLanguage": "Dili Otomatik Algıla",

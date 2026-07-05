@@ -1043,6 +1043,41 @@ export class TeamSessionService {
   }
 
   /**
+   * Boot-time reconciliation (#665). A CLI process cannot survive an app
+   * restart, so any agent still persisted as `active` when this process
+   * starts was mid-turn when the app died (crash / kill / power loss) - that
+   * status is a lie the moment the process comes back up. Flip every such
+   * agent to `pending` (same terminal state `restartAgent` uses, so the next
+   * wake replays the full role prompt against a fresh worker task) and emit
+   * the same IPC event the manual restart path uses so an already-open
+   * roster view stops showing the stale pulsing dot.
+   *
+   * Passive: never kills a process (nothing is live yet - this runs before
+   * any session is created) and never throws; a bad team is logged and
+   * skipped so one corrupt row can't block the rest of the sweep.
+   */
+  async reconcileStaleActiveAgents(userId: string): Promise<void> {
+    const teams = await this.repo.findAll(userId);
+    for (const team of teams) {
+      try {
+        const staleSlotIds = team.agents.filter((a) => a.status === 'active').map((a) => a.slotId);
+        if (staleSlotIds.length === 0) continue;
+
+        const updatedAgents = team.agents.map((a) =>
+          a.status === 'active' ? { ...a, status: 'pending' as const } : a
+        );
+        await this.repo.update(team.id, { agents: updatedAgents, updatedAt: Date.now() });
+
+        for (const slotId of staleSlotIds) {
+          ipcBridge.team.agentStatusChanged.emit({ teamId: team.id, slotId, status: 'pending' });
+        }
+      } catch (error) {
+        console.warn(`[TeamSessionService] failed to reconcile stale agents for team "${team.id}"`, error);
+      }
+    }
+  }
+
+  /**
    * Restart a crashed teammate's CLI process while keeping the slot + history
    * intact. Refuses to act mid-wake to avoid corrupting an in-flight turn.
    *

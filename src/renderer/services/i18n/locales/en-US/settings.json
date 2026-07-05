@@ -1117,6 +1117,7 @@
   "speechToTextProviderDeepgram": "Deepgram Nova-2",
   "speechToTextApiKey": "API Key",
   "speechToTextBaseUrl": "Base URL",
+  "speechToTextBaseUrlHint": "Point this at any OpenAI-compatible transcription API — including third-party Whisper-alike apps — to use it instead of OpenAI.",
   "speechToTextModel": "Model",
   "speechToTextLanguage": "Default Language",
   "speechToTextDetectLanguage": "Detect Language Automatically",
@@ -2607,6 +2608,7 @@
       "powerUser": "Power User",
       "rawEngine": "Raw engine mode",
       "rawEngineDesc": "Run the embedded engine on its own config, without overriding with Desktop’s model & skills.",
+      "remoteReadOnly": "Read-only from the web console — runtime mode and concurrency are edited in the desktop app for security.",
       "headlessTitle": "Headless server mode",
       "headlessBody": "Run Wayland Core as a long-lived server (one container per tenant) and reach it over LAN, Tailscale, or the hosted Pro tier."
     },

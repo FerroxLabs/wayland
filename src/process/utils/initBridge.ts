@@ -130,6 +130,15 @@ void initTeamGuideService(teamSessionService).catch((error) => {
   console.error('[initBridge] Failed to initialize TeamGuideMcpServer:', error);
 });
 
+// #665 - on startup nothing is actually running yet, so any teammate still
+// persisted as `active` from before a crash/kill/power-loss is stale. Sweep
+// once at boot so the roster dot doesn't lie until the user manually hits
+// "Restart". Single-user desktop app - 'system_default_user' matches the
+// same fallback used elsewhere (e.g. TeamGuideMcpServer).
+void teamSessionService.reconcileStaleActiveAgents('system_default_user').catch((error) => {
+  console.error('[initBridge] Failed to reconcile stale active agents:', error);
+});
+
 // Usage telemetry bridge. Register the IPC provider EAGERLY so the first
 // renderer-side telemetry call (e.g. `guid.foreground`, fired in a `useEffect`
 // on mount) is never dropped during the cold-start window where `getDatabase()`

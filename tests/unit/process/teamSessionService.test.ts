@@ -507,4 +507,52 @@ describe('TeamSessionService', () => {
       })
     );
   });
+
+  it('reconciles stale "active" agents to "pending" on boot (#665)', async () => {
+    const teamWithStaleAgent: TTeam = {
+      id: 'team-1',
+      userId: 'user-1',
+      name: 'Crashed Team',
+      workspace: '/workspace',
+      workspaceMode: 'shared',
+      leaderAgentId: 'slot-lead',
+      agents: [
+        makeAgent({ slotId: 'slot-lead', role: 'leader', status: 'active' }),
+        makeAgent({ slotId: 'slot-2', role: 'teammate', status: 'idle' }),
+      ],
+      createdAt: 1,
+      updatedAt: 1,
+    };
+    const otherTeam: TTeam = {
+      id: 'team-2',
+      userId: 'user-1',
+      name: 'Healthy Team',
+      workspace: '/workspace',
+      workspaceMode: 'shared',
+      leaderAgentId: 'slot-lead-2',
+      agents: [makeAgent({ slotId: 'slot-lead-2', role: 'leader', status: 'idle' })],
+      createdAt: 1,
+      updatedAt: 1,
+    };
+
+    const repo = makeRepo({
+      findAll: vi.fn().mockResolvedValue([teamWithStaleAgent, otherTeam]),
+      update: vi.fn().mockResolvedValue(teamWithStaleAgent),
+    });
+    const service = newService(repo, makeWorkerTaskManager() as any, makeConversationService());
+
+    await service.reconcileStaleActiveAgents('user-1');
+
+    expect(repo.update).toHaveBeenCalledTimes(1);
+    expect(repo.update).toHaveBeenCalledWith(
+      'team-1',
+      expect.objectContaining({
+        agents: [
+          expect.objectContaining({ slotId: 'slot-lead', status: 'pending' }),
+          expect.objectContaining({ slotId: 'slot-2', status: 'idle' }),
+        ],
+        updatedAt: expect.any(Number),
+      })
+    );
+  });
 });

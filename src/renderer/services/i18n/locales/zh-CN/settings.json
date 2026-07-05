@@ -1084,6 +1084,7 @@
   "speechToTextProviderDeepgram": "Deepgram Nova-2",
   "speechToTextApiKey": "API Key",
   "speechToTextBaseUrl": "Base URL",
+  "speechToTextBaseUrlHint": "将其指向任何兼容 OpenAI 的语音转录 API(包括第三方类 Whisper 应用),即可用它代替 OpenAI。",
   "speechToTextModel": "模型",
   "speechToTextLanguage": "默认语言",
   "speechToTextDetectLanguage": "自动检测语言",

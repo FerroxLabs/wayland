@@ -23,6 +23,19 @@ import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMes
 
 const WCORE_PROJECT_CONFIG = '.wcore.toml';
 
+// #551: the engine only emits its stdout `ready` event once it has dialed every
+// config-declared MCP server (a user with several configured, e.g. MS-365 +
+// GitHub + Apple Ecosystem, pays for all of them on every cold start). Intel
+// Macs in particular have little headroom left under a flat 30s. Overridable
+// via env so an affected user can raise it without a code change while the
+// engine-side fix (dialing those servers lazily) ships separately.
+const WCORE_READY_TIMEOUT_DEFAULT_MS = 30000;
+
+function resolveReadyTimeoutMs(): number {
+  const raw = Number(process.env.WAYLAND_WCORE_READY_TIMEOUT_MS);
+  return Number.isFinite(raw) && raw > 0 ? raw : WCORE_READY_TIMEOUT_DEFAULT_MS;
+}
+
 // Keep the last ~2KB of engine stderr so a spawn/init failure can surface the
 // engine's real bail reason (e.g. a keyless model, bad config) instead of an
 // opaque "exited with code N" (#484). Capped to bound memory on a chatty engine.
@@ -348,13 +361,20 @@ export class WCoreAgent {
     // Wait for ready event with timeout. On timeout, include the engine's last
     // stderr too: a hung engine that logged an error but never exited (e.g. it's
     // blocked waiting on something) otherwise surfaces only a bare "timeout"
-    // (#484). The "ready timeout (30s)" wording keeps this case distinct from an
-    // engine that exited during init (handled above).
+    // (#484). The "ready timeout (Ns)" wording keeps this case distinct from an
+    // engine that exited during init (handled above). Duration is overridable
+    // via WAYLAND_WCORE_READY_TIMEOUT_MS (#551) for slow cold starts.
+    const readyTimeoutMs = resolveReadyTimeoutMs();
     const timeout = new Promise<void>((_, reject) => {
       setTimeout(() => {
         const detail = redactSecrets(this.stderrTail.trim());
-        reject(new Error(detail ? `wcore ready timeout (30s): ${detail}` : 'wcore ready timeout (30s)'));
-      }, 30000);
+        const timeoutLabel = `${readyTimeoutMs / 1000}s`;
+        reject(
+          new Error(
+            detail ? `wcore ready timeout (${timeoutLabel}): ${detail}` : `wcore ready timeout (${timeoutLabel})`
+          )
+        );
+      }, readyTimeoutMs);
     });
 
     try {

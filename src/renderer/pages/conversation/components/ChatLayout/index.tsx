@@ -99,6 +99,11 @@ const ChatLayout: React.FC<{
   // --- Hook B: container width ---
   const { containerRef, containerWidth } = useContainerWidth();
 
+  // #116 known-minor: WorkflowTabbedSider already labels its own content via
+  // its "Steps"/"Workspace" Tabs, so the generic panel-header title above it
+  // would just duplicate "Workspace" for no reason. Suppress it in that mode.
+  const siderTitle = props.stepsRailSider ? undefined : props.siderTitle;
+
   // --- Hook C: title rename ---
   const { openTabs, updateTabName } = useConversationTabs();
   const hasTabs = openTabs.length > 0;
@@ -406,7 +411,7 @@ const ChatLayout: React.FC<{
               togglePlacement={layout?.isMobile ? 'left' : 'right'}
               workspacePath={workspacePath}
             >
-              {props.siderTitle}
+              {siderTitle}
             </WorkspacePanelHeader>
             <ArcoLayout.Content style={{ height: `calc(100% - ${WORKSPACE_HEADER_HEIGHT}px)` }}>
               {props.sider}
@@ -421,7 +426,7 @@ const ChatLayout: React.FC<{
             setRightSiderCollapsed={setRightSiderCollapsed}
             workspaceWidthPx={workspaceWidthPx}
             mobileWorkspaceHandleRight={mobileWorkspaceHandleRight}
-            siderTitle={props.siderTitle}
+            siderTitle={siderTitle}
             sider={props.sider}
             workspacePath={workspacePath}
           />

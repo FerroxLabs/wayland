@@ -22,6 +22,8 @@ export type WcSegmentedProps = {
   onChange: (value: string) => void;
   /** Accessible group label. */
   label: string;
+  /** Render as read-only (e.g. SEC-6 human-only config viewed in the web console). */
+  disabled?: boolean;
 };
 
 /**
@@ -30,9 +32,14 @@ export type WcSegmentedProps = {
  * `role="radio"` elements (not raw `<button>`/`<select>`) per the repo's no-raw-
  * interactive-HTML rule, keeping the comp fidelity while staying accessible.
  */
-const WcSegmented: React.FC<WcSegmentedProps> = ({ options, value, onChange, label }) => {
+const WcSegmented: React.FC<WcSegmentedProps> = ({ options, value, onChange, label, disabled = false }) => {
   return (
-    <div className={styles.segmented} role='radiogroup' aria-label={label}>
+    <div
+      className={classNames(styles.segmented, { [styles.segmentedDisabled]: disabled })}
+      role='radiogroup'
+      aria-label={label}
+      aria-disabled={disabled || undefined}
+    >
       {options.map((opt) => {
         const selected = opt.value === value;
         return (
@@ -40,14 +47,19 @@ const WcSegmented: React.FC<WcSegmentedProps> = ({ options, value, onChange, lab
             key={opt.value}
             role='radio'
             aria-checked={selected}
-            tabIndex={0}
-            onClick={() => onChange(opt.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onChange(opt.value);
-              }
-            }}
+            aria-disabled={disabled || undefined}
+            tabIndex={disabled ? -1 : 0}
+            onClick={disabled ? undefined : () => onChange(opt.value)}
+            onKeyDown={
+              disabled
+                ? undefined
+                : (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onChange(opt.value);
+                    }
+                  }
+            }
             className={classNames({ [styles.active]: selected })}
           >
             {opt.label}

@@ -153,6 +153,9 @@ export interface IConfigStorageRefer {
   'acp.cachedConfigOptions'?: Record<string, import('@/common/types/acpTypes').AcpSessionConfigOption[]>;
   // Cached modes per ACP backend for Guid page / AgentModeSelector
   'acp.cachedModes'?: Record<string, import('@/common/types/acpTypes').AcpSessionModes>;
+  // Persisted "allow_always" ACP tool-permission decisions, keyed by workspace path
+  // (see AcpApprovalStore) so they survive an app restart instead of resetting per session.
+  'acp.approvals'?: Record<string, Record<string, string>>;
   'model.config': IProvider[];
   'mcp.config': IMcpServer[];
   'mcp.agentInstallStatus': Record<string, string[]>;

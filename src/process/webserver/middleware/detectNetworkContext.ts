@@ -23,10 +23,12 @@
  * grant any capability on its own.
  */
 
-import os from 'os';
 import type { Request } from 'express';
 import { detectHttps } from '../config/constants';
-import { isPrivateNetworkIp } from './networkTrust';
+import { hasTailscaleInterface, isPrivateNetworkIp } from './networkTrust';
+
+/** Exposed for tests to reset the memoised Tailscale interface probe. */
+export { __resetTailscaleIfaceCacheForTests } from './networkTrust';
 
 export type ReachedVia = 'loopback' | 'tailscale' | 'private_network' | 'public_internet';
 
@@ -63,28 +65,6 @@ function isIpLiteral(host: string): boolean {
 function isLocalhostHost(host: string): boolean {
   const h = host.toLowerCase();
   return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h.endsWith('.localhost');
-}
-
-/**
- * Whether any local network interface is a Tailscale interface. Memoised per
- * process: interface names do not change at runtime. Best-effort - failures fall
- * back to false (Tailscale detection is informational only).
- */
-let hasTailscaleIfaceCache: boolean | undefined;
-function hasTailscaleInterface(): boolean {
-  if (hasTailscaleIfaceCache !== undefined) return hasTailscaleIfaceCache;
-  try {
-    const ifaces = os.networkInterfaces();
-    hasTailscaleIfaceCache = Object.keys(ifaces).some((name) => name.toLowerCase().startsWith('tailscale'));
-  } catch {
-    hasTailscaleIfaceCache = false;
-  }
-  return hasTailscaleIfaceCache;
-}
-
-/** Exposed for tests to reset the memoised interface probe. */
-export function __resetTailscaleIfaceCacheForTests(): void {
-  hasTailscaleIfaceCache = undefined;
 }
 
 /** Tailscale CGNAT 100.64.0.0/10. */

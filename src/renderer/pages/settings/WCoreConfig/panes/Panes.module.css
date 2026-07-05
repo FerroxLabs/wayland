@@ -482,6 +482,15 @@
   font-weight: 500;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
+.segmentedDisabled {
+  opacity: 0.55;
+}
+.segmentedDisabled > * {
+  cursor: default;
+}
+.segmentedDisabled > *:hover {
+  color: var(--wc-text-secondary);
+}
 
 /* ---- Badges ---- */
 .badge {
@@ -865,6 +874,9 @@
 .updateCardDone {
   border-color: var(--wc-success);
 }
+.updateCardError {
+  border-color: var(--wc-warning);
+}
 .updateIcon {
   display: flex;
   align-items: center;
@@ -879,6 +891,10 @@
 .updateCardDone .updateIcon {
   color: var(--wc-success);
   background: var(--wc-success-dim);
+}
+.updateCardError .updateIcon {
+  color: var(--wc-warning);
+  background: var(--wc-warning-dim);
 }
 .updateText {
   display: flex;

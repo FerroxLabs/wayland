@@ -4,10 +4,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, expect, it } from 'vitest';
-import { classifyClientTrust, isPrivateNetworkIp } from '../../src/process/webserver/middleware/networkTrust';
+import os from 'os';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  classifyClientTrust,
+  isPrivateNetworkIp,
+  __resetTailscaleIfaceCacheForTests,
+} from '../../src/process/webserver/middleware/networkTrust';
+
+vi.mock('os');
 
 describe('networkTrust - private-network classification (#83)', () => {
+  beforeEach(() => {
+    // Default: no Tailscale interface on this host.
+    vi.mocked(os.networkInterfaces).mockReturnValue({});
+    __resetTailscaleIfaceCacheForTests();
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    __resetTailscaleIfaceCacheForTests();
+  });
+
   it('treats loopback (v4 + v6 + mapped) as operator', () => {
     expect(classifyClientTrust('127.0.0.1')).toBe('operator');
     expect(classifyClientTrust('127.5.5.5')).toBe('operator');
@@ -27,7 +45,20 @@ describe('networkTrust - private-network classification (#83)', () => {
     expect(classifyClientTrust('172.15.0.1')).toBe('restricted');
   });
 
-  it('treats the Tailscale CGNAT range (100.64.0.0/10) as operator', () => {
+  it('does NOT treat a CGNAT peer (100.64.0.0/10) as operator without a Tailscale interface (#529, RFC6598 CGNAT)', () => {
+    // No tailscale* interface configured in beforeEach - a real ISP's carrier-grade
+    // NAT customer must not be escalated to operator.
+    expect(classifyClientTrust('100.105.198.32')).toBe('restricted');
+    expect(classifyClientTrust('100.64.0.0')).toBe('restricted');
+    expect(classifyClientTrust('100.127.255.255')).toBe('restricted');
+  });
+
+  it('treats the Tailscale CGNAT range (100.64.0.0/10) as operator when a tailscale interface is present', () => {
+    vi.mocked(os.networkInterfaces).mockReturnValue({
+      tailscale0: [{ address: '100.105.198.32', family: 'IPv4' } as os.NetworkInterfaceInfo],
+    });
+    __resetTailscaleIfaceCacheForTests();
+
     expect(classifyClientTrust('100.105.198.32')).toBe('operator'); // the DGX reporter's tailnet IP
     expect(classifyClientTrust('100.64.0.0')).toBe('operator');
     expect(classifyClientTrust('100.127.255.255')).toBe('operator');

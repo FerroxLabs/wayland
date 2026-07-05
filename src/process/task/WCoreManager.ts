@@ -1214,6 +1214,19 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // for the turn and the provider must be marked unhealthy.
       if (data.type === 'error') {
         this.maybeInvalidateProviderKeyOnAuthError(typeof data.data === 'string' ? data.data : String(data.data ?? ''));
+
+        // #505: a provider error mid-turn (e.g. Anthropic API error) is turn
+        // activity, same as content/tool_group below. Without this, a turn that
+        // errors and is NEVER followed by a `finish`/stream_end frame (the engine
+        // gives up silently instead of closing the stream cleanly) leaves
+        // `this.status` stuck at 'running' forever - `conversation.get` returns
+        // that status (conversationBridge), so reopening/refocusing the
+        // conversation restores a stale "Processing" spinner with the composer
+        // locked, even though the turn is long dead. Harmless to set eagerly: if
+        // `finish` DOES still arrive afterward it just re-assigns the same value,
+        // and if the error is transient and more content follows on the same
+        // turn, the content/tool_group branch below sets this identically.
+        this.status = 'finished';
       }
 
       // System-level events (empty msg_id) are not part of a conversation turn.

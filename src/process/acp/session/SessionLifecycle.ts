@@ -85,6 +85,17 @@ export class SessionLifecycle {
     return this.authPending;
   }
 
+  /**
+   * Whether an automatic retry is still available for the given bootstrap phase.
+   * Used to suppress redundant crash banners while a retry is still scheduled -
+   * only the final attempt (or the terminal `enterError`) should be user-visible (#676).
+   */
+  hasRetriesRemaining(phase: 'starting' | 'resuming'): boolean {
+    return phase === 'starting'
+      ? this.startRetryCount < this.options.maxStartRetries
+      : this.resumeRetryCount < this.options.maxResumeRetries;
+  }
+
   // ─── Start ────────────────────────────────────────────────────
 
   start(): void {

@@ -1084,6 +1084,7 @@
   "speechToTextProviderDeepgram": "Deepgram Nova-2",
   "speechToTextApiKey": "API キー",
   "speechToTextBaseUrl": "Base URL",
+  "speechToTextBaseUrlHint": "サードパーティ製の Whisper 風アプリを含む、OpenAI 互換の文字起こし API を指定すると、OpenAI の代わりに使用できます。",
   "speechToTextModel": "モデル",
   "speechToTextLanguage": "既定の言語",
   "speechToTextDetectLanguage": "言語を自動検出",
