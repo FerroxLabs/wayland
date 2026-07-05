@@ -199,7 +199,9 @@ nsis:
   # are user-owned and intentionally left in place.
   deleteAppDataOnUninstall: true
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
-  differentialPackage: false
+  # #715: emit a .blockmap next to the installer so electron-updater can do
+  # differential downloads instead of always falling back to the full package.
+  differentialPackage: true
 
 mac:
   target:
