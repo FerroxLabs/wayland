@@ -624,10 +624,11 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
       expect(resumeApproval).not.toHaveBeenCalled();
     });
 
-    it('non-interactive (yoloMode) auto mode: loud-denies via resumeApproval(false), no silent approve, no card', () => {
-      // A channel/cron spawn (yoloMode:true) has no user to prompt. Escalating would
-      // hit addConfirmation's yoloMode auto-approve and SILENTLY APPROVE — so we
-      // loud-deny instead.
+    it('non-interactive (yoloMode) auto mode: auto-approves via resumeApproval(true), recorded, no card', () => {
+      // A channel/cron spawn (yoloMode:true) is genuinely autonomous — there is no
+      // user to prompt and it opted into full-auto. 0.11.15 restored the pre-#264
+      // auto-approve here (the interim loud-deny broke legit yolo/cron egress):
+      // resume(true), record via mainLog, and never synthesize a confirmation card.
       const data = {
         workspace: '/test/workspace',
         model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
@@ -641,16 +642,16 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
 
       escalate(m, 'cy', 'tok-y');
 
-      expect(resumeApproval).toHaveBeenCalledWith('tok-y', false);
+      expect(resumeApproval).toHaveBeenCalledWith('tok-y', true);
       // No confirmation card was created for a headless run.
       expect((m as any).confirmations.some((c: any) => c.callId === 'cy')).toBe(false);
       expect((m as any).pendingApprovalTokens.has('cy')).toBe(false);
-      // And it was recorded loudly, not silently.
-      const loud = mockMainError.mock.calls.find(
+      // And the auto-approval was recorded (mainLog, not a silent no-op).
+      const recorded = mockMainLog.mock.calls.find(
         ([, msg]: [unknown, unknown]) =>
-          typeof msg === 'string' && msg.includes("reason='destructive_operation'") && msg.includes('yoloMode')
+          typeof msg === 'string' && msg.includes("reason='destructive_operation'") && msg.includes('auto-approved')
       );
-      expect(loud).toBeDefined();
+      expect(recorded).toBeDefined();
     });
   });
 

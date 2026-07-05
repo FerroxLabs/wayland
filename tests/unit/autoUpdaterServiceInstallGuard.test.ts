@@ -218,7 +218,7 @@ describe('autoUpdaterService install guard (#286)', () => {
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
       expect(service.installOnQuitIfReady()).toBe(true);
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, false);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 
     it('non-macOS offer → installs the staged update on quit (loop is macOS-only)', () => {
@@ -227,7 +227,7 @@ describe('autoUpdaterService install guard (#286)', () => {
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
       expect(service.installOnQuitIfReady()).toBe(true);
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, false);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 
     it('silent apply failure on reconcile → refuses on-quit install', () => {
@@ -248,7 +248,7 @@ describe('autoUpdaterService install guard (#286)', () => {
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
 
       expect(service.installOnQuitIfReady()).toBe(true);
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, false);
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
     });
 
     it('re-offer of a silently-failed version → refuses on-quit install', () => {
