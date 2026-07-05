@@ -1134,17 +1134,17 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // confirm() (keyed via pendingApprovalTokens).
         if (autoMode && !isInfo && appr.resumeToken) {
           const callId = appr.callId ?? '';
-          // A non-interactive spawn (channel/cron sets this.yoloMode) has no user
-          // to prompt. addConfirmation() would auto-pick the first (allow) option
-          // under yoloMode and SILENTLY APPROVE - the opposite of what an
-          // un-anticipated approval needs. So loud-deny instead: a visible,
-          // recorded denial, never a silent approve and never a hang.
+          // A non-interactive spawn (channel/cron sets this.yoloMode) is genuinely
+          // autonomous - there is no user to prompt, and it opted into full-auto.
+          // Escalating to the Confirming gate here would hang the turn forever
+          // (no one to answer), so auto-resume(true) as this path always did
+          // before #264's escalation was added. Interactive auto modes (below)
+          // still route to the user's confirmation gate.
           if (this.yoloMode) {
-            this.agent?.resumeApproval(appr.resumeToken, false);
-            mainError(
+            this.agent?.resumeApproval(appr.resumeToken, true);
+            mainLog(
               '[WCoreManager]',
-              `approval_required reason='${appr.reason}' in a non-interactive (yoloMode) session with no user to prompt; denied`,
-              data.data
+              `approval_required reason='${appr.reason}' in a non-interactive (yoloMode) session; auto-approved`
             );
             return;
           }
@@ -1153,7 +1153,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           this.addConfirmation({
             title: 'messages.permissionRequest',
             id: callId,
-            description: context || `reason: ${appr.reason ?? ''}`,
+            description: appr.reason ? `reason: ${appr.reason}` : context,
             callId,
             options: [
               { label: 'messages.confirmation.yesAllowOnce', value: ToolConfirmationOutcome.ProceedOnce },

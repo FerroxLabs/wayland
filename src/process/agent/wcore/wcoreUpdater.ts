@@ -291,7 +291,25 @@ export async function installWCoreUpdate(
     const stagePath = join(destDir, `.${binaryName}.staging`);
     await copyFile(extracted, stagePath);
     if (process.platform !== 'win32') await chmod(stagePath, 0o755);
-    renameSync(stagePath, finalPath);
+    try {
+      renameSync(stagePath, finalPath);
+    } catch (err) {
+      // On Windows a currently-running wayland-core.exe is locked, so replacing
+      // it in place fails (EBUSY/EPERM/EACCES). Surface an actionable message
+      // instead of the raw errno, and drop the orphaned staging copy.
+      const code = (err as NodeJS.ErrnoException).code;
+      if (process.platform === 'win32' && (code === 'EBUSY' || code === 'EPERM' || code === 'EACCES')) {
+        try {
+          rmSync(stagePath, { force: true });
+        } catch {
+          // best-effort staging cleanup
+        }
+        const message = 'The engine is running and cannot be replaced. Restart the app, then update.';
+        onProgress?.({ phase: 'error', message });
+        return { ok: false, error: message };
+      }
+      throw err;
+    }
 
     const installed = normalizeVersion(tag) ?? tag;
     onProgress?.({ phase: 'done', message: installed });

@@ -55,6 +55,12 @@ export function useWorkspaceCollapse({
           // ignore errors
         }
       }
+      // Mobile: start COLLAPSED so the workflow doesn't open with the Steps rail
+      // overlaying the chat full-screen (there is no header affordance, but a
+      // narrow viewport can't show both). Desktop keeps it expanded.
+      if (detectMobileViewportOrTouch()) {
+        return true;
+      }
       return false;
     }
     if (detectMobileViewportOrTouch()) {
@@ -154,7 +160,10 @@ export function useWorkspaceCollapse({
       } else {
         // No user preference: expand if has files, collapse if not. In
         // steps-rail mode never auto-collapse - that would hide the Steps rail.
-        if (detail.hasFiles && rightSiderCollapsed) {
+        // Never auto-EXPAND on mobile: a narrow viewport can't show chat and the
+        // workspace/Steps side-by-side, so surfacing files here would overlay the
+        // chat full-screen (the #593 mobile regression). Desktop still expands.
+        if (detail.hasFiles && rightSiderCollapsed && !isMobile) {
           setRightSiderCollapsed(false);
         } else if (!detail.hasFiles && !rightSiderCollapsed && !stepsRailMode) {
           setRightSiderCollapsed(true);
@@ -197,20 +206,20 @@ export function useWorkspaceCollapse({
     }
   }, [workspaceEnabled]);
 
-  // Mobile: force collapse when entering mobile mode. Skipped in steps-rail mode
-  // so the workflow's Steps rail stays visible (there is no other affordance to
-  // reopen it on the workflow's header-less layout).
+  // Mobile: force collapse when entering mobile mode. Applies in steps-rail mode
+  // too - on a narrow viewport the Steps rail must not overlay the chat.
   useEffect(() => {
-    if (stepsRailMode || !workspaceEnabled || !isMobile || rightCollapsedRef.current) {
+    if (!workspaceEnabled || !isMobile || rightCollapsedRef.current) {
       return;
     }
     setRightSiderCollapsed(true);
   }, [isMobile, workspaceEnabled, stepsRailMode]);
 
   // Mobile: force collapse workspace on conversation switch to prevent overlay.
-  // Skipped in steps-rail mode (each workflow conversation should show its Steps).
+  // Applies in steps-rail mode too so a switched-to workflow doesn't reopen the
+  // Steps rail full-screen over the chat.
   useEffect(() => {
-    if (stepsRailMode || !workspaceEnabled || !isMobile) {
+    if (!workspaceEnabled || !isMobile) {
       return;
     }
     setRightSiderCollapsed(true);

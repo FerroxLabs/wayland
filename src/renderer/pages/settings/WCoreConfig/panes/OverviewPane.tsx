@@ -7,6 +7,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Progress } from '@arco-design/web-react';
 import {
+  AlertTriangle,
   ArrowRight,
   BookOpen,
   Brain,
@@ -72,6 +73,7 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
   const [installing, setInstalling] = useState(false);
   const [progress, setProgress] = useState<WCoreUpdateProgress | null>(null);
   const [installedVersion, setInstalledVersion] = useState<string | null>(null);
+  const [installError, setInstallError] = useState<string | null>(null);
 
   useEffect(() => {
     void ipcBridge.acpConversation.getAvailableAgents.invoke().then((result) => {
@@ -99,22 +101,35 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
         setInstalledVersion(p.message ?? null);
       } else if (p.phase === 'error') {
         setInstalling(false);
+        setInstallError(
+          p.message ??
+            t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
+        );
       }
     });
-  }, []);
+  }, [t]);
 
   const handleInstall = useCallback(async () => {
     const tag = updateInfo?.tag;
     if (!tag) return;
+    setInstallError(null);
     setInstalling(true);
     setProgress({ phase: 'downloading', percent: 0 });
     try {
       const res = await ipcBridge.wcoreUpdate.install.invoke({ tag });
       if (res.ok) setInstalledVersion(res.version);
+      else
+        setInstallError(
+          'error' in res && res.error
+            ? res.error
+            : t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
+        );
+    } catch (err) {
+      setInstallError(err instanceof Error ? err.message : String(err));
     } finally {
       setInstalling(false);
     }
-  }, [updateInfo]);
+  }, [updateInfo, t]);
 
   /** Human label for the current install phase. */
   const phaseLabel = (phase: WCoreUpdateProgress['phase']): string => {
@@ -133,7 +148,9 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
         return t('settings.wcoreConfig.overview.update.phaseDownloading', { defaultValue: 'Downloading…' });
     }
   };
-  const showUpdateCard = !!updateInfo?.updateAvailable || installing || !!installedVersion;
+  const showUpdateCard = !!updateInfo?.updateAvailable || installing || !!installedVersion || !!installError;
+  // Error state owns the card only when nothing newer has superseded it.
+  const showError = !!installError && !installing && !installedVersion;
 
   const goDesktop = (route: string): void => {
     void navigate(`/settings/${route}`, { replace: true });
@@ -264,9 +281,19 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
           place (download + SHA-256 verify + swap), without a full app update. */}
       {showUpdateCard && (
         <div className={styles.section}>
-          <div className={`${styles.updateCard} ${installedVersion ? styles.updateCardDone : ''}`}>
+          <div
+            className={`${styles.updateCard} ${installedVersion ? styles.updateCardDone : ''} ${
+              showError ? styles.updateCardError : ''
+            }`}
+          >
             <span className={styles.updateIcon}>
-              {installedVersion ? <CheckCircle2 size={18} /> : <Download size={18} />}
+              {installedVersion ? (
+                <CheckCircle2 size={18} />
+              ) : showError ? (
+                <AlertTriangle size={18} />
+              ) : (
+                <Download size={18} />
+              )}
             </span>
             <div className={styles.updateText}>
               {installedVersion ? (
@@ -295,6 +322,15 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                     <Progress percent={progress.percent} size='small' className={styles.updateProgress} />
                   )}
                 </>
+              ) : showError ? (
+                <>
+                  <div className={styles.updateTitle}>
+                    {t('settings.wcoreConfig.overview.update.errorTitle', {
+                      defaultValue: 'Engine update failed',
+                    })}
+                  </div>
+                  <div className={styles.updateError}>{installError}</div>
+                </>
               ) : (
                 <>
                   <div className={styles.updateTitle}>
@@ -312,7 +348,7 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                 </>
               )}
             </div>
-            {!installedVersion && !installing && updateInfo?.updateAvailable && (
+            {!installedVersion && !installing && (updateInfo?.updateAvailable || showError) && (
               <Button
                 type='primary'
                 size='small'
@@ -320,7 +356,9 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
                 onClick={() => void handleInstall()}
                 className={styles.updateBtn}
               >
-                {t('settings.wcoreConfig.overview.update.cta', { defaultValue: 'Update now' })}
+                {showError
+                  ? t('settings.wcoreConfig.overview.update.retry', { defaultValue: 'Retry' })
+                  : t('settings.wcoreConfig.overview.update.cta', { defaultValue: 'Update now' })}
               </Button>
             )}
           </div>

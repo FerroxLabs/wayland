@@ -21,8 +21,10 @@
  */
 
 import { Tabs } from '@arco-design/web-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { WORKSPACE_HAS_FILES_EVENT, type WorkspaceHasFilesDetail } from '@/renderer/utils/workspace/workspaceEvents';
 
 import { WorkflowRailSlotHost } from './WorkflowRailSlot';
 import styles from './WorkflowTabbedSider.module.css';
@@ -36,6 +38,25 @@ export const WorkflowTabbedSider: React.FC<WorkflowTabbedSiderProps> = ({ worksp
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>('steps');
   const hasWorkspace = workspace != null;
+
+  // Build #593 fix. When the workflow writes/edits files, surface the Workspace
+  // tab so the new files are actually visible. The sider auto-expands elsewhere
+  // (useWorkspaceCollapse) but the active tab would otherwise stay on Steps.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !hasWorkspace) {
+      return undefined;
+    }
+    const handleHasFiles = (event: Event) => {
+      const detail = (event as CustomEvent<WorkspaceHasFilesDetail>).detail;
+      if (detail?.hasFiles) {
+        setActiveTab('workspace');
+      }
+    };
+    window.addEventListener(WORKSPACE_HAS_FILES_EVENT, handleHasFiles);
+    return () => {
+      window.removeEventListener(WORKSPACE_HAS_FILES_EVENT, handleHasFiles);
+    };
+  }, [hasWorkspace]);
 
   return (
     <Tabs className={styles.tabs} activeTab={activeTab} onChange={setActiveTab} size='small' lazyload={false}>

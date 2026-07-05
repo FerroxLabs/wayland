@@ -793,9 +793,10 @@ class IjfwArchiveService {
 
   /**
    * Delete a single memory entry (#414). Hard delete: the entry's `---`-block is
-   * removed from its source file (atomic write); if it was the file's last entry
-   * the file is unlinked. Every other entry in the file is preserved verbatim.
-   * The store is git-tracked, so this is recoverable outside the app.
+   * removed from its source file (atomic write); the file is unlinked only when
+   * nothing meaningful remains after removal. Every other entry AND any non-entry
+   * content (file header, prose between blocks) is preserved verbatim. The store
+   * is git-tracked, so this is recoverable outside the app.
    */
   async deleteEntry(id: string): Promise<{ ok: boolean; error?: string }> {
     await this.init();
@@ -814,8 +815,25 @@ class IjfwArchiveService {
     if (result.ok === false) return { ok: false, error: result.error };
 
     try {
-      if (result.remainingBlocks === 0) await fs.promises.unlink(entry.sourcePath);
-      else await atomicWriteFile(entry.sourcePath, result.content);
+      // Unlink only when nothing but the machine schema marker (and whitespace)
+      // is left after the removal. `remainingBlocks` counts entry blocks only,
+      // so a file that also holds real user content — an H1/H2 heading, a title,
+      // prose between blocks — still carries it in result.content; unlinking on
+      // remainingBlocks === 0 alone discards it (the #647 data-loss). The
+      // `<!-- ijfw-schema: vN -->` header is machine-written, not user content,
+      // so a file whose only non-entry line is that marker is still removed —
+      // preserving the prior "delete the last entry unlinks the file" contract.
+      const hasUserContent =
+        result.remainingBlocks > 0 ||
+        result.content.split('\n').some((line) => {
+          const t = line.trim();
+          return t !== '' && !/^<!--\s*ijfw-schema:/.test(t);
+        });
+      if (!hasUserContent) {
+        await fs.promises.unlink(entry.sourcePath);
+      } else {
+        await atomicWriteFile(entry.sourcePath, result.content);
+      }
     } catch (err) {
       log.error('[memory-archive] deleteEntry write failed', { id, err });
       return { ok: false, error: 'write_failed' };

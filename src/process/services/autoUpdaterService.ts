@@ -535,10 +535,11 @@ class AutoUpdaterService extends EventEmitter {
     // Persist the pending-install marker so the next launch can verify the apply
     // actually advanced the version (#286), same as the manual path.
     this.writePendingInstallMarker();
-    // isSilent=true, isForceRunAfter=false: install on quit without relaunching
-    // (apply-on-quit semantics, like VS Code/Slack) and without the force-exit
-    // timer — the caller is already quitting.
-    autoUpdater.quitAndInstall(true, false);
+    // isSilent=true, isForceRunAfter=true: install on quit AND relaunch, matching
+    // the "Install and restart" button's promise and the pre-#651 behavior. We
+    // omit the force-exit timer (unlike the manual quitAndInstall) because the
+    // caller is already inside the quit sequence.
+    autoUpdater.quitAndInstall(true, true);
     return true;
   }
 

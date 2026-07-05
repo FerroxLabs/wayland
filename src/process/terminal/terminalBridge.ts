@@ -20,7 +20,6 @@
  */
 import { existsSync } from 'node:fs';
 import * as os from 'node:os';
-import { spawn } from '@lydell/node-pty';
 import { ipcBridge } from '@/common';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { SqliteConversationRepository } from '@process/services/database/SqliteConversationRepository';
@@ -39,6 +38,21 @@ export function initTerminalBridge(): void {
     // Guard 2: backend feature-flag check (guard 1, local-only, is enforced at
     // the WS wire before we get here).
     if (!(await isTerminalModeEnabled())) return { ok: false, reason: 'disabled' } as const;
+
+    // Lazy-load the native PTY addon ONLY when the terminal feature is actually
+    // used. Terminal mode is off by default; a static top-level import would run
+    // the native `require('@lydell/node-pty')` during main-bundle evaluation, and
+    // a load failure there (incompatible glibc/musl, missing prebuild arch, AV
+    // quarantine of pty.node) would throw before any window exists and brick
+    // launch for everyone. Loading it here, behind the flag and in a try/catch,
+    // contains any native-load failure to the terminal feature.
+    let spawn: typeof import('@lydell/node-pty').spawn;
+    try {
+      ({ spawn } = await import('@lydell/node-pty'));
+    } catch (err) {
+      console.error('[terminal] node-pty native module failed to load:', err);
+      return { ok: false, reason: 'unsupported' } as const;
+    }
 
     // Re-opening an already-live terminal is a no-op success (idempotent mount).
     if (hasPty(terminalId)) return { ok: true } as const;
