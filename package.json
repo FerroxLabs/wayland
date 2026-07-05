@@ -1,6 +1,6 @@
 {
   "name": "Wayland",
-  "version": "0.11.16",
+  "version": "0.11.17",
   "description": "The local-first desktop AI agent that drives every AI CLI on your machine - Claude Code, Codex, Gemini and more, on your keys.",
   "keywords": [],
   "license": "AGPL-3.0-or-later",
