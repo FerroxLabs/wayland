@@ -108,6 +108,22 @@ describe('convertLatexDelimiters', () => {
     it('should not escape currency inside code', () => {
       expect(convertLatexDelimiters('run `echo $5` now')).toBe('run `echo $5` now');
     });
+
+    it('should escape cent-only prices with no leading digit ($.50, $.75)', () => {
+      expect(convertLatexDelimiters('candy is $.50 and gum is $.75')).toBe('candy is \\$.50 and gum is \\$.75');
+    });
+
+    it('should leave inline math followed by a period intact (the \\.?\\d guard)', () => {
+      // A closing `$` followed by a period must NOT be escaped, or "$x$." breaks.
+      expect(convertLatexDelimiters('the value is $x$.')).toBe('the value is $x$.');
+    });
+
+    it('documents the accepted tradeoff: raw single-$ math starting with a bare digit degrades to literal', () => {
+      // Currency and digit-led inline math are ambiguous with a bare `$`; we favour
+      // currency (far more common in chat). "$3x+1$" degrades to readable literal text
+      // rather than a garbled KaTeX span. Use \\(3x+1\\) for real inline math.
+      expect(convertLatexDelimiters('$3x+1$')).toBe('\\$3x+1$');
+    });
   });
 
   describe('no math content', () => {
