@@ -107,12 +107,13 @@ describe('autoUpdaterService update-on-quiesce (#651)', () => {
       expect(autoUpdater.quitAndInstall).not.toHaveBeenCalled();
     });
 
-    it('installs (non-force, no relaunch) when a download is staged and safe', () => {
+    it('installs and relaunches when a download is staged and safe', () => {
       service.triggerEventForTest('update-downloaded', { version: '2.0.0' });
       const result = service.installOnQuitIfReady();
       expect(result).toBe(true);
-      // isSilent=true, isForceRunAfter=false — apply on quit without relaunch.
-      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, false);
+      // isSilent=true, isForceRunAfter=true — install on quit AND relaunch,
+      // matching the "Install and restart" promise (#651, 0.11.15).
+      expect(autoUpdater.quitAndInstall).toHaveBeenCalledWith(true, true);
       // No force-exit timer: we are already quitting.
       expect(app.exit).not.toHaveBeenCalled();
     });

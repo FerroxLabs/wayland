@@ -406,7 +406,10 @@ describe('useWorkspaceCollapse', () => {
       expect(result.current.rightSiderCollapsed).toBe(false);
     });
 
-    it('defaults EXPANDED on mobile too (Steps must stay reachable)', () => {
+    it('defaults COLLAPSED on mobile (Steps rail must never overlay the chat, #593)', () => {
+      // 0.11.15: a narrow viewport cannot show chat and the Steps rail side by
+      // side, so opening a workflow on mobile must not start with the rail
+      // overlaying the chat full-screen. Desktop still defaults expanded (above).
       mockDetectMobile.mockReturnValue(true);
       globalThis.localStorage.removeItem(CONV_PREF_KEY);
 
@@ -414,7 +417,7 @@ describe('useWorkspaceCollapse', () => {
         useWorkspaceCollapse({ workspaceEnabled: true, isMobile: true, conversationId: 'conv-1', stepsRailMode: true })
       );
 
-      expect(result.current.rightSiderCollapsed).toBe(false);
+      expect(result.current.rightSiderCollapsed).toBe(true);
     });
 
     it('honors an explicit per-conversation collapse preference', () => {
