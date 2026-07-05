@@ -10,6 +10,7 @@ import { CHATGPT_SUBSCRIPTION_PROVIDER_ID } from '@process/providers/catalog/cha
 import { loadBaselineProviderCatalog } from '@process/providers/catalog/providerCatalogStore';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
+import { VAULT_PASSPHRASE_CHILD_FD } from '@process/secrets';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 
 /**
@@ -731,6 +732,7 @@ export function buildEngineSpawnEnv(opts: {
   providerEnv: Record<string, string>;
   toolKeys?: Record<string, string>;
   waylandHome?: string;
+  vaultPassphraseEnv?: Record<string, string>;
 }): Record<string, string> {
   const full = getEnhancedEnv(opts.providerEnv);
   const allowed = new Set(ENGINE_ENV_ALLOWLIST.map((name) => name.toUpperCase()));
@@ -756,6 +758,15 @@ export function buildEngineSpawnEnv(opts: {
   // Active-profile config root (Design B). Authoritative - set last.
   if (opts.waylandHome) {
     out.WAYLAND_HOME = opts.waylandHome;
+  }
+
+  // #710: engine credentials-vault unlock material, produced by
+  // {@link planVaultPassphraseDelivery}. Layered after the allowlist filter on
+  // purpose: WAYLAND_VAULT_PASSPHRASE / _FD are deliberately NOT allowlisted,
+  // so a stale value in the user's shell can never leak into the spawn - only
+  // the desktop's own per-profile provisioning sets them.
+  for (const [name, value] of Object.entries(opts.vaultPassphraseEnv ?? {})) {
+    out[name] = value;
   }
 
   // Opt the bundled engine into honoring a wire `set_mode` that loosens
@@ -802,4 +813,41 @@ export function buildEngineSpawnEnv(opts: {
   out.WAYLAND_SEND_MESSAGE_HOST_DELEGATE = '1';
 
   return out;
+}
+
+/**
+ * How the engine-vault passphrase reaches the spawned engine (#710):
+ *  - `fd` (Unix): an extra `'pipe'` stdio slot at index
+ *    {@link VAULT_PASSPHRASE_CHILD_FD}; the parent writes `fdPayload` and
+ *    closes its end, and `WAYLAND_VAULT_PASSPHRASE_FD` tells the engine which
+ *    descriptor to read to EOF. Preferred - the passphrase never appears in
+ *    `/proc/<pid>/environ`.
+ *  - `env` (Windows): `WAYLAND_VAULT_PASSPHRASE` env var. File descriptors are
+ *    not portable to Windows, and the engine's `vault_unlock_material_present`
+ *    deliberately ignores `_FD` there (wcore-config credentials.rs), so the
+ *    env var is the ONLY channel that selects the vault on win32.
+ */
+export type VaultPassphraseDelivery =
+  | { mode: 'fd'; env: Record<string, string>; stdio: ['pipe', 'pipe', 'pipe', 'pipe']; fdPayload: string }
+  | { mode: 'env'; env: Record<string, string>; stdio: ['pipe', 'pipe', 'pipe'] };
+
+/**
+ * Plan the platform-appropriate delivery of a vault passphrase into the engine
+ * spawn: the env entries for {@link buildEngineSpawnEnv}'s `vaultPassphraseEnv`,
+ * the stdio layout for the spawn, and (fd mode) the payload to write into the
+ * extra pipe. Pure - `platform` is injectable for tests.
+ */
+export function planVaultPassphraseDelivery(
+  passphrase: string,
+  platform: NodeJS.Platform = process.platform
+): VaultPassphraseDelivery {
+  if (platform === 'win32') {
+    return { mode: 'env', env: { WAYLAND_VAULT_PASSPHRASE: passphrase }, stdio: ['pipe', 'pipe', 'pipe'] };
+  }
+  return {
+    mode: 'fd',
+    env: { WAYLAND_VAULT_PASSPHRASE_FD: String(VAULT_PASSPHRASE_CHILD_FD) },
+    stdio: ['pipe', 'pipe', 'pipe', 'pipe'],
+    fdPayload: passphrase,
+  };
 }
