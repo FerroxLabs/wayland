@@ -95,9 +95,17 @@ describe('FileService classification (#655)', () => {
   });
 
   it('isLikelyTextFile excludes genuine binaries (images + office docs)', () => {
-    for (const name of ['logo.png', 'photo.jpeg', 'diagram.svg']) expect(isLikelyTextFile(name)).toBe(false);
+    for (const name of ['logo.png', 'photo.jpeg']) expect(isLikelyTextFile(name)).toBe(false);
     for (const name of ['report.docx', 'q3.xlsx', 'deck.pptx', 'invoice.pdf'])
       expect(isLikelyTextFile(name)).toBe(false);
+  });
+
+  it('isLikelyTextFile treats SVG as text-diffable despite isImageFile matching it', () => {
+    // 0.11.15 regression fix: SVG is XML text — the Workspace diff viewer must be
+    // able to expand and diff it, even though the attach path classifies it as an
+    // image (#655).
+    expect(isImageFile('diagram.svg')).toBe(true);
+    expect(isLikelyTextFile('diagram.svg')).toBe(true);
   });
 
   it('isSupportedFile stays accept-all (upload acceptance is NOT gated by type)', () => {
