@@ -76,6 +76,40 @@ describe('convertLatexDelimiters', () => {
     });
   });
 
+  describe('currency is not parsed as math', () => {
+    it('should escape a single dollar amount so it stays literal text', () => {
+      expect(convertLatexDelimiters('the $2k cohort')).toBe('the \\$2k cohort');
+    });
+
+    it('should escape multiple amounts so remark-math cannot pair them into a math span', () => {
+      // Regression: "$2k cohort and the $25-50k tier" was rendered as italic KaTeX
+      // with the spaces collapsed and the dollar signs eaten.
+      expect(convertLatexDelimiters('the $2k cohort and the $25-50k tier')).toBe(
+        'the \\$2k cohort and the \\$25-50k tier'
+      );
+    });
+
+    it('should handle suffixes and plus signs ($10k, $50k+, $5-10k)', () => {
+      expect(convertLatexDelimiters('$10k whales at $50k+ or $5-10k')).toBe('\\$10k whales at \\$50k+ or \\$5-10k');
+    });
+
+    it('should not double-escape already-escaped currency', () => {
+      expect(convertLatexDelimiters('costs \\$5 today')).toBe('costs \\$5 today');
+    });
+
+    it('should leave $$ display math starting with a digit intact', () => {
+      expect(convertLatexDelimiters('$$3x^2 + 1$$')).toBe('$$3x^2 + 1$$');
+    });
+
+    it('should still convert \\(...\\) inline math that starts with a digit', () => {
+      expect(convertLatexDelimiters('\\(3x + 1\\)')).toBe('$3x + 1$');
+    });
+
+    it('should not escape currency inside code', () => {
+      expect(convertLatexDelimiters('run `echo $5` now')).toBe('run `echo $5` now');
+    });
+  });
+
   describe('no math content', () => {
     it('should return plain text unchanged', () => {
       const input = 'Hello, this is just normal text.';
