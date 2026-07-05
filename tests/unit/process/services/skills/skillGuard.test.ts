@@ -156,3 +156,43 @@ describe('SkillGuard.scan - LLM layer (injectable)', () => {
     expect(fakeCall).toHaveBeenCalledOnce();
   });
 });
+
+describe('SkillGuard.scan - LLM per-call timeout (library sweep hang fix)', () => {
+  it('a stalled LLM call resolves as inconclusive (ran: false) after the budget instead of hanging', async () => {
+    vi.useFakeTimers();
+    try {
+      // A model call that never settles - the exact failure that used to hang
+      // a whole 1,900-skill sweep forever.
+      const stalled = vi.fn((): Promise<Array<{ findings: SkillFinding[] }>> => new Promise(() => {}));
+      const pending = SkillGuard.scan([skill()], { llm: true, llmCall: stalled, llmTimeoutMs: 5_000 });
+      await vi.advanceTimersByTimeAsync(5_000);
+      const [report] = await pending;
+      expect(stalled).toHaveBeenCalledOnce();
+      // Honest report: no model verdict exists, regex layer still applies.
+      expect(report.llmScanned).toBe(false);
+      expect(report.verdict).toBe('clean');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('a call that answers inside the budget keeps its findings and ran: true', async () => {
+    const llmFinding: SkillFinding = {
+      threat: 'instruction-override',
+      severity: 'medium',
+      message: 'LLM caught paraphrased override',
+      evidence: 'follow MY directions only',
+      layer: 'llm',
+    };
+    const fast = vi.fn(async (batch: SkillScanInput[]) => batch.map(() => ({ findings: [llmFinding] })));
+    const [report] = await SkillGuard.scan([skill()], { llm: true, llmCall: fast, llmTimeoutMs: 5_000 });
+    expect(report.llmScanned).toBe(true);
+    expect(report.verdict).toBe('review');
+  });
+
+  it('omitting llmTimeoutMs preserves the unbounded prior behavior', async () => {
+    const fast = vi.fn(async (batch: SkillScanInput[]) => batch.map(() => ({ findings: [] as SkillFinding[] })));
+    const [report] = await SkillGuard.scan([skill()], { llm: true, llmCall: fast });
+    expect(report.llmScanned).toBe(true);
+  });
+});

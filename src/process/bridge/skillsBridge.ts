@@ -20,6 +20,25 @@ import { loadTeamSkills } from '@process/extensions/data/bundle-vendored/teamSki
 import { loadCliSkills } from '@process/services/skills/CliSkillDiscovery';
 import { getDatabase } from '@process/services/database';
 
+/** Emit a scan-progress tick to the renderer every N swept skills. */
+const SCAN_PROGRESS_EVERY = 10;
+
+/**
+ * Run the batched library sweep, streaming progress to the renderer every
+ * {@link SCAN_PROGRESS_EVERY} skills plus a final `done === total` tick - so a
+ * 1,900-skill scan reads as "Scanning 640 / 1,900", not an indeterminate
+ * spinner.
+ */
+function runLibrarySweep(): Promise<{ rescanned: number }> {
+  return SkillLibrary.getInstance().rescanStale({
+    onProgress: ({ done, total, currentName }) => {
+      if (done % SCAN_PROGRESS_EVERY === 0 || done === total) {
+        ipcBridge.skills.scanProgress.emit({ done, total, currentName });
+      }
+    },
+  });
+}
+
 export function initSkillsBridge(): void {
   // Register the waylandteams bundle's 88 curated skills as the second
   // source on the Skills page (alongside the 1,965 vendored library
@@ -45,8 +64,8 @@ export function initSkillsBridge(): void {
   // Regex-only, scannerVersion-gated library sweep (C4). Both the legacy
   // rescanAll IPC and the manual "Scan library" action delegate to the same
   // batched SkillLibrary.rescanStale so there is one code path and one gate.
-  ipcBridge.skills.rescanAll.provider(async () => SkillLibrary.getInstance().rescanStale());
-  ipcBridge.skills.scanLibrary.provider(async () => SkillLibrary.getInstance().rescanStale());
+  ipcBridge.skills.rescanAll.provider(async () => runLibrarySweep());
+  ipcBridge.skills.scanLibrary.provider(async () => runLibrarySweep());
 
   const importer = new SkillImport();
 
@@ -299,10 +318,9 @@ export function initSkillsBridge(): void {
   // reads 0. Run the regex-only, scannerVersion-gated sweep once, fire-and-
   // forget so it never blocks boot; after a full sweep the gate makes it a
   // no-op on subsequent launches. Failures are swallowed - a scan miss must
-  // never crash startup.
-  void SkillLibrary.getInstance()
-    .rescanStale()
-    .catch((err) => {
-      console.warn('[skillsBridge] startup library sweep failed', err);
-    });
+  // never crash startup. Streams the same scan-progress ticks as the manual
+  // action so an open Skills page shows the boot sweep's progress too.
+  void runLibrarySweep().catch((err) => {
+    console.warn('[skillsBridge] startup library sweep failed', err);
+  });
 }

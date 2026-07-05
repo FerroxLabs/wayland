@@ -37,6 +37,10 @@ const SkillsSettings: React.FC = () => {
   const [buildModalVisible, setBuildModalVisible] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [scanningLibrary, setScanningLibrary] = useState(false);
+  // Live sweep progress ({done, total}) streamed from the main process so a
+  // long scan reads "Scanning 640 / 1,900" instead of an indeterminate
+  // spinner. Null when no sweep is running (or the last one finished).
+  const [scanProgress, setScanProgress] = useState<{ done: number; total: number } | null>(null);
 
   // CLI discovery flag (default off). Reads/writes via the skills bridge.
   // Flipping shows a restart-required hint - the discovery only fires once
@@ -70,6 +74,20 @@ const SkillsSettings: React.FC = () => {
   useEffect(() => {
     void fetchData();
     void ipcBridge.skills.getCliDiscoveryEnabled.invoke().then((v) => setCliDiscoveryEnabled(v));
+  }, [fetchData]);
+
+  // Library-sweep progress ticks (manual "Scan library", legacy rescanAll,
+  // or the app-start sweep). The final tick (done === total) clears the
+  // readout and refreshes the list so verdict counters reflect the sweep.
+  useEffect(() => {
+    return ipcBridge.skills.scanProgress.on(({ done, total }) => {
+      if (done >= total) {
+        setScanProgress(null);
+        void fetchData();
+      } else {
+        setScanProgress({ done, total });
+      }
+    });
   }, [fetchData]);
 
   // C4: manual "Scan library" re-run. The regex-only sweep also fires once on
@@ -219,10 +237,16 @@ const SkillsSettings: React.FC = () => {
         <Button
           type='secondary'
           icon={<RefreshCw size={14} />}
-          loading={scanningLibrary}
+          loading={scanningLibrary || scanProgress !== null}
           onClick={() => void handleScanLibrary()}
         >
-          {t('actions.scanLibrary', 'Scan library')}
+          {scanProgress
+            ? t('scanLibrary.progress', {
+                done: scanProgress.done.toLocaleString(),
+                total: scanProgress.total.toLocaleString(),
+                defaultValue: `Scanning ${scanProgress.done} / ${scanProgress.total}`,
+              })
+            : t('actions.scanLibrary', 'Scan library')}
         </Button>
         <Button type='secondary' icon={<Download size={14} />} onClick={() => setImportModalVisible(true)}>
           {t('actions.import', 'Import skills')}

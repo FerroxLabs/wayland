@@ -27,6 +27,30 @@ export type LlmScanCall = (batch: SkillScanInput[]) => Promise<Array<{ findings:
 export type LlmScanResult = { findings: SkillFinding[]; ran: boolean };
 
 /**
+ * Sentinel resolved by the timeout race so a stalled model call is
+ * distinguishable from a legitimate (possibly empty) result set.
+ */
+const LLM_SCAN_TIMED_OUT = Symbol('llm-scan-timed-out');
+
+const raceTimeout = async <T>(promise: Promise<T>, timeoutMs?: number): Promise<T | typeof LLM_SCAN_TIMED_OUT> => {
+  if (timeoutMs === undefined) return promise;
+  // A stalled call that eventually rejects AFTER the timeout has already won
+  // the race must not surface as an unhandled rejection.
+  void promise.catch(() => {});
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<typeof LLM_SCAN_TIMED_OUT>((resolve) => {
+        timer = setTimeout(() => resolve(LLM_SCAN_TIMED_OUT), timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+/**
  * Per-import-batch LLM deep-scan. Without an injected `call`, returns empty
  * findings with `ran: false` - Skill Guard is a warning system, not a
  * guarantee, and the absence of an LLM scan must be recorded in the report
@@ -38,11 +62,23 @@ export type LlmScanResult = { findings: SkillFinding[]; ran: boolean };
  * regex verdict rather than blocking on a model failure or, worse, silently
  * claiming a scan happened. A regex `blocked` still blocks regardless; the
  * fail-open only affects the LLM layer's contribution.
+ *
+ * `timeoutMs` bounds one `call(batch)` invocation the same way: a model call
+ * that never settles resolves as inconclusive (`ran: false`, no findings)
+ * after the budget, so one stalled request can't hang a whole library sweep.
+ * Omitted → unbounded, preserving prior behavior for interactive scans.
  */
-export const skillGuardLlmScan = async (batch: SkillScanInput[], call?: LlmScanCall): Promise<LlmScanResult[]> => {
+export const skillGuardLlmScan = async (
+  batch: SkillScanInput[],
+  call?: LlmScanCall,
+  timeoutMs?: number
+): Promise<LlmScanResult[]> => {
   if (call) {
     try {
-      const results = await call(batch);
+      const results = await raceTimeout(call(batch), timeoutMs);
+      if (results === LLM_SCAN_TIMED_OUT) {
+        return batch.map(() => ({ findings: [] as SkillFinding[], ran: false }));
+      }
       return batch.map((_, i) => ({
         findings: results[i]?.findings ?? [],
         ran: true,

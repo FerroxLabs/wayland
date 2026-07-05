@@ -25,14 +25,14 @@ import { skillContentHash } from './skillContentHash';
 export class SkillGuard {
   static async scan(
     skills: SkillScanInput[],
-    opts: { llm?: boolean; llmCall?: LlmScanCall } = {}
+    opts: { llm?: boolean; llmCall?: LlmScanCall; llmTimeoutMs?: number } = {}
   ): Promise<SkillSecurityReport[]> {
     // `llmScanned` on the report must reflect whether the LLM layer ACTUALLY
     // ran for each skill - not whether the caller merely requested it. If
     // `opts.llm` is true but no `llmCall` is wired, the seam returns
     // `ran: false` per skill and the report stays honest. (C2 fix.)
     const llmResults = opts.llm
-      ? await skillGuardLlmScan(skills, opts.llmCall)
+      ? await skillGuardLlmScan(skills, opts.llmCall, opts.llmTimeoutMs)
       : skills.map(() => ({ findings: [] as SkillFinding[], ran: false }));
 
     const scannedAt = Date.now();
