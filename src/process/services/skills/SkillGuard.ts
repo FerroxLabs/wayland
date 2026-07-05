@@ -27,6 +27,19 @@ export class SkillGuard {
     skills: SkillScanInput[],
     opts: { llm?: boolean; llmCall?: LlmScanCall } = {}
   ): Promise<SkillSecurityReport[]> {
+    // Imported frontmatter can carry `tags` as a bare string (e.g. YAML
+    // `tags: foo bar`) despite the declared type. Normalize once here so the
+    // regex rules can rely on an array (fixes "input.tags.join is not a
+    // function", #712).
+    skills = skills.map((s) => ({
+      ...s,
+      tags: Array.isArray(s.tags)
+        ? s.tags
+        : String((s.tags as unknown) ?? '')
+            .split(/\s+/)
+            .filter(Boolean),
+    }));
+
     // `llmScanned` on the report must reflect whether the LLM layer ACTUALLY
     // ran for each skill - not whether the caller merely requested it. If
     // `opts.llm` is true but no `llmCall` is wired, the seam returns

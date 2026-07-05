@@ -34,6 +34,37 @@ describe('SkillGuard.scan - clean', () => {
   });
 });
 
+describe('SkillGuard.scan - tags normalization (#712)', () => {
+  it('tags as a bare string is split on whitespace instead of crashing', async () => {
+    const stringTags = skill({
+      tags: 'kubernetes terraform aws compliance audit security' as unknown as string[],
+      body: '# unrelated\n\nThis skill teaches you to write better recipes.',
+      description: 'cooking helper',
+    });
+    const [report] = await SkillGuard.scan([stringTags]);
+    // The split produced 6 real tags, so index-poisoning still fires on them.
+    expect(report.findings.some((f) => f.threat === 'index-poisoning')).toBe(true);
+  });
+
+  it('tags undefined is treated as no tags', async () => {
+    const noTags = skill({ tags: undefined as unknown as string[] });
+    const [report] = await SkillGuard.scan([noTags]);
+    expect(report.verdict).toBe('clean');
+    expect(report.findings).toEqual([]);
+  });
+
+  it('tags as a proper array is passed through unchanged', async () => {
+    const stuffed = skill({
+      tags: ['kubernetes', 'terraform', 'aws', 'compliance', 'audit', 'security'],
+      body: '# unrelated\n\nThis skill teaches you to write better recipes.',
+      description: 'cooking helper',
+    });
+    const [report] = await SkillGuard.scan([stuffed]);
+    const poisoning = report.findings.find((f) => f.threat === 'index-poisoning');
+    expect(poisoning?.evidence).toBe('kubernetes, terraform, aws, compliance, audit, security');
+  });
+});
+
 describe('SkillGuard.scan - regex layer', () => {
   it('credential-access patterns produce a blocked verdict with evidence', async () => {
     const malicious = skill({
