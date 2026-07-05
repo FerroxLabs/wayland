@@ -31,7 +31,7 @@ vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: vi.fn(async () => null) },
 }));
 
-import { TeammateManager } from '@process/team/TeammateManager';
+import { TeammateManager, computeUsageDelta } from '@process/team/TeammateManager';
 import { teamEventBus } from '@process/team/teamEventBus';
 import type { TeamAgent } from '@process/team/types';
 import type { Mailbox } from '@process/team/Mailbox';
@@ -817,11 +817,15 @@ describe('TeammateManager', () => {
   });
 
   // -------------------------------------------------------------------------
-  // token_usage delta accounting (R1 N-count fix)
+  // token_usage snapshot-diff accounting (DESK-1, supersedes R1 N-count fix)
   // -------------------------------------------------------------------------
 
   describe('acp_context_usage token_usage delta', () => {
-    it('writes per-turn deltas of the cumulative gauge, not the raw cumulative value', () => {
+    type TokenRow = { eventType?: string; payload: Record<string, unknown> };
+    const tokenRowsOf = (append: ReturnType<typeof vi.fn>): TokenRow[] =>
+      append.mock.calls.map((c) => c[0] as TokenRow).filter((e) => e.eventType === 'token_usage');
+
+    it('writes the raw cumulative snapshot AND per-event tokens_delta on each row', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
@@ -837,24 +841,20 @@ describe('TeammateManager', () => {
         });
       }
 
-      const tokenRows = append.mock.calls
-        .map((c) => c[0])
-        .filter((e: { eventType?: string }) => e.eventType === 'token_usage');
-      // Three deltas: 100, 150, 150 (summing to 400 - the true running total),
-      // NOT the N-counted 100+250+400 = 750.
-      expect(tokenRows.map((r: { payload: { total_tokens: number } }) => r.payload.total_tokens)).toEqual([
-        100, 150, 150,
-      ]);
-      const summed = tokenRows.reduce(
-        (acc: number, r: { payload: { total_tokens: number } }) => acc + r.payload.total_tokens,
-        0
-      );
+      const tokenRows = tokenRowsOf(append);
+      // Raw snapshot fields stay cumulative (back-compat W1e shape) ...
+      expect(tokenRows.map((r) => r.payload.total_tokens)).toEqual([100, 250, 400]);
+      expect(tokenRows.map((r) => r.payload.prompt_tokens)).toEqual([100, 250, 400]);
+      // ... while the deltas are per-event spend: 100, 150, 150 - the ONLY
+      // fields the meter sums (total 400, NOT the N-counted 750).
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([100, 150, 150]);
+      const summed = tokenRows.reduce((acc, r) => acc + (r.payload.tokens_delta as number), 0);
       expect(summed).toBe(400);
 
       mgr.dispose();
     });
 
-    it('keeps per-conversation baselines independent and clamps a regressed gauge to 0', () => {
+    it('keeps per-conversation baselines independent and clamps a dropped gauge to a 0 delta', () => {
       const append = vi.fn().mockResolvedValue(undefined);
       const eventLogger = { append } as unknown;
       const agents = [
@@ -876,7 +876,7 @@ describe('TeammateManager', () => {
         msg_id: 'm',
         data: { used: 300 },
       });
-      // A regressed gauge on conv-1 (compaction/reset) clamps to a 0 delta and
+      // A dropped gauge on conv-1 (compaction/reset) clamps to a 0 delta and
       // therefore writes no row.
       teamEventBus.emit('responseStream', {
         type: 'acp_context_usage',
@@ -885,12 +885,104 @@ describe('TeammateManager', () => {
         data: { used: 200 },
       });
 
-      const tokenRows = append.mock.calls
-        .map((c) => c[0])
-        .filter((e: { eventType?: string }) => e.eventType === 'token_usage');
-      expect(tokenRows.map((r: { payload: { total_tokens: number } }) => r.payload.total_tokens)).toEqual([500, 300]);
+      const tokenRows = tokenRowsOf(append);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 300]);
 
       mgr.dispose();
+    });
+
+    it('counts growth after a compaction drop from the new lower baseline', () => {
+      const append = vi.fn().mockResolvedValue(undefined);
+      const eventLogger = { append } as unknown;
+      const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
+      const { mgr } = makeTeammateManager([agent], { eventLogger });
+
+      // 500 -> compaction drop to 200 (delta 0, no row) -> grow to 350.
+      // The post-drop growth (150) is real new spend and must be counted - a
+      // high-water baseline would wrongly swallow it until 500 was passed.
+      for (const used of [500, 200, 350]) {
+        teamEventBus.emit('responseStream', {
+          type: 'acp_context_usage',
+          conversation_id: 'conv-1',
+          msg_id: 'm',
+          data: { used },
+        });
+      }
+
+      const tokenRows = tokenRowsOf(append);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 150]);
+
+      mgr.dispose();
+    });
+
+    it('resets the baseline when the agent process is killed so a fresh session counts fully', () => {
+      const append = vi.fn().mockResolvedValue(undefined);
+      const eventLogger = { append } as unknown;
+      const agent = makeAgent({ slotId: 'slot-1', conversationId: 'conv-1' });
+      const { mgr } = makeTeammateManager([agent], { eventLogger });
+
+      teamEventBus.emit('responseStream', {
+        type: 'acp_context_usage',
+        conversation_id: 'conv-1',
+        msg_id: 'm',
+        data: { used: 500 },
+      });
+
+      // Session restart reuses the conversationId; without the reset the new
+      // session's first snapshot (300) would be misread as a drop (delta 0).
+      mgr.killAgentProcess('slot-1');
+
+      teamEventBus.emit('responseStream', {
+        type: 'acp_context_usage',
+        conversation_id: 'conv-1',
+        msg_id: 'm',
+        data: { used: 300 },
+      });
+
+      const tokenRows = tokenRowsOf(append);
+      expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([500, 300]);
+
+      mgr.dispose();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // computeUsageDelta - pure snapshot-diff semantics (DESK-1)
+  // -------------------------------------------------------------------------
+
+  describe('computeUsageDelta', () => {
+    it('counts the full snapshot when there is no previous snapshot (fresh session)', () => {
+      expect(computeUsageDelta(undefined, { used: 1234, cost: 0.5 })).toEqual({
+        tokensDelta: 1234,
+        costDelta: 0.5,
+      });
+    });
+
+    it('returns the growth when the gauge grew', () => {
+      const delta = computeUsageDelta({ used: 100, cost: 0.1 }, { used: 250, cost: 0.35 });
+      expect(delta.tokensDelta).toBe(150);
+      expect(delta.costDelta).toBeCloseTo(0.25, 10);
+    });
+
+    it('clamps to 0 when the gauge dropped (compaction/reset)', () => {
+      expect(computeUsageDelta({ used: 500, cost: 0.5 }, { used: 200, cost: 0.1 })).toEqual({
+        tokensDelta: 0,
+        costDelta: 0,
+      });
+    });
+
+    it('clamps tokens and cost independently', () => {
+      // Tokens dropped (compaction) while cumulative cost kept growing.
+      const delta = computeUsageDelta({ used: 500, cost: 0.5 }, { used: 200, cost: 0.6 });
+      expect(delta.tokensDelta).toBe(0);
+      expect(delta.costDelta).toBeCloseTo(0.1, 10);
+    });
+
+    it('returns 0 deltas for an unchanged gauge', () => {
+      expect(computeUsageDelta({ used: 500, cost: 0.5 }, { used: 500, cost: 0.5 })).toEqual({
+        tokensDelta: 0,
+        costDelta: 0,
+      });
     });
   });
 
