@@ -14,17 +14,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertTriangle,
-  ArrowRight,
-  ClipboardList,
-  Coins,
-  Inbox,
-  Power,
-  Sparkles,
-  UserPlus,
-  Wand2,
-} from 'lucide-react';
+import { AlertTriangle, ArrowRight, ClipboardList, Coins, Inbox, Power, Sparkles, UserPlus, Wand2 } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import type { TeamEvent, TeamEventType } from '@process/team/types';
 

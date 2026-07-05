@@ -228,9 +228,12 @@ describe('useTeamCostMeter', () => {
   it('resets totals + cursor when teamId changes', async () => {
     listEventsInvoke.mockResolvedValue([makeTokenEvent({ payload: { tokens_delta: 1000, cost_delta: 0.5 } })]);
 
-    const { result, rerender } = renderHook(({ id }: { id: string }) => useTeamCostMeter(id, { pollIntervalMs: 10_000 }), {
-      initialProps: { id: 'team-A' },
-    });
+    const { result, rerender } = renderHook(
+      ({ id }: { id: string }) => useTeamCostMeter(id, { pollIntervalMs: 10_000 }),
+      {
+        initialProps: { id: 'team-A' },
+      }
+    );
 
     await waitFor(() => {
       expect(result.current.totalTokens).toBe(1000);
