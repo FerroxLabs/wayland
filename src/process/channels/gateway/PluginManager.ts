@@ -119,6 +119,18 @@ export class PluginManager {
 
     // Check if plugin is already running
     if (this.plugins.has(id)) {
+      // enablePlugin rewrites the DB status to 'created' before calling us (a
+      // re-save of an already-registered channel). Without correcting it back
+      // here the persisted status stays 'created', and the Settings card - which
+      // reads the DB status - shows "Not connected" for a live channel (#548
+      // part a). Persist the plugin's ACTUAL live status (not a hardcoded
+      // 'running'): a channel that transitioned to 'error' at runtime (e.g.
+      // WhatsApp logged-out, needs re-pair) is still in this.plugins, and
+      // force-writing 'running' would falsely light its card green.
+      const plugin = this.plugins.get(id)!;
+      const db = await getDatabase();
+      db.updateChannelPluginStatus(id, plugin.status, plugin.status === 'running' ? Date.now() : undefined);
+      void this.emitStatusChange(id, plugin);
       return;
     }
 
@@ -286,11 +298,7 @@ export class PluginManager {
       qrCode: plugin?.getQrCode() ?? undefined,
       connectionState: plugin?.getConnectionState() ?? undefined,
       whatsappMode:
-        config.type === 'whatsapp'
-          ? config.credentials?.mode === 'dedicated'
-            ? 'dedicated'
-            : 'personal'
-          : undefined,
+        config.type === 'whatsapp' ? (config.credentials?.mode === 'dedicated' ? 'dedicated' : 'personal') : undefined,
     };
   }
 

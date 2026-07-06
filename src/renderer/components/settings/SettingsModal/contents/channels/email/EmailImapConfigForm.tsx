@@ -9,7 +9,7 @@ import ChannelAgentModelSelector from '@/renderer/components/settings/shared/for
 import type { GeminiModelSelection } from '@/renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
 import { channel } from '@/common/adapter/ipcBridge';
 import { Alert, Button, Input, InputNumber, Message, Switch } from '@arco-design/web-react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { detectEmailProvider, type EmailProviderPreset } from '@/common/channels/emailProviderPresets';
 import { useTranslation } from 'react-i18next';
 
@@ -82,6 +82,44 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
   const [detectedProvider, setDetectedProvider] = useState<EmailProviderPreset | null>(null);
   const appliedHostRef = useRef<string | null>(null);
 
+  // Whether the saved channel already has an app password stored. The secret is
+  // never sent to the renderer (#548) - we only learn it EXISTS, show a
+  // "leave blank to keep" hint, and let the backend reuse it on re-test/re-save.
+  const [hasSavedImapPassword, setHasSavedImapPassword] = useState(false);
+  const [hasSavedSmtpPassword, setHasSavedSmtpPassword] = useState(false);
+
+  // Rehydrate the form from the saved config on open (#548). The form used to
+  // always mount blank, so a configured inbox looked unconfigured and users
+  // re-entered everything. We restore every non-secret field; the saved host is
+  // left as a hand-edited value (appliedHostRef stays null) so provider
+  // auto-detect never clobbers a user's custom host on reopen.
+  useEffect(() => {
+    let mounted = true;
+    void channel.getPluginConfig
+      .invoke({ pluginId: 'email-imap' })
+      .then((res) => {
+        if (!mounted || !res.success || !res.data) return;
+        const c = res.data.config;
+        if (typeof c.imapHost === 'string') setImapHost(c.imapHost);
+        if (typeof c.imapPort === 'number') setImapPort(c.imapPort);
+        if (typeof c.imapUser === 'string') setImapUser(c.imapUser);
+        if (typeof c.imapTls === 'boolean') setImapTls(c.imapTls);
+        if (typeof c.useSameAuth === 'boolean') setUseSameAuth(c.useSameAuth);
+        if (typeof c.smtpHost === 'string') setSmtpHost(c.smtpHost);
+        if (typeof c.smtpPort === 'number') setSmtpPort(c.smtpPort);
+        if (typeof c.smtpTls === 'boolean') setSmtpTls(c.smtpTls);
+        if (typeof c.smtpUser === 'string') setSmtpUser(c.smtpUser);
+        setHasSavedImapPassword(res.data.secretPresence.imapPassword === true);
+        setHasSavedSmtpPassword(res.data.secretPresence.smtpPassword === true);
+      })
+      .catch(() => {
+        /* best-effort rehydrate; a blank form is the pre-existing fallback */
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const handleImapUserChange = (value: string): void => {
     setImapUser(value);
     const preset = detectEmailProvider(value);
@@ -100,59 +138,49 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
 
   const handleTestAndEnable = useCallback(async () => {
     if (!imapHost.trim()) {
-      Message.error(
-        t('settings.channels.emailImap.credentials.imapHost.required', 'IMAP host is required')
-      );
+      Message.error(t('settings.channels.emailImap.credentials.imapHost.required', 'IMAP host is required'));
       return;
     }
     if (!imapUser.trim()) {
-      Message.error(
-        t('settings.channels.emailImap.credentials.imapUser.required', 'IMAP user is required')
-      );
+      Message.error(t('settings.channels.emailImap.credentials.imapUser.required', 'IMAP user is required'));
       return;
     }
-    if (!imapPassword) {
-      Message.error(
-        t(
-          'settings.channels.emailImap.credentials.imapPassword.required',
-          'IMAP password is required'
-        )
-      );
+    // A blank password is allowed when one is already saved - the backend
+    // reuses the stored secret on both test and enable (#548). Only require it
+    // for a first-time setup (nothing saved yet).
+    if (!imapPassword && !hasSavedImapPassword) {
+      Message.error(t('settings.channels.emailImap.credentials.imapPassword.required', 'IMAP password is required'));
       return;
     }
     if (!useSameAuth) {
       if (!smtpUser.trim()) {
-        Message.error(
-          t('settings.channels.emailImap.credentials.smtpUser.required', 'SMTP user is required')
-        );
+        Message.error(t('settings.channels.emailImap.credentials.smtpUser.required', 'SMTP user is required'));
         return;
       }
-      if (!smtpPassword) {
-        Message.error(
-          t(
-            'settings.channels.emailImap.credentials.smtpPassword.required',
-            'SMTP password is required'
-          )
-        );
+      if (!smtpPassword && !hasSavedSmtpPassword) {
+        Message.error(t('settings.channels.emailImap.credentials.smtpPassword.required', 'SMTP password is required'));
         return;
       }
     }
 
+    // Omit blank password fields entirely (rather than sending '') so the
+    // backend's "keep the stored secret" fallback engages - sending an empty
+    // string would overwrite the saved app password.
     const credentials = {
       imapHost: imapHost.trim(),
       imapPort,
       imapUser: imapUser.trim(),
-      imapPassword: stripAppPassword(imapPassword),
       imapTls,
       useSameAuth,
       smtpHost: smtpHost.trim() || imapHost.trim(),
       smtpPort,
       smtpTls,
+      ...(imapPassword ? { imapPassword: stripAppPassword(imapPassword) } : {}),
       ...(useSameAuth
         ? {}
         : {
             smtpUser: smtpUser.trim(),
-            smtpPassword: stripAppPassword(smtpPassword),
+            ...(smtpPassword ? { smtpPassword: stripAppPassword(smtpPassword) } : {}),
           }),
     };
 
@@ -184,10 +212,7 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
       if (enableResult.success) {
         Message.success(t('settings.channels.emailImap.pluginEnabled', 'Email (IMAP) enabled'));
       } else {
-        Message.error(
-          enableResult.msg ??
-            t('settings.channels.emailImap.enableFailed', 'Failed to enable plugin')
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.emailImap.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error: unknown) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -206,6 +231,8 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
     smtpUser,
     smtpPassword,
     smtpTls,
+    hasSavedImapPassword,
+    hasSavedSmtpPassword,
     t,
   ]);
 
@@ -234,20 +261,14 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
         <Input
           value={imapHost}
           onChange={(value) => setImapHost(value)}
-          placeholder={t(
-            'settings.channels.emailImap.credentials.imapHost.placeholder',
-            'imap.gmail.com'
-          )}
+          placeholder={t('settings.channels.emailImap.credentials.imapHost.placeholder', 'imap.gmail.com')}
           style={{ width: 280 }}
         />
       </PreferenceRow>
 
       <PreferenceRow
         label={t('settings.channels.emailImap.credentials.imapPort.label', 'IMAP Port')}
-        description={t(
-          'settings.channels.emailImap.credentials.imapPort.help',
-          'Default 993 for IMAPS.'
-        )}
+        description={t('settings.channels.emailImap.credentials.imapPort.help', 'Default 993 for IMAPS.')}
         required
       >
         <InputNumber
@@ -261,20 +282,14 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
 
       <PreferenceRow
         label={t('settings.channels.emailImap.credentials.imapUser.label', 'IMAP User')}
-        description={t(
-          'settings.channels.emailImap.credentials.imapUser.help',
-          'Usually your full email address.'
-        )}
+        description={t('settings.channels.emailImap.credentials.imapUser.help', 'Usually your full email address.')}
         required
       >
         <div style={{ position: 'relative', width: 280 }}>
           <Input
             value={imapUser}
             onChange={handleImapUserChange}
-            placeholder={t(
-              'settings.channels.emailImap.credentials.imapUser.placeholder',
-              'agent@example.com'
-            )}
+            placeholder={t('settings.channels.emailImap.credentials.imapUser.placeholder', 'agent@example.com')}
             style={{ width: 280 }}
           />
           {detectedProvider && (
@@ -305,6 +320,14 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
         <Input.Password
           value={imapPassword}
           onChange={(value) => setImapPassword(stripAppPassword(value))}
+          placeholder={
+            hasSavedImapPassword
+              ? t(
+                  'settings.channels.emailImap.credentials.imapPassword.savedPlaceholder',
+                  'Saved - leave blank to keep'
+                )
+              : undefined
+          }
           visibilityToggle
           style={{ width: 280 }}
         />
@@ -312,10 +335,7 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
 
       <PreferenceRow
         label={t('settings.channels.emailImap.credentials.imapTls.label', 'IMAP TLS')}
-        description={t(
-          'settings.channels.emailImap.credentials.imapTls.help',
-          'Use TLS (recommended).'
-        )}
+        description={t('settings.channels.emailImap.credentials.imapTls.help', 'Use TLS (recommended).')}
       >
         <Switch checked={imapTls} onChange={(value) => setImapTls(value)} />
       </PreferenceRow>
@@ -336,18 +356,12 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
 
       <PreferenceRow
         label={t('settings.channels.emailImap.credentials.smtpHost.label', 'SMTP Host')}
-        description={t(
-          'settings.channels.emailImap.credentials.smtpHost.help',
-          'Leave blank to reuse the IMAP host.'
-        )}
+        description={t('settings.channels.emailImap.credentials.smtpHost.help', 'Leave blank to reuse the IMAP host.')}
       >
         <Input
           value={smtpHost}
           onChange={(value) => setSmtpHost(value)}
-          placeholder={t(
-            'settings.channels.emailImap.credentials.smtpHost.placeholder',
-            'smtp.gmail.com'
-          )}
+          placeholder={t('settings.channels.emailImap.credentials.smtpHost.placeholder', 'smtp.gmail.com')}
           style={{ width: 280 }}
         />
       </PreferenceRow>
@@ -370,15 +384,8 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
 
       {!useSameAuth && (
         <>
-          <PreferenceRow
-            label={t('settings.channels.emailImap.credentials.smtpUser.label', 'SMTP User')}
-            required
-          >
-            <Input
-              value={smtpUser}
-              onChange={(value) => setSmtpUser(value)}
-              style={{ width: 280 }}
-            />
+          <PreferenceRow label={t('settings.channels.emailImap.credentials.smtpUser.label', 'SMTP User')} required>
+            <Input value={smtpUser} onChange={(value) => setSmtpUser(value)} style={{ width: 280 }} />
           </PreferenceRow>
 
           <PreferenceRow
@@ -388,6 +395,14 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
             <Input.Password
               value={smtpPassword}
               onChange={(value) => setSmtpPassword(stripAppPassword(value))}
+              placeholder={
+                hasSavedSmtpPassword
+                  ? t(
+                      'settings.channels.emailImap.credentials.smtpPassword.savedPlaceholder',
+                      'Saved - leave blank to keep'
+                    )
+                  : undefined
+              }
               visibilityToggle
               style={{ width: 280 }}
             />
@@ -414,12 +429,11 @@ const EmailImapConfigForm: React.FC<EmailImapConfigFormProps> = ({
         <span className='text-12px text-t-tertiary'>
           {t(
             'settings.channels.emailImap.howToTalk',
-            'Check your own inbox. Wayland just emailed you; reply to that email any time.',
+            'Check your own inbox. Wayland just emailed you; reply to that email any time.'
           )}
         </span>
       )}
       <ChannelAgentModelSelector platform='email-imap' modelSelection={modelSelection} />
-
     </div>
   );
 };

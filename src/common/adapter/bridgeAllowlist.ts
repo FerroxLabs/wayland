@@ -270,6 +270,12 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     allowed. ---
   'channel.enable-plugin',
   'channel.disable-plugin',
+  // Discloses a channel's saved connection details (IMAP/SMTP hosts + the
+  // account address). Same disclosure threat class as the config mutators
+  // above, so a paired WebUI must not read it back. Secrets are already reduced
+  // to presence flags in the handler, but the non-secret host/address fields
+  // still warrant deny for remote callers.
+  'channel.get-plugin-config',
   'channel.rotate-webhook-token',
   'channel.sync-channel-settings',
   'channel.revoke-user',

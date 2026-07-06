@@ -1731,6 +1731,7 @@ export const extensions = {
 
 import type {
   IChannelPairingRequest,
+  IChannelPluginConfigView,
   IChannelPluginStatus,
   IChannelSession,
   IChannelUser,
@@ -1739,6 +1740,13 @@ import type {
 export const channel = {
   // Plugin Management
   getPluginStatus: buildProvider<IBridgeResponse<IChannelPluginStatus[]>, void>('channel.get-plugin-status'),
+  // Read back a plugin's SAVED non-secret config so the Settings form can
+  // rehydrate on reopen (fixes #548: form was always blank). Secrets are never
+  // returned - only presence flags in `secretPresence`. Remote-denied (see
+  // bridgeAllowlist) because it discloses saved connection details.
+  getPluginConfig: buildProvider<IBridgeResponse<IChannelPluginConfigView | null>, { pluginId: string }>(
+    'channel.get-plugin-config'
+  ),
   enablePlugin: buildProvider<IBridgeResponse, { pluginId: string; config: Record<string, unknown> }>(
     'channel.enable-plugin'
   ),

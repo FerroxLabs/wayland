@@ -3,11 +3,13 @@ ijfw_version: 1.3.2
 ijfw_schema: 1
 type: software
 primary_type: software
-secondary_types:
-  - content
-confidence: 0.9
-detected_at: 2026-06-29T03:21:46.668Z
+secondary_types: []
+confidence: 0.941
+detected_at: 2026-07-03T02:40:03.283Z
 signals:
+  - kind: agents_md_frontmatter
+    weight: 0.9
+    value: software
   - kind: manifest
     weight: 0.9
     manifests: [Makefile, package.json, package.json]
@@ -38,12 +40,12 @@ signals:
   - kind: file_extension_ratio
     weight: 0.7
     domain: software
-    ratio: 0.888
-    count: 3095
+    ratio: 0.891
+    count: 3169
   - kind: file_extension_ratio
     weight: 0.7
     domain: design
-    ratio: 0.098
+    ratio: 0.096
     count: 343
   - kind: filename_pattern
     weight: 0.2
@@ -61,8 +63,27 @@ signals:
     weight: 0.2
     domain: content
     name: seo-content-engine.md
+  - kind: filename_pattern
+    weight: 0.2
+    domain: content
+    name: post-applypatch
+  - kind: filename_pattern
+    weight: 0.2
+    domain: content
+    name: post-checkout
+  - kind: filename_pattern
+    weight: 0.2
+    domain: content
+    name: post-commit
+  - kind: filename_pattern
+    weight: 0.2
+    domain: content
+    name: post-merge
+  - kind: filename_pattern
+    weight: 0.2
+    domain: content
+    name: post-rewrite
 ---
-
 ## Coordination (READ EVERY TASK — multi-agent blackboard)
 
 You are the **desktop** lane (area label **area:desktop-ui**). Coordination state lives on GitHub
@@ -295,13 +316,9 @@ All user-facing text must use i18n keys - never hardcode strings. Languages and 
 See the `i18n` skill (`.claude/skills/i18n/SKILL.md`) for complete workflow, key naming, and validation steps.
 
 <!-- IJFW-MEMORY-START -->
-
 Project memory at .ijfw/memory/. Call `ijfw_memory_prelude` for full context.
-
 <!-- IJFW-MEMORY-END -->
 
 <!-- IJFW-AGENTS-START -->
-
 No project agents yet. Run `ijfw team` to set them up.
-
 <!-- IJFW-AGENTS-END -->
