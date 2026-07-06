@@ -1,5 +1,5 @@
 import type { ProviderModel, Capability, ProviderId } from '../types';
-import { CAPABILITY_RULES } from './modelCapabilityRules';
+import { CAPABILITY_RULES, looksLikeEmbeddingModelId } from './modelCapabilityRules';
 
 /**
  * Detects capabilities for a model.
@@ -23,6 +23,8 @@ export class ModelCapabilityDetector {
 }
 
 function detectFromRules(modelId: string, provider: ProviderId): Capability[] {
+  if (looksLikeEmbeddingModelId(modelId)) return ['embeddings'];
+
   const rules = CAPABILITY_RULES[provider];
   if (!rules || rules.length === 0) return ['chat'];
 
