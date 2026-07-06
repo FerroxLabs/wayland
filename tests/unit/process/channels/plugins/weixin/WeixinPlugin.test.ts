@@ -59,8 +59,8 @@ describe('WeixinPlugin.getBotInfo', () => {
 
 describe('MENU_ACTIONS', () => {
   it('exposes the full menu action surface with the expected shape', () => {
-    expect(Object.keys(MENU_ACTIONS).sort()).toEqual(
-      ['agent.show', 'help.show', 'pairing.check', 'session.new', 'session.status'].sort(),
+    expect(Object.keys(MENU_ACTIONS).toSorted()).toEqual(
+      ['agent.show', 'help.show', 'pairing.check', 'session.new', 'session.status'].toSorted(),
     );
     expect(MENU_ACTIONS['session.new']).toEqual({ type: 'system', action: 'session.new' });
     expect(MENU_ACTIONS['pairing.check']).toEqual({ type: 'platform', action: 'pairing.check' });

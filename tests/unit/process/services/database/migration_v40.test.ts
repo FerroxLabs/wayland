@@ -25,7 +25,7 @@ describeNativeSqlite('Migration v40 - usage_events table', () => {
 
   it('creates the usage_events table with all required columns', () => {
     const cols = driver.pragma('table_info(usage_events)') as Array<{ name: string }>;
-    const colNames = cols.map((c) => c.name).sort();
+    const colNames = cols.map((c) => c.name).toSorted();
     expect(colNames).toEqual([
       'anchor_id',
       'assistant_id',

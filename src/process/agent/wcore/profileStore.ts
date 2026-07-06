@@ -127,10 +127,10 @@ export async function listProfiles(): Promise<IWcoreProfile[]> {
   const names = new Set<string>([DEFAULT_PROFILE, ...entries]);
   const ordered = Array.from(names)
     .filter((n) => PROFILE_NAME_RE.test(n))
-    .sort((a, b) => (a === DEFAULT_PROFILE ? -1 : b === DEFAULT_PROFILE ? 1 : a.localeCompare(b)));
+    .toSorted((a, b) => (a === DEFAULT_PROFILE ? -1 : b === DEFAULT_PROFILE ? 1 : a.localeCompare(b)));
   // Read each profile's stats from its own config tree (best-effort, parallel).
   return Promise.all(
-    ordered.map(async (name) => ({ name, active: name === active, ...(await readProfileStats(name)) }))
+    ordered.map(async (name) => (Object.assign({name,active:name===active}, await readProfileStats(name))))
   );
 }
 

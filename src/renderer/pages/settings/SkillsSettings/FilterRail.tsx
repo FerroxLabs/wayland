@@ -65,7 +65,7 @@ const FilterRail: React.FC<Props> = ({
       }
     }
     const categories = Array.from(categoriesMap.entries())
-      .sort((a, b) => b[1] - a[1])
+      .toSorted((a, b) => b[1] - a[1])
       .map(([cat, count]) => ({ cat, count }));
     return { sources, verdicts, categories };
   }, [entries]);

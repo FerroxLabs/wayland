@@ -550,7 +550,7 @@ export class WhatsAppPlugin extends BasePlugin {
       try {
         addresses = await dns.lookup(host, { all: true });
       } catch (err) {
-        throw new Error(`WhatsApp media send: DNS lookup failed for ${host}: ${(err as Error).message}`);
+        throw new Error(`WhatsApp media send: DNS lookup failed for ${host}: ${(err as Error).message}`, { cause: err });
       }
     }
     for (const { address, family } of addresses) {

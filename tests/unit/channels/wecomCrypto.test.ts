@@ -30,7 +30,7 @@ describe('WecomCrypto', () => {
       const expected = sig; // bake the current value as the contract
       // Recompute via an independent code path (sort first, then concat) to
       // confirm the same algorithm:
-      const ordered = ['QDG6eK', '1409659589', '263014780', 'abc123'].slice().sort();
+      const ordered = ['QDG6eK', '1409659589', '263014780', 'abc123'].slice().toSorted();
       // The sorted order under JS default string comparison:
       //   '1409659589' < '263014780' < 'QDG6eK' < 'abc123'   (digits < uppercase < lowercase)
       expect(ordered).toEqual(['1409659589', '263014780', 'QDG6eK', 'abc123']);

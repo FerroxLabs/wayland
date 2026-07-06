@@ -32,7 +32,7 @@ describe('Migration v41 - workflow_sessions table (bun:sqlite)', () => {
 
   it('creates the workflow_sessions table with all required columns', () => {
     const cols = driver.pragma('table_info(workflow_sessions)') as Array<{ name: string }>;
-    const colNames = cols.map((c) => c.name).sort();
+    const colNames = cols.map((c) => c.name).toSorted();
     expect(colNames).toEqual([
       'asks_json',
       'category',

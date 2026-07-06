@@ -70,7 +70,7 @@ describeNativeSqlite('SqliteUsageEventRepository', () => {
 
     expect(removed).toBe(2);
     const remaining = await repo.findSince(0);
-    expect(remaining.map((e) => e.id).sort()).toEqual(['keep1', 'keep2']);
+    expect(remaining.map((e) => e.id).toSorted()).toEqual(['keep1', 'keep2']);
   });
 
   it('prune returns 0 when no events are old enough', async () => {

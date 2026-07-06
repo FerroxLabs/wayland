@@ -140,7 +140,7 @@ describe('ijfw/preludeManager', () => {
       fs.writeFileSync(path.join(dir, 'AGENTS.md'), 'no');
       const targets = await discoverTargets([dir]);
       expect(targets).toHaveLength(1);
-      expect(targets[0].files.sort()).toEqual(['CLAUDE.md', 'GEMINI.md']);
+      expect(targets[0].files.toSorted()).toEqual(['CLAUDE.md', 'GEMINI.md']);
     });
 
     it('returns an empty array when no project has marker files', async () => {

@@ -117,7 +117,7 @@ describe('withAgentLock', () => {
 
     await new Promise((r) => setTimeout(r, 5));
     // Both started before either resolved.
-    expect(started.sort()).toEqual(['a', 'b']);
+    expect(started.toSorted()).toEqual(['a', 'b']);
 
     releaseA();
     releaseB();

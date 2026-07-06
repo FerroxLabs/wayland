@@ -49,7 +49,7 @@ async function getCurrentProjectPath(): Promise<string> {
   const svc = getIjfwArchiveService();
   const projects = await svc.getProjects();
   if (projects.length > 0) {
-    const sorted = [...projects].sort((a, b) => b.lastActive - a.lastActive);
+    const sorted = [...projects].toSorted((a, b) => b.lastActive - a.lastActive);
     return sorted[0].path;
   }
   return process.cwd();
@@ -148,14 +148,14 @@ export function initWikiBridge(): void {
       }
 
       if (filter.sort === 'alphabetical') {
-        concepts = [...concepts].sort((a, b) => a.name.localeCompare(b.name));
+        concepts = [...concepts].toSorted((a, b) => a.name.localeCompare(b.name));
       } else if (filter.sort === 'most-referenced') {
-        concepts = [...concepts].sort(
+        concepts = [...concepts].toSorted(
           (a, b) => b.linkedFromConcepts.length - a.linkedFromConcepts.length,
         );
       } else {
         // Default: recent
-        concepts = [...concepts].sort((a, b) => b.lastSynthesizedAt - a.lastSynthesizedAt);
+        concepts = [...concepts].toSorted((a, b) => b.lastSynthesizedAt - a.lastSynthesizedAt);
       }
 
       return { concepts, total: concepts.length };

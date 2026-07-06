@@ -143,7 +143,7 @@ function loadOrCreateSecret(): Buffer {
       // Lost the race - read the secret the winner just wrote.
       const winner = readFileSync(keyFile);
       if (winner.length === SECRET_LEN) return winner;
-      throw new Error('[secrets/fileKeyStore] Concurrent secret-key creation produced a corrupt file.');
+      throw new Error('[secrets/fileKeyStore] Concurrent secret-key creation produced a corrupt file.', { cause: err });
     }
     throw err;
   } finally {

@@ -77,7 +77,7 @@ describe('loadTeamSkills', () => {
     const teamEntries = (await lib.list({ source: 'team' })).filter((e) => e.type === 'skill');
 
     expect(teamEntries).toHaveLength(2);
-    expect(teamEntries.map((e) => e.name).sort()).toEqual([
+    expect(teamEntries.map((e) => e.name).toSorted()).toEqual([
       'beacon-channel-strategy',
       'research-jtbd-interviews',
     ]);

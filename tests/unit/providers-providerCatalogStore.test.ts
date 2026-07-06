@@ -57,7 +57,7 @@ describe('loadBaselineProviderCatalog', () => {
   it('returns entries sorted by displayName', () => {
     const baseline = loadBaselineProviderCatalog();
     const names = baseline.map((e) => e.displayName);
-    const sorted = [...names].sort((a, b) => a.localeCompare(b));
+    const sorted = [...names].toSorted((a, b) => a.localeCompare(b));
     expect(names).toEqual(sorted);
   });
 });
@@ -167,7 +167,7 @@ describe('ProviderCatalogStore.getCatalog', () => {
     });
     await store.refresh();
     const names = store.getCatalog().map((e) => e.displayName);
-    const sorted = [...names].sort((a, b) => a.localeCompare(b));
+    const sorted = [...names].toSorted((a, b) => a.localeCompare(b));
     expect(names).toEqual(sorted);
   });
 });

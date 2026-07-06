@@ -81,7 +81,7 @@ function parseConfig(raw: string, configPath: string): JsonObject {
     parsed = JSON.parse(raw);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    throw new Error(`opencode config at ${configPath} is not valid JSON: ${message}`);
+    throw new Error(`opencode config at ${configPath} is not valid JSON: ${message}`, { cause: err });
   }
   if (!isObject(parsed)) {
     throw new Error(`opencode config at ${configPath} root must be a JSON object`);

@@ -177,7 +177,7 @@ describe('LarkPlugin.enqueuePatch (HIGH #5: rate-limit / throttle queue)', () =>
     // not 30ms + 30ms (sequential).
     const elapsed = Date.now() - startedAt;
     expect(elapsed).toBeLessThan(LARK_PATCH_MIN_INTERVAL_MS + 200);
-    expect(completed.sort()).toEqual(['a', 'b']);
+    expect(completed.toSorted()).toEqual(['a', 'b']);
   });
 });
 

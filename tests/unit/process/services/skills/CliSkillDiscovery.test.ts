@@ -85,7 +85,7 @@ describe('loadCliSkills', () => {
     expect(entries).toHaveLength(2);
     expect(entries.every((e) => e.sourceLabel === 'Claude Code')).toBe(true);
     expect(entries.every((e) => e.type === 'skill')).toBe(true);
-    expect(entries.map((e) => e.name).sort()).toEqual(['gsd-audit-milestone', 'gsd-execute-phase']);
+    expect(entries.map((e) => e.name).toSorted()).toEqual(['gsd-audit-milestone', 'gsd-execute-phase']);
   });
 
   it('skips roots that do not exist on disk (CLI not installed)', async () => {

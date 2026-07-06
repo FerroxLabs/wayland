@@ -121,7 +121,7 @@ export class EmailImapConnection {
       await client.connect();
       await client.mailboxOpen('INBOX');
     } catch (err) {
-      throw new Error(describeImapError(err));
+      throw new Error(describeImapError(err), { cause: err });
     }
 
     this.reconnectBackoffMs = RECONNECT_BACKOFF_START_MS;
