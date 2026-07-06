@@ -5,6 +5,7 @@
  */
 
 import type { CodexToolCallUpdate } from '@/common/chat/chatLib';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { Tag } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,12 +21,12 @@ const ExecCommandDisplay: React.FC<{ content: ExecCommandUpdate }> = ({ content 
   const { t } = useTranslation();
 
   const getDisplayTitle = () => {
-    if (title) return title;
+    if (title) return redactCommandSecrets(title);
 
     switch (subtype) {
       case 'exec_command_begin':
         if (data.command && Array.isArray(data.command) && data.command.length > 0) {
-          return t('tools.titles.execute_command', { command: data.command.join(' ') });
+          return t('tools.titles.execute_command', { command: redactCommandSecrets(data.command.join(' ')) });
         }
         return 'Execute Command';
       case 'exec_command_output_delta':
@@ -66,7 +67,7 @@ const ExecCommandDisplay: React.FC<{ content: ExecCommandUpdate }> = ({ content 
       toolCallId={toolCallId}
       title={getDisplayTitle()}
       status={status}
-      description={description}
+      description={description ? redactCommandSecrets(description) : description}
       icon='🔧'
       additionalTags={getAdditionalTags()}
     >
@@ -80,7 +81,7 @@ const ExecCommandDisplay: React.FC<{ content: ExecCommandUpdate }> = ({ content 
             <div className='text-xs text-t-secondary mb-1'>{t('tools.labels.command')}</div>
             <div className='bg-2 p-2 rounded font-mono text-xs overflow-x-auto border border-b-base'>
               <span className='text-t-secondary'>$ </span>
-              <span className='text-success'>{data.command.join(' ')}</span>
+              <span className='text-success'>{redactCommandSecrets(data.command.join(' '))}</span>
               {'cwd' in data && data.cwd && (
                 <div className='text-t-secondary text-xs mt-1'>
                   {t('tools.labels.working_directory')}: {data.cwd}

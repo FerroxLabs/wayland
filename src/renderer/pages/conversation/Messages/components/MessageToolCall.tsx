@@ -6,6 +6,7 @@
 
 import { MessageCircleQuestion } from 'lucide-react';
 import type { IMessageToolCall } from '@/common/chat/chatLib';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import FileChangesPanel from '@/renderer/components/base/FileChangesPanel';
 import { useDiffPreviewHandlers } from '@/renderer/hooks/file/useDiffPreviewHandlers';
 import { parseDiff } from '@/renderer/utils/file/diffUtils';
@@ -65,7 +66,8 @@ const MessageToolCall: React.FC<{ message: IMessageToolCall }> = ({ message }) =
     );
   }
   if (message.content.name === 'run_shell_command') {
-    const shellSnippet = `\`\`\`shell\n${message.content.args.command}\n#${message.content.args.description}`;
+    // Mask inline secrets in the command + its description before display (#610).
+    const shellSnippet = `\`\`\`shell\n${redactCommandSecrets(message.content.args.command)}\n#${redactCommandSecrets(message.content.args.description)}`;
     return <MarkdownView>{shellSnippet}</MarkdownView>;
   }
   if (message.content.name === 'replace') {

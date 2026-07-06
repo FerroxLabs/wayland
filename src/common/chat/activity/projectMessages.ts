@@ -24,6 +24,7 @@ import type {
 } from '../chatLib';
 import { nodeToStep, nodesToSteps, type ActivitySource, type ActivityStep } from './activityStep';
 import { parseWcoreSearchOutput } from './sources';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 
 /** wcore tool_group item status -> canonical node status. */
 const TOOLGROUP_STATUS: Record<string, ActivityNode['status']> = {
@@ -70,12 +71,15 @@ const WEB_SEARCH_RE = /^web$|web[_-]?search|google[_-]?search|search[_-]?web|bra
  * "Execute: <cmd>") so a non-exec command-ish tool still surfaces something.
  */
 const toolGroupCommand = (t: IMessageToolGroup['content'][number]): string | undefined => {
+  // Mask inline secrets before the command drives the activity step label
+  // ("Running <cmd>") and any downstream node display (#610). This is the choke
+  // point for the timeline command; render components mask their own sites too.
   if (t.confirmationDetails?.type === 'exec') {
     const cmd = t.confirmationDetails.command?.trim();
-    if (cmd) return cmd;
+    if (cmd) return redactCommandSecrets(cmd);
   }
   const desc = typeof t.description === 'string' ? t.description.trim() : '';
-  return desc || undefined;
+  return desc ? redactCommandSecrets(desc) : undefined;
 };
 
 /** Map one wcore tool_group message's items to canonical tool nodes. */
@@ -110,7 +114,7 @@ export const acpToolCallToNode = (content: IMessageAcpToolCall['content']): Acti
     id,
     kind: 'tool',
     callId: id,
-    name: u.title ?? '',
+    name: u.title ? redactCommandSecrets(u.title) : '',
     status: ACP_STATUS[u.status] ?? 'running',
   };
 };

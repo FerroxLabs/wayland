@@ -30,8 +30,10 @@ const MASK = '••••••';
 // `Authorization: Bearer <token>` or a bare `Bearer <token>`.
 const BEARER_REGEX = /\bbearer\s+[A-Za-z0-9._~+/=-]{6,}/gi;
 
-// `Authorization: Basic <base64>`.
-const BASIC_REGEX = /\bbasic\s+[A-Za-z0-9+/=]{6,}/gi;
+// `Authorization: Basic <base64>`. Require a base64-SHAPED value (>=16 chars and
+// containing a digit or +/=/) so the common English word "basic" followed by an
+// ordinary word - `git commit -m "basic refactor"` - is never masked.
+const BASIC_REGEX = /\bbasic\s+([A-Za-z0-9+/]{16,}={0,2})/gi;
 
 // Prefixed provider API keys. Boundaried so an ordinary word is never masked.
 const PREFIXED_KEY_REGEX =
@@ -42,9 +44,25 @@ const PREFIXED_KEY_REGEX =
 // `"password":"p@ss"` all mask the value while `path=/tmp/x` (non-secret name)
 // stays untouched. The optional quote BEFORE the separator lets it catch the
 // JSON args shape (the timeline stringifies rawInput). `authorization` is
-// omitted here - Bearer/Basic handle it.
+// omitted here - Bearer/Basic handle it. NOTE: for the bare-whitespace separator
+// (no `:`/`=`) the value is masked only when it LOOKS like a credential - see the
+// replace callback - so prose like `git log --grep secret main` stays intact.
+//
+// Leading boundary is `(?<![A-Za-z0-9])` rather than `\b`: `\w` counts `_` as a
+// word char, so `\b` MISSES an underscore-glued name like `ANTHROPIC_API_KEY=...`
+// (the `_` before `API` is not a `\b`). Excluding only `[A-Za-z0-9]` treats the
+// `_` (and any separator, and start-of-string) as a boundary, so UPPER_SNAKE and
+// snake_case key names match (#610 Overwatch).
 const KEY_VALUE_REGEX =
-  /\b(api[_-]?key|apikey|access[_-]?token|refresh[_-]?token|auth[_-]?token|client[_-]?secret|secret|password|passwd|token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/gi;
+  /(?<![A-Za-z0-9])(api[_-]?key|apikey|access[_-]?token|refresh[_-]?token|auth[_-]?token|client[_-]?secret|secret|password|passwd|token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/gi;
+
+// camelCase key names (`openaiApiKey`, `clientSecret`, `accessToken`) glue the
+// key to a lowercase prefix, so neither `\b` nor the separator boundary above
+// fires - the boundary is the lower->upper seam. This is case-SENSITIVE (no `i`
+// flag) on purpose: under `i` the `[a-z]`/`[A-Z]` classes collapse and the seam
+// is lost (#610 Overwatch). Names are the Capitalized compound forms.
+const CAMEL_KEY_VALUE_REGEX =
+  /(?<=[a-z])(ApiKey|ApiToken|ApiSecret|AccessToken|RefreshToken|AuthToken|AccessKey|SecretKey|PrivateKey|ClientSecret|Secret|Password|Passwd|Token)\b(["']?\s*[:=]\s*|\s+)(["']?)([^\s"']{4,})/g;
 
 // `scheme://user:PASSWORD@host` - mask only the password segment.
 const URL_USERINFO_REGEX = /(\b[a-z][a-z0-9+.-]*:\/\/[^\s:@/]+:)([^\s@/]+)(@)/gi;
@@ -58,8 +76,21 @@ export function redactCommandSecrets(command: string): string {
   let out = command;
   out = out.replace(URL_USERINFO_REGEX, (_m, prefix: string, _secret: string, at: string) => `${prefix}${MASK}${at}`);
   out = out.replace(BEARER_REGEX, `Bearer ${MASK}`);
-  out = out.replace(BASIC_REGEX, `Basic ${MASK}`);
+  out = out.replace(BASIC_REGEX, (m: string, tok: string) => (/[0-9+/=]/.test(tok) ? `Basic ${MASK}` : m));
   out = out.replace(PREFIXED_KEY_REGEX, MASK);
-  out = out.replace(KEY_VALUE_REGEX, (_m, key: string, sep: string, quote: string) => `${key}${sep}${quote}${MASK}`);
+  // Shared key=value masker for both the snake/separator and camelCase forms.
+  const maskKeyValue = (m: string, key: string, sep: string, quote: string, value: string) => {
+    // With an explicit `:`/`=` the pair is unambiguous - always mask. With a bare
+    // whitespace separator, only mask a value that actually looks like a secret
+    // (has an uppercase/digit/symbol, or is long) so a secret-NAMED English word
+    // followed by a plain word - "grep secret main", "password field required" -
+    // is not clobbered.
+    const hasDelim = /[:=]/.test(sep);
+    const looksSecret = /[^a-z]/.test(value) || value.length >= 16;
+    if (!hasDelim && !looksSecret) return m;
+    return `${key}${sep}${quote}${MASK}`;
+  };
+  out = out.replace(KEY_VALUE_REGEX, maskKeyValue);
+  out = out.replace(CAMEL_KEY_VALUE_REGEX, maskKeyValue);
   return out;
 }

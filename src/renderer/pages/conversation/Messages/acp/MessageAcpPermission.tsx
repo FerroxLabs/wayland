@@ -6,6 +6,7 @@
 
 import type { IMessageAcpPermission } from '@/common/chat/chatLib';
 import { conversation } from '@/common/adapter/ipcBridge';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import { Button, Card, Radio, Typography } from '@arco-design/web-react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -95,7 +96,7 @@ const MessageAcpPermission: React.FC<MessageAcpPermissionProps> = React.memo(({ 
           <div>
             <Text className='text-xs text-t-secondary mb-1'>{t('messages.command')}</Text>
             <code className='text-xs bg-1 p-2 rounded block text-t-primary break-all'>
-              {toolCall.rawInput?.command || toolCall.title}
+              {redactCommandSecrets(String(toolCall.rawInput?.command || toolCall.title || ''))}
             </code>
           </div>
         )}
